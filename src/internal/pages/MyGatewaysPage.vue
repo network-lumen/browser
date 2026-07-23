@@ -125,7 +125,7 @@
                       <UiButton variant="secondary" @click="editWhitelistEntry(entry)" title="Edit display name" class="mygw-btn-icon size-32px">
                         <Edit2 :size="14" />
                       </UiButton>
-                      <UiButton variant="danger" @click="confirmRemoveFromWhitelist(entry)" title="Remove" class="mygw-btn-icon size-32px background-ios-red-a10-hover">
+                      <UiButton variant="danger" @click="confirmRemoveFromWhitelist(entry)" title="Remove" class="mygw-btn-icon size-32px hover-bg-ios-red-a08">
                         <Trash2 :size="14" />
                       </UiButton>
                     </div>

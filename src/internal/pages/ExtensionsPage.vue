@@ -9,7 +9,7 @@
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-10px flex-1-1-420px">
         <button
           type="button"
-          class="extensions-store-btn disabled-fade-50 install-hero-btn cursor-pointer border-none py-12px px-16px color-white min-w-170px min-h-46px color-store-button background-gradient-0f766e-0ea5e9 shadow-0-18-40-rgba-14-165-233-0-26"
+          class="extensions-store-btn disabled-fade-50 install-hero-btn cursor-pointer border-none py-12px px-16px color-white min-w-170px min-h-46px color-store-button bg-gradient-teal-sky shadow-0-18-40-rgba-14-165-233-0-26"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >
@@ -18,14 +18,14 @@
       </div>
     </header>
 
-    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-16px color-store-info background-rgba-37-99-235-0-18 mt-0px mx-24px mb-16px" :class="{ 'color-store-error background-rgba-185-28-28-0-2': statusError }">
+    <div v-if="statusMessage" class="extensions-store-status border-radius-14px py-12px px-16px color-store-info bg-rgba-37-99-235-a18 mt-0px mx-24px mb-16px" :class="{ 'color-store-error bg-rgba-185-28-28-a20': statusError }">
       {{ statusMessage }}
     </div>
 
     <webview
       v-if="storeTargetUrl"
       ref="webviewRef"
-      class="extensions-store-webview flex-1 overflow-hidden min-h-0 border-1-slate-a16 border-radius-20px background-hex-ffffff mt-12px mx-24px mb-24px"
+      class="extensions-store-webview flex-1 overflow-hidden min-h-0 border-1-slate-a16 border-radius-20px bg-white mt-12px mx-24px mb-24px"
       :src="storeTargetUrl"
       :useragent="storeUserAgent"
       partition="persist:lumen-store"

@@ -9,7 +9,8 @@
 .flex-justify-space-between,
 .flex-align-start,
 .flex-align-end,
-.flex-align-baseline { display: flex; }
+.flex-align-baseline,
+.flex-align-stretch { display: flex; }
 .inline-flex,
 .flex-inline-align-center,
 .flex-inline-align-justify-center { display: inline-flex; }
@@ -32,6 +33,7 @@
 .flex-align-start { align-items: flex-start; }
 .flex-align-end { align-items: flex-end; }
 .flex-align-baseline { align-items: baseline; }
+.flex-align-stretch { align-items: stretch; }
 /* flex-wrap */
 .flex-wrap-wrap { flex-wrap: wrap; }
 .flex-wrap-nowrap { flex-wrap: nowrap; }

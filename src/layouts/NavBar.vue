@@ -209,7 +209,7 @@
           </UiMenuItem>
 
           <div v-if="creatingProfile" class="navbar-profile-create flex flex-column mt-8px pt-8px gap-6px border-top-05-border-light">
-            <UiInput bg-class="bg-fill-primary" radius-class="border-radius-10px" font-size-class="text-13px" padding-class="py-8px px-10px" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none background-fill-primary-focus placeholder-tertiary-a60" />
+            <UiInput bg-class="bg-fill-primary" radius-class="border-radius-10px" font-size-class="text-13px" padding-class="py-8px px-10px" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none focus-bg-fill-primary placeholder-tertiary-a60" />
             <div class="navbar-profile-create-actions flex gap-6px">
               <UiButton variant="primary" class="flex-1" @click="confirmCreateProfile">
                 Create

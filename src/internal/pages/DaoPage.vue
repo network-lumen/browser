@@ -187,7 +187,7 @@
           <div v-else class="members-list flex flex-column gap-8px">
             <UiCard class="hover-bg-hover flex-align-center gap-16px transition-all-02" padding="md" border-class="border-1" radius="12px" bg-class="bg-primary" :shadow="false" v-for="(member, index) in members" :key="member.address">
               <div class="daopage-member-rank flex-align-justify-center color-text-secondary txt-weight-light h-24px bg-tertiary border-radius-6px text-12px min-w-24px">{{ index + 1 }}</div>
-              <div class="daopage-member-avatar flex-align-justify-center color-white overflow-hidden border-radius-full size-40px txt-weight-light bg-gradient-primary min-w-40px" :class="{ 'background-transparent': member.avatar }">
+              <div class="daopage-member-avatar flex-align-justify-center color-white overflow-hidden border-radius-full size-40px txt-weight-light bg-gradient-primary min-w-40px" :class="{ 'bg-transparent': member.avatar }">
                 <img v-if="member.avatar" :src="member.avatar" :alt="member.moniker" class="w-full h-full object-fit-cover border-radius-full" />
                 <span v-else>{{ member.moniker.charAt(0).toUpperCase() }}</span>
               </div>
@@ -208,17 +208,17 @@
 
             <div class="daopage-form-group mb-20px">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block text-13px mb-8px">Proposal Title</label>
-              <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="proposalForm.title" placeholder="Enter proposal title..." class="daopage-form-input focus-outline-none focus-ring focus-shadow background-bg-primary" />
+              <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="proposalForm.title" placeholder="Enter proposal title..." class="daopage-form-input focus-outline-none focus-ring focus-shadow bg-primary" />
             </div>
 
             <div class="daopage-form-group mb-20px">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block text-13px mb-8px">Description</label>
-              <UiInput type="textarea" radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" v-model="proposalForm.description" rows="6" placeholder="Describe your proposal in detail..." class="daopage-form-textarea resize-vertical focus-outline-none focus-ring focus-shadow background-bg-primary"></UiInput>
+              <UiInput type="textarea" radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" v-model="proposalForm.description" rows="6" placeholder="Describe your proposal in detail..." class="daopage-form-textarea resize-vertical focus-outline-none focus-ring focus-shadow bg-primary"></UiInput>
             </div>
 
             <div class="daopage-form-group mb-20px">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block text-13px mb-8px">Category</label>
-              <select class="daopage-form-select cursor-pointer w-full p-14px border-1 border-radius-10px text-14px color-text-primary transition-all-02 hover-border-color focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-primary" v-model="proposalForm.category">
+              <select class="daopage-form-select cursor-pointer w-full p-14px border-1 border-radius-10px text-14px color-text-primary transition-all-02 hover-border-color focus-outline-none focus-border-accent focus-ring focus-shadow bg-primary" v-model="proposalForm.category">
                 <option value="governance">Governance</option>
                 <option value="treasury">Treasury</option>
                 <option value="technical">Technical</option>
@@ -229,7 +229,7 @@
 
             <div class="daopage-form-group mb-20px">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block text-13px mb-8px">Voting Duration</label>
-              <select class="daopage-form-select cursor-pointer w-full p-14px border-1 border-radius-10px text-14px color-text-primary transition-all-02 hover-border-color focus-outline-none focus-border-accent focus-ring focus-shadow background-bg-primary" v-model="proposalForm.duration">
+              <select class="daopage-form-select cursor-pointer w-full p-14px border-1 border-radius-10px text-14px color-text-primary transition-all-02 hover-border-color focus-outline-none focus-border-accent focus-ring focus-shadow bg-primary" v-model="proposalForm.duration">
                 <option value="3">3 Days</option>
                 <option value="7">7 Days</option>
                 <option value="14">14 Days</option>
