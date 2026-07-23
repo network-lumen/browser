@@ -257,7 +257,7 @@
             <div class="walletpage-dex-top flex-justify-space-between gap-16px py-16px px-20px align-items-stretch">
               <button
                 type="button"
-                class="color-inherit flex-align-start gap-14px flex-1 p-0px text-left cursor-pointer min-w-0 border-none bg-transparent"
+                class="color-inherit flex-align-start gap-12px flex-1 p-0px text-left cursor-pointer min-w-0 border-none bg-transparent"
                 @click="toggleDexExpanded(dex.key)"
               >
                 <div class="walletpage-dex-logo flex-align-justify-center color-primary txt-weight-medium border-radius-16px border-1 bg-secondary overflow-hidden flex-shrink-0 text-15px w-52px h-52px" :class="{ 'bg-slate-900 border-color-slate-900-a65': dex.logoTheme === 'dark' }">
@@ -563,7 +563,7 @@
 
         <div v-else class="grid-cols-auto-fill-300 gap-16px mt-24px grid">
           <div v-for="contact in contacts" :key="contact.id" class="walletpage-contact-card border-radius-12px p-20px bg-card border-1 transition-all-02 hover-border-accent hover-shadow-primary-a15">
-            <div class="walletpage-contact-header flex-align-center gap-14px mb-12px">
+            <div class="walletpage-contact-header flex-align-center gap-12px mb-12px">
               <div class="walletpage-contact-avatar flex-align-justify-center size-48px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-20px flex-shrink-0">
                 {{ contact.name.charAt(0).toUpperCase() }}
               </div>

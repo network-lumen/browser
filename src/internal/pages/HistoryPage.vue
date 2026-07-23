@@ -49,7 +49,7 @@
         New pages are no longer saved for this profile. Existing history stays available until you clear it.
       </div>
 
-      <div v-if="groupedEntries.length" class="flex flex-column gap-14px">
+      <div v-if="groupedEntries.length" class="flex flex-column gap-12px">
         <section v-for="group in groupedEntries" :key="group.label" class="history-group p-16px border-default bg-card shadow-sm border-radius-24px">
           <div class="history-group-head flex-align-center-justify-space-between gap-12px flex-justify-space-between pt-0px pr-2px pb-12px pl-2px">
             <h2 class="color-text-primary m-0px history-group-head-h2 text-16px">{{ group.label }}</h2>

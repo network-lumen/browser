@@ -72,7 +72,7 @@
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Welcome to <span class="gradient-text-clip bg-gradient-primary">Lumen</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">The decentralized web browser for the next generation of internet</p>
             </div>
-            <div class="helppage-hero-features flex flex-wrap-wrap flex-justify-center gap-32px">
+            <div class="helppage-hero-features flex flex-wrap-wrap flex-justify-center gap-24px">
               <div class="helppage-feature-point flex gap-12px text-left flex-align-start">
                 <div class="helppage-point-icon text-24px line-height-1">🌐</div>
                 <div class="helppage-point-text flex flex-column gap-2px">
@@ -399,9 +399,9 @@
           ></iframe>
 
           <!-- Documentation Grid -->
-          <div class="helppage-docs-grid gap-14px grid grid-cols-1" v-if="false" aria-hidden="true">
+          <div class="helppage-docs-grid gap-12px grid grid-cols-1" v-if="false" aria-hidden="true">
             <!-- What is Lumen Browser -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <BookOpen :size="20" />
               </div>
@@ -426,7 +426,7 @@
             </UiCard>
 
             <!-- Secure your Wallet -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Wallet :size="20" />
               </div>
@@ -441,7 +441,7 @@
             </UiCard>
 
             <!-- Upload -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <FolderOpen :size="20" />
               </div>
@@ -456,7 +456,7 @@
             </UiCard>
 
             <!-- Cloud -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Database :size="20" />
               </div>
@@ -471,7 +471,7 @@
             </UiCard>
 
             <!-- How to Manage Domain -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Link2 :size="20" />
               </div>
@@ -486,7 +486,7 @@
             </UiCard>
 
             <!-- Domain Setting -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Globe :size="20" />
               </div>
@@ -501,7 +501,7 @@
             </UiCard>
 
             <!-- How to Linked Domain -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Link2 :size="20" />
               </div>
@@ -516,7 +516,7 @@
             </UiCard>
 
             <!-- Publish Website with .lmn -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Server :size="20" />
               </div>
@@ -531,7 +531,7 @@
             </UiCard>
 
             <!-- Theme -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Sparkles :size="20" />
               </div>
@@ -546,7 +546,7 @@
             </UiCard>
 
             <!-- Font Size -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Sparkles :size="20" />
               </div>
@@ -561,7 +561,7 @@
             </UiCard>
 
             <!-- Brightness -->
-            <UiCard padding="md" shadow class="flex gap-14px">
+            <UiCard padding="md" shadow class="flex gap-12px">
               <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a18">
                 <Sparkles :size="20" />
               </div>
