@@ -70,7 +70,7 @@
       <template v-else>
         <!-- Stats Grid -->
         <div class="daopage-stats-grid mb-24px gap-16px grid grid-cols-auto-fit-180">
-          <div class="daopage-stat-card flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
+          <div class="flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
             <div class="h-44px flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
               <FileText :size="20" />
             </div>
@@ -79,7 +79,7 @@
               <span class="daopage-stat-label text-uppercase color-text-secondary text-12px">Active Proposals</span>
             </div>
           </div>
-          <div class="daopage-stat-card flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
+          <div class="flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
             <div class="h-44px flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
               <Users :size="20" />
             </div>
@@ -88,7 +88,7 @@
               <span class="daopage-stat-label text-uppercase color-text-secondary text-12px">Validators</span>
             </div>
           </div>
-          <div class="daopage-stat-card flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
+          <div class="flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
             <div class="h-44px flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
               <Wallet :size="20" />
             </div>
@@ -108,7 +108,7 @@
             <UiCard padding="lg" border-class="border-1" radius="12px" bg-class="bg-primary" :shadow="false" v-for="proposal in proposals" :key="proposal.id">
               <div class="daopage-proposal-header flex-align-center flex-justify-space-between mb-12px">
                 <span class="daopage-proposal-id color-text-secondary text-13px">#{{ proposal.id }}</span>
-                <span class="daopage-proposal-status border-radius-20px fw-500 text-12px py-4px px-12px" :class="getProposalStatusClass(proposal.status)">
+                <span class="border-radius-20px fw-500 text-12px py-4px px-12px" :class="getProposalStatusClass(proposal.status)" :style="getProposalStatusStyle(proposal.status)">
                   {{ getProposalStatusText(proposal.status) }}
                 </span>
               </div>
@@ -151,7 +151,7 @@
               <div class="daopage-proposal-footer flex-align-center flex-justify-space-between">
                 <div class="daopage-vote-progress flex-1 flex flex-column gap-4px">
                   <div class="h-6px overflow-hidden bg-border border-radius-4px">
-                    <div class="daopage-progress-yes h-full border-radius-4px transition-width-03 bg-gradient-teal-green" :style="{ width: calculateVotePercentage(proposal, 'yes') + '%' }"></div>
+                    <div class="h-full border-radius-4px transition-width-03 bg-gradient-teal-green" :style="{ width: calculateVotePercentage(proposal, 'yes') + '%' }"></div>
                   </div>
                   <span class="daopage-progress-label color-text-secondary text-12px">{{ calculateVotePercentage(proposal, 'yes').toFixed(1) }}% Yes</span>
                 </div>
@@ -267,7 +267,7 @@
 
             <div class="daopage-vote-options flex flex-column gap-12px mb-24px">
               <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'for' }">
-                <input type="radio" name="vote" value="for" v-model="voteChoice" />
+                <input type="radio" name="vote" value="for" v-model="voteChoice" class="hidden" />
                 <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'for' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
                   <div class="daopage-vote-icon flex-align-justify-center flex-0-0-auto badge-success color-success size-40px border-radius-10px">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -282,7 +282,7 @@
               </label>
 
               <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'against' }">
-                <input type="radio" name="vote" value="against" v-model="voteChoice" />
+                <input type="radio" name="vote" value="against" v-model="voteChoice" class="hidden" />
                 <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'against' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
                   <div class="daopage-vote-icon against flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-against color-error bg-card">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -297,7 +297,7 @@
               </label>
 
               <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'abstain' }">
-                <input type="radio" name="vote" value="abstain" v-model="voteChoice" />
+                <input type="radio" name="vote" value="abstain" v-model="voteChoice" class="hidden" />
                 <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'abstain' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
                   <div class="daopage-vote-icon abstain flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-abstain color-text-tertiary bg-card">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -485,9 +485,14 @@ function getProposalStatusClass(status: string): string {
     case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'active';
     case 'PROPOSAL_STATUS_PASSED': return 'passed badge-success';
     case 'PROPOSAL_STATUS_REJECTED': return 'rejected badge-error';
-    case 'PROPOSAL_STATUS_DEPOSIT_PERIOD': return 'deposit';
-    default: return 'unknown';
+    default: return '';
   }
+}
+
+function getProposalStatusStyle(status: string): Record<string, string> {
+  if (status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD') return { background: 'rgba(var(--ios-yellow-rgb), 0.15)', color: 'var(--ios-orange)' };
+  if (status === 'PROPOSAL_STATUS_VOTING_PERIOD' || status === 'PROPOSAL_STATUS_PASSED' || status === 'PROPOSAL_STATUS_REJECTED') return {};
+  return { background: 'var(--bg-secondary)', color: 'var(--text-secondary)' };
 }
 
 function getProposalStatusText(status: string): string {

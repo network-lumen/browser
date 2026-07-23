@@ -1,15 +1,15 @@
 <template>
-  <section class="main-shell flex flex-column w-full h-full relative min-h-100vh">
+  <section class="bg-gradient-shell flex flex-column w-full h-full relative min-h-100vh">
     <UiToast />
     <div class="app overflow-hidden">
       <div
-        class="tabs-header h-200 pr-24px txt-xs overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
+        class="h-200 pr-24px txt-xs overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
         ref="hdr"
       >
         <div
           v-for="(t, i) in tabs"
           :key="t.id"
-          class="mainscreen-tab reveal-on-active relative h-200 min-w-1500 max-w-3000 flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui border-1-transparent background-transparent"
+          class="mainscreen-tab tone-tab-active reveal-on-active relative h-200 min-w-1500 max-w-3000 flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-black-a10 flex-align-justify-center transition-ui border-1-transparent background-transparent"
           :data-id="t.id"
           :class="tabClasses(t)"
           :style="tabStyle(t.id)"
@@ -18,7 +18,7 @@
             @auxclick="(e) => e.button === 1 && closeTab(t.id)"
           >
             <div class="tab-icon flex-align-justify-center border-radius-circle size-100 min-w-16px min-h-16px">
-              <UiSpinner v-if="t.loading" size="sm" class="tab-spinner color-gray-blue" />
+              <UiSpinner v-if="t.loading" size="sm" class="spinner-size-14-stroke-15 color-gray-blue" />
               <img
                 v-else-if="t.favicon"
                 class="favicon border-radius-4px object-fit-cover w-16px h-16px"

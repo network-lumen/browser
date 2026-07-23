@@ -131,7 +131,7 @@
           </div>
 
           <!-- Charts Section -->
-          <div class="explorer-charts-section gap-12px grid grid-cols-2">
+          <div class="mb-0px gap-12px grid grid-cols-2">
             <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-subtle min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">{{ txHistoryTitle }}</h3>
@@ -256,7 +256,7 @@
           </div>
 
           <!-- Recent Activity -->
-          <div class="explorer-recent-activity gap-12px grid mt-12px grid-cols-2">
+          <div class="mb-0px gap-12px grid mt-12px grid-cols-2">
             <UiCard padding="none" :shadow="false" class="explorer-activity-column p-20px shadow-subtle backdrop-blur">
               <div class="explorer-activity-header flex-align-center-justify-space-between mb-12px">
                 <h3 class="explorer-activity-header-h3 text-16px txt-weight-light color-text-primary">Latest Blocks</h3>

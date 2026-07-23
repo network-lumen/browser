@@ -185,7 +185,7 @@
                     <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Payout address</label>
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.payout" placeholder="lmn1..." class="gwpage-form-input mono focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
                   </div>
-                  <div class="gwpage-form-group">
+                  <div class="gwpage-form-group full grid-col-full">
                     <label class="gwpage-form-label block color-text-tertiary text-12px mb-4px letter-spacing-006em">Metadata (JSON object)</label>
                     <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.metadata"
                      

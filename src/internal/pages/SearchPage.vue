@@ -77,7 +77,7 @@
 
     <section v-if="touched" class="m-3rem-auto-0 relative z-1 p-0px pr-8px pb-8px pl-8px w-min-920px-full">
       <div class="searchpage-meta flex-align-center-justify-space-between gap-16px mb-16px p-0px pr-4px pl-4px">
-        <div v-if="errorMsg" class="text-13px fw-500 line-height-12 error">{{ errorMsg }}</div>
+        <div v-if="errorMsg" class="text-13px fw-500 line-height-12 color-error">{{ errorMsg }}</div>
       </div>
 
       <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center p-0px pb-16px">
