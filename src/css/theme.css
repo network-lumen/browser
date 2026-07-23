@@ -380,42 +380,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   grid-column: 1 / -1;
 }
 
-/* NewTabPage.vue */
-.newtab-page {
-  background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%), var(--bg-tertiary);
-}
-.newtab-glow {
-  height: 28rem;
-  filter: blur(36px);
-}
-.newtab-glow--left {
-  top: -14rem;
-  left: -10rem;
-}
-.newtab-glow--right {
-  top: 2rem;
-  right: -12rem;
-}
-.newtab-hero, .newtab-shortcuts-panel, .newtab-onboarding-modal, .newtab-shortcut-modal {
-  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
-  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-.newtab-hero-copy-h1 {
-  font-size: clamp(2.2rem, 7vw, 4.3rem);
-  line-height: 0.95;
-  letter-spacing: -0.06em;
-}
-.newtab-omnibox {
-  background: color-mix(in srgb, var(--card-bg) 90%, transparent);
-}
-.newtab-omnibox:focus-within {
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08), 0 0 0 4px var(--primary-a12);
-}
-.newtab-shortcut-card {
-  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
-}
-.newtab-shortcut-title { font-weight: 760; }
-.newtab-history-preview-item { transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
 
 
 /* DaoPage.vue */

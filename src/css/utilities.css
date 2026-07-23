@@ -750,6 +750,17 @@
 .hover-lift-6-border-ios-blue-a50:not(:disabled):hover { transform: translateY(-6px); border-color: rgba(var(--ios-blue-rgb), 0.5); }
 .hover-active-bg-primary-a08-border-a25:hover, .hover-active-bg-primary-a08-border-a25.active { background: var(--primary-a08); border-color: var(--primary-a25); }
 .hover-bg-gradient-accent-secondary-lift:hover { background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%); transform: translateY(-1px); }
+.bg-gradient-newtab-page { background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%), var(--bg-tertiary); }
+.h-28rem-blur-36px { height: 28rem; filter: blur(36px); }
+.top-n14rem-left-n10rem { top: -14rem; left: -10rem; }
+.top-2rem-right-n12rem { top: 2rem; right: -12rem; }
+.bg-card-a94-shadow-soft { background: color-mix(in srgb, var(--card-bg) 94%, transparent); box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+.text-clamp-22-7vw-43rem-tight { font-size: clamp(2.2rem, 7vw, 4.3rem); line-height: 0.95; letter-spacing: -0.06em; }
+.bg-card-a90 { background: color-mix(in srgb, var(--card-bg) 90%, transparent); }
+.focus-within-shadow-ring-primary-a12:focus-within { box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08), 0 0 0 4px var(--primary-a12); }
+.bg-card-a92 { background: color-mix(in srgb, var(--card-bg) 92%, transparent); }
+.fw-760 { font-weight: 760; }
+.transition-transform-bg-border-015 { transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
 .hover-shadow-primary-a15:hover { box-shadow: 0 4px 12px var(--primary-a15); }
 .spinner-white { border-top-color: rgba(255, 255, 255, 0.95); animation: spin 0.85s linear infinite; }
 .spinning { animation: spin 1s linear infinite; }
