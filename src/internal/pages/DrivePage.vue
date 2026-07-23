@@ -88,7 +88,7 @@
               <Plus :size="18" />
               <span>Upload</span>
             </UiButton>
-            <div v-if="showUploadMenu" class="top-calc-100pct-05rem border-radius-12px absolute bg-primary border-1 p-4px z-50 right-0 min-w-190px shadow-0-10-30-rgba-0-0-0-0-1" @click.stop>
+            <div v-if="showUploadMenu" class="top-calc-100pct-05rem border-radius-12px absolute bg-primary border-1 p-4px z-100 right-0 min-w-190px shadow-0-10-30-rgba-0-0-0-0-1" @click.stop>
               <UiMenuItem @click="openFilePicker">
                 Upload files
               </UiMenuItem>
@@ -640,7 +640,7 @@
     </aside>
 
     <!-- Drop Overlay
-    <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center fixed inset-0 z-50 background-rgba-0-0-0-0-8">
+    <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center fixed inset-0 z-100 background-rgba-0-0-0-0-8">
       <div class="drivepage-drop-content text-center color-white">
         <Upload :size="48" />
         <p class="text-15px line-height-12 txt-weight-strong mt-4px">

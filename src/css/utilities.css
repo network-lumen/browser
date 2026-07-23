@@ -878,14 +878,10 @@
 .w-min-920px-full { width: min(920px, 100%); }
 .word-wrap-break { word-wrap: break-word; }
 .z-1 { z-index: 1; }
-.z-10 { z-index: 10; }
 .z-100 { z-index: 100; }
 .z-1000 { z-index: 1000; }
 .z-10001 { z-index: 10001; }
 .z-1400 { z-index: 1400; }
-.z-2 { z-index: 2; }
-.z-3 { z-index: 3; }
-.z-50 { z-index: 50; }
 .z-9998 { z-index: 9998; }
 .z-9999 { z-index: 9999; }
 .z-max { z-index: 2147483647; }
