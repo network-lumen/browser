@@ -217,10 +217,6 @@
 
 /* Button Styles */
 
-/* QrScanner.vue */
-.walletpage-asset-icon.lmn {
-  background: var(--accent-secondary);
-}
 .sitemodal-send .sitemodal-form-group { margin-bottom: 12px; }
 .walletonboard-reminder-list li:last-child,
 .explorer-content-area > .explorer-charts-section, .explorer-content-area > .explorer-recent-activity {
@@ -280,7 +276,7 @@
   display: none;
 }
 
-.error, .walletpage-amount-value.send {
+.error {
   color: var(--ios-red);
 }
 
@@ -300,19 +296,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* ===== EXTENSIONS ===== */
-
-/* Brightness Control */
-.settingspage-brightness-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-}
 
 /* IpfsPage.vue */
 .ipfspage-markdown-view {
@@ -370,34 +353,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .ipfspage-markdown-view pre { overflow: auto; }
 .ipfspage-markdown-view code { word-break: break-word; }
 
-/* Stats Bar */
-.explorer-refresh-indicator.active, .walletpage-amount-value.receive {
-  color: var(--ios-green);
-}
-
-.explorer-chart-donut-wrapper canvas { width: 100px !important; height: 100px !important; }
-.drivepage-gateway-card.offline {
-  opacity: 0.7;
-}
-
-/* Stake Modal Styles */
-.explorer-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-/* Transaction Status Popup */
-.explorer-tx-status-popup.processing, .walletpage-btn-copy-address { border: 2px solid var(--accent-primary); }
-.explorer-tx-status-popup.success { border: 2px solid rgba(var(--ios-green-rgb), 0.5); }
-.explorer-tx-status-popup.error { border: 2px solid var(--ios-red); }
 
 
-.searchpage-result-card.searchpage-explore-image .searchpage-result-icon {
+.searchpage-result-card.media-explore-compact .searchpage-result-icon {
   width: 160px;
   height: auto;
   align-self: stretch;
@@ -405,26 +363,21 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border: none;
   border-radius: 0;
 }
-.searchpage-result-card.searchpage-explore-image .searchpage-safe-thumb--compact { border-radius: 0; }
-.searchpage-result-card.searchpage-explore-image .searchpage-result-body { overflow: hidden; }
-.searchpage-result-card.searchpage-explore-image .searchpage-badges { flex-wrap: nowrap; overflow: hidden; }
+.searchpage-result-card.media-explore-compact .searchpage-safe-thumb--compact { border-radius: 0; }
+.searchpage-result-card.media-explore-compact .searchpage-result-body { overflow: hidden; }
+.searchpage-result-card.media-explore-compact .searchpage-badges { flex-wrap: nowrap; overflow: hidden; }
 
-.searchpage-safe-thumb.searchpage-blurred img {
+.searchpage-safe-thumb.is-blurred img {
   filter: blur(14px) saturate(0.85) brightness(0.85);
   transform: scale(1.06);
   transition: filter 180ms ease, transform 180ms ease;
 }
-.searchpage-safe-thumb:not(.searchpage-blurred) img {
+.searchpage-safe-thumb:not(.is-blurred) img {
   filter: none;
   transform: none;
   transition: filter 180ms ease, transform 180ms ease;
 }
-.searchpage-image-card { content-visibility: auto; contain-intrinsic-size: 240px 220px; }
-.searchpage-result-desc--placeholder { font-style: italic; opacity: 0.6; }
 
-/* WalletPage.vue */
-.walletpage-asset-icon.remote { background: linear-gradient(135deg, var(--accent-primary), var(--ios-blue)); }
-.walletpage-form-input[readonly] { cursor: not-allowed; }
 /* Details grid/row pattern shared by the Local drive, Import snapshot and Subscription details modals */
 .details-row {
   display: flex;

@@ -170,7 +170,7 @@
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
-                  <canvas ref="bondedSupplyChart" width="120" height="120"></canvas>
+                  <canvas ref="bondedSupplyChart" width="120" height="120" class="w-100px-h-100px-important"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                     <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
                     <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Bonded</div>
@@ -201,7 +201,7 @@
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
-                  <canvas ref="votingPowerChart" width="120" height="120"></canvas>
+                  <canvas ref="votingPowerChart" width="120" height="120" class="w-100px-h-100px-important"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                     <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
                     <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Active</div>
@@ -340,7 +340,7 @@
                   class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
                 />
               </div>
-              <span class="explorer-refresh-indicator flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-ios-green-a10 border-1-ios-green-a30 py-4px px-6px" :class="{ active: autoRefresh }">
+              <span class="tone-green flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-ios-green-a10 border-1-ios-green-a30 py-4px px-6px" :class="{ active: autoRefresh }">
                 <span class="animate-pulse-live border-radius-circle w-8px h-8px background-current"></span>
                 Live
               </span>
@@ -657,7 +657,7 @@
                   v-model="stakePercentage" 
                   min="0" 
                   max="100" 
-                  class="explorer-slider w-full outline-none border-radius-4px bg-border h-6px appearance-none"
+                  class="slider-thumb-accent w-full outline-none border-radius-4px bg-border h-6px appearance-none"
                 />
                 <div class="explorer-slider-labels flex-justify-space-between color-text-tertiary text-11px">
                   <span>0%</span>
@@ -694,7 +694,7 @@
             </div>
 
             <!-- Transaction Status Popup -->
-            <div v-if="txStatus !== 'idle'" class="explorer-tx-status-popup z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-modal-strong min-w-400px max-w-90vw" :class="txStatus">
+            <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-modal-strong min-w-400px max-w-90vw" :style="txStatusPopupStyle(txStatus)">
               <div class="explorer-tx-status-content flex-align-center flex-column gap-24px text-center">
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-16px w-full">
@@ -917,6 +917,12 @@ const availableBalance = ref('0.000 LMN');
 const isProcessingTx = ref(false);
 const txMessage = ref('');
 const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
+
+function txStatusPopupStyle(status: string): Record<string, string> {
+  if (status === 'success') return { border: '2px solid rgba(var(--ios-green-rgb), 0.5)' };
+  if (status === 'error') return { border: '2px solid var(--ios-red)' };
+  return { border: '2px solid var(--accent-primary)' };
+}
 const txHash = ref('');
 
 const bondedTokens = ref<number | null>(null);
