@@ -684,34 +684,34 @@
     <UiModal :model-value="showLocalDetails" title="Local drive" panel-class="w-full max-w-520px" @update:model-value="closeLocalDetails">
 
             <div class="flex flex-column">
-              <div class="details-row">
-                <span class="details-label">Status</span>
+              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                <span class="color-text-secondary text-14px">Status</span>
                 <span
-                  class="details-value"
+                  class="color-text-primary text-15px fw-500"
                   :class="ipfsConnected ? 'status-text-ok' : 'status-text-off'"
                 >
                   {{ ipfsConnected ? "Online" : "Offline" }}
                 </span>
               </div>
-              <div class="details-row" v-if="stats">
-                <span class="details-label">Used</span>
-                <span class="details-value">{{
+              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none" v-if="stats">
+                <span class="color-text-secondary text-14px">Used</span>
+                <span class="color-text-primary text-15px fw-500">{{
                   formatSize(stats.repoSize)
                 }}</span>
               </div>
-              <div class="details-row">
-                <span class="details-label">Saved items</span>
-                <span class="details-value">{{ localSavedCount }}</span>
+              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                <span class="color-text-secondary text-14px">Saved items</span>
+                <span class="color-text-primary text-15px fw-500">{{ localSavedCount }}</span>
               </div>
-              <div class="details-row">
-                <span class="details-label">Pinned locally</span>
-                <span class="details-value">{{ pinnedFiles.length }}</span>
+              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                <span class="color-text-secondary text-14px">Pinned locally</span>
+                <span class="color-text-primary text-15px fw-500">{{ pinnedFiles.length }}</span>
               </div>
             </div>
 
             <div class="mt-20px">
-              <div class="details-section-header flex-align-center-justify-space-between gap-8px mb-8px">
-                <h4>Backup</h4>
+              <div class="flex-align-center-justify-space-between gap-8px mb-8px">
+                <h4 class="m-0px text-15px fw-500 color-text-primary">Backup</h4>
                 <UiSpinner v-if="driveBackupBusy" size="sm" />
               </div>
 
@@ -727,15 +727,15 @@
               </div>
 
               <div class="flex flex-column">
-                <div class="details-row">
-                  <span class="details-label">Last export</span>
-                  <span class="details-value">{{
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                  <span class="color-text-secondary text-14px">Last export</span>
+                  <span class="color-text-primary text-15px fw-500">{{
                     driveBackupLastExportAt ? formatDate(driveBackupLastExportAt) : "—"
                   }}</span>
                 </div>
-                <div class="details-row">
-                  <span class="details-label">Last import</span>
-                  <span class="details-value">{{
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                  <span class="color-text-secondary text-14px">Last import</span>
+                  <span class="color-text-primary text-15px fw-500">{{
                     driveBackupLastImportAt ? formatDate(driveBackupLastImportAt) : "—"
                   }}</span>
                 </div>
@@ -833,9 +833,9 @@
             </p>
 
             <div v-if="driveBackupImportFilename" class="flex flex-column">
-              <div class="details-row">
-                <span class="details-label">File</span>
-                <span class="details-value">{{ driveBackupImportFilename }}</span>
+              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                <span class="color-text-secondary text-14px">File</span>
+                <span class="color-text-primary text-15px fw-500">{{ driveBackupImportFilename }}</span>
               </div>
             </div>
 
@@ -865,27 +865,27 @@
 
             <template v-else>
               <div class="flex flex-column mt-16px">
-                <div class="details-row">
-                  <span class="details-label">Wallet</span>
-                  <span class="details-value mono">{{
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                  <span class="color-text-secondary text-14px">Wallet</span>
+                  <span class="color-text-primary text-15px fw-500 mono">{{
                     driveBackupRestoreDetails.walletAddress || "—"
                   }}</span>
                 </div>
-                <div class="details-row">
-                  <span class="details-label">Created</span>
-                  <span class="details-value">{{
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                  <span class="color-text-secondary text-14px">Created</span>
+                  <span class="color-text-primary text-15px fw-500">{{
                     driveBackupRestoreDetails.createdAt
                       ? formatDate(driveBackupRestoreDetails.createdAt)
                       : "—"
                   }}</span>
                 </div>
-                <div class="details-row">
-                  <span class="details-label">Saved items</span>
-                  <span class="details-value">{{ driveBackupRestoreDetails.filesCount }}</span>
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                  <span class="color-text-secondary text-14px">Saved items</span>
+                  <span class="color-text-primary text-15px fw-500">{{ driveBackupRestoreDetails.filesCount }}</span>
                 </div>
-                <div class="details-row">
-                  <span class="details-label">Favourites</span>
-                  <span class="details-value">{{ driveBackupRestoreDetails.favCount }}</span>
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                  <span class="color-text-secondary text-14px">Favourites</span>
+                  <span class="color-text-primary text-15px fw-500">{{ driveBackupRestoreDetails.favCount }}</span>
                 </div>
               </div>
 
@@ -949,36 +949,36 @@
 
             <template v-else>
               <div class="flex flex-column">
-                <div class="details-row">
-                  <span class="details-label">Gateway</span>
-                  <span class="details-value">{{
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                  <span class="color-text-secondary text-14px">Gateway</span>
+                  <span class="color-text-primary text-15px fw-500">{{
                     gatewayDetailsGatewayLabel
                   }}</span>
                 </div>
-                <div class="details-row" v-if="false">
-                  <span class="details-label">Base URL</span>
-                  <span class="details-value mono">{{ gatewayBase || "-" }}</span>
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none" v-if="false">
+                  <span class="color-text-secondary text-14px">Base URL</span>
+                  <span class="color-text-primary text-15px fw-500 mono">{{ gatewayBase || "-" }}</span>
                 </div>
-                <div class="details-row">
-                  <span class="details-label">Status</span>
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                  <span class="color-text-secondary text-14px">Status</span>
                   <span
-                    class="details-value"
+                    class="color-text-primary text-15px fw-500"
                     :class="gatewayDetailsStatusClass"
                   >
                     {{ gatewayDetailsStatusLabel }}
                   </span>
                 </div>
-                <div class="details-row">
-                  <span class="details-label">Saved</span>
-                  <span class="details-value">
+                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                  <span class="color-text-secondary text-14px">Saved</span>
+                  <span class="color-text-primary text-15px fw-500">
                     {{ gatewayDetailsPinned.length }}
                   </span>
                 </div>
               </div>
 
               <div class="mt-20px">
-                <div class="details-section-header flex-align-center-justify-space-between gap-8px mb-8px">
-                  <h4>Usage</h4>
+                <div class="flex-align-center-justify-space-between gap-8px mb-8px">
+                  <h4 class="m-0px text-15px fw-500 color-text-primary">Usage</h4>
                 </div>
                 <div
                   v-if="gatewayDetailsUsageError === 'password_required'"
@@ -997,9 +997,9 @@
                   {{ gatewayDetailsUsageError }}
                 </div>
                 <div v-else-if="gatewayDetailsUsage" class="flex flex-column">
-                  <div class="details-row">
-                    <span class="details-label">Quota</span>
-                    <span class="details-value">
+                  <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                    <span class="color-text-secondary text-14px">Quota</span>
+                    <span class="color-text-primary text-15px fw-500">
                       {{
                         gatewayDetailsUsage.plan?.quota_bytes_total != null ||
                         gatewayDetailsUsage.plan?.quotaBytesTotal != null
@@ -1011,9 +1011,9 @@
                       }}
                     </span>
                   </div>
-                  <div class="details-row">
-                    <span class="details-label">Used</span>
-                    <span class="details-value">
+                  <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                    <span class="color-text-secondary text-14px">Used</span>
+                    <span class="color-text-primary text-15px fw-500">
                       {{
                         gatewayDetailsUsage.plan?.quota_bytes_used != null ||
                         gatewayDetailsUsage.plan?.quotaBytesUsed != null
@@ -1025,15 +1025,15 @@
                       }}
                     </span>
                   </div>
-                  <div class="details-row">
-                    <span class="details-label">Bandwidth</span>
-                    <span class="details-value">{{
+                  <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                    <span class="color-text-secondary text-14px">Bandwidth</span>
+                    <span class="color-text-primary text-15px fw-500">{{
                       gatewayDetailsBandwidthUsed
                     }}</span>
                   </div>
-                  <div class="details-row">
-                    <span class="details-label">Roots</span>
-                    <span class="details-value">{{
+                  <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
+                    <span class="color-text-secondary text-14px">Roots</span>
+                    <span class="color-text-primary text-15px fw-500">{{
                       gatewayDetailsUsage.usage?.roots_total ??
                       gatewayDetailsUsage.usage?.rootsTotal ??
                       "-"
