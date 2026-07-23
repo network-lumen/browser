@@ -31,7 +31,7 @@
         </div>
       </header>
 
-      <section class="history-toolbar flex-align-center-justify-space-between flex-justify-space-between gap-12px border-default bg-card shadow-sm py-14px px-16px border-radius-24px">
+      <section class="history-toolbar flex-align-center-justify-space-between flex-justify-space-between gap-12px border-default bg-card shadow-sm py-12px px-16px border-radius-24px">
         <label class="history-search flex-align-center flex-1 min-w-0 border-radius-full color-text-tertiary gap-10px bg-fill-tertiary py-12px px-16px">
           <Search :size="17" />
           <input
@@ -45,7 +45,7 @@
         </label>
       </section>
 
-      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-16px py-14px px-16px bg-ios-orange-a08 border-1-ios-orange-a16">
+      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-16px py-12px px-16px bg-ios-orange-a08 border-1-ios-orange-a16">
         New pages are no longer saved for this profile. Existing history stays available until you clear it.
       </div>
 

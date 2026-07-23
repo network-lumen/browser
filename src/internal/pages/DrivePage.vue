@@ -35,7 +35,7 @@
           </UiButton>
         </div>
 
-        <div v-if="!subscriptionRows.length" class="drivepage-hosting-empty border-radius-12px text-12px color-text-tertiary mt-8px bg-transparent py-12px px-14px border-1-dashed-light">
+        <div v-if="!subscriptionRows.length" class="drivepage-hosting-empty border-radius-12px text-12px color-text-tertiary mt-8px bg-transparent py-12px px-16px border-1-dashed-light">
           No active subscriptions yet.
         </div>
 
@@ -323,7 +323,7 @@
           <div
             v-for="item in visibleHlsQueueItems"
             :key="item.id"
-            class="flex-align-center-justify-space-between gap-12px border-radius-12px bg-primary border-1-light py-12px px-14px"
+            class="flex-align-center-justify-space-between gap-12px border-radius-12px bg-primary border-1-light py-12px px-16px"
             :style="hlsQueueItemStyle(item.status)"
           >
             <div class="flex flex-column gap-2px min-w-0">
@@ -721,7 +721,7 @@
                 (only references). Keep the file + password safe.
               </p>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-14px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Backup failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -774,7 +774,7 @@
               <div class="drive-backup-field flex flex-column gap-6px">
                 <label class="drivepage-drive-backup-label text-12px txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-14px focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPassword"
                   placeholder="Min 8 characters (recommended: long passphrase)"
@@ -785,7 +785,7 @@
               <div class="drive-backup-field flex flex-column gap-6px">
                 <label class="drivepage-drive-backup-label text-12px txt-weight-light color-text-secondary">Confirm password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-14px focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPasswordConfirm"
                   placeholder="Repeat password"
@@ -800,7 +800,7 @@
                 If you lose the password, this backup cannot be recovered.
               </p>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-14px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Backup failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -846,7 +846,7 @@
               <div class="drive-backup-field flex flex-column gap-6px">
                 <label class="drivepage-drive-backup-label text-12px txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-14px focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupImportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupImportPassword"
                   placeholder="Enter backup password"
@@ -857,7 +857,7 @@
 
               <UiCheckbox v-model="driveBackupImportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-14px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Import failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -891,7 +891,7 @@
 
               <div
                 v-if="driveBackupRestoreDetails.walletMismatch"
-                class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-14px border-1-ios-red-a25 bg-ios-red-a06"
+                class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06"
               >
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Different wallet</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">
@@ -900,7 +900,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupRestoreDetails.rollback" class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-14px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupRestoreDetails.rollback" class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Older snapshot</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">
                   This snapshot looks older than your current local version (seq
@@ -908,7 +908,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-14px border-1-ios-red-a25 bg-ios-red-a06">
+              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Import failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -982,7 +982,7 @@
                 </div>
                 <div
                   v-if="gatewayDetailsUsageError === 'password_required'"
-                  class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-14px border-1-ios-red-a25 bg-ios-red-a06"
+                  class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06"
                 >
                   <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Wallet locked</div>
                   <div class="drivepage-plans-error-text color-text-secondary text-13px">
@@ -993,7 +993,7 @@
                     Unlock
                   </UiButton>
                 </div>
-                <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-14px border-1-ios-red-a25 bg-ios-red-a06">
+                <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a06">
                   {{ gatewayDetailsUsageError }}
                 </div>
                 <div v-else-if="gatewayDetailsUsage" class="flex flex-column">
@@ -1121,7 +1121,7 @@
                          v-model.trim="planFilter"
                          type="search"
                          placeholder="Search gateways or plans"
-                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 text-14px bg-secondary border-none bg-transparent py-12px px-14px focus-outline-none focus-border-accent focus-bg-primary focus-ring focus-shadow min-w-140px"
+                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 text-14px bg-secondary border-none bg-transparent py-12px px-16px focus-outline-none focus-border-accent focus-bg-primary focus-ring focus-shadow min-w-140px"
                          @keydown.stop
                          aria-label="Search gateways"
                        />
@@ -1180,7 +1180,7 @@
                  <article
                    v-for="group in planPagedGroups"
                    :key="group.gateway.id"
-                   class="flex flex-column border-radius-10px gap-12px border-1 bg-primary py-14px px-16px shadow-0-4-12-rgba-15-23-42-0-04"
+                   class="flex flex-column border-radius-10px gap-12px border-1 bg-primary py-12px px-16px shadow-0-4-12-rgba-15-23-42-0-04"
                    :class="{ 'is-offline': !group.gateway.active }"
                  >
                   <header class="drivepage-gateway-card-header flex-align-center-justify-space-between gap-8px">

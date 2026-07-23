@@ -216,7 +216,7 @@
               bg-class="bg-secondary"
               border-class="border-1"
               radius="10px"
-              padding-class="py-14px px-16px"
+              padding-class="py-12px px-16px"
               :shadow="false"
               hoverable
               hover-class="transition-all-02 hover-bg-tertiary border-color-accent-color-hover shadow-0-4-12-rgba-0-0-0-0-1-hover"

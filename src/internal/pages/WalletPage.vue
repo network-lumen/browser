@@ -172,14 +172,14 @@
           <AlertCircle :size="32" />
         </UiEmptyState>
         <div v-else>
-          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-warning-a30 background-ios-orange-a10">
+          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 background-ios-orange-a10">
             <span>{{ assetsError }}</span>
           </div>
           <div v-if="assetRows.length" class="walletpage-assets-list walletpage-rich-assets-list flex flex-column mt-16px gap-12px gap-16px">
             <div
               v-for="asset in assetRows"
               :key="asset.id"
-              class="walletpage-asset-item walletpage-asset-item-rich flex-align-center-justify-space-between gap-16px border-radius-14px bg-card border-1 py-14px px-16px align-items-stretch"
+              class="walletpage-asset-item walletpage-asset-item-rich flex-align-center-justify-space-between gap-16px border-radius-14px bg-card border-1 py-12px px-16px align-items-stretch"
             >
               <div class="walletpage-asset-main flex-align-start gap-12px flex-1 min-w-0">
                 <div class="walletpage-asset-icon flex-align-justify-center size-40px border-radius-full txt-weight-light text-14px color-white overflow-hidden flex-shrink-0" :style="assetIconStyle(asset.iconClass)">
@@ -243,7 +243,7 @@
 
       <!-- DEX View -->
       <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-24px w-full max-w-full">
-        <div v-if="dexError" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-warning-a30 background-ios-orange-a10">
+        <div v-if="dexError" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 background-ios-orange-a10">
           <span>{{ dexError }}</span>
         </div>
 
@@ -308,22 +308,22 @@
 
             <div v-if="isDexExpanded(dex.key)" class="walletpage-dex-details bg-secondary border-top-1-light pt-16px pr-20px pb-20px pl-20px">
               <div class="walletpage-dex-detail-grid gap-12px grid grid-cols-4">
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-14px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px">
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em text-10px">Trading pairs</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap text-13px">{{ formatDexCount(dex.tradingPairsCount) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-14px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px">
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em text-10px">Liquidity pools</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap text-13px">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-14px px-16px">
+                <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">24h price</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexPriceLabel(dex) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-14px px-16px">
+                <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">24h volume</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexVolumeLabel(dex) }}</span>
                 </div>
@@ -387,7 +387,7 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="ui-empty-state-description">{{ activitiesError }}</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-warning-a30 background-ios-orange-a10">
+            <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 background-ios-orange-a10">
               <span>
                 💡 If transaction indexing is disabled on the node, transactions cannot be queried via API.
                 Your balance is still accurate and transactions are recorded on-chain.
@@ -400,7 +400,7 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="ui-empty-state-description">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-warning-a30 background-ios-orange-a10">
+            <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 background-ios-orange-a10">
               <div class="mb-12px">
                 <strong>💡 Why can't I see my transactions?</strong>
               </div>
@@ -619,7 +619,7 @@
         </div>
       </template>
           <template v-if="assetTransferContext">
-            <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px">
+            <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px">
               <span>
                 Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.
               </span>
@@ -692,18 +692,18 @@
             </div>
 
             <div class="walletpage-tx-summary mt-24px mb-24px border-radius-12px p-0px border-1 bg-secondary overflow-hidden">
-              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 text-13px letter-spacing-005em py-14px px-16px">
+              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 text-13px letter-spacing-005em py-12px px-16px">
                 <span>Transfer Summary</span>
               </div>
-              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
                 <span>Route</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ selectedAssetTransferTarget?.routeLabel || 'Select destination' }}</span>
               </div>
-              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
                 <span>Source chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ assetTransferContext.chainLabel }}</span>
               </div>
-              <div class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
+              <div class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-12px px-16px color-text-primary border-top-2-border-color bg-secondary">
                 <span>Destination chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ selectedAssetTransferTarget?.chainLabel || 'Unknown' }}</span>
               </div>
@@ -728,7 +728,7 @@
           <h3 class="walletpage-modal-header-h3 m-0px text-20px txt-weight-light color-text-primary">{{ sendModalTitle }}</h3>
         </div>
       </template>
-            <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px">
+            <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px">
               <span v-if="sendAssetContext">
                 <template v-if="isIbcSend">
                   Move this asset from {{ sendSourceChainLabel }} to another linked chain over IBC.
@@ -859,30 +859,30 @@
             </div>
 
             <div class="walletpage-tx-summary mt-24px mb-24px border-radius-12px p-0px border-1 bg-secondary overflow-hidden">
-              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 text-13px letter-spacing-005em py-14px px-16px">
+              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 text-13px letter-spacing-005em py-12px px-16px">
                 <span>{{ isIbcSend ? 'Transfer Summary' : 'Transaction Summary' }}</span>
               </div>
-              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
                 <span>{{ isIbcSend ? 'Transfer amount' : 'Amount debited' }}</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.amount }} {{ sendAssetSymbol }}</span>
               </div>
-              <div v-if="!isIbcSend" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div v-if="!isIbcSend" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
                 <span>Chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSourceChainLabel }}</span>
               </div>
-              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
                 <span>Tax</span>
                 <span class="walletpage-summary-value txt-weight-light color-warning mono">{{ sendSummary.taxLabel }}</span>
               </div>
-              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
+              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-12px px-16px color-text-primary border-top-2-border-color bg-secondary">
                 <span>Receiver net</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.receiver }} {{ sendAssetSymbol }}</span>
               </div>
-              <div v-if="isIbcSend" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
+              <div v-if="isIbcSend" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
                 <span>Route</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.routeLabel }}</span>
               </div>
-              <div v-if="isIbcSend" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
+              <div v-if="isIbcSend" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-12px px-16px color-text-primary border-top-2-border-color bg-secondary">
                 <span>Destination chain</span>
                 <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.destinationChain }}</span>
               </div>
@@ -905,7 +905,7 @@
           <h3 class="walletpage-modal-header-h3 m-0px text-20px txt-weight-light color-text-primary">Receive LMN</h3>
         </div>
       </template>
-            <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px">
+            <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px">
               <span>📱 Share your wallet address or QR code to receive LMN from another wallet.</span>
             </div>
 
