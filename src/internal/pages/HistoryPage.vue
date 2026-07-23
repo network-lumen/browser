@@ -5,7 +5,7 @@
     <main class="history-main flex-1 min-w-0 min-h-0 p-20px flex flex-column gap-16px overflow-y-auto">
       <header class="history-header flex-align-center-justify-space-between gap-16px flex-justify-space-between border-default bg-card shadow-sm border-radius-24px py-20px px-20px">
         <div class="history-copy">
-          <h1 class="color-text-primary m-0px history-copy-h1">History</h1>
+          <h1 class="color-text-primary m-0px text-clamp-18-4vw-28rem">History</h1>
         </div>
 
         <div class="history-header-actions flex-align-center gap-10px flex-wrap-wrap">

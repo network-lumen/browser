@@ -213,10 +213,6 @@
   --backdrop-blur: saturate(180%) blur(20px);
 }
 
-/* Force body and html to use theme colors */
-html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
-#app { background-color: var(--bg-tertiary); }
-
 /* ========== UTILITY CLASSES ========== */
 
 /* Button Styles */
@@ -263,7 +259,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 
 /* ReleaseUpdatePrompt.vue */
-.release-update .meta li + li { margin-top: 6px; }
 
 
 .searchpage-type-html { color: var(--ios-blue); background: rgba(var(--ios-blue-rgb), 0.12); }
@@ -281,29 +276,9 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
 
 .mygw-whitelist-table tbody tr:last-child td { border-bottom: none; }
 
-/* WebPage.vue */
-.webpage-fullscreen .webpage-webview, .sitepage-fullscreen .sitepage-main,
-.sitepage-fullscreen .sitepage-viewer, .sitepage-fullscreen .sitepage-webview {
-  width: 100vw;
-  height: 100vh;
-}
-
-
-/* HistoryPage.vue */
-.history-copy-h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.05em; }
-
-/* ExtensionPage.vue */
-
 /* RecurringPaymentModal.vue */
 .recurpay-input[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }
 
-
-/* ExtensionsPage.vue (Chrome Web Store host — always-dark, theme-independent) */
-.extensions-store-page {
-  background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%), linear-gradient(180deg, rgba(8, 15, 29, 0.98), rgba(5, 10, 20, 1));
-}
-
-/* SitePage.vue */
 
 /* SubscriptionsView.vue — .paused/.completed are dynamic (:class="payment.status") */
 .subview-payment-card.paused { opacity: 0.7; background: var(--bg-secondary); }
@@ -311,7 +286,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   background: rgba(var(--ios-indigo-rgb), 0.15);
   color: var(--ios-indigo);
 }
-
 
 /* HomePage.vue — .dragging/.drag-over/.is-drag-over are drag-state bindings
    that pair with :active/:hover states; kept as CSS with their state partners. */
@@ -380,8 +354,6 @@ html, body { background-color: var(--bg-tertiary); color: var(--text-primary); }
   grid-column: 1 / -1;
 }
 
-
-
 /* DaoPage.vue */
 .daopage-stat-card { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--hover-bg) 100%); }
 .daopage-proposal-status.deposit { background: rgba(var(--ios-yellow-rgb), 0.15); color: var(--ios-orange); }
@@ -425,10 +397,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 }
 
 /* DomainPage.vue */
-.domainpage-domain-part { flex: 1.2; }
-.domainpage-ext-part { flex: 0.8; }
-.domainpage-key-input { flex: 0.9; }
-.domainpage-value-input { flex: 1.6; }
 
 /* ===== NAVIGATION CONTROLS ===== */
 .navbar-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -450,16 +418,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   border-radius: 50%;
   background: var(--accent-primary);
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-}
-.settingspage-brightness-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  cursor: pointer;
-  border: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
 }
@@ -589,14 +547,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   background: var(--accent-primary);
   cursor: pointer;
   transition: all 0.2s ease;
-}
-.explorer-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  cursor: pointer;
-  border: none;
 }
 /* Transaction Status Popup */
 .explorer-tx-status-popup.processing, .walletpage-btn-copy-address { border: 2px solid var(--accent-primary); }
@@ -730,7 +680,5 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: #fff;
   font-weight: 600;
 }
-/* Gateway plans modal */
-
 /* List View */
 .drivepage-list-item.checked { background: var(--primary-a05); }

@@ -1,5 +1,5 @@
 <template>
-  <div class="extensions-store-page w-full h-full min-h-0 flex flex-column">
+  <div class="bg-gradient-extensions-store w-full h-full min-h-0 flex flex-column">
     <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-16px border-bottom-1-slate-a16 pt-20px px-24px pb-16px">
       <div class="extensions-store-copy">
         <h1 class="extensions-store-copy-h1 color-hex-f8fafc">{{ headerTitle }}</h1>

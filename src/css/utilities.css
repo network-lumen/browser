@@ -749,6 +749,10 @@
 .hover-scale-106:hover { transform: scale(1.06); }
 .hover-lift-6-border-ios-blue-a50:not(:disabled):hover { transform: translateY(-6px); border-color: rgba(var(--ios-blue-rgb), 0.5); }
 .hover-active-bg-primary-a08-border-a25:hover, .hover-active-bg-primary-a08-border-a25.active { background: var(--primary-a08); border-color: var(--primary-a25); }
+.fullscreen-trigger .fullscreen-target { width: 100vw; height: 100vh; }
+.text-clamp-18-4vw-28rem { font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.05em; }
+.bg-gradient-extensions-store { background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%), linear-gradient(180deg, rgba(8, 15, 29, 0.98), rgba(5, 10, 20, 1)); }
+.divide-y-mt6px > * + * { margin-top: 6px; }
 .hover-bg-gradient-accent-secondary-lift:hover { background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%); transform: translateY(-1px); }
 .bg-gradient-newtab-page { background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--ios-indigo-rgb), 0.1), transparent 62%), var(--bg-tertiary); }
 .h-28rem-blur-36px { height: 28rem; filter: blur(36px); }

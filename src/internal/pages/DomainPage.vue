@@ -239,12 +239,12 @@
                      
                       v-model="r.key"
                       placeholder="cid | ipns | site | ..."
-                      :disabled="stableSettingsSaving" class="domainpage-form-input domainpage-key-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                      :disabled="stableSettingsSaving" class="domainpage-form-input flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                      
                       v-model="r.value"
                       placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
-                      :disabled="stableSettingsSaving" class="domainpage-form-input domainpage-value-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                      :disabled="stableSettingsSaving" class="domainpage-form-input flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiButton variant="danger" type="button"
                       @click="removeStableSettingsRecord(idx)"
                       title="Remove row"
@@ -284,13 +284,13 @@
                     v-model="registerForm.domainName"
                     placeholder="myname"
                     @input="sanitizeDomainInput"
-                    @blur="refreshAvailability" class="domainpage-form-input domainpage-domain-part focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                    @blur="refreshAvailability" class="domainpage-form-input flex-12 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                   <span class="domainpage-dot-sep txt-weight-light color-text-tertiary text-14px">.</span>
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                    
                     v-model="registerForm.ext"
                     placeholder="lmn"
-                    @blur="refreshAvailability" class="domainpage-form-input domainpage-ext-part focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                    @blur="refreshAvailability" class="domainpage-form-input flex-08 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                 </div>
                 <div
                   v-if="registerForm.domainName"
@@ -349,11 +349,11 @@
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                      
                       v-model="r.key"
-                      placeholder="cid | ipns | txt | ..." class="domainpage-form-input domainpage-key-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                      placeholder="cid | ipns | txt | ..." class="domainpage-form-input flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                      
                       v-model="r.value"
-                      placeholder="Value" class="domainpage-form-input domainpage-value-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                      placeholder="Value" class="domainpage-form-input flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiButton variant="danger" type="button"
                       @click="removeSettingsRecord(idx)"
                       title="Remove row">
