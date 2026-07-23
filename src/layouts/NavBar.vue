@@ -4,12 +4,12 @@
     <div class="navbar-nav-controls flex-align-center gap-4px">
       <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" :disabled="!canGoBack"
         title="Back"
-        @click="previous" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
+        @click="previous" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <ArrowLeft :size="16" />
       </UiButton>
       <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" :disabled="!canGoForward"
         title="Forward"
-        @click="next" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
+        @click="next" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <ArrowRight :size="16" />
       </UiButton>
       <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" v-if="!isExtensionTab"
@@ -17,7 +17,7 @@
         :aria-busy="loading ? 'true' : 'false'"
         :disabled="loading"
         :title="loading ? 'Loading…' : 'Refresh'"
-        @click="refresh" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
+        @click="refresh" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <UiSpinner v-if="loading" size="sm" />
         <RefreshCw v-else :size="16" />
       </UiButton>
@@ -51,11 +51,11 @@
     <!-- Quick Actions -->
     <div class="navbar-quick-actions flex-align-center gap-4px">
       <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" title="Home"
-        @click="$emit('goto', 'lumen://home')" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
+        @click="$emit('goto', 'lumen://home')" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <House :size="16" />
       </UiButton>
       <UiButton variant="icon" icon-radius-class="border-radius-sm" icon-padding-class="" title="Drive"
-        @click="$emit('goto', 'lumen://drive')" class="navbar-nav-btn flex-inline-align-justify-center size-32px">
+        @click="$emit('goto', 'lumen://drive')" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <Cloud :size="16" />
       </UiButton>
     </div>
@@ -65,7 +65,7 @@
         variant="icon"
         icon-radius-class="border-radius-sm"
         icon-padding-class=""
-        class="navbar-nav-btn extensions-trigger flex-inline-align-justify-center size-32px"
+        class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed extensions-trigger flex-inline-align-justify-center size-32px"
         :class="{ 'color-ios-yellow-override': showExtensionsMenu }"
         title="Extensions"
         @click.stop="toggleExtensionsMenu"

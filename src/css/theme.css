@@ -221,8 +221,6 @@
 }
 
 /* StartupScreen.vue */
-.startup-btn:active:not(:disabled) { transform: translateY(1px); }
-.startup-btn:disabled { opacity: 0.6; cursor: default; }
 
 /* InternalSidebar.vue */
 .sidebar-fav-avatar.tone-search, .history-item-avatar.tone-search, .newtab-shortcut-avatar.tone-search {
@@ -296,7 +294,6 @@
   color: #fff;
   transform: translateX(4px);
 }
-.homepage-action-card:disabled { opacity: 0.55; cursor: not-allowed; }
 .homepage-empty-grid.is-drag-over {
   border-color: var(--accent-primary);
   background: var(--primary-a08);
@@ -360,11 +357,6 @@
 .daopage-proposal-status.unknown { background: var(--bg-secondary); color: var(--text-secondary); }
 .daopage-member-avatar.has-image { background: transparent; }
 .daopage-progress-yes { background: linear-gradient(90deg, var(--ios-teal), var(--ios-green)); }
-.walletpage-action-icon:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
 .daopage-vote-option input[type="radio"], .drivepage-upload-btn input, .drivepage-upload-btn-large input {
   display: none;
 }
@@ -374,7 +366,7 @@
 }
 
 /* MyGatewaysPage.vue — .mygw-btn-start/.mygw-btn-stop kept as a button
-   variant identity (multiple pseudo-state rules attached: hover, disabled) */
+   variant identity (each has its own gradient background) */
 .mygw-btn-start {
   background: linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%);
   box-shadow: 0 2px 8px rgba(var(--ios-green-rgb), 0.3);
@@ -383,23 +375,12 @@
   background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
   box-shadow: 0 2px 8px rgba(var(--ios-red-rgb), 0.3);
 }
-.mygw-btn-start:disabled, .mygw-btn-stop:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none !important;
-}
-.navbar-nav-btn:active:not(:disabled) {
-  transform: scale(0.95);
-}
 textarea.mygw-form-input, .walletpage-form-textarea {
   min-height: 80px;
   font-family: inherit;
 }
 
 /* DomainPage.vue */
-
-/* ===== NAVIGATION CONTROLS ===== */
-.navbar-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ===== EXTENSIONS ===== */
 .drivepage-hls-queue-item-error,
@@ -555,11 +536,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 
 /* SearchPage.vue */
-.searchpage-search-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
 .searchpage-pill svg { flex-shrink: 0; transition: transform 0.2s ease; }
-.searchpage-pill:disabled {
-  transform: none;
-}
 .searchpage-pill.active {
   background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
   border-color: transparent;

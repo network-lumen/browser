@@ -60,7 +60,7 @@
           <button
             v-for="key in mySpaceCards"
             :key="key"
-            class="homepage-action-card reveal-on-hover flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            class="homepage-action-card reveal-on-hover disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'drag-over': dragOverMySpace && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
@@ -111,7 +111,7 @@
           <button
             v-for="key in lumenCards"
             :key="key"
-            class="homepage-action-card reveal-on-hover flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            class="homepage-action-card reveal-on-hover disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'drag-over': dragOverLumen && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"

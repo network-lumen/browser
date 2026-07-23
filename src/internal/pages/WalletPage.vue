@@ -213,12 +213,12 @@
                   <UiButton variant="secondary" @click="refreshAssetRow(asset)"
                     :disabled="assetRowRefreshingId === asset.id"
                     title="Refresh this asset"
-                    aria-label="Refresh this asset" class="walletpage-action-icon hover-border-accent hover-color-accent background-card-bg-disabled-hover">
+                    aria-label="Refresh this asset" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent background-card-bg-disabled-hover">
                     <RefreshCw :size="14" :class="{ spinning: assetRowRefreshingId === asset.id }" />
                   </UiButton>
                   <UiButton variant="secondary" @click="copyToClipboard(asset.ownerAddress, 'Address copied!')"
                     title="Copy chain address"
-                    aria-label="Copy chain address" class="walletpage-action-icon hover-border-accent hover-color-accent background-card-bg-disabled-hover">
+                    aria-label="Copy chain address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent background-card-bg-disabled-hover">
                     <Copy :size="14" />
                   </UiButton>
                   <UiButton variant="secondary" @click="openAssetSendModal(asset)"
@@ -490,7 +490,7 @@
               <UiButton variant="icon" icon-radius-class="border-radius-sm" v-if="tx.from"
                 @click.stop="copyToClipboard(tx.from, 'Address copied!')"
                 title="Copy address"
-                aria-label="Copy from address" class="walletpage-action-icon hover-border-accent hover-color-accent background-card-bg-disabled-hover">
+                aria-label="Copy from address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent background-card-bg-disabled-hover">
                 <Copy :size="14" />
               </UiButton>
             </div>
@@ -510,7 +510,7 @@
               <UiButton variant="icon" icon-radius-class="border-radius-sm" v-if="tx.to"
                 @click.stop="copyToClipboard(tx.to, 'Address copied!')"
                 title="Copy address"
-                aria-label="Copy to address" class="walletpage-action-icon hover-border-accent hover-color-accent background-card-bg-disabled-hover">
+                aria-label="Copy to address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent background-card-bg-disabled-hover">
                 <Copy :size="14" />
               </UiButton>
             </div>
@@ -521,10 +521,10 @@
               </span>
               <UiButton variant="icon" icon-radius-class="border-radius-sm" @click.stop="openTransactionTab(tx.txhash)"
                 title="Open in explorer"
-                aria-label="Open transaction in new tab" class="walletpage-action-icon walletpage-explorer-btn background-card-bg-disabled-hover">
+                aria-label="Open transaction in new tab" class="disabled-opacity-60-not-allowed-no-transform walletpage-explorer-btn background-card-bg-disabled-hover">
                 <ExternalLink :size="14" />
               </UiButton>
-              <UiButton variant="icon" icon-radius-class="border-radius-sm" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash" class="walletpage-action-icon hover-border-accent hover-color-accent background-card-bg-disabled-hover">
+              <UiButton variant="icon" icon-radius-class="border-radius-sm" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent background-card-bg-disabled-hover">
                 <Copy :size="14" />
               </UiButton>
             </div>
