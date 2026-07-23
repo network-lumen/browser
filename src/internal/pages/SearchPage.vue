@@ -89,7 +89,7 @@
         </UiButton>
       </div>
 
-      <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-14px p-0px m-0px list-style-none gap-16px">
+      <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-12px p-0px m-0px list-style-none gap-16px">
         <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-16px border-radius-20px border-default bg-card py-20px px-24px">
           <div class="bg-shimmer border-radius-16px flex-shrink-0 w-52px h-52px"></div>
           <div class="searchpage-skeleton-content flex-1 min-w-0">
@@ -357,7 +357,7 @@
 
     <UiModal :model-value="showHowSearchWorks" panel-class="searchpage-help-modal w-min-760" @update:model-value="closeHowSearchWorks">
       <template #header>
-        <div class="searchpage-help-header-left flex-align-start gap-14px min-w-0">
+        <div class="searchpage-help-header-left flex-align-start gap-12px min-w-0">
           <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a08" aria-hidden="true">
             <HelpCircle :size="18" />
           </div>

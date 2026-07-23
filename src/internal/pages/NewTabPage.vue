@@ -33,7 +33,7 @@
           </h2>
         </div>
       </template>
-          <div class="newtab-shortcut-form flex flex-column gap-14px">
+          <div class="newtab-shortcut-form flex flex-column gap-12px">
             <label class="newtab-shortcut-field flex flex-column gap-6px">
               <span class="newtab-shortcut-field-span color-text-secondary text-14px txt-weight-light">Name</span>
               <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.title"

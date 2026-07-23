@@ -97,7 +97,7 @@
         <!-- Main Grid Layout -->
         <div class="netpage-main-grid gap-24px p-32px grid grid-cols-320-1fr-380 align-items-start">
         <!-- Left Column: Overview Cards -->
-        <div class="netpage-left-column flex flex-column gap-14px">
+        <div class="netpage-left-column flex flex-column gap-12px">
           <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-tertiary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
             <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Block Height</div>
             <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ formatNumber(blockHeight) }}</div>
@@ -128,7 +128,7 @@
         <!-- Network Health -->
         <section class="netpage-health-section bg-card border-1 border-radius-14px py-20px px-24px">
           <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Health</h2>
-          <div class="netpage-health-grid gap-14px grid grid-cols-2">
+          <div class="netpage-health-grid gap-12px grid grid-cols-2">
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
               <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Chain Status</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
@@ -223,7 +223,7 @@
               v-for="block in recentBlocks"
               :key="block.height"
             >
-              <div class="netpage-block-left flex-align-center gap-14px flex-1 min-w-0">
+              <div class="netpage-block-left flex-align-center gap-12px flex-1 min-w-0">
                 <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px text-13px txt-weight-medium color-white overflow-hidden border-2-white-a15 shadow-0-2-8-rgba-0-0-0-0-2 bg-gradient-indigo-purple" :title="block.validator">
                   <img class="netpage-validator-avatar-img w-full h-full object-fit-cover" v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
                   <span v-else class="block">{{ block.validator.substring(0, 2).toUpperCase() }}</span>
