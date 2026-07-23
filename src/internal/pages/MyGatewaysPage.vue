@@ -49,7 +49,7 @@
               <p v-if="embeddedServerRunning" class="mygw-server-url m-0px text-14px color-ios-blue mono">{{ embeddedServerUrl }}</p>
               <p v-else class="mygw-server-status-text color-text-secondary m-0px text-14px">Start your personal gateway server</p>
             </div>
-            <div class="flex-align-center gap-8px fw-500 border-radius-20px py-8px px-16px text-14px transition-all-03" :class="embeddedServerRunning ? 'badge-success color-success' : 'badge-neutral color-text-secondary'">
+            <div class="flex-align-center gap-8px fw-500 border-radius-20px py-8px px-16px text-14px transition-all-03" :class="embeddedServerRunning ? 'bg-fill-success color-success' : 'bg-fill-tertiary color-text-secondary'">
               <span class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-ios-green': embeddedServerRunning }"></span>
               {{ embeddedServerRunning ? 'Running' : 'Stopped' }}
             </div>
@@ -554,9 +554,9 @@ function formatDate(timestamp: number): string {
 }
 
 function gatewayStatusBadgeClass(status: Gateway['status']): string {
-  if (status === 'active') return 'badge-success color-success';
-  if (status === 'error') return 'badge-error color-error';
-  return 'badge-neutral color-text-tertiary';
+  if (status === 'active') return 'bg-fill-success color-success';
+  if (status === 'error') return 'bg-fill-error color-error';
+  return 'bg-fill-tertiary color-text-tertiary';
 }
 
 async function checkEmbeddedServerStatus() {

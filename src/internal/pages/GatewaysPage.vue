@@ -58,7 +58,7 @@
               <h3 class="gwpage-private-gateway-name color-text-primary text-16px m-0px mb-8px">{{ gw.name }}</h3>
               <p class="gwpage-private-gateway-url mono color-text-secondary text-13px break-all m-0px mb-12px">{{ gw.url }}</p>
               <div class="gwpage-private-gateway-status flex-align-center gap-8px">
-                <span class="border-radius-12px fw-500 text-capitalize py-4px px-12px text-12px" :class="gw.status === 'active' ? 'badge-success color-success' : 'badge-neutral color-text-secondary'">{{ gw.status }}</span>
+                <span class="border-radius-12px fw-500 text-capitalize py-4px px-12px text-12px" :class="gw.status === 'active' ? 'bg-fill-success color-success' : 'bg-fill-tertiary color-text-secondary'">{{ gw.status }}</span>
               </div>
             </UiCard>
           </div>
@@ -97,7 +97,7 @@
                   <span class="gwpage-manage-card-id mono color-text-tertiary text-12px">#{{ gw.id }}</span>
                 </div>
                 <div class="manage-card-badges">
-                  <span class="gwpage-badge text-11px py-4px px-10px" :class="gw.active ? 'badge-success' : 'bg-ios-yellow-a15'">
+                  <span class="gwpage-badge text-11px py-4px px-10px" :class="gw.active ? 'bg-fill-success' : 'bg-ios-yellow-a15'">
                     {{ gw.active ? 'Active' : 'Inactive' }}
                   </span>
                 </div>

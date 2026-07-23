@@ -295,7 +295,7 @@
                 <div
                   v-if="registerForm.domainName"
                   class="domainpage-availability mt-8px border-radius-8px text-13px py-8px px-10px"
-                  :class="domainAvailable ? 'color-success badge-success' : 'color-error bg-fill-error'"
+                  :class="domainAvailable ? 'color-success bg-fill-success' : 'color-error bg-fill-error'"
                 >
                   <span>{{ domainAvailable ? 'Available' : 'Already taken' }}</span>
                 </div>
@@ -1072,14 +1072,14 @@ function prettyDate(tsMs?: number | null): string {
 }
 
 function expiryClass(d: DomainRow): string {
-  if (!d.expireAtSeconds) return 'badge-neutral color-text-tertiary';
+  if (!d.expireAtSeconds) return 'bg-fill-tertiary color-text-tertiary';
   const ms = d.expireAtSeconds * 1000;
   const days = Math.floor((ms - Date.now()) / 86_400_000);
-  if (!Number.isFinite(days)) return 'badge-neutral color-text-tertiary';
-  if (days < 0) return 'badge-error color-error';
-  if (days <= 7) return 'badge-warning color-warning';
-  if (days <= 30) return 'badge-warning color-warning';
-  return 'badge-success color-success';
+  if (!Number.isFinite(days)) return 'bg-fill-tertiary color-text-tertiary';
+  if (days < 0) return 'bg-fill-error color-error';
+  if (days <= 7) return 'bg-ios-orange-a15 color-warning';
+  if (days <= 30) return 'bg-ios-orange-a15 color-warning';
+  return 'bg-fill-success color-success';
 }
 
 function expiryText(d: DomainRow): string {

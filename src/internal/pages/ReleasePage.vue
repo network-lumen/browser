@@ -1071,10 +1071,10 @@ function shortAddr(addr?: string) {
 
 function statusClass(r: ReleaseRecord) {
   const status = String(r.status || '').toUpperCase();
-  if (r.yanked) return 'badge-error color-error';
-  if (status.includes('REJECT') || status.includes('EXPIRE')) return 'badge-warning color-warning';
-  if (status.includes('VALID')) return 'badge-success color-success';
-  return 'badge-info color-primary';
+  if (r.yanked) return 'bg-fill-error color-error';
+  if (status.includes('REJECT') || status.includes('EXPIRE')) return 'bg-ios-orange-a15 color-warning';
+  if (status.includes('VALID')) return 'bg-fill-success color-success';
+  return 'bg-fill-blue color-primary';
 }
 
 function formatDuration(seconds: number) {
