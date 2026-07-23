@@ -245,11 +245,8 @@
 .border-radius-12px { border-radius: 12px; }
 .border-radius-14px { border-radius: 14px; }
 .border-radius-16px { border-radius: 16px; }
-.border-radius-18px { border-radius: 18px; }
 .border-radius-20px { border-radius: 20px; }
-.border-radius-22px { border-radius: 22px; }
 .border-radius-24px { border-radius: 24px; }
-.border-radius-28px { border-radius: 28px; }
 .border-radius-37-hover:hover { border-radius: 0.375rem; }
 .border-radius-4px { border-radius: 4px; }
 .border-radius-6px { border-radius: 6px; }
@@ -257,11 +254,7 @@
 .border-radius-circle { border-radius: 50%; }
 .border-radius-full { border-radius: 999px; }
 .border-radius-inherit { border-radius: inherit; }
-.border-radius-lg { border-radius: var(--border-radius-lg); }
-.border-radius-md { border-radius: var(--border-radius-md); }
-.border-radius-sm { border-radius: var(--border-radius-sm); }
 .border-radius-top-left-top-right-10px { border-radius: 10px 10px 0 0; }
-.border-radius-xl { border-radius: var(--border-radius-xl); }
 .border-right-05-border-color { border-right: 0.5px solid var(--border-color); }
 .border-right-none { border-right: none; }
 .border-top-05-border-light { border-top: 0.5px solid var(--border-light); }
@@ -393,10 +386,7 @@
 .font-inherit { font-family: inherit; }
 .fullscreen-trigger .fullscreen-target { width: 100vw; height: 100vh; }
 .fw-500 { font-weight: 500; }
-.fw-600 { font-weight: 600; }
-.fw-700 { font-weight: 700; }
 .fw-760 { font-weight: 760; }
-.fw-800 { font-weight: 800; }
 .fw-850 { font-weight: 850; }
 .fw-900 { font-weight: 900; }
 .gradient-text-clip { -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -664,14 +654,10 @@
 .object-fit-cover { object-fit: cover; }
 .object-position-center { object-position: center; }
 .opacity-0 { opacity: 0; }
-.opacity-30 { opacity: .3; }
 .opacity-40 { opacity: 0.4; }
-.opacity-50 { opacity: 0.5; }
 .opacity-55 { opacity: 0.55; }
-.opacity-60 { opacity: 0.6; }
 .opacity-70 { opacity: .7; }
 .opacity-85 { opacity: 0.85; }
-.opacity-90 { opacity: 0.9; }
 .outline-none { outline: none; }
 .overflow-auto { overflow: auto; }
 .overflow-hidden { overflow: hidden; }
@@ -766,7 +752,7 @@
 .shadow-stake-modal { box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(0, 0, 0, 0.05); }
 .shadow-xl { box-shadow: var(--shadow-xl); }
 .shadow-xs { box-shadow: var(--shadow-xs); }
-.size-100 { width:1rem;  height:1rem;  }
+.size-16px { width: 16px; height: 16px; }
 .size-24px { width: 24px; height: 24px; }
 .size-28px { width: 28px; height: 28px; }
 .size-32px { width: 32px; height: 32px; }
