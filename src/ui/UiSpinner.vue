@@ -1,10 +1,10 @@
 <template>
   <span
-    class="ui-spinner flex-inline-align-justify-center"
+    class="ui-spinner flex-inline-align-justify-center line-height-0"
     :class="sizeClass"
     aria-busy="true"
   >
-    <svg class="ui-spinner__svg" viewBox="0 0 24 24" aria-hidden="true">
+    <svg class="ui-spinner__svg overflow-visible transform-origin-center" viewBox="0 0 24 24" aria-hidden="true">
       <circle class="ui-spinner__track" cx="12" cy="12" r="8.5"></circle>
       <circle class="ui-spinner__tail" cx="12" cy="12" r="8.5"></circle>
       <circle class="ui-spinner__arc" cx="12" cy="12" r="8.5"></circle>

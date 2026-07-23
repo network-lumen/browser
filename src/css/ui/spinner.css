@@ -2,26 +2,29 @@
  * src/css/ui/spinner.css
  * Backs UiSpinner.vue: an SVG ring built from stroke-dasharray/stroke-
  * dashoffset arcs with their own keyframe animations, none of which has a
- * utility equivalent. The plain CSS-only ring-spinner*, previously kept
- * here for places a full Vue component wasn't warranted, has been fully
- * decomposed into existing/new utility classes (border-radius-full, w-/h-
- * Npx, border-2-fill-secondary/border-3-fill-secondary, spinner-accent —
- * the last two matching the border-2-white-aNN/spinner-white pattern
- * LumenSiteModalHost/PasswordPromptModal already used for the same concept).
+ * utility equivalent. Everything that did (line-height-0, overflow-visible,
+ * transform-origin-center) is now inline on the template instead. The
+ * plain CSS-only ring-spinner*, previously kept here for places a full Vue
+ * component wasn't warranted, has been fully decomposed into existing/new
+ * utility classes (border-radius-full, w-/h-Npx, border-2-fill-secondary/
+ * border-3-fill-secondary, spinner-accent — the last two matching the
+ * border-2-white-aNN/spinner-white pattern LumenSiteModalHost/
+ * PasswordPromptModal already used for the same concept). What's left below
+ * — the var(--spinner-size)-driven width/height, the size-variant custom
+ * property tiers, the SVG stroke/fill/animation geometry — has no utility
+ * equivalent and can't get one without breaking the size-switching
+ * mechanism or inventing single-purpose SVG utilities nothing else needs.
  * ========================================================================== */
 
 .ui-spinner {
   --spinner-size: 1rem;
   --spinner-stroke: 2px;
   color: var(--spinner-color, var(--text-secondary));
-  line-height: 0;
 }
 
 .ui-spinner__svg {
   width: var(--spinner-size);
   height: var(--spinner-size);
-  overflow: visible;
-  transform-origin: center;
   animation: spin 0.95s linear infinite;
 }
 
