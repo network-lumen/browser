@@ -238,7 +238,7 @@
               <span class="sitemodal-perm-k text-12px color-text-secondary">Records</span>
               <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded" class="sitemodal-records-toggle">
                 <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
-                <ChevronDown :size="14" class="transition-transform-016" :class="{ 'rotate-180': stableLinkRecordsExpanded }" />
+                <ChevronDown :size="14" class="transition-transform-02" :class="{ 'rotate-180': stableLinkRecordsExpanded }" />
               </UiButton>
             </div>
             <div v-if="stableLinkRecordsExpanded" class="sitemodal-records-detail-list grid gap-6px mt-8px pt-8px border-top-default">

@@ -12,7 +12,7 @@
           v-for="key in allRoutes"
           :key="key"
           type="button"
-          class="hover-translate-x-2px active-cursor-grabbing w-full flex-align-center bg-transparent border-none color-text-secondary border-radius-10px gap-8px text-13px fw-500 text-left py-8px px-12px transition-all-015 cursor-select-none cursor-grab hover-bg-hover hover-color-text-primary"
+          class="hover-translate-x-2px active-cursor-grabbing w-full flex-align-center bg-transparent border-none color-text-secondary border-radius-10px gap-8px text-13px fw-500 text-left py-8px px-12px transition-all-fast cursor-select-none cursor-grab hover-bg-hover hover-color-text-primary"
           :class="{ 'is-dragging': draggedItem === key, 'is-drag-over-target': dragOverItem === key }"
           draggable="true"
           @dragstart="onItemDragStart($event, key)"
@@ -47,7 +47,7 @@
         >
           <div
             v-if="mySpaceCards.length === 0"
-            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-12px gap-4px bg-fill-tertiary transition-all-015 py-12px px-16px border-15-dashed-color min-h-100px grid-col-full"
+            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-12px gap-4px bg-fill-tertiary transition-all-fast py-12px px-16px border-15-dashed-color min-h-100px grid-col-full"
             :class="{ 'is-drag-over-zone': dragOverMySpace }"
             @click="showAllPages = true"
           >
@@ -60,7 +60,7 @@
           <button
             v-for="key in mySpaceCards"
             :key="key"
-            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-015 shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-fast shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'is-drag-over-target': dragOverMySpace && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
@@ -72,18 +72,18 @@
             :disabled="!hasProfiles && ['drive', 'domain', 'wallet'].includes(key)"
           >
             <div
-              class="reveal-actions-target hover-bg-border-color-error flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105 w-22px top-6px right-6px z-1"
+              class="reveal-actions-target hover-bg-border-color-error flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-fast h-22px border-radius-full opacity-0 hover-scale-105 w-22px top-6px right-6px z-1"
               @click.stop="removeMySpaceCard(key)"
               title="Remove card"
             >
               <X :size="14" />
             </div>
-            <component :is="getCardIcon(key)" :size="24" class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-015" :style="actionIconStyle(key)" />
+            <component :is="getCardIcon(key)" :size="24" class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-fast" :style="actionIconStyle(key)" />
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
               <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
               <span class="homepage-action-desc color-text-secondary text-12px line-height-135">{{ getCardDescription(key) }}</span>
             </div>
-            <ArrowUpRight :size="16" class="reveal-accent-shift-target color-text-tertiary transition-all-015" />
+            <ArrowUpRight :size="16" class="reveal-accent-shift-target color-text-tertiary transition-all-fast" />
           </button>
         </div>
       </section>
@@ -98,7 +98,7 @@
         >
           <div
             v-if="lumenCards.length === 0"
-            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-12px gap-4px bg-fill-tertiary transition-all-015 py-12px px-16px border-15-dashed-color min-h-100px grid-col-full"
+            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-12px gap-4px bg-fill-tertiary transition-all-fast py-12px px-16px border-15-dashed-color min-h-100px grid-col-full"
             :class="{ 'is-drag-over-zone': dragOverLumen }"
             @click="showAllPages = true"
           >
@@ -111,7 +111,7 @@
           <button
             v-for="key in lumenCards"
             :key="key"
-            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-015 shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-fast shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
             :class="{ 'is-drag-over-target': dragOverLumen && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"
@@ -122,18 +122,18 @@
             @click="handleCardClick($event, key)"
           >
             <div
-              class="reveal-actions-target hover-bg-border-color-error flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-015 h-22px border-radius-full opacity-0 hover-scale-105 w-22px top-6px right-6px z-1"
+              class="reveal-actions-target hover-bg-border-color-error flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-fast h-22px border-radius-full opacity-0 hover-scale-105 w-22px top-6px right-6px z-1"
               @click.stop="removeLumenCard(key)"
               title="Remove card"
             >
               <X :size="14" />
             </div>
-            <component :is="getCardIcon(key)" :size="24" class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-015" :style="actionIconStyle(key)" />
+            <component :is="getCardIcon(key)" :size="24" class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-fast" :style="actionIconStyle(key)" />
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
               <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
               <span class="homepage-action-desc color-text-secondary text-12px line-height-135">{{ getCardDescription(key) }}</span>
             </div>
-            <ArrowUpRight :size="16" class="reveal-accent-shift-target color-text-tertiary transition-all-015" />
+            <ArrowUpRight :size="16" class="reveal-accent-shift-target color-text-tertiary transition-all-fast" />
           </button>
 
         </div>

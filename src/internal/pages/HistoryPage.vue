@@ -76,7 +76,7 @@
                 </span>
                 <button
                   type="button"
-                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-200 border-radius-10px transition-all-015 w-200 hover-color-error background-fill-error-hover"
+                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-200 border-radius-10px transition-all-fast w-200 hover-color-error background-fill-error-hover"
                   title="Remove from history"
                   @click.stop="removeHistoryEntry(entry.id)"
                 >

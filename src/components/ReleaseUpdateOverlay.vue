@@ -8,7 +8,7 @@
     </div>
 
     <div class="h-12px border-radius-full bg-fill-tertiary overflow-hidden">
-      <div class="h-full border-radius-full bg-gradient-primary transition-width-018s" :style="{ width: `${percent}%` }"></div>
+      <div class="h-full border-radius-full bg-gradient-primary transition-width-02" :style="{ width: `${percent}%` }"></div>
     </div>
     <div class="mt-8px flex-justify-space-between text-14px color-text-secondary">
       <span v-if="bytesLabel">{{ bytesLabel }}</span>

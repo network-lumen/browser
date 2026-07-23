@@ -135,7 +135,7 @@
         </div>
         <div class="filter-info flex-align-center gap-12px">
           <span class="drivepage-file-count color-text-secondary text-13px nowrap">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
-          <select v-model="itemsPerPage" class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-015 py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
+          <select v-model="itemsPerPage" class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
             <option :value="10">10 per page</option>
             <option :value="20">20 per page</option>
             <option :value="50">50 per page</option>
@@ -228,7 +228,7 @@
         </div>
         <div v-if="upload?.uploadingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-8px">
           <div
-            class="transition-width-018s h-full bg-accent w-0"
+            class="transition-width-02 h-full bg-accent w-0"
             :style="{ width: `${upload?.uploadingPercent}%` }"
           ></div>
         </div>
@@ -283,7 +283,7 @@
         </div>
         <div v-if="convertingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-8px">
           <div
-            class="transition-width-018s h-full bg-accent w-0"
+            class="transition-width-02 h-full bg-accent w-0"
             :style="{ width: `${convertingPercent}%` }"
           ></div>
         </div>
@@ -365,7 +365,7 @@
         </div>
         <div v-if="archiveDownloadPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-8px">
           <div
-            class="transition-width-018s h-full bg-accent w-0"
+            class="transition-width-02 h-full bg-accent w-0"
             :style="{ width: `${archiveDownloadPercent}%` }"
           ></div>
         </div>
@@ -396,7 +396,7 @@
         <div
           v-for="file in displayFiles"
           :key="file.cid"
-          class="reveal-on-hover hover-bg-primary-a08 content-visibility-auto-920-56 last-border-bottom-none transition-all-015 flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
+          class="reveal-on-hover hover-bg-primary-a08 content-visibility-auto-920-56 last-border-bottom-none transition-all-fast flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
           @click="handleEntryClick(file)"
           :class="{ 'selected bg-fill-blue': selectedFile?.cid === file.cid, 'bg-primary-a05-selected': isLocalFileSelected(file), }"
         >
@@ -446,7 +446,7 @@
           <span class="drivepage-list-date color-text-secondary text-right text-13px flex-shrink-0 nowrap overflow-hidden txt-overflow-ellipsis min-w-180px w-180px">{{
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
-          <div class="drivepage-list-actions reveal-actions-target divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-015 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
+          <div class="drivepage-list-actions reveal-actions-target divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-02 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
             <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" v-if="!isBrowsing && isDirEntry(file)"
               title="Details"
               @click.stop="openEntryDetails(file)" class="active-scale-98">
@@ -496,7 +496,7 @@
             <span v-if="page === '...'" class="drivepage-page-ellipsis color-text-tertiary text-14px p-0px pr-4px pl-4px">...</span>
             <button 
               v-else
-              class="flex-align-justify-center size-32px color-text-primary text-14px fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-015 min-w-32px py-0px px-8px hover-bg-hover hover-border-accent"
+              class="flex-align-justify-center size-32px color-text-primary text-14px fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast min-w-32px py-0px px-8px hover-bg-hover hover-border-accent"
               :class="{ 'pill-selected-gradient-primary': currentPage === page }"
               @click="currentPage = page as number"
             >
@@ -1343,7 +1343,7 @@
                  <select
                    v-model.number="planPageSize"
                    aria-label="Rows per page"
-                   class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-015 py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow"
+                   class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow"
                  >
                    <option :value="8">8 / page</option>
                    <option :value="16">16 / page</option>

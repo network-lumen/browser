@@ -787,26 +787,21 @@
 .top-half { top: 50%; }
 .top-n14rem-left-n10rem { top: -14rem; left: -10rem; }
 .top-n3px { top: -3px; }
-.transition-all-015 { transition: all 0.15s ease; }
-.transition-all-02 { transition: all 0.2s ease; }
+.transition-all-02 { transition: all var(--transition-base); }
 .transition-all-03 { transition: all 0.3s ease; }
 .transition-all-fast { transition: all var(--transition-fast); }
-.transition-bg-015 { transition: background 0.15s ease; }
-.transition-bg-02 { transition: background 0.2s ease; }
+.transition-bg-02 { transition: background var(--transition-base); }
 .transition-bg-border-012 { transition: background 0.12s ease, border-color 0.12s ease; }
 .transition-bg-fast { transition: background var(--transition-fast); }
-.transition-color-02 { transition: color 0.2s; }
+.transition-color-02 { transition: color var(--transition-base); }
 .transition-colors-015 { transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
 .transition-lift-015 { transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
-.transition-opacity-015 { transition: opacity 0.15s ease; }
-.transition-opacity-02 { transition: opacity 0.2s ease; }
+.transition-opacity-02 { transition: opacity var(--transition-base); }
 .transition-smooth-all { transition: all var(--transition-smooth); }
-.transition-transform-016 { transition: transform 0.16s ease; }
-.transition-transform-02 { transition: transform 0.2s ease; }
+.transition-transform-02 { transition: transform var(--transition-base); }
 .transition-transform-bg-border-015 { transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
 .transition-ui { transition: background .12s ease, transform .05s ease, box-shadow .12s ease; }
-.transition-width-018s { transition: width 0.18s ease; }
-.transition-width-02 { transition: width 0.2s ease; }
+.transition-width-02 { transition: width var(--transition-base); }
 .transition-width-03 { transition: width 0.3s ease; }
 .translate-center { transform: translate(-50%, -50%); }
 .translate-x-center { transform: translateX(-50%); }
