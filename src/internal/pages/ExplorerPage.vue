@@ -1,5 +1,5 @@
 <template>
-  <div class="explorer-page internal-page">
+  <div class="explorer-page internal-page flex">
     <!-- Show Block Detail if URL contains /block/ -->
     <BlockDetailPage v-if="isBlockDetailView" />
     

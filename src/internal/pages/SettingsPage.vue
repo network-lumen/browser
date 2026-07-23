@@ -1,5 +1,5 @@
 <template>
-  <div class="settingspage-settings-page internal-page">
+  <div class="settingspage-settings-page internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Settings" :icon="Settings" activeKey="settings">
       <nav class="lsb-nav flex flex-column gap-12px">

@@ -1,5 +1,5 @@
 <template>
-  <div class="gateways-page internal-page">
+  <div class="gateways-page internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Gateways" :icon="Server" activeKey="gateways">
       <nav class="lsb-nav flex flex-column gap-12px">

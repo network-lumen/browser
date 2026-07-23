@@ -1,5 +1,5 @@
 <template>
-  <main class="app-shell" :class="{ startup: stage === 'startup' }">
+  <main class="app-shell flex" :class="{ startup: stage === 'startup' }">
     <StartupScreen
       v-if="stage === 'startup'"
       @ready="handleStartupReady"
