@@ -328,7 +328,7 @@
           >
             <div class="flex flex-column gap-2px min-w-0">
               <span class="txt-weight-light color-text-primary text-13px overflow-hidden txt-overflow-ellipsis nowrap">{{ item.file.name }}</span>
-              <span v-if="item.error && item.status === 'failed'" class="color-error-red text-12px">
+              <span v-if="item.error && item.status === 'failed'" class="color-error text-12px">
                 {{ compactError(item.error) }}
               </span>
             </div>
@@ -688,7 +688,7 @@
                 <span class="color-text-secondary text-14px">Status</span>
                 <span
                   class="color-text-primary text-15px fw-500"
-                  :class="ipfsConnected ? 'status-text-ok' : 'status-text-off'"
+                  :class="ipfsConnected ? 'color-success' : 'color-error'"
                 >
                   {{ ipfsConnected ? "Online" : "Offline" }}
                 </span>
@@ -2708,12 +2708,12 @@ const gatewayDetailsStatusLabel = computed(() => {
 
 const gatewayDetailsStatusClass = computed(() => {
   const row = gatewayDetailsSubscriptionRow.value;
-  if (!row) return "status-text-off";
+  if (!row) return "color-error";
   return row.status === "active"
-    ? "status-text-ok"
+    ? "color-success"
     : row.status === "pending"
       ? "pending"
-      : "status-text-off";
+      : "color-error";
 });
 
 

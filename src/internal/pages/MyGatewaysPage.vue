@@ -30,7 +30,7 @@
           :shadow="false"
         >
           <div class="mygw-server-card-header flex-align-center gap-20px mb-24px">
-            <div class="mygw-server-icon flex-align-justify-center size-48px border-radius-12px color-text-secondary bg-hover transition-all-03" :class="{ 'bg-ios-green-a15 color-ios-green-override': embeddedServerRunning }">
+            <div class="mygw-server-icon flex-align-justify-center size-48px border-radius-12px color-text-secondary bg-hover transition-all-03" :class="{ 'bg-ios-green-a15 color-success': embeddedServerRunning }">
               <svg v-if="embeddedServerRunning" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                 <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -50,7 +50,7 @@
               <p v-else class="mygw-server-status-text color-text-secondary m-0px text-14px">Start your personal gateway server</p>
             </div>
             <div class="flex-align-center gap-8px fw-500 border-radius-20px py-8px px-16px text-14px transition-all-03" :class="embeddedServerRunning ? 'badge-success color-success' : 'badge-neutral color-text-secondary'">
-              <span class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-ios-green-active': embeddedServerRunning }"></span>
+              <span class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-ios-green': embeddedServerRunning }"></span>
               {{ embeddedServerRunning ? 'Running' : 'Stopped' }}
             </div>
           </div>
@@ -180,7 +180,7 @@
           >
             <div class="mygw-gateway-header flex-align-start flex-justify-space-between mb-16px">
               <div class="mygw-gateway-title flex-align-center gap-8px">
-                <div class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-ios-green-active': gateway.status === 'active' }"></div>
+                <div class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-ios-green': gateway.status === 'active' }"></div>
                 <h3 class="text-18px txt-weight-light color-text-primary m-0px">{{ gateway.name }}</h3>
               </div>
               <span class="fw-500 border-radius-12px text-capitalize text-12px py-4px px-12px" :class="gatewayStatusBadgeClass(gateway.status)">

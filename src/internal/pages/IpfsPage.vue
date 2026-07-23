@@ -24,7 +24,7 @@
             class="ipfspage-plans-btn disabled-fade-50"
             type="button"
             @click="openSaveModal"
-            :class="{ 'bg-ios-green-a12-override border-1-ios-green-a38-override color-ios-green-override': saved }"
+            :class="{ 'bg-ios-green-a12-override border-1-ios-green-a38-override color-success': saved }"
             :disabled="!canSaveToDrive || saving || saved"
             :title="
               saved ? 'Saved to Drive' : saving ? 'Saving...' : 'Save to Drive'

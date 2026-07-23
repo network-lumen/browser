@@ -287,7 +287,7 @@
             </div>
           </template>
           
-          <div v-if="exportError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
+          <div v-if="exportError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error border-05-ios-red-a25">
             {{ exportError }}
           </div>
           
@@ -415,7 +415,7 @@
             </p>
           </div>
 
-          <div v-if="importModalError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
+          <div v-if="importModalError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error border-05-ios-red-a25">
             {{ importModalError }}
           </div>
 
@@ -454,7 +454,7 @@
             </div>
           </div>
           
-          <div v-if="importError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error-red border-05-ios-red-a25">
+          <div v-if="importError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-10px bg-ios-red-a10 color-error border-05-ios-red-a25">
             {{ importError }}
           </div>
           

@@ -172,7 +172,7 @@
           <AlertCircle :size="32" />
         </UiEmptyState>
         <div v-else>
-          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-ios-orange-a30 background-ios-orange-a10">
+          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-warning-a30 background-ios-orange-a10">
             <span>{{ assetsError }}</span>
           </div>
           <div v-if="assetRows.length" class="walletpage-assets-list walletpage-rich-assets-list flex flex-column mt-16px gap-12px gap-16px">
@@ -243,7 +243,7 @@
 
       <!-- DEX View -->
       <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-24px w-full max-w-full">
-        <div v-if="dexError" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-ios-orange-a30 background-ios-orange-a10">
+        <div v-if="dexError" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-warning-a30 background-ios-orange-a10">
           <span>{{ dexError }}</span>
         </div>
 
@@ -387,7 +387,7 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="ui-empty-state-description">{{ activitiesError }}</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-ios-orange-a30 background-ios-orange-a10">
+            <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-warning-a30 background-ios-orange-a10">
               <span>
                 💡 If transaction indexing is disabled on the node, transactions cannot be queried via API.
                 Your balance is still accurate and transactions are recorded on-chain.
@@ -400,7 +400,7 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="ui-empty-state-description">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-ios-orange-a30 background-ios-orange-a10">
+            <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-14px px-16px border-color-warning-a30 background-ios-orange-a10">
               <div class="mb-12px">
                 <strong>💡 Why can't I see my transactions?</strong>
               </div>
@@ -872,7 +872,7 @@
               </div>
               <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-14px px-16px">
                 <span>Tax</span>
-                <span class="walletpage-summary-value txt-weight-light color-ios-orange mono">{{ sendSummary.taxLabel }}</span>
+                <span class="walletpage-summary-value txt-weight-light color-warning mono">{{ sendSummary.taxLabel }}</span>
               </div>
               <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-14px px-16px color-text-primary border-top-2-border-color bg-secondary">
                 <span>Receiver net</span>
