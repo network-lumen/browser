@@ -2,9 +2,8 @@
  * src/css/ui/input.css
  * Backs UiInput.vue. Almost everything else (background, border, radius,
  * transition, focus border-color) comes from generic scale.css/utilities.css
- * classes shared across the whole app — this is the one rule that is the
- * input-focus-ring concept specifically (also reused by RecurringPaymentModal
- * for its own bare `<input>`).
+ * classes shared across the whole app, including the focus-ring shadow itself
+ * (shadow-0-0-0-3-ios-blue-a10-focus, also reused by RecurringPaymentModal for
+ * its own bare `<input>`/`<select>` elements) — nothing input-exclusive left
+ * to keep here.
  * ========================================================================== */
-
-.shadow-0-0-0-3-rgba-59-130-246-0-1-focus:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
