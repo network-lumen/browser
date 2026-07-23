@@ -13,15 +13,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Global "nice" scrollbar styling (unified UI) */
-:root {
-  --scrollbar-size: 6px;
-  --scrollbar-radius: var(--border-radius-full);
-  --scrollbar-track: transparent;
-  --scrollbar-thumb: var(--fill-secondary);
-  --scrollbar-thumb-hover: var(--fill-primary);
-}
-
+/* Global "nice" scrollbar styling (unified UI) - --scrollbar-* vars live in theme.css's :root */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);

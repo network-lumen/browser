@@ -899,20 +899,18 @@
   transform: rotate(45deg);
 }
 
-/* UiMenuItem.vue: everything but these 3 is inline utility classes on the
+/* UiMenuItem.vue: everything but these 2 is inline utility classes on the
    template (flex-align-center, flex-justify-start, gap-8px, w-full, py-8px/
    px-10px, border-none, bg-transparent, color-text-primary, text-13px,
-   fw-500, text-left, cursor-pointer, transition-bg-fast) — border-radius has
-   no utility wired to --border-radius-sm, and the hover/focus-visible/
-   disabled states have no utility equivalent (the plain hover-*:hover
-   utilities only fire on mouse hover, which would drop keyboard-focus
-   styling here). */
+   fw-500, text-left, cursor-pointer, transition-bg-fast, disabled-fade-50 -
+   the last one harmonized from its own one-off opacity: 0.4 onto the
+   existing disabled-fade-50 utility, same shape, already used elsewhere at
+   0.5) — border-radius has no utility wired to --border-radius-sm, and the
+   hover/focus-visible state has no utility equivalent (the plain
+   hover-*:hover utilities only fire on mouse hover, which would drop
+   keyboard-focus styling here). */
 .ui-menu-item { border-radius: var(--border-radius-sm); }
 .ui-menu-item:where(:hover, :focus-visible) { background: var(--hover-bg); }
-.ui-menu-item:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
 
 /* UiButton.vue's ghost/cta/icon variants: everything static (color, border,
    radius, gradient, shadow) is already a plain utility class in
