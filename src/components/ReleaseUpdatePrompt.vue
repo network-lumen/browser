@@ -15,7 +15,7 @@
         Change notes
       </button>
 
-      <ul class="meta list-style-none m-0px color-text-secondary txt-xs p-0px">
+      <ul class="divide-y-mt6px list-style-none m-0px color-text-secondary txt-xs p-0px">
         <li><strong>Platform:</strong> {{ latest.platform }}</li>
         <li><strong>Channel:</strong> {{ latest.channel }}</li>
         <li><strong>Artifact:</strong> {{ latest.artifact.kind }}</li>

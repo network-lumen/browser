@@ -1,6 +1,6 @@
 <template>
-  <div class="site-page w-full h-full min-h-0 bg-tertiary overflow-hidden flex" :class="{ 'sitepage-fullscreen fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
-    <main class="sitepage-main flex-1 flex flex-column overflow-hidden min-h-0 p-0px">
+  <div class="site-page w-full h-full min-h-0 bg-tertiary overflow-hidden flex" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
+    <main class="fullscreen-target flex-1 flex flex-column overflow-hidden min-h-0 p-0px">
       <div v-if="loading" class="flex-1 flex-align-justify-center">
         <UiSpinner size="lg" />
       </div>
@@ -36,7 +36,7 @@
         </UiCard>
       </div>
 
-      <div v-else class="sitepage-viewer flex-1 min-h-0 overflow-hidden relative">
+      <div v-else class="fullscreen-target flex-1 min-h-0 overflow-hidden relative">
         <template v-if="resolvedHttpUrl && isHlsPath">
           <video
             ref="videoEl"
@@ -52,7 +52,7 @@
         <webview
           v-else-if="resolvedHttpUrl"
           ref="siteWebview"
-          class="sitepage-webview w-full h-full border-none bg-primary"
+          class="fullscreen-target w-full h-full border-none bg-primary"
           :src="resolvedHttpUrl"
           partition="persist:lumen"
           allowpopups

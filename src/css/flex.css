@@ -41,4 +41,8 @@
 .flex-0-0-auto { flex: 0 0 auto; }
 .flex-1 { flex: 1; }
 .flex-1-1-0 { flex: 1 1 0; }
+.flex-12 { flex: 1.2; }
+.flex-08 { flex: 0.8; }
+.flex-09 { flex: 0.9; }
+.flex-16 { flex: 1.6; }
 .flex-wrap-nowrap { flex-wrap: nowrap; }
