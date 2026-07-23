@@ -52,21 +52,21 @@
 
           <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ sendError }}</div>
 
-          <div class="sitemodal-form-group">
+          <div class="mb-12px">
             <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">From</label>
             <div class="sitemodal-input-wrapper readonly relative">
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
             </div>
           </div>
 
-          <div class="sitemodal-form-group">
+          <div class="mb-12px">
             <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">To <span class="color-error">*</span></label>
             <div class="sitemodal-input-wrapper relative">
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
             </div>
           </div>
 
-          <div class="sitemodal-form-group">
+          <div class="mb-12px">
             <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">Amount (LMN) <span class="color-error">*</span></label>
             <div class="sitemodal-input-wrapper relative">
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
@@ -83,7 +83,7 @@
             </div>
           </div>
 
-          <div class="sitemodal-form-group">
+          <div class="mb-12px">
             <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">Memo (optional)</label>
             <div class="sitemodal-input-wrapper relative">
               <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendMemo" :disabled="sending" />
@@ -114,7 +114,7 @@
           </div>
           <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ pinError }}</div>
 
-          <div class="sitemodal-form-group">
+          <div class="mb-12px">
             <label>Name <span class="color-error">*</span></label>
             <div class="sitemodal-input-wrapper relative">
               <input
@@ -203,7 +203,7 @@
             </button>
           </div>
 
-          <div class="sitemodal-form-group" v-if="stableLinkMode === 'existing'">
+          <div class="mb-12px" v-if="stableLinkMode === 'existing'">
             <label>Stable link</label>
             <div class="sitemodal-input-wrapper relative">
               <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
@@ -215,7 +215,7 @@
             </div>
           </div>
 
-          <div class="sitemodal-form-group" v-else>
+          <div class="mb-12px" v-else>
             <label>New stable link label</label>
             <div class="sitemodal-input-wrapper relative">
               <input
@@ -278,7 +278,7 @@
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
           <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ stableLinkSetupError }}</div>
-          <div class="sitemodal-form-group">
+          <div class="mb-12px">
             <label>Live link</label>
             <div class="sitemodal-input-wrapper relative">
               <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">

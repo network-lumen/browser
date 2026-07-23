@@ -176,11 +176,11 @@
 
             <div class="walletonboard-reminder-box mt-32px p-24px border-radius-12px bg-secondary">
               <p class="txt-xs txt-weight-strong m-0px mb-8px color-text-primary">Remember:</p>
-              <ul class="walletonboard-reminder-list txt-xs color-gray-blue m-0px pl-24px">
-                <li class="walletonboard-reminder-list-li mb-8px">Never share your password or backup file</li>
-                <li class="walletonboard-reminder-list-li mb-8px">Store your backup in multiple secure locations</li>
-                <li class="walletonboard-reminder-list-li mb-8px">You'll need your password for all transactions</li>
-                <li class="walletonboard-reminder-list-li mb-8px">No one can recover your wallet if you lose both</li>
+              <ul class="txt-xs color-gray-blue m-0px pl-24px">
+                <li class="mb-8px">Never share your password or backup file</li>
+                <li class="mb-8px">Store your backup in multiple secure locations</li>
+                <li class="mb-8px">You'll need your password for all transactions</li>
+                <li>No one can recover your wallet if you lose both</li>
               </ul>
             </div>
           </div>

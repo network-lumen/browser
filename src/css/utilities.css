@@ -979,7 +979,12 @@
 .pill-selected-gradient-primary { background: var(--gradient-primary); border-color: var(--accent-primary); color: #fff; font-weight: 600; }
 .bg-primary-a05-selected { background: var(--primary-a05); }
 .right-3-5rem { right: 3.5rem; }
+.textarea-min-h-80-font-inherit { min-height: 80px; font-family: inherit; }
+.date-input-icon-filter[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }
 .tone-green.active { color: var(--ios-green); }
+.tone-tab-active.active { background: var(--tab-active-bg); z-index: 2; }
+.bg-gradient-shell { background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%), radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%), linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light)); }
+.spinner-size-14-stroke-15 { --spinner-size: 14px; --spinner-stroke: 1.5px; }
 .w-100px-h-100px-important { width: 100px !important; height: 100px !important; }
 .is-offline { opacity: 0.7; }
 .border-2-solid-accent-primary { border: 2px solid var(--accent-primary); }

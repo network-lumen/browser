@@ -48,7 +48,7 @@
       </UiPageHeader>
 
       <UiCard v-if="activeNameTab === 'lumen'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-0-10-30-rgba-0-0-0-0-1" :shadow="false">
-        <div v-if="error" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
+        <div v-if="error" class="color-error flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
           <p class="color-error">{{ error }}</p>
         </div>
         <div v-else-if="loading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">

@@ -213,89 +213,6 @@
   --backdrop-blur: saturate(180%) blur(20px);
 }
 
-/* ========== UTILITY CLASSES ========== */
-
-/* Button Styles */
-
-.sitemodal-send .sitemodal-form-group { margin-bottom: 12px; }
-.walletonboard-reminder-list li:last-child,
-.explorer-content-area > .explorer-charts-section, .explorer-content-area > .explorer-recent-activity {
-  margin-bottom: 0;
-}
-
-
-/* ReleaseUpdatePrompt.vue */
-
-
-/* disabled-fade-* utilities live in utilities.css alongside their -50/-60 siblings. */
-/* badge-success/error/warning/info/neutral rules live in src/css/ui/badge.css.
- * These search-page selectors shared the same computed background value
- * (unrelated concept) and keep their own declaration here. */
-
-/* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
-
-.mygw-whitelist-table tbody tr:last-child td { border-bottom: none; }
-
-/* RecurringPaymentModal.vue */
-.recurpay-input[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }
-
-
-/* SubscriptionsView.vue — .paused/.completed are dynamic (:class="payment.status") */
-.subview-payment-card.paused { opacity: 0.7; background: var(--bg-secondary); }
-.subview-payment-status.completed {
-  background: rgba(var(--ios-indigo-rgb), 0.15);
-  color: var(--ios-indigo);
-}
-
-/* MainScreen.vue */
-.main-shell {
-  background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%), radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%), linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
-}
-.tab-spinner { --spinner-size: 14px; --spinner-stroke: 1.5px; }
-.tabs-header .mainscreen-tab.active { background: var(--tab-active-bg); z-index: 2; }
-
-/* NetworkPage.vue — .excellent/.good/.normal are a dynamic 3-way ternary
-   (validatorPercent/blockTimeStatus thresholds), left as CSS. */
-.netpage-indicator-fill.excellent { background: var(--ios-green); }
-.netpage-indicator-fill.normal { background: var(--ios-orange); }
-
-.helppage-hero-section { background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 100%); }
-
-/* GatewaysPage.vue */
-.gwpage-modal-body .gwpage-form-group:nth-child(4) {
-  grid-column: 1 / -1;
-}
-
-/* DaoPage.vue */
-.daopage-stat-card { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--hover-bg) 100%); }
-.daopage-proposal-status.deposit { background: rgba(var(--ios-yellow-rgb), 0.15); color: var(--ios-orange); }
-.daopage-proposal-status.unknown { background: var(--bg-secondary); color: var(--text-secondary); }
-.daopage-member-avatar.has-image { background: transparent; }
-.daopage-progress-yes { background: linear-gradient(90deg, var(--ios-teal), var(--ios-green)); }
-.daopage-vote-option input[type="radio"], .drivepage-upload-btn input, .drivepage-upload-btn-large input {
-  display: none;
-}
-
-.error {
-  color: var(--ios-red);
-}
-
-/* MyGatewaysPage.vue — .mygw-btn-start/.mygw-btn-stop kept as a button
-   variant identity (each has its own gradient background) */
-.mygw-btn-start {
-  background: linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%);
-  box-shadow: 0 2px 8px rgba(var(--ios-green-rgb), 0.3);
-}
-.mygw-btn-stop {
-  background: linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%);
-  box-shadow: 0 2px 8px rgba(var(--ios-red-rgb), 0.3);
-}
-textarea.mygw-form-input, .walletpage-form-textarea {
-  min-height: 80px;
-  font-family: inherit;
-}
-
-/* ===== EXTENSIONS ===== */
 
 /* IpfsPage.vue */
 .ipfspage-markdown-view {
@@ -352,7 +269,3 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .ipfspage-markdown-view img { max-width: 100%; height: auto; }
 .ipfspage-markdown-view pre { overflow: auto; }
 .ipfspage-markdown-view code { word-break: break-word; }
-
-
-
-

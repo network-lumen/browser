@@ -133,7 +133,7 @@
               <div class="netpage-health-label color-text-secondary mb-14px fw-500 text-uppercase text-11px letter-spacing-005em">Chain Status</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
                 <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill excellent netpage-indicator-fill--w100 h-full w-full border-radius-4px transition-width-03"></div>
+                  <div class="netpage-indicator-fill--w100 h-full w-full border-radius-4px transition-width-03" :style="indicatorFillStyle('excellent')"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">Synced</span>
               </div>
@@ -143,7 +143,7 @@
               <div class="netpage-health-label color-text-secondary mb-14px fw-500 text-uppercase text-11px letter-spacing-005em">Validator Participation</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
                 <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill h-full border-radius-4px transition-width-03" :class="validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal'" :style="{ width: validatorPercent + '%' }"></div>
+                  <div class="h-full border-radius-4px transition-width-03" :style="{ width: validatorPercent + '%', ...indicatorFillStyle(validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal') }"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">{{ validatorPercent.toFixed(0) }}%</span>
               </div>
@@ -153,7 +153,7 @@
               <div class="netpage-health-label color-text-secondary mb-14px fw-500 text-uppercase text-11px letter-spacing-005em">Block Production</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
                 <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03 w-85pct" :class="blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal'"></div>
+                  <div class="netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03 w-85pct" :style="indicatorFillStyle(blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">{{ blockTimeStatus }}</span>
               </div>
@@ -163,7 +163,7 @@
               <div class="netpage-health-label color-text-secondary mb-14px fw-500 text-uppercase text-11px letter-spacing-005em">Peer Connections</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
                 <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill good netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 netpage-indicator-fill-good w-70pct bg-ios-blue"></div>
+                  <div class="netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 w-70pct" :style="indicatorFillStyle('good')"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">{{ peers }}</span>
               </div>
@@ -320,6 +320,12 @@ const connectionStatusText = computed(() => {
     default: return 'Offline';
   }
 });
+
+function indicatorFillStyle(state: string): Record<string, string> {
+  if (state === "excellent") return { background: "var(--ios-green)" };
+  if (state === "good") return { background: "var(--ios-blue)" };
+  return { background: "var(--ios-orange)" };
+}
 
 const validatorPercent = computed(() => {
   if (!validators.value.total) return 0;

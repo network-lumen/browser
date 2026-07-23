@@ -970,7 +970,7 @@
               <div class="walletpage-input-wrapper relative">
                 <UiInput type="textarea" bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" v-model="contactForm.note" 
                   placeholder="Add a note about this contact"
-                  rows="3" class="walletpage-form-textarea resize-vertical mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary"></UiInput>
+                  rows="3" class="textarea-min-h-80-font-inherit resize-vertical mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary"></UiInput>
               </div>
             </div>
 

@@ -90,7 +90,7 @@
                 v-model="form.startDate"
                 type="date"
                 :min="minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary color-scheme-light-dark bg-image-none"
+                class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary color-scheme-light-dark bg-image-none"
               />
             </div>
 
@@ -100,7 +100,7 @@
                 v-model="form.endDate"
                 type="date"
                 :min="form.startDate || minDate"
-                class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary color-scheme-light-dark bg-image-none"
+                class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-rgba-59-130-246-0-1-focus placeholder-tertiary color-scheme-light-dark bg-image-none"
               />
             </div>
           </div>

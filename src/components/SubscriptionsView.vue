@@ -95,8 +95,8 @@
         <UiCard
           v-for="payment in filteredPayments"
           :key="payment.id"
-          class="subview-payment-card transition-all-02 hover-border-accent hover-shadow-primary-a15"
-          :class="payment.status"
+          class="transition-all-02 hover-border-accent hover-shadow-primary-a15"
+          :style="paymentCardStyle(payment.status)"
           radius="12px"
           border-class="border-2"
           padding-class="p-20px"
@@ -110,8 +110,9 @@
               </span>
             </div>
             <div
-              class="subview-payment-status border-radius-12px text-12px txt-weight-light text-uppercase py-4px px-12px"
-              :class="[payment.status, { 'badge-success': payment.status === 'active', 'badge-warning': payment.status === 'paused' }]"
+              class="border-radius-12px text-12px txt-weight-light text-uppercase py-4px px-12px"
+              :class="{ 'badge-success': payment.status === 'active', 'badge-warning': payment.status === 'paused' }"
+              :style="paymentStatusStyle(payment.status)"
             >
               {{ payment.status }}
             </div>
@@ -403,6 +404,16 @@ function getFrequencyLabel(frequency: string): string {
     yearly: '/ year',
   };
   return labels[frequency] || '';
+}
+
+function paymentCardStyle(status: string): Record<string, string> {
+  if (status === "paused") return { opacity: "0.7", background: "var(--bg-secondary)" };
+  return {};
+}
+
+function paymentStatusStyle(status: string): Record<string, string> {
+  if (status === "completed") return { background: "rgba(var(--ios-indigo-rgb), 0.15)", color: "var(--ios-indigo)" };
+  return {};
 }
 
 function formatAmount(amount: number): string {

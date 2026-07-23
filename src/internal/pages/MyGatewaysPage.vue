@@ -67,7 +67,7 @@
             </UiButton>
             <button 
               type="button" 
-              class="disabled-opacity-50-not-allowed-no-transform-important flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'mygw-btn-stop hover-lift-2-enabled hover-shadow-ios-red-lg' : 'mygw-btn-start hover-lift-2-enabled hover-shadow-ios-green-lg'"
+              class="disabled-opacity-50-not-allowed-no-transform-important flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'hover-lift-2-enabled hover-shadow-ios-red-lg' : 'hover-lift-2-enabled hover-shadow-ios-green-lg'" :style="serverToggleBtnStyle(embeddedServerRunning)"
               @click="toggleEmbeddedServer"
               :disabled="serverLoading"
             >
@@ -99,7 +99,7 @@
 
           <UiEmptyState v-else-if="whitelist.length === 0" description="No users in whitelist yet. Add wallet addresses to grant access." />
 
-          <UiCard v-else class="mygw-whitelist-table overflow-hidden" border-class="border-15" radius="14px" padding="none" :shadow="false">
+          <UiCard v-else class="overflow-hidden" border-class="border-15" radius="14px" padding="none" :shadow="false">
             <table class="mygw-whitelist-table-table w-full border-collapse-collapse">
               <thead class="bg-hover">
                 <tr>
@@ -110,17 +110,17 @@
                 </tr>
               </thead>
               <tbody>
-                <tr class="hover-bg-hover" v-for="entry in whitelist" :key="entry.wallet_address">
-                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary border-bottom-1">
+                <tr class="hover-bg-hover" v-for="(entry, idx) in whitelist" :key="entry.wallet_address">
+                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
                     <div class="mygw-user-display-name fw-500 color-text-primary">
                       {{ getUserDisplayName(entry.wallet_address) }}
                     </div>
                   </td>
-                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary border-bottom-1">
+                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
                     <span class="mygw-mono-text color-text-secondary text-13px mono">{{ formatAddress(entry.wallet_address) }}</span>
                   </td>
-                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary border-bottom-1">{{ formatDate(entry.added_at) }}</td>
-                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary border-bottom-1">
+                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">{{ formatDate(entry.added_at) }}</td>
+                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
                     <div class="mygw-table-actions flex gap-8px">
                       <UiButton variant="secondary" @click="editWhitelistEntry(entry)" title="Edit display name" class="mygw-btn-icon size-32px">
                         <Edit2 :size="14" />
@@ -229,7 +229,7 @@
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="form.name"
                  
                  
-                  placeholder="My Private Gateway" class="mygw-form-input focus-outline-none focus-ring-blue" />
+                  placeholder="My Private Gateway" class="focus-outline-none focus-ring-blue" />
               </div>
 
               <div class="mygw-form-group mb-20px">
@@ -237,7 +237,7 @@
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="form.url"
                  
                  
-                  placeholder="https://gateway.example.com" class="mygw-form-input focus-outline-none focus-ring-blue" />
+                  placeholder="https://gateway.example.com" class="focus-outline-none focus-ring-blue" />
               </div>
 
               <div class="mygw-form-group mb-20px">
@@ -245,7 +245,7 @@
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="form.apiKey"
                  
                  
-                  placeholder="Your gateway API key" class="mygw-form-input focus-outline-none focus-ring-blue" />
+                  placeholder="Your gateway API key" class="focus-outline-none focus-ring-blue" />
               </div>
 
               <div v-if="modalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-ios-red-a10 border-1-ios-red-a20">
@@ -283,7 +283,7 @@
                  
                  
                   placeholder="lumen1..."
-                  :disabled="!!editingWhitelistEntry" class="mygw-form-input focus-outline-none focus-ring-blue" />
+                  :disabled="!!editingWhitelistEntry" class="focus-outline-none focus-ring-blue" />
               </div>
 
               <div class="mygw-form-group mb-20px">
@@ -291,7 +291,7 @@
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="whitelistForm.displayName"
                  
                  
-                  placeholder="John Doe" class="mygw-form-input focus-outline-none focus-ring-blue" />
+                  placeholder="John Doe" class="focus-outline-none focus-ring-blue" />
               </div>
 
               <div class="mygw-form-group mb-20px">
@@ -299,7 +299,7 @@
                 <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="whitelistForm.notes"
                  
                   rows="3"
-                  placeholder="Additional notes about this user..." class="mygw-form-input resize-vertical focus-outline-none focus-ring-blue"></UiInput>
+                  placeholder="Additional notes about this user..." class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring-blue"></UiInput>
               </div>
 
               <div v-if="whitelistModalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-ios-red-a10 border-1-ios-red-a20">
@@ -373,6 +373,12 @@ const modalError = ref('');
 
 // Embedded server state
 const embeddedServerRunning = ref(false);
+
+function serverToggleBtnStyle(running: boolean): Record<string, string> {
+  return running
+    ? { background: 'linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%)', boxShadow: '0 2px 8px rgba(var(--ios-red-rgb), 0.3)' }
+    : { background: 'linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%)', boxShadow: '0 2px 8px rgba(var(--ios-green-rgb), 0.3)' };
+}
 const embeddedServerPort = ref<number | null>(null);
 const embeddedServerUrl = ref<string | null>(null);
 const serverLoading = ref(false);
