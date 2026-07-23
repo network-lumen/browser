@@ -252,7 +252,7 @@
             v-for="dex in dexRows"
             :key="dex.key"
             class="walletpage-dex-item border-1 border-radius-16px bg-card overflow-hidden"
-            :class="`walletpage-dex-item-${dex.status}`"
+            :style="dexItemStyle(dex.status)"
           >
             <div class="walletpage-dex-top flex-justify-space-between gap-16px py-16px px-20px align-items-stretch">
               <button
@@ -444,7 +444,7 @@
             class="grid-cols-170-1fr-12fr-12fr-15fr-100-120 hover-pl-calc-125rem-3px last-border-bottom-none gap-16px grid py-16px px-20px flex-inline-align-center transition-all-02 border-bottom-1-light hover-bg-hover border-left-3-accent-primary-hover"
           >
             <div class="col-type min-w-0">
-              <div class="walletpage-type-badge flex-inline text-12px txt-weight-light flex-align-start gap-6px border-radius-6px nowrap py-8px px-10px" :class="getActivityBadgeClass(tx)">
+              <div class="walletpage-type-badge flex-inline text-12px txt-weight-light flex-align-start gap-6px border-radius-6px nowrap py-8px px-10px" :style="getActivityBadgeStyle(tx)">
                 <Edit v-if="isDnsUpdateTx(tx)" :size="14" />
                 <Users v-else-if="isDnsTransferTx(tx)" :size="14" />
                 <Plus v-else-if="isDnsRegisterTx(tx)" :size="14" />
@@ -805,12 +805,12 @@
                     :placeholder="sendRecipientPlaceholder" class="walletpage-form-input mono focus-outline-none focus-ring focus-shadow background-bg-secondary-read-only placeholder-tertiary" />
                   <UiButton variant="secondary" @click="openQrScanner"
                     type="button"
-                    title="Scan QR Code" class="walletpage-input-action-btn hover-bg-accent-color-white absolute top-half translate-y-center right-12px">
+                    title="Scan QR Code" class="hover-bg-accent-color-white absolute top-half translate-y-center right-12px">
                     <QrCode :size="16" />
                   </UiButton>
                   <button 
                     v-if="contacts.length > 0" 
-                    class="walletpage-input-action-btn hover-bg-accent-color-white flex-align-justify-center color-text-secondary cursor-pointer absolute p-8px border-none bg-hover border-radius-6px transition-all-02 top-half translate-y-center right-12px"
+                    class="hover-bg-accent-color-white flex-align-justify-center color-text-secondary cursor-pointer absolute p-8px border-none bg-hover border-radius-6px transition-all-02 top-half translate-y-center right-3-5rem"
                     @click="showContactPicker = !showContactPicker"
                     type="button"
                     title="Select from contacts"
@@ -1957,13 +1957,15 @@ function getActivityLabel(tx: Activity): string {
   return 'Unknown';
 }
 
-function getActivityBadgeClass(tx: Activity): string {
-  if (isDnsUpdateTx(tx)) return 'dns-update';
-  if (isDnsTransferTx(tx)) return 'dns-transfer';
-  if (isDnsRegisterTx(tx)) return 'dns-register';
-  if (isWithdrawRewardsTx(tx)) return 'withdraw-rewards';
-  if (isPublishReleaseTx(tx)) return 'publish-release';
-  return tx.type;
+function getActivityBadgeStyle(tx: Activity): Record<string, string> {
+  if (isDnsUpdateTx(tx)) return { background: 'rgba(var(--ios-purple-rgb), 0.1)', color: 'var(--ios-purple)' };
+  if (isDnsTransferTx(tx)) return { background: 'rgba(var(--ios-blue-rgb), 0.1)', color: 'var(--ios-blue)' };
+  if (isDnsRegisterTx(tx)) return { background: 'rgba(var(--ios-orange-rgb), 0.1)', color: 'var(--ios-orange)' };
+  if (isWithdrawRewardsTx(tx)) return { background: 'rgba(var(--ios-yellow-rgb), 0.1)', color: 'var(--ios-yellow)' };
+  if (isPublishReleaseTx(tx)) return { background: 'rgba(var(--ios-indigo-rgb), 0.1)', color: 'var(--ios-indigo)' };
+  if (tx.type === 'send') return { background: 'rgba(var(--ios-red-rgb), 0.1)', color: 'var(--ios-red)' };
+  if (tx.type === 'receive') return { background: 'rgba(var(--ios-green-rgb), 0.1)', color: 'var(--ios-green)' };
+  return {};
 }
 
 function getViewTitle(): string {
@@ -2869,6 +2871,13 @@ function getDexStatusLabel(status: DexStatus): string {
   if (status === 'degraded') return 'Partial';
   if (status === 'error') return 'Offline';
   return 'Idle';
+}
+
+function dexItemStyle(status: DexStatus): Record<string, string> {
+  if (status === 'online') return { boxShadow: '0 10px 30px rgba(15, 23, 42, 0.04)' };
+  if (status === 'degraded') return { borderColor: 'rgba(var(--ios-orange-rgb), 0.35)' };
+  if (status === 'error') return { borderColor: 'rgba(var(--ios-red-rgb), 0.28)' };
+  return {};
 }
 
 function getDexStatusBadgeClass(status: DexStatus): string {

@@ -12,8 +12,8 @@
           v-for="key in allRoutes"
           :key="key"
           type="button"
-          class="homepage-page-item hover-translate-x-2px w-full flex-align-center bg-transparent border-none color-text-secondary border-radius-sm gap-8px text-13px fw-500 text-left py-8px px-12px transition-all-015 cursor-select-none cursor-grab hover-bg-hover hover-color-text-primary"
-          :class="{ dragging: draggedItem === key, 'drag-over': dragOverItem === key }"
+          class="hover-translate-x-2px active-cursor-grabbing w-full flex-align-center bg-transparent border-none color-text-secondary border-radius-sm gap-8px text-13px fw-500 text-left py-8px px-12px transition-all-015 cursor-select-none cursor-grab hover-bg-hover hover-color-text-primary"
+          :class="{ 'is-dragging': draggedItem === key, 'is-drag-over-target': dragOverItem === key }"
           draggable="true"
           @dragstart="onItemDragStart($event, key)"
           @dragover.prevent="onItemDragOver($event, key)"
@@ -47,8 +47,8 @@
         >
           <div
             v-if="mySpaceCards.length === 0"
-            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px grid-col-full"
-            :class="{ 'is-drag-over': dragOverMySpace }"
+            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px grid-col-full"
+            :class="{ 'is-drag-over-zone': dragOverMySpace }"
             @click="showAllPages = true"
           >
             <div class="homepage-empty-title color-text-primary txt-weight-light text-13px">No cards yet</div>
@@ -60,8 +60,8 @@
           <button
             v-for="key in mySpaceCards"
             :key="key"
-            class="homepage-action-card reveal-on-hover disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
-            :class="{ 'drag-over': dragOverMySpace && draggedItem === key }"
+            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            :class="{ 'is-drag-over-target': dragOverMySpace && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
             @dragover.prevent="onCardDragOver($event, key, 'myspace')"
@@ -78,7 +78,7 @@
             >
               <X :size="14" />
             </div>
-            <component :is="getCardIcon(key)" :size="24" class="homepage-action-icon reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-sm shadow-sm transition-all-015" :class="key" />
+            <component :is="getCardIcon(key)" :size="24" class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-sm shadow-sm transition-all-015" :style="actionIconStyle(key)" />
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
               <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
               <span class="homepage-action-desc color-text-secondary text-12px line-height-135">{{ getCardDescription(key) }}</span>
@@ -98,8 +98,8 @@
         >
           <div
             v-if="lumenCards.length === 0"
-            class="homepage-empty-grid flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px grid-col-full"
-            :class="{ 'is-drag-over': dragOverLumen }"
+            class="flex flex-column flex-align-justify-center cursor-pointer color-text-secondary border-radius-md gap-4px bg-fill-tertiary transition-all-015 py-14px px-16px border-15-dashed-color min-h-100px grid-col-full"
+            :class="{ 'is-drag-over-zone': dragOverLumen }"
             @click="showAllPages = true"
           >
             <div class="homepage-empty-title color-text-primary txt-weight-light text-13px">No cards yet</div>
@@ -111,8 +111,8 @@
           <button
             v-for="key in lumenCards"
             :key="key"
-            class="homepage-action-card reveal-on-hover disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
-            :class="{ 'drag-over': dragOverLumen && draggedItem === key }"
+            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-md text-left relative bg-card border-default transition-all-015 shadow-xs py-14px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
+            :class="{ 'is-drag-over-target': dragOverLumen && draggedItem === key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"
             @dragover.prevent="onCardDragOver($event, key, 'lumen')"
@@ -128,7 +128,7 @@
             >
               <X :size="14" />
             </div>
-            <component :is="getCardIcon(key)" :size="24" class="homepage-action-icon reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-sm shadow-sm transition-all-015" :class="key" />
+            <component :is="getCardIcon(key)" :size="24" class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-sm shadow-sm transition-all-015" :style="actionIconStyle(key)" />
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
               <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
               <span class="homepage-action-desc color-text-secondary text-12px line-height-135">{{ getCardDescription(key) }}</span>
@@ -588,6 +588,23 @@ function getCardTitle(key: string): string {
 
 function getCardDescription(key: string): string {
   return getRouteDescription(key);
+}
+
+const ACTION_ICON_STYLES: Record<string, { background: string; color: string }> = {
+  drive: { background: "linear-gradient(135deg, var(--ios-green) 0%, var(--ios-teal) 100%)", color: "#fff" },
+  wallet: { background: "linear-gradient(135deg, var(--ios-orange) 0%, var(--ios-yellow) 100%)", color: "#fff" },
+  explorer: { background: "linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%)", color: "var(--ios-green)" },
+  gateways: { background: "linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%)", color: "var(--ios-green)" },
+  search: { background: "linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%)", color: "var(--ios-green)" },
+  network: { background: "linear-gradient(135deg, rgba(var(--ios-pink-rgb), 0.22) 0%, rgba(var(--ios-pink-rgb), 0.12) 100%)", color: "var(--ios-pink)" },
+  domain: { background: "linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.22) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%)", color: "var(--ios-blue)" },
+  dao: { background: "linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%)", color: "var(--ios-orange)" },
+  help: { background: "linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%)", color: "var(--ios-orange)" },
+  settings: { background: "linear-gradient(135deg, rgba(var(--ios-purple-rgb), 0.22) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%)", color: "var(--ios-purple)" },
+};
+
+function actionIconStyle(key: string): Record<string, string> {
+  return ACTION_ICON_STYLES[key] || {};
 }
 
 function getCardIcon(key: string) {

@@ -216,15 +216,7 @@
 /* ========== UTILITY CLASSES ========== */
 
 /* Button Styles */
-.homepage-action-card:active, .searchpage-help-icon-btn:active {
-  transform: translateY(0);
-}
 
-/* StartupScreen.vue */
-
-/* InternalSidebar.vue */
-
-/* FindBar.vue */
 /* QrScanner.vue */
 .walletpage-asset-icon.lmn {
   background: var(--accent-secondary);
@@ -239,16 +231,10 @@
 /* ReleaseUpdatePrompt.vue */
 
 
-.searchpage-type-html { color: var(--ios-blue); background: rgba(var(--ios-blue-rgb), 0.12); }
-
 /* disabled-fade-* utilities live in utilities.css alongside their -50/-60 siblings. */
 /* badge-success/error/warning/info/neutral rules live in src/css/ui/badge.css.
  * These search-page selectors shared the same computed background value
  * (unrelated concept) and keep their own declaration here. */
-.searchpage-icon-ipfs, .searchpage-type-ipfs, .searchpage-type-image {
-  background: var(--fill-success);
-}
-.searchpage-type-pdf { background: var(--fill-error); }
 
 /* Shared explorer detail pages (Transaction/Block/Address DetailPage.vue) */
 
@@ -265,48 +251,6 @@
   color: var(--ios-indigo);
 }
 
-/* HomePage.vue — .dragging/.drag-over/.is-drag-over are drag-state bindings
-   that pair with :active/:hover states; kept as CSS with their state partners. */
-.homepage-page-item:active { cursor: grabbing; }
-.homepage-page-item.dragging { opacity: 0.4; cursor: grabbing; }
-.homepage-page-item.drag-over {
-  background: var(--accent-primary);
-  color: #fff;
-  transform: translateX(4px);
-}
-.homepage-empty-grid.is-drag-over {
-  border-color: var(--accent-primary);
-  background: var(--primary-a08);
-}
-.homepage-action-icon.drive {
-  background: linear-gradient(135deg, var(--ios-green) 0%, var(--ios-teal) 100%);
-  color: #fff;
-}
-.homepage-action-icon.wallet {
-  background: linear-gradient(135deg, var(--ios-orange) 0%, var(--ios-yellow) 100%);
-  color: #fff;
-}
-.homepage-action-icon.explorer, .homepage-action-icon.staking, .homepage-action-icon.gateways,
-.homepage-action-icon.search {
-  background: linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%);
-  color: var(--ios-green);
-}
-.homepage-action-icon.network {
-  background: linear-gradient(135deg, rgba(var(--ios-pink-rgb), 0.22) 0%, rgba(var(--ios-pink-rgb), 0.12) 100%);
-  color: var(--ios-pink);
-}
-.homepage-action-icon.domain {
-  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.22) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%);
-  color: var(--ios-blue);
-}
-.homepage-action-icon.dao, .homepage-action-icon.help {
-  background: linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%);
-  color: var(--ios-orange);
-}
-.homepage-action-icon.settings {
-  background: linear-gradient(135deg, rgba(var(--ios-purple-rgb), 0.22) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%);
-  color: var(--ios-purple);
-}
 /* MainScreen.vue */
 .main-shell {
   background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%), radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%), linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
@@ -319,12 +263,7 @@
 .netpage-indicator-fill.excellent { background: var(--ios-green); }
 .netpage-indicator-fill.normal { background: var(--ios-orange); }
 
-/* HelpPage.vue — .searchpage-icon-link/.searchpage-type-* are the dynamic
-   SearchPage type/icon enum (bound via computed class helpers), left as CSS. */
 .helppage-hero-section { background: linear-gradient(135deg, var(--primary-a12) 0%, var(--card-bg) 100%); }
-.searchpage-icon-link, .searchpage-type-txt, .searchpage-type-link {
-  background: var(--fill-tertiary);
-}
 
 /* GatewaysPage.vue */
 .gwpage-modal-body .gwpage-form-group:nth-child(4) {
@@ -360,15 +299,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   font-family: inherit;
 }
 
-/* DomainPage.vue */
-
 /* ===== EXTENSIONS ===== */
-.drivepage-hls-queue-item-error,
-.drivepage-hls-queue-item.status-failed .drivepage-hls-queue-item-status {
-  color: var(--error-red);
-}
-
-/* ===== PROFILE MENU ===== */
 
 /* Brightness Control */
 .settingspage-brightness-slider::-webkit-slider-thumb {
@@ -444,17 +375,9 @@ textarea.mygw-form-input, .walletpage-form-textarea {
   color: var(--ios-green);
 }
 
-.drivepage-hls-queue-item.status-paused .drivepage-hls-queue-item-status {
-  color: var(--accent-primary);
-}
-
 .explorer-chart-donut-wrapper canvas { width: 100px !important; height: 100px !important; }
 .drivepage-gateway-card.offline {
   opacity: 0.7;
-}
-
-.drivepage-action-btn:active {
-  transform: scale(0.98);
 }
 
 /* Stake Modal Styles */
@@ -474,17 +397,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .explorer-tx-status-popup.error { border: 2px solid var(--ios-red); }
 
 
-/* SearchPage.vue */
-.searchpage-pill svg { flex-shrink: 0; transition: transform 0.2s ease; }
-.searchpage-pill.active {
-  background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
-  border-color: transparent;
-  color: #fff;
-  font-weight: 700;
-  box-shadow: 0 4px 16px rgba(var(--ios-blue-rgb), 0.3);
-}
-.searchpage-pill.active svg { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2)); }
-
 .searchpage-result-card.searchpage-explore-image .searchpage-result-icon {
   width: 160px;
   height: auto;
@@ -496,26 +408,6 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .searchpage-result-card.searchpage-explore-image .searchpage-safe-thumb--compact { border-radius: 0; }
 .searchpage-result-card.searchpage-explore-image .searchpage-result-body { overflow: hidden; }
 .searchpage-result-card.searchpage-explore-image .searchpage-badges { flex-wrap: nowrap; overflow: hidden; }
-
-/* Result type-specific icon colors */
-.searchpage-icon-site {
-  background: linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.12) 0%, rgba(var(--ios-indigo-rgb), 0.12) 100%);
-  color: var(--ios-blue);
-}
-.searchpage-icon-tx, .searchpage-type-tx { background: rgba(var(--ios-orange-rgb), 0.12); }
-.searchpage-icon-block {
-  background: linear-gradient(135deg, rgba(var(--ios-indigo-rgb), 0.12) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%);
-  color: var(--ios-purple);
-}
-.searchpage-icon-address {
-  background: linear-gradient(135deg, rgba(var(--ios-teal-rgb), 0.12) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%);
-  color: var(--ios-teal);
-}
-
-/* Result type badges */
-.searchpage-type-epub { background: rgba(var(--ios-purple-rgb), 0.12); color: var(--ios-purple); }
-.searchpage-type-docx, .searchpage-type-address { background: rgba(var(--ios-teal-rgb), 0.12); color: var(--ios-teal); }
-.searchpage-type-block { background: rgba(var(--ios-indigo-rgb), 0.12); color: var(--ios-purple); }
 
 .searchpage-safe-thumb.searchpage-blurred img {
   filter: blur(14px) saturate(0.85) brightness(0.85);
@@ -532,24 +424,7 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 /* WalletPage.vue */
 .walletpage-asset-icon.remote { background: linear-gradient(135deg, var(--accent-primary), var(--ios-blue)); }
-.walletpage-dex-item-online { box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04); }
-.walletpage-dex-item-degraded { border-color: rgba(var(--ios-orange-rgb), 0.35); }
-.walletpage-dex-item-error { border-color: rgba(var(--ios-red-rgb), 0.28); }
-
-/* Transaction List */
-.walletpage-type-badge.dns-update { background: rgba(var(--ios-purple-rgb), 0.1); color: var(--ios-purple); }
-.walletpage-type-badge.dns-transfer { background: rgba(var(--ios-blue-rgb), 0.1); color: var(--ios-blue); }
-.walletpage-type-badge.dns-register { background: rgba(var(--ios-orange-rgb), 0.1); color: var(--ios-orange); }
-.walletpage-type-badge.withdraw-rewards { background: rgba(var(--ios-yellow-rgb), 0.1); color: var(--ios-yellow); }
-.walletpage-type-badge.publish-release { background: rgba(var(--ios-indigo-rgb), 0.1); color: var(--ios-indigo); }
-.walletpage-type-badge.send { background: rgba(var(--ios-red-rgb), 0.1); color: var(--ios-red); }
-.walletpage-type-badge.receive { background: rgba(var(--ios-green-rgb), 0.1); color: var(--ios-green); }
 .walletpage-form-input[readonly] { cursor: not-allowed; }
-.drivepage-hls-queue-item.status-cancelled .drivepage-hls-queue-item-status {
-  color: var(--ios-orange);
-}
-/* Address Book Styles */
-.walletpage-input-action-btn + .walletpage-input-action-btn { right: 3.5rem; }
 /* Details grid/row pattern shared by the Local drive, Import snapshot and Subscription details modals */
 .details-row {
   display: flex;
@@ -562,39 +437,4 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 .details-row:last-child { border-bottom: none; }
 .details-label { color: var(--text-secondary); font-size: 0.875rem; }
 .details-value { color: var(--text-primary); font-size: 0.9375rem; font-weight: 500; }
-.details-value.ok { color: var(--ios-green); }
-.details-value.off { color: var(--ios-red); }
 .details-section-header h4 { margin: 0; font-size: 0.9375rem; font-weight: 500; color: var(--text-primary); }
-.drivepage-hosting-dot.ok { background: var(--ios-green); box-shadow: 0 0 8px rgba(var(--ios-green-rgb), 0.35); }
-.drivepage-hosting-dot.pending { background: var(--ios-orange); box-shadow: 0 0 8px rgba(var(--ios-orange-rgb), 0.35); }
-.drivepage-hosting-dot.off { background: var(--ios-red); box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.35); }
-
-/* Search & Filter Bar */
-.drivepage-bulk-toolbar.active { box-shadow: 0 0 0 3px var(--primary-a08); }
-.drivepage-hls-queue-item.status-converting { border-color: var(--primary-a25); background: var(--primary-a06); }
-.drivepage-hls-queue-item.status-done {
-  border-color: rgba(var(--ios-green-rgb), 0.25);
-  background: rgba(var(--ios-green-rgb), 0.06);
-}
-.drivepage-hls-queue-item.status-paused {
-  border-color: rgba(var(--ios-blue-rgb), 0.25);
-  background: rgba(var(--ios-blue-rgb), 0.06);
-}
-.drivepage-hls-queue-item.status-failed {
-  border-color: rgba(var(--ios-red-rgb), 0.25);
-  background: rgba(var(--ios-red-rgb), 0.06);
-}
-.drivepage-hls-queue-item.status-cancelled {
-  border-color: rgba(var(--ios-orange-rgb), 0.25);
-  background: rgba(var(--ios-orange-rgb), 0.06);
-}
-
-/* Pagination */
-.drivepage-page-num.active {
-  background: var(--gradient-primary);
-  border-color: var(--accent-primary);
-  color: #fff;
-  font-weight: 600;
-}
-/* List View */
-.drivepage-list-item.checked { background: var(--primary-a05); }
