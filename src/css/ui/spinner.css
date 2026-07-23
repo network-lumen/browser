@@ -1,8 +1,13 @@
 /* ============================================================================
  * src/css/ui/spinner.css
- * Backs UiSpinner.vue (SVG ring, `.ui-spinner*`) and the plain CSS-only
- * `.ring-spinner*` utility used where a full Vue component isn't warranted
- * (e.g. inline inside a UiButton while submitting).
+ * Backs UiSpinner.vue: an SVG ring built from stroke-dasharray/stroke-
+ * dashoffset arcs with their own keyframe animations, none of which has a
+ * utility equivalent. The plain CSS-only ring-spinner*, previously kept
+ * here for places a full Vue component wasn't warranted, has been fully
+ * decomposed into existing/new utility classes (border-radius-full, w-/h-
+ * Npx, border-2-fill-secondary/border-3-fill-secondary, spinner-accent —
+ * the last two matching the border-2-white-aNN/spinner-white pattern
+ * LumenSiteModalHost/PasswordPromptModal already used for the same concept).
  * ========================================================================== */
 
 .ui-spinner {
@@ -63,12 +68,3 @@
   --spinner-size: 1.5rem;
   --spinner-stroke: 2.35px;
 }
-.ring-spinner {
-  border-radius: 999px;
-  border-style: solid;
-  border-color: var(--fill-secondary);
-  border-top-color: var(--accent-primary);
-  animation: spin 0.9s linear infinite;
-}
-.ring-spinner-sm { width: 18px; height: 18px; border-width: 2px; }
-.ring-spinner-lg { width: 40px; height: 40px; border-width: 3px; }

@@ -919,7 +919,7 @@
                 />
                 <div v-else class="h-240px flex-align-justify-center color-text-tertiary bg-secondary border-radius-8px text-14px w-240px">
                   <div class="flex-align-center gap-8px color-text-secondary">
-                    <span class="ring-spinner ring-spinner-sm inline-block flex-shrink-0"></span>
+                    <span class="border-radius-full w-18px h-18px border-2-fill-secondary spinner-accent inline-block flex-shrink-0"></span>
                     Generating QR Code...
                   </div>
                 </div>

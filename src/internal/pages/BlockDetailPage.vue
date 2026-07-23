@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full overflow-y-auto bg-primary">
     <div v-if="loading" class="blockdetail-loading flex flex-column flex-align-justify-center gap-16px py-64px px-32px">
-      <div class="ring-spinner ring-spinner-lg"></div>
+      <div class="border-radius-full w-40px h-40px border-3-fill-secondary spinner-accent"></div>
       <p>Loading block data...</p>
     </div>
 
