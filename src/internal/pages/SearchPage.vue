@@ -157,8 +157,8 @@
             <template v-if="shouldMountImageThumb(idx)">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
-                class="searchpage-safe-thumb w-full h-full relative overflow-hidden bg-secondary"
-                :class="{ 'is-blurred': shouldBlurThumb(r), 'bg-shimmer': !thumbLoadedById[r.id] }"
+                class="w-full h-full relative overflow-hidden bg-secondary"
+                :class="{ 'bg-shimmer': !thumbLoadedById[r.id] }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
@@ -172,6 +172,7 @@
                 </button>
                 <img
                   class="aspect-4-3 w-full object-fit-cover block bg-secondary"
+                  :style="thumbFilterStyle(r)"
                   :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                   :src="r.thumbUrl"
                   alt=""
@@ -240,16 +241,16 @@
         >
           <button
             class="searchpage-result-card reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-xl text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
-            :class="[ r.media ? `media-${r.media}` : '', selectedType === 'all' && r.media === 'image' ? 'media-explore-compact p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
+            :class="[ r.media ? `media-${r.media}` : '', isExploreCompact(r) ? 'media-explore-compact p-0px gap-0px align-items-stretch min-h-132px max-h-132px' : '' ]"
             type="button"
             @click="openResult(r)"
           >
             <div class="absolute left-0 top-0 bottom-0 w-4px" :style="{ background: resultAccentGradient(r) }"></div>
-            <div class="searchpage-result-icon reveal-icon-target flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :style="resultIconStyle(r)">
+            <div class="reveal-icon-target flex-align-justify-center border-radius-lg flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :style="resultIconStyle(r)">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
-                class="searchpage-safe-thumb searchpage-safe-thumb--compact w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
-                :class="{ 'is-blurred': shouldBlurThumb(r), 'bg-shimmer': !thumbLoadedById[r.id] }"
+                class="w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
+                :class="{ 'bg-shimmer': !thumbLoadedById[r.id], 'border-radius-0': isExploreCompact(r) }"
                 @click="onCompactThumbClick(r, $event)"
               >
                 <button
@@ -262,7 +263,8 @@
                   <EyeOff :size="14" />
                 </button>
                 <img
-                  class="searchpage-thumb w-full h-full object-fit-cover"
+                  class="w-full h-full object-fit-cover"
+                  :style="thumbFilterStyle(r)"
                   :key="`${r.id}:${corsAttrForThumb(r) || 'no-cors'}`"
                   :src="r.thumbUrl"
                   alt=""
@@ -273,14 +275,14 @@
               </div>
               <img
                 v-else-if="r.thumbUrl && !brokenThumbs[r.id]"
-                class="searchpage-thumb w-full h-full object-fit-cover"
+                class="w-full h-full object-fit-cover"
                 :src="r.thumbUrl"
                 alt=""
                 @error="onFaviconError(r)"
               />
               <component v-else :is="iconFor(r)" :size="20" />
             </div>
-            <div class="searchpage-result-body flex-1-1-auto min-w-0 py-20px px-24px">
+            <div class="flex-1-1-auto min-w-0 py-20px px-24px" :class="{ 'overflow-hidden': isExploreCompact(r) }">
               <div class="searchpage-result-header flex-align-center gap-8px mb-4px">
                 <span
                   v-if="r.kind !== 'site'"
@@ -321,7 +323,7 @@
               >
                 {{ displayDescription(r) }}
               </div>
-              <div v-if="r.badges?.length" class="searchpage-badges flex flex-wrap-wrap gap-8px mt-12px">
+              <div v-if="r.badges?.length" class="flex gap-8px mt-12px" :class="isExploreCompact(r) ? 'flex-wrap-nowrap overflow-hidden' : 'flex-wrap-wrap'">
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
@@ -1602,7 +1604,22 @@ function resultAccentGradient(r: ResultItem): string {
   return "var(--gradient-brand)";
 }
 
+function thumbFilterStyle(r: ResultItem): Record<string, string> {
+  const transition = "filter 180ms ease, transform 180ms ease";
+  if (shouldBlurThumb(r)) {
+    return { filter: "blur(14px) saturate(0.85) brightness(0.85)", transform: "scale(1.06)", transition };
+  }
+  return { filter: "none", transform: "none", transition };
+}
+
+function isExploreCompact(r: ResultItem): boolean {
+  return selectedType.value === "all" && r?.media === "image";
+}
+
 function resultIconStyle(r: ResultItem): Record<string, string> {
+  if (isExploreCompact(r)) {
+    return { width: "160px", height: "auto", alignSelf: "stretch", background: "transparent", border: "none", borderRadius: "0" };
+  }
   switch (r?.kind) {
     case "site":
       return { background: "linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.12) 0%, rgba(var(--ios-indigo-rgb), 0.12) 100%)", color: "var(--ios-blue)" };

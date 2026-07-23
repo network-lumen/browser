@@ -355,26 +355,4 @@ textarea.mygw-form-input, .walletpage-form-textarea {
 
 
 
-.searchpage-result-card.media-explore-compact .searchpage-result-icon {
-  width: 160px;
-  height: auto;
-  align-self: stretch;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-}
-.searchpage-result-card.media-explore-compact .searchpage-safe-thumb--compact { border-radius: 0; }
-.searchpage-result-card.media-explore-compact .searchpage-result-body { overflow: hidden; }
-.searchpage-result-card.media-explore-compact .searchpage-badges { flex-wrap: nowrap; overflow: hidden; }
-
-.searchpage-safe-thumb.is-blurred img {
-  filter: blur(14px) saturate(0.85) brightness(0.85);
-  transform: scale(1.06);
-  transition: filter 180ms ease, transform 180ms ease;
-}
-.searchpage-safe-thumb:not(.is-blurred) img {
-  filter: none;
-  transform: none;
-  transition: filter 180ms ease, transform 180ms ease;
-}
 
