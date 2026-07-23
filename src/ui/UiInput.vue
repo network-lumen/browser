@@ -72,7 +72,7 @@ const computedClass = computed(() => [
   props.paddingClass,
   'font-inherit',
   props.focusBorderClass,
-  props.focusRing ? 'shadow-0-0-0-3-ios-blue-a10-focus' : '',
+  props.focusRing ? 'focus-ring-blue' : '',
 ].filter(Boolean).join(' '));
 
 defineExpose({

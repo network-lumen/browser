@@ -18,7 +18,7 @@
             @auxclick="(e) => e.button === 1 && closeTab(t.id)"
           >
             <div class="tab-icon flex-align-justify-center border-radius-circle size-16px min-w-16px min-h-16px">
-              <UiSpinner v-if="t.loading" size="sm" class="spinner-size-14-stroke-15 color-gray-blue" />
+              <UiSpinner v-if="t.loading" size="sm" class="color-gray-blue" />
               <img
                 v-else-if="t.favicon"
                 class="favicon border-radius-4px object-fit-cover w-16px h-16px"

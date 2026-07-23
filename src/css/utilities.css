@@ -335,8 +335,6 @@
 .font-inherit { font-family: inherit; }
 .fullscreen-trigger .fullscreen-target { width: 100vw; height: 100vh; }
 .fw-500 { font-weight: 500; }
-.fw-760 { font-weight: 760; }
-.fw-850 { font-weight: 850; }
 .fw-900 { font-weight: 900; }
 .gradient-text-clip { -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .grid { display: grid; }
@@ -369,6 +367,7 @@
 .grid-cols-auto-fit-196 { grid-template-columns: repeat(auto-fit, minmax(196px, 1fr)); }
 .grid-cols-auto-fit-200 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .grid-cols-auto-fit-280 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.h-0 { height: 0; }
 .h-100px { height: 100px; }
 .h-100vh { height: 100vh; }
 .h-10px { height: 10px; }
@@ -378,7 +377,6 @@
 .h-160px { height: 160px; }
 .h-16px { height: 16px; }
 .h-18px { height: 18px; }
-.h-0 { height: 0; }
 .h-1px { height: 1px; }
 .h-20px { height: 20px; }
 .h-22px { height: 22px; }
@@ -663,7 +661,6 @@
 .rounded-tl-12px { border-top-left-radius: 12px; }
 .rounded-tr-12px { border-top-right-radius: 12px; }
 .row-state-active-primary { background: var(--primary-a08); border-color: var(--primary-a15); }
-.shadow-0-0-0-3-ios-blue-a10-focus:focus { box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.1); }
 .shadow-0-0-0-3-ios-blue-a25-focus-visible:focus-visible { box-shadow: 0 0 0 3px rgba(var(--ios-blue-rgb), 0.25); }
 .shadow-0-0-0-ios-red-a0 { box-shadow: 0 0 0 rgba(var(--ios-red-rgb), 0); }
 .shadow-0-1-3-rgba-0-0-0-0-1 { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
@@ -731,7 +728,6 @@
   transition: all 0.2s ease;
 }
 .spinner-accent { border-top-color: var(--accent-primary); animation: spin 0.85s linear infinite; }
-.spinner-size-14-stroke-15 { --spinner-size: 14px; --spinner-stroke: 1.5px; }
 .spinner-white { border-top-color: rgba(255, 255, 255, 0.95); animation: spin 0.85s linear infinite; }
 .spinning { animation: spin 1s linear infinite; }
 .status-dot-off { background: var(--ios-red); box-shadow: 0 0 8px rgba(var(--ios-red-rgb), 0.35); }

@@ -25,7 +25,7 @@
 
           <div class="recurpay-group mb-16px">
             <label class="block color-text-primary recurpay-group-label mb-4px">Category</label>
-            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-ios-blue-a10-focus placeholder-tertiary color-scheme-light-dark bg-image-none">
+            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
               <option value="">Select category</option>
               <option value="subscription">Subscription</option>
               <option value="bill">Bill</option>
@@ -48,7 +48,7 @@
                 v-model="form.recipient"
                 type="text"
                 placeholder="lumen1..."
-                class="recurpay-input flex-1 bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-ios-blue-a10-focus placeholder-tertiary"
+                class="recurpay-input flex-1 bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent focus-ring-blue placeholder-tertiary"
               />
               <UiButton variant="primary" @click="$emit('scan-address')"
                 title="Scan QR Code">
@@ -72,7 +72,7 @@
 
             <div class="recurpay-group mb-16px">
               <label class="block color-text-primary recurpay-group-label mb-4px">Frequency <span class="required color-error">*</span></label>
-              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-ios-blue-a10-focus placeholder-tertiary color-scheme-light-dark bg-image-none">
+              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Bi-weekly</option>
@@ -90,7 +90,7 @@
                 v-model="form.startDate"
                 type="date"
                 :min="minDate"
-                class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-ios-blue-a10-focus placeholder-tertiary color-scheme-light-dark bg-image-none"
+                class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none"
               />
             </div>
 
@@ -100,7 +100,7 @@
                 v-model="form.endDate"
                 type="date"
                 :min="form.startDate || minDate"
-                class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-ios-blue-a10-focus placeholder-tertiary color-scheme-light-dark bg-image-none"
+                class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none"
               />
             </div>
           </div>
@@ -128,7 +128,7 @@
 
           <div v-if="form.reminderEnabled" class="recurpay-group mb-16px">
             <label class="block color-text-primary recurpay-group-label mb-4px">Remind me (days before payment)</label>
-            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent shadow-0-0-0-3-ios-blue-a10-focus placeholder-tertiary color-scheme-light-dark bg-image-none">
+            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-accent focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
               <option :value="0">On the same day</option>
               <option :value="1">1 day before</option>
               <option :value="2">2 days before</option>
