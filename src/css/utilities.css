@@ -705,6 +705,7 @@
 .shadow-0-8-24-rgba-0-0-0-0-12 { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
 .shadow-glow-ios-blue-lg { box-shadow: 0 20px 40px rgba(var(--ios-blue-rgb), 0.3), 0 5px 15px rgba(var(--ios-blue-rgb), 0.2); }
 .shadow-inset-primary-a20 { box-shadow: 0 0 0 1px var(--primary-a20) inset; }
+.shadow-inset-top-white-a35 { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35); }
 .shadow-ios-green-lg { box-shadow: 0 4px 12px rgba(var(--ios-green-rgb), 0.4); }
 .shadow-md { box-shadow: var(--shadow-md); }
 .shadow-modal-strong { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); }
@@ -805,6 +806,7 @@
 .w-160px { width: 160px; }
 .w-16px { width: 16px; }
 .w-180px { width: 180px; }
+.w-18px { width: 18px; }
 .w-20px { width: 20px; }
 .w-220px { width: 220px; }
 .w-22px { width: 22px; }
@@ -859,3 +861,29 @@
 .z-9998 { z-index: 9998; }
 .z-9999 { z-index: 9999; }
 .z-max { z-index: 2147483647; }
+
+/* UiCheckbox.vue's `boxed` variant: the box/wrap/input are all plain utility
+   classes composed in the template (relative, flex-inline-align-justify-
+   center, w-18px, h-18px, border-radius-6px, border-1-border-color, bg-
+   primary, shadow-inset-top-white-a35, transition-all-02, absolute, inset-0,
+   opacity-0) — these 3 are the only bit that can't be a utility class, since
+   they depend on the sibling-combinator relationship between the hidden
+   native input and the box span (:checked + span), which is specific to
+   that exact DOM shape. */
+.checkbox-box-input:hover + .checkbox-box-span { border-color: var(--accent-primary); }
+.checkbox-box-input:checked + .checkbox-box-span {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--primary-a10);
+}
+.checkbox-box-input:checked + .checkbox-box-span::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}

@@ -1,13 +1,13 @@
 <template>
-  <label v-if="boxed" class="checkbox-box-wrap cursor-pointer" :title="title">
+  <label v-if="boxed" class="relative flex-inline-align-justify-center w-18px h-18px flex-shrink-0 cursor-pointer" :title="title">
     <input
       type="checkbox"
-      class="checkbox-box-input"
+      class="checkbox-box-input absolute inset-0 opacity-0 m-0px cursor-pointer"
       :checked="modelValue"
       :disabled="disabled"
       @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
     />
-    <span class="checkbox-box-span"></span>
+    <span class="checkbox-box-span relative w-18px h-18px border-radius-6px border-1-border-color bg-primary shadow-inset-top-white-a35 transition-all-02"></span>
   </label>
   <label v-else class="flex-inline-align-center gap-8px cursor-pointer">
     <input
