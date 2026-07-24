@@ -7,11 +7,6 @@
       </div>
 
       <div class="netparams-header-actions flex flex-wrap-wrap gap-12px flex-inline-align-center">
-        <div class="netparams-endpoint-pill flex-inline-align-center bg-primary gap-8px border-radius-full py-8px px-12px border-1 max-w-420px" :title="restBase">
-          <span class="netparams-pill-label color-text-tertiary txt-weight-strong text-uppercase text-12px letter-spacing-005em">REST</span>
-          <span class="netparams-pill-value color-text-secondary overflow-hidden txt-overflow-ellipsis nowrap text-12px">{{ restBase }}</span>
-        </div>
-
         <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="netparams-btn hover-border-primary-a15 disabled-fade-50">
           <Copy :size="16" />
           Copy all
@@ -40,7 +35,7 @@
           <div class="netparams-section-title flex flex-column gap-4px min-w-0">
             <div class="netparams-title-row flex-align-center gap-10px min-w-0">
               <span class="netparams-section-name color-text-primary txt-weight-strong text-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ s.title }}</span>
-              <span class="netparams-status-badge bg-transparent color-text-tertiary border-radius-full flex-0-0-auto txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(s)">
+              <span v-if="!s.data" class="netparams-status-badge bg-transparent color-text-tertiary border-radius-full flex-0-0-auto txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(s)">
                 {{ statusLabel(s) }}
               </span>
             </div>

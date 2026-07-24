@@ -47,12 +47,11 @@
 .card-state-dragging { opacity: 0.5; transform: scale(0.98); }
 .card-state-drop-target { border-color: rgba(var(--color-primary-rgb), 0.28); box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08), inset 0 0 0 2px rgba(var(--color-primary-rgb), 0.18); }
 .card-state-pinned { border-color: rgba(var(--color-primary-rgb), 0.18); box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06), inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.1); }
-/* !important is load-bearing here: these are Chart.js <canvas> elements
-   (ExplorerPage's bonded-supply/voting-power donut charts) - Chart.js sets
-   its own inline style on resize, and only a stylesheet rule marked
-   !important beats a later inline style, so a plain (non-important)
-   class or a literal style="" attribute would both lose to it. */
-.chart-canvas-fixed-100px { width: 100px !important; height: 100px !important; }
+/* ExplorerPage's bonded-supply/voting-power donut <canvas> elements: forces
+   the CSS display size to match the 120x120 backing resolution (width/height
+   attributes) so the drawn donut isn't downscaled and the centered
+   value/label text has room to fit without touching the ring. */
+.chart-canvas-fixed-120px { width: 120px !important; height: 120px !important; }
 .content-visibility-auto-240-220 { content-visibility: auto; contain-intrinsic-size: 240px 220px; }
 .content-visibility-auto-920-56 { content-visibility: auto; contain-intrinsic-size: 920px 56px; }
 .date-input-icon-filter[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }

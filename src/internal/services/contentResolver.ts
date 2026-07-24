@@ -286,8 +286,10 @@ export function buildCandidateUrl(base: string, target: DomainTarget, path: stri
 export async function probeUrl(url: string, timeoutMs = 2500): Promise<boolean> {
   const httpHead = useInternalLumen()?.httpHead;
   const httpGet = useInternalLumen()?.httpGet;
+  if (typeof httpHead === 'function') {
     const r = await httpHead(url, { timeout: timeoutMs }).catch(() => null);
     if (r && (r.ok === true || [200, 206, 301, 302, 304, 403, 405].includes(Number(r.status)))) return true;
+  }
   if (typeof httpGet === 'function') {
     const r = await httpGet(url, { timeout: timeoutMs, headers: { Range: 'bytes=0-0' } }).catch(() => null);
     if (r && (r.ok === true || [200, 206, 301, 302, 304, 403, 405].includes(Number(r.status)))) return true;
