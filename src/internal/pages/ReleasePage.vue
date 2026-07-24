@@ -116,24 +116,12 @@
           </div>
 
           <div class="relpage-detail-grid gap-12px mb-16px grid grid-cols-1fr-1fr">
-            <div class="relpage-kv">
-              <div class="relpage-k text-12px color-text-tertiary">Status</div>
-              <div class="relpage-v color-text-primary text-14px mt-4px">
-                <span class="bg-transparent border-radius-full txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(selectedRelease)">{{ selectedRelease.status }}</span>
-              </div>
-            </div>
-            <div class="relpage-kv">
-              <div class="relpage-k text-12px color-text-tertiary">Publisher</div>
-              <div class="relpage-v mono color-text-primary text-14px mt-4px">{{ selectedRelease.publisher || '-' }}</div>
-            </div>
-            <div class="relpage-kv">
-              <div class="relpage-k text-12px color-text-tertiary">Created</div>
-              <div class="relpage-v color-text-primary text-14px mt-4px">{{ formatDate(selectedRelease.createdAt) }}</div>
-            </div>
-            <div class="relpage-kv" v-if="selectedRelease.supersedes.length">
-              <div class="relpage-k text-12px color-text-tertiary">Supersedes</div>
-              <div class="relpage-v mono color-text-primary text-14px mt-4px">{{ selectedRelease.supersedes.join(', ') }}</div>
-            </div>
+            <UiKeyValue label="Status">
+              <span class="bg-transparent border-radius-full txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(selectedRelease)">{{ selectedRelease.status }}</span>
+            </UiKeyValue>
+            <UiKeyValue label="Publisher" :value="selectedRelease.publisher || '-'" value-class="mono" />
+            <UiKeyValue label="Created" :value="formatDate(selectedRelease.createdAt)" />
+            <UiKeyValue v-if="selectedRelease.supersedes.length" label="Supersedes" :value="selectedRelease.supersedes.join(', ')" value-class="mono" />
           </div>
 
           <div class="relpage-notes pt-12px mt-12px border-top-1-light" v-if="selectedRelease.notes">
@@ -149,20 +137,11 @@
                 <div class="relpage-muted color-text-tertiary fw-500">{{ formatBytes(a.size) }}</div>
               </div>
               <div class="relpage-artifact-meta">
-                <div class="relpage-kv">
-                  <div class="relpage-k text-12px color-text-tertiary">SHA-256</div>
-                  <div class="relpage-v mono break-word color-text-primary text-14px mt-4px">{{ a.sha256Hex || '-' }}</div>
-                </div>
-                <div class="relpage-kv" v-if="a.cid">
-                  <div class="relpage-k text-12px color-text-tertiary">CID</div>
-                  <div class="relpage-v mono break-word color-text-primary text-14px mt-4px">{{ a.cid }}</div>
-                </div>
-                <div class="relpage-kv" v-if="a.urls.length">
-                  <div class="relpage-k text-12px color-text-tertiary">URLs</div>
-                  <div class="relpage-v color-text-primary text-14px mt-4px">
-                    <div v-for="(u, uIdx) in a.urls" :key="uIdx" class="mono break-word">{{ u }}</div>
-                  </div>
-                </div>
+                <UiKeyValue label="SHA-256" :value="a.sha256Hex || '-'" value-class="mono break-word" />
+                <UiKeyValue v-if="a.cid" label="CID" :value="a.cid" value-class="mono break-word" />
+                <UiKeyValue v-if="a.urls.length" label="URLs">
+                  <div v-for="(u, uIdx) in a.urls" :key="uIdx" class="mono break-word">{{ u }}</div>
+                </UiKeyValue>
               </div>
             </div>
           </div>
@@ -181,33 +160,28 @@
     <UiModal :model-value="daoModalOpen" title="Send to DAO" panel-class="w-min-900px-96vw" @update:model-value="closeDaoModal">
         <div class="relpage-modal-body flex flex-column gap-12px">
           <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
-            <label class="relpage-field flex flex-column gap-6px">
-              <span class="relpage-label text-12px color-text-tertiary">Action</span>
+            <UiFormField label="Action">
               <select v-model="daoForm.kind" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option value="validate">Validate release</option>
                 <option value="reject">Reject release</option>
               </select>
-            </label>
-            <label class="relpage-field flex flex-column gap-6px">
-              <span class="relpage-label text-12px color-text-tertiary">Deposit (LMN)</span>
+            </UiFormField>
+            <UiFormField label="Deposit (LMN)">
               <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.depositLmn" placeholder="0" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-            </label>
+            </UiFormField>
           </div>
 
-          <label class="relpage-field flex flex-column gap-6px">
-            <span class="relpage-label text-12px color-text-tertiary">Title</span>
+          <UiFormField label="Title">
             <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.title" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-          </label>
+          </UiFormField>
 
-          <label class="relpage-field flex flex-column gap-6px">
-            <span class="relpage-label text-12px color-text-tertiary">Summary</span>
+          <UiFormField label="Summary">
             <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.summary" rows="3" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-          </label>
+          </UiFormField>
 
-          <label v-if="daoForm.kind === 'reject'" class="relpage-field flex flex-column gap-6px">
-            <span class="relpage-label text-12px color-text-tertiary">Reason (optional)</span>
+          <UiFormField v-if="daoForm.kind === 'reject'" label="Reason (optional)">
             <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.reason" rows="3" placeholder="Why should this release be rejected?" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-          </label>
+          </UiFormField>
         </div>
 
         <template #footer>
@@ -232,41 +206,32 @@
               </UiButton>
             </div>
 
-            <label class="relpage-field flex flex-column gap-6px">
-              <span class="relpage-label text-12px color-text-tertiary">GitHub release URL</span>
+            <UiFormField label="GitHub release URL" hint="Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.">
               <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="githubReleaseUrl"
-               
                 placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8" class="relpage-input mono focus-outline-none focus-ring focus-shadow" />
-              <span class="relpage-muted text-12px color-text-tertiary fw-500">Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.</span>
-            </label>
+            </UiFormField>
           </div>
 
           <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
-            <label class="relpage-field flex flex-column gap-6px">
-              <span class="relpage-label text-12px color-text-tertiary">Version</span>
+            <UiFormField label="Version">
               <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.version" placeholder="0.1.9" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-            </label>
-            <label class="relpage-field flex flex-column gap-6px">
-              <span class="relpage-label text-12px color-text-tertiary">Channel</span>
+            </UiFormField>
+            <UiFormField label="Channel">
               <select v-model="draft.channel" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
               </select>
-            </label>
-            <label class="relpage-field flex flex-column gap-6px">
-              <span class="relpage-label text-12px color-text-tertiary">Supersedes (IDs)</span>
+            </UiFormField>
+            <UiFormField label="Supersedes (IDs)">
               <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.supersedes" placeholder="12, 13" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-            </label>
-            <label class="relpage-field flex flex-column gap-6px">
-              <span class="relpage-label text-12px color-text-tertiary">Emergency flag</span>
+            </UiFormField>
+            <UiFormField label="Emergency flag">
               <UiCheckbox v-model="draft.emergencyOk">Allow emergency rollout</UiCheckbox>
-            </label>
+            </UiFormField>
           </div>
 
-          <label class="relpage-field flex flex-column gap-6px">
-            <span class="relpage-label text-12px color-text-tertiary">Release notes</span>
+          <UiFormField label="Release notes" :hint="`${draft.notes.length} / ${params?.maxNotesLen || '∞'}`">
             <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="draft.notes" rows="4" placeholder="Changelog, highlights, etc." class="relpage-input focus-outline-none focus-ring focus-shadow" />
-            <span class="relpage-muted text-12px color-text-tertiary fw-500">{{ draft.notes.length }} / {{ params?.maxNotesLen || '∞' }}</span>
-          </label>
+          </UiFormField>
 
           <div class="relpage-artifacts-builder">
             <div class="relpage-builder-head flex-align-center flex-justify-space-between mt-8px">
@@ -289,35 +254,29 @@
               </div>
 
               <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
-                <label class="relpage-field flex flex-column gap-6px">
-                  <span class="relpage-label text-12px color-text-tertiary">Platform</span>
+                <UiFormField label="Platform">
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.platform" placeholder="windows-amd64" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-                </label>
-                <label class="relpage-field flex flex-column gap-6px">
-                  <span class="relpage-label text-12px color-text-tertiary">Kind</span>
+                </UiFormField>
+                <UiFormField label="Kind">
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.kind" placeholder="browser" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-                </label>
+                </UiFormField>
               </div>
 
               <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
-                <label class="relpage-field flex flex-column gap-6px">
-                  <span class="relpage-label text-12px color-text-tertiary">CID</span>
+                <UiFormField label="CID">
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.cid" placeholder="Optional" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-                </label>
-                <label class="relpage-field flex flex-column gap-6px">
-                  <span class="relpage-label text-12px color-text-tertiary">SHA-256</span>
+                </UiFormField>
+                <UiFormField label="SHA-256">
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.sha256Hex" placeholder="64 hex chars" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-                </label>
-                <label class="relpage-field flex flex-column gap-6px">
-                  <span class="relpage-label text-12px color-text-tertiary">Size (bytes)</span>
+                </UiFormField>
+                <UiFormField label="Size (bytes)">
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.size" placeholder="123456" class="relpage-input focus-outline-none focus-ring focus-shadow" />
-                </label>
+                </UiFormField>
               </div>
 
-              <label class="relpage-field flex flex-column gap-6px">
-                <span class="relpage-label text-12px color-text-tertiary">URLs (one per line)</span>
+              <UiFormField label="URLs (one per line)">
                 <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="a.urlsText" rows="3" placeholder="https://example.com/file.exe" class="relpage-input mono focus-outline-none focus-ring focus-shadow" />
-              </label>
+              </UiFormField>
             </div>
           </div>
         </div>
@@ -345,6 +304,8 @@ import UiCheckbox from '../../ui/UiCheckbox.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import UiFormField from '../../ui/UiFormField.vue';
+import UiKeyValue from '../../ui/UiKeyValue.vue';
 import { addToast } from '../../stores/toastStore';
 import { getActiveProfile } from '../profilesStore';
 import { useTabLoadingSync } from '../useTabLoading';
