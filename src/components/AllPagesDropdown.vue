@@ -1,28 +1,26 @@
 <template>
   <div class="mt-16px pt-12px border-top-light">
-    <UiButton variant="none" type="button" @click="open = !open" class="lsb-item lsb-item--dropdown border-none bg-transparent cursor-pointer color-text-secondary flex-align-center-justify-space-between gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast">
+    <UiSidebarNavItem spaceBetween @click="open = !open">
       <span class="txt-weight-light">{{ label }}</span>
       <component :is="open ? ChevronUp : ChevronDown" :size="16" />
-    </UiButton>
+    </UiSidebarNavItem>
 
     <div v-if="open" class="mt-8px flex flex-column gap-2px">
-      <button
+      <UiSidebarNavItem
         v-for="r in routes"
         :key="r.key"
-        type="button"
-        class="lsb-item lsb-item--compact border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-        :class="{ 'active bg-gradient-primary color-white shadow-primary': r.key === activeKey }"
+        :active="r.key === activeKey"
         @click="openRoute(r.key)"
       >
         <component :is="iconFor(r.key)" :size="16" />
         <span class="overflow-hidden txt-overflow-ellipsis nowrap">{{ r.title }}</span>
-      </button>
+      </UiSidebarNavItem>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import UiButton from '../ui/UiButton.vue';
+import UiSidebarNavItem from '../ui/UiSidebarNavItem.vue';
 import { computed, inject, ref } from 'vue';
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
 import {
