@@ -132,7 +132,7 @@
 
           <!-- Charts Section -->
           <div class="mb-0px gap-12px grid grid-cols-2">
-            <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-subtle min-h-220px backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-sm min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">{{ txHistoryTitle }}</h3>
                 <div class="time-filters flex-align-center gap-8px">
@@ -164,7 +164,7 @@
               </div>
             </UiCard>
 
-            <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-subtle min-h-220px backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-sm min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">Bonded / Supply</h3>
               </div>
@@ -195,7 +195,7 @@
               </div>
             </UiCard>
 
-            <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-subtle min-h-220px backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-sm min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">Voting Power</h3>
               </div>
@@ -222,7 +222,7 @@
               </div>
             </UiCard>
 
-            <UiCard padding="none" :shadow="false" class="explorer-chart-card explorer-block-production-card p-20px shadow-subtle min-h-220px backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-chart-card explorer-block-production-card p-20px shadow-sm min-h-220px backdrop-blur">
               <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">Block Production</h3>
                 <div class="explorer-live-indicator flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
@@ -257,7 +257,7 @@
 
           <!-- Recent Activity -->
           <div class="mb-0px gap-12px grid mt-12px grid-cols-2">
-            <UiCard padding="none" :shadow="false" class="explorer-activity-column p-20px shadow-subtle backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-activity-column p-20px shadow-sm backdrop-blur">
               <div class="explorer-activity-header flex-align-center-justify-space-between mb-12px">
                 <h3 class="explorer-activity-header-h3 text-16px txt-weight-light color-text-primary">Latest Blocks</h3>
                 <UiButton variant="primary" @click="currentView = 'blocks'">View All →</UiButton>
@@ -287,7 +287,7 @@
               </div>
             </UiCard>
 
-            <UiCard padding="none" :shadow="false" class="explorer-activity-column p-20px shadow-subtle backdrop-blur">
+            <UiCard padding="none" :shadow="false" class="explorer-activity-column p-20px shadow-sm backdrop-blur">
               <div class="explorer-activity-header flex-align-center-justify-space-between mb-12px">
                 <h3 class="explorer-activity-header-h3 text-16px txt-weight-light color-text-primary">Latest Transactions</h3>
                 <UiButton variant="primary" @click="currentView = 'transactions'">View All →</UiButton>
@@ -504,7 +504,7 @@
             <p class="explorer-validators-subtitle color-text-tertiary text-14px">{{ validators.length }} validators securing the network</p>
           </div>
 
-          <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-subtle backdrop-blur">
+          <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-sm backdrop-blur">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-120-160-100-110-120">
               <div class="th th-rank">#</div>
               <div class="th th-validator">VALIDATOR</div>
@@ -591,7 +591,7 @@
     </main>
     
     <!-- Copy Notification -->
-    <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-success z-9999 bottom-32px shadow-success-lg">
+    <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-success z-9999 bottom-32px shadow-success">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
@@ -599,7 +599,7 @@
     </div>
 
     <!-- Stake Management Modal -->
-    <UiModal :model-value="showStakeModal" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="shadow-stake-modal animate-modal-slide-in w-90pct max-w-420px" @update:model-value="closeStakeModal">
+    <UiModal :model-value="showStakeModal" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="shadow-lg animate-modal-slide-in w-90pct max-w-420px" @update:model-value="closeStakeModal">
           <div class="explorer-balance-info flex gap-16px mb-24px p-16px bg-secondary border-radius-8px">
             <div class="explorer-balance-item flex flex-column flex-1 gap-4px">
               <span class="explorer-balance-label text-12px color-text-secondary fw-500">Staked:</span>
@@ -694,7 +694,7 @@
             </div>
 
             <!-- Transaction Status Popup -->
-            <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-modal-strong min-w-400px max-w-90vw" :style="txStatusPopupStyle(txStatus)">
+            <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-lg min-w-400px max-w-90vw" :style="txStatusPopupStyle(txStatus)">
               <div class="explorer-tx-status-content flex-align-center flex-column gap-24px text-center">
                 <!-- Processing -->
                 <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-16px w-full">
@@ -726,7 +726,7 @@
                       </UiButton>
                     </div>
                   </div>
-                  <button class="explorer-tx-close-btn mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px shadow-0-4-12-indigo-a30-hover" @click="closeStakeModal">Close</button>
+                  <button class="explorer-tx-close-btn mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px hover-shadow-primary" @click="closeStakeModal">Close</button>
                 </div>
 
                 <!-- Error -->

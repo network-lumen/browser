@@ -60,10 +60,12 @@
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.25);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
   --shadow-primary: 0 4px 12px rgba(var(--color-primary-rgb), 0.2);
-  --shadow-primary-lg: 0 8px 20px rgba(var(--color-primary-rgb), 0.25);
+  --shadow-success: 0 4px 12px rgba(var(--color-success-rgb), 0.3);
+  --shadow-danger: 0 4px 12px rgba(var(--color-error-rgb), 0.3);
   --shadow-focus: 0 0 0 4px var(--primary-a15);
   --border-width: 0.5px;
   --border-radius-xs: 6px;
@@ -103,7 +105,6 @@
   --primary-a30: rgba(52, 152, 219, 0.30) !important;
   --primary-a50: rgba(52, 152, 219, 0.50) !important;
   --shadow-primary: 0 4px 12px rgba(52, 152, 219, 0.25) !important;
-  --shadow-primary-lg: 0 8px 20px rgba(52, 152, 219, 0.30) !important;
 }
 
 /* Dark mode - iOS Dark Mode */
@@ -165,10 +166,12 @@
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.85);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
   --shadow-primary: 0 4px 12px rgba(var(--color-primary-rgb), 0.4);
-  --shadow-primary-lg: 0 8px 20px rgba(var(--color-primary-rgb), 0.45);
+  --shadow-success: 0 4px 12px rgba(var(--color-success-rgb), 0.45);
+  --shadow-danger: 0 4px 12px rgba(var(--color-error-rgb), 0.45);
   --shadow-focus: 0 0 0 4px rgba(var(--color-primary-rgb), 0.2);
   --backdrop-blur: saturate(180%) blur(20px);
   --scrollbar-size: 6px;

@@ -1,6 +1,6 @@
 <template>
   <transition name="fade-slide">
-    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-16px fixed p-16px w-min-380px-92vw shadow-0-20-55-rgba-0-0-0-0-18 z-9998 bottom-24px right-24px">
+    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-16px fixed p-16px w-min-380px-92vw shadow-lg z-9998 bottom-24px right-24px">
       <header class="flex flex-column gap-2px">
         <p class="color-primary text-11px line-height-12 txt-weight-medium text-uppercase letter-spacing-01em m-0px">
           Update available

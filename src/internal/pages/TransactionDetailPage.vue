@@ -11,7 +11,7 @@
 
     <div v-else-if="transaction" class="flex flex-column gap-24px">
       <!-- Transaction Overview Card -->
-      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
           <h2 class="color-text-primary txt-weight-light m-0px chaindetail-card-header-h2 text-16px letter-spacing-0025em">Transaction Overview</h2>
         </div>
@@ -62,7 +62,7 @@
       </UiCard>
 
       <!-- Messages Card -->
-      <UiCard v-if="transaction.messages && transaction.messages.length > 0" padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard v-if="transaction.messages && transaction.messages.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
           <h2 class="color-text-primary txt-weight-light m-0px chaindetail-card-header-h2 text-16px letter-spacing-0025em">Messages ({{ transaction.messages.length }})</h2>
         </div>
@@ -82,7 +82,7 @@
       </UiCard>
 
       <!-- Events Card -->
-      <UiCard v-if="transaction.events && transaction.events.length > 0" padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard v-if="transaction.events && transaction.events.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
           <h2 class="color-text-primary txt-weight-light m-0px chaindetail-card-header-h2 text-16px letter-spacing-0025em">Events ({{ transaction.events.length }})</h2>
         </div>
@@ -102,7 +102,7 @@
       </UiCard>
 
       <!-- Raw Data Card -->
-      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
           <h2 class="color-text-primary txt-weight-light m-0px chaindetail-card-header-h2 text-16px letter-spacing-0025em">Raw Transaction Data</h2>
         </div>

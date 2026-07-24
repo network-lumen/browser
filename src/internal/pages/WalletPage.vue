@@ -115,25 +115,25 @@
         <!-- Quick Actions -->
         <div class="grid-cols-auto-fit-140 gap-16px grid">
           <UiButton variant="cta" @click="sendTransaction" class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-primary-a30">
+            <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-primary">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </UiButton>
           <UiButton variant="cta" @click="openReceiveModal" class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-primary-a30">
+            <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-primary">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </UiButton>
           <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-0-8-20-primary-a30">
+            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-primary">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </UiButton>
           <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-0-8-20-primary-a30">
+            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-primary">
               <CreditCard :size="20" />
             </div>
             <span>Buy (soon)</span>
@@ -562,7 +562,7 @@
         </UiEmptyState>
 
         <div v-else class="grid-cols-auto-fill-300 gap-16px mt-24px grid">
-          <div v-for="contact in contacts" :key="contact.id" class="walletpage-contact-card border-radius-12px p-20px bg-card border-1 transition-all-02 hover-border-accent hover-shadow-primary-a15">
+          <div v-for="contact in contacts" :key="contact.id" class="walletpage-contact-card border-radius-12px p-20px bg-card border-1 transition-all-02 hover-border-accent hover-shadow-primary">
             <div class="walletpage-contact-header flex-align-center gap-12px mb-12px">
               <div class="walletpage-contact-avatar flex-align-justify-center size-48px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-20px flex-shrink-0">
                 {{ contact.name.charAt(0).toUpperCase() }}
@@ -818,7 +818,7 @@
                     <Users :size="16" />
                   </button>
                 </div>
-                <div v-if="showContactPicker" class="walletpage-contact-picker border-radius-12px absolute top-full mt-8px bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-0-8-24-rgba-0-0-0-0-12">
+                <div v-if="showContactPicker" class="walletpage-contact-picker border-radius-12px absolute top-full mt-8px bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-md">
                   <div class="walletpage-picker-header flex-align-center-justify-space-between txt-weight-light color-text-primary py-12px px-16px bg-secondary border-bottom-1 text-14px">
                     <span>Select Contact</span>
                     <UiButton variant="icon" @click="showContactPicker = false" class="walletpage-picker-close">
@@ -910,7 +910,7 @@
             </div>
 
             <div class="walletpage-qr-section flex-justify-center m-0px mt-24px mb-24px">
-              <div class="walletpage-qr-wrapper p-20px bg-card border-2 border-radius-16px shadow-0-4-12-rgba-15-23-42-0-04">
+              <div class="walletpage-qr-wrapper p-20px bg-card border-2 border-radius-16px shadow-md">
                 <img 
                   v-if="qrCodeDataUrl" 
                   :src="qrCodeDataUrl"

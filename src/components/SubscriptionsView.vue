@@ -95,7 +95,7 @@
         <UiCard
           v-for="payment in filteredPayments"
           :key="payment.id"
-          class="transition-all-02 hover-border-accent hover-shadow-primary-a15"
+          class="transition-all-02 hover-border-accent hover-shadow-primary"
           :style="paymentCardStyle(payment.status)"
           radius="12px"
           border-class="border-2"

@@ -50,7 +50,7 @@
             </a>
           </div>
           <div class="gwpage-private-gateways-grid grid grid-cols-auto-fill-280">
-            <UiCard v-for="gw in privateGateways" :key="gw.id" padding="none" border-class="border-1" radius="0" :shadow="false" hoverable hover-class="transition-all-02 hover-border-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+            <UiCard v-for="gw in privateGateways" :key="gw.id" padding="none" border-class="border-1" radius="0" :shadow="false" hoverable hover-class="transition-all-02 hover-border-primary hover-lift-2 hover-shadow-md">
               <div class="gwpage-private-gateway-header flex-align-center mb-12px">
                 <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ 'bg-success': gw.status === 'active' }"></div>
                 <span class="gwpage-private-badge text-11px letter-spacing-005em py-4px px-12px bg-indigo-a15 color-indigo">Private</span>

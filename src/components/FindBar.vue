@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="open"
-    class="findbar flex-align-center border-radius-12px absolute gap-6px p-8px border-default bg-primary z-100 right-12px shadow-0-8-24-rgba-0-0-0-0-12 top-10px"
+    class="findbar flex-align-center border-radius-12px absolute gap-6px p-8px border-default bg-primary z-100 right-12px shadow-md top-10px"
     role="dialog"
     aria-label="Find in page"
     @mousedown.stop

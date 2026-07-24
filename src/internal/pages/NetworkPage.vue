@@ -98,25 +98,25 @@
         <div class="netpage-main-grid gap-24px p-32px flex flex-wrap-wrap align-items-start">
         <!-- Left Column: Overview Cards -->
         <div class="netpage-left-column flex flex-column gap-12px flex-1-1-320px">
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 hover-shadow-md">
             <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Block Height</div>
             <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ formatNumber(blockHeight) }}</div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">Latest block on chain</div>
           </UiCard>
 
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 hover-shadow-md">
             <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Validators</div>
             <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ validators.active }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">/{{ validators.total }}</span></div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">{{ validatorPercent.toFixed(1) }}% active</div>
           </UiCard>
 
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 hover-shadow-md">
             <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Block Time</div>
             <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ blockTime.toFixed(2) }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">s</span></div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">Avg: {{ avgBlockTime.toFixed(2) }}s</div>
           </UiCard>
 
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 hover-shadow-md">
             <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Throughput</div>
             <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ tps.toFixed(1) }} <span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">tx/s</span></div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">Peak: {{ maxTps.toFixed(1) }} tx/s</div>
@@ -219,12 +219,12 @@
               padding-class="py-12px px-16px"
               :shadow="false"
               hoverable
-              hover-class="transition-all-02 hover-bg-primary hover-border-accent shadow-0-4-12-rgba-0-0-0-0-1-hover"
+              hover-class="transition-all-02 hover-bg-primary hover-border-accent hover-shadow-md"
               v-for="block in recentBlocks"
               :key="block.height"
             >
               <div class="netpage-block-left flex-align-center gap-12px flex-1 min-w-0">
-                <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px text-13px txt-weight-medium color-white overflow-hidden border-2-white-a15 shadow-0-2-8-rgba-0-0-0-0-2 bg-gradient-indigo-purple" :title="block.validator">
+                <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px text-13px txt-weight-medium color-white overflow-hidden border-2-white-a15 shadow-md bg-gradient-indigo-purple" :title="block.validator">
                   <img class="netpage-validator-avatar-img w-full h-full object-fit-cover" v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
                   <span v-else class="block">{{ block.validator.substring(0, 2).toUpperCase() }}</span>
                 </div>

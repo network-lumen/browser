@@ -67,7 +67,7 @@
             </UiButton>
             <button 
               type="button" 
-              class="disabled-opacity-50-not-allowed-no-transform-important flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'hover-lift-2-enabled hover-shadow-error-lg' : 'hover-lift-2-enabled hover-shadow-success-lg'" :style="serverToggleBtnStyle(embeddedServerRunning)"
+              class="disabled-opacity-50-not-allowed-no-transform-important flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'hover-lift-2-enabled hover-shadow-danger' : 'hover-lift-2-enabled hover-shadow-success'" :style="serverToggleBtnStyle(embeddedServerRunning)"
               @click="toggleEmbeddedServer"
               :disabled="serverLoading"
             >
@@ -176,7 +176,7 @@
             radius="14px"
             :shadow="false"
             hoverable
-            hover-class="transition-all-02 hover-border-primary shadow-0-8-24-rgba-0-0-0-0-08-hover"
+            hover-class="transition-all-02 hover-border-primary hover-shadow-md"
           >
             <div class="mygw-gateway-header flex-align-start flex-justify-space-between mb-16px">
               <div class="mygw-gateway-title flex-align-center gap-8px">

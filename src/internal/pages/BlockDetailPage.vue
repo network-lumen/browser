@@ -11,7 +11,7 @@
 
     <div v-else-if="block" class="blockdetail-content flex flex-column gap-24px bg-secondary p-32px min-h-100vh-200px">
       <!-- Block Overview Card -->
-      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
           <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Block Overview</h2>
         </div>
@@ -58,7 +58,7 @@
       </UiCard>
 
       <!-- Block Data Card -->
-      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
           <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Block Data</h2>
         </div>
@@ -83,13 +83,13 @@
       </UiCard>
 
       <!-- Transactions Card -->
-      <UiCard v-if="block.txs > 0" padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard v-if="block.txs > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
           <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Transactions ({{ block.txs }})</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
           <div class="flex flex-column gap-16px">
-            <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="blockdetail-tx-item flex gap-16px cursor-pointer flex-align-start py-16px px-20px shadow-xs transition-smooth-all hover-border-accent hover-lift-1 shadow-0-2-8-primary-a15-hover">
+            <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="blockdetail-tx-item flex gap-16px cursor-pointer flex-align-start py-16px px-20px shadow-xs transition-smooth-all hover-border-accent hover-lift-1 hover-shadow-primary">
               <div class="blockdetail-tx-icon flex-align-justify-center size-32px border-radius-12px color-primary min-w-32px bg-gradient-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>

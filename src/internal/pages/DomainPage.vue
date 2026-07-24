@@ -47,7 +47,7 @@
         </template>
       </UiPageHeader>
 
-      <UiCard v-if="activeNameTab === 'lumen'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-0-10-30-rgba-0-0-0-0-1" :shadow="false">
+      <UiCard v-if="activeNameTab === 'lumen'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
         <div v-if="error" class="color-error flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
           <p class="color-error">{{ error }}</p>
         </div>
@@ -105,7 +105,7 @@
         </ul>
       </UiCard>
 
-      <UiCard v-else border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-0-10-30-rgba-0-0-0-0-1" :shadow="false">
+      <UiCard v-else border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
         <div v-if="rawDomainsLoading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
           <UiSpinner size="lg" />
           <p>Loading stable links...</p>

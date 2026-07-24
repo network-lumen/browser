@@ -1,5 +1,5 @@
 <template>
-  <UiModal :model-value="visible" panel-class="pwd-modal w-full max-w-360px shadow-modal-strong" :closable="false" @update:model-value="handleCancel">
+  <UiModal :model-value="visible" panel-class="pwd-modal w-full max-w-360px shadow-lg" :closable="false" @update:model-value="handleCancel">
     <template #header>
       <div class="pwd-modal-header flex-align-center gap-12px">
         <LockKeyhole :size="24" class="color-primary" />
