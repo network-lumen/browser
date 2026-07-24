@@ -40,9 +40,9 @@
   --primary-a40: rgba(var(--color-primary-rgb), .40);
   --primary-a45: rgba(var(--color-primary-rgb), .45);
   --primary-a50: rgba(var(--color-primary-rgb), .50);
-  --bg-primary: #ffffff;
+  --bg-primary: var(--white);
   --bg-secondary: #F2F2F7;
-  --bg-tertiary: #FFFFFF;
+  --bg-tertiary: var(--white);
   --text-primary: #000000;
   --text-secondary: #3C3C43;
   --text-tertiary: #3C3C4399;
@@ -51,7 +51,7 @@
   --border-color: #3C3C4329;
   --border-light: #3C3C4314;
   --separator: #3C3C4349;
-  --card-bg: #ffffff;
+  --card-bg: var(--white);
   --sidebar-bg: rgba(255, 255, 255, 0.7);
   --hover-bg: #0000000A;
   --tab-active-bg: rgba(var(--black-rgb), 0.1);
@@ -123,7 +123,7 @@
   --bg-primary: #1C1C1E;
   --bg-secondary: #1C1C1E;
   --bg-tertiary: #1C1C1E;
-  --text-primary: #FFFFFF;
+  --text-primary: var(--white);
   --text-secondary: rgba(235, 235, 245, 0.6);
   --text-tertiary: rgba(235, 235, 245, 0.3);
   --text-quaternary: rgba(235, 235, 245, 0.18);
