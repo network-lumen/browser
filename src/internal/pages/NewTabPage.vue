@@ -137,7 +137,7 @@
             @dragend="onShortcutDragEnd"
           >
             <UiButton variant="none" type="button" @click="openTarget(entry.url, $event)" class="newtab-shortcut-card-main flex-align-center gap-12px cursor-pointer w-full bg-transparent border-none text-left">
-              <span class="newtab-shortcut-avatar h-48px flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary w-48px" :style="avatarToneStyle(entry.kind)">
+              <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
               <span class="newtab-shortcut-copy flex flex-column min-w-0 gap-4px">
@@ -200,7 +200,7 @@
             :key="entry.id"
             type="button"
             @click="openTarget(entry.url, $event)" class="transition-transform-bg-border-015 flex-align-center gap-12px cursor-pointer w-full bg-transparent border-1-light border-radius-16px text-left p-14px hover-border-ios-blue-a14">
-            <span class="newtab-shortcut-avatar h-48px flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary w-48px" :style="avatarToneStyle(entry.kind)">
+            <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
               {{ entry.monogram }}
             </span>
             <span class="newtab-history-preview-copy flex flex-column flex-1 min-w-0 gap-2px">

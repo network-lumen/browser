@@ -1,7 +1,7 @@
 <template>
   <UiCard padding="none" :shadow="false" radius="0" role="status" aria-live="polite" class="startup-card flex flex-column w-full h-full shadow-none overflow-hidden">
     <header class="startup-head flex-align-center gap-12px p-10px border-bottom-default">
-      <img :src="logoUrl" alt="" class="startup-mark flex-0-0-auto border-radius-14px w-42px h-42px" aria-hidden="true" />
+      <img :src="logoUrl" alt="" class="startup-mark flex-0-0-auto border-radius-14px size-44px" aria-hidden="true" />
       <div class="min-w-0">
         <div class="startup-title text-16px txt-weight-strong line-height-12 letter-spacing-n002">Lumen</div>
       </div>
