@@ -22,7 +22,7 @@
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
                 <p class="text-12px line-height-12 txt-weight-strong m-0px">Important: No one can recover your wallet</p>
-                <p class="text-11px line-height-12 color-gray-blue mt-4px m-0px">
+                <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">
                   Lumen is a self-custodial wallet. If you lose access to your wallet without backing it up,
                   your funds are permanently lost. We cannot help you recover them.
                 </p>
@@ -33,14 +33,14 @@
               <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-ios-blue-a10-hover">
                 <Lock :size="20" class="color-primary" />
                 <h4 class="text-12px line-height-12 txt-weight-strong mt-8px m-0px">Set a Password</h4>
-                <p class="text-11px line-height-12 color-gray-blue mt-4px m-0px">
+                <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">
                   Protect your wallet with a strong password
                 </p>
               </div>
               <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-ios-blue-a10-hover">
                 <Download :size="20" class="color-primary" />
                 <h4 class="text-12px line-height-12 txt-weight-strong mt-8px m-0px">Backup Your Wallet</h4>
-                <p class="text-11px line-height-12 color-gray-blue mt-4px m-0px">
+                <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">
                   Export and save your wallet backup file securely
                 </p>
               </div>
@@ -48,7 +48,7 @@
           </div>
 
           <div v-else-if="step === 'password'" class="walletonboard-step animate-walletonboard-fade-in">
-            <p class="text-12px line-height-12 color-gray-blue mb-16px">
+            <p class="text-12px line-height-12 color-text-tertiary mb-16px">
               Create a strong password to protect your wallet. You'll need this password to send transactions.
             </p>
 
@@ -81,7 +81,7 @@
               <p class="text-12px line-height-12 m-0px">Password set successfully!</p>
             </div>
 
-            <p class="text-12px line-height-12 color-gray-blue mt-16px mb-16px">
+            <p class="text-12px line-height-12 color-text-tertiary mt-16px mb-16px">
               Choose a name for your first profile before creating your wallet.
             </p>
 
@@ -110,7 +110,7 @@
               <div v-if="creatingWallet" class="text-center">
                 <UiSpinner size="lg" />
                 <h3 class="text-20px line-height-12 txt-weight-strong mt-16px m-0px color-text-primary">Creating Your Wallet</h3>
-                <p class="text-12px line-height-12 color-gray-blue mt-8px m-0px">
+                <p class="text-12px line-height-12 color-text-tertiary mt-8px m-0px">
                   Generating secure keys and wallet address...
                 </p>
               </div>
@@ -118,7 +118,7 @@
               <div v-else-if="walletCreated" class="text-center">
                 <CheckCircle :size="48" class="color-success" />
                 <h3 class="text-20px line-height-12 txt-weight-strong mt-16px m-0px color-text-primary">Wallet Created!</h3>
-                <p class="text-12px line-height-12 color-gray-blue mt-8px m-0px">
+                <p class="text-12px line-height-12 color-text-tertiary mt-8px m-0px">
                   Your wallet is ready. Let's back it up to keep it safe.
                 </p>
               </div>
@@ -126,7 +126,7 @@
               <div v-else-if="walletError" class="text-center">
                 <AlertCircle :size="48" class="color-error" />
                 <h3 class="text-20px line-height-12 txt-weight-strong mt-16px m-0px color-text-primary">Wallet Creation Failed</h3>
-                <p class="text-12px line-height-12 color-gray-blue mt-8px m-0px">
+                <p class="text-12px line-height-12 color-text-tertiary mt-8px m-0px">
                   {{ walletError }}
                 </p>
                 <UiButton variant="secondary" @click="createWallet" class="hover-bg-secondary">
@@ -142,7 +142,7 @@
               <p class="text-12px line-height-12 m-0px">Password set successfully!</p>
             </div>
 
-            <p class="text-12px line-height-12 color-gray-blue mt-16px mb-16px">
+            <p class="text-12px line-height-12 color-text-tertiary mt-16px mb-16px">
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
             </p>
 
@@ -169,14 +169,14 @@
             <div class="walletonboard-success-box-large text-center py-32px px-16px">
               <CheckCircle :size="48" class="color-success" />
               <h3 class="text-20px line-height-12 txt-weight-strong mt-16px m-0px color-text-primary">All Set!</h3>
-              <p class="text-12px line-height-12 color-gray-blue mt-8px m-0px">
+              <p class="text-12px line-height-12 color-text-tertiary mt-8px m-0px">
                 Your wallet is now protected. Remember to keep your password and backup file safe.
               </p>
             </div>
 
             <div class="walletonboard-reminder-box mt-32px p-24px border-radius-12px bg-secondary">
               <p class="text-11px line-height-12 txt-weight-strong m-0px mb-8px color-text-primary">Remember:</p>
-              <ul class="text-11px line-height-12 color-gray-blue m-0px pl-24px">
+              <ul class="text-11px line-height-12 color-text-tertiary m-0px pl-24px">
                 <li class="mb-8px">Never share your password or backup file</li>
                 <li class="mb-8px">Store your backup in multiple secure locations</li>
                 <li class="mb-8px">You'll need your password for all transactions</li>

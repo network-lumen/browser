@@ -18,7 +18,7 @@
             @auxclick="(e) => e.button === 1 && closeTab(t.id)"
           >
             <div class="tab-icon flex-align-justify-center border-radius-circle size-16px min-w-16px min-h-16px">
-              <UiSpinner v-if="t.loading" size="sm" class="color-gray-blue" />
+              <UiSpinner v-if="t.loading" size="sm" class="color-text-tertiary" />
               <img
                 v-else-if="t.favicon"
                 class="favicon border-radius-4px object-fit-cover w-16px h-16px"
@@ -27,7 +27,7 @@
                 draggable="false"
                 @error="onFaviconError(t)"
               />
-              <Earth v-else :size="16" class="color-gray-blue" />
+              <Earth v-else :size="16" class="color-text-tertiary" />
             </div>
           <div class="mainscreen-tab-label reveal-color-target txt-overflow-ellipsis nowrap overflow-hidden flex-1-1-0 min-w-0" :title="currentTitle(t)">
             {{ currentTitle(t) }}

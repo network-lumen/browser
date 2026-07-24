@@ -19,9 +19,6 @@
   --ios-yellow-rgb: 255, 204, 0;
   --ios-red: #FF3B30;
   --ios-red-rgb: 255, 59, 48;
-  --green-dark: #007AFF;
-  --lime-bright: #34C759;
-  --lime-bright-rgb: 52, 199, 89;
   --ios-gray-1: #8E8E93;
   --ios-gray-2: #AEAEB2;
   --ios-gray-4: #D1D1D6;
@@ -43,8 +40,6 @@
   --primary-a40: rgba(var(--ios-blue-rgb), .40);
   --primary-a45: rgba(var(--ios-blue-rgb), .45);
   --primary-a50: rgba(var(--ios-blue-rgb), .50);
-  --lime-a10: rgba(var(--lime-bright-rgb), .10);
-  --lime-a20: rgba(var(--lime-bright-rgb), .20);
   --bg-primary: #ffffff;
   --bg-secondary: #F2F2F7;
   --bg-tertiary: #FFFFFF;
@@ -69,15 +64,8 @@
   --accent-primary: var(--ios-blue);
   --accent-secondary: var(--ios-teal);
   --error-red: var(--ios-red);
-  --primary-rgb: var(--ios-blue-rgb);
   --border: var(--border-color);
-  --gray-blue: var(--text-tertiary);
-  --gray-blue-light: var(--text-quaternary);
-  --white-blue-light: rgba(var(--primary-rgb), 0.06);
-  --white-blue: rgba(var(--primary-rgb), 0.14);
-  --blue: var(--accent-primary);
   --blue-sky: var(--accent-secondary);
-  --red-base: var(--error-red);
   --gradient-primary: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
   --gradient-primary-hover: linear-gradient(135deg, #0051D5 0%, var(--ios-blue) 100%);
   --gradient-primary-soft: linear-gradient(135deg, var(--primary-a10) 0%, var(--primary-a05) 100%);
@@ -114,7 +102,6 @@
 :root.system {
   --accent-primary: #3498db !important;
   --accent-secondary: #2980b9 !important;
-  --primary-rgb: 52, 152, 219;
   --gradient-primary: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
   --gradient-primary-hover: linear-gradient(135deg, #2980b9 0%, #21618c 100%) !important;
   --gradient-brand: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
