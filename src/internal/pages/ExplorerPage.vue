@@ -96,8 +96,8 @@
 
           <!-- Charts Section -->
           <div class="mb-0px gap-12px grid grid-cols-2">
-            <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-sm min-h-220px backdrop-blur">
-              <UiChartHeader :title="txHistoryTitle">
+            <UiChartCard :title="txHistoryTitle">
+              <template #header>
                 <div class="time-filters flex-align-center gap-8px">
                   <span class="explorer-filter-label text-12px color-text-tertiary mr-4px">Total: {{ formatNumber(txHistoryTotal) }}</span>
                   <UiFilterButton :active="txHistoryWindow === 5" @click="txHistoryWindow = 5">5B</UiFilterButton>
@@ -105,83 +105,73 @@
                   <UiFilterButton :active="txHistoryWindow === 15" @click="txHistoryWindow = 15">15B</UiFilterButton>
                   <UiFilterButton :active="txHistoryWindow === 20" @click="txHistoryWindow = 20">20B</UiFilterButton>
                 </div>
-              </UiChartHeader>
-              <div class="explorer-chart-container">
-                <canvas ref="txHistoryChart" class="w-full h-120px"></canvas>
-              </div>
-            </UiCard>
+              </template>
+              <canvas ref="txHistoryChart" class="w-full h-120px"></canvas>
+            </UiChartCard>
 
-            <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-sm min-h-220px backdrop-blur">
-              <UiChartHeader title="Bonded / Supply" />
-              <div class="explorer-chart-container">
-                <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
-                  <canvas ref="bondedSupplyChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
-                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
-                    <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
-                    <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Bonded</div>
-                  </div>
-                </div>
-                <div class="explorer-chart-legend flex flex-column gap-6px">
-                  <UiLegendItem dot-class="bg-gradient-legend-bonded" label="Bonded" :value="`${formatNumber(bondedTokens)} LMN`" />
-                  <UiLegendItem dot-class="bg-legend-unbonded" label="Unbonded" :value="`${formatNumber(unbondedTokens)} LMN`" />
-                  <UiLegendItem label="Total Supply" :value="`${formatNumber(totalSupply)} LMN`" />
+            <UiChartCard title="Bonded / Supply">
+              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
+                <canvas ref="bondedSupplyChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
+                <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
+                  <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
+                  <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Bonded</div>
                 </div>
               </div>
-            </UiCard>
+              <div class="explorer-chart-legend flex flex-column gap-6px">
+                <UiLegendItem dot-class="bg-gradient-legend-bonded" label="Bonded" :value="`${formatNumber(bondedTokens)} LMN`" />
+                <UiLegendItem dot-class="bg-legend-unbonded" label="Unbonded" :value="`${formatNumber(unbondedTokens)} LMN`" />
+                <UiLegendItem label="Total Supply" :value="`${formatNumber(totalSupply)} LMN`" />
+              </div>
+            </UiChartCard>
 
-            <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-sm min-h-220px backdrop-blur">
-              <UiChartHeader title="Voting Power" />
-              <div class="explorer-chart-container">
-                <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
-                  <canvas ref="votingPowerChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
-                  <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
-                    <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
-                    <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Active</div>
-                  </div>
-                </div>
-                <div class="explorer-chart-legend flex flex-column gap-6px">
-                  <UiLegendItem
-                    v-for="(vp, idx) in topValidatorsPower.slice(0, 5)"
-                    :key="idx"
-                    :dot-color="getVotingPowerColor(idx)"
-                    :label="vp.moniker"
-                    :value="`${vp.percentage}%`"
-                  />
-                  <UiLegendItem dot-class="bg-legend-others" label="Others" :value="`${othersPercentage}%`" />
+            <UiChartCard title="Voting Power">
+              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
+                <canvas ref="votingPowerChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
+                <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
+                  <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
+                  <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Active</div>
                 </div>
               </div>
-            </UiCard>
+              <div class="explorer-chart-legend flex flex-column gap-6px">
+                <UiLegendItem
+                  v-for="(vp, idx) in topValidatorsPower.slice(0, 5)"
+                  :key="idx"
+                  :dot-color="getVotingPowerColor(idx)"
+                  :label="vp.moniker"
+                  :value="`${vp.percentage}%`"
+                />
+                <UiLegendItem dot-class="bg-legend-others" label="Others" :value="`${othersPercentage}%`" />
+              </div>
+            </UiChartCard>
 
-            <UiCard padding="none" :shadow="false" class="explorer-chart-card explorer-block-production-card p-20px shadow-sm min-h-220px backdrop-blur">
-              <UiChartHeader title="Block Production">
+            <UiChartCard title="Block Production">
+              <template #header>
                 <div class="explorer-live-indicator flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
                   <span class="animate-pulse-ring border-radius-circle w-8px h-8px bg-success"></span>
                   <span>Live</span>
                 </div>
-              </UiChartHeader>
-              <div class="explorer-chart-container">
-                <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-6px p-12px min-h-160px">
-                  <div class="explorer-proposer-avatar flex-align-justify-center size-64px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden text-24px flex-shrink-0 border-2-primary-a30 min-w-24px">
-                    <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover border-radius-full" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
-                    <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
-                  </div>
-                  <div class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ latestProposer.moniker }}</div>
-                  <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">Latest Block Proposer</div>
-                  <div class="explorer-proposer-stats w-full mt-8px">
-                    <div class="explorer-proposer-stat-group gap-8px w-full grid grid-cols-1fr-1fr">
-                      <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
-                        <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block</span>
-                        <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
-                      </div>
-                      <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
-                        <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block Time</span>
-                        <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
-                      </div>
+              </template>
+              <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-6px p-12px min-h-160px">
+                <div class="explorer-proposer-avatar flex-align-justify-center size-64px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden text-24px flex-shrink-0 border-2-primary-a30 min-w-24px">
+                  <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover border-radius-full" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
+                  <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ latestProposer.moniker }}</div>
+                <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">Latest Block Proposer</div>
+                <div class="explorer-proposer-stats w-full mt-8px">
+                  <div class="explorer-proposer-stat-group gap-8px w-full grid grid-cols-1fr-1fr">
+                    <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
+                      <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block</span>
+                      <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
+                    </div>
+                    <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
+                      <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block Time</span>
+                      <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
                     </div>
                   </div>
                 </div>
               </div>
-            </UiCard>
+            </UiChartCard>
           </div>
 
           <!-- Recent Activity -->
@@ -699,7 +689,7 @@ import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiStatTile from '../../ui/UiStatTile.vue';
-import UiChartHeader from '../../ui/UiChartHeader.vue';
+import UiChartCard from '../../ui/UiChartCard.vue';
 import UiLegendItem from '../../ui/UiLegendItem.vue';
 import UiFilterButton from '../../ui/UiFilterButton.vue';
 import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
