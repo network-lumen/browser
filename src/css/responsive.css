@@ -24,8 +24,3 @@
   .ui-page-header { flex-direction: column; gap: 1rem; }
   .ui-page-header-actions { width: 100%; flex-wrap: wrap; }
 }
-
-@media (max-width: 1000px) {
-  .relpage-main { padding: 1.5rem; }
-  .relpage-grid, .relpage-form-grid { grid-template-columns: 1fr; }
-}
