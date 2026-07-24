@@ -176,7 +176,7 @@
               v-for="p in profiles"
               :key="p.id"
               class="navbar-profile-row reveal-on-hover hover-bg-hover flex-align-center border-radius-10px gap-6px p-4px"
-              :class="{ 'bg-primary-a08': p.id === activeProfileId }"
+              :class="{ 'bg-primary-a10': p.id === activeProfileId }"
               role="menuitem"
             >
               <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-6px border-none bg-transparent cursor-pointer color-text-primary text-13px fw-500 border-radius-10px py-4px px-8px transition-all-fast text-left w-full min-w-0">
@@ -311,7 +311,7 @@
             <button
               type="button"
               class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
-              :class="{ 'bg-primary-a08 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'file' }"
+              :class="{ 'bg-primary-a10 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'file' }"
               @click="setImportMode('file')"
             >
               Via file
@@ -319,7 +319,7 @@
             <button
               type="button"
               class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
-              :class="{ 'bg-primary-a08 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'manual' }"
+              :class="{ 'bg-primary-a10 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'manual' }"
               @click="setImportMode('manual')"
             >
               Manual

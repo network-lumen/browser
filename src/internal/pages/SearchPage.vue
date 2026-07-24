@@ -42,7 +42,7 @@
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-10px mt-12px">
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -52,7 +52,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -62,7 +62,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a40-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -124,7 +124,7 @@
             <span class="txt-weight-light color-text-secondary text-13px block mb-8px">Try:</span>
             <ul class="line-height-15 m-0px color-text-secondary text-14px pl-20px">
               <li>Using different keywords</li>
-              <li>Searching for a domain (e.g., <code class="text-13px bg-primary-a08 border-radius-4px color-primary py-4px px-6px">example.lmn</code>)</li>
+              <li>Searching for a domain (e.g., <code class="text-13px bg-primary-a10 border-radius-4px color-primary py-4px px-6px">example.lmn</code>)</li>
               <li>Entering a CID, transaction hash, or address directly</li>
             </ul>
           </div>
@@ -135,7 +135,7 @@
         <UiCard padding="none" :shadow="false" radius="xl" v-for="(r, idx) in imageResults"
           :key="r.id"
          
-          :data-result-index="idx" class="content-visibility-auto-240-220 hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a40-hover shadow-0-16-32-primary-a15-hover">
+          :data-result-index="idx" class="content-visibility-auto-240-220 hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a30-hover shadow-0-16-32-primary-a15-hover">
           <button
             type="button"
             class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-1 right-8px hover-color-accent hover-border-primary-a30"
@@ -218,7 +218,7 @@
               <span
                 v-for="(b, bIdx) in r.badges.slice(0, 4)"
                 :key="`${r.id}:${b}`"
-                class="searchpage-image-badge border-radius-full color-primary text-11px line-height-1 bg-primary-a08 nowrap border-1-primary-a15 py-4px px-6px"
+                class="searchpage-image-badge border-radius-full color-primary text-11px line-height-1 bg-primary-a10 nowrap border-1-primary-a15 py-4px px-6px"
                 >{{ b }}</span
               >
               <span
@@ -310,7 +310,7 @@
               <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url reveal-target mono mt-8px color-primary fw-500 text-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="line-clamp-2 searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-14 mono pre-wrap m-0px py-8px px-10px bg-primary-a06 border-1-primary-a12"
+                class="line-clamp-2 searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-14 mono pre-wrap m-0px py-8px px-10px bg-primary-a05 border-1-primary-a10"
                 :class="{ 'is-placeholder-text': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
@@ -327,12 +327,12 @@
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="searchpage-badge reveal-badge-target txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap"
+                  class="searchpage-badge reveal-badge-target txt-weight-light border-radius-full color-primary bg-primary-a10 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="searchpage-badge reveal-badge-target searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a08 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap opacity-85"
+                  class="searchpage-badge reveal-badge-target searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a10 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap opacity-85"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >
@@ -358,7 +358,7 @@
     <UiModal :model-value="showHowSearchWorks" panel-class="searchpage-help-modal w-min-760px-full" @update:model-value="closeHowSearchWorks">
       <template #header>
         <div class="searchpage-help-header-left flex-align-start gap-12px min-w-0">
-          <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a08" aria-hidden="true">
+          <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a10" aria-hidden="true">
             <HelpCircle :size="18" />
           </div>
           <div>

@@ -11,6 +11,6 @@ const props = withDefaults(defineProps<{
 
 const variantClass: Record<'neutral' | 'accent', string> = {
   neutral: 'color-text-secondary bg-secondary',
-  accent: 'color-accent-secondary bg-primary-a08 border-color-primary-a15 txt-weight-medium',
+  accent: 'color-accent-secondary bg-primary-a10 border-color-primary-a15 txt-weight-medium',
 };
 </script>

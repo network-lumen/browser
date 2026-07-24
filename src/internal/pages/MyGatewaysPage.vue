@@ -219,7 +219,7 @@
 
       <!-- Create/Edit Modal -->
       <UiModal :model-value="showModal" :title="editingGateway ? 'Edit External Gateway' : 'Add External Gateway'" panel-class="max-w-500px w-90pct" @update:model-value="closeModal">
-              <p class="mygw-modal-description color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-primary-a25">
+              <p class="mygw-modal-description color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-primary-a20">
                 Add an external private gateway (e.g., your VPS or company server). 
                 For local embedded server, use the "Start Embedded Server" button instead.
               </p>

@@ -82,7 +82,7 @@
           <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-15 m-0px mx-auto mt-16px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="bg-card-a90 focus-within-shadow-ring-primary-a12 flex-align-center gap-12px border-radius-full border-1-light w-min-760px-full py-12px px-16px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-24px mx-auto mb-0px" @submit.prevent="submitOmnibox">
+        <form class="bg-card-a90 focus-within-shadow-ring-primary-a10 flex-align-center gap-12px border-radius-full border-1-light w-min-760px-full py-12px px-16px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-24px mx-auto mb-0px" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
