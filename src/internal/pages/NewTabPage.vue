@@ -120,11 +120,11 @@
           </div>
         </div>
 
-        <div class="newtab-shortcut-grid grid gap-12px mt-16px grid-cols-auto-fit-196">
+        <div class="newtab-shortcut-grid flex flex-wrap-wrap gap-12px mt-16px">
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-20px min-h-150px shadow-0-14-30-rgba-15-23-42-0-08"
+            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-20px min-h-150px shadow-0-14-30-rgba-15-23-42-0-08 flex-basis-third"
             :class="{
               'card-state-pinned': entry.pinned,
               'card-state-dragging': draggingShortcutId === entry.id,
