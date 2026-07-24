@@ -1,11 +1,11 @@
 <template>
-  <div class="site-page w-full h-full min-h-0 bg-tertiary overflow-hidden flex" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
+  <div class="site-page w-full h-full min-h-0 bg-primary overflow-hidden flex" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
     <main class="fullscreen-target flex-1 flex flex-column overflow-hidden min-h-0 p-0px">
       <div v-if="loading" class="flex-1 flex-align-justify-center">
         <UiSpinner size="lg" />
       </div>
 
-      <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary p-32px">
+      <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-primary p-32px">
         <UiCard padding="none" :shadow="false" class="shadow-md max-w-380px">
           <UiEmptyState title="This domain belongs to no one">
             <Tag :size="26" />
@@ -21,7 +21,7 @@
         </UiCard>
       </div>
 
-      <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-tertiary p-32px">
+      <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-primary p-32px">
         <UiCard padding="none" :shadow="false" class="shadow-md max-w-380px">
           <UiEmptyState title="This content isn't available right now">
             <FileQuestion :size="26" />

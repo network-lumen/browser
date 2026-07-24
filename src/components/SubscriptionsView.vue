@@ -105,7 +105,7 @@
           <div class="subview-payment-header flex-align-start flex-justify-space-between mb-12px">
             <div>
               <h4 class="color-text-primary text-16px m-0px mb-4px">{{ payment.name }}</h4>
-              <span class="subview-payment-category color-text-secondary text-11px fw-500 text-capitalize inline-block bg-tertiary border-radius-4px py-0px px-8px" v-if="payment.category">
+              <span class="subview-payment-category color-text-secondary text-11px fw-500 text-capitalize inline-block bg-primary border-radius-4px py-0px px-8px" v-if="payment.category">
                 {{ payment.category }}
               </span>
             </div>

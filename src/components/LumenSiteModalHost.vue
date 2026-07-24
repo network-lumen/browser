@@ -8,7 +8,7 @@
         <h3>Permission required</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a20">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-primary-a20">
             <span>
               Allow this website to open Lumen action modals?
             </span>
@@ -46,11 +46,11 @@
         <h3>Send LMN</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a20" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-primary-a20" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
 
-          <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-error-a25">{{ sendError }}</div>
+          <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-error-a25">{{ sendError }}</div>
 
           <div class="mb-12px">
             <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">From</label>
@@ -109,10 +109,10 @@
         <h3>Save to Drive</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a20" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-primary-a20" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-error-a25">{{ pinError }}</div>
+          <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-error-a25">{{ pinError }}</div>
 
           <div class="mb-12px">
             <label>Name <span class="color-error">*</span></label>
@@ -135,7 +135,7 @@
             </div>
           </div>
 
-          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px mt-12px py-10px px-12px bg-primary-a10 border-width-primary-a18">
+          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px mt-12px py-10px px-12px bg-primary-a10 border-primary-a18">
             <div class="sitemodal-pin-progress-head flex-align-center flex-justify-space-between gap-12px mb-8px">
               <span class="sitemodal-pin-progress-status text-12px text-uppercase txt-weight-medium color-primary letter-spacing-004em">{{ pinStatusLabel }}</span>
               <span v-if="pinProgressCounter" class="sitemodal-pin-progress-counter text-12px color-text-secondary">{{ pinProgressCounter }}</span>
@@ -189,10 +189,10 @@
         <h3>Choose or create a stable link for your live</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a20" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-primary-a20" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-error-a25">{{ stableLinkError }}</div>
+          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-error-a25">{{ stableLinkError }}</div>
 
           <div class="sitemodal-segmented-control border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
             <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-0" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
@@ -274,10 +274,10 @@
         <h3>Select a live link</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a20" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-primary-a20" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-error-a25">{{ stableLinkSetupError }}</div>
+          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-error-a25">{{ stableLinkSetupError }}</div>
           <div class="mb-12px">
             <label>Live link</label>
             <div class="sitemodal-input-wrapper relative">

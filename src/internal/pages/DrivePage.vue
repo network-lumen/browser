@@ -135,7 +135,7 @@
         </div>
         <div class="filter-info flex-align-center gap-12px">
           <span class="drivepage-file-count color-text-secondary text-13px nowrap">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
-          <select v-model="itemsPerPage" class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
+          <select v-model="itemsPerPage" class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-primary focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
             <option :value="10">10 per page</option>
             <option :value="20">20 per page</option>
             <option :value="50">50 per page</option>
@@ -774,7 +774,7 @@
               <div class="drive-backup-field flex flex-column gap-6px">
                 <label class="drivepage-drive-backup-label text-12px txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-primary focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPassword"
                   placeholder="Min 8 characters (recommended: long passphrase)"
@@ -785,7 +785,7 @@
               <div class="drive-backup-field flex flex-column gap-6px">
                 <label class="drivepage-drive-backup-label text-12px txt-weight-light color-text-secondary">Confirm password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-primary focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupExportPasswordConfirm"
                   placeholder="Repeat password"
@@ -846,7 +846,7 @@
               <div class="drive-backup-field flex flex-column gap-6px">
                 <label class="drivepage-drive-backup-label text-12px txt-weight-light color-text-secondary">Password</label>
                 <input
-                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-accent focus-ring focus-bg-primary focus-shadow"
+                  class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-primary focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupImportShowPassword ? 'text' : 'password'"
                   v-model="driveBackupImportPassword"
                   placeholder="Enter backup password"
@@ -1121,7 +1121,7 @@
                          v-model.trim="planFilter"
                          type="search"
                          placeholder="Search gateways or plans"
-                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 text-14px bg-secondary border-none bg-transparent py-12px px-16px focus-outline-none focus-border-accent focus-bg-primary focus-ring focus-shadow min-w-140px"
+                         class="drivepage-plans-filter-input outline-none color-text-primary h-full border-1 text-14px bg-secondary border-none bg-transparent py-12px px-16px focus-outline-none focus-border-primary focus-bg-primary focus-ring focus-shadow min-w-140px"
                          @keydown.stop
                          aria-label="Search gateways"
                        />
@@ -1129,7 +1129,7 @@
 
                      <select
                        v-model="planRegion"
-                       class="hover-border-accent size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
+                       class="hover-border-accent size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-primary focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
                        aria-label="Region filter"
                      >
                        <option value="">All regions</option>
@@ -1142,7 +1142,7 @@
                    <div class="drivepage-plans-search-group drivepage-plans-search-group-sort flex-align-center gap-12px ml-auto flex-wrap-nowrap">
                      <select
                        v-model="planSortBy"
-                       class="hover-border-accent size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-accent focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
+                       class="hover-border-accent size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-primary focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
                        aria-label="Sort by"
                      >
                        <option value="score-desc">Sort: Score (high-low)</option>
@@ -1343,7 +1343,7 @@
                  <select
                    v-model.number="planPageSize"
                    aria-label="Rows per page"
-                   class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-accent focus-ring focus-outline-none focus-shadow"
+                   class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-primary focus-ring focus-outline-none focus-shadow"
                  >
                    <option :value="8">8 / page</option>
                    <option :value="16">16 / page</option>

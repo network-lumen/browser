@@ -1,5 +1,5 @@
 <template>
-  <div class="ipfspage-ipfs-page flex w-full h-full bg-primary" :class="{ 'bg-tertiary': isBareHtmlView }">
+  <div class="ipfspage-ipfs-page flex w-full h-full bg-primary" :class="{ 'bg-primary': isBareHtmlView }">
     <main class="ipfspage-main-content flex flex-column flex-1" :class="isBareHtmlView ? 'p-0px overflow-hidden' : 'p-24px overflow-auto'">
       <UiPageHeader v-if="!isBareHtmlView">
         <template #actions>
@@ -54,7 +54,7 @@
         <UiSpinner size="md" />
       </UiCard>
 
-      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-16px color-error bg-fill-error border-width-error-a35">
+      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-16px color-error bg-fill-error border-error-a35">
         {{ error }}
       </div>
 

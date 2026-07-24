@@ -98,25 +98,25 @@
         <div class="netpage-main-grid gap-24px p-32px flex flex-wrap-wrap align-items-start">
         <!-- Left Column: Overview Cards -->
         <div class="netpage-left-column flex flex-column gap-12px flex-1-1-320px">
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-tertiary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
             <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Block Height</div>
             <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ formatNumber(blockHeight) }}</div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">Latest block on chain</div>
           </UiCard>
 
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-tertiary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
             <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Validators</div>
             <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ validators.active }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">/{{ validators.total }}</span></div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">{{ validatorPercent.toFixed(1) }}% active</div>
           </UiCard>
 
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-tertiary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
             <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Block Time</div>
             <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ blockTime.toFixed(2) }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">s</span></div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">Avg: {{ avgBlockTime.toFixed(2) }}s</div>
           </UiCard>
 
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-tertiary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
             <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Throughput</div>
             <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ tps.toFixed(1) }} <span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">tx/s</span></div>
             <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">Peak: {{ maxTps.toFixed(1) }} tx/s</div>
@@ -132,7 +132,7 @@
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
               <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Chain Status</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
-                <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
+                <div class="h-6px flex-1 bg-primary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill--w100 h-full w-full border-radius-4px transition-width-03" :style="indicatorFillStyle('excellent')"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">Synced</span>
@@ -142,7 +142,7 @@
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
               <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Validator Participation</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
-                <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
+                <div class="h-6px flex-1 bg-primary border-radius-4px overflow-hidden">
                   <div class="h-full border-radius-4px transition-width-03" :style="{ width: validatorPercent + '%', ...indicatorFillStyle(validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal') }"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">{{ validatorPercent.toFixed(0) }}%</span>
@@ -152,7 +152,7 @@
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
               <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Block Production</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
-                <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
+                <div class="h-6px flex-1 bg-primary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03 w-85pct" :style="indicatorFillStyle(blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">{{ blockTimeStatus }}</span>
@@ -162,7 +162,7 @@
             <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
               <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Peer Connections</div>
               <div class="netpage-health-indicator flex-align-center gap-16px">
-                <div class="h-6px flex-1 bg-tertiary border-radius-4px overflow-hidden">
+                <div class="h-6px flex-1 bg-primary border-radius-4px overflow-hidden">
                   <div class="netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 w-70pct" :style="indicatorFillStyle('good')"></div>
                 </div>
                 <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">{{ peers }}</span>
@@ -219,7 +219,7 @@
               padding-class="py-12px px-16px"
               :shadow="false"
               hoverable
-              hover-class="transition-all-02 hover-bg-tertiary hover-border-accent shadow-0-4-12-rgba-0-0-0-0-1-hover"
+              hover-class="transition-all-02 hover-bg-primary hover-border-accent shadow-0-4-12-rgba-0-0-0-0-1-hover"
               v-for="block in recentBlocks"
               :key="block.height"
             >
@@ -242,7 +242,7 @@
                 <div class="netpage-block-meta flex flex-column flex-align-end gap-6px flex-justify-center">
                   <div class="meta-item flex-align-center gap-8px">
                     <span class="netpage-meta-label color-text-secondary txt-weight-light text-uppercase text-10px">TXS</span>
-                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-tertiary border-1 border-radius-4px text-13px py-0px px-8px h-22px min-w-32px" :class="{ 'bg-fill-success border-color-success-a30 color-success': block.txs > 0 }">{{ block.txs }}</span>
+                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-primary border-1 border-radius-4px text-13px py-0px px-8px h-22px min-w-32px" :class="{ 'bg-fill-success border-color-success-a30 color-success': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
                   <div class="netpage-meta-time flex-align-center color-text-secondary gap-6px text-12px line-height-1">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" opacity="0.5">

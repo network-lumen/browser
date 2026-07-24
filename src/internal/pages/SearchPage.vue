@@ -1,7 +1,7 @@
 <template>
   <main
     ref="scrollRoot"
-    class="flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-tertiary relative overflow-x-hidden pt-32px pr-24px pb-80px pl-24px"
+    class="flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-primary relative overflow-x-hidden pt-32px pr-24px pb-80px pl-24px"
     @scroll.passive="onScroll"
     @keydown.slash.prevent="focusInput"
   >
@@ -139,7 +139,7 @@
           <button
             type="button"
             class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-1 right-8px hover-color-accent hover-border-primary-a30"
-            :class="{ 'bg-accent border-color-accent color-white hover-bg-border-color-error': isPinnedImage(r) }"
+            :class="{ 'bg-accent border-color-primary color-white hover-bg-border-color-error': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
           >
@@ -223,7 +223,7 @@
               >
               <span
                 v-if="r.badges.length > 4"
-                class="cursor-help border-radius-full color-text-secondary txt-weight-light text-11px line-height-1 bg-tertiary border-1 nowrap py-4px px-6px"
+                class="cursor-help border-radius-full color-text-secondary txt-weight-light text-11px line-height-1 bg-primary border-1 nowrap py-4px px-6px"
                 :title="r.badges.slice(4).join(', ')"
                 >+{{ r.badges.length - 4 }}</span
               >

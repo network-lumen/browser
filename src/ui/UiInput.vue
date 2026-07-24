@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<{
   borderClass: 'border-1',
   fontSizeClass: 'text-14px',
   paddingClass: 'py-10px px-12px',
-  focusBorderClass: 'focus-border-accent',
+  focusBorderClass: 'focus-border-primary',
 });
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();

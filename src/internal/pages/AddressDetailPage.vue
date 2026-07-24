@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary p-32px">
+  <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
     <div class="mb-32px">
       <UiButton variant="ghost" @click="goBack" class="hover-shadow-0-4-12-primary-a30">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

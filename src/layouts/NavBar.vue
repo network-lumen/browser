@@ -4,12 +4,12 @@
     <div class="navbar-nav-controls flex-align-center gap-4px">
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" :disabled="!canGoBack"
         title="Back"
-        @click="previous" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
+        @click="previous" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <ArrowLeft :size="16" />
       </UiButton>
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" :disabled="!canGoForward"
         title="Forward"
-        @click="next" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
+        @click="next" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <ArrowRight :size="16" />
       </UiButton>
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" v-if="!isExtensionTab"
@@ -17,7 +17,7 @@
         :aria-busy="loading ? 'true' : 'false'"
         :disabled="loading"
         :title="loading ? 'Loading…' : 'Refresh'"
-        @click="refresh" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
+        @click="refresh" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <UiSpinner v-if="loading" size="sm" />
         <RefreshCw v-else :size="16" />
       </UiButton>
@@ -51,11 +51,11 @@
     <!-- Quick Actions -->
     <div class="navbar-quick-actions flex-align-center gap-4px">
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" title="Home"
-        @click="$emit('goto', 'lumen://home')" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
+        @click="$emit('goto', 'lumen://home')" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <House :size="16" />
       </UiButton>
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" title="Drive"
-        @click="$emit('goto', 'lumen://drive')" class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
+        @click="$emit('goto', 'lumen://drive')" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <Cloud :size="16" />
       </UiButton>
     </div>
@@ -65,7 +65,7 @@
         variant="icon"
         icon-radius-class="border-radius-10px"
         icon-padding-class=""
-        class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed extensions-trigger flex-inline-align-justify-center size-32px"
+        class="active-scale-98 disabled-opacity-35-not-allowed extensions-trigger flex-inline-align-justify-center size-32px"
         :class="{ 'color-yellow-override': showExtensionsMenu }"
         title="Extensions"
         @click.stop="toggleExtensionsMenu"
@@ -248,7 +248,7 @@
                 type="password" 
                 v-model="exportPassword" 
                 placeholder="Enter your wallet password"
-                class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                 @keyup.enter="confirmExportProfile"
               />
             </div>
@@ -271,7 +271,7 @@
                   type="password" 
                   v-model="exportPassword" 
                   placeholder="Enter password (min 6 characters)"
-                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                 />
               </div>
               <div class="navbar-export-field flex flex-column gap-4px">
@@ -280,7 +280,7 @@
                   type="password" 
                   v-model="exportPasswordConfirm" 
                   placeholder="Confirm password"
-                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                   @keyup.enter="confirmExportProfile"
                 />
               </div>
@@ -311,7 +311,7 @@
             <button
               type="button"
               class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
-              :class="{ 'bg-primary-a10 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'file' }"
+              :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': importMode === 'file' }"
               @click="setImportMode('file')"
             >
               Via file
@@ -319,7 +319,7 @@
             <button
               type="button"
               class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
-              :class="{ 'bg-primary-a10 border-color-accent color-text-primary shadow-inset-primary-a20': importMode === 'manual' }"
+              :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': importMode === 'manual' }"
               @click="setImportMode('manual')"
             >
               Manual
@@ -370,7 +370,7 @@
                 <input
                   v-model="manualImportName"
                   type="text"
-                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                   placeholder="Enter profile name"
                 />
               </div>
@@ -379,7 +379,7 @@
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Mnemonic</label>
                 <textarea
                   v-model="manualImportMnemonic"
-                  class="navbar-export-input navbar-import-textarea border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
                   rows="4"
                   placeholder="Enter wallet mnemonic"
                 ></textarea>
@@ -389,7 +389,7 @@
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">PQC Public Key</label>
                 <textarea
                   v-model="manualImportPqcPublicKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -399,7 +399,7 @@
                 <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">PQC Private Key</label>
                 <textarea
                   v-model="manualImportPqcPrivateKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-accent focus-ring focus-shadow min-h-84px"
+                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -448,7 +448,7 @@
                 type="password" 
                 v-model="importPassword" 
                 placeholder="Enter backup password"
-                class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-accent focus-ring focus-shadow"
+                class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                 @keyup.enter="confirmImportEncrypted"
               />
             </div>
