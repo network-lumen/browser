@@ -1,6 +1,13 @@
 ﻿@import "./scale.css";
 @import "./flex.css";
 @import "./animation.css";
+@import "./sizing.css";
+@import "./layout.css";
+@import "./colors.css";
+@import "./borders.css";
+@import "./interaction.css";
+@import "./effects.css";
+@import "./typography.css";
 @import "./utilities.css";
 @import "./lib/github-markdown.css";
 @import "./theme.css";
