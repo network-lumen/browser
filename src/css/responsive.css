@@ -5,14 +5,7 @@
 }
 
 @media (max-width: 900px) {
-  .extensions-store-header { padding: 16px; }
-  .extensions-store-header-actions { width: 100%; justify-content: flex-start; }
-  .extensions-store-webview { margin: 12px 16px 16px; border-radius: 18px; }
-  .extensions-store-status { margin: 0 16px 12px; }
-  .extensions-store-footnote { margin: 0 16px 16px; }
 
-  .homepage-main { padding: 1.5rem; }
-  .homepage-actions-grid, .walletpage-asset-modal-grid { grid-template-columns: 1fr; }
 
   .newtab-shortcut-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
