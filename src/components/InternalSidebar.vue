@@ -8,10 +8,7 @@
     </div>
 
     <ActiveProfileCard v-if="activeProfile" :profile="activeProfile" />
-    <div v-else class="lumen-sidebar-no-profile bg-fill-tertiary flex flex-column gap-4px border-radius-12px mb-16px p-14px border-05-light">
-      <span class="lumen-sidebar-no-profile-title color-text-primary text-13px txt-weight-light">No active profile</span>
-      <span class="lumen-sidebar-no-profile-sub color-text-tertiary text-12px line-height-14">Create or import one from the navbar.</span>
-    </div>
+    <UiNoticeCard v-else title="No active profile" description="Create or import one from the navbar." class="mb-16px" />
 
     <div class="lumen-sidebar-scroll flex-1 min-h-0 overflow-y-auto pr-4px overflow-x-hidden">
       <slot />
@@ -25,7 +22,7 @@
       <div v-if="renderedFavouriteEntries.length" class="sidebar-section mt-16px pt-12px border-top-05-border-light">
         <div class="sidebar-section-header flex-align-center-justify-space-between gap-8px mb-8px py-0px px-8px">
           <div class="sidebar-section-title color-text-tertiary text-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
-          <div class="h-24px bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full text-11px txt-weight-medium py-0px px-8px min-w-24px">{{ renderedFavouriteEntries.length }}</div>
+          <UiCountPill :count="renderedFavouriteEntries.length" />
         </div>
         <div class="sidebar-favs flex flex-column gap-2px">
           <div
@@ -62,6 +59,8 @@
 <script setup lang="ts">
 import UiButton from '../ui/UiButton.vue';
 import UiTitleSubtitle from '../ui/UiTitleSubtitle.vue';
+import UiCountPill from '../ui/UiCountPill.vue';
+import UiNoticeCard from '../ui/UiNoticeCard.vue';
  import { computed, inject } from 'vue';
  import { X } from 'lucide-vue-next';
  import { profilesState, activeProfileId } from '../internal/profilesStore';
