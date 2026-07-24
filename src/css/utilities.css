@@ -342,7 +342,6 @@
 .grid-col-full { grid-column: 1 / -1; }
 .grid-cols-1 { grid-template-columns: 1fr; }
 .grid-cols-10px-1fr-auto { grid-template-columns: 10px 1fr auto; }
-.grid-cols-11fr-1fr { grid-template-columns: 1.1fr 1fr; }
 .grid-cols-15fr-08fr-08fr-08fr-09fr-1fr { grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 0.9fr 1fr; }
 .grid-cols-170-1fr-12fr-12fr-15fr-100-120 { grid-template-columns: 170px 1fr 1.2fr 1.2fr 1.5fr 100px 120px; }
 .grid-cols-180-1fr { grid-template-columns: 180px 1fr; }

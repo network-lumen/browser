@@ -61,8 +61,8 @@
         <p>Redirecting…</p>
       </section>
 
-      <section v-else class="relpage-grid flex-1 overflow-hidden gap-16px grid min-h-0 grid-cols-11fr-1fr">
-        <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0">
+      <section v-else class="relpage-grid flex-1 overflow-hidden gap-16px flex flex-wrap-wrap min-h-0">
+        <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-11-1-420px">
           <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
             <span>Releases</span>
             <span class="relpage-muted color-text-tertiary fw-500">{{ filteredReleases.length }} total</span>
@@ -101,7 +101,7 @@
           </button>
         </article>
 
-        <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0" v-if="selectedRelease">
+        <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-1-1-380px" v-if="selectedRelease">
           <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
             <span>Release #{{ selectedRelease.id }}</span>
             <span class="relpage-muted color-text-tertiary fw-500">{{ selectedRelease.version }} · {{ selectedRelease.channel }}</span>
@@ -169,7 +169,7 @@
           </div>
         </article>
 
-        <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0" v-else>
+        <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-1-1-380px" v-else>
           <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
             <span>Details</span>
             <span class="relpage-muted color-text-tertiary fw-500">Select a release</span>
