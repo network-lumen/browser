@@ -34,12 +34,12 @@
         <button type="button" class="netparams-section-head w-full flex bg-transparent border-none cursor-pointer gap-16px text-left flex-justify-space-between py-16px px-20px" @click="toggleSection(s.id)">
           <div class="netparams-section-title flex flex-column gap-4px min-w-0">
             <div class="netparams-title-row flex-align-center gap-10px min-w-0">
-              <span class="netparams-section-name color-text-primary txt-weight-strong text-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ s.title }}</span>
+              <span class="netparams-section-name color-text-primary txt-weight-strong text-15px truncate">{{ s.title }}</span>
               <span v-if="!s.data" class="netparams-status-badge bg-transparent color-text-tertiary border-radius-full flex-0-0-auto txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(s)">
                 {{ statusLabel(s) }}
               </span>
             </div>
-            <span class="netparams-section-path color-text-tertiary mono text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ s.path }}</span>
+            <span class="netparams-section-path color-text-tertiary mono text-12px truncate">{{ s.path }}</span>
           </div>
 
           <div class="netparams-section-actions flex-inline-align-center color-text-tertiary gap-8px flex-0-0-auto">

@@ -390,10 +390,10 @@
               <ProfileAvatar class="settingspage-profile-row-avatar flex-shrink-0" :profile="p" :size="32" :title="p.name || p.id" />
               <div class="settingspage-profile-row-main flex flex-column gap-4px min-w-0">
                 <div class="settingspage-profile-row-title flex-align-center gap-8px min-w-0">
-                  <span class="settingspage-profile-title txt-weight-light color-text-primary text-14px overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.name || p.id }}</span>
+                  <span class="settingspage-profile-title txt-weight-light color-text-primary text-14px truncate max-w-520px">{{ p.name || p.id }}</span>
                   <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary text-11px py-0px px-8px bg-primary-a15 border-1-primary-a20">Active</span>
                 </div>
-                <span class="settingspage-profile-id text-12px color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.id }}</span>
+                <span class="settingspage-profile-id text-12px color-text-tertiary truncate max-w-520px">{{ p.id }}</span>
               </div>
             </label>
           </UiCard>

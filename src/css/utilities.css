@@ -179,6 +179,7 @@
 .translate-x-center { transform: translateX(-50%); }
 .translate-y-05px { transform: translateY(0.5px); }
 .translate-y-center { transform: translateY(-50%); }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .underline { text-decoration: underline; }
 .underline-on-hover:hover .underline-target { text-decoration: underline; }
 .word-wrap-break { word-wrap: break-word; }

@@ -165,10 +165,10 @@
                     <UiTag>{{ asset.chainLabel }}</UiTag>
                   </div>
                   <span class="walletpage-asset-symbol color-text-tertiary text-13px">{{ asset.displaySymbol }}</span>
-                  <span class="walletpage-asset-meta color-text-secondary text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.addressLabel }}</span>
-                  <span v-if="asset.traceLabel" class="walletpage-asset-meta color-text-secondary text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.traceLabel }}</span>
-                  <span v-if="asset.routeLabel" class="walletpage-asset-meta color-text-secondary text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.routeLabel }}</span>
-                  <span v-if="asset.error" class="walletpage-asset-meta color-error text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.error }}</span>
+                  <span class="walletpage-asset-meta color-text-secondary text-12px truncate">{{ asset.addressLabel }}</span>
+                  <span v-if="asset.traceLabel" class="walletpage-asset-meta color-text-secondary text-12px truncate">{{ asset.traceLabel }}</span>
+                  <span v-if="asset.routeLabel" class="walletpage-asset-meta color-text-secondary text-12px truncate">{{ asset.routeLabel }}</span>
+                  <span v-if="asset.error" class="walletpage-asset-meta color-error text-12px truncate">{{ asset.error }}</span>
                 </div>
               </div>
               <div class="walletpage-asset-side flex-align-end flex-column gap-12px flex-justify-space-between flex-1">
@@ -277,22 +277,22 @@
               <div class="walletpage-dex-detail-grid gap-12px flex flex-wrap-wrap">
                 <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px flex-1-1-140px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em text-10px">Trading pairs</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap text-13px">{{ formatDexCount(dex.tradingPairsCount) }}</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px truncate text-13px">{{ formatDexCount(dex.tradingPairsCount) }}</span>
                 </div>
 
                 <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px flex-1-1-140px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em text-10px">Liquidity pools</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap text-13px">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px truncate text-13px">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
                 </div>
 
                 <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">24h price</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexPriceLabel(dex) }}</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px truncate">{{ getDexPriceLabel(dex) }}</span>
                 </div>
 
                 <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">24h volume</span>
-                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexVolumeLabel(dex) }}</span>
+                  <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px truncate">{{ getDexVolumeLabel(dex) }}</span>
                 </div>
               </div>
 
@@ -423,7 +423,7 @@
                   <span class="type-main">{{ getActivityLabel(tx) }}</span>
                   <span
                     v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx) || isWithdrawRewardsTx(tx) || isPublishReleaseTx(tx)) && tx.dnsName"
-                    class="walletpage-type-sub fw-500 color-text-tertiary text-11px overflow-hidden txt-overflow-ellipsis nowrap max-w-140px"
+                    class="walletpage-type-sub fw-500 color-text-tertiary text-11px truncate max-w-140px"
                     :title="tx.dnsName"
                   >{{ tx.dnsName }}</span>
                 </div>
@@ -442,7 +442,7 @@
             </div>
 
             <div class="walletpage-col-from flex-align-center gap-8px min-w-0">
-              <span class="walletpage-address-value mono text-13px color-text-secondary flex-0-1-auto min-w-0 block max-w-full overflow-hidden txt-overflow-ellipsis nowrap" :title="tx.from || '-'">
+              <span class="walletpage-address-value mono text-13px color-text-secondary flex-0-1-auto min-w-0 block max-w-full truncate" :title="tx.from || '-'">
                 <template v-if="tx.from && tx.from.length > 10">
                   {{ tx.from.slice(0, 10) }}…{{ tx.from.slice(-8) }}
                 </template>
@@ -462,7 +462,7 @@
             </div>
 
             <div class="walletpage-col-to flex-align-center gap-8px min-w-0">
-              <span class="walletpage-address-value mono text-13px color-text-secondary flex-0-1-auto min-w-0 block max-w-full overflow-hidden txt-overflow-ellipsis nowrap" :title="tx.to || '-'">
+              <span class="walletpage-address-value mono text-13px color-text-secondary flex-0-1-auto min-w-0 block max-w-full truncate" :title="tx.to || '-'">
                 <template v-if="tx.to && tx.to.length > 10">
                   {{ tx.to.slice(0, 10) }}…{{ tx.to.slice(-8) }}
                 </template>
@@ -535,7 +535,7 @@
               </div>
               <div class="walletpage-contact-info flex-1 min-w-0">
                 <h4 class="walletpage-contact-info-h4 text-16px txt-weight-light color-text-primary m-0px mb-4px">{{ contact.name }}</h4>
-                <p class="walletpage-contact-address color-text-tertiary text-13px overflow-hidden txt-overflow-ellipsis nowrap mono" :title="contact.address">
+                <p class="walletpage-contact-address color-text-tertiary text-13px truncate mono" :title="contact.address">
                   {{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}
                 </p>
               </div>

@@ -29,7 +29,7 @@
               />
               <Earth v-else :size="16" class="color-text-tertiary" />
             </div>
-          <div class="mainscreen-tab-label reveal-color-target txt-overflow-ellipsis nowrap overflow-hidden flex-1-1-0 min-w-0" :title="currentTitle(t)">
+          <div class="mainscreen-tab-label reveal-color-target truncate flex-1-1-0 min-w-0" :title="currentTitle(t)">
             {{ currentTitle(t) }}
           </div>
 

@@ -132,7 +132,7 @@
                   :size="14"
                 />
               </div>
-              <span class="domainpage-domain-subtitle mono text-12px color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ d.id || 'IPNS id unavailable' }}</span>
+              <span class="domainpage-domain-subtitle mono text-12px color-text-tertiary truncate max-w-520px">{{ d.id || 'IPNS id unavailable' }}</span>
             </div>
             <div class="domainpage-domain-right flex-align-center gap-6px">
               <UiButton variant="icon" type="button"

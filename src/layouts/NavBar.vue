@@ -83,7 +83,7 @@
             class="navbar-extension-row flex-align-start gap-10px p-10px border-radius-12px bg-secondary border-05-light"
           >
             <div class="navbar-extension-main flex-1 min-w-0">
-              <div class="navbar-extension-name text-13px txt-weight-light color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ ext.name }}</div>
+              <div class="navbar-extension-name text-13px txt-weight-light color-text-primary truncate">{{ ext.name }}</div>
               <div class="navbar-extension-meta flex-align-center flex-wrap-wrap gap-6px mt-4px">
                 <span class="navbar-extension-state text-11px color-text-tertiary" :class="{ 'color-error': !!ext.lastError, disabled: !ext.enabled }">
                   {{ extensionStateLabel(ext) }}
@@ -153,7 +153,7 @@
     <div class="navbar-profile-section appregion-no-drag relative">
       <UiButton variant="secondary" size="xs" type="button" :title="activeProfileDisplay" @click.stop="toggleProfileMenu" class="navbar-profile-trigger border-radius-full border-none">
         <ProfileAvatar :profile="activeProfile" :size="24" :title="activeProfileDisplay" />
-        <span class="navbar-profile-trigger-name text-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-100px">{{ activeProfileDisplay }}</span>
+        <span class="navbar-profile-trigger-name text-13px fw-500 color-text-primary truncate max-w-100px">{{ activeProfileDisplay }}</span>
         <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary ml-n2px" />
       </UiButton>
 
@@ -179,7 +179,7 @@
             >
               <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-6px border-none bg-transparent cursor-pointer color-text-primary text-13px fw-500 border-radius-10px py-4px px-8px transition-all-fast text-left w-full min-w-0">
                 <ProfileAvatar :profile="p" :size="26" :title="p.name || p.id" />
-                <span class="navbar-profile-row-name text-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
+                <span class="navbar-profile-row-name text-13px fw-500 color-text-primary truncate">{{ p.name || p.id }}</span>
               </UiButton>
 
               <button type="button" class="reveal-target hover-bg-error-a10-color-error h-24px flex-inline-align-justify-center border-radius-10px cursor-pointer color-text-tertiary border-none bg-transparent transition-all-fast opacity-0 w-24px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
