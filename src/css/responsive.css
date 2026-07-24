@@ -25,10 +25,6 @@
   .ui-page-header-actions { width: 100%; flex-wrap: wrap; }
 }
 
-@media (max-width: 1180px) {
-  .newtab-shortcuts-head-actions { width: 100%; justify-content: flex-start; }
-}
-
 @media (max-width: 1000px) {
   .relpage-main { padding: 1.5rem; }
   .relpage-grid, .relpage-form-grid { grid-template-columns: 1fr; }
