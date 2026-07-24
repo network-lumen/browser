@@ -76,22 +76,10 @@
 
       <!-- Stats Bar -->
       <div class="explorer-stats-bar gap-16px mb-32px grid grid-cols-auto-fit-200">
-        <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Latest Block</span>
-          <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ formatNumber(latestBlock) }}</span>
-        </div>
-        <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Txs (last {{ txHistoryWindow }} blocks)</span>
-          <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ formatNumber(txHistoryTotal) }}</span>
-        </div>
-        <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Validators</span>
-          <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ validatorCount }}</span>
-        </div>
-        <div class="explorer-stat-item flex flex-column gap-4px p-20px border-radius-12px bg-card border-1">
-          <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px">Avg Block Time</span>
-          <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ avgBlockTimeLabel }}</span>
-        </div>
+        <UiStatTile label="Latest Block" :value="formatNumber(latestBlock)" />
+        <UiStatTile :label="`Txs (last ${txHistoryWindow} blocks)`" :value="formatNumber(txHistoryTotal)" />
+        <UiStatTile label="Validators" :value="String(validatorCount)" />
+        <UiStatTile label="Avg Block Time" :value="avgBlockTimeLabel" />
       </div>
 
       <!-- Loading State -->
@@ -112,41 +100,22 @@
           <!-- Charts Section -->
           <div class="mb-0px gap-12px grid grid-cols-2">
             <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-sm min-h-220px backdrop-blur">
-              <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
-                <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">{{ txHistoryTitle }}</h3>
+              <UiChartHeader :title="txHistoryTitle">
                 <div class="time-filters flex-align-center gap-8px">
                   <span class="explorer-filter-label text-12px color-text-tertiary mr-4px">Total: {{ formatNumber(txHistoryTotal) }}</span>
-                  <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ 'bg-accent border-color-primary color-white': txHistoryWindow === 5 }"
-                    @click="txHistoryWindow = 5"
-                  >5B</button>
-                  <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ 'bg-accent border-color-primary color-white': txHistoryWindow === 10 }"
-                    @click="txHistoryWindow = 10"
-                  >10B</button>
-                  <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ 'bg-accent border-color-primary color-white': txHistoryWindow === 15 }"
-                    @click="txHistoryWindow = 15"
-                  >15B</button>
-                  <button 
-                    class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ 'bg-accent border-color-primary color-white': txHistoryWindow === 20 }"
-                    @click="txHistoryWindow = 20"
-                  >20B</button>
+                  <UiFilterButton :active="txHistoryWindow === 5" @click="txHistoryWindow = 5">5B</UiFilterButton>
+                  <UiFilterButton :active="txHistoryWindow === 10" @click="txHistoryWindow = 10">10B</UiFilterButton>
+                  <UiFilterButton :active="txHistoryWindow === 15" @click="txHistoryWindow = 15">15B</UiFilterButton>
+                  <UiFilterButton :active="txHistoryWindow === 20" @click="txHistoryWindow = 20">20B</UiFilterButton>
                 </div>
-              </div>
+              </UiChartHeader>
               <div class="explorer-chart-container">
                 <canvas ref="txHistoryChart" class="w-full h-120px"></canvas>
               </div>
             </UiCard>
 
             <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-sm min-h-220px backdrop-blur">
-              <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
-                <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">Bonded / Supply</h3>
-              </div>
+              <UiChartHeader title="Bonded / Supply" />
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
                   <canvas ref="bondedSupplyChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
@@ -156,28 +125,15 @@
                   </div>
                 </div>
                 <div class="explorer-chart-legend flex flex-column gap-6px">
-                  <div class="explorer-legend-item flex-align-center gap-6px text-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px bg-gradient-legend-bonded"></span>
-                    <span class="explorer-legend-label flex-1 color-text-secondary">Bonded</span>
-                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(bondedTokens) }} LMN</span>
-                  </div>
-                  <div class="explorer-legend-item flex-align-center gap-6px text-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px bg-legend-unbonded"></span>
-                    <span class="explorer-legend-label flex-1 color-text-secondary">Unbonded</span>
-                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(unbondedTokens) }} LMN</span>
-                  </div>
-                  <div class="explorer-legend-item flex-align-center gap-6px text-13px">
-                    <span class="explorer-legend-label flex-1 color-text-secondary">Total Supply</span>
-                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(totalSupply) }} LMN</span>
-                  </div>
+                  <UiLegendItem dot-class="bg-gradient-legend-bonded" label="Bonded" :value="`${formatNumber(bondedTokens)} LMN`" />
+                  <UiLegendItem dot-class="bg-legend-unbonded" label="Unbonded" :value="`${formatNumber(unbondedTokens)} LMN`" />
+                  <UiLegendItem label="Total Supply" :value="`${formatNumber(totalSupply)} LMN`" />
                 </div>
               </div>
             </UiCard>
 
             <UiCard padding="none" :shadow="false" class="explorer-chart-card p-20px shadow-sm min-h-220px backdrop-blur">
-              <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
-                <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">Voting Power</h3>
-              </div>
+              <UiChartHeader title="Voting Power" />
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
                   <canvas ref="votingPowerChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
@@ -187,28 +143,25 @@
                   </div>
                 </div>
                 <div class="explorer-chart-legend flex flex-column gap-6px">
-                  <div v-for="(vp, idx) in topValidatorsPower.slice(0, 5)" :key="idx" class="explorer-legend-item flex-align-center gap-6px text-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px" :style="{ background: getVotingPowerColor(idx) }"></span>
-                    <span class="explorer-legend-label flex-1 color-text-secondary">{{ vp.moniker }}</span>
-                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ vp.percentage }}%</span>
-                  </div>
-                  <div class="explorer-legend-item flex-align-center gap-6px text-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px bg-legend-others"></span>
-                    <span class="explorer-legend-label flex-1 color-text-secondary">Others</span>
-                    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ othersPercentage }}%</span>
-                  </div>
+                  <UiLegendItem
+                    v-for="(vp, idx) in topValidatorsPower.slice(0, 5)"
+                    :key="idx"
+                    :dot-color="getVotingPowerColor(idx)"
+                    :label="vp.moniker"
+                    :value="`${vp.percentage}%`"
+                  />
+                  <UiLegendItem dot-class="bg-legend-others" label="Others" :value="`${othersPercentage}%`" />
                 </div>
               </div>
             </UiCard>
 
             <UiCard padding="none" :shadow="false" class="explorer-chart-card explorer-block-production-card p-20px shadow-sm min-h-220px backdrop-blur">
-              <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
-                <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">Block Production</h3>
+              <UiChartHeader title="Block Production">
                 <div class="explorer-live-indicator flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
                   <span class="animate-pulse-ring border-radius-circle w-8px h-8px bg-success"></span>
                   <span>Live</span>
                 </div>
-              </div>
+              </UiChartHeader>
               <div class="explorer-chart-container">
                 <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-6px p-12px min-h-160px">
                   <div class="explorer-proposer-avatar flex-align-justify-center size-64px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden text-24px flex-shrink-0 border-2-primary-a30 min-w-24px">
@@ -747,6 +700,10 @@ import UiButton from '../../ui/UiButton.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import UiStatTile from '../../ui/UiStatTile.vue';
+import UiChartHeader from '../../ui/UiChartHeader.vue';
+import UiLegendItem from '../../ui/UiLegendItem.vue';
+import UiFilterButton from '../../ui/UiFilterButton.vue';
 import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import BlockDetailPage from './BlockDetailPage.vue';
