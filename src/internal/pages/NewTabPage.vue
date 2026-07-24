@@ -76,13 +76,10 @@
     </div>
 
     <div class="newtab-shell flex flex-column my-0px mx-auto gap-16px relative z-1 w-min-1040px-full">
-      <section class="newtab-hero bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 py-40px px-20px border-radius-24px backdrop-blur-16">
-        <div class="newtab-hero-copy text-center my-0px mx-auto max-w-640px">
-          <h1 class="color-text-primary m-0px text-clamp-22-7vw-43rem-tight">Search Lumen</h1>
-          <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-15 m-0px mx-auto mt-16px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
-        </div>
+      <section class="newtab-hero bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
+        <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Search Lumen</div>
 
-        <form class="bg-card-a90 focus-within-shadow-ring-primary-a10 flex-align-center gap-12px border-radius-full border-1-light w-min-760px-full py-12px px-16px border-color-primary-a50-focus-within shadow-lg mt-24px mx-auto mb-0px" @submit.prevent="submitOmnibox">
+        <form class="bg-card-a90 focus-within-shadow-ring-primary-a10 flex-align-center gap-12px border-radius-full border-1-light w-full py-12px px-16px border-color-primary-a50-focus-within mt-12px mx-auto mb-0px" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
@@ -100,16 +97,27 @@
           </UiButton>
         </form>
 
-        <div class="text-center mt-16px">
-          <UiButton variant="secondary" type="button" @click="goto('lumen://web.lmn/')" class="outline-none">
-            <Globe :size="15" />
-            <span>Discover all Lumen sites</span>
-          </UiButton>
-        </div>
-
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-min-760px-full bg-warning-a08 border-1-warning-a15 m-0px mx-auto mt-16px">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-full m-0px mt-16px">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
+        </div>
+      </section>
+
+      <section class="bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
+        <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Discover</div>
+        <div class="flex flex-wrap-wrap gap-12px mt-16px">
+          <button type="button" disabled class="disabled-fade-50 flex-align-center gap-8px border-1-light border-radius-full bg-transparent color-text-tertiary text-13px fw-500 py-8px px-16px cursor-not-allowed">
+            <Sparkles :size="15" />
+            <span>Recently created</span>
+          </button>
+          <button type="button" disabled class="disabled-fade-50 flex-align-center gap-8px border-1-light border-radius-full bg-transparent color-text-tertiary text-13px fw-500 py-8px px-16px cursor-not-allowed">
+            <Flame :size="15" />
+            <span>Trending</span>
+          </button>
+          <UiButton variant="secondary" type="button" @click="goto('lumen://web.lmn/')" class="outline-none">
+            <Globe :size="15" />
+            <span>All known websites</span>
+          </UiButton>
         </div>
       </section>
 
@@ -230,12 +238,14 @@ import UiCheckbox from "../../ui/UiCheckbox.vue";
 import UiModal from "../../ui/UiModal.vue";
 import {
   ArrowUpRight,
+  Flame,
   Globe,
   Hexagon,
   History,
   Pencil,
   Plus,
   Search,
+  Sparkles,
   Star,
   Trash2,
 } from "lucide-vue-next";
