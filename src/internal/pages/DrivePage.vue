@@ -544,7 +544,7 @@
     </main>
 
     <!-- File Detail Panel -->
-    <aside v-if="selectedFile" class="drivepage-detail-panel flex flex-column p-24px m-0px bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px w-280px max-w-280px border-left-1-border-color">
+    <aside v-if="selectedFile" class="drivepage-detail-panel flex flex-column p-24px m-0px bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px max-w-280px border-left-1-border-color">
       <div class="drivepage-detail-header flex-align-center-justify-space-between mb-20px">
         <h3 class="text-12px line-height-12 txt-weight-strong">
           {{ isDirEntry(selectedFile) ? "Folder Details" : "File Details" }}

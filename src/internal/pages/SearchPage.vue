@@ -355,7 +355,7 @@
       <div ref="paginationSentinel" class="h-1px w-full" aria-hidden="true"></div>
     </section>
 
-    <UiModal :model-value="showHowSearchWorks" panel-class="searchpage-help-modal w-min-760" @update:model-value="closeHowSearchWorks">
+    <UiModal :model-value="showHowSearchWorks" panel-class="searchpage-help-modal w-min-760px-full" @update:model-value="closeHowSearchWorks">
       <template #header>
         <div class="searchpage-help-header-left flex-align-start gap-12px min-w-0">
           <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a08" aria-hidden="true">

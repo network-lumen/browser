@@ -170,7 +170,7 @@
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
-                  <canvas ref="bondedSupplyChart" width="120" height="120" class="w-100px-h-100px-important"></canvas>
+                  <canvas ref="bondedSupplyChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                     <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
                     <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Bonded</div>
@@ -201,7 +201,7 @@
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
-                  <canvas ref="votingPowerChart" width="120" height="120" class="w-100px-h-100px-important"></canvas>
+                  <canvas ref="votingPowerChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
                   <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                     <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
                     <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Active</div>
