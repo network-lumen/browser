@@ -226,7 +226,7 @@
               <div class="explorer-chart-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="explorer-chart-header-h3 text-15px txt-weight-light color-text-primary">Block Production</h3>
                 <div class="explorer-live-indicator flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
-                  <span class="animate-pulse-ring border-radius-circle w-8px h-8px bg-ios-green"></span>
+                  <span class="animate-pulse-ring border-radius-circle w-8px h-8px bg-success"></span>
                   <span>Live</span>
                 </div>
               </div>
@@ -340,7 +340,7 @@
                   class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
                 />
               </div>
-              <span class="tone-green flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-ios-green-a08 border-1-ios-green-a30 py-4px px-6px" :class="{ active: autoRefresh }">
+              <span class="tone-green flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-success-a08 border-1-success-a30 py-4px px-6px" :class="{ active: autoRefresh }">
                 <span class="animate-pulse-live border-radius-circle w-8px h-8px bg-current"></span>
                 Live
               </span>
@@ -591,7 +591,7 @@
     </main>
     
     <!-- Copy Notification -->
-    <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-ios-green z-9999 bottom-32px shadow-ios-green-lg">
+    <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-success z-9999 bottom-32px shadow-success-lg">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
@@ -708,8 +708,8 @@
                 <!-- Success -->
                 <div v-else-if="txStatus === 'success'" class="explorer-tx-success flex flex-column flex-inline-align-center gap-16px w-full">
                   <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="rgba(var(--ios-green-rgb), 0.7)" stroke-width="2"/>
-                    <path d="M8 12l3 3 5-5" stroke="rgba(var(--ios-green-rgb), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="rgba(var(--color-success-rgb), 0.7)" stroke-width="2"/>
+                    <path d="M8 12l3 3 5-5" stroke="rgba(var(--color-success-rgb), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                   <div class="explorer-tx-status-text flex flex-column gap-8px">
                     <strong class="explorer-tx-status-text-strong text-18px color-text-primary txt-weight-medium">Transaction Successful!</strong>
@@ -919,7 +919,7 @@ const txMessage = ref('');
 const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
 
 function txStatusPopupStyle(status: string): Record<string, string> {
-  if (status === 'success') return { border: '2px solid rgba(var(--ios-green-rgb), 0.5)' };
+  if (status === 'success') return { border: '2px solid rgba(var(--color-success-rgb), 0.5)' };
   if (status === 'error') return { border: '2px solid var(--ios-red)' };
   return { border: '2px solid var(--color-primary)' };
 }

@@ -30,7 +30,7 @@
           :shadow="false"
         >
           <div class="mygw-server-card-header flex-align-center gap-20px mb-24px">
-            <div class="mygw-server-icon flex-align-justify-center size-48px border-radius-12px color-text-secondary bg-hover transition-all-03" :class="{ 'bg-ios-green-a15 color-success': embeddedServerRunning }">
+            <div class="mygw-server-icon flex-align-justify-center size-48px border-radius-12px color-text-secondary bg-hover transition-all-03" :class="{ 'bg-success-a15 color-success': embeddedServerRunning }">
               <svg v-if="embeddedServerRunning" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                 <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -50,7 +50,7 @@
               <p v-else class="mygw-server-status-text color-text-secondary m-0px text-14px">Start your personal gateway server</p>
             </div>
             <div class="flex-align-center gap-8px fw-500 border-radius-20px py-8px px-16px text-14px transition-all-03" :class="embeddedServerRunning ? 'bg-fill-success color-success' : 'bg-fill-tertiary color-text-secondary'">
-              <span class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-ios-green': embeddedServerRunning }"></span>
+              <span class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-success': embeddedServerRunning }"></span>
               {{ embeddedServerRunning ? 'Running' : 'Stopped' }}
             </div>
           </div>
@@ -67,7 +67,7 @@
             </UiButton>
             <button 
               type="button" 
-              class="disabled-opacity-50-not-allowed-no-transform-important flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'hover-lift-2-enabled hover-shadow-ios-red-lg' : 'hover-lift-2-enabled hover-shadow-ios-green-lg'" :style="serverToggleBtnStyle(embeddedServerRunning)"
+              class="disabled-opacity-50-not-allowed-no-transform-important flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'hover-lift-2-enabled hover-shadow-ios-red-lg' : 'hover-lift-2-enabled hover-shadow-success-lg'" :style="serverToggleBtnStyle(embeddedServerRunning)"
               @click="toggleEmbeddedServer"
               :disabled="serverLoading"
             >
@@ -180,7 +180,7 @@
           >
             <div class="mygw-gateway-header flex-align-start flex-justify-space-between mb-16px">
               <div class="mygw-gateway-title flex-align-center gap-8px">
-                <div class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-ios-green': gateway.status === 'active' }"></div>
+                <div class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-success': gateway.status === 'active' }"></div>
                 <h3 class="text-18px txt-weight-light color-text-primary m-0px">{{ gateway.name }}</h3>
               </div>
               <span class="fw-500 border-radius-12px text-capitalize text-12px py-4px px-12px" :class="gatewayStatusBadgeClass(gateway.status)">
@@ -377,7 +377,7 @@ const embeddedServerRunning = ref(false);
 function serverToggleBtnStyle(running: boolean): Record<string, string> {
   return running
     ? { background: 'linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%)', boxShadow: '0 2px 8px rgba(var(--ios-red-rgb), 0.3)' }
-    : { background: 'linear-gradient(135deg, var(--ios-green) 0%, color-mix(in srgb, var(--ios-green) 85%, black) 100%)', boxShadow: '0 2px 8px rgba(var(--ios-green-rgb), 0.3)' };
+    : { background: 'linear-gradient(135deg, var(--color-success) 0%, color-mix(in srgb, var(--color-success) 85%, black) 100%)', boxShadow: '0 2px 8px rgba(var(--color-success-rgb), 0.3)' };
 }
 const embeddedServerPort = ref<number | null>(null);
 const embeddedServerUrl = ref<string | null>(null);

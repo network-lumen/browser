@@ -5,8 +5,8 @@
   --color-primary-rgb: 0, 122, 255;
   --ios-teal: #5AC8FA;
   --ios-teal-rgb: 90, 200, 250;
-  --ios-green: #34C759;
-  --ios-green-rgb: 52, 199, 89;
+  --color-success: #34C759;
+  --color-success-rgb: 52, 199, 89;
   --ios-indigo: #5856D6;
   --ios-indigo-rgb: 88, 86, 214;
   --ios-purple: #AF52DE;
@@ -58,7 +58,7 @@
   --fill-primary: #78788033;
   --fill-secondary: #78788028;
   --fill-tertiary: #7676801E;
-  --fill-success: rgba(52, 199, 89, 0.15);
+  --fill-success: rgba(var(--color-success-rgb), 0.15);
   --fill-error: rgba(255, 59, 48, 0.15);
   --fill-blue: rgba(0, 122, 255, 0.15);
   --accent-secondary: var(--ios-teal);
@@ -140,15 +140,15 @@
   --fill-primary: rgba(120, 120, 128, 0.36);
   --fill-secondary: rgba(120, 120, 128, 0.32);
   --fill-tertiary: rgba(118, 118, 128, 0.24);
-  --fill-success: rgba(50, 215, 75, 0.25);
+  --fill-success: rgba(var(--color-success-rgb), 0.25);
   --fill-error: rgba(255, 69, 58, 0.25);
   --fill-blue: rgba(10, 132, 255, 0.25);
   --color-primary: #0A84FF;
   --color-primary-rgb: 10, 132, 255;
   --ios-teal: #64D2FF;
   --ios-teal-rgb: 100, 210, 255;
-  --ios-green: #32D74B;
-  --ios-green-rgb: 50, 215, 75;
+  --color-success: #32D74B;
+  --color-success-rgb: 50, 215, 75;
   --ios-indigo: #5E5CE6;
   --ios-indigo-rgb: 94, 92, 230;
   --ios-purple: #BF5AF2;

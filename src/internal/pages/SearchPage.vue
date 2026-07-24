@@ -1598,7 +1598,7 @@ function resultAccentGradient(r: ResultItem): string {
       case "html": return "linear-gradient(180deg, var(--color-primary) 0%, rgba(var(--color-primary-rgb), 0.5) 100%)";
       case "pdf": return "linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%)";
       case "txt": return "linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%)";
-      default: return "linear-gradient(180deg, var(--ios-green) 0%, rgba(var(--ios-green-rgb), 0.5) 100%)";
+      default: return "linear-gradient(180deg, var(--color-success) 0%, rgba(var(--color-success-rgb), 0.5) 100%)";
     }
   }
   return "var(--gradient-brand)";
