@@ -153,7 +153,7 @@
 
     <!-- Profile -->
     <div class="navbar-profile-section appregion-no-drag relative">
-      <UiButton variant="secondary" type="button" :title="activeProfileDisplay" @click.stop="toggleProfileMenu" class="navbar-profile-trigger">
+      <UiButton variant="secondary" size="xs" type="button" :title="activeProfileDisplay" @click.stop="toggleProfileMenu" class="navbar-profile-trigger">
         <ProfileAvatar :profile="activeProfile" :size="28" :title="activeProfileDisplay" />
         <span class="navbar-profile-trigger-name text-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-100px">{{ activeProfileDisplay }}</span>
         <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary ml-n2px" />
