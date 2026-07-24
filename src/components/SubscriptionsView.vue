@@ -12,9 +12,9 @@
           :key="reminder.id"
           class="subview-reminder-card flex-align-center gap-12px bg-card p-12px border-radius-8px shadow-sm"
         >
-          <div class="subview-reminder-icon flex-0-0-auto flex-align-justify-center border-radius-circle size-40px color-warning bg-warning-a15">
+          <UiIconBadge badge-class="color-warning bg-warning-a15">
             <AlertCircle :size="20" />
-          </div>
+          </UiIconBadge>
           <div class="flex-1">
             <h4 class="color-text-primary text-14px m-0px mb-4px">{{ reminder.paymentName }}</h4>
             <p class="color-text-secondary m-0px text-13px">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
@@ -173,14 +173,14 @@
                 class="subview-history-item flex gap-12px p-12px bg-secondary border-radius-8px"
                 :class="record.status"
               >
-                <div
-                  class="subview-history-icon flex-0-0-auto flex-align-justify-center border-radius-circle size-32px"
-                  :class="[record.status, { 'bg-fill-success': record.status === 'success', 'bg-fill-error': record.status === 'failed', 'bg-warning-a15': record.status === 'pending' }]"
+                <UiIconBadge
+                  size-class="size-32px"
+                  :badge-class="[record.status, { 'bg-fill-success': record.status === 'success', 'bg-fill-error': record.status === 'failed', 'bg-warning-a15': record.status === 'pending' }]"
                 >
                   <Check v-if="record.status === 'success'" :size="16" />
                   <X v-else-if="record.status === 'failed'" :size="16" />
                   <Clock v-else :size="16" />
-                </div>
+                </UiIconBadge>
                 <div class="flex-1">
                   <div class="subview-history-header flex-align-center-justify-space-between mb-4px">
                     <strong class="color-text-primary">{{ formatAmount(record.amount) }} LMN</strong>
@@ -213,6 +213,7 @@ import UiEmptyState from '../ui/UiEmptyState.vue';
 import UiCard from '../ui/UiCard.vue';
 import UiStatIconTile from '../ui/UiStatIconTile.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';
+import UiIconBadge from '../ui/UiIconBadge.vue';
 import { ref, computed, onMounted } from 'vue';
 import { 
   Calendar, Plus, Bell, AlertCircle, X, PlayCircle, PauseCircle, 
