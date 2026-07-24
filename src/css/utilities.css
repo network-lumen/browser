@@ -274,10 +274,10 @@
 .color-rgba-255-255-255-0-85 { color: rgba(255, 255, 255, 0.85); }
 .color-rgba-255-255-255-0-9 { color: rgba(255, 255, 255, 0.9); }
 .color-scheme-light-dark { color-scheme: light dark; }
-.color-store-button { color: var(--store-button-text); }
-.color-store-error { color: var(--store-error-text); }
-.color-store-heading { color: var(--store-heading-text); }
-.color-store-info { color: var(--store-info-text); }
+.color-store-button { color: var(--store-button); }
+.color-store-error { color: var(--store-error); }
+.color-store-heading { color: var(--store-heading); }
+.color-store-info { color: var(--store-info); }
 .color-success { color: var(--ios-green); }
 .color-text-link { color: var(--text-link); }
 .color-text-primary { color: var(--text-primary); }

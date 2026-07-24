@@ -91,10 +91,10 @@
   --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   --backdrop-blur: saturate(180%) blur(20px);
-  --store-heading-text: #f8fafc;
-  --store-button-text: #e2e8f0;
-  --store-info-text: #dbeafe;
-  --store-error-text: #fecaca;
+  --store-heading: #f8fafc;
+  --store-button: #e2e8f0;
+  --store-info: #dbeafe;
+  --store-error: #fecaca;
   --extension-error-text: #ffb4b4;
 }
 
