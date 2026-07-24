@@ -34,7 +34,7 @@
         :disabled="loading || busy || !password" class="disabled-fade-50">
         <span v-if="loading">Verifying...</span>
         <span v-else-if="busy" class="flex-inline-align-center gap-8px">
-          <span class="pwd-modal-spinner border-radius-full w-14px h-14px border-2-white-a45 spinner-white" aria-hidden="true"></span>
+          <UiSpinnerRing ring-class="w-14px h-14px border-2-white-a45" />
           Working...
         </span>
         <span v-else>Confirm</span>
@@ -47,6 +47,7 @@
 import UiInput from '../ui/UiInput.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
+import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
 import { ref, watch, nextTick } from 'vue';
 import { LockKeyhole } from 'lucide-vue-next';
 import { useInternalLumen } from '../composables/useInternalLumen';

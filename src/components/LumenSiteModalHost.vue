@@ -38,7 +38,7 @@
             <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
 
-          <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ sendError }}</div>
+          <UiBanner v-if="sendError" variant="error" class="mb-12px">{{ sendError }}</UiBanner>
 
           <UiFormGroup label="From" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
@@ -66,7 +66,7 @@
         Cancel
       </UiButton>
       <UiButton variant="primary" type="button" @click="submitSend" :disabled="!canSend">
-        <span class="sitemodal-spinner border-radius-full inline-block mr-8px w-14px h-14px border-2-white-a50 spinner-white" v-if="sending"></span>
+        <UiSpinnerRing v-if="sending" />
         <span>{{ sending ? 'Sending...' : 'Send' }}</span>
       </UiButton>
     </template>
@@ -81,21 +81,18 @@
           <UiBanner variant="info" v-if="siteLabel">
             <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
-          <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ pinError }}</div>
+          <UiBanner v-if="pinError" variant="error" class="mb-12px">{{ pinError }}</UiBanner>
 
-          <div class="mb-12px">
-            <label>Name <span class="color-error">*</span></label>
-            <div class="sitemodal-input-wrapper relative">
-              <input
-                class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
-                type="text"
-                v-model="saveNameDraft"
-                placeholder="Enter a name"
-                :disabled="pinning"
-                @keydown.enter.prevent="submitPin"
-              />
-            </div>
-          </div>
+          <UiFormGroup required label="Name" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input
+              class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
+              type="text"
+              v-model="saveNameDraft"
+              placeholder="Enter a name"
+              :disabled="pinning"
+              @keydown.enter.prevent="submitPin"
+            />
+          </UiFormGroup>
 
           <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
             <UiDetailRow variant="baseline" label="Target" :value="pinTargetDisplay" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
@@ -140,7 +137,7 @@
         Stop
       </UiButton>
       <UiButton variant="primary" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
-        <span class="sitemodal-spinner border-radius-full inline-block mr-8px w-14px h-14px border-2-white-a50 spinner-white" v-if="pinning"></span>
+        <UiSpinnerRing v-if="pinning" />
         <span>{{ pinJobId ? (pinCanResume ? 'Resume save' : (pinIsRunning ? 'Saving...' : 'Save')) : 'Save' }}</span>
       </UiButton>
     </template>
@@ -155,7 +152,7 @@
           <UiBanner variant="info" v-if="siteLabel">
             <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
-          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ stableLinkError }}</div>
+          <UiBanner v-if="stableLinkError" variant="error" class="mb-12px">{{ stableLinkError }}</UiBanner>
 
           <div class="sitemodal-segmented-control border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
             <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
@@ -166,31 +163,25 @@
             </button>
           </div>
 
-          <div class="mb-12px" v-if="stableLinkMode === 'existing'">
-            <label>Stable link</label>
-            <div class="sitemodal-input-wrapper relative">
-              <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
-                <option value="">{{ stableLinkLoading ? 'Loading stable links...' : 'Select a stable link' }}</option>
-                <option v-for="item in stableLinks" :key="item.name" :value="item.name">
-                  {{ item.label }} — {{ shortStableIpns(item.id) }}
-                </option>
-              </select>
-            </div>
-          </div>
+          <UiFormGroup v-if="stableLinkMode === 'existing'" label="Stable link" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
+              <option value="">{{ stableLinkLoading ? 'Loading stable links...' : 'Select a stable link' }}</option>
+              <option v-for="item in stableLinks" :key="item.name" :value="item.name">
+                {{ item.label }} — {{ shortStableIpns(item.id) }}
+              </option>
+            </select>
+          </UiFormGroup>
 
-          <div class="mb-12px" v-else>
-            <label>New stable link label</label>
-            <div class="sitemodal-input-wrapper relative">
-              <input
-                class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
-                type="text"
-                v-model="stableLinkNewLabel"
-                placeholder="my-live"
-                :disabled="stableLinkSaving"
-                @keydown.enter.prevent="submitStableLink"
-              />
-            </div>
-          </div>
+          <UiFormGroup v-else label="New stable link label" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input
+              class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
+              type="text"
+              v-model="stableLinkNewLabel"
+              placeholder="my-live"
+              :disabled="stableLinkSaving"
+              @keydown.enter.prevent="submitStableLink"
+            />
+          </UiFormGroup>
 
           <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
             <UiDetailRow variant="baseline" label="Live" :value="stableLinkLiveTitle || 'Untitled live'" />
@@ -216,7 +207,7 @@
         Cancel
       </UiButton>
       <UiButton variant="primary" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
-        <span class="sitemodal-spinner border-radius-full inline-block mr-8px w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSaving"></span>
+        <UiSpinnerRing v-if="stableLinkSaving" />
         <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
         <Save v-else :size="16" />
         <span>{{ stableLinkSaving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span>
@@ -233,18 +224,15 @@
           <UiBanner variant="info" v-if="siteLabel">
             <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
-          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ stableLinkSetupError }}</div>
-          <div class="mb-12px">
-            <label>Live link</label>
-            <div class="sitemodal-input-wrapper relative">
-              <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
-                <option value="">{{ stableLinkSetupLoading ? 'Loading live links...' : 'Select a live link' }}</option>
-                <option v-for="item in stableLinks" :key="item.name" :value="item.name">
-                  {{ item.label }} — {{ shortStableIpns(item.id) }}
-                </option>
-              </select>
-            </div>
-          </div>
+          <UiBanner v-if="stableLinkSetupError" variant="error" class="mb-12px">{{ stableLinkSetupError }}</UiBanner>
+          <UiFormGroup label="Live link" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
+              <option value="">{{ stableLinkSetupLoading ? 'Loading live links...' : 'Select a live link' }}</option>
+              <option v-for="item in stableLinks" :key="item.name" :value="item.name">
+                {{ item.label }} — {{ shortStableIpns(item.id) }}
+              </option>
+            </select>
+          </UiFormGroup>
           <p class="sitemodal-balance-hint text-12px color-text-secondary mt-8px">
             Previous live settings will be loaded from this link if records are available.
           </p>
@@ -253,7 +241,7 @@
         Cancel
       </UiButton>
       <UiButton variant="primary" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
-        <span class="sitemodal-spinner border-radius-full inline-block mr-8px w-14px h-14px border-2-white-a50 spinner-white" v-if="stableLinkSetupLoading"></span>
+        <UiSpinnerRing v-if="stableLinkSetupLoading" />
         <Link v-else :size="16" />
         <span>{{ stableLinkSetupLoading ? 'Loading...' : 'Load previous settings' }}</span>
       </UiButton>
@@ -268,6 +256,7 @@ import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiBanner from '../ui/UiBanner.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';
+import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
