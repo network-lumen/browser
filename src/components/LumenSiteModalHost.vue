@@ -12,14 +12,8 @@
           </UiBanner>
 
           <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
-              <span class="sitemodal-perm-k text-12px color-text-secondary">Site</span>
-              <span class="sitemodal-perm-v mono text-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ siteLabel }}</span>
-            </div>
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px" v-if="actionKind">
-              <span class="sitemodal-perm-k text-12px color-text-secondary">Action</span>
-              <span class="sitemodal-perm-v text-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ actionKind }}</span>
-            </div>
+            <UiDetailRow variant="baseline" label="Site" :value="siteLabel" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
+            <UiDetailRow v-if="actionKind" variant="baseline" label="Action" :value="actionKind" />
           </div>
     <template #footer>
       <UiButton variant="secondary" type="button" @click="denyPermission">
@@ -104,10 +98,7 @@
           </div>
 
           <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
-              <span class="sitemodal-perm-k text-12px color-text-secondary flex-shrink-0">Target</span>
-              <span class="sitemodal-perm-v mono text-13px color-text-primary text-right overflow-wrap-anywhere min-w-0">{{ pinTargetDisplay }}</span>
-            </div>
+            <UiDetailRow variant="baseline" label="Target" :value="pinTargetDisplay" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
           </div>
 
           <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px mt-12px py-10px px-12px bg-primary-a10 border-05-primary-a18">
@@ -202,17 +193,13 @@
           </div>
 
           <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
-              <span class="sitemodal-perm-k text-12px color-text-secondary">Live</span>
-              <span class="sitemodal-perm-v text-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ stableLinkLiveTitle || 'Untitled live' }}</span>
-            </div>
-            <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
-              <span class="sitemodal-perm-k text-12px color-text-secondary">Records</span>
+            <UiDetailRow variant="baseline" label="Live" :value="stableLinkLiveTitle || 'Untitled live'" />
+            <UiDetailRow variant="baseline" label="Records">
               <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded" class="sitemodal-records-toggle">
                 <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
                 <ChevronDown :size="14" class="transition-transform-02" :class="{ 'rotate-180': stableLinkRecordsExpanded }" />
               </UiButton>
-            </div>
+            </UiDetailRow>
             <div v-if="stableLinkRecordsExpanded" class="sitemodal-records-detail-list grid gap-6px mt-8px pt-8px border-top-default">
               <div v-for="record in stableLinkRecords" :key="record.key" class="sitemodal-record-detail-row grid gap-10px grid-cols-70-1fr align-items-start">
                 <span class="sitemodal-record-key mono text-12px color-text-secondary">{{ record.key }}</span>
@@ -280,6 +267,7 @@ import UiModal from '../ui/UiModal.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiBanner from '../ui/UiBanner.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
+import UiDetailRow from '../ui/UiDetailRow.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';

@@ -160,9 +160,7 @@
             type="button"
             @click="convertSelectedLocalToHls" class="disabled-fade-50">
             Convert to HLS
-            <span v-if="selectedLocalConvertibleCount" class="h-24px flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium text-12px bg-primary-a10 p-0px pr-4px pl-4px min-w-24px">
-              {{ selectedLocalConvertibleCount }}
-            </span>
+            <UiCountPill v-if="selectedLocalConvertibleCount" :count="selectedLocalConvertibleCount" pill-class="h-24px color-primary txt-weight-medium text-12px bg-primary-a10 p-0px pr-4px pl-4px min-w-24px" />
           </UiButton>
           <UiButton variant="danger" type="button"
             :disabled="!canBulkRemoveSelectedLocal"
@@ -1517,6 +1515,7 @@ import UiLoadingBlock from "../../ui/UiLoadingBlock.vue";
 import UiCheckbox from "../../ui/UiCheckbox.vue";
 import UiModal from "../../ui/UiModal.vue";
 import UiFormGroup from "../../ui/UiFormGroup.vue";
+import UiCountPill from "../../ui/UiCountPill.vue";
 import UiPageHeader from "../../ui/UiPageHeader.vue";
 import UiEmptyState from "../../ui/UiEmptyState.vue";
 import UiTag from "../../ui/UiTag.vue";

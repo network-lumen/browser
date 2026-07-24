@@ -53,7 +53,7 @@
         <section v-for="group in groupedEntries" :key="group.label" class="history-group p-16px border-default bg-card shadow-sm border-radius-24px">
           <div class="history-group-head flex-align-center-justify-space-between gap-12px flex-justify-space-between pt-0px pr-2px pb-12px pl-2px">
             <h2 class="color-text-primary m-0px history-group-head-h2 text-16px">{{ group.label }}</h2>
-            <span class="flex-inline-align-justify-center color-text-secondary border-radius-full txt-weight-strong h-28px py-0px px-8px bg-fill-secondary text-12px min-w-24px">{{ group.entries.length }}</span>
+            <UiCountPill :count="group.entries.length" pill-class="color-text-secondary txt-weight-strong h-28px py-0px px-8px bg-fill-secondary text-12px min-w-24px" />
           </div>
 
           <div class="flex flex-column">
@@ -113,6 +113,7 @@ import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiTitleSubtitle from '../../ui/UiTitleSubtitle.vue';
+import UiCountPill from '../../ui/UiCountPill.vue';
 import { computed, inject, ref } from "vue";
 import {
   ArrowUpRight,
