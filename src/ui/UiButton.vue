@@ -14,7 +14,7 @@
 import { computed } from 'vue';
 
 type Variant = 'ghost' | 'primary' | 'secondary' | 'danger' | 'icon' | 'cta' | 'tag' | 'none';
-type Size = 'sm' | 'md';
+type Size = 'xs' | 'sm' | 'md';
 
 const props = withDefaults(defineProps<{
   variant?: Variant;
@@ -49,6 +49,7 @@ const variantClass: Record<Exclude<Variant, 'icon'>, string> = {
 };
 
 const sizeClass: Record<Size, string> = {
+  xs: 'text-11px line-height-12 py-6px px-10px',
   sm: 'text-11px line-height-12 py-8px px-16px',
   md: 'text-12px line-height-12 py-12px px-20px'
 };
