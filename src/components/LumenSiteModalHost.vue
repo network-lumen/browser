@@ -1,12 +1,9 @@
 <template>
   <UiModal :model-value="!!(current && modalType === 'permission')" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="denyPermission">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
-          <Shield :size="18" />
-        </div>
-        <h3>Permission required</h3>
-      </div>
+      <UiModalHeader title="Permission required" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+        <template #icon><Shield :size="18" /></template>
+      </UiModalHeader>
     </template>
           <UiBanner variant="info">
             <span>
@@ -39,12 +36,9 @@
 
   <UiModal :model-value="!!(current && modalType === 'sendToken')" panel-class="sitemodal-send w-min-520px-92vw max-h-100vh-32px" :closable="!sending" @update:model-value="closeSend(false)">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
-          <Send :size="18" />
-        </div>
-        <h3>Send LMN</h3>
-      </div>
+      <UiModalHeader title="Send LMN" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+        <template #icon><Send :size="18" /></template>
+      </UiModalHeader>
     </template>
           <UiBanner variant="info" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
@@ -86,12 +80,9 @@
 
   <UiModal :model-value="!!(current && modalType === 'pin')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!pinning" @update:model-value="closePin(false)">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
-          <Save :size="18" />
-        </div>
-        <h3>Save to Drive</h3>
-      </div>
+      <UiModalHeader title="Save to Drive" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+        <template #icon><Save :size="18" /></template>
+      </UiModalHeader>
     </template>
           <UiBanner variant="info" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
@@ -166,12 +157,9 @@
 
   <UiModal :model-value="!!(current && modalType === 'stableLink')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSaving" @update:model-value="closeStableLink(false)">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
-          <Link :size="18" />
-        </div>
-        <h3>Choose or create a stable link for your live</h3>
-      </div>
+      <UiModalHeader title="Choose or create a stable link for your live" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+        <template #icon><Link :size="18" /></template>
+      </UiModalHeader>
     </template>
           <UiBanner variant="info" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
@@ -251,12 +239,9 @@
 
   <UiModal :model-value="!!(current && modalType === 'stableLinkSetup')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSetupLoading" @update:model-value="closeStableLinkSetup(false)">
     <template #header>
-      <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
-          <Link :size="18" />
-        </div>
-        <h3>Select a live link</h3>
-      </div>
+      <UiModalHeader title="Select a live link" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+        <template #icon><Link :size="18" /></template>
+      </UiModalHeader>
     </template>
           <UiBanner variant="info" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
@@ -294,6 +279,7 @@ import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiBanner from '../ui/UiBanner.vue';
+import UiModalHeader from '../ui/UiModalHeader.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';

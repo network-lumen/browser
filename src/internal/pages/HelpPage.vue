@@ -162,38 +162,53 @@
 
           <!-- Contact Cards -->
           <div class="helppage-contact-grid gap-16px grid grid-cols-1">
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-16px text-left border-default bg-card transition-all-fast hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')">
-              <div class="helppage-contact-icon discord flex-align-justify-center size-64px border-radius-14px flex-shrink-0 helppage-contact-icon-discord color-purple bg-purple-a15">
-                <MessageCircle :size="28" />
-              </div>
-              <div class="helppage-contact-info min-w-0">
-                <h4 class="color-text-primary txt-weight-medium helppage-contact-info-h4 text-16px m-0px mb-4px">Discord Community</h4>
-                <p class="color-text-secondary m-0px text-14px helppage-contact-info-p line-height-14">Join our active community, ask questions, and get help from other users.</p>
-              </div>
-              <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
-            </button>
+            <UiActionCard
+              title="Discord Community"
+              description="Join our active community, ask questions, and get help from other users."
+              icon-class="color-purple bg-purple-a15"
+              icon-size-class="size-64px"
+              card-class="gap-20px p-20px w-full"
+              title-tag="h4"
+              title-class="color-text-primary txt-weight-medium text-16px mb-4px"
+              description-tag="p"
+              description-class="color-text-secondary text-14px line-height-14"
+              :arrow-size="18"
+              @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')"
+            >
+              <template #icon><MessageCircle :size="28" /></template>
+            </UiActionCard>
 
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-16px text-left border-default bg-card transition-all-fast hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('https://github.com/network-lumen/')">
-              <div class="helppage-contact-icon github flex-align-justify-center color-text-primary size-64px border-radius-14px flex-shrink-0 bg-fill-tertiary">
-                <Github :size="28" />
-              </div>
-              <div class="helppage-contact-info min-w-0">
-                <h4 class="color-text-primary txt-weight-medium helppage-contact-info-h4 text-16px m-0px mb-4px">GitHub</h4>
-                <p class="color-text-secondary m-0px text-14px helppage-contact-info-p line-height-14">Report bugs, contribute to the codebase, or explore our open-source projects.</p>
-              </div>
-              <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
-            </button>
+            <UiActionCard
+              title="GitHub"
+              description="Report bugs, contribute to the codebase, or explore our open-source projects."
+              icon-class="color-text-primary bg-fill-tertiary"
+              icon-size-class="size-64px"
+              card-class="gap-20px p-20px w-full"
+              title-tag="h4"
+              title-class="color-text-primary txt-weight-medium text-16px mb-4px"
+              description-tag="p"
+              description-class="color-text-secondary text-14px line-height-14"
+              :arrow-size="18"
+              @click="openInNewTabSafe('https://github.com/network-lumen/')"
+            >
+              <template #icon><Github :size="28" /></template>
+            </UiActionCard>
 
-            <button class="helppage-contact-card flex-align-center w-full cursor-pointer gap-20px p-20px border-radius-16px text-left border-default bg-card transition-all-fast hover-bg-hover hover-lift-1" type="button" @click="openInNewTabSafe('lumen://lumen.lmn')">
-              <div class="helppage-contact-icon website flex-align-justify-center size-64px border-radius-14px flex-shrink-0 color-primary bg-fill-blue">
-                <Globe :size="28" />
-              </div>
-              <div class="helppage-contact-info min-w-0">
-                <h4 class="color-text-primary txt-weight-medium helppage-contact-info-h4 text-16px m-0px mb-4px">Official Website</h4>
-                <p class="color-text-secondary m-0px text-14px helppage-contact-info-p line-height-14">Visit our website for documentation, news, and updates.</p>
-              </div>
-              <ArrowRight :size="18" class="helppage-contact-arrow color-text-tertiary flex-shrink-0" />
-            </button>
+            <UiActionCard
+              title="Official Website"
+              description="Visit our website for documentation, news, and updates."
+              icon-class="color-primary bg-fill-blue"
+              icon-size-class="size-64px"
+              card-class="gap-20px p-20px w-full"
+              title-tag="h4"
+              title-class="color-text-primary txt-weight-medium text-16px mb-4px"
+              description-tag="p"
+              description-class="color-text-secondary text-14px line-height-14"
+              :arrow-size="18"
+              @click="openInNewTabSafe('lumen://lumen.lmn')"
+            >
+              <template #icon><Globe :size="28" /></template>
+            </UiActionCard>
           </div>
         </div>
       </div>
@@ -237,7 +252,6 @@ import {
   Database,
   Server,
   Wallet,
-  ArrowRight,
   Search,
   FolderOpen,
   Link2,

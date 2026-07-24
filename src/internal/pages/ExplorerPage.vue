@@ -57,10 +57,7 @@
       <!-- Search Bar -->
       <div class="explorer-search-section mb-32px">
         <div class="explorer-search-container flex-align-center gap-8px border-radius-12px bg-card border-2 py-12px px-16px transition-all-02 max-w-800px focus-within-border-accent focus-within-ring">
-          <svg class="explorer-search-icon color-text-tertiary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-          </svg>
+          <Search :size="20" class="color-text-tertiary" />
           <input 
             type="text" 
             class="explorer-search-input flex-1 outline-none color-text-primary border-none text-15px bg-transparent placeholder-tertiary"
@@ -699,7 +696,7 @@ import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
-import { LayoutGrid } from 'lucide-vue-next';
+import { LayoutGrid, Search } from 'lucide-vue-next';
 import { useToast } from '../../composables/useToast';
 import { fromBase64, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';

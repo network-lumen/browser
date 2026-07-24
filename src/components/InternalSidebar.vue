@@ -37,10 +37,7 @@
               <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light w-28px h-28px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
-              <span class="sidebar-fav-copy flex flex-column gap-2px min-w-0">
-                <span class="sidebar-fav-title color-text-primary text-13px txt-weight-light block nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
-                <span class="sidebar-fav-subtitle color-text-tertiary text-11px block nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
-              </span>
+              <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" />
             </UiButton>
             <UiButton variant="icon" type="button"
               title="Remove shortcut"
@@ -64,6 +61,7 @@
 
 <script setup lang="ts">
 import UiButton from '../ui/UiButton.vue';
+import UiTitleSubtitle from '../ui/UiTitleSubtitle.vue';
  import { computed, inject } from 'vue';
  import { X } from 'lucide-vue-next';
  import { profilesState, activeProfileId } from '../internal/profilesStore';

@@ -63,10 +63,7 @@
                   {{ entry.monogram }}
                 </span>
 
-                <span class="history-item-copy flex flex-column gap-2px min-w-0">
-                  <span class="history-item-title color-text-primary txt-weight-medium nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
-                  <span class="history-item-subtitle color-text-tertiary text-14px nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
-                </span>
+                <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" title-class="color-text-primary txt-weight-medium" subtitle-class="color-text-tertiary text-14px" />
               </button>
 
               <div class="history-item-meta flex-inline-align-center flex-0-0-auto gap-8px ml-8px">
@@ -115,6 +112,7 @@
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
+import UiTitleSubtitle from '../../ui/UiTitleSubtitle.vue';
 import { computed, inject, ref } from "vue";
 import {
   ArrowUpRight,
