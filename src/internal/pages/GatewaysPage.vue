@@ -163,7 +163,7 @@
             </UiCard>
           </div>
 
-          <UiModal :model-value="showCreateModal" panel-class="w-min-760" :closable="!registerState.busy" @update:model-value="closeCreateModal">
+          <UiModal :model-value="showCreateModal" panel-class="w-min-760px-full" :closable="!registerState.busy" @update:model-value="closeCreateModal">
             <template #header>
               <div>
                 <h2 class="gwpage-modal-title color-text-primary text-16px">Create gateway</h2>

@@ -1,6 +1,6 @@
 <template>
   <div class="newtab-page bg-gradient-newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden pt-24px pr-16px pb-32px pl-16px">
-    <UiModal :model-value="showOnboarding" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-34rem-full" :closable="false" @update:model-value="dismissOnboarding">
+    <UiModal :model-value="showOnboarding" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-544px-full" :closable="false" @update:model-value="dismissOnboarding">
       <div class="flex-align-start gap-16px mb-16px">
         <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-16px size-48px" aria-hidden="true">
           <Hexagon :size="22" />
@@ -24,7 +24,7 @@
       </template>
     </UiModal>
 
-    <UiModal :model-value="showShortcutModal" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-32rem-full" @update:model-value="closeShortcutModal">
+    <UiModal :model-value="showShortcutModal" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-512px-full" @update:model-value="closeShortcutModal">
       <template #header>
         <div>
           <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcut</div>
@@ -82,7 +82,7 @@
           <p class="color-text-secondary newtab-hero-copy-p text-16px line-height-15 m-0px mx-auto mt-16px">Open your favourite shortcuts, jump into core pages, or go straight to a domain.</p>
         </div>
 
-        <form class="bg-card-a90 focus-within-shadow-ring-primary-a12 flex-align-center gap-12px border-radius-full border-1-light w-min-760 py-12px px-16px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-24px mx-auto mb-0px" @submit.prevent="submitOmnibox">
+        <form class="bg-card-a90 focus-within-shadow-ring-primary-a12 flex-align-center gap-12px border-radius-full border-1-light w-min-760px-full py-12px px-16px border-color-primary-a50-focus-within shadow-0-14-30-rgba-15-23-42-0-08 mt-24px mx-auto mb-0px" @submit.prevent="submitOmnibox">
           <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
@@ -100,7 +100,7 @@
           </UiButton>
         </form>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-min-760 bg-ios-orange-a08 border-1-ios-orange-a15 m-0px mx-auto mt-16px">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-min-760px-full bg-ios-orange-a08 border-1-ios-orange-a15 m-0px mx-auto mt-16px">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>

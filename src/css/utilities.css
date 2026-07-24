@@ -253,6 +253,12 @@
 .card-state-dragging { opacity: 0.5; transform: scale(0.98); }
 .card-state-drop-target { border-color: rgba(var(--ios-blue-rgb), 0.28); box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08), inset 0 0 0 2px rgba(var(--ios-blue-rgb), 0.18); }
 .card-state-pinned { border-color: rgba(var(--ios-blue-rgb), 0.18); box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06), inset 0 0 0 1px rgba(var(--ios-blue-rgb), 0.1); }
+/* !important is load-bearing here: these are Chart.js <canvas> elements
+   (ExplorerPage's bonded-supply/voting-power donut charts) - Chart.js sets
+   its own inline style on resize, and only a stylesheet rule marked
+   !important beats a later inline style, so a plain (non-important)
+   class or a literal style="" attribute would both lose to it. */
+.chart-canvas-fixed-100px { width: 100px !important; height: 100px !important; }
 .color-accent-secondary { color: var(--accent-secondary); }
 .color-error { color: var(--ios-red); }
 .color-extension-error { color: var(--extension-error-text); }
@@ -787,7 +793,6 @@
 .underline-on-hover:hover .underline-target { text-decoration: underline; }
 .w-0 { width: 0; }
 .w-100px { width: 100px; }
-.w-100px-h-100px-important { width: 100px !important; height: 100px !important; }
 .w-10px { width: 10px; }
 .w-12px { width: 12px; }
 .w-14px { width: 14px; }
@@ -803,7 +808,6 @@
 .w-24px { width: 24px; }
 .w-250px { width: 250px; }
 .w-26px { width: 26px; }
-.w-280px { width: 280px; }
 .w-30px { width: 30px; }
 .w-320px { width: 320px; }
 .w-32px { width: 32px; }
@@ -826,16 +830,16 @@
 .w-full { width: 100%; }
 .w-min-1040px-full { width: min(1040px, 100%); }
 .w-min-260px-full { width: min(260px, 100%); }
-.w-min-32rem-full { width: min(32rem, 100%); }
-.w-min-34rem-full { width: min(34rem, 100%); }
 .w-min-380px-92vw { width: min(380px, 92vw); }
-.w-min-420px-24 { width: min(420px, calc(100vw - 24px)); }
+.w-min-420px-100vw-n24px { width: min(420px, calc(100vw - 24px)); }
+.w-min-512px-full { width: min(512px, 100%); }
 .w-min-520px-92vw { width: min(520px, 92vw); }
 .w-min-520px-full { width: min(520px, 100%); }
+.w-min-544px-full { width: min(544px, 100%); }
 .w-min-560px-92vw { width: min(560px, 92vw); }
 .w-min-560px-full { width: min(560px, 100%); }
 .w-min-720px-92vw { width: min(720px, 92vw); }
-.w-min-760 { width: min(760px, 100%); }
+.w-min-760px-full { width: min(760px, 100%); }
 .w-min-820px-full { width: min(820px, 100%); }
 .w-min-900px-96vw { width: min(900px, 96vw); }
 .w-min-920px-full { width: min(920px, 100%); }
