@@ -307,23 +307,23 @@
             </div>
 
             <div v-if="isDexExpanded(dex.key)" class="walletpage-dex-details bg-secondary border-top-1-light pt-16px pr-20px pb-20px pl-20px">
-              <div class="walletpage-dex-detail-grid gap-12px grid grid-cols-4">
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px">
+              <div class="walletpage-dex-detail-grid gap-12px flex flex-wrap-wrap">
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px flex-1-1-140px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em text-10px">Trading pairs</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap text-13px">{{ formatDexCount(dex.tradingPairsCount) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px">
+                <div class="walletpage-dex-detail-card compact flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px walletpage-dex-detail-card-compact py-10px px-12px gap-4px flex-1-1-140px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em text-10px">Liquidity pools</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap text-13px">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px">
+                <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">24h price</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexPriceLabel(dex) }}</span>
                 </div>
 
-                <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px">
+                <div class="walletpage-dex-detail-card flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
                   <span class="walletpage-dex-detail-label txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">24h volume</span>
                   <span class="walletpage-dex-detail-value txt-weight-medium color-text-primary text-15px overflow-hidden txt-overflow-ellipsis nowrap">{{ getDexVolumeLabel(dex) }}</span>
                 </div>
