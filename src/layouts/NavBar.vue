@@ -37,7 +37,7 @@
         icon-radius-class="border-radius-8px"
         icon-padding-class=""
         class="navbar-url-bar-action flex-inline-align-justify-center size-28px color-text-tertiary absolute top-half translate-y-center right-6px"
-        :class="{ 'color-ios-yellow-override': favActive }"
+        :class="{ 'color-yellow-override': favActive }"
         :title="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
         :aria-label="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
         :aria-pressed="favActive ? 'true' : 'false'"
@@ -66,7 +66,7 @@
         icon-radius-class="border-radius-10px"
         icon-padding-class=""
         class="active-not-disabled-scale-95 disabled-opacity-35-not-allowed extensions-trigger flex-inline-align-justify-center size-32px"
-        :class="{ 'color-ios-yellow-override': showExtensionsMenu }"
+        :class="{ 'color-yellow-override': showExtensionsMenu }"
         title="Extensions"
         @click.stop="toggleExtensionsMenu"
       >

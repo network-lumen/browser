@@ -726,7 +726,7 @@
                       </UiButton>
                     </div>
                   </div>
-                  <button class="explorer-tx-close-btn mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px shadow-0-4-12-ios-indigo-a30-hover" @click="closeStakeModal">Close</button>
+                  <button class="explorer-tx-close-btn mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px shadow-0-4-12-indigo-a30-hover" @click="closeStakeModal">Close</button>
                 </div>
 
                 <!-- Error -->

@@ -1958,11 +1958,11 @@ function getActivityLabel(tx: Activity): string {
 }
 
 function getActivityBadgeStyle(tx: Activity): Record<string, string> {
-  if (isDnsUpdateTx(tx)) return { background: 'rgba(var(--ios-purple-rgb), 0.1)', color: 'var(--ios-purple)' };
+  if (isDnsUpdateTx(tx)) return { background: 'rgba(var(--color-purple-rgb), 0.1)', color: 'var(--color-purple)' };
   if (isDnsTransferTx(tx)) return { background: 'rgba(var(--color-primary-rgb), 0.1)', color: 'var(--color-primary)' };
   if (isDnsRegisterTx(tx)) return { background: 'rgba(var(--color-warning-rgb), 0.1)', color: 'var(--color-warning)' };
-  if (isWithdrawRewardsTx(tx)) return { background: 'rgba(var(--ios-yellow-rgb), 0.1)', color: 'var(--ios-yellow)' };
-  if (isPublishReleaseTx(tx)) return { background: 'rgba(var(--ios-indigo-rgb), 0.1)', color: 'var(--ios-indigo)' };
+  if (isWithdrawRewardsTx(tx)) return { background: 'rgba(var(--color-yellow-rgb), 0.1)', color: 'var(--color-yellow)' };
+  if (isPublishReleaseTx(tx)) return { background: 'rgba(var(--color-indigo-rgb), 0.1)', color: 'var(--color-indigo)' };
   if (tx.type === 'send') return { background: 'rgba(var(--color-error-rgb), 0.1)', color: 'var(--color-error)' };
   if (tx.type === 'receive') return { background: 'rgba(var(--color-success-rgb), 0.1)', color: 'var(--color-success)' };
   return {};

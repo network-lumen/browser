@@ -490,7 +490,7 @@ function getProposalStatusClass(status: string): string {
 }
 
 function getProposalStatusStyle(status: string): Record<string, string> {
-  if (status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD') return { background: 'rgba(var(--ios-yellow-rgb), 0.15)', color: 'var(--color-warning)' };
+  if (status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD') return { background: 'rgba(var(--color-yellow-rgb), 0.15)', color: 'var(--color-warning)' };
   if (status === 'PROPOSAL_STATUS_VOTING_PERIOD' || status === 'PROPOSAL_STATUS_PASSED' || status === 'PROPOSAL_STATUS_REJECTED') return {};
   return { background: 'var(--bg-secondary)', color: 'var(--text-secondary)' };
 }

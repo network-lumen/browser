@@ -376,7 +376,7 @@
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
                   keywords.
                 </p>
-                <div class="searchpage-help-callout flex-align-start mt-12px border-radius-14px gap-10px py-12px px-16px bg-ios-indigo-a08 border-1-ios-indigo-a15">
+                <div class="searchpage-help-callout flex-align-start mt-12px border-radius-14px gap-10px py-12px px-16px bg-indigo-a08 border-1-indigo-a15">
                   <Sparkles :size="16" class="mt-0px color-text-primary flex-0-0-auto opacity-85" />
                   <div class="searchpage-help-callout-text color-text-secondary line-height-14 text-14px">
                     Local-only content on your machine stays private and won’t appear in network
@@ -1589,11 +1589,11 @@ function typeBadgeLabel(r: ResultItem): string {
 function resultAccentGradient(r: ResultItem): string {
   if (!r) return "var(--gradient-brand)";
   if (r.kind === "tx") return "linear-gradient(180deg, var(--color-warning) 0%, rgba(var(--color-warning-rgb), 0.5) 100%)";
-  if (r.kind === "block") return "linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%)";
+  if (r.kind === "block") return "linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)";
   if (r.kind === "address") return "linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)";
   if (r.kind === "ipfs") {
     switch (r.fileKind) {
-      case "epub": return "linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%)";
+      case "epub": return "linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)";
       case "docx": return "linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)";
       case "html": return "linear-gradient(180deg, var(--color-primary) 0%, rgba(var(--color-primary-rgb), 0.5) 100%)";
       case "pdf": return "linear-gradient(180deg, var(--color-error) 0%, rgba(var(--color-error-rgb), 0.5) 100%)";
@@ -1622,11 +1622,11 @@ function resultIconStyle(r: ResultItem): Record<string, string> {
   }
   switch (r?.kind) {
     case "site":
-      return { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.12) 0%, rgba(var(--ios-indigo-rgb), 0.12) 100%)", color: "var(--color-primary)" };
+      return { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.12) 0%, rgba(var(--color-indigo-rgb), 0.12) 100%)", color: "var(--color-primary)" };
     case "tx":
       return { background: "rgba(var(--color-warning-rgb), 0.12)" };
     case "block":
-      return { background: "linear-gradient(135deg, rgba(var(--ios-indigo-rgb), 0.12) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%)", color: "var(--ios-purple)" };
+      return { background: "linear-gradient(135deg, rgba(var(--color-indigo-rgb), 0.12) 0%, rgba(var(--color-purple-rgb), 0.12) 100%)", color: "var(--color-purple)" };
     case "address":
       return { background: "linear-gradient(135deg, rgba(var(--color-secondary-rgb), 0.12) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--color-secondary)" };
     case "link":
@@ -1639,7 +1639,7 @@ function resultIconStyle(r: ResultItem): Record<string, string> {
 function typeBadgeStyle(r: ResultItem): Record<string, string> {
   if (r && r.kind === "ipfs") {
     switch (r.fileKind || "unknown") {
-      case "epub": return { background: "rgba(var(--ios-purple-rgb), 0.12)", color: "var(--ios-purple)" };
+      case "epub": return { background: "rgba(var(--color-purple-rgb), 0.12)", color: "var(--color-purple)" };
       case "docx": return { background: "rgba(var(--color-secondary-rgb), 0.12)", color: "var(--color-secondary)" };
       case "html": return { background: "rgba(var(--color-primary-rgb), 0.12)", color: "var(--color-primary)" };
       case "pdf": return { background: "var(--fill-error)" };
@@ -1649,7 +1649,7 @@ function typeBadgeStyle(r: ResultItem): Record<string, string> {
   }
   switch (r?.kind) {
     case "tx": return { background: "rgba(var(--color-warning-rgb), 0.12)" };
-    case "block": return { background: "rgba(var(--ios-indigo-rgb), 0.12)", color: "var(--ios-purple)" };
+    case "block": return { background: "rgba(var(--color-indigo-rgb), 0.12)", color: "var(--color-purple)" };
     case "address": return { background: "rgba(var(--color-secondary-rgb), 0.12)", color: "var(--color-secondary)" };
     case "link": return { background: "var(--fill-tertiary)" };
     default: return {};

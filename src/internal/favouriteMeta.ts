@@ -171,7 +171,7 @@ function describeFileUrl(rawUrl: string, preferredTitle?: string): FavouriteMeta
 
 const AVATAR_TONE_VARS: Partial<Record<FavouriteKind, string>> = {
   search: "--color-primary",
-  internal: "--ios-indigo",
+  internal: "--color-indigo",
   web: "--color-success",
   file: "--color-warning",
 };
