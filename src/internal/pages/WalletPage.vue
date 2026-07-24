@@ -712,7 +712,7 @@
             <UiButton variant="primary" @click="confirmAssetTransfer"
               :disabled="!canSubmitAssetTransfer || assetTransferSending" class="disabled-fade-50">
               <ArrowLeftRight :size="18" v-if="!assetTransferSending" />
-              <UiSpinner v-else size="sm" style="--spinner-color: #fff" />
+              <UiSpinner v-else size="sm" class="spinner-color-white" />
               <span>{{ assetTransferSending ? 'Transferring...' : 'IBC Transfer' }}</span>
             </UiButton>
           </template>
@@ -890,7 +890,7 @@
 
             <UiButton variant="primary" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction" class="disabled-fade-50">
               <Send :size="18" v-if="!sendingTransaction" />
-              <UiSpinner v-else size="sm" style="--spinner-color: #fff" />
+              <UiSpinner v-else size="sm" class="spinner-color-white" />
               <span>{{ sendPrimaryActionLabel }}</span>
             </UiButton>
     </UiModal>
@@ -977,7 +977,7 @@
             <UiButton variant="primary" @click="saveContact" 
               :disabled="!contactForm.name || !contactForm.address || savingContact" class="disabled-fade-50">
               <Check :size="18" v-if="!savingContact" />
-              <UiSpinner v-else size="sm" style="--spinner-color: #fff" />
+              <UiSpinner v-else size="sm" class="spinner-color-white" />
               <span>{{ savingContact ? 'Saving...' : (editingContact ? 'Update Contact' : 'Add Contact') }}</span>
             </UiButton>
     </UiModal>

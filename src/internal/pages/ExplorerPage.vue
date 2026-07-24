@@ -178,12 +178,12 @@
                 </div>
                 <div class="explorer-chart-legend flex flex-column gap-6px">
                   <div class="explorer-legend-item flex-align-center gap-6px text-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px" style="background: linear-gradient(135deg, #ec4899, #8b5cf6)"></span>
+                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px bg-gradient-legend-bonded"></span>
                     <span class="explorer-legend-label flex-1 color-text-secondary">Bonded</span>
                     <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(bondedTokens) }} LMN</span>
                   </div>
                   <div class="explorer-legend-item flex-align-center gap-6px text-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px" style="background: rgba(139, 92, 246, 0.2)"></span>
+                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px bg-legend-unbonded"></span>
                     <span class="explorer-legend-label flex-1 color-text-secondary">Unbonded</span>
                     <span class="explorer-legend-value txt-weight-light color-text-primary">{{ formatNumber(unbondedTokens) }} LMN</span>
                   </div>
@@ -214,7 +214,7 @@
                     <span class="explorer-legend-value txt-weight-light color-text-primary">{{ vp.percentage }}%</span>
                   </div>
                   <div class="explorer-legend-item flex-align-center gap-6px text-13px">
-                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px" style="background: rgba(148, 163, 184, 0.3)"></span>
+                    <span class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px bg-legend-others"></span>
                     <span class="explorer-legend-label flex-1 color-text-secondary">Others</span>
                     <span class="explorer-legend-value txt-weight-light color-text-primary">{{ othersPercentage }}%</span>
                   </div>
