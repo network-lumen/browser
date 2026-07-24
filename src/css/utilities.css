@@ -118,6 +118,7 @@
 .placeholder-tertiary::placeholder { color: var(--text-tertiary); }
 .placeholder-tertiary-a60::placeholder { color: var(--text-tertiary); opacity: 0.6; }
 .pre-wrap { white-space: pre-wrap; }
+.release-prompt-btn { padding: 8px; }
 .progress-fill-indeterminate { width: 42% !important; animation: progress-indeterminate-slide 1.2s ease-in-out infinite; }
 .resize-vertical { resize: vertical; }
 .reveal-on-active.active .reveal-color-target { color: var(--text-primary); }

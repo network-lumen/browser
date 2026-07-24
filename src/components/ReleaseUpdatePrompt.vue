@@ -30,7 +30,8 @@
 
       <div class="gap-4px flex flex-wrap-wrap mt-4px">
         <UiButton
-          class="flex-align-justify-center gap-8px p-8px border-radius-10px text-11px line-height-12 flex-1-1-auto"
+          size="xs"
+          class="flex-inline-align-justify-center gap-8px release-prompt-btn flex-1-1-auto"
           :variant="downloadDisabled ? 'ghost' : 'primary'"
           :disabled="downloadDisabled || busy"
           @click="onUpdate"
@@ -44,7 +45,8 @@
           </template>
         </UiButton>
         <UiButton
-          class="flex-align-justify-center gap-8px p-8px border-radius-10px text-11px line-height-12 flex-1-1-auto"
+          size="xs"
+          class="flex-inline-align-justify-center gap-8px release-prompt-btn flex-1-1-auto"
           variant="ghost"
           @click="remindLater"
         >
