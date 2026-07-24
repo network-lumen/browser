@@ -9,7 +9,7 @@
           <span>Storage</span>
         </div>
 
-        <div class="hover-active-bg-primary-a08-border-a25 transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent" :class="{ active: hosting.kind === 'local' }">
+        <div class="hover-active-bg-primary-a10-border-a20 transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent" :class="{ active: hosting.kind === 'local' }">
           <UiButton variant="none" type="button"
             @click="selectHosting('local')" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
             <span
@@ -42,7 +42,7 @@
         <div
           v-for="sub in subscriptionRows"
           :key="sub.gatewayId"
-          class="hover-active-bg-primary-a08-border-a25 transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent"
+          class="hover-active-bg-primary-a10-border-a20 transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent"
           :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId, }"
         >
           <UiButton variant="none" type="button"
@@ -144,7 +144,7 @@
         </div>
       </div>
 
-      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="bg-gradient-panel flex-align-center flex-wrap-wrap mb-16px gap-12px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'ring-primary-a08 border-color-primary-a30': selectedLocalCount > 0 }">
+      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="bg-gradient-panel flex-align-center flex-wrap-wrap mb-16px gap-12px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'ring-primary-a10 border-color-primary-a30': selectedLocalCount > 0 }">
         <UiCheckbox boxed title="Select visible entries" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
         <div class="drivepage-bulk-toolbar-copy flex flex-column gap-2px min-w-0">
           <strong class="drivepage-bulk-toolbar-copy-strong text-14px color-text-primary">{{ selectedLocalCount }} selected</strong>
@@ -396,7 +396,7 @@
         <div
           v-for="file in displayFiles"
           :key="file.cid"
-          class="reveal-on-hover hover-bg-primary-a08 content-visibility-auto-920-56 last-border-bottom-none transition-all-fast flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
+          class="reveal-on-hover hover-bg-primary-a10 content-visibility-auto-920-56 last-border-bottom-none transition-all-fast flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
           @click="handleEntryClick(file)"
           :class="{ 'selected bg-fill-blue': selectedFile?.cid === file.cid, 'bg-primary-a05-selected': isLocalFileSelected(file), }"
         >
@@ -5678,7 +5678,7 @@ function clearHlsQueue() {
 }
 
 function hlsQueueItemStyle(status: string): Record<string, string> {
-  if (status === "converting") return { borderColor: "var(--primary-a25)", background: "var(--primary-a06)" };
+  if (status === "converting") return { borderColor: "var(--primary-a20)", background: "var(--primary-a05)" };
   if (status === "done") return { borderColor: "rgba(var(--color-success-rgb), 0.25)", background: "rgba(var(--color-success-rgb), 0.06)" };
   if (status === "paused") return { borderColor: "rgba(var(--color-primary-rgb), 0.25)", background: "rgba(var(--color-primary-rgb), 0.06)" };
   if (status === "failed") return { borderColor: "rgba(var(--color-error-rgb), 0.25)", background: "rgba(var(--color-error-rgb), 0.06)" };

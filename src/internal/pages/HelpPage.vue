@@ -67,7 +67,7 @@
       <div v-if="currentView === 'discover'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero Section -->
-          <section class="bg-gradient-primary-a12-card p-32px border-radius-16px text-center border-default shadow-sm">
+          <section class="bg-gradient-primary-a10-card p-32px border-radius-16px text-center border-default shadow-sm">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Welcome to <span class="gradient-text-clip bg-gradient-primary">Lumen</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">The decentralized web browser for the next generation of internet</p>
@@ -221,7 +221,7 @@
       <div v-else-if="currentView === 'domains'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero -->
-          <section class="bg-gradient-primary-a12-card small border-radius-16px text-center border-default shadow-sm p-24px">
+          <section class="bg-gradient-primary-a10-card small border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Publish Your <span class="gradient-text-clip bg-gradient-primary">Website</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Create a domain and link it to your Drive content in 4 easy steps</p>
@@ -281,7 +281,7 @@
       <div v-else-if="currentView === 'publish'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero -->
-          <section class="bg-gradient-primary-a12-card small border-radius-16px text-center border-default shadow-sm p-24px">
+          <section class="bg-gradient-primary-a10-card small border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Create Your <span class="gradient-text-clip bg-gradient-primary">First Website</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
@@ -343,7 +343,7 @@
       <div v-else-if="currentView === 'contact'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero -->
-          <section class="bg-gradient-primary-a12-card small border-radius-16px text-center border-default shadow-sm p-24px">
+          <section class="bg-gradient-primary-a10-card small border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Get <span class="gradient-text-clip bg-gradient-primary">Help</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Connect with our community and get support</p>

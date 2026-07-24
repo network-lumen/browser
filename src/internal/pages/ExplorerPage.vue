@@ -263,7 +263,7 @@
                 <UiButton variant="primary" @click="currentView = 'blocks'">View All →</UiButton>
               </div>
               <div class="activity-list flex flex-column gap-12px">
-                <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="hover-bg-primary-a08 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
+                <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
                   <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -293,7 +293,7 @@
                 <UiButton variant="primary" @click="currentView = 'transactions'">View All →</UiButton>
               </div>
               <div class="activity-list flex flex-column gap-12px">
-                <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="hover-bg-primary-a08 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
+                <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
                   <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
@@ -626,7 +626,7 @@
           <div class="stake-form flex flex-column gap-20px">
             <!-- Withdraw Rewards - No amount needed -->
             <div v-if="currentStakeAction === 'Withdraw'" class="explorer-withdraw-info p-0px pt-8px pb-8px">
-              <div class="explorer-withdraw-notice flex-align-start gap-12px p-16px border-radius-10px bg-primary-a08 border-1-primary-a15">
+              <div class="explorer-withdraw-notice flex-align-start gap-12px p-16px border-radius-10px bg-primary-a10 border-1-primary-a15">
                 <svg class="explorer-withdraw-notice-svg flex-shrink-0 color-primary mt-4px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <path d="M12 16v-4"/>
@@ -666,10 +666,10 @@
                 </div>
               </div>
               <div class="grid-cols-4-1fr gap-8px grid">
-                <UiButton variant="secondary" @click="setStakePercentage(25)" class="hover-bg-primary-a08">25%</UiButton>
-                <UiButton variant="secondary" @click="setStakePercentage(50)" class="hover-bg-primary-a08">50%</UiButton>
-                <UiButton variant="secondary" @click="setStakePercentage(75)" class="hover-bg-primary-a08">75%</UiButton>
-                <UiButton variant="secondary" @click="setStakePercentage(100)" class="hover-bg-primary-a08">Max</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(25)" class="hover-bg-primary-a10">25%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(50)" class="hover-bg-primary-a10">50%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(75)" class="hover-bg-primary-a10">75%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(100)" class="hover-bg-primary-a10">Max</UiButton>
               </div>
             </div>
 
