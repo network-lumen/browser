@@ -466,6 +466,7 @@
 .hover-translate-x-4px:hover { transform: translateX(4px); }
 .hover-translate-y4-x4:hover { transform: translateY(-4px) translateX(4px); }
 .hover-underline { text-decoration: none; }
+.hover-underline:where(:hover, :focus-visible) { text-decoration: underline; }
 .inset-0 { inset: 0; }
 .internal-page {
   width: 100%;
