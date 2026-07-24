@@ -242,7 +242,7 @@
                 <div class="netpage-block-meta flex flex-column flex-align-end gap-6px flex-justify-center">
                   <div class="meta-item flex-align-center gap-8px">
                     <span class="netpage-meta-label color-text-secondary txt-weight-light text-uppercase text-10px">TXS</span>
-                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-primary border-1 border-radius-4px text-13px py-0px px-8px h-22px min-w-32px" :class="{ 'bg-fill-success border-color-success-a30 color-success': block.txs > 0 }">{{ block.txs }}</span>
+                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-primary border-1 border-radius-4px text-13px py-0px px-8px h-24px min-w-32px" :class="{ 'bg-fill-success border-color-success-a30 color-success': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
                   <div class="netpage-meta-time flex-align-center color-text-secondary gap-6px text-12px line-height-1">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" opacity="0.5">

@@ -163,7 +163,7 @@
             type="button"
             @click="convertSelectedLocalToHls" class="disabled-fade-50">
             Convert to HLS
-            <span v-if="selectedLocalConvertibleCount" class="h-22px flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium text-12px bg-primary-a10 p-0px pr-4px pl-4px min-w-24px">
+            <span v-if="selectedLocalConvertibleCount" class="h-24px flex-inline-align-justify-center border-radius-full color-primary txt-weight-medium text-12px bg-primary-a10 p-0px pr-4px pl-4px min-w-24px">
               {{ selectedLocalConvertibleCount }}
             </span>
           </UiButton>

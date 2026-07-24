@@ -232,7 +232,7 @@
               </div>
               <div class="explorer-chart-container">
                 <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-6px p-12px min-h-160px">
-                  <div class="explorer-proposer-avatar flex-align-justify-center size-56px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden text-24px flex-shrink-0 border-2-primary-a30 min-w-24px">
+                  <div class="explorer-proposer-avatar flex-align-justify-center size-64px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden text-24px flex-shrink-0 border-2-primary-a30 min-w-24px">
                     <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover border-radius-full" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                     <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                   </div>
@@ -546,7 +546,7 @@
                   <span class="explorer-changes-value txt-weight-light text-14px">—</span>
                 </div>
                 <div class="explorer-td td-cumulative flex-align-center text-13px text-14px">
-                  <div class="explorer-cumulative-container flex-align-justify-center relative w-50px h-48px">
+                  <div class="explorer-cumulative-container flex-align-justify-center relative w-48px h-48px">
                     <svg class="explorer-circular-progress block filter-none" width="50" height="50" viewBox="0 0 50 50">
                       <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
                       <circle 

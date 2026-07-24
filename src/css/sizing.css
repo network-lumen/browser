@@ -9,22 +9,16 @@
 .h-14px { height: 14px; }
 .h-160px { height: 160px; }
 .h-16px { height: 16px; }
-.h-18px { height: 18px; }
 .h-1px { height: 1px; }
 .h-20px { height: 20px; }
-.h-22px { height: 22px; }
 .h-240px { height: 240px; }
 .h-24px { height: 24px; }
 .h-250px { height: 250px; }
-.h-26px { height: 26px; }
 .h-28px { height: 28px; }
-.h-30px { height: 30px; }
 .h-32px { height: 32px; }
-.h-34px { height: 34px; }
 .h-40px { height: 40px; }
 .h-448px-blur-36px { height: 448px; filter: blur(36px); }
 .h-48px { height: 48px; }
-.h-52px { height: 52px; }
 .h-5px { height: 5px; }
 .h-6px { height: 6px; }
 .h-74pct { height: 74%; }
@@ -83,9 +77,8 @@
 .min-h-280px { min-height: 280px; }
 .min-h-300px { min-height: 300px; }
 .min-h-360px { min-height: 360px; }
-.min-h-46px { min-height: 46px; }
+.min-h-48px { min-height: 48px; }
 .min-h-520px { min-height: 520px; }
-.min-h-52px { min-height: 52px; }
 .min-h-60px { min-height: 60px; }
 .min-h-64px { min-height: 64px; }
 .min-h-84px { min-height: 84px; }
@@ -110,7 +103,7 @@
 .min-w-400px { min-width: 400px; }
 .min-w-40px { min-width: 40px; }
 .min-w-420px { min-width: 420px; }
-.min-w-50px { min-width: 50px; }
+.min-w-48px { min-width: 48px; }
 .min-w-70px { min-width: 70px; }
 .min-w-80px { min-width: 80px; }
 .size-16px { width: 16px; height: 16px; }
@@ -119,9 +112,7 @@
 .size-32px { width: 32px; height: 32px; }
 .size-36px { width: 36px; height: 36px; }
 .size-40px { width: 40px; height: 40px; }
-.size-44px { width: 44px; height: 44px; }
 .size-48px { width: 48px; height: 48px; }
-.size-56px { width: 56px; height: 56px; }
 .size-64px { width: 64px; height: 64px; }
 .size-80px { width: 80px; height: 80px; }
 .w-0 { width: 0; }
@@ -133,25 +124,19 @@
 .w-160px { width: 160px; }
 .w-16px { width: 16px; }
 .w-180px { width: 180px; }
-.w-18px { width: 18px; }
 .w-20px { width: 20px; }
 .w-220px { width: 220px; }
-.w-22px { width: 22px; }
 .w-240px { width: 240px; }
 .w-24px { width: 24px; }
 .w-250px { width: 250px; }
-.w-26px { width: 26px; }
-.w-30px { width: 30px; }
 .w-320px { width: 320px; }
 .w-32px { width: 32px; }
 .w-340px { width: 340px; }
-.w-34px { width: 34px; }
 .w-40pct { width: 40%; }
 .w-40px { width: 40px; }
 .w-448px { width: 448px; }
+.w-48px { width: 48px; }
 .w-4px { width: 4px; }
-.w-50px { width: 50px; }
-.w-52px { width: 52px; }
 .w-60pct { width: 60%; }
 .w-70pct { width: 70%; }
 .w-74pct { width: 74%; }

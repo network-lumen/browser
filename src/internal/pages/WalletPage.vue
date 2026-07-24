@@ -115,25 +115,25 @@
         <!-- Quick Actions -->
         <div class="grid-cols-auto-fit-140 gap-16px grid">
           <UiButton variant="cta" @click="sendTransaction" class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-primary">
+            <div class="walletpage-quick-icon send flex-align-justify-center size-64px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-primary">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </UiButton>
           <UiButton variant="cta" @click="openReceiveModal" class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-primary">
+            <div class="walletpage-quick-icon receive flex-align-justify-center size-64px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-primary">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </UiButton>
           <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-primary">
+            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-64px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-primary">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </UiButton>
           <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-primary">
+            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-64px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-primary">
               <CreditCard :size="20" />
             </div>
             <span>Buy (soon)</span>
@@ -260,7 +260,7 @@
                 class="color-inherit flex-align-start gap-12px flex-1 p-0px text-left cursor-pointer min-w-220px border-none bg-transparent"
                 @click="toggleDexExpanded(dex.key)"
               >
-                <div class="walletpage-dex-logo flex-align-justify-center color-primary txt-weight-medium border-radius-16px border-1 bg-secondary overflow-hidden flex-shrink-0 text-15px w-52px h-52px" :class="{ 'bg-slate-900 border-color-slate-900-a65': dex.logoTheme === 'dark' }">
+                <div class="walletpage-dex-logo flex-align-justify-center color-primary txt-weight-medium border-radius-16px border-1 bg-secondary overflow-hidden flex-shrink-0 text-15px w-48px h-48px" :class="{ 'bg-slate-900 border-color-slate-900-a65': dex.logoTheme === 'dark' }">
                   <img
                     v-if="dex.logoUrl"
                     :src="dex.logoUrl"
@@ -919,7 +919,7 @@
                 />
                 <div v-else class="h-240px flex-align-justify-center color-text-tertiary bg-secondary border-radius-8px text-14px w-240px">
                   <div class="flex-align-center gap-8px color-text-secondary">
-                    <span class="border-radius-full w-18px h-18px border-2-fill-secondary spinner-accent inline-block flex-shrink-0"></span>
+                    <span class="border-radius-full w-20px h-20px border-2-fill-secondary spinner-accent inline-block flex-shrink-0"></span>
                     Generating QR Code...
                   </div>
                 </div>

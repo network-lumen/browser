@@ -91,9 +91,9 @@
 
       <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-12px p-0px m-0px list-style-none gap-16px">
         <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-16px border-radius-20px border-default bg-card py-20px px-24px">
-          <div class="bg-shimmer border-radius-16px flex-shrink-0 w-52px h-52px"></div>
+          <div class="bg-shimmer border-radius-16px flex-shrink-0 w-48px h-48px"></div>
           <div class="searchpage-skeleton-content flex-1 min-w-0">
-            <div class="bg-shimmer h-18px border-radius-6px w-60pct"></div>
+            <div class="bg-shimmer h-20px border-radius-6px w-60pct"></div>
             <div class="bg-shimmer h-14px border-radius-6px mt-8px w-40pct"></div>
             <div class="bg-shimmer h-40px border-radius-6px mt-8px w-85pct"></div>
           </div>
@@ -246,7 +246,7 @@
             @click="openResult(r)"
           >
             <div class="absolute left-0 top-0 bottom-0 w-4px" :style="{ background: resultAccentGradient(r) }"></div>
-            <div class="reveal-icon-target flex-align-justify-center border-radius-16px flex-0-0-auto color-primary overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :style="resultIconStyle(r)">
+            <div class="reveal-icon-target flex-align-justify-center border-radius-16px flex-0-0-auto color-primary overflow-hidden border-default transition-smooth-all w-48px h-48px bg-gradient-secondary" :style="resultIconStyle(r)">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
@@ -256,7 +256,7 @@
                 <button
                   v-if="showHideIcon(r)"
                   type="button"
-                  class="top-6px right-4px z-1 h-26px flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-26px hover-bg-black-a50"
+                  class="top-6px right-4px z-1 h-24px flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-24px hover-bg-black-a50"
                   title="Hide content"
                   @click.stop.prevent="hideThumb(r)"
                 >
@@ -389,19 +389,19 @@
                 <h3 class="txt-weight-strong m-0px color-text-primary text-15px letter-spacing-n001">How to get indexed</h3>
                 <ol class="flex flex-column p-0px color-text-secondary list-style-none gap-8px line-height-14 m-0px mt-8px">
                   <li class="flex gap-10px">
-                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">1</span>
+                    <span class="flex-inline-align-justify-center flex-0-0-auto w-24px h-24px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">1</span>
                     <span class="searchpage-help-step-text min-w-0">
                       Upload your content to the cloud (Drive / cloud upload).
                     </span>
                   </li>
                   <li class="flex gap-10px">
-                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">2</span>
+                    <span class="flex-inline-align-justify-center flex-0-0-auto w-24px h-24px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">2</span>
                     <span class="searchpage-help-step-text min-w-0">
                       Indexing is async — it can take a bit before results show up.
                     </span>
                   </li>
                   <li class="flex gap-10px">
-                    <span class="flex-inline-align-justify-center flex-0-0-auto w-26px h-26px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">3</span>
+                    <span class="flex-inline-align-justify-center flex-0-0-auto w-24px h-24px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">3</span>
                     <span class="searchpage-help-step-text min-w-0">
                       For websites: publish a folder with an <code>index.html</code> entrypoint.
                     </span>

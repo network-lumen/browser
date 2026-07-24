@@ -1,5 +1,5 @@
 <template>
-  <header class="navbar flex-align-center gap-12px py-8px px-12px bg-primary border-bottom-default min-h-52px">
+  <header class="navbar flex-align-center gap-12px py-8px px-12px bg-primary border-bottom-default min-h-48px">
     <!-- Navigation Controls -->
     <div class="navbar-nav-controls flex-align-center gap-4px">
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" :disabled="!canGoBack"
@@ -184,7 +184,7 @@
                 <span class="navbar-profile-row-name text-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
               </UiButton>
 
-              <button type="button" class="reveal-target hover-bg-error-a10-color-error h-26px flex-inline-align-justify-center border-radius-10px cursor-pointer color-text-tertiary border-none bg-transparent transition-all-fast opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
+              <button type="button" class="reveal-target hover-bg-error-a10-color-error h-24px flex-inline-align-justify-center border-radius-10px cursor-pointer color-text-tertiary border-none bg-transparent transition-all-fast opacity-0 w-24px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
               </button>
             </li>

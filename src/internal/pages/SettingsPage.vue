@@ -173,7 +173,7 @@
                 v-model="brightness"
                 class="slider-thumb-accent flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
               />
-              <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-50px">{{ brightness }}%</span>
+              <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-48px">{{ brightness }}%</span>
             </div>
           </UiCard>
         </div>
@@ -970,7 +970,7 @@
             <div class="settingspage-settings-subsection mt-16px">
               <div class="settingspage-subsection-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="settingspage-subsection-title txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway IDs</h3>
-                <span class="settingspage-count-badge flex-inline-align-justify-center text-12px txt-weight-light color-primary border-radius-10px h-22px py-0px px-8px bg-primary-a15 min-w-24px">{{ gatewayIds.length }}</span>
+                <span class="settingspage-count-badge flex-inline-align-justify-center text-12px txt-weight-light color-primary border-radius-10px h-24px py-0px px-8px bg-primary-a15 min-w-24px">{{ gatewayIds.length }}</span>
               </div>
               <p class="settingspage-subsection-desc text-14px color-text-secondary m-0px mb-16px">Add gateway IDs to use for private content delivery</p>
 
@@ -1025,7 +1025,7 @@
                     v-model="gatewayTimeout"
                     class="slider-thumb-accent flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
                   />
-                  <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-50px">{{ gatewayTimeout / 1000 }}s</span>
+                  <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-48px">{{ gatewayTimeout / 1000 }}s</span>
                 </div>
               </UiCard>
 
