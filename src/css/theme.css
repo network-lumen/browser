@@ -25,7 +25,6 @@
   --black-a02: rgba(var(--black-rgb), .02);
   --black-a04: rgba(var(--black-rgb), .04);
   --black-a06: rgba(var(--black-rgb), .06);
-  --black-a10: rgba(var(--black-rgb), .10);
   --primary-a00: rgba(var(--color-primary-rgb), .00);
   --primary-a05: rgba(var(--color-primary-rgb), .05);
   --primary-a10: rgba(var(--color-primary-rgb), .10);
@@ -149,7 +148,6 @@
   --black-a02: rgba(0, 0, 0, .02);
   --black-a04: rgba(0, 0, 0, .04);
   --black-a06: rgba(0, 0, 0, .06);
-  --black-a10: rgba(0, 0, 0, .10);
   --primary-a00: rgba(var(--color-primary-rgb), .00);
   --primary-a05: rgba(var(--color-primary-rgb), .05);
   --primary-a10: rgba(var(--color-primary-rgb), .10);

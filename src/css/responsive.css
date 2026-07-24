@@ -1,9 +1,3 @@
-@media (hover: hover) {
-  .hover-bg-black-a10:where(:hover, :focus-visible) { background: var(--black-a10); }
-  .hover-underline:where(:hover, :focus-visible) { text-decoration: underline; }
-
-}
-
 @media (max-width: 900px) {
   .walletpage-asset-item-rich, .walletpage-dex-top { flex-direction: column; }
   .walletpage-asset-side, .walletpage-dex-side { width: 100%; }

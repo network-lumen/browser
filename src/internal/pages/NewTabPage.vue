@@ -124,7 +124,7 @@
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-20px min-h-150px shadow-0-14-30-rgba-15-23-42-0-08 flex-basis-third"
+            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-20px min-h-150px shadow-0-14-30-rgba-15-23-42-0-08 flex-basis-third max-w-240px"
             :class="{
               'card-state-pinned': entry.pinned,
               'card-state-dragging': draggingShortcutId === entry.id,
@@ -136,7 +136,7 @@
             @drop.prevent="onShortcutDrop(entry.id)"
             @dragend="onShortcutDragEnd"
           >
-            <UiButton variant="none" type="button" @click="openTarget(entry.url, $event)" class="newtab-shortcut-card-main flex-align-center gap-12px cursor-pointer w-full bg-transparent border-none text-left">
+            <UiButton variant="none" type="button" @click="openTarget(entry.url, $event)" :title="entry.title" class="newtab-shortcut-card-main flex-align-center gap-12px cursor-pointer w-full bg-transparent border-none text-left">
               <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
