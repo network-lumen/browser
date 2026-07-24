@@ -1,8 +1,8 @@
 <template>
   <button
     type="button"
-    class="flex-align-center gap-8px fw-500 color-text-secondary cursor-pointer py-8px px-16px bg-transparent border-none border-radius-8px text-14px transition-all-02 hover-color-text-primary hover-bg-hover"
-    :class="[{ 'shadow-sm bg-card color-primary': active }, extraClass]"
+    class="flex-align-center gap-8px fw-500 cursor-pointer py-8px px-16px border-none border-radius-8px text-14px transition-all-02"
+    :class="[active ? 'shadow-sm bg-card color-primary' : 'color-text-secondary bg-transparent hover-color-text-primary hover-bg-hover', extraClass]"
     :disabled="disabled"
     @click="$emit('click', $event)"
   >

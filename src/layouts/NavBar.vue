@@ -137,9 +137,8 @@
           </UiMenuItem>
 
           <UiButton variant="primary" type="button"
-           
             :disabled="extensionsBusy"
-            @click.stop="openChromeWebStore" class="hover-bg-hover-enabled disabled-fade-50 transition-bg-fast">
+            @click.stop="openChromeWebStore" class="disabled-fade-50 transition-bg-fast">
             <span>Import from Chrome Web Store</span>
             <ExternalLink :size="13" />
           </UiButton>
@@ -153,8 +152,8 @@
 
     <!-- Profile -->
     <div class="navbar-profile-section appregion-no-drag relative">
-      <UiButton variant="secondary" size="xs" type="button" :title="activeProfileDisplay" @click.stop="toggleProfileMenu" class="navbar-profile-trigger">
-        <ProfileAvatar :profile="activeProfile" :size="28" :title="activeProfileDisplay" />
+      <UiButton variant="secondary" size="xs" type="button" :title="activeProfileDisplay" @click.stop="toggleProfileMenu" class="navbar-profile-trigger border-radius-full border-none">
+        <ProfileAvatar :profile="activeProfile" :size="24" :title="activeProfileDisplay" />
         <span class="navbar-profile-trigger-name text-13px fw-500 color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-100px">{{ activeProfileDisplay }}</span>
         <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary ml-n2px" />
       </UiButton>

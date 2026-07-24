@@ -49,7 +49,7 @@ const variantClass: Record<Exclude<Variant, 'icon'>, string> = {
 };
 
 const sizeClass: Record<Size, string> = {
-  xs: 'text-11px line-height-12 py-6px px-10px',
+  xs: 'text-11px line-height-12 py-4px px-10px',
   sm: 'text-11px line-height-12 py-8px px-16px',
   md: 'text-12px line-height-12 py-12px px-20px'
 };

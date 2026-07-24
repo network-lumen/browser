@@ -42,7 +42,6 @@
 .hover-bg-gradient-accent-secondary-lift:hover { background: linear-gradient(135deg, var(--color-secondary) 0%, color-mix(in srgb, var(--color-secondary) 60%, black) 100%); transform: translateY(-1px); }
 .hover-bg-gradient-danger-deep:hover { background: linear-gradient(135deg, color-mix(in srgb, var(--color-error) 80%, black) 0%, color-mix(in srgb, var(--color-error) 60%, black) 100%); }
 .hover-bg-hover:hover { background: var(--hover-bg); }
-.hover-bg-hover-enabled:hover:not(:disabled) { background: var(--hover-bg); }
 .hover-bg-warning-a15:hover { background: rgba(var(--color-warning-rgb), 0.15); }
 .hover-bg-error-a08:hover { background: rgba(var(--color-error-rgb), 0.08); }
 .hover-bg-error-a10-color-error:hover { background: rgba(var(--color-error-rgb), 0.1); color: var(--color-error); }

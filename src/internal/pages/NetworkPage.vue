@@ -53,7 +53,7 @@
         <UiSidebarNavSection title="Node Info">
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Chain ID</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">lumen-1</span>
+            <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">lumen</span>
           </div>
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Network</span>

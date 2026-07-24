@@ -110,8 +110,8 @@
             </UiChartCard>
 
             <UiChartCard title="Bonded / Supply">
-              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
-                <canvas ref="bondedSupplyChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
+              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-120px h-120px">
+                <canvas ref="bondedSupplyChart" width="120" height="120" class="chart-canvas-fixed-120px"></canvas>
                 <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                   <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
                   <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Bonded</div>
@@ -125,8 +125,8 @@
             </UiChartCard>
 
             <UiChartCard title="Voting Power">
-              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-100px h-100px">
-                <canvas ref="votingPowerChart" width="120" height="120" class="chart-canvas-fixed-100px"></canvas>
+              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-120px h-120px">
+                <canvas ref="votingPowerChart" width="120" height="120" class="chart-canvas-fixed-120px"></canvas>
                 <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                   <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
                   <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Active</div>
@@ -465,16 +465,16 @@
                   <span class="explorer-changes-value txt-weight-light text-14px">—</span>
                 </div>
                 <div class="explorer-td td-cumulative flex-align-center text-13px text-14px">
-                  <div class="explorer-cumulative-container flex-align-justify-center relative w-48px h-48px">
-                    <svg class="explorer-circular-progress block filter-none" width="50" height="50" viewBox="0 0 50 50">
-                      <circle cx="25" cy="25" r="20" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
-                      <circle 
-                        cx="25" cy="25" r="20" 
-                        fill="none" 
-                        stroke="var(--color-primary)" 
+                  <div class="explorer-cumulative-container flex-align-justify-center relative w-56px h-56px">
+                    <svg class="explorer-circular-progress block filter-none" width="58" height="58" viewBox="0 0 58 58">
+                      <circle cx="29" cy="29" r="24" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
+                      <circle
+                        cx="29" cy="29" r="24"
+                        fill="none"
+                        stroke="var(--color-primary)"
                         stroke-width="4"
                         :stroke-dasharray="getCumulativeDashArray(index)"
-                        transform="rotate(-90 25 25)"
+                        transform="rotate(-90 29 29)"
                         stroke-linecap="round"
                       ></circle>
                     </svg>
@@ -953,7 +953,7 @@ const votingPowerChart = ref<HTMLCanvasElement | null>(null);
 const copiedText = ref('');
 const showCopyNotification = ref(false);
 
-const CUMULATIVE_RADIUS = 20;
+const CUMULATIVE_RADIUS = 24;
 const CUMULATIVE_CIRCUMFERENCE = 2 * Math.PI * CUMULATIVE_RADIUS;
 
 function getCumulativeDashArray(index: number): string {
