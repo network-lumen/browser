@@ -678,12 +678,14 @@ async function openInNewTab(url: string) {
 
     const p = resolveFaviconForHost(h)
       .then((res) => {
-        faviconCacheByHost.set(h, res ?? null);
+        // Only cache successes. A failed probe (gateway not ready yet,
+        // transient timeout) must not permanently blacklist this host -
+        // the next navigation/tab to it should retry from scratch.
+        if (res) faviconCacheByHost.set(h, res);
         faviconInflightByHost.delete(h);
         return res ?? null;
       })
       .catch(() => {
-        faviconCacheByHost.set(h, null);
         faviconInflightByHost.delete(h);
         return null;
       });
@@ -721,10 +723,13 @@ async function openInNewTab(url: string) {
       return;
     }
 
+    // Clear immediately so a domain switch never shows the previous site's
+    // icon while this one's favicon is still resolving.
+    t.favicon = null;
     const reqHost = host;
     const icon = await getFaviconForHost(reqHost);
     if (tabHostById.get(t.id) !== reqHost) return;
-    t.favicon = icon;
+    if (icon) t.favicon = icon;
   }
 
   watch(

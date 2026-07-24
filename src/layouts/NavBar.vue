@@ -117,10 +117,9 @@
               </UiButton>
 
               <UiButton variant="danger" type="button"
-               
                 title="Remove extension"
                 :disabled="extensionsBusy"
-                @click.stop="removeExtension(ext.id)" class="disabled-fade-50 size-28px">
+                @click.stop="removeExtension(ext.id)" class="flex-inline-align-justify-center disabled-fade-50 size-28px navbar-extension-remove-btn">
                 <Trash2 :size="14" />
               </UiButton>
             </div>
