@@ -16,12 +16,8 @@
           <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Block Overview</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
-          <div class="hover-mx-n15rem last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Height:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.height }}</span>
-          </div>
-          <div class="hover-mx-n15rem last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Hash:</span>
+          <UiDetailRow flex label="Height:" :value="block.height" />
+          <UiDetailRow flex label="Hash:">
             <div class="blockdetail-hash-value flex-1 flex-align-center gap-12px">
               <code class="flex-1 blockdetail-hash-value-code py-8px px-12px border-1 border-radius-6px text-13px mono break-all">{{ block.hash }}</code>
               <UiButton variant="icon" @click="copyToClipboard(block.hash)" title="Copy hash">
@@ -31,9 +27,8 @@
                 </svg>
               </UiButton>
             </div>
-          </div>
-          <div class="hover-mx-n15rem last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Proposer:</span>
+          </UiDetailRow>
+          <UiDetailRow flex label="Proposer:">
             <div class="flex-align-center gap-12px">
               <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium text-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
                 <img class="blockdetail-proposer-avatar-img w-full h-full object-fit-cover"
@@ -45,15 +40,9 @@
               </div>
               <span class="color-text-primary text-15px txt-weight-light">{{ block.proposer }}</span>
             </div>
-          </div>
-          <div class="hover-mx-n15rem last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Time:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.time }}</span>
-          </div>
-          <div class="hover-mx-n15rem last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Transactions:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.txs }}</span>
-          </div>
+          </UiDetailRow>
+          <UiDetailRow flex label="Time:" :value="block.time" />
+          <UiDetailRow flex label="Transactions:" :value="block.txs" />
         </div>
       </UiCard>
 
@@ -63,22 +52,12 @@
           <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Block Data</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
-          <div class="hover-mx-n15rem last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Chain ID:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ block.chainId || 'lumen-mainnet' }}</span>
-          </div>
-          <div class="hover-mx-n15rem last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Block Size:</span>
+          <UiDetailRow flex label="Chain ID:" :value="block.chainId || 'lumen-mainnet'" />
+          <UiDetailRow flex label="Block Size:">
             <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ calculateBlockSize(block) }} KB</span>
-          </div>
-          <div class="hover-mx-n15rem last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Gas Used:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ formatNumber(block.gasUsed || 0) }}</span>
-          </div>
-          <div class="hover-mx-n15rem last-border-bottom-none flex-align-center border-bottom-1-light transition-bg-02 hover-bg-secondary p-0px pt-16px pb-16px hover-padding-100-150">
-            <span class="blockdetail-label color-text-secondary txt-weight-light text-14px flex-0-0-180px">Gas Limit:</span>
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ formatNumber(block.gasLimit || 0) }}</span>
-          </div>
+          </UiDetailRow>
+          <UiDetailRow flex label="Gas Used:" :value="formatNumber(block.gasUsed || 0)" />
+          <UiDetailRow flex label="Gas Limit:" :value="formatNumber(block.gasLimit || 0)" />
         </div>
       </UiCard>
 
@@ -121,6 +100,7 @@
 <script setup lang="ts">
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
+import UiDetailRow from '../../ui/UiDetailRow.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
