@@ -40,7 +40,6 @@
   --primary-a50: rgba(var(--color-primary-rgb), .50);
   --bg-primary: var(--white);
   --bg-secondary: #F2F2F7;
-  --bg-tertiary: var(--white);
   --text-primary: #000000;
   --text-secondary: #3C3C43;
   --text-tertiary: #3C3C4399;
@@ -58,7 +57,6 @@
   --fill-tertiary: #7676801E;
   --fill-success: rgba(var(--color-success-rgb), 0.15);
   --fill-error: rgba(var(--color-error-rgb), 0.15);
-  --fill-blue: rgba(0, 122, 255, 0.15);
   --border: var(--border-color);
   --blue-sky: var(--color-secondary);
   --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-indigo) 100%);
@@ -119,7 +117,6 @@
 :root.dark {
   --bg-primary: #1C1C1E;
   --bg-secondary: #1C1C1E;
-  --bg-tertiary: #1C1C1E;
   --text-primary: var(--white);
   --text-secondary: rgba(235, 235, 245, 0.6);
   --text-tertiary: rgba(235, 235, 245, 0.3);
@@ -137,7 +134,6 @@
   --fill-tertiary: rgba(118, 118, 128, 0.24);
   --fill-success: rgba(var(--color-success-rgb), 0.25);
   --fill-error: rgba(var(--color-error-rgb), 0.25);
-  --fill-blue: rgba(10, 132, 255, 0.25);
   --color-primary: #0A84FF;
   --color-primary-rgb: 10, 132, 255;
   --color-secondary: #64D2FF;

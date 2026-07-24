@@ -76,7 +76,7 @@
 .bg-card-disabled-hover:disabled:hover { background: var(--card-bg); }
 .bg-current { background: currentColor; }
 .bg-dark-111 { background: #111111; }
-.bg-fill-blue { background: var(--fill-blue); }
+.bg-fill-blue { background: var(--primary-a15); }
 .bg-fill-error { background: var(--fill-error); }
 .bg-fill-primary { background: var(--fill-primary); }
 .bg-fill-secondary { background: var(--fill-secondary); }
@@ -91,7 +91,7 @@
 .bg-gradient-indigo-purple { background: linear-gradient(135deg, var(--color-indigo) 0%, var(--color-purple) 100%); }
 .bg-gradient-primary-subtle { background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.08) 0%, rgba(var(--color-primary-rgb), 0.02) 100%); }
 .bg-gradient-success-soft { background: linear-gradient(135deg, rgba(var(--color-success-rgb), 0.05) 0%, rgba(var(--color-success-rgb), 0.02) 100%); }
-.bg-gradient-newtab-page { background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--color-indigo-rgb), 0.1), transparent 62%), var(--bg-tertiary); }
+.bg-gradient-newtab-page { background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--color-indigo-rgb), 0.1), transparent 62%), var(--bg-primary); }
 .bg-gradient-panel { background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary)); }
 .bg-gradient-primary { background: var(--gradient-primary); }
 .bg-gradient-secondary { background: var(--gradient-secondary); }
@@ -134,7 +134,7 @@
 .bg-sidebar-bg { background: var(--sidebar-bg); }
 .bg-slate-900 { background: #111827; }
 .bg-slate-900-a72 { background: rgba(15, 23, 42, 0.72); }
-.bg-tertiary { background: var(--bg-tertiary); }
+.bg-tertiary { background: var(--bg-primary); }
 .bg-text-tertiary { background: var(--text-tertiary); }
 .bg-transparent { background-color: transparent; }
 .bg-white { background-color: var(--white); }
@@ -422,7 +422,7 @@
 .hover-bg-primary-a15:hover { background: var(--primary-a15); }
 .hover-bg-secondary:hover { background: var(--bg-secondary); }
 .hover-bg-slate-900-a92:hover { background: rgba(15, 23, 42, 0.92); }
-.hover-bg-tertiary:hover { background: var(--bg-tertiary); }
+.hover-bg-tertiary:hover { background: var(--bg-primary); }
 .hover-border-accent:hover { border-color: var(--color-primary); }
 .hover-border-color:hover { border-color: var(--border-color); }
 .hover-border-color-accent-enabled:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
@@ -476,7 +476,7 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  background: var(--bg-tertiary);
+  background: var(--bg-primary);
   overflow: hidden;
 }
 .is-drag-over-target { background: var(--color-primary); color: #fff; transform: translateX(4px); }
