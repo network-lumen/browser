@@ -10,21 +10,17 @@
         <div class="recurpay-section mb-32px">
           <h3 class="flex-align-center color-text-primary text-16px txt-weight-light recurpay-section-h3 gap-8px m-0px mb-16px">Payment Details</h3>
 
-          <div class="recurpay-group mb-16px">
-            <label class="block color-text-primary recurpay-group-label mb-4px">Payment Name <span class="required color-error">*</span></label>
+          <UiFormGroup required label="Payment Name" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
             <UiInput v-model="form.name" placeholder="e.g., Netflix Subscription" />
-          </div>
+          </UiFormGroup>
 
-          <div class="recurpay-group mb-16px">
-            <label class="block color-text-primary recurpay-group-label mb-4px">Description</label>
+          <UiFormGroup label="Description" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
             <UiInput type="textarea" v-model="form.description"
               placeholder="Optional notes about this payment"
-             
               rows="2" class="recurpay-input resize-vertical placeholder-tertiary min-h-60px"></UiInput>
-          </div>
+          </UiFormGroup>
 
-          <div class="recurpay-group mb-16px">
-            <label class="block color-text-primary recurpay-group-label mb-4px">Category</label>
+          <UiFormGroup label="Category" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
             <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
               <option value="">Select category</option>
               <option value="subscription">Subscription</option>
@@ -34,15 +30,14 @@
               <option value="salary">Salary</option>
               <option value="other">Other</option>
             </select>
-          </div>
+          </UiFormGroup>
         </div>
 
         <!-- Payment Configuration -->
         <div class="recurpay-section mb-32px">
           <h3 class="flex-align-center color-text-primary text-16px txt-weight-light recurpay-section-h3 gap-8px m-0px mb-16px">Payment Configuration</h3>
 
-          <div class="recurpay-group mb-16px">
-            <label class="block color-text-primary recurpay-group-label mb-4px">Recipient Address <span class="required color-error">*</span></label>
+          <UiFormGroup required label="Recipient Address" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
             <div class="recurpay-input-with-button flex gap-8px">
               <input
                 v-model="form.recipient"
@@ -55,23 +50,18 @@
                 <QrCode :size="16" />
               </UiButton>
             </div>
-          </div>
+          </UiFormGroup>
 
           <div class="recurpay-row grid gap-16px grid-cols-1fr-1fr">
-            <div class="recurpay-group mb-16px">
-              <label class="block color-text-primary recurpay-group-label mb-4px">Amount <span class="required color-error">*</span></label>
-              <div class="recurpay-amount-input relative">
-                <UiInput v-model="form.amount"
-                 
-                  step="0.000001"
-                  min="0"
-                  placeholder="0.000000" class="recurpay-input pr-48px placeholder-tertiary" />
-                <span class="currency absolute top-half translate-y-center text-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
-              </div>
-            </div>
+            <UiFormGroup required label="Amount" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
+              <UiInput v-model="form.amount"
+                step="0.000001"
+                min="0"
+                placeholder="0.000000" class="recurpay-input pr-48px placeholder-tertiary" />
+              <span class="currency absolute top-half translate-y-center text-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
+            </UiFormGroup>
 
-            <div class="recurpay-group mb-16px">
-              <label class="block color-text-primary recurpay-group-label mb-4px">Frequency <span class="required color-error">*</span></label>
+            <UiFormGroup required label="Frequency" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
               <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
@@ -80,39 +70,34 @@
                 <option value="quarterly">Quarterly</option>
                 <option value="yearly">Yearly</option>
               </select>
-            </div>
+            </UiFormGroup>
           </div>
 
           <div class="recurpay-row grid gap-16px grid-cols-1fr-1fr">
-            <div class="recurpay-group mb-16px">
-              <label class="block color-text-primary recurpay-group-label mb-4px">Start Date <span class="required color-error">*</span></label>
+            <UiFormGroup required label="Start Date" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
               <input
                 v-model="form.startDate"
                 type="date"
                 :min="minDate"
                 class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none"
               />
-            </div>
+            </UiFormGroup>
 
-            <div class="recurpay-group mb-16px">
-              <label class="block color-text-primary recurpay-group-label mb-4px">End Date (Optional)</label>
+            <UiFormGroup label="End Date (Optional)" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
               <input
                 v-model="form.endDate"
                 type="date"
                 :min="form.startDate || minDate"
                 class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none"
               />
-            </div>
+            </UiFormGroup>
           </div>
 
-          <div class="recurpay-group mb-16px">
-            <label class="block color-text-primary recurpay-group-label mb-4px">Maximum Payments (Optional)</label>
+          <UiFormGroup label="Maximum Payments (Optional)" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px" hint="Payment will stop after this many successful transactions" hint-class="color-text-secondary text-12px">
             <UiInput v-model="form.maxPayments"
-             
               min="1"
               placeholder="Leave empty for unlimited" class="recurpay-input placeholder-tertiary" />
-            <p class="recurpay-hint color-text-secondary text-12px m-0px mt-8px">Payment will stop after this many successful transactions</p>
-          </div>
+          </UiFormGroup>
         </div>
 
         <!-- Reminder Settings -->
@@ -122,12 +107,11 @@
             <span>Payment Reminders</span>
           </h3>
 
-          <div class="recurpay-group mb-16px">
+          <div class="mb-16px">
             <UiCheckbox v-model="form.reminderEnabled">Enable payment reminders</UiCheckbox>
           </div>
 
-          <div v-if="form.reminderEnabled" class="recurpay-group mb-16px">
-            <label class="block color-text-primary recurpay-group-label mb-4px">Remind me (days before payment)</label>
+          <UiFormGroup v-if="form.reminderEnabled" label="Remind me (days before payment)" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
             <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
               <option :value="0">On the same day</option>
               <option :value="1">1 day before</option>
@@ -135,7 +119,7 @@
               <option :value="3">3 days before</option>
               <option :value="7">1 week before</option>
             </select>
-          </div>
+          </UiFormGroup>
         </div>
 
         <!-- Payment Summary -->
@@ -178,6 +162,7 @@ import { Calendar, QrCode, Bell, Check } from 'lucide-vue-next';
 import type { RecurringPayment, PaymentFrequency } from '../internal/services/recurringPayments';
 import UiCheckbox from '../ui/UiCheckbox.vue';
 import UiInput from '../ui/UiInput.vue';
+import UiFormGroup from '../ui/UiFormGroup.vue';
 
 interface Props {
   payment?: RecurringPayment;
