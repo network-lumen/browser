@@ -100,6 +100,13 @@
           </UiButton>
         </form>
 
+        <div class="text-center mt-16px">
+          <UiButton variant="secondary" type="button" @click="goto('lumen://web.lmn/')" class="outline-none">
+            <Globe :size="15" />
+            <span>Discover all Lumen sites</span>
+          </UiButton>
+        </div>
+
         <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-min-760px-full bg-warning-a08 border-1-warning-a15 m-0px mx-auto mt-16px">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
@@ -223,6 +230,7 @@ import UiCheckbox from "../../ui/UiCheckbox.vue";
 import UiModal from "../../ui/UiModal.vue";
 import {
   ArrowUpRight,
+  Globe,
   Hexagon,
   History,
   Pencil,
