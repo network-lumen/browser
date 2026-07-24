@@ -732,8 +732,8 @@
                 <!-- Error -->
                 <div v-else-if="txStatus === 'error'" class="explorer-tx-error flex flex-column flex-inline-align-center gap-16px w-full">
                   <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="var(--ios-red)" stroke-width="2"/>
-                    <path d="M12 8v4m0 4h.01" stroke="var(--ios-red)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="var(--color-error)" stroke-width="2"/>
+                    <path d="M12 8v4m0 4h.01" stroke="var(--color-error)" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                   <div class="explorer-tx-status-text flex flex-column gap-8px">
                     <strong class="explorer-tx-status-text-strong text-18px color-text-primary txt-weight-medium">Transaction Failed</strong>
@@ -920,7 +920,7 @@ const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
 
 function txStatusPopupStyle(status: string): Record<string, string> {
   if (status === 'success') return { border: '2px solid rgba(var(--color-success-rgb), 0.5)' };
-  if (status === 'error') return { border: '2px solid var(--ios-red)' };
+  if (status === 'error') return { border: '2px solid var(--color-error)' };
   return { border: '2px solid var(--color-primary)' };
 }
 const txHash = ref('');

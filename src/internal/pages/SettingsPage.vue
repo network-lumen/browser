@@ -509,7 +509,7 @@
           </UiCard>
 
           <!-- Remove Password Confirmation -->
-          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-12px border-radius-12px py-16px px-20px bg-fill-error mt-12px border-1-ios-red-a25">
+          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-12px border-radius-12px py-16px px-20px bg-fill-error mt-12px border-1-error-a25">
             <p class="settingspage-security-confirm-box-p m-0px text-14px color-text-primary">Enter your current password to disable protection:</p>
             <UiInput
               type="password"

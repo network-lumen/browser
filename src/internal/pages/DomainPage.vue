@@ -418,7 +418,7 @@
                 <p class="domainpage-form-hint text-12px color-text-tertiary mt-8px">Enter the Lumen address of the new owner</p>
               </div>
 
-              <div class="domainpage-warning-box flex border-radius-10px gap-12px p-14px bg-fill-error border-1-ios-red-a30 m-0px mt-16px mb-16px">
+              <div class="domainpage-warning-box flex border-radius-10px gap-12px p-14px bg-fill-error border-1-error-a30 m-0px mt-16px mb-16px">
                 <div class="domainpage-warning-icon text-20px flex-shrink-0">⚠️</div>
                 <div class="domainpage-warning-content color-text-primary text-13px">
                   <strong class="color-error txt-weight-light">Warning:</strong> This action cannot be undone. Once transferred, you will lose control of this domain.

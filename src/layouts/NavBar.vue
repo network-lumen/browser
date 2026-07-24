@@ -184,7 +184,7 @@
                 <span class="navbar-profile-row-name text-13px fw-500 color-text-primary nowrap overflow-hidden txt-overflow-ellipsis">{{ p.name || p.id }}</span>
               </UiButton>
 
-              <button type="button" class="reveal-target hover-bg-ios-red-a10-color-error h-26px flex-inline-align-justify-center border-radius-10px cursor-pointer color-text-tertiary border-none bg-transparent transition-all-fast opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
+              <button type="button" class="reveal-target hover-bg-error-a10-color-error h-26px flex-inline-align-justify-center border-radius-10px cursor-pointer color-text-tertiary border-none bg-transparent transition-all-fast opacity-0 w-26px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
                 <Trash2 :size="14" />
               </button>
             </li>
@@ -287,7 +287,7 @@
             </div>
           </template>
           
-          <div v-if="exportError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-ios-red-a08 color-error border-05-ios-red-a25">
+          <div v-if="exportError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
             {{ exportError }}
           </div>
           
@@ -415,7 +415,7 @@
             </p>
           </div>
 
-          <div v-if="importModalError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-ios-red-a08 color-error border-05-ios-red-a25">
+          <div v-if="importModalError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
             {{ importModalError }}
           </div>
 
@@ -454,7 +454,7 @@
             </div>
           </div>
           
-          <div v-if="importError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-ios-red-a08 color-error border-05-ios-red-a25">
+          <div v-if="importError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
             {{ importError }}
           </div>
           

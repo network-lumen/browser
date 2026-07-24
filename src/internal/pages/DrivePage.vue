@@ -13,7 +13,7 @@
           <UiButton variant="none" type="button"
             @click="selectHosting('local')" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
             <span
-              class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0"
+              class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-error shadow-0-0-0-error-a0"
               :class="ipfsConnected ? 'status-dot-ok' : 'status-dot-off'"
             ></span>
             <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
@@ -47,7 +47,7 @@
         >
           <UiButton variant="none" type="button"
               @click="selectGateway(sub.gatewayId)" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
-              <span class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-ios-red shadow-0-0-0-ios-red-a0" :class="sub.statusDot"></span>
+              <span class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-error shadow-0-0-0-error-a0" :class="sub.statusDot"></span>
               <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
                 sub.label
               }}</span>
@@ -467,7 +467,7 @@
               <Share2 :size="14" />
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Remove"
-              @click.stop="removeFile(file)" class="active-scale-98 hover-bg-error-red bg-ios-red-a08 color-error">
+              @click.stop="removeFile(file)" class="active-scale-98 hover-bg-error bg-error-a08 color-error">
               <Trash2 :size="14" />
             </UiButton>
           </div>
@@ -721,7 +721,7 @@
                 (only references). Keep the file + password safe.
               </p>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
+              <div v-if="driveBackupError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Backup failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -800,7 +800,7 @@
                 If you lose the password, this backup cannot be recovered.
               </p>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
+              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Backup failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -857,7 +857,7 @@
 
               <UiCheckbox v-model="driveBackupImportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
+              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Import failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -891,7 +891,7 @@
 
               <div
                 v-if="driveBackupRestoreDetails.walletMismatch"
-                class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08"
+                class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08"
               >
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Different wallet</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">
@@ -900,7 +900,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupRestoreDetails.rollback" class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
+              <div v-if="driveBackupRestoreDetails.rollback" class="drivepage-plans-error mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Older snapshot</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">
                   This snapshot looks older than your current local version (seq
@@ -908,7 +908,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
+              <div v-if="driveBackupError" class="drivepage-plans-error mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                 <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Import failed</div>
                 <div class="drivepage-plans-error-text color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -982,7 +982,7 @@
                 </div>
                 <div
                   v-if="gatewayDetailsUsageError === 'password_required'"
-                  class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08"
+                  class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08"
                 >
                   <div class="drivepage-plans-error-title text-14px txt-weight-light color-text-primary">Wallet locked</div>
                   <div class="drivepage-plans-error-text color-text-secondary text-13px">
@@ -993,7 +993,7 @@
                     Unlock
                   </UiButton>
                 </div>
-                <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-ios-red-a25 bg-ios-red-a08">
+                <div v-else-if="gatewayDetailsUsageError" class="drivepage-plans-error flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                   {{ gatewayDetailsUsageError }}
                 </div>
                 <div v-else-if="gatewayDetailsUsage" class="flex flex-column">
@@ -1187,7 +1187,7 @@
                     <div class="drivepage-gateway-title flex-align-center gap-8px min-w-0">
                       <span
                         class="drivepage-gateway-status-dot border-radius-full w-10px h-10px bg-success"
-                        :class="group.gateway.active ? '' : 'bg-ios-red'"
+                        :class="group.gateway.active ? '' : 'bg-error'"
                       ></span>
                       <span
                         class="drivepage-gateway-name txt-weight-light color-text-primary text-14px nowrap overflow-hidden txt-overflow-ellipsis max-w-260px"
@@ -5681,13 +5681,13 @@ function hlsQueueItemStyle(status: string): Record<string, string> {
   if (status === "converting") return { borderColor: "var(--primary-a25)", background: "var(--primary-a06)" };
   if (status === "done") return { borderColor: "rgba(var(--color-success-rgb), 0.25)", background: "rgba(var(--color-success-rgb), 0.06)" };
   if (status === "paused") return { borderColor: "rgba(var(--color-primary-rgb), 0.25)", background: "rgba(var(--color-primary-rgb), 0.06)" };
-  if (status === "failed") return { borderColor: "rgba(var(--ios-red-rgb), 0.25)", background: "rgba(var(--ios-red-rgb), 0.06)" };
+  if (status === "failed") return { borderColor: "rgba(var(--color-error-rgb), 0.25)", background: "rgba(var(--color-error-rgb), 0.06)" };
   if (status === "cancelled") return { borderColor: "rgba(var(--ios-orange-rgb), 0.25)", background: "rgba(var(--ios-orange-rgb), 0.06)" };
   return {};
 }
 
 function hlsQueueStatusTextStyle(status: string): Record<string, string> {
-  if (status === "failed") return { color: "var(--error-red)" };
+  if (status === "failed") return { color: "var(--color-error)" };
   if (status === "paused") return { color: "var(--color-primary)" };
   if (status === "cancelled") return { color: "var(--ios-orange)" };
   return {};

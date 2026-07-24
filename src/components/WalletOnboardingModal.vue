@@ -70,7 +70,7 @@
                 @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
             </div>
 
-            <div v-if="passwordError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
+            <div v-if="passwordError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-error-a30">
               {{ passwordError }}
             </div>
           </div>
@@ -95,7 +95,7 @@
                 @keyup.enter="handleProfileNameSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
             </div>
 
-            <div v-if="profileNameError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
+            <div v-if="profileNameError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-error-a30">
               {{ profileNameError }}
             </div>
           </div>
@@ -156,7 +156,7 @@
               </div>
             </div>
 
-            <div v-if="backupError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-ios-red-a30">
+            <div v-if="backupError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-error-a30">
               {{ backupError }}
             </div>
 

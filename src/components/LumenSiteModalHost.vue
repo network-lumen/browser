@@ -50,7 +50,7 @@
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
 
-          <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ sendError }}</div>
+          <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-error-a25">{{ sendError }}</div>
 
           <div class="mb-12px">
             <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">From</label>
@@ -112,7 +112,7 @@
           <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ pinError }}</div>
+          <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-error-a25">{{ pinError }}</div>
 
           <div class="mb-12px">
             <label>Name <span class="color-error">*</span></label>
@@ -192,7 +192,7 @@
           <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ stableLinkError }}</div>
+          <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-error-a25">{{ stableLinkError }}</div>
 
           <div class="sitemodal-segmented-control border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
             <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-0" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
@@ -277,7 +277,7 @@
           <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
-          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ stableLinkSetupError }}</div>
+          <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-error-a25">{{ stableLinkSetupError }}</div>
           <div class="mb-12px">
             <label>Live link</label>
             <div class="sitemodal-input-wrapper relative">

@@ -24,7 +24,7 @@
       </div>
     </header>
 
-    <div v-if="fatalError" class="netparams-fatal-error color-text-primary p-20px border-radius-16px border-1-ios-red-a25 bg-ios-red-a08">
+    <div v-if="fatalError" class="netparams-fatal-error color-text-primary p-20px border-radius-16px border-1-error-a25 bg-error-a08">
       <p class="netparams-fatal-title m-0px txt-weight-strong">Unable to fetch params</p>
       <p class="netparams-fatal-desc color-text-secondary text-14px m-0px mt-8px">{{ fatalError }}</p>
     </div>
