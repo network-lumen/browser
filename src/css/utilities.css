@@ -363,7 +363,6 @@
 .grid-cols-auto-fill-340 { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 .grid-cols-auto-fit-140 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 .grid-cols-auto-fit-180 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-.grid-cols-auto-fit-196 { grid-template-columns: repeat(auto-fit, minmax(196px, 1fr)); }
 .grid-cols-auto-fit-200 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .grid-cols-auto-fit-280 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .h-0 { height: 0; }
