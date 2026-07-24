@@ -3,17 +3,12 @@
     <!-- Sidebar -->
     <InternalSidebar title="Gateways" :icon="Server" activeKey="gateways">
       <nav class="lsb-nav flex flex-column gap-12px">
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Manage</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': true }"
-          >
+        <UiSidebarNavSection title="Manage">
+          <UiSidebarNavItem active>
             <List :size="18" />
             <span>My gateways</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -231,6 +226,8 @@ import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiCard from '../../ui/UiCard.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { ref, computed, onMounted, watch, inject, reactive } from 'vue';
 import { Server, List } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';

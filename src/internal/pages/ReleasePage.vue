@@ -2,13 +2,12 @@
   <div class="release-page internal-page flex">
     <InternalSidebar title="Releases" :icon="Rocket" activeKey="release">
       <nav class="lsb-nav flex flex-column gap-12px">
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Manage</span>
-          <button type="button" class="lsb-item border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast" :class="{ 'active bg-gradient-primary color-white shadow-primary': true }">
+        <UiSidebarNavSection title="Manage">
+          <UiSidebarNavItem active>
             <Rocket :size="18" />
             <span>Publisher</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -344,6 +343,8 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import UiCheckbox from '../../ui/UiCheckbox.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { addToast } from '../../stores/toastStore';
 import { getActiveProfile } from '../profilesStore';
 import { useTabLoadingSync } from '../useTabLoading';

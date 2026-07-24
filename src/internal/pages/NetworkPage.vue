@@ -3,42 +3,27 @@
     <!-- Sidebar -->
     <InternalSidebar title="Network" :icon="Network" activeKey="network">
       <nav class="lsb-nav flex flex-column gap-12px">
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Monitoring</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': activeView === 'status' }"
-            @click="activeView = 'status'"
-          >
+        <UiSidebarNavSection title="Monitoring">
+          <UiSidebarNavItem reveal :active="activeView === 'status'" @click="activeView = 'status'">
             <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 3v18h18"/>
               <path d="M18 17l-4-4-4 4-4-4"/>
             </svg>
             <span>Status</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': activeView === 'params' }"
-            @click="activeView = 'params'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="activeView === 'params'" @click="activeView = 'params'">
             <SlidersHorizontal :size="18" />
             <span>Params</span>
-          </button>
-          <UiButton variant="none" v-if="activeView === 'status'"
-            type="button"
-            @click="refreshData"
-            :disabled="refreshing" class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast">
+          </UiSidebarNavItem>
+          <UiSidebarNavItem v-if="activeView === 'status'" :disabled="refreshing" @click="refreshData">
             <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             <span>{{ refreshing ? 'Refreshing...' : 'Refresh' }}</span>
-          </UiButton>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
 
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Metrics</span>
+        <UiSidebarNavSection title="Metrics">
           <div class="netpage-metric-item flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
             <span class="color-text-secondary fw-500">Block Height</span>
             <span class="color-text-primary txt-weight-light">{{ formatNumber(blockHeight) }}</span>
@@ -63,10 +48,9 @@
             <span class="color-text-secondary fw-500">24h Volume</span>
             <span class="color-text-primary txt-weight-light">{{ formatNumber(txVolume24h) }}</span>
           </div>
-        </div>
+        </UiSidebarNavSection>
 
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Node Info</span>
+        <UiSidebarNavSection title="Node Info">
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Chain ID</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">lumen-1</span>
@@ -87,7 +71,7 @@
             <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Uptime</span>
             <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">{{ uptime }}</span>
           </div>
-        </div>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -266,8 +250,9 @@
 </template>
 
 <script setup lang="ts">
-import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch, inject } from 'vue';
 import { Network, SlidersHorizontal } from 'lucide-vue-next';
 import { useInternalLumen } from '../../composables/useInternalLumen';

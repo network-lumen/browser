@@ -2,13 +2,12 @@
   <div class="my-gateways-page internal-page flex bg-primary h-100vh">
     <InternalSidebar title="My Gateways" :icon="Server" activeKey="my-gateways">
       <nav class="lsb-nav flex flex-column gap-12px">
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Manage</span>
-          <UiButton variant="none" type="button" class="lsb-item active bg-gradient-primary color-white shadow-primary border-none cursor-pointer flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast">
+        <UiSidebarNavSection title="Manage">
+          <UiSidebarNavItem active>
             <List :size="18" />
             <span>Gateway List</span>
-          </UiButton>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -339,6 +338,8 @@ import UiModal from '../../ui/UiModal.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import { Server, List, Plus, Edit2, Trash2, AlertCircle } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';

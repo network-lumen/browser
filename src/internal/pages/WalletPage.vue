@@ -3,63 +3,32 @@
     <!-- Sidebar -->
     <InternalSidebar title="Wallet" :icon="Wallet" activeKey="wallet">
       <nav class="lsb-nav flex flex-column gap-12px">
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Activity</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'overview' }"
-            @click="currentView = 'overview'"
-          >
+        <UiSidebarNavSection title="Activity">
+          <UiSidebarNavItem :active="currentView === 'overview'" @click="currentView = 'overview'">
             <Wallet :size="18" />
             <span>Wallet</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'assets' }"
-            @click="currentView = 'assets'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'assets'" @click="currentView = 'assets'">
             <Coins :size="18" />
             <span>Assets</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'dex' }"
-            @click="currentView = 'dex'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'dex'" @click="currentView = 'dex'">
             <LayoutDashboard :size="18" />
             <span>DEX</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'transactions' }"
-            @click="currentView = 'transactions'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'transactions'" @click="currentView = 'transactions'">
             <ArrowLeftRight :size="18" />
             <span>Transactions</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'recurring' }"
-            @click="currentView = 'recurring'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'recurring'" @click="currentView = 'recurring'">
             <Calendar :size="18" />
             <span>Recurring</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'addressbook' }"
-            @click="currentView = 'addressbook'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'addressbook'" @click="currentView = 'addressbook'">
             <Users :size="18" />
             <span>Address Book</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -1020,6 +989,8 @@ import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiTag from '../../ui/UiTag.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';

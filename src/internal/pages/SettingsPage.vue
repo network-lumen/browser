@@ -3,103 +3,51 @@
     <!-- Sidebar -->
     <InternalSidebar title="Settings" :icon="Settings" activeKey="settings">
       <nav class="lsb-nav flex flex-column gap-12px">
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">General</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'appearance' }"
-            @click="currentView = 'appearance'"
-          >
+        <UiSidebarNavSection title="General">
+          <UiSidebarNavItem :active="currentView === 'appearance'" @click="currentView = 'appearance'">
             <Palette :size="18" />
             <span>Appearance</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'content' }"
-            @click="currentView = 'content'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'content'" @click="currentView = 'content'">
             <EyeOff :size="18" />
             <span>Content</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'network' }"
-            @click="currentView = 'network'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'network'" @click="currentView = 'network'">
             <Globe :size="18" />
             <span>Network</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'privacy' }"
-            @click="currentView = 'privacy'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'privacy'" @click="currentView = 'privacy'">
             <Shield :size="18" />
             <span>Privacy</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'security' }"
-            @click="currentView = 'security'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'security'" @click="currentView = 'security'">
             <Lock :size="18" />
             <span>Security</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'profiles' }"
-            @click="currentView = 'profiles'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'profiles'" @click="currentView = 'profiles'">
             <User :size="18" />
             <span>Profiles &amp; backups</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'privatecloud' }"
-            @click="currentView = 'privatecloud'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'privatecloud'" @click="currentView = 'privatecloud'">
             <Cloud :size="18" />
             <span>Private Cloud</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
 
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Advanced</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'troubleshooting' }"
-            @click="currentView = 'troubleshooting'"
-          >
+        <UiSidebarNavSection title="Advanced">
+          <UiSidebarNavItem :active="currentView === 'troubleshooting'" @click="currentView = 'troubleshooting'">
             <AlertTriangle :size="18" />
             <span>Troubleshooting</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'advanced' }"
-            @click="currentView = 'advanced'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'advanced'" @click="currentView = 'advanced'">
             <Code2 :size="18" />
             <span>Developer settings</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'about' }"
-            @click="currentView = 'about'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'about'" @click="currentView = 'about'">
             <Info :size="18" />
             <span>About</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
 
     </InternalSidebar>
@@ -1106,6 +1054,8 @@ import UiInput from '../../ui/UiInput.vue';
 import UiToggle from '../../ui/UiToggle.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { ref, watch, computed, inject, onMounted } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 

@@ -14,27 +14,16 @@
     <!-- Sidebar -->
     <InternalSidebar title="Explorer" :icon="LayoutGrid" activeKey="explorer">
       <nav class="lsb-nav flex flex-column gap-12px">
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Browse</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'overview' }"
-            @click="currentView = 'overview'"
-          >
+        <UiSidebarNavSection title="Browse">
+          <UiSidebarNavItem reveal :active="currentView === 'overview'" @click="currentView = 'overview'">
             <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
               <line x1="3" y1="9" x2="21" y2="9"/>
               <line x1="9" y1="21" x2="9" y2="9"/>
             </svg>
             <span>Overview</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'blocks' }"
-            @click="currentView = 'blocks'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem reveal :active="currentView === 'blocks'" @click="currentView = 'blocks'">
             <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1"/>
               <rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -42,25 +31,15 @@
               <rect x="3" y="14" width="7" height="7" rx="1"/>
             </svg>
             <span>Blocks</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'transactions' }"
-            @click="currentView = 'transactions'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem reveal :active="currentView === 'transactions'" @click="currentView = 'transactions'">
             <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
               <path d="M21 3v5h-5"/>
             </svg>
             <span>Transactions</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active reveal-on-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'validators' }"
-            @click="currentView = 'validators'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem reveal :active="currentView === 'validators'" @click="currentView = 'validators'">
             <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
@@ -68,8 +47,8 @@
               <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
             <span>Validators</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -766,6 +745,8 @@ import UiModal from '../../ui/UiModal.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import BlockDetailPage from './BlockDetailPage.vue';

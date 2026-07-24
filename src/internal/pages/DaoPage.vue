@@ -3,49 +3,27 @@
     <!-- Sidebar -->
     <InternalSidebar title="DAO" :icon="Users" activeKey="dao">
       <nav class="lsb-nav flex flex-column gap-12px">
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Governance</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'proposals' }"
-            @click="currentView = 'proposals'"
-          >
+        <UiSidebarNavSection title="Governance">
+          <UiSidebarNavItem :active="currentView === 'proposals'" @click="currentView = 'proposals'">
             <FileText :size="18" />
             <span>Proposals</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'voting' }"
-            @click="currentView = 'voting'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'voting'" @click="currentView = 'voting'">
             <Vote :size="18" />
             <span>Voting</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
 
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Treasury</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'treasury' }"
-            @click="currentView = 'treasury'"
-          >
+        <UiSidebarNavSection title="Treasury">
+          <UiSidebarNavItem :active="currentView === 'treasury'" @click="currentView = 'treasury'">
             <Wallet :size="18" />
             <span>Treasury</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'members' }"
-            @click="currentView = 'members'"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'members'" @click="currentView = 'members'">
             <Users :size="18" />
             <span>Members</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -334,6 +312,8 @@ import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { ref, onMounted, onUnmounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';

@@ -3,49 +3,27 @@
     <!-- Sidebar -->
     <InternalSidebar title="Help" :icon="HelpCircle" activeKey="help">
       <nav class="lsb-nav flex flex-column gap-12px">
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Resources</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'discover' }"
-            @click="setView('discover')"
-          >
+        <UiSidebarNavSection title="Resources">
+          <UiSidebarNavItem :active="currentView === 'discover'" @click="setView('discover')">
             <Sparkles :size="18" />
             <span>Discover Lumen</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
 
-        <div class="lsb-section flex flex-column gap-2px">
-          <span class="lsb-label text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em mb-4px py-8px px-10px">Support</span>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'publish' }"
-            @click="setView('publish')"
-          >
+        <UiSidebarNavSection title="Support">
+          <UiSidebarNavItem :active="currentView === 'publish'" @click="setView('publish')">
             <Rocket :size="18" />
             <span>Publish my site</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'contact' }"
-            @click="setView('contact')"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'contact'" @click="setView('contact')">
             <MessageCircle :size="18" />
             <span>Support</span>
-          </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'docs' }"
-            @click="setView('docs')"
-          >
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'docs'" @click="setView('docs')">
             <BookOpen :size="18"/>
             <span>Documentation</span>
-          </button>
-        </div>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -518,6 +496,8 @@ import UiButton from '../../ui/UiButton.vue';
 import { computed, inject, ref, watch } from 'vue';
 import type { ComputedRef } from 'vue';
 import UiCard from '../../ui/UiCard.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { 
   HelpCircle,
   Sparkles,
