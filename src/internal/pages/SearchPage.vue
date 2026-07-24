@@ -1588,7 +1588,7 @@ function typeBadgeLabel(r: ResultItem): string {
 
 function resultAccentGradient(r: ResultItem): string {
   if (!r) return "var(--gradient-brand)";
-  if (r.kind === "tx") return "linear-gradient(180deg, var(--ios-orange) 0%, rgba(var(--ios-orange-rgb), 0.5) 100%)";
+  if (r.kind === "tx") return "linear-gradient(180deg, var(--color-warning) 0%, rgba(var(--color-warning-rgb), 0.5) 100%)";
   if (r.kind === "block") return "linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%)";
   if (r.kind === "address") return "linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%)";
   if (r.kind === "ipfs") {
@@ -1624,7 +1624,7 @@ function resultIconStyle(r: ResultItem): Record<string, string> {
     case "site":
       return { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.12) 0%, rgba(var(--ios-indigo-rgb), 0.12) 100%)", color: "var(--color-primary)" };
     case "tx":
-      return { background: "rgba(var(--ios-orange-rgb), 0.12)" };
+      return { background: "rgba(var(--color-warning-rgb), 0.12)" };
     case "block":
       return { background: "linear-gradient(135deg, rgba(var(--ios-indigo-rgb), 0.12) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%)", color: "var(--ios-purple)" };
     case "address":
@@ -1648,7 +1648,7 @@ function typeBadgeStyle(r: ResultItem): Record<string, string> {
     }
   }
   switch (r?.kind) {
-    case "tx": return { background: "rgba(var(--ios-orange-rgb), 0.12)" };
+    case "tx": return { background: "rgba(var(--color-warning-rgb), 0.12)" };
     case "block": return { background: "rgba(var(--ios-indigo-rgb), 0.12)", color: "var(--ios-purple)" };
     case "address": return { background: "rgba(var(--ios-teal-rgb), 0.12)", color: "var(--ios-teal)" };
     case "link": return { background: "var(--fill-tertiary)" };

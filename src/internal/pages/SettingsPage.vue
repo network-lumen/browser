@@ -362,7 +362,7 @@
                 <LockKeyhole :size="16" />
                 Lock Now
               </UiButton>
-              <span v-else class="settingspage-status-badge status-locked bg-ios-orange-a15 color-warning flex-inline-align-center gap-6px border-radius-20px fw-500 inline-flex py-4px px-12px">
+              <span v-else class="settingspage-status-badge status-locked bg-warning-a15 color-warning flex-inline-align-center gap-6px border-radius-20px fw-500 inline-flex py-4px px-12px">
                 <LockKeyhole :size="14" />
                 Locked
               </span>

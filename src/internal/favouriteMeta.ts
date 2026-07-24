@@ -173,7 +173,7 @@ const AVATAR_TONE_VARS: Partial<Record<FavouriteKind, string>> = {
   search: "--color-primary",
   internal: "--ios-indigo",
   web: "--color-success",
-  file: "--ios-orange",
+  file: "--color-warning",
 };
 
 export function avatarToneStyle(kind: FavouriteKind): Record<string, string> {

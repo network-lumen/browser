@@ -100,7 +100,7 @@
           </UiButton>
         </form>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-min-760px-full bg-ios-orange-a08 border-1-ios-orange-a15 m-0px mx-auto mt-16px">
+        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-min-760px-full bg-warning-a08 border-1-warning-a15 m-0px mx-auto mt-16px">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>

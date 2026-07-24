@@ -172,7 +172,7 @@
           <AlertCircle :size="32" />
         </UiEmptyState>
         <div v-else>
-          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-ios-orange-a08">
+          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-warning-a08">
             <span>{{ assetsError }}</span>
           </div>
           <div v-if="assetRows.length" class="walletpage-assets-list walletpage-rich-assets-list flex flex-column mt-16px gap-12px gap-16px">
@@ -243,7 +243,7 @@
 
       <!-- DEX View -->
       <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-24px w-full max-w-full">
-        <div v-if="dexError" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-ios-orange-a08">
+        <div v-if="dexError" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-warning-a08">
           <span>{{ dexError }}</span>
         </div>
 
@@ -387,7 +387,7 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="m-0px max-w-520px text-14px line-height-15">{{ activitiesError }}</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-ios-orange-a08">
+            <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-warning-a08">
               <span>
                 💡 If transaction indexing is disabled on the node, transactions cannot be queried via API.
                 Your balance is still accurate and transactions are recorded on-chain.
@@ -400,7 +400,7 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="m-0px max-w-520px text-14px line-height-15">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-ios-orange-a08">
+            <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-warning-a08">
               <div class="mb-12px">
                 <strong>💡 Why can't I see my transactions?</strong>
               </div>
@@ -1960,7 +1960,7 @@ function getActivityLabel(tx: Activity): string {
 function getActivityBadgeStyle(tx: Activity): Record<string, string> {
   if (isDnsUpdateTx(tx)) return { background: 'rgba(var(--ios-purple-rgb), 0.1)', color: 'var(--ios-purple)' };
   if (isDnsTransferTx(tx)) return { background: 'rgba(var(--color-primary-rgb), 0.1)', color: 'var(--color-primary)' };
-  if (isDnsRegisterTx(tx)) return { background: 'rgba(var(--ios-orange-rgb), 0.1)', color: 'var(--ios-orange)' };
+  if (isDnsRegisterTx(tx)) return { background: 'rgba(var(--color-warning-rgb), 0.1)', color: 'var(--color-warning)' };
   if (isWithdrawRewardsTx(tx)) return { background: 'rgba(var(--ios-yellow-rgb), 0.1)', color: 'var(--ios-yellow)' };
   if (isPublishReleaseTx(tx)) return { background: 'rgba(var(--ios-indigo-rgb), 0.1)', color: 'var(--ios-indigo)' };
   if (tx.type === 'send') return { background: 'rgba(var(--color-error-rgb), 0.1)', color: 'var(--color-error)' };
@@ -2881,14 +2881,14 @@ function assetIconStyle(iconClass: string): Record<string, string> {
 
 function dexItemStyle(status: DexStatus): Record<string, string> {
   if (status === 'online') return { boxShadow: '0 10px 30px rgba(15, 23, 42, 0.04)' };
-  if (status === 'degraded') return { borderColor: 'rgba(var(--ios-orange-rgb), 0.35)' };
+  if (status === 'degraded') return { borderColor: 'rgba(var(--color-warning-rgb), 0.35)' };
   if (status === 'error') return { borderColor: 'rgba(var(--color-error-rgb), 0.28)' };
   return {};
 }
 
 function getDexStatusBadgeClass(status: DexStatus): string {
   if (status === 'online') return 'bg-fill-success color-success';
-  if (status === 'degraded') return 'bg-ios-orange-a15 color-warning';
+  if (status === 'degraded') return 'bg-warning-a15 color-warning';
   if (status === 'error') return 'bg-fill-error color-error';
   return 'bg-fill-blue color-primary';
 }

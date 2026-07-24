@@ -132,7 +132,7 @@
                 <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
               </button>
               <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-16px text-left py-16px px-20px border-default bg-card transition-all-fast hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://search')">
-                <div class="helppage-action-icon search bg-ios-orange-a15 color-warning flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
+                <div class="helppage-action-icon search bg-warning-a15 color-warning flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
                   <Search :size="24" />
                 </div>
                 <div class="helppage-action-info flex-1 flex flex-column gap-2px min-w-0">

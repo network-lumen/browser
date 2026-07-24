@@ -1072,7 +1072,7 @@ function shortAddr(addr?: string) {
 function statusClass(r: ReleaseRecord) {
   const status = String(r.status || '').toUpperCase();
   if (r.yanked) return 'bg-fill-error color-error';
-  if (status.includes('REJECT') || status.includes('EXPIRE')) return 'bg-ios-orange-a15 color-warning';
+  if (status.includes('REJECT') || status.includes('EXPIRE')) return 'bg-warning-a15 color-warning';
   if (status.includes('VALID')) return 'bg-fill-success color-success';
   return 'bg-fill-blue color-primary';
 }

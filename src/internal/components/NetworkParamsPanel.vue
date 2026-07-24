@@ -237,7 +237,7 @@ function pretty(value: any): string {
 }
 
 function statusClass(s: ParamSection): string {
-  if (s.loading) return 'bg-ios-orange-a15 color-warning';
+  if (s.loading) return 'bg-warning-a15 color-warning';
   if (s.error) return 'bg-fill-error color-error';
   if (s.data) return 'bg-fill-success color-success';
   return '';

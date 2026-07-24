@@ -18,7 +18,7 @@
       </div>
     </template>
           <div v-if="step === 'intro'" class="walletonboard-step animate-walletonboard-fade-in">
-            <div class="walletonboard-warning-box flex gap-12px p-16px mb-24px border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a30">
+            <div class="walletonboard-warning-box flex gap-12px p-16px mb-24px border-radius-8px bg-warning-a15 border-1-warning-a30">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
                 <p class="text-12px line-height-12 txt-weight-strong m-0px">Important: No one can recover your wallet</p>
@@ -146,7 +146,7 @@
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
             </p>
 
-            <div class="walletonboard-warning-box flex gap-12px p-16px mb-24px border-radius-8px bg-ios-orange-a15 border-1-ios-orange-a30">
+            <div class="walletonboard-warning-box flex gap-12px p-16px mb-24px border-radius-8px bg-warning-a15 border-1-warning-a30">
               <AlertCircle :size="20" class="color-warning" />
               <div class="flex-1 color-text-primary">
                 <p class="text-11px line-height-12 m-0px">

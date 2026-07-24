@@ -101,8 +101,8 @@
       </UiPageHeader>
 
       <!-- Privacy Warning Banner -->
-      <div class="bg-gradient-warning-banner animate-fade-in flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-ios-orange-a30">
-        <div class="drivepage-warning-icon flex-align-justify-center size-36px color-warning flex-shrink-0 border-radius-8px bg-ios-orange-a15">
+      <div class="bg-gradient-warning-banner animate-fade-in flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-warning-a30">
+        <div class="drivepage-warning-icon flex-align-justify-center size-36px color-warning flex-shrink-0 border-radius-8px bg-warning-a15">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
             <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -3579,7 +3579,7 @@ function planStatus(plan: PlanView): string {
 function planStatusBadgeClass(plan: PlanView): string {
   const status = planStatus(plan);
   if (status === "active") return "bg-fill-success color-success";
-  if (status === "pending") return "bg-ios-orange-a15 color-warning";
+  if (status === "pending") return "bg-warning-a15 color-warning";
   return "";
 }
 
@@ -5682,14 +5682,14 @@ function hlsQueueItemStyle(status: string): Record<string, string> {
   if (status === "done") return { borderColor: "rgba(var(--color-success-rgb), 0.25)", background: "rgba(var(--color-success-rgb), 0.06)" };
   if (status === "paused") return { borderColor: "rgba(var(--color-primary-rgb), 0.25)", background: "rgba(var(--color-primary-rgb), 0.06)" };
   if (status === "failed") return { borderColor: "rgba(var(--color-error-rgb), 0.25)", background: "rgba(var(--color-error-rgb), 0.06)" };
-  if (status === "cancelled") return { borderColor: "rgba(var(--ios-orange-rgb), 0.25)", background: "rgba(var(--ios-orange-rgb), 0.06)" };
+  if (status === "cancelled") return { borderColor: "rgba(var(--color-warning-rgb), 0.25)", background: "rgba(var(--color-warning-rgb), 0.06)" };
   return {};
 }
 
 function hlsQueueStatusTextStyle(status: string): Record<string, string> {
   if (status === "failed") return { color: "var(--color-error)" };
   if (status === "paused") return { color: "var(--color-primary)" };
-  if (status === "cancelled") return { color: "var(--ios-orange)" };
+  if (status === "cancelled") return { color: "var(--color-warning)" };
   return {};
 }
 

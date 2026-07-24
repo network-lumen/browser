@@ -1077,8 +1077,8 @@ function expiryClass(d: DomainRow): string {
   const days = Math.floor((ms - Date.now()) / 86_400_000);
   if (!Number.isFinite(days)) return 'bg-fill-tertiary color-text-tertiary';
   if (days < 0) return 'bg-fill-error color-error';
-  if (days <= 7) return 'bg-ios-orange-a15 color-warning';
-  if (days <= 30) return 'bg-ios-orange-a15 color-warning';
+  if (days <= 7) return 'bg-warning-a15 color-warning';
+  if (days <= 30) return 'bg-warning-a15 color-warning';
   return 'bg-fill-success color-success';
 }
 

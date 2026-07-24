@@ -1,7 +1,7 @@
 <template>
   <div class="subview my-0px mx-auto p-24px max-w-1200px">
     <!-- Payment Reminders -->
-    <div v-if="activeReminders.length > 0" class="subview-reminders-section border-radius-12px p-20px mb-24px bg-ios-orange-a15">
+    <div v-if="activeReminders.length > 0" class="subview-reminders-section border-radius-12px p-20px mb-24px bg-warning-a15">
       <h3 class="flex-align-center gap-8px color-text-primary text-16px subview-reminders-section-h3 m-0px mb-16px">
         <Bell :size="18" />
         <span>Upcoming Payments</span>
@@ -12,7 +12,7 @@
           :key="reminder.id"
           class="subview-reminder-card flex-align-center gap-12px bg-card p-12px border-radius-8px shadow-sm"
         >
-          <div class="subview-reminder-icon flex-0-0-auto flex-align-justify-center border-radius-circle size-40px color-warning bg-ios-orange-a15">
+          <div class="subview-reminder-icon flex-0-0-auto flex-align-justify-center border-radius-circle size-40px color-warning bg-warning-a15">
             <AlertCircle :size="20" />
           </div>
           <div class="flex-1">
@@ -38,7 +38,7 @@
         </div>
       </UiCard>
       <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
-        <div class="subview-stat-icon paused bg-ios-orange-a15 color-warning flex-align-justify-center size-48px border-radius-12px">
+        <div class="subview-stat-icon paused bg-warning-a15 color-warning flex-align-justify-center size-48px border-radius-12px">
           <PauseCircle :size="20" />
         </div>
         <div>
@@ -111,7 +111,7 @@
             </div>
             <div
               class="border-radius-12px text-12px txt-weight-light text-uppercase py-4px px-12px"
-              :class="{ 'bg-fill-success': payment.status === 'active', 'bg-ios-orange-a15': payment.status === 'paused' }"
+              :class="{ 'bg-fill-success': payment.status === 'active', 'bg-warning-a15': payment.status === 'paused' }"
               :style="paymentStatusStyle(payment.status)"
             >
               {{ payment.status }}
@@ -155,7 +155,7 @@
             <UiButton variant="secondary" v-if="payment.status === 'active'"
              
               @click="pausePayment(payment.id)"
-              title="Pause" class="subview-action-btn pause hover-bg-ios-orange-a15">
+              title="Pause" class="subview-action-btn pause hover-bg-warning-a15">
               <PauseCircle :size="16" />
             </UiButton>
             <UiButton variant="secondary" v-else-if="payment.status === 'paused'"
@@ -200,7 +200,7 @@
               >
                 <div
                   class="subview-history-icon flex-0-0-auto flex-align-justify-center border-radius-circle size-32px"
-                  :class="[record.status, { 'bg-fill-success': record.status === 'success', 'bg-fill-error': record.status === 'failed', 'bg-ios-orange-a15': record.status === 'pending' }]"
+                  :class="[record.status, { 'bg-fill-success': record.status === 'success', 'bg-fill-error': record.status === 'failed', 'bg-warning-a15': record.status === 'pending' }]"
                 >
                   <Check v-if="record.status === 'success'" :size="16" />
                   <X v-else-if="record.status === 'failed'" :size="16" />
