@@ -105,8 +105,8 @@
 
           <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
             <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
-              <span class="sitemodal-perm-k text-12px color-text-secondary">Target</span>
-              <span class="sitemodal-perm-v mono text-13px color-text-primary text-right overflow-hidden txt-overflow-ellipsis max-w-360px">{{ pinTargetDisplay }}</span>
+              <span class="sitemodal-perm-k text-12px color-text-secondary flex-shrink-0">Target</span>
+              <span class="sitemodal-perm-v mono text-13px color-text-primary text-right overflow-wrap-anywhere min-w-0">{{ pinTargetDisplay }}</span>
             </div>
           </div>
 
