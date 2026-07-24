@@ -67,7 +67,7 @@
             </UiButton>
             <button 
               type="button" 
-              class="disabled-opacity-50-not-allowed-no-transform-important flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'hover-lift-2-enabled hover-shadow-ios-red-lg' : 'hover-lift-2-enabled hover-shadow-success-lg'" :style="serverToggleBtnStyle(embeddedServerRunning)"
+              class="disabled-opacity-50-not-allowed-no-transform-important flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'hover-lift-2-enabled hover-shadow-error-lg' : 'hover-lift-2-enabled hover-shadow-success-lg'" :style="serverToggleBtnStyle(embeddedServerRunning)"
               @click="toggleEmbeddedServer"
               :disabled="serverLoading"
             >
@@ -125,7 +125,7 @@
                       <UiButton variant="secondary" @click="editWhitelistEntry(entry)" title="Edit display name" class="mygw-btn-icon size-32px">
                         <Edit2 :size="14" />
                       </UiButton>
-                      <UiButton variant="danger" @click="confirmRemoveFromWhitelist(entry)" title="Remove" class="mygw-btn-icon size-32px hover-bg-ios-red-a08">
+                      <UiButton variant="danger" @click="confirmRemoveFromWhitelist(entry)" title="Remove" class="mygw-btn-icon size-32px hover-bg-error-a08">
                         <Trash2 :size="14" />
                       </UiButton>
                     </div>
@@ -248,7 +248,7 @@
                   placeholder="Your gateway API key" class="focus-outline-none focus-ring-blue" />
               </div>
 
-              <div v-if="modalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-ios-red-a08 border-1-ios-red-a25">
+              <div v-if="modalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
                 {{ modalError }}
               </div>
         <template #footer>
@@ -302,7 +302,7 @@
                   placeholder="Additional notes about this user..." class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring-blue"></UiInput>
               </div>
 
-              <div v-if="whitelistModalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-ios-red-a08 border-1-ios-red-a25">
+              <div v-if="whitelistModalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
                 {{ whitelistModalError }}
               </div>
         <template #footer>
@@ -376,7 +376,7 @@ const embeddedServerRunning = ref(false);
 
 function serverToggleBtnStyle(running: boolean): Record<string, string> {
   return running
-    ? { background: 'linear-gradient(135deg, var(--ios-red) 0%, color-mix(in srgb, var(--ios-red) 85%, black) 100%)', boxShadow: '0 2px 8px rgba(var(--ios-red-rgb), 0.3)' }
+    ? { background: 'linear-gradient(135deg, var(--color-error) 0%, color-mix(in srgb, var(--color-error) 85%, black) 100%)', boxShadow: '0 2px 8px rgba(var(--color-error-rgb), 0.3)' }
     : { background: 'linear-gradient(135deg, var(--color-success) 0%, color-mix(in srgb, var(--color-success) 85%, black) 100%)', boxShadow: '0 2px 8px rgba(var(--color-success-rgb), 0.3)' };
 }
 const embeddedServerPort = ref<number | null>(null);

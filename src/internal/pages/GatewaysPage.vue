@@ -138,7 +138,7 @@
                 </div>
               </div>
 
-              <div v-if="editMap[gw.id]?.error" class="gwpage-inline-error mt-12px p-12px border-1-ios-red-a25 bg-ios-red-a08">
+              <div v-if="editMap[gw.id]?.error" class="gwpage-inline-error mt-12px p-12px border-1-error-a25 bg-error-a08">
                 {{ editMap[gw.id].error }}
               </div>
               <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono mt-12px p-12px bg-success-a08 border-1-success-a25">
@@ -197,7 +197,7 @@
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.memo" placeholder="Optional memo" class="gwpage-form-input focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
                   </div>
 
-                  <div v-if="registerState.error" class="gwpage-inline-error mt-12px p-12px border-1-ios-red-a25 bg-ios-red-a08">
+                  <div v-if="registerState.error" class="gwpage-inline-error mt-12px p-12px border-1-error-a25 bg-error-a08">
                     {{ registerState.error }}
                   </div>
                   <div v-if="registerState.txhash" class="gwpage-inline-success mono mt-12px p-12px bg-success-a08 border-1-success-a25">

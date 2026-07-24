@@ -1596,7 +1596,7 @@ function resultAccentGradient(r: ResultItem): string {
       case "epub": return "linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%)";
       case "docx": return "linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%)";
       case "html": return "linear-gradient(180deg, var(--color-primary) 0%, rgba(var(--color-primary-rgb), 0.5) 100%)";
-      case "pdf": return "linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%)";
+      case "pdf": return "linear-gradient(180deg, var(--color-error) 0%, rgba(var(--color-error-rgb), 0.5) 100%)";
       case "txt": return "linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%)";
       default: return "linear-gradient(180deg, var(--color-success) 0%, rgba(var(--color-success-rgb), 0.5) 100%)";
     }

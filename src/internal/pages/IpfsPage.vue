@@ -54,7 +54,7 @@
         <UiSpinner size="md" />
       </UiCard>
 
-      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-16px color-error bg-fill-error border-width-ios-red-a35">
+      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-16px color-error bg-fill-error border-width-error-a35">
         {{ error }}
       </div>
 
@@ -147,7 +147,7 @@
               controls
               playsinline
             ></video>
-            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-16px right-16px bg-ios-red-a15 border-1-ios-red-a30 left-16px bottom-16px backdrop-blur-6">
+            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-16px right-16px bg-error-a15 border-1-error-a30 left-16px bottom-16px backdrop-blur-6">
               {{ hlsError }}
             </div>
           </template>
