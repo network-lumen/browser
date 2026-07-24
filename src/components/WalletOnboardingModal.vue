@@ -76,10 +76,7 @@
           </div>
 
           <div v-else-if="step === 'profile-name'" class="walletonboard-step animate-walletonboard-fade-in">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-success-a30" v-if="passwordSet">
-              <CheckCircle :size="20" class="color-success" />
-              <p class="text-12px line-height-12 m-0px">Password set successfully!</p>
-            </div>
+            <UiSuccessBanner v-if="passwordSet" message="Password set successfully!" />
 
             <p class="text-12px line-height-12 color-text-tertiary mt-16px mb-16px">
               Choose a name for your first profile before creating your wallet.
@@ -101,46 +98,30 @@
           </div>
 
           <div v-else-if="step === 'creating-wallet'" class="walletonboard-step animate-walletonboard-fade-in">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-success-a30" v-if="passwordSet">
-              <CheckCircle :size="20" class="color-success" />
-              <p class="text-12px line-height-12 m-0px">Password set successfully!</p>
-            </div>
+            <UiSuccessBanner v-if="passwordSet" message="Password set successfully!" />
 
             <div>
-              <div v-if="creatingWallet" class="text-center">
-                <UiSpinner size="lg" />
-                <h3 class="text-20px line-height-12 txt-weight-strong mt-16px m-0px color-text-primary">Creating Your Wallet</h3>
-                <p class="text-12px line-height-12 color-text-tertiary mt-8px m-0px">
-                  Generating secure keys and wallet address...
-                </p>
-              </div>
+              <UiResultState v-if="creatingWallet" title="Creating Your Wallet" description="Generating secure keys and wallet address...">
+                <template #icon><UiSpinner size="lg" /></template>
+              </UiResultState>
 
-              <div v-else-if="walletCreated" class="text-center">
-                <CheckCircle :size="48" class="color-success" />
-                <h3 class="text-20px line-height-12 txt-weight-strong mt-16px m-0px color-text-primary">Wallet Created!</h3>
-                <p class="text-12px line-height-12 color-text-tertiary mt-8px m-0px">
-                  Your wallet is ready. Let's back it up to keep it safe.
-                </p>
-              </div>
+              <UiResultState v-else-if="walletCreated" title="Wallet Created!" description="Your wallet is ready. Let's back it up to keep it safe.">
+                <template #icon><CheckCircle :size="48" class="color-success" /></template>
+              </UiResultState>
 
-              <div v-else-if="walletError" class="text-center">
-                <AlertCircle :size="48" class="color-error" />
-                <h3 class="text-20px line-height-12 txt-weight-strong mt-16px m-0px color-text-primary">Wallet Creation Failed</h3>
-                <p class="text-12px line-height-12 color-text-tertiary mt-8px m-0px">
-                  {{ walletError }}
-                </p>
-                <UiButton variant="secondary" @click="createWallet" class="hover-bg-secondary">
-                  Try Again
-                </UiButton>
-              </div>
+              <UiResultState v-else-if="walletError" title="Wallet Creation Failed" :description="walletError">
+                <template #icon><AlertCircle :size="48" class="color-error" /></template>
+                <template #action>
+                  <UiButton variant="secondary" @click="createWallet" class="hover-bg-secondary">
+                    Try Again
+                  </UiButton>
+                </template>
+              </UiResultState>
             </div>
           </div>
 
           <div v-else-if="step === 'backup'" class="walletonboard-step animate-walletonboard-fade-in">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-success-a30" v-if="passwordSet">
-              <CheckCircle :size="20" class="color-success" />
-              <p class="text-12px line-height-12 m-0px">Password set successfully!</p>
-            </div>
+            <UiSuccessBanner v-if="passwordSet" message="Password set successfully!" />
 
             <p class="text-12px line-height-12 color-text-tertiary mt-16px mb-16px">
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
@@ -166,13 +147,9 @@
           </div>
 
           <div v-else-if="step === 'complete'" class="walletonboard-step animate-walletonboard-fade-in">
-            <div class="walletonboard-success-box-large text-center py-32px px-16px">
-              <CheckCircle :size="48" class="color-success" />
-              <h3 class="text-20px line-height-12 txt-weight-strong mt-16px m-0px color-text-primary">All Set!</h3>
-              <p class="text-12px line-height-12 color-text-tertiary mt-8px m-0px">
-                Your wallet is now protected. Remember to keep your password and backup file safe.
-              </p>
-            </div>
+            <UiResultState title="All Set!" description="Your wallet is now protected. Remember to keep your password and backup file safe." wrapper-class="py-32px px-16px">
+              <template #icon><CheckCircle :size="48" class="color-success" /></template>
+            </UiResultState>
 
             <div class="walletonboard-reminder-box mt-32px p-24px border-radius-12px bg-secondary">
               <p class="text-11px line-height-12 txt-weight-strong m-0px mb-8px color-text-primary">Remember:</p>
@@ -236,6 +213,8 @@ import UiModal from '../ui/UiModal.vue';
 import { computed, ref, watch } from 'vue';
 import { Shield, Lock, Download, AlertCircle, CheckCircle } from 'lucide-vue-next';
 import UiSpinner from '../ui/UiSpinner.vue';
+import UiSuccessBanner from '../ui/UiSuccessBanner.vue';
+import UiResultState from '../ui/UiResultState.vue';
 import { activeProfileId, createProfile, initProfiles, profilesState } from '../internal/profilesStore';
 import { useInternalLumen } from '../composables/useInternalLumen';
 
