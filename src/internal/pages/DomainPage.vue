@@ -48,13 +48,8 @@
       </UiPageHeader>
 
       <UiCard v-if="activeNameTab === 'lumen'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
-        <div v-if="error" class="color-error flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
-          <p class="color-error">{{ error }}</p>
-        </div>
-        <div v-else-if="loading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
-          <UiSpinner size="lg" />
-          <p>Loading your domains...</p>
-        </div>
+        <UiErrorState v-if="error" :message="error" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
+        <UiLoadingBlock v-else-if="loading" message="Loading your domains..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
         <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
           <p class="domainpage-hero-title txt-weight-light m-0px text-16px">Get your name on Lumen</p>
           <p class="domainpage-hero-text text-14px color-text-tertiary m-0px">
@@ -106,13 +101,8 @@
       </UiCard>
 
       <UiCard v-else border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
-        <div v-if="rawDomainsLoading" class="domainpage-empty flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
-          <UiSpinner size="lg" />
-          <p>Loading stable links...</p>
-        </div>
-        <div v-else-if="rawDomainsError" class="domainpage-empty error flex flex-column flex-align-justify-center text-center gap-8px py-32px px-24px">
-          <p class="color-error">{{ rawDomainsError }}</p>
-        </div>
+        <UiLoadingBlock v-if="rawDomainsLoading" message="Loading stable links..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
+        <UiErrorState v-else-if="rawDomainsError" :message="rawDomainsError" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
         <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
           <p class="domainpage-hero-title txt-weight-light m-0px text-16px">Generate a stable link</p>
           <p class="domainpage-hero-text text-14px color-text-tertiary m-0px">
@@ -451,6 +441,8 @@ import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
+import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
+import UiErrorState from '../../ui/UiErrorState.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiCard from '../../ui/UiCard.vue';
 import { computed, inject, ref, watch, watchEffect } from 'vue';

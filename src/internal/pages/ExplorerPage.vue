@@ -83,10 +83,7 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="isLoading" class="explorer-loading-state flex-align-justify-center flex-column color-text-secondary py-64px px-32px">
-        <UiSpinner size="lg" class="mb-16px" />
-        <p>Loading blockchain data...</p>
-      </div>
+      <UiLoadingBlock v-if="isLoading" message="Loading blockchain data..." />
 
       <template v-else>
         <!-- Overview View -->
@@ -698,6 +695,7 @@ import UiModal from '../../ui/UiModal.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
+import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiStatTile from '../../ui/UiStatTile.vue';
