@@ -13,8 +13,8 @@
   --ios-purple-rgb: 175, 82, 222;
   --ios-pink: #FF2D55;
   --ios-pink-rgb: 255, 45, 85;
-  --ios-orange: #FF9500;
-  --ios-orange-rgb: 255, 149, 0;
+  --color-warning: #FF9500;
+  --color-warning-rgb: 255, 149, 0;
   --ios-yellow: #FFCC00;
   --ios-yellow-rgb: 255, 204, 0;
   --color-error: #FF3B30;
@@ -154,8 +154,8 @@
   --ios-purple-rgb: 191, 90, 242;
   --ios-pink: #FF375F;
   --ios-pink-rgb: 255, 55, 95;
-  --ios-orange: #FF9F0A;
-  --ios-orange-rgb: 255, 159, 10;
+  --color-warning: #FF9F0A;
+  --color-warning-rgb: 255, 159, 10;
   --ios-yellow: #FFD60A;
   --ios-yellow-rgb: 255, 214, 10;
   --color-error: #FF453A;

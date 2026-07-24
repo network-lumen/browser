@@ -324,7 +324,7 @@ const connectionStatusText = computed(() => {
 function indicatorFillStyle(state: string): Record<string, string> {
   if (state === "excellent") return { background: "var(--color-success)" };
   if (state === "good") return { background: "var(--color-primary)" };
-  return { background: "var(--ios-orange)" };
+  return { background: "var(--color-warning)" };
 }
 
 const validatorPercent = computed(() => {
