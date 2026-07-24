@@ -764,8 +764,7 @@
             </p>
 
             <div class="drive-backup-form flex flex-column gap-12px">
-              <div class="drive-backup-field flex flex-column gap-6px">
-                <label class="drivepage-drive-backup-label text-12px txt-weight-light color-text-secondary">Password</label>
+              <UiFormGroup label="Password" wrapper-class="flex flex-column gap-6px" label-class="text-12px txt-weight-light color-text-secondary">
                 <input
                   class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-primary focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
@@ -773,10 +772,9 @@
                   placeholder="Min 8 characters (recommended: long passphrase)"
                   :disabled="driveBackupBusy"
                 />
-              </div>
+              </UiFormGroup>
 
-              <div class="drive-backup-field flex flex-column gap-6px">
-                <label class="drivepage-drive-backup-label text-12px txt-weight-light color-text-secondary">Confirm password</label>
+              <UiFormGroup label="Confirm password" wrapper-class="flex flex-column gap-6px" label-class="text-12px txt-weight-light color-text-secondary">
                 <input
                   class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-primary focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupExportShowPassword ? 'text' : 'password'"
@@ -785,7 +783,7 @@
                   :disabled="driveBackupBusy"
                   @keyup.enter="confirmDriveBackupExport"
                 />
-              </div>
+              </UiFormGroup>
 
               <UiCheckbox v-model="driveBackupExportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
@@ -836,8 +834,7 @@
               v-if="!driveBackupRestoreDetails"
               class="drive-backup-form flex flex-column gap-12px mt-16px"
             >
-              <div class="drive-backup-field flex flex-column gap-6px">
-                <label class="drivepage-drive-backup-label text-12px txt-weight-light color-text-secondary">Password</label>
+              <UiFormGroup label="Password" wrapper-class="flex flex-column gap-6px" label-class="text-12px txt-weight-light color-text-secondary">
                 <input
                   class="drivepage-drive-backup-input w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-primary focus-ring focus-bg-primary focus-shadow"
                   :type="driveBackupImportShowPassword ? 'text' : 'password'"
@@ -846,7 +843,7 @@
                   :disabled="driveBackupBusy"
                   @keyup.enter="decryptDriveBackupImport"
                 />
-              </div>
+              </UiFormGroup>
 
               <UiCheckbox v-model="driveBackupImportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
@@ -1519,6 +1516,7 @@ import UiSpinner from "../../ui/UiSpinner.vue";
 import UiLoadingBlock from "../../ui/UiLoadingBlock.vue";
 import UiCheckbox from "../../ui/UiCheckbox.vue";
 import UiModal from "../../ui/UiModal.vue";
+import UiFormGroup from "../../ui/UiFormGroup.vue";
 import UiPageHeader from "../../ui/UiPageHeader.vue";
 import UiEmptyState from "../../ui/UiEmptyState.vue";
 import UiTag from "../../ui/UiTag.vue";
