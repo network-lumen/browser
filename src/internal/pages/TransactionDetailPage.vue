@@ -1,13 +1,8 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
-    <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-16px min-h-300px">
-      <div class="border-radius-full w-40px h-40px border-3-fill-secondary spinner-accent"></div>
-      <p>Loading transaction data...</p>
-    </div>
+    <UiLoadingState v-if="loading" message="Loading transaction data..." />
 
-    <div v-else-if="error" class="chaindetail-error flex flex-column flex-align-justify-center gap-16px min-h-300px">
-      <p class="color-error chaindetail-error-p text-16px">{{ error }}</p>
-    </div>
+    <UiErrorState v-else-if="error" :message="error" />
 
     <div v-else-if="transaction" class="flex flex-column gap-24px">
       <!-- Transaction Overview Card -->
@@ -97,6 +92,8 @@
 import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiDetailRow from '../../ui/UiDetailRow.vue';
+import UiLoadingState from '../../ui/UiLoadingState.vue';
+import UiErrorState from '../../ui/UiErrorState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';

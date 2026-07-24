@@ -1,0 +1,16 @@
+<template>
+  <div class="flex flex-column flex-align-justify-center gap-16px" :class="wrapperClass">
+    <p class="color-error" :class="messageClass">{{ message }}</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+withDefaults(defineProps<{
+  message: string;
+  wrapperClass?: string;
+  messageClass?: string;
+}>(), {
+  wrapperClass: 'min-h-300px',
+  messageClass: 'text-16px',
+});
+</script>

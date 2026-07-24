@@ -1,13 +1,8 @@
 <template>
   <div class="w-full h-full overflow-y-auto bg-primary">
-    <div v-if="loading" class="blockdetail-loading flex flex-column flex-align-justify-center gap-16px py-64px px-32px">
-      <div class="border-radius-full w-40px h-40px border-3-fill-secondary spinner-accent"></div>
-      <p>Loading block data...</p>
-    </div>
+    <UiLoadingState v-if="loading" message="Loading block data..." wrapper-class="py-64px px-32px" />
 
-    <div v-else-if="error" class="blockdetail-error flex flex-column flex-align-justify-center gap-16px py-64px px-32px">
-      <p class="color-error">{{ error }}</p>
-    </div>
+    <UiErrorState v-else-if="error" :message="error" wrapper-class="py-64px px-32px" message-class="" />
 
     <div v-else-if="block" class="blockdetail-content flex flex-column gap-24px bg-secondary p-32px min-h-100vh-200px">
       <!-- Block Overview Card -->
@@ -95,6 +90,8 @@
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiDetailRow from '../../ui/UiDetailRow.vue';
+import UiLoadingState from '../../ui/UiLoadingState.vue';
+import UiErrorState from '../../ui/UiErrorState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
