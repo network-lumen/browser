@@ -642,7 +642,7 @@
 .reveal-on-hover:hover .reveal-open-target { color: var(--color-primary); transform: translate(4px, -4px) scale(1.1); opacity: 1; }
 .reveal-on-hover:hover .reveal-scale-target { transform: scale(1.03); }
 .reveal-on-hover:hover .reveal-target, .reveal-on-active.active .reveal-target { opacity: 1; }
-.reveal-on-hover.media-explore-compact:hover .reveal-icon-target { transform: none; box-shadow: 0 10px 30px var(--primary-a18); }
+.reveal-on-hover.media-explore-compact:hover .reveal-icon-target { transform: none; box-shadow: 0 10px 30px var(--primary-a20); }
 .right-0 { right: 0; }
 .right-12px { right: 12px; }
 .right-16px { right: 1rem; }
