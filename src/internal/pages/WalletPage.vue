@@ -2874,7 +2874,7 @@ function getDexStatusLabel(status: DexStatus): string {
 }
 
 function assetIconStyle(iconClass: string): Record<string, string> {
-  if (iconClass === 'lmn') return { background: 'var(--accent-secondary)' };
+  if (iconClass === 'lmn') return { background: 'var(--color-secondary)' };
   if (iconClass === 'remote') return { background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary))' };
   return {};
 }

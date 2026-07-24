@@ -591,7 +591,7 @@ function getCardDescription(key: string): string {
 }
 
 const ACTION_ICON_STYLES: Record<string, { background: string; color: string }> = {
-  drive: { background: "linear-gradient(135deg, var(--color-success) 0%, var(--ios-teal) 100%)", color: "#fff" },
+  drive: { background: "linear-gradient(135deg, var(--color-success) 0%, var(--color-secondary) 100%)", color: "#fff" },
   wallet: { background: "linear-gradient(135deg, var(--color-warning) 0%, var(--ios-yellow) 100%)", color: "#fff" },
   explorer: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
   gateways: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
