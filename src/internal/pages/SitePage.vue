@@ -197,11 +197,56 @@ function unregisterDevtoolsTarget() {
   registeredDevtoolsTargetId = null;
 }
 
+// Tags this webview's webContents with the domain it's showing, so permission
+// prompts triggered from inside it (Pin/Send/etc.) report "web.lmn" instead of the
+// resolved ipfs:/ipns: gateway URL the webview actually navigated to under the hood
+// (see site:registerDomainTarget in electron/main.cjs). Re-registered on every
+// resolve, not just once: the same <webview> instance is reused across navigations
+// between different .lmn domains in the same tab (KeepAlive cache key is 'site' for
+// all of them), so the host needs updating even though the webContents id doesn't.
+let registeredDomainHost: string | null = null;
+
+function registerDomainTargetOnce(): number | null {
+  const id = getWebviewWebContentsId();
+  const host = active.value?.host || "";
+  if (id != null && host && host !== registeredDomainHost) {
+    try {
+      useInternalLumen()?.site?.registerDomainTarget(id, host);
+      registeredDomainHost = host;
+    } catch {
+      // ignore
+    }
+  }
+  return id;
+}
+
+function registerDomainTargetWithRetry(attempts = 40) {
+  const id = registerDomainTargetOnce();
+  if (id != null) return;
+  if (attempts <= 0) return;
+  if (!resolvedHttpUrl.value || isHlsPath.value) return;
+  window.setTimeout(() => {
+    registerDomainTargetWithRetry(attempts - 1);
+  }, 50);
+}
+
+function unregisterDomainTarget() {
+  if (registeredDomainHost == null) return;
+  try {
+    const id = getWebviewWebContentsId();
+    if (id != null) useInternalLumen()?.site?.unregisterDomainTarget(id);
+  } catch {
+    // ignore
+  }
+  registeredDomainHost = null;
+}
+
 function onDomReady() {
   webviewLoading.value = false;
   void nextTick(() => {
     registerFindTargetWithRetry();
     registerDevtoolsTargetWithRetry();
+    registerDomainTargetWithRetry();
   });
 }
 
@@ -695,12 +740,14 @@ watch(
         // ignore
       }
       unregisterDevtoolsTarget();
+      unregisterDomainTarget();
       return;
     }
 
     await nextTick();
     registerFindTargetWithRetry();
     registerDevtoolsTargetWithRetry();
+    registerDomainTargetWithRetry();
   },
   { immediate: true, flush: "post" },
 );
@@ -709,12 +756,14 @@ onMounted(() => {
   void nextTick(() => {
     registerFindTargetWithRetry();
     registerDevtoolsTargetWithRetry();
+    registerDomainTargetWithRetry();
   });
 });
 onActivated(() => {
   void nextTick(() => {
     registerFindTargetWithRetry();
     registerDevtoolsTargetWithRetry();
+    registerDomainTargetWithRetry();
   });
 });
 onDeactivated(() => {
@@ -726,12 +775,14 @@ onDeactivated(() => {
     // ignore
   }
   unregisterDevtoolsTarget();
+  unregisterDomainTarget();
 });
 
 onBeforeUnmount(() => {
   webviewLoading.value = false;
   onWebviewLeaveHtmlFullscreen();
   unregisterDevtoolsTarget();
+  unregisterDomainTarget();
   try {
     siteWebview.value?.stop?.();
   } catch {
