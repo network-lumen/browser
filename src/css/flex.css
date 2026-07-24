@@ -53,7 +53,6 @@
 .flex-1-1-420px { flex: 1 1 420px; }
 .flex-11-1-420px { flex: 1.1 1 420px; }
 .flex-2-1-480px { flex: 2 1 480px; }
-.flex-basis-third { flex: 1 1 calc(33.333% - 8px); }
 .flex-12 { flex: 1.2; }
 .flex-08 { flex: 0.8; }
 .flex-09 { flex: 0.9; }

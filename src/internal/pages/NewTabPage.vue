@@ -139,7 +139,7 @@
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-20px min-h-150px shadow-lg flex-basis-third max-w-240px"
+            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-20px shadow-lg min-w-180px max-w-240px"
             :class="{
               'card-state-pinned': entry.pinned,
               'card-state-dragging': draggingShortcutId === entry.id,

@@ -27,14 +27,14 @@
           <div class="sidebar-section-title color-text-tertiary text-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
           <div class="h-24px bg-fill-tertiary color-text-secondary flex-inline-align-justify-center border-radius-full text-11px txt-weight-medium py-0px px-8px min-w-24px">{{ renderedFavouriteEntries.length }}</div>
         </div>
-        <div class="sidebar-favs flex flex-column gap-6px">
+        <div class="sidebar-favs flex flex-column gap-2px">
           <div
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="sidebar-fav-item flex gap-6px flex-align-stretch"
+            class="sidebar-fav-item reveal-on-hover flex-align-center gap-4px flex"
           >
-            <UiButton variant="secondary" @click="openFavourite(entry.url, $event)" class="sidebar-fav-hit">
-              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light w-32px h-32px" :style="avatarToneStyle(entry.kind)">
+            <UiButton variant="none" @click="openFavourite(entry.url, $event)" class="sidebar-fav-hit flex-align-center gap-8px border-none bg-transparent cursor-pointer color-text-primary border-radius-10px py-6px px-8px text-left hover-bg-hover transition-all-fast flex-1 min-w-0">
+              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light w-28px h-28px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
               <span class="sidebar-fav-copy flex flex-column gap-2px min-w-0">
@@ -42,9 +42,10 @@
                 <span class="sidebar-fav-subtitle color-text-tertiary text-11px block nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
               </span>
             </UiButton>
-            <UiButton variant="primary" type="button"
+            <UiButton variant="icon" type="button"
               title="Remove shortcut"
-              @click.stop="removeFavouriteById(entry.id)" class="sidebar-fav-remove">
+              class="reveal-target opacity-0 hover-bg-error-a10-color-error flex-shrink-0"
+              @click.stop="removeFavouriteById(entry.id)">
               <X :size="13" />
             </UiButton>
           </div>
