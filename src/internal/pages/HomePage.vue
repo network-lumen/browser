@@ -78,7 +78,9 @@
             >
               <X :size="14" />
             </div>
-            <component :is="getCardIcon(key)" :size="24" class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-fast" :style="actionIconStyle(key)" />
+            <div class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-fast" :style="actionIconStyle(key)">
+              <component :is="getCardIcon(key)" :size="19" />
+            </div>
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
               <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
               <span class="homepage-action-desc color-text-secondary text-12px line-height-14">{{ getCardDescription(key) }}</span>
@@ -128,7 +130,9 @@
             >
               <X :size="14" />
             </div>
-            <component :is="getCardIcon(key)" :size="24" class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-fast" :style="actionIconStyle(key)" />
+            <div class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-fast" :style="actionIconStyle(key)">
+              <component :is="getCardIcon(key)" :size="19" />
+            </div>
             <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
               <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
               <span class="homepage-action-desc color-text-secondary text-12px line-height-14">{{ getCardDescription(key) }}</span>
