@@ -98,22 +98,14 @@
             <UiDetailRow variant="baseline" label="Target" :value="pinTargetDisplay" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
           </div>
 
-          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px mt-12px py-10px px-12px bg-primary-a10 border-05-primary-a18">
-            <div class="sitemodal-pin-progress-head flex-align-center flex-justify-space-between gap-12px mb-8px">
-              <span class="sitemodal-pin-progress-status text-12px text-uppercase txt-weight-medium color-primary letter-spacing-004em">{{ pinStatusLabel }}</span>
-              <span v-if="pinProgressCounter" class="sitemodal-pin-progress-counter text-12px color-text-secondary">{{ pinProgressCounter }}</span>
-            </div>
-            <div class="sitemodal-pin-progress-track relative overflow-hidden border-radius-full w-full h-8px">
-              <div
-                class="sitemodal-pin-progress-fill h-full bg-gradient-primary border-radius-inherit transition-width-02"
-                :class="{ 'progress-fill-indeterminate': pinProgressPercent == null && pinIsRunning }"
-                :style="{ width: pinProgressPercent == null ? '100%' : `${Math.max(0, Math.min(100, pinProgressPercent))}%` }"
-              ></div>
-            </div>
-            <div class="sitemodal-pin-progress-text text-12px color-text-secondary mt-8px break-word">
-                {{ pinProgressText || (pinIsRunning ? 'Saving content from the network…' : 'Waiting for action.') }}
-            </div>
-          </div>
+          <UiPinProgressCard
+            v-if="pinJobId"
+            :status="pinStatusLabel"
+            :counter="pinProgressCounter"
+            :percent="pinProgressPercent"
+            :indeterminate="pinProgressPercent == null && pinIsRunning"
+            :text="pinProgressText || (pinIsRunning ? 'Saving content from the network…' : 'Waiting for action.')"
+          />
     <template #footer>
       <UiButton variant="secondary" type="button" @click="closePin(false)" :disabled="pinIsRunning">
         Cancel
@@ -257,6 +249,7 @@ import UiBanner from '../ui/UiBanner.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';
 import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
+import UiPinProgressCard from '../ui/UiPinProgressCard.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';

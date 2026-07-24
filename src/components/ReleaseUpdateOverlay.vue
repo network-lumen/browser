@@ -7,9 +7,7 @@
       </div>
     </div>
 
-    <div class="h-12px border-radius-full bg-fill-tertiary overflow-hidden">
-      <div class="h-full border-radius-full bg-gradient-primary transition-width-02" :style="{ width: `${percent}%` }"></div>
-    </div>
+    <UiProgressBar :percent="percent" track-class="w-full h-12px bg-fill-tertiary" />
     <div class="mt-8px flex-justify-space-between text-14px color-text-secondary">
       <span v-if="bytesLabel">{{ bytesLabel }}</span>
       <span v-if="percentKnown">{{ percent }}%</span>
@@ -25,6 +23,7 @@
 <script setup lang="ts">
 import UiModal from '../ui/UiModal.vue';
 import UiButton from '../ui/UiButton.vue';
+import UiProgressBar from '../ui/UiProgressBar.vue';
 import { computed } from 'vue';
 import { useReleaseUpdates } from '../internal/services/releaseUpdates';
 
