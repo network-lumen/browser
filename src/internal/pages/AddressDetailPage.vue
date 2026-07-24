@@ -33,12 +33,9 @@
         <div class="chaindetail-card-body p-24px">
           <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-16px">
             <UiCard class="flex-align-center gap-16px" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(balance, index) in address.balances" :key="index">
-              <div class="addrdetail-balance-icon flex-align-justify-center color-white size-40px border-radius-circle bg-gradient-primary">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M12 6v6l4 2"></path>
-                </svg>
-              </div>
+              <UiIconBadge size-class="size-40px" badge-class="color-white bg-gradient-primary">
+                <Clock :size="20" />
+              </UiIconBadge>
               <div class="flex-1">
                 <div class="addrdetail-balance-amount color-text-primary txt-weight-light text-18px">{{ formatAmount(balance.amount) }}</div>
                 <div class="text-12px color-text-tertiary">{{ balance.denom.toUpperCase() }}</div>
@@ -80,11 +77,9 @@
         <div class="chaindetail-card-body p-24px">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-16px">
             <UiCard class="flex-align-center gap-16px" bg-class="bg-primary" border-class="border-1" radius="8px" :shadow="false" hoverable hover-class="transition-all-02 hover-lift-2 hover-shadow-md" v-for="(tx, index) in address.transactions" :key="index">
-              <div class="addrdetail-tx-icon flex-align-justify-center size-32px border-radius-circle color-text-secondary bg-secondary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg>
-              </div>
+              <UiIconBadge size-class="size-32px" badge-class="color-text-secondary bg-secondary">
+                <Activity :size="16" />
+              </UiIconBadge>
               <div class="flex-1">
                 <div class="underline-on-hover cursor-pointer mb-4px" @click="navigateToTx(tx.hash)">
                   <code class="underline-target color-primary mono text-12px">{{ shortenHash(tx.hash) }}</code>
@@ -118,6 +113,8 @@ import UiLoadingState from '../../ui/UiLoadingState.vue';
 import UiCopyField from '../../ui/UiCopyField.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
+import UiIconBadge from '../../ui/UiIconBadge.vue';
+import { Clock, Activity } from 'lucide-vue-next';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
