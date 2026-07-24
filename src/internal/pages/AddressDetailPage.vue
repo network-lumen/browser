@@ -20,15 +20,7 @@
         <UiCardHeader title="Address Overview" />
         <div class="chaindetail-card-body p-24px">
           <UiDetailRow label="Address:">
-            <div class="chaindetail-hash-value flex-align-center gap-8px">
-              <code class="bg-secondary color-text-primary chaindetail-hash-value-code py-8px px-12px border-1 border-radius-6px mono text-12px break-all">{{ address.address }}</code>
-              <UiButton variant="icon" @click="copyToClipboard(address.address)" title="Copy address">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-              </UiButton>
-            </div>
+            <UiCopyField :value="address.address" title="Copy address" />
           </UiDetailRow>
           <UiDetailRow label="Account Number:" :value="address.accountNumber" />
           <UiDetailRow label="Sequence:" :value="address.sequence" />
@@ -123,12 +115,12 @@ import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiDetailRow from '../../ui/UiDetailRow.vue';
 import UiLoadingState from '../../ui/UiLoadingState.vue';
+import UiCopyField from '../../ui/UiCopyField.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 
 const loading = ref(true);
 const error = ref('');
@@ -167,10 +159,6 @@ function navigateToBlock(height: number) {
   if (openInNewTab) {
     openInNewTab(`lumen://explorer/block/${height}`);
   }
-}
-
-async function copyToClipboard(text: string) {
-  await copyToClipboardShared(text);
 }
 
 function formatAmount(amount: string | number): string {

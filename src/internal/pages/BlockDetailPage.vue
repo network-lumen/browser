@@ -11,15 +11,7 @@
         <div class="chaindetail-card-body p-24px">
           <UiDetailRow variant="flex" label="Height:" :value="block.height" />
           <UiDetailRow variant="flex" label="Hash:">
-            <div class="blockdetail-hash-value flex-1 flex-align-center gap-12px">
-              <code class="flex-1 blockdetail-hash-value-code py-8px px-12px border-1 border-radius-6px text-13px mono break-all">{{ block.hash }}</code>
-              <UiButton variant="icon" @click="copyToClipboard(block.hash)" title="Copy hash">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-              </UiButton>
-            </div>
+            <UiCopyField :value="block.hash" title="Copy hash" wrapper-class="flex-1 gap-12px" code-class="flex-1 py-8px px-12px border-1 border-radius-6px text-13px mono break-all" />
           </UiDetailRow>
           <UiDetailRow variant="flex" label="Proposer:">
             <div class="flex-align-center gap-12px">
@@ -64,15 +56,7 @@
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
-                <div class="blockdetail-tx-hash flex-align-center gap-8px mb-8px">
-                  <code class="flex-1 border-radius-10px blockdetail-tx-hash-code py-8px px-10px bg-card border-default text-12px mono break-all">{{ tx.hash }}</code>
-                  <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash)">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                  </UiButton>
-                </div>
+                <UiCopyField :value="tx.hash" title="" wrapper-class="gap-8px mb-8px" code-class="flex-1 border-radius-10px py-8px px-10px bg-card border-default text-12px mono break-all" :icon-size="12" />
                 <div class="flex-align-center gap-16px text-13px">
                   <span class="color-text-secondary fw-500">{{ tx.type }}</span>
                   <span class="blockdetail-tx-status-success flex-align-center gap-4px color-success txt-weight-light bg-fill-success border-radius-4px py-4px px-6px">✓ Success</span>
@@ -88,15 +72,14 @@
 
 <script setup lang="ts">
 import UiCard from '../../ui/UiCard.vue';
-import UiButton from '../../ui/UiButton.vue';
 import UiDetailRow from '../../ui/UiDetailRow.vue';
 import UiLoadingState from '../../ui/UiLoadingState.vue';
+import UiCopyField from '../../ui/UiCopyField.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 
 const loading = ref(true);
 const error = ref('');
@@ -176,10 +159,6 @@ function calculateBlockSize(block: any): string {
 
 function formatNumber(num: number): string {
   return num.toLocaleString();
-}
-
-async function copyToClipboard(text: string) {
-  await copyToClipboardShared(text);
 }
 
 function navigateToTransaction(hash: string) {
