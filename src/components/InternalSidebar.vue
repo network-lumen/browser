@@ -34,7 +34,7 @@
             class="sidebar-fav-item flex gap-6px flex-align-stretch"
           >
             <UiButton variant="secondary" @click="openFavourite(entry.url, $event)" class="sidebar-fav-hit">
-              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light w-30px h-30px" :style="avatarToneStyle(entry.kind)">
+              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light w-32px h-32px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
               <span class="sidebar-fav-copy flex flex-column gap-2px min-w-0">

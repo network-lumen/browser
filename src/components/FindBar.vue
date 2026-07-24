@@ -10,14 +10,14 @@
     <input
       ref="inputEl"
       v-model="query"
-      class="findbar-input outline-none color-text-primary border-radius-10px text-13px border-default bg-primary h-30px py-0px px-8px w-220px border-color-accent-primary-focus-visible shadow-0-0-0-3-primary-a20-focus-visible"
+      class="findbar-input outline-none color-text-primary border-radius-10px text-13px border-default bg-primary h-32px py-0px px-8px w-220px border-color-accent-primary-focus-visible shadow-0-0-0-3-primary-a20-focus-visible"
       type="text"
       placeholder="Find in page"
       autocomplete="off"
       @keydown="onInputKeydown"
     />
 
-    <div class="findbar-count color-text-secondary text-right text-12px cursor-select-none min-w-50px" :class="{ 'opacity-55': !query }" aria-live="polite">
+    <div class="findbar-count color-text-secondary text-right text-12px cursor-select-none min-w-48px" :class="{ 'opacity-55': !query }" aria-live="polite">
       {{ countText }}
     </div>
 

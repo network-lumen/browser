@@ -192,7 +192,7 @@
 .z-max { z-index: 2147483647; }
 /* UiCheckbox.vue's `boxed` variant: the box/wrap/input are all plain utility
    classes composed in the template (relative, flex-inline-align-justify-
-   center, w-18px, h-18px, border-radius-6px, border-1, bg-
+   center, w-20px, h-20px, border-radius-6px, border-1, bg-
    primary, shadow-inset-top-white-a35, transition-all-02, absolute, inset-0,
    opacity-0) — these 3 are the only bit that can't be a utility class, since
    they depend on the sibling-combinator relationship between the hidden

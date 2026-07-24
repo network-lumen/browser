@@ -2,7 +2,7 @@
   <UiModal :model-value="!!(current && modalType === 'permission')" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="denyPermission">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
           <Shield :size="18" />
         </div>
         <h3>Permission required</h3>
@@ -40,7 +40,7 @@
   <UiModal :model-value="!!(current && modalType === 'sendToken')" panel-class="sitemodal-send w-min-520px-92vw max-h-100vh-32px" :closable="!sending" @update:model-value="closeSend(false)">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
           <Send :size="18" />
         </div>
         <h3>Send LMN</h3>
@@ -103,7 +103,7 @@
   <UiModal :model-value="!!(current && modalType === 'pin')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!pinning" @update:model-value="closePin(false)">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
           <Save :size="18" />
         </div>
         <h3>Save to Drive</h3>
@@ -183,7 +183,7 @@
   <UiModal :model-value="!!(current && modalType === 'stableLink')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSaving" @update:model-value="closeStableLink(false)">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
           <Link :size="18" />
         </div>
         <h3>Choose or create a stable link for your live</h3>
@@ -268,7 +268,7 @@
   <UiModal :model-value="!!(current && modalType === 'stableLinkSetup')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSetupLoading" @update:model-value="closeStableLinkSetup(false)">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-32px h-32px bg-fill-blue">
           <Link :size="18" />
         </div>
         <h3>Select a live link</h3>
