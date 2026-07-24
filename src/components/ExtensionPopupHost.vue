@@ -20,7 +20,7 @@
       <webview
         v-else-if="webviewMountUrl"
         ref="webviewRef"
-        class="extension-popup-webview w-full h-full bg-dark-111 border-0"
+        class="extension-popup-webview w-full h-full bg-dark-111 border-none"
         :src="webviewMountUrl"
         :preload="extensionGuestPreloadUrl"
         partition="persist:lumen"

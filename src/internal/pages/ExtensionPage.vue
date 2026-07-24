@@ -21,7 +21,7 @@
     <webview
       v-else-if="webviewMountUrl"
       ref="webviewRef"
-      class="extension-webview flex-1 w-full h-full bg-dark-111 border-0"
+      class="extension-webview flex-1 w-full h-full bg-dark-111 border-none"
       :src="webviewMountUrl"
       :preload="extensionGuestPreloadUrl"
       partition="persist:lumen"
