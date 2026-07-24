@@ -5,18 +5,10 @@
         <X :size="14" />
       </button>
 
-      <div v-if="error" class="extension-popup-status extension-popup-status-error w-full h-full text-14px text-center flex-align-justify-center p-24px color-white-a82 color-extension-error">
-        {{ error }}
-      </div>
-      <div v-else-if="guestPreloadLoading" class="extension-popup-status w-full h-full text-14px text-center flex-align-justify-center p-24px color-white-a82">
-        Preparing extension…
-      </div>
-      <div v-else-if="!extensionGuestPreloadUrl" class="extension-popup-status extension-popup-status-error w-full h-full text-14px text-center flex-align-justify-center p-24px color-white-a82 color-extension-error">
-        Extension guest preload is unavailable.
-      </div>
-      <div v-else-if="loading && !webviewMountUrl" class="extension-popup-status w-full h-full text-14px text-center flex-align-justify-center p-24px color-white-a82">
-        Loading extension…
-      </div>
+      <UiExtensionStatus v-if="error" error extra-class="h-full">{{ error }}</UiExtensionStatus>
+      <UiExtensionStatus v-else-if="guestPreloadLoading" extra-class="h-full">Preparing extension…</UiExtensionStatus>
+      <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error extra-class="h-full">Extension guest preload is unavailable.</UiExtensionStatus>
+      <UiExtensionStatus v-else-if="loading && !webviewMountUrl" extra-class="h-full">Loading extension…</UiExtensionStatus>
       <webview
         v-else-if="webviewMountUrl"
         ref="webviewRef"
@@ -35,9 +27,7 @@
         @did-stop-loading="onDidStopLoading"
         @dom-ready="onDomReady"
       ></webview>
-      <div v-else class="extension-popup-status w-full h-full text-14px text-center flex-align-justify-center p-24px color-white-a82">
-        Preparing extension…
-      </div>
+      <UiExtensionStatus v-else extra-class="h-full">Preparing extension…</UiExtensionStatus>
     </div>
   </div>
 </template>
@@ -47,6 +37,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { X } from "lucide-vue-next";
 import { isBrowserUrl, isExtensionUrl } from "../internal/navigationUrl";
 import { useInternalLumen } from '../composables/useInternalLumen';
+import UiExtensionStatus from '../ui/UiExtensionStatus.vue';
 
 type InstalledExtension = {
   id: string;
