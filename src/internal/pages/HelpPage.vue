@@ -14,15 +14,6 @@
             <Sparkles :size="18" />
             <span>Discover Lumen</span>
           </button>
-          <button
-            type="button"
-            class="lsb-item hover-fill-primary-not-active border-none bg-transparent cursor-pointer color-text-secondary flex-align-center gap-10px border-radius-10px w-full text-13px fw-500 text-left py-8px px-10px transition-all-fast"
-            :class="{ 'active bg-gradient-primary color-white shadow-primary': currentView === 'domains' }"
-            @click="setView('domains')"
-          >
-            <Link2 :size="18" />
-            <span>Domains & Drive</span>
-          </button>
         </div>
 
         <div class="lsb-section flex flex-column gap-2px">
@@ -60,9 +51,6 @@
 
     <!-- Main Content -->
     <main class="helppage-main flex-1 flex flex-column m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
-      <!-- Header -->
-      <UiPageHeader :title="getViewTitle()" :subtitle="getViewDescription()" />
-
       <!-- Discover View -->
       <div v-if="currentView === 'discover'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
@@ -217,71 +205,11 @@
         </div>
       </div>
 
-      <!-- Domains & Drive View -->
-      <div v-else-if="currentView === 'domains'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
-        <div class="discover flex flex-column gap-20px">
-          <!-- Hero -->
-          <section class="bg-gradient-primary-a10-card small border-radius-16px text-center border-default shadow-sm p-24px">
-            <div class="helppage-hero-content mb-24px">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Publish Your <span class="gradient-text-clip bg-gradient-primary">Website</span></h2>
-              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Create a domain and link it to your Drive content in 4 easy steps</p>
-            </div>
-          </section>
-
-          <!-- Steps -->
-          <div class="tutorial-steps flex flex-column gap-16px">
-            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
-              <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">1</div>
-                <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Upload to Drive</h4>
-              </div>
-              <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Go to Drive, upload a file or folder, then click <strong>Share</strong> to get a Lumen link.</p>
-              <UiButton variant="primary" type="button" @click="goto('lumen://drive')" class="helppage-step-action">
-                <FolderOpen :size="18" />
-                <span>Open Drive</span>
-              </UiButton>
-            </UiCard>
-
-            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
-              <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">2</div>
-                <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Buy Your Domain</h4>
-              </div>
-              <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Go to Domains, click <strong>Buy domain</strong>, choose a name like <code>yourname.lmn</code>.</p>
-              <UiButton variant="primary" type="button" @click="goto('lumen://domain')" class="helppage-step-action">
-                <Link2 :size="18" />
-                <span>Open Domains</span>
-              </UiButton>
-            </UiCard>
-
-            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
-              <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">3</div>
-                <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Link Domain to Content</h4>
-              </div>
-              <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">In Domain settings, add a record with <code>Key: cid</code> and <code>Value: your-content-hash</code>.</p>
-            </UiCard>
-
-            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
-              <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">4</div>
-                <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Visit Your Site</h4>
-              </div>
-              <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Type <code>lumen://yourname.lmn</code> in the address bar to access your decentralized website!</p>
-              <UiButton variant="primary" type="button" @click="goto('lumen://newtab')" class="helppage-step-action">
-                <Globe :size="18" />
-                <span>Open New Tab</span>
-              </UiButton>
-            </UiCard>
-          </div>
-        </div>
-      </div>
-
       <!-- Publish My Site View -->
       <div v-else-if="currentView === 'publish'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero -->
-          <section class="bg-gradient-primary-a10-card small border-radius-16px text-center border-default shadow-sm p-24px">
+          <section class="bg-gradient-primary-a10-card border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Create Your <span class="gradient-text-clip bg-gradient-primary">First Website</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
@@ -343,7 +271,7 @@
       <div v-else-if="currentView === 'contact'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover flex flex-column gap-20px">
           <!-- Hero -->
-          <section class="bg-gradient-primary-a10-card small border-radius-16px text-center border-default shadow-sm p-24px">
+          <section class="bg-gradient-primary-a10-card border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="helppage-hero-content mb-24px">
               <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Get <span class="gradient-text-clip bg-gradient-primary">Help</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Connect with our community and get support</p>
@@ -391,6 +319,10 @@
       <!-- Docs View -->
       <div v-else-if="currentView === 'docs'" class="helppage-content-area helppage-docs-content-area flex flex-column overflow-hidden flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="discover helppage-docs-discover flex flex-column gap-20px flex-1 min-h-0">
+          <div class="helppage-docs-header flex-shrink-0">
+            <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-20px letter-spacing-n002">{{ getViewTitle() }}</h2>
+            <p class="m-0px mt-4px color-text-secondary text-14px line-height-15">{{ getViewDescription() }}</p>
+          </div>
           <iframe
             class="helppage-doc-frame w-full h-full border-radius-16px block border-default shadow-sm bg-card min-h-520px"
             :src="lumenDocFrameSrc"
@@ -586,7 +518,6 @@ import UiButton from '../../ui/UiButton.vue';
 import { computed, inject, ref, watch } from 'vue';
 import type { ComputedRef } from 'vue';
 import UiCard from '../../ui/UiCard.vue';
-import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { 
   HelpCircle,
   Sparkles,
@@ -605,7 +536,7 @@ import {
 } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 
-type HelpView = 'discover' | 'domains' | 'publish' | 'contact' | 'docs';
+type HelpView = 'discover' | 'publish' | 'contact' | 'docs';
 
 // Single source of truth for the window.lumen reference: this embeds the
 // actual generated docs/window-lumen.html (mirrored into public/docs/ by
@@ -655,7 +586,8 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
 
   const firstPath = String(segs[1] || '').toLowerCase();
   if (firstPath === 'discover') return 'discover';
-  if (firstPath === 'domains' || firstPath === 'domain') return 'domains';
+  // Domains & Drive was merged into Publish (same tutorial, kept the more complete copy).
+  if (firstPath === 'domains' || firstPath === 'domain') return 'publish';
   if (firstPath === 'publish' || firstPath === 'create_my_first_website' || firstPath === 'create-my-first-website') return 'publish';
   if (firstPath === 'contact') return 'contact';
   // Backward-compat: old tabs now redirect to Discover.
@@ -668,7 +600,7 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
     const params = new URLSearchParams(qs || '');
     const viewParam = String(params.get('view') || '').trim().toLowerCase();
     if (viewParam === 'discover') return 'discover';
-    if (viewParam === 'domains' || viewParam === 'domain') return 'domains';
+    if (viewParam === 'domains' || viewParam === 'domain') return 'publish';
     if (viewParam === 'publish') return 'publish';
     if (viewParam === 'contact') return 'contact';
     if (viewParam === 'docs') return 'docs';
@@ -680,7 +612,6 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
 
 function urlForView(view: HelpView): string {
   if (view === 'discover') return 'lumen://help/discover';
-  if (view === 'domains') return 'lumen://help/domains';
   if (view === 'publish') return 'lumen://help/publish';
   if (view === 'contact') return 'lumen://help/contact';
   if (view === 'docs') return 'lumen://help/docs';
@@ -721,7 +652,6 @@ watch(
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     discover: 'What is Lumen?',
-    domains: 'Domains & Drive',
     publish: 'Publish My Site',
     contact: 'Contact Support',
     docs: 'Documentation',
@@ -732,7 +662,6 @@ function getViewTitle(): string {
 function getViewDescription(): string {
   const descs: Record<string, string> = {
     discover: 'A quick overview of the Lumen stack',
-    domains: 'Create a domain and link it to Drive content',
     publish: 'Go from local files to a live .lmn site',
     contact: 'Reach out to our team',
     docs: 'Website developer docs for window.lumen'
