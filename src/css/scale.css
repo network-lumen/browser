@@ -1,26 +1,3 @@
-/* ============================================================================
- * src/css/scale.css
- *
- * Canonical design scale (spacing / font-size / border-radius), Tailwind-style:
- * one axis-composable class per real step, named after its pixel value (this
- * codebase already prefers literal-px naming for sizing -- w-42px, size-32px,
- * border-radius-8px -- so the scale keeps that convention instead of introducing
- * a second, different naming style just for spacing/type).
- *
- * Replaces the old utilities.css padding-, margin-, gap- and fs- prefixed
- * classes, which were one bespoke class per literal value ever seen (auto-generated over many
- * past sessions), including many near-duplicate values doing the same visual
- * job (e.g. padding 0.6rem / 0.625rem / 0.65rem as three separate classes).
- * Compound two-value paddings (padding-A-B) are intentionally NOT reproduced
- * as single classes here -- use the axis classes below instead (e.g. `py-10px
- * px-12px` instead of a bespoke `.padding-62-75`), which is the actual Tailwind
- * idiom: composable single-axis utilities instead of one class per pair.
- *
- * Each axis only lists the steps actually consumed somewhere in src/ (trimmed
- * from the full 17-step ladder down to real usage, same treatment already
- * applied to gap-x-/gap-y- below) -- if a template needs a step that's
- * missing, add it back rather than reaching for a bespoke one-off class.
- * ========================================================================== */
 
 /* ---- Spacing: padding ---- */
 .p-0px { padding: 0rem; }
