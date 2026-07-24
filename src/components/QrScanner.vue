@@ -6,10 +6,7 @@
             <video ref="videoElement" class="qr-camera-video w-full h-full object-fit-cover" autoplay playsinline></video>
             <canvas ref="canvasElement" class="qr-camera-canvas hidden absolute top-0 left-0"></canvas>
             <div class="qr-scan-frame border-radius-12px absolute top-half left-half translate-center border-2-white-a50 w-250px h-250px">
-              <div class="qr-corner qr-corner-top-left absolute w-32px h-32px border-right-none border-bottom-none top-n3px left-n3px border-3-primary rounded-tl-12px"></div>
-              <div class="qr-corner qr-corner-top-right absolute w-32px h-32px border-left-none border-bottom-none top-n3px right-n3px border-3-primary rounded-tr-12px"></div>
-              <div class="qr-corner qr-corner-bottom-left absolute w-32px h-32px border-right-none border-top-none bottom-n3px left-n3px border-3-primary rounded-bl-12px"></div>
-              <div class="qr-corner qr-corner-bottom-right absolute w-32px h-32px border-left-none border-top-none bottom-n3px right-n3px border-3-primary rounded-br-12px"></div>
+              <div v-for="corner in QR_CORNERS" :key="corner.key" class="qr-corner absolute w-32px h-32px border-3-primary" :class="corner.class"></div>
             </div>
             <p class="qr-scan-instruction color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half translate-x-center backdrop-blur-8 bg-black-a60">Position QR code within the frame</p>
           </div>
@@ -79,6 +76,13 @@ const emit = defineEmits<{
   (e: 'close'): void;
   (e: 'scan', data: { type: string; content: string; raw: string }): void;
 }>();
+
+const QR_CORNERS = [
+  { key: 'top-left', class: 'top-n3px left-n3px border-right-none border-bottom-none rounded-tl-12px' },
+  { key: 'top-right', class: 'top-n3px right-n3px border-left-none border-bottom-none rounded-tr-12px' },
+  { key: 'bottom-left', class: 'bottom-n3px left-n3px border-right-none border-top-none rounded-bl-12px' },
+  { key: 'bottom-right', class: 'bottom-n3px right-n3px border-left-none border-top-none rounded-br-12px' },
+];
 
 const videoElement = ref<HTMLVideoElement | null>(null);
 const canvasElement = ref<HTMLCanvasElement | null>(null);
