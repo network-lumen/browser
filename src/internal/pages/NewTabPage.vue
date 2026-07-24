@@ -161,22 +161,24 @@
               </span>
             </UiButton>
 
-            <div class="newtab-shortcut-card-actions flex flex-wrap-wrap gap-6px">
-              <UiButton variant="secondary" type="button"
-                :title="entry.pinned ? 'Remove from favourites' : 'Mark as favourite'"
-                @click.stop="togglePinned(entry.id, entry.pinned)" class="newtab-shortcut-action transition-lift-015">
-                <Star :size="14" :fill="entry.pinned ? 'currentColor' : 'none'" />
+            <div class="newtab-shortcut-card-actions absolute top-8px right-8px">
+              <UiButton variant="icon" type="button" title="More actions"
+                class="newtab-shortcut-menu-trigger bg-card-a92"
+                @click.stop="toggleShortcutMenu(entry.id)">
+                <MoreHorizontal :size="14" />
               </UiButton>
-              <UiButton variant="secondary" type="button"
-                title="Edit shortcut"
-                @click.stop="beginEditShortcut(entry)" class="newtab-shortcut-action transition-lift-015">
-                <Pencil :size="14" />
-              </UiButton>
-              <UiButton variant="danger" type="button"
-                title="Remove shortcut"
-                @click.stop="removeFavouriteById(entry.id)" class="newtab-shortcut-action transition-lift-015">
-                <Trash2 :size="14" />
-              </UiButton>
+
+              <UiCard v-if="openShortcutMenuId === entry.id" padding="none" :shadow="false" role="menu"
+                class="newtab-shortcut-menu absolute p-4px shadow-xl z-100 right-0 top-full mt-4px w-160px">
+                <UiMenuItem @click.stop="beginEditShortcut(entry); openShortcutMenuId = ''">
+                  <Pencil :size="14" />
+                  <span>Edit shortcut</span>
+                </UiMenuItem>
+                <UiMenuItem @click.stop="removeFavouriteById(entry.id); openShortcutMenuId = ''">
+                  <Trash2 :size="14" />
+                  <span>Remove shortcut</span>
+                </UiMenuItem>
+              </UiCard>
             </div>
 
           </article>
@@ -233,7 +235,9 @@
 <script setup lang="ts">
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
-import { computed, inject, onMounted, reactive, ref } from "vue";
+import UiCard from '../../ui/UiCard.vue';
+import UiMenuItem from '../../ui/UiMenuItem.vue';
+import { computed, inject, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import UiCheckbox from "../../ui/UiCheckbox.vue";
 import UiModal from "../../ui/UiModal.vue";
 import {
@@ -242,11 +246,11 @@ import {
   Globe,
   Hexagon,
   History,
+  MoreHorizontal,
   Pencil,
   Plus,
   Search,
   Sparkles,
-  Star,
   Trash2,
 } from "lucide-vue-next";
 import { avatarToneStyle, describeFavouriteUrl } from "../favouriteMeta";
@@ -315,6 +319,18 @@ const editingShortcutId = ref("");
 const shortcutError = ref("");
 const draggingShortcutId = ref("");
 const dragOverShortcutId = ref("");
+const openShortcutMenuId = ref("");
+
+function toggleShortcutMenu(id: string) {
+  openShortcutMenuId.value = openShortcutMenuId.value === id ? "" : id;
+}
+
+function onShortcutMenuGlobalClick(e: MouseEvent) {
+  const el = e.target as HTMLElement | null;
+  if (!el) return;
+  if (el.closest('.newtab-shortcut-menu-trigger') || el.closest('.newtab-shortcut-menu')) return;
+  openShortcutMenuId.value = "";
+}
 const shortcutDraft = reactive({
   title: "",
   url: "",
@@ -440,10 +456,6 @@ function learnLumen() {
   goto("lumen://help/discover");
 }
 
-function togglePinned(id: string, currentlyPinned: boolean) {
-  setFavouritePinned(id, !currentlyPinned);
-}
-
 function onShortcutDragStart(event: DragEvent, id: string) {
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = "move";
@@ -490,5 +502,10 @@ onMounted(() => {
   } catch {
     showOnboarding.value = true;
   }
+  window.addEventListener('click', onShortcutMenuGlobalClick);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', onShortcutMenuGlobalClick);
 });
 </script>
