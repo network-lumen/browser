@@ -52,7 +52,7 @@
           <div class="gwpage-private-gateways-grid grid grid-cols-auto-fill-280">
             <UiCard v-for="gw in privateGateways" :key="gw.id" padding="none" border-class="border-1" radius="0" :shadow="false" hoverable hover-class="transition-all-02 hover-border-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
               <div class="gwpage-private-gateway-header flex-align-center mb-12px">
-                <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ 'bg-ios-green': gw.status === 'active' }"></div>
+                <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ 'bg-success': gw.status === 'active' }"></div>
                 <span class="gwpage-private-badge text-11px letter-spacing-005em py-4px px-12px bg-ios-indigo-a15 color-ios-indigo">Private</span>
               </div>
               <h3 class="gwpage-private-gateway-name color-text-primary text-16px m-0px mb-8px">{{ gw.name }}</h3>
@@ -90,7 +90,7 @@
             <UiCard v-for="gw in myGateways" :key="gw.id" padding="none" bg-class="bg-primary" border-class="border-1" radius="16px" :shadow="false">
               <header class="gwpage-manage-card-head flex-align-center-justify-space-between">
                 <div class="gwpage-manage-card-title flex-align-center gap-10px min-w-0">
-                  <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ 'bg-ios-green': gw.active }"></div>
+                  <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ 'bg-success': gw.active }"></div>
                   <span class="gwpage-manage-card-name color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px" :title="gw.endpoint || `Gateway #${gw.id}`">
                     {{ gw.endpoint || `Gateway #${gw.id}` }}
                   </span>
@@ -141,7 +141,7 @@
               <div v-if="editMap[gw.id]?.error" class="gwpage-inline-error mt-12px p-12px border-1-ios-red-a25 bg-ios-red-a08">
                 {{ editMap[gw.id].error }}
               </div>
-              <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono mt-12px p-12px bg-ios-green-a08 border-1-ios-green-a25">
+              <div v-if="editMap[gw.id]?.txhash" class="gwpage-inline-success mono mt-12px p-12px bg-success-a08 border-1-success-a25">
                 tx: {{ editMap[gw.id].txhash }}
               </div>
 
@@ -200,7 +200,7 @@
                   <div v-if="registerState.error" class="gwpage-inline-error mt-12px p-12px border-1-ios-red-a25 bg-ios-red-a08">
                     {{ registerState.error }}
                   </div>
-                  <div v-if="registerState.txhash" class="gwpage-inline-success mono mt-12px p-12px bg-ios-green-a08 border-1-ios-green-a25">
+                  <div v-if="registerState.txhash" class="gwpage-inline-success mono mt-12px p-12px bg-success-a08 border-1-success-a25">
                     tx: {{ registerState.txhash }}
                   </div>
                 </div>

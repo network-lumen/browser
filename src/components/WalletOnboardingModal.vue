@@ -76,7 +76,7 @@
           </div>
 
           <div v-else-if="step === 'profile-name'" class="walletonboard-step animate-walletonboard-fade-in">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-success-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="text-12px line-height-12 m-0px">Password set successfully!</p>
             </div>
@@ -101,7 +101,7 @@
           </div>
 
           <div v-else-if="step === 'creating-wallet'" class="walletonboard-step animate-walletonboard-fade-in">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-success-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="text-12px line-height-12 m-0px">Password set successfully!</p>
             </div>
@@ -137,7 +137,7 @@
           </div>
 
           <div v-else-if="step === 'backup'" class="walletonboard-step animate-walletonboard-fade-in">
-            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-ios-green-a30" v-if="passwordSet">
+            <div class="walletonboard-success-box flex-align-center color-text-primary gap-12px p-16px bg-fill-success border-radius-8px border-1-success-a30" v-if="passwordSet">
               <CheckCircle :size="20" class="color-success" />
               <p class="text-12px line-height-12 m-0px">Password set successfully!</p>
             </div>
@@ -160,7 +160,7 @@
               {{ backupError }}
             </div>
 
-            <div v-if="backupSuccess" class="walletonboard-success-message block text-11px line-height-12 color-success mt-8px color-text-primary p-12px bg-fill-success border-radius-6px border-1-ios-green-a30">
+            <div v-if="backupSuccess" class="walletonboard-success-message block text-11px line-height-12 color-success mt-8px color-text-primary p-12px bg-fill-success border-radius-6px border-1-success-a30">
               {{ backupSuccess }}
             </div>
           </div>

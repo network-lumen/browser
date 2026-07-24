@@ -46,7 +46,7 @@ const toasts = toastList;
 const copiedState = ref<Record<string, boolean>>({});
 
 const toastIconColors: Record<ToastType, { color: string; background: string }> = {
-  success: { color: 'var(--ios-green)', background: 'rgba(var(--ios-green-rgb), 0.12)' },
+  success: { color: 'var(--color-success)', background: 'rgba(var(--color-success-rgb), 0.12)' },
   error: { color: 'var(--ios-red)', background: 'rgba(var(--ios-red-rgb), 0.12)' },
   warning: { color: 'var(--ios-orange)', background: 'rgba(var(--ios-orange-rgb), 0.12)' },
   info: { color: 'var(--color-primary)', background: 'rgba(var(--color-primary-rgb), 0.12)' },

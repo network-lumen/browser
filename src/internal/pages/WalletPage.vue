@@ -465,7 +465,7 @@
             </div>
 
             <div class="col-amount min-w-0">
-              <span class="txt-weight-medium text-14px mono" :style="tx.type === 'send' ? { color: 'var(--ios-red)' } : tx.type === 'receive' ? { color: 'var(--ios-green)' } : {}">
+              <span class="txt-weight-medium text-14px mono" :style="tx.type === 'send' ? { color: 'var(--ios-red)' } : tx.type === 'receive' ? { color: 'var(--color-success)' } : {}">
                 <template v-if="tx.amounts && tx.amounts.length && tx.amounts[0].amount">
                   {{ tx.type === 'send' ? '-' : '+' }}{{ (Number(tx.amounts[0].amount) / 1_000_000).toFixed(6).replace(/\.?0+$/, '') }} {{ formatDenom(tx.amounts[0].denom) }}
                 </template>
@@ -1964,7 +1964,7 @@ function getActivityBadgeStyle(tx: Activity): Record<string, string> {
   if (isWithdrawRewardsTx(tx)) return { background: 'rgba(var(--ios-yellow-rgb), 0.1)', color: 'var(--ios-yellow)' };
   if (isPublishReleaseTx(tx)) return { background: 'rgba(var(--ios-indigo-rgb), 0.1)', color: 'var(--ios-indigo)' };
   if (tx.type === 'send') return { background: 'rgba(var(--ios-red-rgb), 0.1)', color: 'var(--ios-red)' };
-  if (tx.type === 'receive') return { background: 'rgba(var(--ios-green-rgb), 0.1)', color: 'var(--ios-green)' };
+  if (tx.type === 'receive') return { background: 'rgba(var(--color-success-rgb), 0.1)', color: 'var(--color-success)' };
   return {};
 }
 

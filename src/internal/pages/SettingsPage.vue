@@ -924,7 +924,7 @@
       <div v-else-if="currentView === 'privatecloud'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <!-- Main Enable Toggle -->
-          <UiCard padding="none" :shadow="false" :class="{ 'border-color-ios-green bg-gradient-ios-green-soft': privateCloudEnabled }" class="transition-all-fast border-width-2px flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" :class="{ 'border-color-success bg-gradient-success-soft': privateCloudEnabled }" class="transition-all-fast border-width-2px flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle mr-8px">

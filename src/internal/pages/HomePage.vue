@@ -591,11 +591,11 @@ function getCardDescription(key: string): string {
 }
 
 const ACTION_ICON_STYLES: Record<string, { background: string; color: string }> = {
-  drive: { background: "linear-gradient(135deg, var(--ios-green) 0%, var(--ios-teal) 100%)", color: "#fff" },
+  drive: { background: "linear-gradient(135deg, var(--color-success) 0%, var(--ios-teal) 100%)", color: "#fff" },
   wallet: { background: "linear-gradient(135deg, var(--ios-orange) 0%, var(--ios-yellow) 100%)", color: "#fff" },
-  explorer: { background: "linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%)", color: "var(--ios-green)" },
-  gateways: { background: "linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%)", color: "var(--ios-green)" },
-  search: { background: "linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%)", color: "var(--ios-green)" },
+  explorer: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
+  gateways: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
+  search: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
   network: { background: "linear-gradient(135deg, rgba(var(--ios-pink-rgb), 0.22) 0%, rgba(var(--ios-pink-rgb), 0.12) 100%)", color: "var(--ios-pink)" },
   domain: { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.22) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--color-primary)" },
   dao: { background: "linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%)", color: "var(--ios-orange)" },

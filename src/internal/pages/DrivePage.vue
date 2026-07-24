@@ -1186,7 +1186,7 @@
                   <header class="drivepage-gateway-card-header flex-align-center-justify-space-between gap-8px">
                     <div class="drivepage-gateway-title flex-align-center gap-8px min-w-0">
                       <span
-                        class="drivepage-gateway-status-dot border-radius-full w-10px h-10px bg-ios-green"
+                        class="drivepage-gateway-status-dot border-radius-full w-10px h-10px bg-success"
                         :class="group.gateway.active ? '' : 'bg-ios-red'"
                       ></span>
                       <span
@@ -5679,7 +5679,7 @@ function clearHlsQueue() {
 
 function hlsQueueItemStyle(status: string): Record<string, string> {
   if (status === "converting") return { borderColor: "var(--primary-a25)", background: "var(--primary-a06)" };
-  if (status === "done") return { borderColor: "rgba(var(--ios-green-rgb), 0.25)", background: "rgba(var(--ios-green-rgb), 0.06)" };
+  if (status === "done") return { borderColor: "rgba(var(--color-success-rgb), 0.25)", background: "rgba(var(--color-success-rgb), 0.06)" };
   if (status === "paused") return { borderColor: "rgba(var(--color-primary-rgb), 0.25)", background: "rgba(var(--color-primary-rgb), 0.06)" };
   if (status === "failed") return { borderColor: "rgba(var(--ios-red-rgb), 0.25)", background: "rgba(var(--ios-red-rgb), 0.06)" };
   if (status === "cancelled") return { borderColor: "rgba(var(--ios-orange-rgb), 0.25)", background: "rgba(var(--ios-orange-rgb), 0.06)" };
