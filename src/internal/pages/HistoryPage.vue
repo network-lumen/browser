@@ -59,7 +59,7 @@
           <div class="flex flex-column">
             <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between py-12px px-2px border-top-1-separator">
               <button class="color-inherit flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-12px" type="button" @click="openEntry(entry.url)">
-                <span class="history-item-avatar h-44px flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary w-44px" :style="avatarToneStyle(entry.kind)">
+                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary size-44px" :style="avatarToneStyle(entry.kind)">
                   {{ entry.monogram }}
                 </span>
 

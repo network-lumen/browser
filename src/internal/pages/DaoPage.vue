@@ -71,7 +71,7 @@
         <!-- Stats Grid -->
         <div class="daopage-stats-grid mb-24px gap-16px grid grid-cols-auto-fit-180">
           <div class="flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
-            <div class="h-44px flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
+            <div class="flex-align-justify-center color-white border-radius-10px bg-gradient-primary size-44px">
               <FileText :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
@@ -80,7 +80,7 @@
             </div>
           </div>
           <div class="flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
-            <div class="h-44px flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
+            <div class="flex-align-justify-center color-white border-radius-10px bg-gradient-primary size-44px">
               <Users :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">
@@ -89,7 +89,7 @@
             </div>
           </div>
           <div class="flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
-            <div class="h-44px flex-align-justify-center color-white border-radius-10px bg-gradient-primary w-44px">
+            <div class="flex-align-justify-center color-white border-radius-10px bg-gradient-primary size-44px">
               <Wallet :size="20" />
             </div>
             <div class="daopage-stat-info flex flex-column">

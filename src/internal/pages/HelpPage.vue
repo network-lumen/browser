@@ -177,7 +177,7 @@
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">Key Features</h3>
             <div class="helppage-features-grid gap-16px grid grid-cols-2">
               <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="h-44px flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
+                <div class="flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 size-44px">
                   <Globe :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -186,7 +186,7 @@
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="h-44px flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
+                <div class="flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 size-44px">
                   <Database :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -195,7 +195,7 @@
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="h-44px flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
+                <div class="flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 size-44px">
                   <Server :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -204,7 +204,7 @@
                 </div>
               </UiCard>
               <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="h-44px flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 w-44px">
+                <div class="flex-align-justify-center border-radius-12px bg-fill-tertiary color-ios-blue flex-shrink-0 size-44px">
                   <Wallet :size="24" />
                 </div>
                 <div class="helppage-feature-content">
@@ -402,7 +402,7 @@
           <div class="helppage-docs-grid gap-12px grid grid-cols-1" v-if="false" aria-hidden="true">
             <!-- What is Lumen Browser -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <BookOpen :size="20" />
               </div>
               <div>
@@ -427,7 +427,7 @@
 
             <!-- Secure your Wallet -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <Wallet :size="20" />
               </div>
               <div>
@@ -442,7 +442,7 @@
 
             <!-- Upload -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <FolderOpen :size="20" />
               </div>
               <div>
@@ -457,7 +457,7 @@
 
             <!-- Cloud -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <Database :size="20" />
               </div>
               <div>
@@ -472,7 +472,7 @@
 
             <!-- How to Manage Domain -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <Link2 :size="20" />
               </div>
               <div>
@@ -487,7 +487,7 @@
 
             <!-- Domain Setting -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <Globe :size="20" />
               </div>
               <div>
@@ -502,7 +502,7 @@
 
             <!-- How to Linked Domain -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <Link2 :size="20" />
               </div>
               <div>
@@ -517,7 +517,7 @@
 
             <!-- Publish Website with .lmn -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <Server :size="20" />
               </div>
               <div>
@@ -532,7 +532,7 @@
 
             <!-- Theme -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <Sparkles :size="20" />
               </div>
               <div>
@@ -547,7 +547,7 @@
 
             <!-- Font Size -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <Sparkles :size="20" />
               </div>
               <div>
@@ -562,7 +562,7 @@
 
             <!-- Brightness -->
             <UiCard padding="md" shadow class="flex gap-12px">
-              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue w-42px h-42px border-1-ios-blue-a15">
+              <div class="helppage-discover-ico flex-align-justify-center flex-0-0-auto border-radius-14px color-ios-blue bg-fill-blue size-44px border-1-ios-blue-a15">
                 <Sparkles :size="20" />
               </div>
               <div>
