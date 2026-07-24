@@ -14,8 +14,8 @@
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Block Overview" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="chaindetail-card-body p-24px">
-          <UiDetailRow flex label="Height:" :value="block.height" />
-          <UiDetailRow flex label="Hash:">
+          <UiDetailRow variant="flex" label="Height:" :value="block.height" />
+          <UiDetailRow variant="flex" label="Hash:">
             <div class="blockdetail-hash-value flex-1 flex-align-center gap-12px">
               <code class="flex-1 blockdetail-hash-value-code py-8px px-12px border-1 border-radius-6px text-13px mono break-all">{{ block.hash }}</code>
               <UiButton variant="icon" @click="copyToClipboard(block.hash)" title="Copy hash">
@@ -26,7 +26,7 @@
               </UiButton>
             </div>
           </UiDetailRow>
-          <UiDetailRow flex label="Proposer:">
+          <UiDetailRow variant="flex" label="Proposer:">
             <div class="flex-align-center gap-12px">
               <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium text-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
                 <img class="blockdetail-proposer-avatar-img w-full h-full object-fit-cover"
@@ -39,8 +39,8 @@
               <span class="color-text-primary text-15px txt-weight-light">{{ block.proposer }}</span>
             </div>
           </UiDetailRow>
-          <UiDetailRow flex label="Time:" :value="block.time" />
-          <UiDetailRow flex label="Transactions:" :value="block.txs" />
+          <UiDetailRow variant="flex" label="Time:" :value="block.time" />
+          <UiDetailRow variant="flex" label="Transactions:" :value="block.txs" />
         </div>
       </UiCard>
 
@@ -48,12 +48,12 @@
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Block Data" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="chaindetail-card-body p-24px">
-          <UiDetailRow flex label="Chain ID:" :value="block.chainId || 'lumen-mainnet'" />
-          <UiDetailRow flex label="Block Size:">
+          <UiDetailRow variant="flex" label="Chain ID:" :value="block.chainId || 'lumen-mainnet'" />
+          <UiDetailRow variant="flex" label="Block Size:">
             <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ calculateBlockSize(block) }} KB</span>
           </UiDetailRow>
-          <UiDetailRow flex label="Gas Used:" :value="formatNumber(block.gasUsed || 0)" />
-          <UiDetailRow flex label="Gas Limit:" :value="formatNumber(block.gasLimit || 0)" />
+          <UiDetailRow variant="flex" label="Gas Used:" :value="formatNumber(block.gasUsed || 0)" />
+          <UiDetailRow variant="flex" label="Gas Limit:" :value="formatNumber(block.gasLimit || 0)" />
         </div>
       </UiCard>
 

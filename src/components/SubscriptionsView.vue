@@ -28,33 +28,15 @@
 
     <!-- Filter and Stats -->
     <div class="subview-stats-section mb-32px grid gap-16px grid-cols-auto-fit-200">
-      <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
-        <div class="subview-stat-icon active bg-fill-success color-success flex-align-justify-center size-48px border-radius-12px">
-          <PlayCircle :size="20" />
-        </div>
-        <div>
-          <div class="subview-stat-value txt-weight-medium color-text-primary text-24px">{{ activeCount }}</div>
-          <div class="subview-stat-label color-text-tertiary text-uppercase text-14px">Active</div>
-        </div>
-      </UiCard>
-      <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
-        <div class="subview-stat-icon paused bg-warning-a15 color-warning flex-align-justify-center size-48px border-radius-12px">
-          <PauseCircle :size="20" />
-        </div>
-        <div>
-          <div class="subview-stat-value txt-weight-medium color-text-primary text-24px">{{ pausedCount }}</div>
-          <div class="subview-stat-label color-text-tertiary text-uppercase text-14px">Paused</div>
-        </div>
-      </UiCard>
-      <UiCard class="flex-align-center gap-16px" radius="12px" padding-class="p-20px" border-class="border-1" :shadow="false">
-        <div class="subview-stat-icon total flex-align-justify-center size-48px border-radius-12px color-accent-secondary bg-fill-blue">
-          <DollarSign :size="20" />
-        </div>
-        <div>
-          <div class="subview-stat-value txt-weight-medium color-text-primary text-24px">{{ monthlyTotal }}</div>
-          <div class="subview-stat-label color-text-tertiary text-uppercase text-14px">Monthly Total</div>
-        </div>
-      </UiCard>
+      <UiStatIconTile label="Active" :value="activeCount" icon-class="bg-fill-success color-success">
+        <template #icon><PlayCircle :size="20" /></template>
+      </UiStatIconTile>
+      <UiStatIconTile label="Paused" :value="pausedCount" icon-class="bg-warning-a15 color-warning">
+        <template #icon><PauseCircle :size="20" /></template>
+      </UiStatIconTile>
+      <UiStatIconTile label="Monthly Total" :value="monthlyTotal" icon-class="color-accent-secondary bg-fill-blue">
+        <template #icon><DollarSign :size="20" /></template>
+      </UiStatIconTile>
     </div>
 
     <!-- Payments List -->
@@ -124,23 +106,16 @@
           </div>
 
           <div class="subview-payment-details mb-16px">
-            <div class="subview-detail-row flex-align-center-justify-space-between text-13px py-6px px-0px">
-              <span class="color-text-secondary">Next Payment:</span>
-              <span class="subview-detail-value color-text-primary fw-500">{{ formatDate(payment.nextPaymentDate) }}</span>
-            </div>
-            <div class="subview-detail-row flex-align-center-justify-space-between text-13px py-6px px-0px">
-              <span class="color-text-secondary">Recipient:</span>
-              <span class="subview-detail-value color-text-primary mono text-12px fw-500">{{ formatAddress(payment.recipient) }}</span>
-            </div>
-            <div class="subview-detail-row flex-align-center-justify-space-between text-13px py-6px px-0px">
-              <span class="color-text-secondary">Success Rate:</span>
-              <span class="subview-detail-value color-text-primary fw-500">
+            <UiDetailRow variant="compact" label="Next Payment:" :value="formatDate(payment.nextPaymentDate)" />
+            <UiDetailRow variant="compact" label="Recipient:" :value="formatAddress(payment.recipient)" value-class="color-text-primary mono text-12px fw-500" />
+            <UiDetailRow variant="compact" label="Success Rate:">
+              <span class="color-text-primary fw-500">
                 {{ payment.totalPayments > 0
                   ? Math.round((payment.successfulPayments / payment.totalPayments) * 100)
                   : 0 }}%
                 ({{ payment.successfulPayments }}/{{ payment.totalPayments }})
               </span>
-            </div>
+            </UiDetailRow>
           </div>
 
           <div class="subview-payment-actions flex gap-8px pt-16px border-top-1">
@@ -236,6 +211,8 @@ import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
 import UiEmptyState from '../ui/UiEmptyState.vue';
 import UiCard from '../ui/UiCard.vue';
+import UiStatIconTile from '../ui/UiStatIconTile.vue';
+import UiDetailRow from '../ui/UiDetailRow.vue';
 import { ref, computed, onMounted } from 'vue';
 import { 
   Calendar, Plus, Bell, AlertCircle, X, PlayCircle, PauseCircle, 
