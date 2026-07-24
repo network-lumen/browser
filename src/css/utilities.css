@@ -48,10 +48,10 @@
 .card-state-drop-target { border-color: rgba(var(--color-primary-rgb), 0.28); box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08), inset 0 0 0 2px rgba(var(--color-primary-rgb), 0.18); }
 .card-state-pinned { border-color: rgba(var(--color-primary-rgb), 0.18); box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06), inset 0 0 0 1px rgba(var(--color-primary-rgb), 0.1); }
 /* ExplorerPage's bonded-supply/voting-power donut <canvas> elements: forces
-   the CSS display size to match the 120x120 backing resolution (width/height
+   the CSS display size to match the 140x140 backing resolution (width/height
    attributes) so the drawn donut isn't downscaled and the centered
    value/label text has room to fit without touching the ring. */
-.chart-canvas-fixed-120px { width: 120px !important; height: 120px !important; }
+.chart-canvas-fixed-140px { width: 140px !important; height: 140px !important; }
 .content-visibility-auto-240-220 { content-visibility: auto; contain-intrinsic-size: 240px 220px; }
 .content-visibility-auto-920-56 { content-visibility: auto; contain-intrinsic-size: 920px 56px; }
 .date-input-icon-filter[type="date"]::-webkit-calendar-picker-indicator { filter: var(--icon-filter, none); cursor: pointer; }
@@ -92,6 +92,8 @@
 .mono { font-family: var(--font-mono); }
 .mt-005rem { margin-top: 0.05rem; }
 .mt-15vh { margin-top: 15vh; }
+.navbar-extension-remove-btn { padding: 0; }
+.navbar-profile-trigger { padding: 5px 12px; }
 .nowrap { white-space: nowrap; }
 .object-fit-contain { object-fit: contain; }
 .object-fit-cover { object-fit: cover; }

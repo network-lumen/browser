@@ -110,11 +110,11 @@
             </UiChartCard>
 
             <UiChartCard title="Bonded / Supply">
-              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-120px h-120px">
-                <canvas ref="bondedSupplyChart" width="120" height="120" class="chart-canvas-fixed-120px"></canvas>
+              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-140px h-140px">
+                <canvas ref="bondedSupplyChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
                 <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                   <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
-                  <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Bonded</div>
+                  <div class="explorer-center-label color-text-tertiary text-11px mt-0px">Bonded</div>
                 </div>
               </div>
               <div class="explorer-chart-legend flex flex-column gap-6px">
@@ -125,11 +125,11 @@
             </UiChartCard>
 
             <UiChartCard title="Voting Power">
-              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-120px h-120px">
-                <canvas ref="votingPowerChart" width="120" height="120" class="chart-canvas-fixed-120px"></canvas>
+              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-140px h-140px">
+                <canvas ref="votingPowerChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
                 <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
                   <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
-                  <div class="explorer-center-label color-text-tertiary text-11px mt-4px">Active</div>
+                  <div class="explorer-center-label color-text-tertiary text-11px mt-0px">Active</div>
                 </div>
               </div>
               <div class="explorer-chart-legend flex flex-column gap-6px">
@@ -465,16 +465,16 @@
                   <span class="explorer-changes-value txt-weight-light text-14px">—</span>
                 </div>
                 <div class="explorer-td td-cumulative flex-align-center text-13px text-14px">
-                  <div class="explorer-cumulative-container flex-align-justify-center relative w-56px h-56px">
-                    <svg class="explorer-circular-progress block filter-none" width="58" height="58" viewBox="0 0 58 58">
-                      <circle cx="29" cy="29" r="24" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
+                  <div class="explorer-cumulative-container flex-align-justify-center relative size-64px">
+                    <svg class="explorer-circular-progress block filter-none" width="66" height="66" viewBox="0 0 66 66">
+                      <circle cx="33" cy="33" r="27" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
                       <circle
-                        cx="29" cy="29" r="24"
+                        cx="33" cy="33" r="27"
                         fill="none"
                         stroke="var(--color-primary)"
                         stroke-width="4"
                         :stroke-dasharray="getCumulativeDashArray(index)"
-                        transform="rotate(-90 29 29)"
+                        transform="rotate(-90 33 33)"
                         stroke-linecap="round"
                       ></circle>
                     </svg>
@@ -953,7 +953,7 @@ const votingPowerChart = ref<HTMLCanvasElement | null>(null);
 const copiedText = ref('');
 const showCopyNotification = ref(false);
 
-const CUMULATIVE_RADIUS = 24;
+const CUMULATIVE_RADIUS = 27;
 const CUMULATIVE_CIRCUMFERENCE = 2 * Math.PI * CUMULATIVE_RADIUS;
 
 function getCumulativeDashArray(index: number): string {
@@ -1869,18 +1869,18 @@ function initializeCharts() {
       const canvas = bondedSupplyChart.value;
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        canvas.width = 120;
-        canvas.height = 120;
-        
-        const centerX = 60;
-        const centerY = 60;
-        const radius = 50;
-        const innerRadius = 35;
+        canvas.width = 140;
+        canvas.height = 140;
+
+        const centerX = 70;
+        const centerY = 70;
+        const radius = 58;
+        const innerRadius = 41;
 
         const pct = bondedRatioPct.value;
         const startAngle = -Math.PI / 2;
 
-        ctx.clearRect(0, 0, 120, 120);
+        ctx.clearRect(0, 0, 140, 140);
 
         if (pct == null) {
           // Unknown ratio: render a neutral ring (avoid implying 0% bonded).
@@ -1903,7 +1903,7 @@ function initializeCharts() {
           ctx.arc(centerX, centerY, innerRadius, startAngle + bondedAngle, startAngle, true);
           ctx.closePath();
 
-          const gradient = ctx.createLinearGradient(0, 0, 120, 120);
+          const gradient = ctx.createLinearGradient(0, 0, 140, 140);
           gradient.addColorStop(0, '#ec4899');
           gradient.addColorStop(1, '#8b5cf6');
           ctx.fillStyle = gradient;
@@ -1927,15 +1927,15 @@ function initializeCharts() {
       const canvas = votingPowerChart.value;
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        canvas.width = 120;
-        canvas.height = 120;
-        
-        const centerX = 60;
-        const centerY = 60;
-        const radius = 50;
-        const innerRadius = 35;
-        
-        ctx.clearRect(0, 0, 120, 120);
+        canvas.width = 140;
+        canvas.height = 140;
+
+        const centerX = 70;
+        const centerY = 70;
+        const radius = 58;
+        const innerRadius = 41;
+
+        ctx.clearRect(0, 0, 140, 140);
         
         let currentAngle = -Math.PI / 2;
         const colors = [
