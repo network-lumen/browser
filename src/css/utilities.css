@@ -25,8 +25,8 @@
   align-items: center;
   justify-content: center;
   background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%),
-              radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%),
-              linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light));
+              radial-gradient(1200px 400px at 110% -50%, var(--primary-a06), transparent 60%),
+              linear-gradient(135deg, var(--primary-a06), var(--primary-a06));
 }
 .app-shell.startup {
   align-items: stretch;
@@ -96,7 +96,7 @@
 .bg-gradient-primary { background: var(--gradient-primary); }
 .bg-gradient-secondary { background: var(--gradient-secondary); }
 .bg-gradient-secondary-hover { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--hover-bg) 100%); }
-.bg-gradient-shell { background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%), radial-gradient(1200px 400px at 110% -50%, var(--white-blue-light), transparent 60%), linear-gradient(135deg, var(--white-blue-light), var(--white-blue-light)); }
+.bg-gradient-shell { background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%), radial-gradient(1200px 400px at 110% -50%, var(--primary-a06), transparent 60%), linear-gradient(135deg, var(--primary-a06), var(--primary-a06)); }
 .bg-gradient-teal-green { background: linear-gradient(90deg, var(--ios-teal), var(--ios-green)); }
 .bg-gradient-teal-sky { background: linear-gradient(135deg, #0f766e, #0ea5e9); }
 .bg-gradient-thumb-overlay { background: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.55)); }
@@ -262,8 +262,6 @@
 .color-accent-secondary { color: var(--accent-secondary); }
 .color-error { color: var(--ios-red); }
 .color-extension-error { color: var(--extension-error-text); }
-.color-gray-blue { color: var(--gray-blue); }
-.color-gray-blue-light { color: var(--gray-blue-light); }
 .color-inherit { color: inherit; }
 .color-ios-blue { color: var(--ios-blue); }
 .color-ios-indigo { color: var(--ios-indigo); }
@@ -285,6 +283,7 @@
 .color-text-primary { color: var(--text-primary); }
 .color-text-primary-hover-not-disabled-not-active:hover:not(:disabled):not(.active) { color: var(--text-primary); }
 .color-text-secondary { color: var(--text-secondary); }
+.color-text-quaternary { color: var(--text-quaternary); }
 .color-text-tertiary { color: var(--text-tertiary); }
 .color-warning { color: var(--ios-orange); }
 .color-white { color: #fff; }

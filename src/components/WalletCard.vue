@@ -4,7 +4,7 @@
       <div class="m-4px flex-align-center gap-8px">
         <div class="flex flex-column gap-0px">
           <h3 id="wallet-title" class="text-20px line-height-12 txt-weight-strong m-0px">Wallet</h3>
-          <p class="m-0px color-gray-blue">Your Lumen balance and address.</p>
+          <p class="m-0px color-text-tertiary">Your Lumen balance and address.</p>
         </div>
       </div>
     </header>
@@ -15,10 +15,10 @@
         class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1 flex-align-center"
       >
         <div class="flex flex-align-center gap-8px">
-          <div class="text-11px line-height-12 color-gray-blue">Address</div>
+          <div class="text-11px line-height-12 color-text-tertiary">Address</div>
           <div class="text-11px line-height-12 txt-weight-medium" :title="address || '--'">
             <span v-if="address">{{ shortAddress }}</span>
-            <span v-else class="color-gray-blue-light">-</span>
+            <span v-else class="color-text-quaternary">-</span>
           </div>
         </div>
         <div class="flex-align-center gap-8px">
@@ -39,9 +39,9 @@
         class="p-8px flex-align-center-justify-space-between gap-8px border-radius-10px bg-white border-1 flex-align-center"
       >
         <div class="flex flex-align-center gap-8px">
-          <div class="text-11px line-height-12 color-gray-blue">Balance</div>
+          <div class="text-11px line-height-12 color-text-tertiary">Balance</div>
           <div class="text-11px line-height-12 txt-weight-medium">
-            <span class="color-gray-blue-light">Coming soon</span>
+            <span class="color-text-quaternary">Coming soon</span>
           </div>
         </div>
         <div class="flex-align-center gap-8px">

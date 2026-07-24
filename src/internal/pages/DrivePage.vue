@@ -212,7 +212,7 @@
           <UiSpinner size="sm" />
           <div class="progress-info flex flex-column gap-4px">
             <span class="text-12px line-height-12 txt-weight-strong">Uploading {{ upload?.uploadingFile }} </span>
-            <span class="text-11px line-height-12 color-gray-blue">
+            <span class="text-11px line-height-12 color-text-tertiary">
               <template v-if="upload?.uploadingPercent != null">
                 ({{ upload?.uploadingPercent }}%)
               </template>
@@ -259,10 +259,10 @@
             <span class="text-12px line-height-12 txt-weight-strong"
               >Converting {{ convertingFile }}</span
             >
-            <span class="text-11px line-height-12 color-gray-blue"
+            <span class="text-11px line-height-12 color-text-tertiary"
               >Warning: this can take a while.</span
             >
-            <span class="text-11px line-height-12 color-gray-blue">
+            <span class="text-11px line-height-12 color-text-tertiary">
               {{ convertingStatusText }}
             </span>
             <div class="drivepage-progress-actions flex gap-8px mt-8px">
@@ -351,7 +351,7 @@
             <span class="text-12px line-height-12 txt-weight-strong">
               Downloading {{ archiveDownloadFile }}
             </span>
-            <span class="text-11px line-height-12 color-gray-blue">
+            <span class="text-11px line-height-12 color-text-tertiary">
               {{ archiveDownloadStatusText }}
             </span>
             <div class="drivepage-progress-actions flex gap-8px mt-8px">
@@ -715,7 +715,7 @@
                 <UiSpinner v-if="driveBackupBusy" size="sm" />
               </div>
 
-              <p class="text-11px line-height-12 color-gray-blue m-0px mb-12px">
+              <p class="text-11px line-height-12 color-text-tertiary m-0px mb-12px">
                 Export/import your drive metadata (CIDs, names, favourites). The snapshot is
                 encrypted with a password you choose. It doesn't include the data behind CIDs
                 (only references). Keep the file + password safe.
@@ -796,7 +796,7 @@
 
               <UiCheckbox v-model="driveBackupExportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
-              <p class="text-11px line-height-12 color-gray-blue m-0px mt-12px">
+              <p class="text-11px line-height-12 color-text-tertiary m-0px mt-12px">
                 If you lose the password, this backup cannot be recovered.
               </p>
 
@@ -1443,7 +1443,7 @@
               {{ subscribeError }}
             </div>
 
-            <p v-if="subscribeBusy" class="text-11px line-height-12 color-gray-blue mt-4px">
+            <p v-if="subscribeBusy" class="text-11px line-height-12 color-text-tertiary mt-4px">
               Submitting on-chain transaction… This can take ~1–2 minutes the
               first time (PQC setup + block confirmation).
             </p>
