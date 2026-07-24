@@ -122,9 +122,7 @@
 
       <!-- Assets View -->
       <div v-else-if="currentView === 'assets'" class="walletpage-content-section flex flex-column gap-24px w-full max-w-full">
-        <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-16px">
-          <h3 class="walletpage-section-header-h3 m-0px text-16px txt-weight-light color-text-primary">Cross-chain Assets</h3>
-        </div>
+        <UiChartHeader title="Cross-chain Assets" />
         <UiEmptyState v-if="!isConnected" class="mt-32px" title="Connect Your Wallet" description="Connect a wallet to view your assets across linked IBC chains.">
           <Coins :size="32" />
           <template #actions>
@@ -316,8 +314,7 @@
         <!-- Transactions View -->
         <div v-else-if="currentView === 'transactions'" class="walletpage-content-section flex flex-column gap-24px w-full max-w-full">
 
-        <div class="walletpage-section-header flex-align-center-justify-space-between flex-wrap-wrap gap-16px" v-if="activities.length > 0">
-          <h3 class="walletpage-section-header-h3 m-0px text-16px txt-weight-light color-text-primary">Recent Transactions</h3>
+        <UiChartHeader v-if="activities.length > 0" title="Recent Transactions">
           <div class="walletpage-header-actions-group flex-align-center flex-wrap-wrap gap-12px">
             <div class="filter-group flex-align-center gap-8px">
               <select v-model="txFilterType" class="hover-border-accent focus-border-primary color-text-primary cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card text-14px transition-all-02 focus-outline-none focus-ring focus-shadow">
@@ -342,7 +339,7 @@
               <span>Export CSV</span>
             </UiButton>
           </div>
-        </div>
+        </UiChartHeader>
 
         <UiEmptyState v-if="!isConnected || !address" class="mt-32px" title="No wallet connected" description="Connect a wallet to see your recent transactions.">
           <ArrowLeftRight :size="32" />
@@ -580,12 +577,9 @@
     <!-- Asset Transfer Modal -->
     <UiModal :model-value="showAssetTransferModal" panel-class="asset-transfer-modal w-full max-w-500px" @update:model-value="closeAssetTransferModal">
       <template #header>
-        <div class="modal-title-wrapper flex-align-center gap-12px">
-          <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
-            <ArrowLeftRight :size="20" />
-          </div>
-          <h3 class="walletpage-modal-header-h3 m-0px text-20px txt-weight-light color-text-primary">IBC Transfer</h3>
-        </div>
+        <UiModalHeader title="IBC Transfer">
+          <template #icon><ArrowLeftRight :size="20" /></template>
+        </UiModalHeader>
       </template>
           <template v-if="assetTransferContext">
             <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px">
@@ -660,23 +654,11 @@
               </div>
             </div>
 
-            <div class="walletpage-tx-summary mt-24px mb-24px border-radius-12px p-0px border-1 bg-secondary overflow-hidden">
-              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 text-13px letter-spacing-005em py-12px px-16px">
-                <span>Transfer Summary</span>
-              </div>
-              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
-                <span>Route</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ selectedAssetTransferTarget?.routeLabel || 'Select destination' }}</span>
-              </div>
-              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
-                <span>Source chain</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ assetTransferContext.chainLabel }}</span>
-              </div>
-              <div class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-12px px-16px color-text-primary border-top-2-border-color bg-secondary">
-                <span>Destination chain</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ selectedAssetTransferTarget?.chainLabel || 'Unknown' }}</span>
-              </div>
-            </div>
+            <UiSummaryCard title="Transfer Summary">
+              <UiSummaryRow label="Route" :value="selectedAssetTransferTarget?.routeLabel || 'Select destination'" />
+              <UiSummaryRow label="Source chain" :value="assetTransferContext.chainLabel" />
+              <UiSummaryRow highlight label="Destination chain" :value="selectedAssetTransferTarget?.chainLabel || 'Unknown'" />
+            </UiSummaryCard>
 
             <UiButton variant="primary" @click="confirmAssetTransfer"
               :disabled="!canSubmitAssetTransfer || assetTransferSending" class="disabled-fade-50">
@@ -690,12 +672,9 @@
     <!-- Send Modal -->
     <UiModal :model-value="showSendModal" panel-class="send-modal w-full max-w-500px" @update:model-value="closeSendModal">
       <template #header>
-        <div class="modal-title-wrapper flex-align-center gap-12px">
-          <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
-            <Send :size="20" />
-          </div>
-          <h3 class="walletpage-modal-header-h3 m-0px text-20px txt-weight-light color-text-primary">{{ sendModalTitle }}</h3>
-        </div>
+        <UiModalHeader :title="sendModalTitle">
+          <template #icon><Send :size="20" /></template>
+        </UiModalHeader>
       </template>
             <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px">
               <span v-if="sendAssetContext">
@@ -827,35 +806,14 @@
               </div>
             </div>
 
-            <div class="walletpage-tx-summary mt-24px mb-24px border-radius-12px p-0px border-1 bg-secondary overflow-hidden">
-              <div class="walletpage-summary-header txt-weight-medium color-text-secondary text-uppercase bg-hover border-bottom-1 text-13px letter-spacing-005em py-12px px-16px">
-                <span>{{ isIbcSend ? 'Transfer Summary' : 'Transaction Summary' }}</span>
-              </div>
-              <div class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
-                <span>{{ isIbcSend ? 'Transfer amount' : 'Amount debited' }}</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.amount }} {{ sendAssetSymbol }}</span>
-              </div>
-              <div v-if="!isIbcSend" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
-                <span>Chain</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSourceChainLabel }}</span>
-              </div>
-              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
-                <span>Tax</span>
-                <span class="walletpage-summary-value txt-weight-light color-warning mono">{{ sendSummary.taxLabel }}</span>
-              </div>
-              <div v-if="showSendTaxBreakdown" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-12px px-16px color-text-primary border-top-2-border-color bg-secondary">
-                <span>Receiver net</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.receiver }} {{ sendAssetSymbol }}</span>
-              </div>
-              <div v-if="isIbcSend" class="walletpage-summary-row last-border-bottom-none flex-align-center-justify-space-between color-text-secondary text-15px border-bottom-1 py-12px px-16px">
-                <span>Route</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.routeLabel }}</span>
-              </div>
-              <div v-if="isIbcSend" class="walletpage-summary-row last-border-bottom-none txt-weight-medium flex-align-center-justify-space-between text-15px border-bottom-1 py-12px px-16px color-text-primary border-top-2-border-color bg-secondary">
-                <span>Destination chain</span>
-                <span class="walletpage-summary-value txt-weight-light color-text-primary mono">{{ sendSummary.destinationChain }}</span>
-              </div>
-            </div>
+            <UiSummaryCard :title="isIbcSend ? 'Transfer Summary' : 'Transaction Summary'">
+              <UiSummaryRow :label="isIbcSend ? 'Transfer amount' : 'Amount debited'" :value="`${sendSummary.amount} ${sendAssetSymbol}`" />
+              <UiSummaryRow v-if="!isIbcSend" label="Chain" :value="sendSourceChainLabel" />
+              <UiSummaryRow v-if="showSendTaxBreakdown" label="Tax" :value="sendSummary.taxLabel" value-class="color-warning" />
+              <UiSummaryRow v-if="showSendTaxBreakdown" highlight label="Receiver net" :value="`${sendSummary.receiver} ${sendAssetSymbol}`" />
+              <UiSummaryRow v-if="isIbcSend" label="Route" :value="sendSummary.routeLabel" />
+              <UiSummaryRow v-if="isIbcSend" highlight label="Destination chain" :value="sendSummary.destinationChain" />
+            </UiSummaryCard>
 
             <UiButton variant="primary" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction" class="disabled-fade-50">
               <Send :size="18" v-if="!sendingTransaction" />
@@ -867,12 +825,9 @@
     <!-- Receive Modal -->
     <UiModal :model-value="showReceiveModal" panel-class="receive-modal w-full max-w-500px" @update:model-value="closeReceiveModal">
       <template #header>
-        <div class="modal-title-wrapper flex-align-center gap-12px">
-          <div class="walletpage-modal-icon receive flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
-            <ArrowDownLeft :size="20" />
-          </div>
-          <h3 class="walletpage-modal-header-h3 m-0px text-20px txt-weight-light color-text-primary">Receive LMN</h3>
-        </div>
+        <UiModalHeader title="Receive LMN">
+          <template #icon><ArrowDownLeft :size="20" /></template>
+        </UiModalHeader>
       </template>
             <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px">
               <span>📱 Share your wallet address or QR code to receive LMN from another wallet.</span>
@@ -908,12 +863,9 @@
     <!-- Add/Edit Contact Modal -->
     <UiModal :model-value="showContactModal" panel-class="walletpage-contact-modal w-full max-w-500px" @update:model-value="closeContactModal">
       <template #header>
-        <div class="modal-title-wrapper flex-align-center gap-12px">
-          <div class="walletpage-modal-icon flex-align-justify-center size-40px border-radius-10px bg-gradient-primary color-white">
-            <Users :size="20" />
-          </div>
-          <h3 class="walletpage-modal-header-h3 m-0px text-20px txt-weight-light color-text-primary">{{ editingContact ? 'Edit Contact' : 'Add Contact' }}</h3>
-        </div>
+        <UiModalHeader :title="editingContact ? 'Edit Contact' : 'Add Contact'">
+          <template #icon><Users :size="20" /></template>
+        </UiModalHeader>
       </template>
             <div class="walletpage-form-group mb-20px">
               <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Name <span class="walletpage-required color-error">*</span></label>
@@ -991,6 +943,10 @@ import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiTag from '../../ui/UiTag.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import UiChartHeader from '../../ui/UiChartHeader.vue';
+import UiModalHeader from '../../ui/UiModalHeader.vue';
+import UiSummaryCard from '../../ui/UiSummaryCard.vue';
+import UiSummaryRow from '../../ui/UiSummaryRow.vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
