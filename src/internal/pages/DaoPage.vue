@@ -186,7 +186,7 @@
           </UiEmptyState>
           <div v-else class="members-list flex flex-column gap-8px">
             <UiCard class="hover-bg-hover flex-align-center gap-16px transition-all-02" padding="md" border-class="border-1" radius="12px" bg-class="bg-primary" :shadow="false" v-for="(member, index) in members" :key="member.address">
-              <div class="daopage-member-rank flex-align-justify-center color-text-secondary txt-weight-light h-24px bg-tertiary border-radius-6px text-12px min-w-24px">{{ index + 1 }}</div>
+              <div class="daopage-member-rank flex-align-justify-center color-text-secondary txt-weight-light h-24px bg-primary border-radius-6px text-12px min-w-24px">{{ index + 1 }}</div>
               <div class="daopage-member-avatar flex-align-justify-center color-white overflow-hidden border-radius-full size-40px txt-weight-light bg-gradient-primary min-w-40px" :class="{ 'bg-transparent': member.avatar }">
                 <img v-if="member.avatar" :src="member.avatar" :alt="member.moniker" class="w-full h-full object-fit-cover border-radius-full" />
                 <span v-else>{{ member.moniker.charAt(0).toUpperCase() }}</span>
@@ -218,7 +218,7 @@
 
             <div class="daopage-form-group mb-20px">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block text-13px mb-8px">Category</label>
-              <select class="daopage-form-select cursor-pointer w-full p-14px border-1 border-radius-10px text-14px color-text-primary transition-all-02 hover-border-color focus-outline-none focus-border-accent focus-ring focus-shadow bg-primary" v-model="proposalForm.category">
+              <select class="daopage-form-select cursor-pointer w-full p-14px border-1 border-radius-10px text-14px color-text-primary transition-all-02 hover-border-color focus-outline-none focus-border-primary focus-ring focus-shadow bg-primary" v-model="proposalForm.category">
                 <option value="governance">Governance</option>
                 <option value="treasury">Treasury</option>
                 <option value="technical">Technical</option>
@@ -229,7 +229,7 @@
 
             <div class="daopage-form-group mb-20px">
               <label class="txt-weight-light color-text-primary daopage-form-group-label block text-13px mb-8px">Voting Duration</label>
-              <select class="daopage-form-select cursor-pointer w-full p-14px border-1 border-radius-10px text-14px color-text-primary transition-all-02 hover-border-color focus-outline-none focus-border-accent focus-ring focus-shadow bg-primary" v-model="proposalForm.duration">
+              <select class="daopage-form-select cursor-pointer w-full p-14px border-1 border-radius-10px text-14px color-text-primary transition-all-02 hover-border-color focus-outline-none focus-border-primary focus-ring focus-shadow bg-primary" v-model="proposalForm.duration">
                 <option value="3">3 Days</option>
                 <option value="7">7 Days</option>
                 <option value="14">14 Days</option>
@@ -262,13 +262,13 @@
     <UiModal :model-value="showVoteModal" title="Cast Your Vote" panel-class="w-full max-w-520px" @update:model-value="closeVoteModal">
             <div class="daopage-proposal-title-card flex-align-center flex-justify-space-between mb-24px border-radius-12px p-24px bg-gradient-primary">
               <h4 class="m-0px txt-weight-light daopage-proposal-title-card-h4 text-18px color-white">{{ selectedProposal?.title || 'Proposal Title' }}</h4>
-              <span class="daopage-proposal-status active border-radius-20px fw-500 text-12px py-4px px-12px color-text-primary bg-tertiary border-1">Active</span>
+              <span class="daopage-proposal-status active border-radius-20px fw-500 text-12px py-4px px-12px color-text-primary bg-primary border-1">Active</span>
             </div>
 
             <div class="daopage-vote-options flex flex-column gap-12px mb-24px">
               <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'for' }">
                 <input type="radio" name="vote" value="for" v-model="voteChoice" class="hidden" />
-                <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'for' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+                <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteChoice === 'for' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
                   <div class="daopage-vote-icon flex-align-justify-center flex-0-0-auto bg-fill-success color-success size-40px border-radius-10px">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM8 15L3 10L4.41 8.59L8 12.17L15.59 4.58L17 6L8 15Z"/>
@@ -283,7 +283,7 @@
 
               <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'against' }">
                 <input type="radio" name="vote" value="against" v-model="voteChoice" class="hidden" />
-                <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'against' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+                <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteChoice === 'against' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
                   <div class="daopage-vote-icon against flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-against color-error bg-card">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM15 13.59L13.59 15L10 11.41L6.41 15L5 13.59L8.59 10L5 6.41L6.41 5L10 8.59L13.59 5L15 6.41L11.41 10L15 13.59Z"/>
@@ -298,7 +298,7 @@
 
               <label class="daopage-vote-option reveal-on-hover block cursor-pointer" :class="{ selected: voteChoice === 'abstain' }">
                 <input type="radio" name="vote" value="abstain" v-model="voteChoice" class="hidden" />
-                <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-accent bg-card': voteChoice === 'abstain' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+                <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteChoice === 'abstain' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
                   <div class="daopage-vote-icon abstain flex-align-justify-center flex-0-0-auto size-40px border-radius-10px daopage-vote-icon-abstain color-text-tertiary bg-card">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
                       <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2"/>

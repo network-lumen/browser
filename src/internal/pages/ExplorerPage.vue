@@ -139,22 +139,22 @@
                   <span class="explorer-filter-label text-12px color-text-tertiary mr-4px">Total: {{ formatNumber(txHistoryTotal) }}</span>
                   <button 
                     class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ 'bg-accent border-color-accent color-white': txHistoryWindow === 5 }"
+                    :class="{ 'bg-accent border-color-primary color-white': txHistoryWindow === 5 }"
                     @click="txHistoryWindow = 5"
                   >5B</button>
                   <button 
                     class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ 'bg-accent border-color-accent color-white': txHistoryWindow === 10 }"
+                    :class="{ 'bg-accent border-color-primary color-white': txHistoryWindow === 10 }"
                     @click="txHistoryWindow = 10"
                   >10B</button>
                   <button 
                     class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ 'bg-accent border-color-accent color-white': txHistoryWindow === 15 }"
+                    :class="{ 'bg-accent border-color-primary color-white': txHistoryWindow === 15 }"
                     @click="txHistoryWindow = 15"
                   >15B</button>
                   <button 
                     class="explorer-time-filter-btn color-text-secondary txt-weight-light cursor-pointer bg-transparent border-1 border-radius-6px text-13px transition-all-02 py-8px px-12px hover-bg-hover hover-border-accent hover-color-text-primary" 
-                    :class="{ 'bg-accent border-color-accent color-white': txHistoryWindow === 20 }"
+                    :class="{ 'bg-accent border-color-primary color-white': txHistoryWindow === 20 }"
                     @click="txHistoryWindow = 20"
                   >20B</button>
                 </div>
@@ -327,7 +327,7 @@
             </div>
             <div class="explorer-header-actions flex flex-inline-align-center gap-12px flex-wrap-wrap">
               <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-8px">
-                <select v-model="blockFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
+                <select v-model="blockFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
                   <option value="all">All Blocks</option>
                   <option value="recent">Recent (Last 100)</option>
                   <option value="with-txs">With Transactions</option>
@@ -337,7 +337,7 @@
                   v-model="blockHeightFilter"
                   type="number"
                   placeholder="Filter by height..."
-                  class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
+                  class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow min-w-150px placeholder-tertiary"
                 />
               </div>
               <span class="tone-green flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-success-a08 border-1-success-a30 py-4px px-6px" :class="{ active: autoRefresh }">
@@ -412,14 +412,14 @@
               <p class="explorer-transactions-subtitle color-text-tertiary m-0px text-14px">Latest transactions on the lumen-mainnet</p>
             </div>
             <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-8px">
-              <select v-model="txTypeFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
+              <select v-model="txTypeFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option value="all">All Types</option>
                 <option value="send">Send</option>
                 <option value="delegate">Delegate</option>
                 <option value="vote">Vote</option>
                 <option value="other">Other</option>
               </select>
-              <select v-model="txStatusFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-accent focus-ring focus-shadow">
+              <select v-model="txStatusFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
                 <option value="failed">Failed</option>
@@ -428,7 +428,7 @@
                 v-model="txHashFilter"
                 type="text"
                 placeholder="Filter by hash..."
-                class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow min-w-150px placeholder-tertiary"
+                class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow min-w-150px placeholder-tertiary"
               />
             </div>
           </div>
@@ -675,7 +675,7 @@
 
             <div v-if="currentStakeAction === 'Redelegate'" class="explorer-form-group flex flex-column gap-8px">
               <label class="explorer-form-group-label text-14px txt-weight-light color-text-primary">Select New Validator</label>
-              <select v-model="targetValidator" class="explorer-validator-select w-full color-text-primary cursor-pointer py-12px px-16px bg-secondary border-1 border-radius-8px text-14px transition-all-02 focus-outline-none focus-border-accent focus-ring focus-shadow">
+              <select v-model="targetValidator" class="explorer-validator-select w-full color-text-primary cursor-pointer py-12px px-16px bg-secondary border-1 border-radius-8px text-14px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option value="">Choose validator...</option>
                 <option v-for="val in validators.filter(v => v.address !== selectedValidator?.address)" :key="val.address" :value="val.address">
                   {{ val.moniker }}

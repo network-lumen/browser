@@ -35,7 +35,7 @@
       <section class="relpage-toolbar flex flex-wrap-wrap mb-16px flex-align-end gap-y-14px gap-x-16px" aria-label="Filters">
         <div class="relpage-filter flex flex-column gap-6px min-w-220px">
           <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Channel</label>
-          <select v-model="channelFilter" class="relpage-form-input w-full text-14px color-text-primary border-radius-12px border-1 bg-primary py-10px px-12px focus-outline-none focus-border-accent focus-ring focus-shadow" :disabled="loading">
+          <select v-model="channelFilter" class="relpage-form-input w-full text-14px color-text-primary border-radius-12px border-1 bg-primary py-10px px-12px focus-outline-none focus-border-primary focus-ring focus-shadow" :disabled="loading">
             <option value="all">All</option>
             <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
           </select>
@@ -184,7 +184,7 @@
           <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Action</span>
-              <select v-model="daoForm.kind" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-accent focus-ring focus-shadow">
+              <select v-model="daoForm.kind" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option value="validate">Validate release</option>
                 <option value="reject">Reject release</option>
               </select>
@@ -249,7 +249,7 @@
             </label>
             <label class="relpage-field flex flex-column gap-6px">
               <span class="relpage-label text-12px color-text-tertiary">Channel</span>
-              <select v-model="draft.channel" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-accent focus-ring focus-shadow">
+              <select v-model="draft.channel" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
               </select>
             </label>

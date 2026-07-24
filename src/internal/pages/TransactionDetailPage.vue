@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full min-h-0 overflow-y-auto bg-tertiary color-text-primary p-32px">
+  <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
     <div v-if="loading" class="chaindetail-loading flex flex-column flex-align-justify-center gap-16px min-h-300px">
       <div class="border-radius-full w-40px h-40px border-3-fill-secondary spinner-accent"></div>
       <p>Loading transaction data...</p>
