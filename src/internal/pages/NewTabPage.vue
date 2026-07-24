@@ -34,24 +34,18 @@
         </div>
       </template>
           <div class="newtab-shortcut-form flex flex-column gap-12px">
-            <label class="newtab-shortcut-field flex flex-column gap-6px">
-              <span class="newtab-shortcut-field-span color-text-secondary text-14px txt-weight-light">Name</span>
+            <UiFormField label="Name" label-class="color-text-secondary text-14px txt-weight-light">
               <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.title"
-               
-               
                 placeholder="Optional custom title"
                 maxlength="60"
-                @keydown.enter.prevent="submitShortcutModal" class="newtab-shortcut-field-input border-1-light focus-ring" />
-            </label>
+                @keydown.enter.prevent="submitShortcutModal" class="border-1-light focus-ring" />
+            </UiFormField>
 
-            <label class="newtab-shortcut-field flex flex-column gap-6px">
-              <span class="newtab-shortcut-field-span color-text-secondary text-14px txt-weight-light">URL or Lumen page</span>
+            <UiFormField label="URL or Lumen page" label-class="color-text-secondary text-14px txt-weight-light">
               <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.url"
-               
-               
                 placeholder="lumen://home or example.lmn"
-                @keydown.enter.prevent="submitShortcutModal" class="newtab-shortcut-field-input border-1-light focus-ring" />
-            </label>
+                @keydown.enter.prevent="submitShortcutModal" class="border-1-light focus-ring" />
+            </UiFormField>
 
             <UiCheckbox v-model="shortcutDraft.pinned">Mark this shortcut as favourite</UiCheckbox>
 
@@ -237,6 +231,7 @@ import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiMenuItem from '../../ui/UiMenuItem.vue';
+import UiFormField from '../../ui/UiFormField.vue';
 import { computed, inject, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import UiCheckbox from "../../ui/UiCheckbox.vue";
 import UiModal from "../../ui/UiModal.vue";
