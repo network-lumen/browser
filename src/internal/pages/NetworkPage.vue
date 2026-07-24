@@ -193,8 +193,8 @@
               <svg class="netpage-chart-container-svg w-full h-full" v-if="activeChart === 'tps'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="grad-tps" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:#059669;stop-opacity:0.3" />
-                    <stop offset="100%" style="stop-color:#059669;stop-opacity:0" />
+                    <stop offset="0%" stop-color="#059669" stop-opacity="0.3" />
+                    <stop offset="100%" stop-color="#059669" stop-opacity="0" />
                   </linearGradient>
                 </defs>
                 <path :d="tpsChartPath" fill="url(#grad-tps)" />
