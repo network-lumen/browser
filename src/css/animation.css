@@ -1,7 +1,7 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes shimmer{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 @keyframes pulse{
-  0% { box-shadow:0 0 0 0 var(--primary-a45) }
+  0% { box-shadow:0 0 0 0 var(--primary-a40) }
   70%{ box-shadow:0 0 0 8px var(--primary-a00) }
   100%{ box-shadow:0 0 0 0 var(--primary-a00) }
 }
