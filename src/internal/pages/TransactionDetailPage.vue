@@ -10,15 +10,7 @@
         <UiCardHeader title="Transaction Overview" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="chaindetail-card-body p-24px">
           <UiDetailRow label="Transaction Hash:">
-            <div class="chaindetail-hash-value flex-align-center gap-8px">
-              <code class="bg-secondary color-text-primary flex-1 chaindetail-hash-value-code py-8px px-12px border-1 border-radius-6px mono text-12px break-all">{{ transaction.hash }}</code>
-              <UiButton variant="icon" @click="copyToClipboard(transaction.hash)" title="Copy hash">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-              </UiButton>
-            </div>
+            <UiCopyField :value="transaction.hash" title="Copy hash" code-class="bg-secondary color-text-primary flex-1 py-8px px-12px border-1 border-radius-6px mono text-12px break-all" />
           </UiDetailRow>
           <UiDetailRow label="Status:">
             <span class="chaindetail-value color-text-primary text-14px break-all">
@@ -89,16 +81,15 @@
 </template>
 
 <script setup lang="ts">
-import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiDetailRow from '../../ui/UiDetailRow.vue';
 import UiLoadingState from '../../ui/UiLoadingState.vue';
+import UiCopyField from '../../ui/UiCopyField.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 
 const loading = ref(true);
 const error = ref('');
@@ -123,10 +114,6 @@ function navigateToBlock(height: number) {
   if (openInNewTab) {
     openInNewTab(`lumen://explorer/block/${height}`);
   }
-}
-
-async function copyToClipboard(text: string) {
-  await copyToClipboardShared(text);
 }
 
 function formatNumber(num: number | string): string {
