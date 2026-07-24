@@ -139,9 +139,9 @@
           <AlertCircle :size="32" />
         </UiEmptyState>
         <div v-else>
-          <div v-if="assetsError && assetRows.length" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-warning-a08">
+          <UiBanner v-if="assetsError && assetRows.length" variant="warning" class="mb-16px">
             <span>{{ assetsError }}</span>
-          </div>
+          </UiBanner>
           <div v-if="assetRows.length" class="walletpage-assets-list walletpage-rich-assets-list flex flex-column mt-16px gap-12px gap-16px">
             <div
               v-for="asset in assetRows"
@@ -210,9 +210,9 @@
 
       <!-- DEX View -->
       <div v-else-if="currentView === 'dex'" class="walletpage-content-section flex flex-column gap-24px w-full max-w-full">
-        <div v-if="dexError" class="walletpage-info-banner warning mb-16px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-warning-a08">
+        <UiBanner v-if="dexError" variant="warning" class="mb-16px">
           <span>{{ dexError }}</span>
-        </div>
+        </UiBanner>
 
         <div class="dex-list flex flex-column gap-16px">
           <div
@@ -353,12 +353,12 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="m-0px max-w-520px text-14px line-height-15">{{ activitiesError }}</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-500px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-warning-a08">
+            <UiBanner variant="warning" class="mt-16px max-w-500px">
               <span>
                 💡 If transaction indexing is disabled on the node, transactions cannot be queried via API.
                 Your balance is still accurate and transactions are recorded on-chain.
               </span>
-            </div>
+            </UiBanner>
           </template>
         </UiEmptyState>
 
@@ -366,7 +366,7 @@
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="m-0px max-w-520px text-14px line-height-15">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
-            <div class="walletpage-info-banner warning mt-16px max-w-600px border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px border-color-warning-a30 bg-warning-a08">
+            <UiBanner variant="warning" class="mt-16px max-w-600px">
               <div class="mb-12px">
                 <strong>💡 Why can't I see my transactions?</strong>
               </div>
@@ -389,7 +389,7 @@
                   View on Lumen Explorer →
                 </a>
               </div>
-            </div>
+            </UiBanner>
           </template>
         </UiEmptyState>
 
@@ -582,11 +582,11 @@
         </UiModalHeader>
       </template>
           <template v-if="assetTransferContext">
-            <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px">
+            <UiBanner class="mb-24px">
               <span>
                 Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.
               </span>
-            </div>
+            </UiBanner>
 
             <UiFormGroup label="Asset" dimmed>
               <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
@@ -652,7 +652,7 @@
           <template #icon><Send :size="20" /></template>
         </UiModalHeader>
       </template>
-            <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px">
+            <UiBanner class="mb-24px">
               <span v-if="sendAssetContext">
                 <template v-if="isIbcSend">
                   Move this asset from {{ sendSourceChainLabel }} to another linked chain over IBC.
@@ -664,7 +664,7 @@
               <span v-else>
                 💡 Your first transaction may take up to 60 seconds. <br>
                 After that, transactions are confirmed within ~6 seconds.</span>
-            </div>
+            </UiBanner>
 
             <UiFormGroup label="From" dimmed :hint="`Chain: ${sendSourceChainLabel}`">
               <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="sendSourceAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
@@ -785,9 +785,9 @@
           <template #icon><ArrowDownLeft :size="20" /></template>
         </UiModalHeader>
       </template>
-            <div class="walletpage-info-banner border-radius-10px mb-24px color-text-primary bg-secondary border-1 text-14px line-height-15 py-12px px-16px">
+            <UiBanner class="mb-24px">
               <span>📱 Share your wallet address or QR code to receive LMN from another wallet.</span>
-            </div>
+            </UiBanner>
 
             <div class="walletpage-qr-section flex-justify-center m-0px mt-24px mb-24px">
               <div class="walletpage-qr-wrapper p-20px bg-card border-2 border-radius-16px shadow-md">
@@ -895,6 +895,7 @@ import UiModalHeader from '../../ui/UiModalHeader.vue';
 import UiSummaryCard from '../../ui/UiSummaryCard.vue';
 import UiSummaryRow from '../../ui/UiSummaryRow.vue';
 import UiFormGroup from '../../ui/UiFormGroup.vue';
+import UiBanner from '../../ui/UiBanner.vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';

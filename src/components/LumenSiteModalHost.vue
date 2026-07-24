@@ -8,11 +8,11 @@
         <h3>Permission required</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-05-primary-a20">
+          <UiBanner variant="info">
             <span>
               Allow this website to open Lumen action modals?
             </span>
-          </div>
+          </UiBanner>
 
           <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
             <div class="sitemodal-perm-row flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px">
@@ -46,9 +46,9 @@
         <h3>Send LMN</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-05-primary-a20" v-if="siteLabel">
+          <UiBanner variant="info" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
-          </div>
+          </UiBanner>
 
           <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ sendError }}</div>
 
@@ -93,9 +93,9 @@
         <h3>Save to Drive</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-05-primary-a20" v-if="siteLabel">
+          <UiBanner variant="info" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
-          </div>
+          </UiBanner>
           <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ pinError }}</div>
 
           <div class="mb-12px">
@@ -173,9 +173,9 @@
         <h3>Choose or create a stable link for your live</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-05-primary-a20" v-if="siteLabel">
+          <UiBanner variant="info" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
-          </div>
+          </UiBanner>
           <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ stableLinkError }}</div>
 
           <div class="sitemodal-segmented-control border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
@@ -258,9 +258,9 @@
         <h3>Select a live link</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-05-primary-a20" v-if="siteLabel">
+          <UiBanner variant="info" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
-          </div>
+          </UiBanner>
           <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ stableLinkSetupError }}</div>
           <div class="mb-12px">
             <label>Live link</label>
@@ -293,6 +293,7 @@
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
+import UiBanner from '../ui/UiBanner.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
