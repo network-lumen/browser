@@ -82,29 +82,21 @@
         <div class="netpage-main-grid gap-24px p-32px flex flex-wrap-wrap align-items-start">
         <!-- Left Column: Overview Cards -->
         <div class="netpage-left-column flex flex-column gap-12px flex-1-1-320px">
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 hover-shadow-md">
-            <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Block Height</div>
-            <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ formatNumber(blockHeight) }}</div>
-            <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">Latest block on chain</div>
-          </UiCard>
+          <UiStatCard label="Block Height" detail="Latest block on chain">
+            {{ formatNumber(blockHeight) }}
+          </UiStatCard>
 
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 hover-shadow-md">
-            <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Validators</div>
-            <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ validators.active }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">/{{ validators.total }}</span></div>
-            <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">{{ validatorPercent.toFixed(1) }}% active</div>
-          </UiCard>
+          <UiStatCard label="Validators" :detail="`${validatorPercent.toFixed(1)}% active`">
+            {{ validators.active }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">/{{ validators.total }}</span>
+          </UiStatCard>
 
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 hover-shadow-md">
-            <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Block Time</div>
-            <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ blockTime.toFixed(2) }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">s</span></div>
-            <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">Avg: {{ avgBlockTime.toFixed(2) }}s</div>
-          </UiCard>
+          <UiStatCard label="Block Time" :detail="`Avg: ${avgBlockTime.toFixed(2)}s`">
+            {{ blockTime.toFixed(2) }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">s</span>
+          </UiStatCard>
 
-          <UiCard border-class="border-1" radius="14px" padding-class="py-20px px-24px" :shadow="false" hoverable hover-class="transition-all-02 hover-bg-primary hover-lift-2 hover-shadow-md">
-            <div class="netpage-card-label color-text-secondary mb-16px text-uppercase txt-weight-light text-12px letter-spacing-008em">Throughput</div>
-            <div class="netpage-card-value color-text-primary txt-weight-medium mb-12px line-height-1 text-36px">{{ tps.toFixed(1) }} <span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">tx/s</span></div>
-            <div class="netpage-card-detail color-text-secondary txt-weight-normal text-13px">Peak: {{ maxTps.toFixed(1) }} tx/s</div>
-          </UiCard>
+          <UiStatCard label="Throughput" :detail="`Peak: ${maxTps.toFixed(1)} tx/s`">
+            {{ tps.toFixed(1) }} <span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">tx/s</span>
+          </UiStatCard>
         </div>
 
       <!-- Middle Column: Health & Activity -->
@@ -113,45 +105,29 @@
         <section class="netpage-health-section bg-card border-1 border-radius-14px py-20px px-24px">
           <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Health</h2>
           <div class="netpage-health-grid gap-12px grid grid-cols-2">
-            <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
-              <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Chain Status</div>
-              <div class="netpage-health-indicator flex-align-center gap-16px">
-                <div class="h-6px flex-1 bg-primary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill--w100 h-full w-full border-radius-4px transition-width-03" :style="indicatorFillStyle('excellent')"></div>
-                </div>
-                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">Synced</span>
-              </div>
-            </div>
+            <UiMeterCard label="Chain Status" value="Synced">
+              <template #fill>
+                <div class="netpage-indicator-fill--w100 h-full w-full border-radius-4px transition-width-03" :style="indicatorFillStyle('excellent')"></div>
+              </template>
+            </UiMeterCard>
 
-            <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
-              <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Validator Participation</div>
-              <div class="netpage-health-indicator flex-align-center gap-16px">
-                <div class="h-6px flex-1 bg-primary border-radius-4px overflow-hidden">
-                  <div class="h-full border-radius-4px transition-width-03" :style="{ width: validatorPercent + '%', ...indicatorFillStyle(validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal') }"></div>
-                </div>
-                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">{{ validatorPercent.toFixed(0) }}%</span>
-              </div>
-            </div>
+            <UiMeterCard label="Validator Participation" :value="`${validatorPercent.toFixed(0)}%`">
+              <template #fill>
+                <div class="h-full border-radius-4px transition-width-03" :style="{ width: validatorPercent + '%', ...indicatorFillStyle(validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal') }"></div>
+              </template>
+            </UiMeterCard>
 
-            <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
-              <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Block Production</div>
-              <div class="netpage-health-indicator flex-align-center gap-16px">
-                <div class="h-6px flex-1 bg-primary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03 w-85pct" :style="indicatorFillStyle(blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
-                </div>
-                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">{{ blockTimeStatus }}</span>
-              </div>
-            </div>
+            <UiMeterCard label="Block Production" :value="blockTimeStatus">
+              <template #fill>
+                <div class="netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03 w-85pct" :style="indicatorFillStyle(blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
+              </template>
+            </UiMeterCard>
 
-            <div class="netpage-health-card p-16px bg-secondary border-radius-10px">
-              <div class="netpage-health-label color-text-secondary mb-16px fw-500 text-uppercase text-11px letter-spacing-005em">Peer Connections</div>
-              <div class="netpage-health-indicator flex-align-center gap-16px">
-                <div class="h-6px flex-1 bg-primary border-radius-4px overflow-hidden">
-                  <div class="netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 w-70pct" :style="indicatorFillStyle('good')"></div>
-                </div>
-                <span class="netpage-indicator-value color-text-primary txt-weight-light text-right text-15px min-w-70px">{{ peers }}</span>
-              </div>
-            </div>
+            <UiMeterCard label="Peer Connections" :value="String(peers)">
+              <template #fill>
+                <div class="netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 w-70pct" :style="indicatorFillStyle('good')"></div>
+              </template>
+            </UiMeterCard>
           </div>
         </section>
 
@@ -253,6 +229,8 @@
 import UiCard from '../../ui/UiCard.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import UiStatCard from '../../ui/UiStatCard.vue';
+import UiMeterCard from '../../ui/UiMeterCard.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch, inject } from 'vue';
 import { Network, SlidersHorizontal } from 'lucide-vue-next';
 import { useInternalLumen } from '../../composables/useInternalLumen';
