@@ -31,7 +31,7 @@
 
     <!-- Main Content -->
     <main class="homepage-main flex-1 flex flex-column m-0px min-w-0 overflow-y-auto py-20px px-24px bg-secondary border-radius-0">
-      <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-12px mb-16px py-12px px-16px bg-ios-yellow-a08 border-05-ios-yellow-a40">
+      <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-12px mb-16px py-12px px-16px bg-yellow-a08 border-05-yellow-a40">
         <div class="homepage-no-profile-title txt-weight-light text-13px">No profile found</div>
         <div class="homepage-no-profile-sub text-12px mt-4px opacity-85">Create one using the button in the top right.</div>
       </div>
@@ -592,15 +592,15 @@ function getCardDescription(key: string): string {
 
 const ACTION_ICON_STYLES: Record<string, { background: string; color: string }> = {
   drive: { background: "linear-gradient(135deg, var(--color-success) 0%, var(--color-secondary) 100%)", color: "#fff" },
-  wallet: { background: "linear-gradient(135deg, var(--color-warning) 0%, var(--ios-yellow) 100%)", color: "#fff" },
+  wallet: { background: "linear-gradient(135deg, var(--color-warning) 0%, var(--color-yellow) 100%)", color: "#fff" },
   explorer: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
   gateways: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
   search: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
-  network: { background: "linear-gradient(135deg, rgba(var(--ios-pink-rgb), 0.22) 0%, rgba(var(--ios-pink-rgb), 0.12) 100%)", color: "var(--ios-pink)" },
+  network: { background: "linear-gradient(135deg, rgba(var(--color-pink-rgb), 0.22) 0%, rgba(var(--color-pink-rgb), 0.12) 100%)", color: "var(--color-pink)" },
   domain: { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.22) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--color-primary)" },
   dao: { background: "linear-gradient(135deg, rgba(var(--color-warning-rgb), 0.22) 0%, rgba(var(--color-warning-rgb), 0.12) 100%)", color: "var(--color-warning)" },
   help: { background: "linear-gradient(135deg, rgba(var(--color-warning-rgb), 0.22) 0%, rgba(var(--color-warning-rgb), 0.12) 100%)", color: "var(--color-warning)" },
-  settings: { background: "linear-gradient(135deg, rgba(var(--ios-purple-rgb), 0.22) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%)", color: "var(--ios-purple)" },
+  settings: { background: "linear-gradient(135deg, rgba(var(--color-purple-rgb), 0.22) 0%, rgba(var(--color-purple-rgb), 0.12) 100%)", color: "var(--color-purple)" },
 };
 
 function actionIconStyle(key: string): Record<string, string> {

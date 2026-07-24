@@ -72,7 +72,7 @@
 
     <div class="newtab-backdrop absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
       <div class="h-448px-blur-36px top-n14rem-left-n10rem border-radius-full absolute opacity-55 bg-primary-a15 w-448px"></div>
-      <div class="h-448px-blur-36px top-2rem-right-n12rem border-radius-full absolute opacity-55 bg-ios-indigo-a15 w-448px"></div>
+      <div class="h-448px-blur-36px top-2rem-right-n12rem border-radius-full absolute opacity-55 bg-indigo-a15 w-448px"></div>
     </div>
 
     <div class="newtab-shell flex flex-column my-0px mx-auto gap-16px relative z-1 w-min-1040px-full">

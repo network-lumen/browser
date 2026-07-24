@@ -412,7 +412,7 @@ function paymentCardStyle(status: string): Record<string, string> {
 }
 
 function paymentStatusStyle(status: string): Record<string, string> {
-  if (status === "completed") return { background: "rgba(var(--ios-indigo-rgb), 0.15)", color: "var(--ios-indigo)" };
+  if (status === "completed") return { background: "rgba(var(--color-indigo-rgb), 0.15)", color: "var(--color-indigo)" };
   return {};
 }
 
