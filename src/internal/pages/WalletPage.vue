@@ -179,9 +179,9 @@
             <div
               v-for="asset in assetRows"
               :key="asset.id"
-              class="walletpage-asset-item walletpage-asset-item-rich flex-align-center-justify-space-between gap-16px border-radius-14px bg-card border-1 py-12px px-16px flex-align-stretch"
+              class="walletpage-asset-item walletpage-asset-item-rich flex-align-center-justify-space-between gap-16px border-radius-14px bg-card border-1 py-12px px-16px flex-align-stretch flex-wrap-wrap"
             >
-              <div class="walletpage-asset-main flex-align-start gap-12px flex-1 min-w-0">
+              <div class="walletpage-asset-main flex-align-start gap-12px flex-1 min-w-220px">
                 <div class="walletpage-asset-icon flex-align-justify-center size-40px border-radius-full txt-weight-light text-14px color-white overflow-hidden flex-shrink-0" :style="assetIconStyle(asset.iconClass)">
                   <img
                     v-if="asset.iconUrl"
@@ -204,7 +204,7 @@
                   <span v-if="asset.error" class="walletpage-asset-meta color-error text-12px overflow-hidden txt-overflow-ellipsis nowrap">{{ asset.error }}</span>
                 </div>
               </div>
-              <div class="walletpage-asset-side flex-align-end flex-column gap-12px flex-justify-space-between">
+              <div class="walletpage-asset-side flex-align-end flex-column gap-12px flex-justify-space-between flex-1">
                 <div class="walletpage-asset-balance walletpage-balance-column text-right fw-500 color-text-primary flex-align-end flex-column gap-2px text-14px">
                   <span class="asset-amount">{{ asset.displayAmount }}</span>
                   <span class="walletpage-asset-balance-symbol text-12px color-text-tertiary txt-weight-light">{{ asset.displaySymbol }}</span>
@@ -254,10 +254,10 @@
             class="walletpage-dex-item border-1 border-radius-16px bg-card overflow-hidden"
             :style="dexItemStyle(dex.status)"
           >
-            <div class="walletpage-dex-top flex-justify-space-between gap-16px py-16px px-20px flex-align-stretch">
+            <div class="walletpage-dex-top flex-justify-space-between gap-16px py-16px px-20px flex-align-stretch flex-wrap-wrap">
               <button
                 type="button"
-                class="color-inherit flex-align-start gap-12px flex-1 p-0px text-left cursor-pointer min-w-0 border-none bg-transparent"
+                class="color-inherit flex-align-start gap-12px flex-1 p-0px text-left cursor-pointer min-w-220px border-none bg-transparent"
                 @click="toggleDexExpanded(dex.key)"
               >
                 <div class="walletpage-dex-logo flex-align-justify-center color-primary txt-weight-medium border-radius-16px border-1 bg-secondary overflow-hidden flex-shrink-0 text-15px w-52px h-52px" :class="{ 'bg-slate-900 border-color-slate-900-a65': dex.logoTheme === 'dark' }">
@@ -284,7 +284,7 @@
                 </div>
               </button>
 
-              <div class="walletpage-dex-side flex-align-end flex-column flex-justify-space-between gap-12px">
+              <div class="walletpage-dex-side flex-align-end flex-column flex-justify-space-between gap-12px flex-1">
                 <div class="walletpage-dex-actions flex-align-center-justify-end flex-wrap-wrap gap-8px">
                   <UiButton variant="secondary" type="button"
                    
