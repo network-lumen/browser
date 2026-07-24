@@ -86,7 +86,7 @@
               <header class="gwpage-manage-card-head flex-align-center-justify-space-between">
                 <div class="gwpage-manage-card-title flex-align-center gap-10px min-w-0">
                   <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ 'bg-success': gw.active }"></div>
-                  <span class="gwpage-manage-card-name color-text-primary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px" :title="gw.endpoint || `Gateway #${gw.id}`">
+                  <span class="gwpage-manage-card-name color-text-primary truncate max-w-520px" :title="gw.endpoint || `Gateway #${gw.id}`">
                     {{ gw.endpoint || `Gateway #${gw.id}` }}
                   </span>
                   <span class="gwpage-manage-card-id mono color-text-tertiary text-12px">#{{ gw.id }}</span>

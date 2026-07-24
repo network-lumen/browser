@@ -194,7 +194,7 @@
                     <span class="netpage-height-value color-text-primary txt-weight-medium text-15px mono">#{{ formatNumber(block.height) }}</span>
                   </div>
                   <div class="block-validator flex-align-center gap-8px">
-                    <span class="netpage-validator-name-compact color-text-secondary text-12px nowrap overflow-hidden txt-overflow-ellipsis line-height-12">{{ block.validator }}</span>
+                    <span class="netpage-validator-name-compact color-text-secondary text-12px truncate line-height-12">{{ block.validator }}</span>
                   </div>
                 </div>
               </div>

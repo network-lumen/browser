@@ -307,7 +307,7 @@
                 <Globe :size="14" class="flex-0-0-auto" />
                 {{ r.site.domain }}
               </div>
-              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url reveal-target mono mt-8px color-primary fw-500 text-13px overflow-hidden txt-overflow-ellipsis nowrap opacity-85 transition-opacity-02">{{ r.url }}</div>
+              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url reveal-target mono mt-8px color-primary fw-500 text-13px truncate opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
                 class="line-clamp-2 searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-14 mono pre-wrap m-0px py-8px px-10px bg-primary-a05 border-1-primary-a10"

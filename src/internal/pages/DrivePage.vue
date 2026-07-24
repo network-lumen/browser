@@ -16,7 +16,7 @@
               class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-error shadow-0-0-0-error-a0"
               :class="ipfsConnected ? 'status-dot-ok' : 'status-dot-off'"
             ></span>
-            <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap">Local</span>
+            <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary truncate">Local</span>
           </UiButton>
           <UiButton variant="icon" icon-radius-class="border-radius-10px"
             @click.stop="openLocalDetails"
@@ -48,12 +48,12 @@
           <UiButton variant="none" type="button"
               @click="selectGateway(sub.gatewayId)" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
               <span class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-error shadow-0-0-0-error-a0" :class="sub.statusDot"></span>
-              <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary overflow-hidden txt-overflow-ellipsis nowrap" :title="sub.hoverTitle">{{
+              <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary truncate" :title="sub.hoverTitle">{{
                 sub.label
               }}</span>
               <span
                 v-if="sub.regionLabel"
-                class="grid-col-3 grid-row-1 justify-self-end txt-weight-medium color-text-tertiary text-12px nowrap overflow-hidden txt-overflow-ellipsis align-self-center max-w-1275px"
+                class="grid-col-3 grid-row-1 justify-self-end txt-weight-medium color-text-tertiary text-12px truncate align-self-center max-w-1275px"
                 :title="sub.regionTitle"
               >
                 {{ sub.regionLabel }}
@@ -320,7 +320,7 @@
             :style="hlsQueueItemStyle(item.status)"
           >
             <div class="flex flex-column gap-2px min-w-0">
-              <span class="txt-weight-light color-text-primary text-13px overflow-hidden txt-overflow-ellipsis nowrap">{{ item.file.name }}</span>
+              <span class="txt-weight-light color-text-primary text-13px truncate">{{ item.file.name }}</span>
               <span v-if="item.error && item.status === 'failed'" class="color-error text-12px">
                 {{ compactError(item.error) }}
               </span>
@@ -380,7 +380,7 @@
           <div class="drivepage-list-icon-header size-32px flex-shrink-0"></div>
           <span class="drivepage-list-name-header flex-1 min-w-0">Name</span>
           <span class="drivepage-list-size-header w-80px text-right min-w-80px">Size</span>
-          <span class="drivepage-list-date-header text-right nowrap overflow-hidden txt-overflow-ellipsis min-w-180px w-180px">Date Added</span>
+          <span class="drivepage-list-date-header text-right truncate min-w-180px w-180px">Date Added</span>
           <div class="drivepage-list-actions-header min-w-160px w-160px"></div>
         </div>
         <!-- List Items -->
@@ -432,9 +432,9 @@
               stroke-width="1.5"
             />
           </div>
-          <span class="drivepage-list-name flex-1 text-14px fw-500 color-text-primary min-w-0 overflow-hidden txt-overflow-ellipsis nowrap">{{ file.name }}</span>
+          <span class="drivepage-list-name flex-1 text-14px fw-500 color-text-primary min-w-0 truncate">{{ file.name }}</span>
           <span class="drivepage-list-size color-text-secondary w-80px text-right text-13px flex-shrink-0 min-w-80px">{{ formatSize(file.size) }}</span>
-          <span class="drivepage-list-date color-text-secondary text-right text-13px flex-shrink-0 nowrap overflow-hidden txt-overflow-ellipsis min-w-180px w-180px">{{
+          <span class="drivepage-list-date color-text-secondary text-right text-13px flex-shrink-0 truncate min-w-180px w-180px">{{
             file.uploadedAt ? formatDate(file.uploadedAt) : "—"
           }}</span>
           <div class="drivepage-list-actions reveal-actions-target divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-02 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
@@ -1174,7 +1174,7 @@
                         :class="group.gateway.active ? '' : 'bg-error'"
                       ></span>
                       <span
-                        class="drivepage-gateway-name txt-weight-light color-text-primary text-14px nowrap overflow-hidden txt-overflow-ellipsis max-w-260px"
+                        class="drivepage-gateway-name txt-weight-light color-text-primary text-14px truncate max-w-260px"
                         :title="planGatewayLabel(group.gateway)"
                       >
                         {{ planGatewayLabel(group.gateway) }}
@@ -1187,7 +1187,7 @@
                         :title="formatRegionsTitle(group.gateway.regions)"
                       >
                         <MapPin :size="14" class="drivepage-gateway-region-ico flex-0-0-auto opacity-70" />
-                        <span class="drivepage-gateway-region-text nowrap overflow-hidden txt-overflow-ellipsis">{{
+                        <span class="drivepage-gateway-region-text truncate">{{
                           formatRegionsLabel(group.gateway.regions)
                         }}</span>
                       </span>

@@ -105,7 +105,7 @@
                 <Folder v-if="it.type === 'dir'" :size="16" class="ipfspage-ico color-text-secondary" />
                 <BookOpen v-else-if="isEpubName(it.name)" :size="16" class="ipfspage-ico color-text-secondary" />
                 <File v-else :size="16" class="ipfspage-ico color-text-secondary" />
-                <span class="txt-overflow-ellipsis nowrap overflow-hidden">{{
+                <span class="truncate">{{
                   it.name
                 }}</span>
               </div>

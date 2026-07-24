@@ -1,7 +1,7 @@
 <template>
   <span class="flex flex-column min-w-0" :class="[gapClass, wrapperClass]">
-    <span class="nowrap overflow-hidden txt-overflow-ellipsis" :class="titleClass">{{ title }}</span>
-    <span class="nowrap overflow-hidden txt-overflow-ellipsis" :class="subtitleClass">{{ subtitle }}</span>
+    <span class="truncate" :class="titleClass">{{ title }}</span>
+    <span class="truncate" :class="subtitleClass">{{ subtitle }}</span>
   </span>
 </template>
 

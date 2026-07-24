@@ -13,7 +13,7 @@
         @click="openRoute(r.key)"
       >
         <component :is="iconFor(r.key)" :size="16" />
-        <span class="overflow-hidden txt-overflow-ellipsis nowrap">{{ r.title }}</span>
+        <span class="truncate">{{ r.title }}</span>
       </UiSidebarNavItem>
     </div>
   </div>
