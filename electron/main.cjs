@@ -596,6 +596,10 @@ function isDevtoolsToggle(input) {
   return f12 || ctrlAltI || ctrlShiftI;
 }
 
+function isF12Toggle(input) {
+  return String(input && input.key ? input.key : '').toUpperCase() === 'F12';
+}
+
 function isChromeExtensionUrl(rawUrl) {
   return /^chrome-extension:\/\//i.test(safeString(rawUrl, 4096));
 }
@@ -731,6 +735,26 @@ ipcMain.handle('ipfs:status', async () => {
 
 ipcMain.handle('devtools:openActive', async (evt) => {
   return openDevToolsForSourceContents(evt?.sender, { toggle: false });
+});
+
+// Personal-site <webview> pages (lumen://mysite.lmn) self-register their webContents id here so
+// F12 can toggle devtools for them even in packaged builds, without opening devtools access up to
+// every webview (extensions, plain IPFS/http content) in production - see the F12-only guard below.
+const siteDevtoolsTargetIds = new Set();
+
+function toWebContentsIdNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+ipcMain.on('devtools:registerSiteTarget', (_evt, targetWebContentsId) => {
+  const id = toWebContentsIdNumber(targetWebContentsId);
+  if (id != null) siteDevtoolsTargetIds.add(id);
+});
+
+ipcMain.on('devtools:unregisterSiteTarget', (_evt, targetWebContentsId) => {
+  const id = toWebContentsIdNumber(targetWebContentsId);
+  if (id != null) siteDevtoolsTargetIds.delete(id);
 });
 
 function sanitizeDialogOptions(input = {}) {
@@ -2051,16 +2075,23 @@ app.whenReady().then(async () => {
 
   const allowDevtools = !app.isPackaged || String(process.env.DEBUG_LUMEN_ELECTRON || '') === '1';
 
-  if (allowDevtools) {
-    app.on('web-contents-created', (_event, contents) => {
-      contents.on('before-input-event', (event, input) => {
-        if (isDevtoolsToggle(input)) {
-          event.preventDefault();
-          openDevToolsForSourceContents(contents, { toggle: true });
-        }
-      });
+  // Always attached (even in packaged builds): lets registered personal-site pages
+  // (lumen://mysite.lmn, see devtools:registerSiteTarget) use F12 like Chrome's own
+  // devtools shortcut, without exposing devtools on arbitrary web/extension content in prod.
+  app.on('web-contents-created', (_event, contents) => {
+    contents.once('destroyed', () => siteDevtoolsTargetIds.delete(contents.id));
+    contents.on('before-input-event', (event, input) => {
+      if (allowDevtools && isDevtoolsToggle(input)) {
+        event.preventDefault();
+        openDevToolsForSourceContents(contents, { toggle: true });
+        return;
+      }
+      if (!allowDevtools && isF12Toggle(input) && siteDevtoolsTargetIds.has(contents.id)) {
+        event.preventDefault();
+        openDevToolsForSourceContents(contents, { toggle: true });
+      }
     });
-  }
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
