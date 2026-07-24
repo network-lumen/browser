@@ -232,22 +232,16 @@
               {{ saveModalError }}
             </div>
 
-            <div v-if="savePinJobId" class="ipfspage-pin-progress-card border-radius-12px mt-16px py-12px px-16px bg-primary-a10 border-1-primary-a15">
-              <div class="ipfspage-pin-progress-head flex-align-center-justify-space-between gap-12px mb-8px">
-                <span class="ipfspage-pin-progress-status txt-weight-medium color-primary text-uppercase text-12px letter-spacing-004em">{{ savePinStatusLabel }}</span>
-                <span v-if="savePinProgressCounter" class="ipfspage-pin-progress-counter color-text-secondary text-12px">{{ savePinProgressCounter }}</span>
-              </div>
-              <div class="ipfspage-pin-progress-track w-full border-radius-full relative overflow-hidden bg-fill-secondary h-8px">
-                <div
-                  class="ipfspage-pin-progress-fill h-full bg-gradient-primary border-radius-inherit transition-width-02"
-                  :class="{ 'progress-fill-indeterminate': savePinProgressPercent == null && savePinIsRunning }"
-                  :style="{ width: savePinProgressPercent == null ? '100%' : `${Math.max(0, Math.min(100, savePinProgressPercent))}%` }"
-                ></div>
-              </div>
-              <div class="ipfspage-pin-progress-text color-text-secondary mt-8px text-13px break-word">
-                {{ savePinProgressText || (savePinIsRunning ? "Saving content from the network…" : "Waiting for action.") }}
-              </div>
-            </div>
+            <UiPinProgressCard
+              v-if="savePinJobId"
+              :status="savePinStatusLabel"
+              :counter="savePinProgressCounter"
+              :percent="savePinProgressPercent"
+              :indeterminate="savePinProgressPercent == null && savePinIsRunning"
+              :text="savePinProgressText || (savePinIsRunning ? 'Saving content from the network…' : 'Waiting for action.')"
+              card-class="border-radius-12px mt-16px py-12px px-16px border-1-primary-a15"
+              text-class="text-13px"
+            />
           </div>
 
           <template #footer>
@@ -279,6 +273,7 @@ import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
+import UiPinProgressCard from '../../ui/UiPinProgressCard.vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
  import {
