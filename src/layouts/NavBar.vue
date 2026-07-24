@@ -240,16 +240,15 @@
           
           <!-- Password required for decryption notice -->
           <div v-if="exportRequiresPassword" class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-            <div class="navbar-export-field flex flex-column gap-4px">
-              <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Wallet Password</label>
-              <input 
-                type="password" 
-                v-model="exportPassword" 
+            <UiFormGroup label="Wallet Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <input
+                type="password"
+                v-model="exportPassword"
                 placeholder="Enter your wallet password"
                 class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                 @keyup.enter="confirmExportProfile"
               />
-            </div>
+            </UiFormGroup>
             
             <div class="hover-bg-hover mt-12px border-radius-10px py-8px px-10px transition-bg-fast">
               <UiCheckbox v-model="exportEncrypted">Also encrypt the backup file with this password</UiCheckbox>
@@ -263,25 +262,23 @@
             </div>
             
             <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-              <div class="navbar-export-field flex flex-column gap-4px">
-                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Password</label>
-                <input 
-                  type="password" 
-                  v-model="exportPassword" 
+              <UiFormGroup label="Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+                <input
+                  type="password"
+                  v-model="exportPassword"
                   placeholder="Enter password (min 6 characters)"
                   class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                 />
-              </div>
-              <div class="navbar-export-field flex flex-column gap-4px">
-                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Confirm Password</label>
-                <input 
-                  type="password" 
-                  v-model="exportPasswordConfirm" 
+              </UiFormGroup>
+              <UiFormGroup label="Confirm Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+                <input
+                  type="password"
+                  v-model="exportPasswordConfirm"
                   placeholder="Confirm password"
                   class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                   @keyup.enter="confirmExportProfile"
                 />
-              </div>
+              </UiFormGroup>
             </div>
           </template>
           
@@ -363,45 +360,41 @@
             </div>
 
             <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-              <div class="navbar-export-field flex flex-column gap-4px">
-                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Profile Name</label>
+              <UiFormGroup label="Profile Name" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <input
                   v-model="manualImportName"
                   type="text"
                   class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                   placeholder="Enter profile name"
                 />
-              </div>
+              </UiFormGroup>
 
-              <div class="navbar-export-field flex flex-column gap-4px">
-                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Mnemonic</label>
+              <UiFormGroup label="Mnemonic" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <textarea
                   v-model="manualImportMnemonic"
                   class="navbar-export-input navbar-import-textarea border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
                   rows="4"
                   placeholder="Enter wallet mnemonic"
                 ></textarea>
-              </div>
+              </UiFormGroup>
 
-              <div class="navbar-export-field flex flex-column gap-4px">
-                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">PQC Public Key</label>
+              <UiFormGroup label="PQC Public Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <textarea
                   v-model="manualImportPqcPublicKey"
                   class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
-              </div>
+              </UiFormGroup>
 
-              <div class="navbar-export-field flex flex-column gap-4px">
-                <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">PQC Private Key</label>
+              <UiFormGroup label="PQC Private Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <textarea
                   v-model="manualImportPqcPrivateKey"
                   class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
-              </div>
+              </UiFormGroup>
             </div>
 
             <p class="navbar-import-manual-hint m-0px text-12px color-text-tertiary line-height-15">
@@ -440,16 +433,15 @@
           </p>
           
           <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-            <div class="navbar-export-field flex flex-column gap-4px">
-              <label class="text-11px txt-weight-light color-text-tertiary text-uppercase navbar-export-field-label letter-spacing-003em">Backup Password</label>
-              <input 
-                type="password" 
-                v-model="importPassword" 
+            <UiFormGroup label="Backup Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <input
+                type="password"
+                v-model="importPassword"
                 placeholder="Enter backup password"
                 class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                 @keyup.enter="confirmImportEncrypted"
               />
-            </div>
+            </UiFormGroup>
           </div>
           
           <div v-if="importError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
@@ -503,6 +495,7 @@
 import UiInput from '../ui/UiInput.vue';
 import UiCard from '../ui/UiCard.vue';
 import UiModal from '../ui/UiModal.vue';
+import UiFormGroup from '../ui/UiFormGroup.vue';
 import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star, ChevronDown, Puzzle, ExternalLink } from 'lucide-vue-next';
 import ActiveProfileCard from '../components/ActiveProfileCard.vue';
