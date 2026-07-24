@@ -8,12 +8,9 @@
     </header>
 
     <main class="startup-body h-auto flex flex-1-1-auto min-h-0">
-      <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center flex-align-center flex-column text-center gap-12px py-28px px-24px mt-auto mx-auto mb-32px">
-        <UiLoadingSpinner aria-label="Loading" />
-      </div>
-
-      <div v-else-if="phase === 'error'" class="startup-center flex-align-center flex-column text-center gap-12px py-28px px-24px mt-auto mx-auto mb-32px">
-        <div>
+      <div v-if="phase === 'starting' || phase === 'retrying' || phase === 'error'" class="startup-center flex-align-center flex-column text-center gap-12px py-28px px-24px mt-auto mx-auto mb-32px">
+        <UiLoadingSpinner v-if="phase !== 'error'" aria-label="Loading" />
+        <div v-else>
           <div class="startup-msg-subtitle color-text-secondary text-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
@@ -25,8 +22,7 @@
     </main>
 
     <footer class="startup-foot flex-justify-center border-top-default py-12px px-16px">
-      <span v-if="phase !== 'error'" class="startup-hint color-text-tertiary text-12px">This usually takes a few seconds.</span>
-      <span v-else class="startup-hint color-text-tertiary text-12px">If it keeps failing, restart Lumen.</span>
+      <span class="startup-hint color-text-tertiary text-12px">{{ phase !== 'error' ? 'This usually takes a few seconds.' : 'If it keeps failing, restart Lumen.' }}</span>
     </footer>
   </UiCard>
 </template>
