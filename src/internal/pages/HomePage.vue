@@ -597,7 +597,7 @@ const ACTION_ICON_STYLES: Record<string, { background: string; color: string }> 
   gateways: { background: "linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%)", color: "var(--ios-green)" },
   search: { background: "linear-gradient(135deg, rgba(var(--ios-green-rgb), 0.22) 0%, rgba(var(--ios-green-rgb), 0.12) 100%)", color: "var(--ios-green)" },
   network: { background: "linear-gradient(135deg, rgba(var(--ios-pink-rgb), 0.22) 0%, rgba(var(--ios-pink-rgb), 0.12) 100%)", color: "var(--ios-pink)" },
-  domain: { background: "linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.22) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%)", color: "var(--ios-blue)" },
+  domain: { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.22) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--color-primary)" },
   dao: { background: "linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%)", color: "var(--ios-orange)" },
   help: { background: "linear-gradient(135deg, rgba(var(--ios-orange-rgb), 0.22) 0%, rgba(var(--ios-orange-rgb), 0.12) 100%)", color: "var(--ios-orange)" },
   settings: { background: "linear-gradient(135deg, rgba(var(--ios-purple-rgb), 0.22) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%)", color: "var(--ios-purple)" },

@@ -2,13 +2,13 @@
   <UiModal :model-value="!!(current && modalType === 'permission')" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="denyPermission">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
           <Shield :size="18" />
         </div>
         <h3>Permission required</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a25">
             <span>
               Allow this website to open Lumen action modals?
             </span>
@@ -40,13 +40,13 @@
   <UiModal :model-value="!!(current && modalType === 'sendToken')" panel-class="sitemodal-send w-min-520px-92vw max-h-100vh-32px" :closable="!sending" @update:model-value="closeSend(false)">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
           <Send :size="18" />
         </div>
         <h3>Send LMN</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
 
@@ -103,13 +103,13 @@
   <UiModal :model-value="!!(current && modalType === 'pin')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!pinning" @update:model-value="closePin(false)">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
           <Save :size="18" />
         </div>
         <h3>Save to Drive</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
           <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ pinError }}</div>
@@ -135,9 +135,9 @@
             </div>
           </div>
 
-          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px mt-12px py-10px px-12px bg-ios-blue-a08 border-width-ios-blue-a18">
+          <div v-if="pinJobId" class="sitemodal-pin-progress-card border-radius-10px mt-12px py-10px px-12px bg-primary-a08 border-width-primary-a18">
             <div class="sitemodal-pin-progress-head flex-align-center flex-justify-space-between gap-12px mb-8px">
-              <span class="sitemodal-pin-progress-status text-12px text-uppercase txt-weight-medium color-ios-blue letter-spacing-004em">{{ pinStatusLabel }}</span>
+              <span class="sitemodal-pin-progress-status text-12px text-uppercase txt-weight-medium color-primary letter-spacing-004em">{{ pinStatusLabel }}</span>
               <span v-if="pinProgressCounter" class="sitemodal-pin-progress-counter text-12px color-text-secondary">{{ pinProgressCounter }}</span>
             </div>
             <div class="sitemodal-pin-progress-track relative overflow-hidden border-radius-full w-full h-8px">
@@ -183,13 +183,13 @@
   <UiModal :model-value="!!(current && modalType === 'stableLink')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSaving" @update:model-value="closeStableLink(false)">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
           <Link :size="18" />
         </div>
         <h3>Choose or create a stable link for your live</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
           <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ stableLinkError }}</div>
@@ -268,13 +268,13 @@
   <UiModal :model-value="!!(current && modalType === 'stableLinkSetup')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSetupLoading" @update:model-value="closeStableLinkSetup(false)">
     <template #header>
       <div class="sitemodal-title-wrapper flex-align-center gap-10px">
-        <div class="flex-align-justify-center border-radius-10px color-ios-blue w-34px h-34px bg-fill-blue">
+        <div class="flex-align-justify-center border-radius-10px color-primary w-34px h-34px bg-fill-blue">
           <Link :size="18" />
         </div>
         <h3>Select a live link</h3>
       </div>
     </template>
-          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-ios-blue-a25" v-if="siteLabel">
+          <div class="sitemodal-info-banner border-radius-10px text-13px color-text-primary mb-12px bg-fill-blue py-10px px-12px border-width-primary-a25" v-if="siteLabel">
             <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
           </div>
           <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-width-ios-red-a25">{{ stableLinkSetupError }}</div>

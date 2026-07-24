@@ -112,7 +112,7 @@
       <!-- Appearance View -->
       <div v-if="currentView === 'appearance'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Theme Preference</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Choose your preferred color scheme</span>
@@ -146,7 +146,7 @@
               </div>
             </div>
           </UiCard>
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Font Size</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Adjust the default font size</span>
@@ -159,7 +159,7 @@
               </select>
             </div>
           </UiCard>
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Brightness</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Adjust screen brightness ({{ brightness }}%)</span>
@@ -182,7 +182,7 @@
       <!-- Content View -->
       <div v-else-if="currentView === 'content'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Show sexual content</span>
             </div>
@@ -191,7 +191,7 @@
             </div>
           </UiCard>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Show violent / gore content</span>
             </div>
@@ -200,7 +200,7 @@
             </div>
           </UiCard>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Show disturbing imagery</span>
             </div>
@@ -218,7 +218,7 @@
       <!-- Privacy View -->
       <div v-else-if="currentView === 'privacy'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Save browsing history</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -232,7 +232,7 @@
             </div>
           </UiCard>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Saved items</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -247,7 +247,7 @@
             </div>
           </UiCard>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Clear saved history</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -270,7 +270,7 @@
       <!-- Network View -->
       <div v-else-if="currentView === 'network'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Kubo connectivity</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -330,7 +330,7 @@
       <div v-else-if="currentView === 'security'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <!-- Status Display -->
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Password Protection</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -350,7 +350,7 @@
           </UiCard>
 
           <!-- Session Status (only shown when password is enabled) -->
-          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Session Status</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">{{ securitySessionStatusText }}</span>
@@ -369,7 +369,7 @@
             </div>
           </UiCard>
 
-          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Password Cache Duration</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -395,7 +395,7 @@
           </UiCard>
 
           <!-- Set Password (when no password is set) -->
-          <UiCard padding="none" :shadow="false" v-if="!securityStatus.enabled" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="!securityStatus.enabled" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Set Password</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -437,7 +437,7 @@
           </div>
 
           <!-- Change/Remove Password (when password is set) -->
-          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Change Password</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -493,7 +493,7 @@
           </div>
 
           <!-- Remove Password -->
-          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="transition-all-fast mt-24px flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="securityStatus.enabled" class="transition-all-fast mt-24px flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Remove Password</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -545,7 +545,7 @@
       <!-- Profiles View -->
       <div v-else-if="currentView === 'profiles'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Profiles</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Select one or more profiles to export.</span>
@@ -569,7 +569,7 @@
               v-for="p in profiles"
               :key="p.id"
               class="hover-bg-hover transition-bg-fast flex-align-center gap-12px border-radius-12px cursor-pointer py-12px px-16px cursor-select-none"
-              :class="{ 'bg-ios-blue-a15': p.id === activeProfileId }"
+              :class="{ 'bg-primary-a15': p.id === activeProfileId }"
             >
               <input
                 class="settingspage-profile-checkbox w-16px h-16px"
@@ -581,7 +581,7 @@
               <div class="settingspage-profile-row-main flex flex-column gap-4px min-w-0">
                 <div class="settingspage-profile-row-title flex-align-center gap-8px min-w-0">
                   <span class="settingspage-profile-title txt-weight-light color-text-primary text-14px overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.name || p.id }}</span>
-                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary text-11px py-0px px-8px bg-ios-blue-a15 border-1-ios-blue-a25">Active</span>
+                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary text-11px py-0px px-8px bg-primary-a15 border-1-primary-a25">Active</span>
                 </div>
                 <span class="settingspage-profile-id text-12px color-text-tertiary overflow-hidden txt-overflow-ellipsis nowrap max-w-520px">{{ p.id }}</span>
               </div>
@@ -589,7 +589,7 @@
           </UiCard>
           <p v-else class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">No profiles found.</p>
 
-          <UiCard padding="none" :shadow="false" v-if="profiles.length" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="profiles.length" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Display name</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Rename a profile without changing its internal profile ID.</span>
@@ -631,7 +631,7 @@
             {{ profileRenameError }}
           </p>
 
-          <UiCard padding="none" :shadow="false" v-if="profiles.length" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" v-if="profiles.length" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Profile photo</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Override the generated profile thumbnail with a local image.</span>
@@ -675,7 +675,7 @@
             Lumen crops the selected image to a square thumbnail and stores it with the profile.
           </p>
 
-           <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+           <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
              <div class="setting-info flex flex-column gap-4px">
                <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Backups</span>
                <span class="settingspage-setting-desc color-text-secondary text-13px">Export full backup folders (profiles + PQC keys).</span>
@@ -712,7 +712,7 @@
             <span>Network</span>
           </div>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Local IPFS Gateway</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Used for loading IPFS content in the UI</span>
@@ -731,7 +731,7 @@
             <span>IPFS</span>
           </div>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">IPFS API Endpoint</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Used by the Electron backend (Kubo API)</span>
@@ -745,7 +745,7 @@
             </div>
           </UiCard>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Max upload size (local drive)</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -794,7 +794,7 @@
             <span>Lumen data folder</span>
           </div>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Custom data folder target</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">
@@ -878,7 +878,7 @@
             Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.
           </p>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Copy Debug Report</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.</span>
@@ -893,7 +893,7 @@
             </div>
           </UiCard>
 
-          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Open Logs Folder</span>
               <span class="settingspage-setting-desc color-text-secondary text-13px">Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.</span>
@@ -924,7 +924,7 @@
       <div v-else-if="currentView === 'privatecloud'" class="settingspage-settings-section flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <!-- Main Enable Toggle -->
-          <UiCard padding="none" :shadow="false" :class="{ 'border-color-ios-green bg-gradient-ios-green-soft': privateCloudEnabled }" class="transition-all-fast border-width-2px flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+          <UiCard padding="none" :shadow="false" :class="{ 'border-color-ios-green bg-gradient-ios-green-soft': privateCloudEnabled }" class="transition-all-fast border-width-2px flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
             <div class="setting-info flex flex-column gap-4px">
               <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle mr-8px">
@@ -945,7 +945,7 @@
             <div class="settingspage-settings-subsection mt-16px">
               <h3 class="settingspage-subsection-title txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway Preferences</h3>
               
-              <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+              <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
                 <div class="setting-info flex flex-column gap-4px">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Prefer Private Gateways</span>
                   <span class="settingspage-setting-desc color-text-secondary text-13px">Try private gateways first before DAO gateways</span>
@@ -955,7 +955,7 @@
                 </div>
               </UiCard>
 
-              <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+              <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
                 <div class="setting-info flex flex-column gap-4px">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Fallback to DAO Gateways</span>
                   <span class="settingspage-setting-desc color-text-secondary text-13px">Use DAO gateways if private gateways fail</span>
@@ -970,13 +970,13 @@
             <div class="settingspage-settings-subsection mt-16px">
               <div class="settingspage-subsection-header flex-align-center-justify-space-between mb-8px">
                 <h3 class="settingspage-subsection-title txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway IDs</h3>
-                <span class="settingspage-count-badge flex-inline-align-justify-center text-12px txt-weight-light color-ios-blue border-radius-10px h-22px py-0px px-8px bg-ios-blue-a15 min-w-24px">{{ gatewayIds.length }}</span>
+                <span class="settingspage-count-badge flex-inline-align-justify-center text-12px txt-weight-light color-primary border-radius-10px h-22px py-0px px-8px bg-primary-a15 min-w-24px">{{ gatewayIds.length }}</span>
               </div>
               <p class="settingspage-subsection-desc text-14px color-text-secondary m-0px mb-16px">Add gateway IDs to use for private content delivery</p>
 
               <div class="settingspage-gateway-ids-wrapper border-radius-12px p-16px bg-secondary border-1">
                 <div v-if="gatewayIds.length > 0" class="settingspage-gateway-ids-list flex flex-column gap-8px mb-16px">
-                  <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between py-12px px-16px bg-card border-1 border-radius-8px transition-all-02 hover-border-ios-blue">
+                  <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between py-12px px-16px bg-card border-1 border-radius-8px transition-all-02 hover-border-primary">
                     <span class="settingspage-gateway-id-text mono color-text-primary text-14px">{{ id }}</span>
                     <UiButton variant="icon" @click="removeGatewayId(index)">
                       <X :size="16" />
@@ -1011,7 +1011,7 @@
             <div class="settingspage-settings-subsection mt-16px">
               <h3 class="settingspage-subsection-title txt-weight-light color-text-primary text-15px m-0px mb-12px">Advanced Settings</h3>
 
-              <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+              <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
                 <div class="setting-info flex flex-column gap-4px">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Request Timeout</span>
                   <span class="settingspage-setting-desc color-text-secondary text-13px">Maximum time to wait for gateway response ({{ gatewayTimeout / 1000 }}s)</span>
@@ -1029,7 +1029,7 @@
                 </div>
               </UiCard>
 
-              <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-ios-blue hover-lift-1 hover-shadow-sm">
+              <UiCard padding="none" :shadow="false" class="transition-all-fast flex-align-center-justify-space-between py-16px px-20px hover-bg-hover hover-border-primary hover-lift-1 hover-shadow-sm">
                 <div class="setting-info flex flex-column gap-4px">
                   <span class="settingspage-setting-label txt-weight-light color-text-primary text-14px">Max Retries</span>
                   <span class="settingspage-setting-desc color-text-secondary text-13px">Maximum retry attempts per gateway</span>
@@ -1047,15 +1047,15 @@
             </div>
 
             <!-- Info Box -->
-            <div class="bg-gradient-ios-blue-soft flex gap-16px border-radius-12px mt-16px py-16px px-20px border-15-ios-blue-a20">
-              <svg class="settingspage-info-box-svg flex-shrink-0 color-ios-blue" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="bg-gradient-primary-soft flex gap-16px border-radius-12px mt-16px py-16px px-20px border-15-primary-a20">
+              <svg class="settingspage-info-box-svg flex-shrink-0 color-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
               </svg>
               <div>
                 <strong class="settingspage-info-box-strong block text-14px color-text-primary mb-4px">Need to create a gateway?</strong>
-                <p class="settingspage-info-box-p text-14px color-text-secondary m-0px line-height-15">Visit <a class="settingspage-info-box-a color-ios-blue fw-500 hover-underline" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
+                <p class="settingspage-info-box-p text-14px color-text-secondary m-0px line-height-15">Visit <a class="settingspage-info-box-a color-primary fw-500 hover-underline" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
               </div>
             </div>
           </template>

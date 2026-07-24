@@ -17,7 +17,7 @@
       <div class="text-14px txt-weight-light letter-spacing-015em text-uppercase color-text-tertiary">Search</div>
 
       <div class="searchpage-search-row flex-justify-center w-full">
-        <div class="focus-within-lift-2px flex-align-center gap-12px border-radius-full bg-card shadow-md transition-all-03 pt-14px pr-16px pb-14px pl-20px w-min-820px-full border-color-ios-blue-focus-within border-2-transparent shadow-shadow-focus-focus-within">
+        <div class="focus-within-lift-2px flex-align-center gap-12px border-radius-full bg-card shadow-md transition-all-03 pt-14px pr-16px pb-14px pl-20px w-min-820px-full border-color-primary-focus-within border-2-transparent shadow-shadow-focus-focus-within">
           <Search :size="18" class="searchpage-search-icon color-text-secondary flex-0-0-auto" />
           <input
             ref="inputEl"
@@ -240,13 +240,13 @@
           :data-result-index="idx"
         >
           <button
-            class="searchpage-result-card reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-20px text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-ios-blue hover-shadow-primary hover-bg-card"
+            class="searchpage-result-card reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-20px text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-primary hover-shadow-primary hover-bg-card"
             :class="[ r.media ? `media-${r.media}` : '', isExploreCompact(r) ? 'media-explore-compact p-0px gap-0px flex-align-stretch min-h-132px max-h-132px' : '' ]"
             type="button"
             @click="openResult(r)"
           >
             <div class="absolute left-0 top-0 bottom-0 w-4px" :style="{ background: resultAccentGradient(r) }"></div>
-            <div class="reveal-icon-target flex-align-justify-center border-radius-16px flex-0-0-auto color-ios-blue overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :style="resultIconStyle(r)">
+            <div class="reveal-icon-target flex-align-justify-center border-radius-16px flex-0-0-auto color-primary overflow-hidden border-default transition-smooth-all w-52px h-52px bg-gradient-secondary" :style="resultIconStyle(r)">
               <div
                 v-if="isSearchImageThumb(r) && !brokenThumbs[r.id]"
                 class="w-full h-full relative overflow-hidden bg-secondary border-radius-8px"
@@ -1595,7 +1595,7 @@ function resultAccentGradient(r: ResultItem): string {
     switch (r.fileKind) {
       case "epub": return "linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%)";
       case "docx": return "linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%)";
-      case "html": return "linear-gradient(180deg, var(--ios-blue) 0%, rgba(var(--ios-blue-rgb), 0.5) 100%)";
+      case "html": return "linear-gradient(180deg, var(--color-primary) 0%, rgba(var(--color-primary-rgb), 0.5) 100%)";
       case "pdf": return "linear-gradient(180deg, var(--ios-red) 0%, rgba(var(--ios-red-rgb), 0.5) 100%)";
       case "txt": return "linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%)";
       default: return "linear-gradient(180deg, var(--ios-green) 0%, rgba(var(--ios-green-rgb), 0.5) 100%)";
@@ -1622,13 +1622,13 @@ function resultIconStyle(r: ResultItem): Record<string, string> {
   }
   switch (r?.kind) {
     case "site":
-      return { background: "linear-gradient(135deg, rgba(var(--ios-blue-rgb), 0.12) 0%, rgba(var(--ios-indigo-rgb), 0.12) 100%)", color: "var(--ios-blue)" };
+      return { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.12) 0%, rgba(var(--ios-indigo-rgb), 0.12) 100%)", color: "var(--color-primary)" };
     case "tx":
       return { background: "rgba(var(--ios-orange-rgb), 0.12)" };
     case "block":
       return { background: "linear-gradient(135deg, rgba(var(--ios-indigo-rgb), 0.12) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%)", color: "var(--ios-purple)" };
     case "address":
-      return { background: "linear-gradient(135deg, rgba(var(--ios-teal-rgb), 0.12) 0%, rgba(var(--ios-blue-rgb), 0.12) 100%)", color: "var(--ios-teal)" };
+      return { background: "linear-gradient(135deg, rgba(var(--ios-teal-rgb), 0.12) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--ios-teal)" };
     case "link":
       return { background: "var(--fill-tertiary)" };
     default:
@@ -1641,7 +1641,7 @@ function typeBadgeStyle(r: ResultItem): Record<string, string> {
     switch (r.fileKind || "unknown") {
       case "epub": return { background: "rgba(var(--ios-purple-rgb), 0.12)", color: "var(--ios-purple)" };
       case "docx": return { background: "rgba(var(--ios-teal-rgb), 0.12)", color: "var(--ios-teal)" };
-      case "html": return { background: "rgba(var(--ios-blue-rgb), 0.12)", color: "var(--ios-blue)" };
+      case "html": return { background: "rgba(var(--color-primary-rgb), 0.12)", color: "var(--color-primary)" };
       case "pdf": return { background: "var(--fill-error)" };
       case "txt": return { background: "var(--fill-tertiary)" };
       default: return { background: "var(--fill-success)" };

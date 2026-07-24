@@ -176,16 +176,16 @@
           <div class="netpage-section-header flex-align-center-justify-space-between mb-24px">
             <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Activity</h2>
             <div class="netpage-chart-tabs flex gap-8px">
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a25 border-color-ios-blue color-ios-blue txt-weight-light': activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a25 border-color-ios-blue color-ios-blue txt-weight-light': activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a25 border-color-ios-blue color-ios-blue txt-weight-light': activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
+              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-ios-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
             </div>
           </div>
           <div class="netpage-activity-chart p-24px bg-secondary border-radius-12px">
             <div class="h-160px w-full relative">
               <svg class="netpage-chart-container-svg w-full h-full" v-if="activeChart === 'blocks'" viewBox="0 0 400 120" preserveAspectRatio="none">
-                <path :d="blockChartLinePath" stroke="var(--accent-primary)" stroke-width="2" fill="none" />
-                <circle v-for="(point, i) in blockChartPoints" :key="i" :cx="point.x" :cy="point.y" r="3" fill="var(--accent-primary)" />
+                <path :d="blockChartLinePath" stroke="var(--color-primary)" stroke-width="2" fill="none" />
+                <circle v-for="(point, i) in blockChartPoints" :key="i" :cx="point.x" :cy="point.y" r="3" fill="var(--color-primary)" />
               </svg>
               <svg class="netpage-chart-container-svg w-full h-full" v-if="activeChart === 'txs'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <rect v-for="(point, i) in txChartPoints" :key="i" :x="point.x - 8" :y="point.y" width="16" :height="120 - point.y" fill="#6366f1" opacity="0.8" rx="2" />
@@ -323,7 +323,7 @@ const connectionStatusText = computed(() => {
 
 function indicatorFillStyle(state: string): Record<string, string> {
   if (state === "excellent") return { background: "var(--ios-green)" };
-  if (state === "good") return { background: "var(--ios-blue)" };
+  if (state === "good") return { background: "var(--color-primary)" };
   return { background: "var(--ios-orange)" };
 }
 
