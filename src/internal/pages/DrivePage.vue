@@ -197,9 +197,7 @@
         </div>
       </div>
 
-      <div v-if="browseLoading" class="drivepage-listing-loading flex-align-justify-center flex-1 min-h-280px">
-        <UiSpinner size="lg" />
-      </div>
+      <UiLoadingBlock v-if="browseLoading" wrapper-class="flex-1 min-h-280px" spinner-class="" />
 
       <div v-else-if="browseError" class="drivepage-fetch-error text-11px line-height-12 mt-4px color-error mt-16px">
         {{ browseError }}
@@ -371,9 +369,7 @@
         </div>
       </div>
 
-      <div v-if="showSavedListSpinner" class="drivepage-listing-loading flex-align-justify-center flex-1 min-h-280px">
-        <UiSpinner size="lg" />
-      </div>
+      <UiLoadingBlock v-if="showSavedListSpinner" wrapper-class="flex-1 min-h-280px" spinner-class="" />
 
 
       <!-- Files List View -->
@@ -943,9 +939,7 @@
 
     <!-- Subscription Details Modal -->
     <UiModal :model-value="showGatewayDetails" title="Subscription details" panel-class="w-full max-w-520px" @update:model-value="closeGatewayDetails">
-            <div v-if="gatewayDetailsLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-220px">
-              <UiSpinner size="lg" />
-            </div>
+            <UiLoadingBlock v-if="gatewayDetailsLoading" wrapper-class="flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-220px" spinner-class="" />
 
             <template v-else>
               <div class="flex flex-column">
@@ -1048,9 +1042,7 @@
     <UiModal :model-value="showPlansModal" title="Cloud plans" panel-class="drivepage-plans-modal w-full max-w-860px" @update:model-value="closePlansModal">
           <div class="drivepage-modal-body p-24px">
 
-            <div v-if="plansLoading" class="drivepage-permalink-loading flex-align-justify-center flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-220px">
-              <UiSpinner size="lg" />
-            </div>
+            <UiLoadingBlock v-if="plansLoading" wrapper-class="flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-220px" spinner-class="" />
 
             <div v-else-if="plansError" class="permalink-success">
               <p>{{ plansError }}</p>
@@ -1527,6 +1519,7 @@ import {
   MapPin,
 } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
+import UiLoadingBlock from "../../ui/UiLoadingBlock.vue";
 import UiCheckbox from "../../ui/UiCheckbox.vue";
 import UiModal from "../../ui/UiModal.vue";
 import UiPageHeader from "../../ui/UiPageHeader.vue";
