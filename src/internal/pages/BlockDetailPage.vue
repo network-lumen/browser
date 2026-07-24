@@ -12,9 +12,7 @@
     <div v-else-if="block" class="blockdetail-content flex flex-column gap-24px bg-secondary p-32px min-h-100vh-200px">
       <!-- Block Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
-          <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Block Overview</h2>
-        </div>
+        <UiCardHeader title="Block Overview" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="chaindetail-card-body p-24px">
           <UiDetailRow flex label="Height:" :value="block.height" />
           <UiDetailRow flex label="Hash:">
@@ -48,9 +46,7 @@
 
       <!-- Block Data Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
-          <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Block Data</h2>
-        </div>
+        <UiCardHeader title="Block Data" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="chaindetail-card-body p-24px">
           <UiDetailRow flex label="Chain ID:" :value="block.chainId || 'lumen-mainnet'" />
           <UiDetailRow flex label="Block Size:">
@@ -63,9 +59,7 @@
 
       <!-- Transactions Card -->
       <UiCard v-if="block.txs > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <div class="blockdetail-card-header bg-primary py-20px px-24px border-bottom-1">
-          <h2 class="color-text-primary txt-weight-medium m-0px blockdetail-card-header-h2 text-18px letter-spacing-n001">Transactions ({{ block.txs }})</h2>
-        </div>
+        <UiCardHeader :title="`Transactions (${block.txs})`" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="chaindetail-card-body p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="blockdetail-tx-item flex gap-16px cursor-pointer flex-align-start py-16px px-20px shadow-xs transition-smooth-all hover-border-accent hover-lift-1 hover-shadow-primary">
@@ -101,6 +95,7 @@
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiDetailRow from '../../ui/UiDetailRow.vue';
+import UiCardHeader from '../../ui/UiCardHeader.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
