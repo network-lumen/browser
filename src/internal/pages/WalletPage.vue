@@ -90,7 +90,7 @@
       <!-- Overview View -->
       <div v-if="currentView === 'overview'" class="overview-section flex flex-column gap-24px">
         <!-- Balance Card -->
-        <div class="border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 shadow-glow-ios-blue-lg">
+        <div class="border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 shadow-glow-primary-lg">
           <div class="walletpage-balance-header flex-align-center-justify-space-between mb-16px">
             <span class="walletpage-balance-label text-uppercase txt-weight-light text-13px letter-spacing-008em color-rgba-255-255-255-0-85">Total Balance</span>
             <UiButton variant="icon" icon-padding-class="" @click="showBalance = !showBalance" class="hover-bg-card flex-inline-align-justify-center size-32px color-white backdrop-blur-10">
@@ -114,26 +114,26 @@
 
         <!-- Quick Actions -->
         <div class="grid-cols-auto-fit-140 gap-16px grid">
-          <UiButton variant="cta" @click="sendTransaction" class="walletpage-quick-btn hover-lift-6-border-ios-blue-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-ios-blue-a30">
+          <UiButton variant="cta" @click="sendTransaction" class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
+            <div class="walletpage-quick-icon send flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-primary-a30">
               <ArrowUpRight :size="20" />
             </div>
             <span>Send</span>
           </UiButton>
-          <UiButton variant="cta" @click="openReceiveModal" class="walletpage-quick-btn hover-lift-6-border-ios-blue-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-ios-blue-a30">
+          <UiButton variant="cta" @click="openReceiveModal" class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
+            <div class="walletpage-quick-icon receive flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-0-8-20-primary-a30">
               <ArrowDownLeft :size="20" />
             </div>
             <span>Receive</span>
           </UiButton>
-          <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-ios-blue-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-0-8-20-ios-blue-a30">
+          <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
+            <div class="walletpage-quick-icon swap disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-0-8-20-primary-a30">
               <ArrowLeftRight :size="20" />
             </div>
             <span>Swap (soon)</span>
           </UiButton>
-          <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-ios-blue-a50 disabled-fade-50 flex-column">
-            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-0-8-20-ios-blue-a30">
+          <UiButton variant="cta" disabled class="walletpage-quick-btn hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
+            <div class="walletpage-quick-icon buy disabled flex-align-justify-center size-56px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-0-8-20-primary-a30">
               <CreditCard :size="20" />
             </div>
             <span>Buy (soon)</span>
@@ -1959,7 +1959,7 @@ function getActivityLabel(tx: Activity): string {
 
 function getActivityBadgeStyle(tx: Activity): Record<string, string> {
   if (isDnsUpdateTx(tx)) return { background: 'rgba(var(--ios-purple-rgb), 0.1)', color: 'var(--ios-purple)' };
-  if (isDnsTransferTx(tx)) return { background: 'rgba(var(--ios-blue-rgb), 0.1)', color: 'var(--ios-blue)' };
+  if (isDnsTransferTx(tx)) return { background: 'rgba(var(--color-primary-rgb), 0.1)', color: 'var(--color-primary)' };
   if (isDnsRegisterTx(tx)) return { background: 'rgba(var(--ios-orange-rgb), 0.1)', color: 'var(--ios-orange)' };
   if (isWithdrawRewardsTx(tx)) return { background: 'rgba(var(--ios-yellow-rgb), 0.1)', color: 'var(--ios-yellow)' };
   if (isPublishReleaseTx(tx)) return { background: 'rgba(var(--ios-indigo-rgb), 0.1)', color: 'var(--ios-indigo)' };
@@ -2875,7 +2875,7 @@ function getDexStatusLabel(status: DexStatus): string {
 
 function assetIconStyle(iconClass: string): Record<string, string> {
   if (iconClass === 'lmn') return { background: 'var(--accent-secondary)' };
-  if (iconClass === 'remote') return { background: 'linear-gradient(135deg, var(--accent-primary), var(--ios-blue))' };
+  if (iconClass === 'remote') return { background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary))' };
   return {};
 }
 

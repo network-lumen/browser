@@ -45,12 +45,12 @@
         <div v-if="privateGateways.length > 0" class="gwpage-private-gateways-section">
           <div class="gwpage-section-header flex-align-center-justify-space-between">
             <h2 class="color-text-primary txt-weight-light m-0px gwpage-section-header-h2 text-20px">Private Gateways</h2>
-            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="hover-opacity-80 color-ios-blue text-14px transition-opacity-02 hover-underline">
+            <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="hover-opacity-80 color-primary text-14px transition-opacity-02 hover-underline">
               Manage Private Gateways →
             </a>
           </div>
           <div class="gwpage-private-gateways-grid grid grid-cols-auto-fill-280">
-            <UiCard v-for="gw in privateGateways" :key="gw.id" padding="none" border-class="border-1" radius="0" :shadow="false" hoverable hover-class="transition-all-02 hover-border-ios-blue hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
+            <UiCard v-for="gw in privateGateways" :key="gw.id" padding="none" border-class="border-1" radius="0" :shadow="false" hoverable hover-class="transition-all-02 hover-border-primary hover-lift-2 shadow-0-4-12-rgba-0-0-0-0-1-hover">
               <div class="gwpage-private-gateway-header flex-align-center mb-12px">
                 <div class="gwpage-status-dot w-10px h-10px bg-text-tertiary" :class="{ 'bg-ios-green': gw.status === 'active' }"></div>
                 <span class="gwpage-private-badge text-11px letter-spacing-005em py-4px px-12px bg-ios-indigo-a15 color-ios-indigo">Private</span>

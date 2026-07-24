@@ -237,7 +237,7 @@
               </select>
             </div>
 
-            <UiCard class="mb-24px" padding="md" radius="10px" border-class="border-1-ios-blue-a30" :shadow="false">
+            <UiCard class="mb-24px" padding="md" radius="10px" border-class="border-1-primary-a30" :shadow="false">
               <div class="daopage-requirement-item flex-align-center gap-12px color-text-secondary text-13px p-0px pt-8px pb-8px">
                 <svg class="daopage-requirement-item-svg flex-shrink-0 color-primary" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0C3.58 0 0 3.58 0 8C0 12.42 3.58 16 8 16C12.42 16 16 12.42 16 8C16 3.58 12.42 0 8 0ZM6.4 12L2.4 8L3.52 6.88L6.4 9.76L12.48 3.68L13.6 4.8L6.4 12Z"/>

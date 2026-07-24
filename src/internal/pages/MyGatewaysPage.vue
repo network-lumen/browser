@@ -46,7 +46,7 @@
             </div>
             <div class="mygw-server-info flex-1">
               <h3 class="text-18px txt-weight-light color-text-primary mygw-server-info-h3 m-0px mb-4px">Embedded Gateway Server</h3>
-              <p v-if="embeddedServerRunning" class="mygw-server-url m-0px text-14px color-ios-blue mono">{{ embeddedServerUrl }}</p>
+              <p v-if="embeddedServerRunning" class="mygw-server-url m-0px text-14px color-primary mono">{{ embeddedServerUrl }}</p>
               <p v-else class="mygw-server-status-text color-text-secondary m-0px text-14px">Start your personal gateway server</p>
             </div>
             <div class="flex-align-center gap-8px fw-500 border-radius-20px py-8px px-16px text-14px transition-all-03" :class="embeddedServerRunning ? 'bg-fill-success color-success' : 'bg-fill-tertiary color-text-secondary'">
@@ -176,7 +176,7 @@
             radius="14px"
             :shadow="false"
             hoverable
-            hover-class="transition-all-02 hover-border-ios-blue shadow-0-8-24-rgba-0-0-0-0-08-hover"
+            hover-class="transition-all-02 hover-border-primary shadow-0-8-24-rgba-0-0-0-0-08-hover"
           >
             <div class="mygw-gateway-header flex-align-start flex-justify-space-between mb-16px">
               <div class="mygw-gateway-title flex-align-center gap-8px">
@@ -219,14 +219,14 @@
 
       <!-- Create/Edit Modal -->
       <UiModal :model-value="showModal" :title="editingGateway ? 'Edit External Gateway' : 'Add External Gateway'" panel-class="max-w-500px w-90pct" @update:model-value="closeModal">
-              <p class="mygw-modal-description color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-ios-blue-a25">
+              <p class="mygw-modal-description color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-primary-a25">
                 Add an external private gateway (e.g., your VPS or company server). 
                 For local embedded server, use the "Start Embedded Server" button instead.
               </p>
               
               <div class="mygw-form-group mb-20px">
                 <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Gateway Name</label>
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="form.name"
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.name"
                  
                  
                   placeholder="My Private Gateway" class="focus-outline-none focus-ring-blue" />
@@ -234,7 +234,7 @@
 
               <div class="mygw-form-group mb-20px">
                 <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Gateway URL</label>
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="form.url"
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.url"
                  
                  
                   placeholder="https://gateway.example.com" class="focus-outline-none focus-ring-blue" />
@@ -242,7 +242,7 @@
 
               <div class="mygw-form-group mb-20px">
                 <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">API Key</label>
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="form.apiKey"
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.apiKey"
                  
                  
                   placeholder="Your gateway API key" class="focus-outline-none focus-ring-blue" />
@@ -279,7 +279,7 @@
       <UiModal :model-value="showWhitelistModal" :title="editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist'" panel-class="max-w-500px w-90pct" @update:model-value="closeWhitelistModal">
               <div class="mygw-form-group mb-20px">
                 <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Wallet Address</label>
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="whitelistForm.address"
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.address"
                  
                  
                   placeholder="lumen1..."
@@ -288,7 +288,7 @@
 
               <div class="mygw-form-group mb-20px">
                 <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Display Name (Optional)</label>
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="whitelistForm.displayName"
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.displayName"
                  
                  
                   placeholder="John Doe" class="focus-outline-none focus-ring-blue" />
@@ -296,7 +296,7 @@
 
               <div class="mygw-form-group mb-20px">
                 <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Notes (Optional)</label>
-                <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-ios-blue" :focus-ring="false" v-model="whitelistForm.notes"
+                <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.notes"
                  
                   rows="3"
                   placeholder="Additional notes about this user..." class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring-blue"></UiInput>

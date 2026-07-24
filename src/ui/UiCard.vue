@@ -46,6 +46,6 @@ const computedClass = computed(() => [
   `border-radius-${props.radius}`,
   props.paddingClass || paddingSizeClass[props.padding],
   props.shadow ? 'shadow-subtle' : '',
-  props.hoverable ? (props.hoverClass || 'hover-bg-hover hover-border-ios-blue hover-lift-1 transition-all-02') : '',
+  props.hoverable ? (props.hoverClass || 'hover-bg-hover hover-border-primary hover-lift-1 transition-all-02') : '',
 ].filter(Boolean).join(' '));
 </script>

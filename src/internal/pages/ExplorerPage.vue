@@ -529,7 +529,7 @@
                     </div>
                     <div class="validator-name-wrapper flex flex-column gap-4px">
                       <span class="explorer-validator-name txt-weight-light color-text-primary text-18px text-14px">{{ validator.moniker }}</span>
-                      <span class="transition-color-02 color-text-tertiary cursor-pointer mt-8px pt-12px text-11px border-top-1 mono hover-color-ios-blue" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
+                      <span class="transition-color-02 color-text-tertiary cursor-pointer mt-8px pt-12px text-11px border-top-1 mono hover-color-primary" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
                     </div>
                   </div>
                 </div>
@@ -552,7 +552,7 @@
                       <circle 
                         cx="25" cy="25" r="20" 
                         fill="none" 
-                        stroke="var(--accent-primary)" 
+                        stroke="var(--color-primary)" 
                         stroke-width="4"
                         :stroke-dasharray="getCumulativeDashArray(index)"
                         transform="rotate(-90 25 25)"
@@ -921,7 +921,7 @@ const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
 function txStatusPopupStyle(status: string): Record<string, string> {
   if (status === 'success') return { border: '2px solid rgba(var(--ios-green-rgb), 0.5)' };
   if (status === 'error') return { border: '2px solid var(--ios-red)' };
-  return { border: '2px solid var(--accent-primary)' };
+  return { border: '2px solid var(--color-primary)' };
 }
 const txHash = ref('');
 

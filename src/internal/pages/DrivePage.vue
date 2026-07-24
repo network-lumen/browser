@@ -5680,7 +5680,7 @@ function clearHlsQueue() {
 function hlsQueueItemStyle(status: string): Record<string, string> {
   if (status === "converting") return { borderColor: "var(--primary-a25)", background: "var(--primary-a06)" };
   if (status === "done") return { borderColor: "rgba(var(--ios-green-rgb), 0.25)", background: "rgba(var(--ios-green-rgb), 0.06)" };
-  if (status === "paused") return { borderColor: "rgba(var(--ios-blue-rgb), 0.25)", background: "rgba(var(--ios-blue-rgb), 0.06)" };
+  if (status === "paused") return { borderColor: "rgba(var(--color-primary-rgb), 0.25)", background: "rgba(var(--color-primary-rgb), 0.06)" };
   if (status === "failed") return { borderColor: "rgba(var(--ios-red-rgb), 0.25)", background: "rgba(var(--ios-red-rgb), 0.06)" };
   if (status === "cancelled") return { borderColor: "rgba(var(--ios-orange-rgb), 0.25)", background: "rgba(var(--ios-orange-rgb), 0.06)" };
   return {};
@@ -5688,7 +5688,7 @@ function hlsQueueItemStyle(status: string): Record<string, string> {
 
 function hlsQueueStatusTextStyle(status: string): Record<string, string> {
   if (status === "failed") return { color: "var(--error-red)" };
-  if (status === "paused") return { color: "var(--accent-primary)" };
+  if (status === "paused") return { color: "var(--color-primary)" };
   if (status === "cancelled") return { color: "var(--ios-orange)" };
   return {};
 }

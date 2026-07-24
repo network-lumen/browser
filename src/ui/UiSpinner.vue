@@ -58,6 +58,6 @@ const sizeConfigMap: Record<'sm' | 'md' | 'lg', { size: string; stroke: string }
 
 const sizeConfig = computed(() => sizeConfigMap[props.size]);
 
-const tailStrokeColor = 'color-mix(in srgb, var(--accent-primary) 35%, currentColor 65%)';
-const arcStrokeColor = 'color-mix(in srgb, var(--accent-primary) 78%, currentColor 22%)';
+const tailStrokeColor = 'color-mix(in srgb, var(--color-primary) 35%, currentColor 65%)';
+const arcStrokeColor = 'color-mix(in srgb, var(--color-primary) 78%, currentColor 22%)';
 </script>
