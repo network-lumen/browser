@@ -22,9 +22,7 @@
     <div v-else-if="address" class="flex flex-column gap-24px">
       <!-- Address Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
-          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Address Overview</h2>
-        </div>
+        <UiCardHeader title="Address Overview" />
         <div class="chaindetail-card-body p-24px">
           <UiDetailRow label="Address:">
             <div class="chaindetail-hash-value flex-align-center gap-8px">
@@ -44,9 +42,7 @@
 
       <!-- Balances Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
-          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Balances</h2>
-        </div>
+        <UiCardHeader title="Balances" />
         <div class="chaindetail-card-body p-24px">
           <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-16px">
             <UiCard class="flex-align-center gap-16px" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(balance, index) in address.balances" :key="index">
@@ -70,9 +66,7 @@
 
       <!-- Delegations Card -->
       <UiCard v-if="address.delegations && address.delegations.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
-          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Delegations ({{ address.delegations.length }})</h2>
-        </div>
+        <UiCardHeader :title="`Delegations (${address.delegations.length})`" />
         <div class="chaindetail-card-body p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard class="flex-align-center flex-justify-space-between" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(delegation, index) in address.delegations" :key="index">
@@ -95,9 +89,7 @@
 
       <!-- Recent Transactions Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
-          <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Recent Transactions</h2>
-        </div>
+        <UiCardHeader title="Recent Transactions" />
         <div class="chaindetail-card-body p-24px">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-16px">
             <UiCard class="flex-align-center gap-16px" bg-class="bg-primary" border-class="border-1" radius="8px" :shadow="false" hoverable hover-class="transition-all-02 hover-lift-2 hover-shadow-md" v-for="(tx, index) in address.transactions" :key="index">
@@ -135,6 +127,7 @@
 import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiDetailRow from '../../ui/UiDetailRow.vue';
+import UiCardHeader from '../../ui/UiCardHeader.vue';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
