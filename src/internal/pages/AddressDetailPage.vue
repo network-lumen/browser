@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
     <div class="mb-32px">
-      <UiButton variant="ghost" @click="goBack" class="hover-shadow-0-4-12-primary-a30">
+      <UiButton variant="ghost" @click="goBack" class="hover-shadow-primary">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -21,7 +21,7 @@
 
     <div v-else-if="address" class="flex flex-column gap-24px">
       <!-- Address Overview Card -->
-      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
           <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Address Overview</h2>
         </div>
@@ -50,7 +50,7 @@
       </UiCard>
 
       <!-- Balances Card -->
-      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
           <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Balances</h2>
         </div>
@@ -76,7 +76,7 @@
       </UiCard>
 
       <!-- Delegations Card -->
-      <UiCard v-if="address.delegations && address.delegations.length > 0" padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard v-if="address.delegations && address.delegations.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
           <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Delegations ({{ address.delegations.length }})</h2>
         </div>
@@ -101,13 +101,13 @@
       </UiCard>
 
       <!-- Recent Transactions Card -->
-      <UiCard padding="none" class="overflow-hidden shadow-0-1-3-rgba-0-0-0-0-1 shadow-0-4-6-rgba-0-0-0-0-07-hover" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <div class="chaindetail-card-header bg-secondary border-bottom-1 p-0px pt-16px pr-24px pb-16px pl-24px">
           <h2 class="color-text-primary chaindetail-card-header-h2 text-16px letter-spacing-0025em">Recent Transactions</h2>
         </div>
         <div class="chaindetail-card-body p-24px">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-16px">
-            <UiCard class="flex-align-center gap-16px" bg-class="bg-primary" border-class="border-1" radius="8px" :shadow="false" hoverable hover-class="transition-all-02 hover-lift-2 shadow-0-4-8-rgba-0-0-0-0-1-hover" v-for="(tx, index) in address.transactions" :key="index">
+            <UiCard class="flex-align-center gap-16px" bg-class="bg-primary" border-class="border-1" radius="8px" :shadow="false" hoverable hover-class="transition-all-02 hover-lift-2 hover-shadow-md" v-for="(tx, index) in address.transactions" :key="index">
               <div class="addrdetail-tx-icon flex-align-justify-center size-32px border-radius-circle color-text-secondary bg-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>

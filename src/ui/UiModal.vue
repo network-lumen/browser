@@ -5,7 +5,7 @@
       class="fixed inset-0 flex-align-justify-center bg-black-a50 backdrop-blur-4 z-9999"
       @click.self="close"
     >
-      <div class="bg-card border-radius-16px shadow-0-20-60-rgba-0-0-0-0-3 overflow-hidden flex flex-column max-h-90vh" :class="panelClass" @click.stop>
+      <div class="bg-card border-radius-16px shadow-lg overflow-hidden flex flex-column max-h-90vh" :class="panelClass" @click.stop>
         <div v-if="$slots.header || title" class="flex-align-center-justify-space-between p-20px border-bottom-default">
           <slot name="header">
             <h3 class="m-0px color-text-primary">{{ title }}</h3>

@@ -84,11 +84,11 @@
           </UiButton>
 
           <div class="drivepage-upload-menu inline-flex relative" @click.stop>
-            <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="drivepage-upload-btn hover-bg-gradient-accent-secondary-lift shadow-0-4-12-primary-a30">
+            <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="drivepage-upload-btn hover-bg-gradient-accent-secondary-lift shadow-primary">
               <Plus :size="18" />
               <span>Upload</span>
             </UiButton>
-            <div v-if="showUploadMenu" class="top-calc-100pct-05rem border-radius-12px absolute bg-primary border-1 p-4px z-100 right-0 min-w-190px shadow-0-10-30-rgba-0-0-0-0-1" @click.stop>
+            <div v-if="showUploadMenu" class="top-calc-100pct-05rem border-radius-12px absolute bg-primary border-1 p-4px z-100 right-0 min-w-190px shadow-lg" @click.stop>
               <UiMenuItem @click="openFilePicker">
                 Upload files
               </UiMenuItem>
@@ -535,7 +535,7 @@
       >
         <Cloud :size="64" stroke-width="1" />
         <template #actions>
-          <UiButton variant="primary" type="button" @click="openFilePicker" class="drivepage-upload-btn-large hover-bg-gradient-accent-secondary-lift shadow-0-4-12-primary-a30">
+          <UiButton variant="primary" type="button" @click="openFilePicker" class="drivepage-upload-btn-large hover-bg-gradient-accent-secondary-lift shadow-primary">
             <Upload :size="20" />
             <span>Choose files to upload</span>
           </UiButton>
@@ -1180,7 +1180,7 @@
                  <article
                    v-for="group in planPagedGroups"
                    :key="group.gateway.id"
-                   class="flex flex-column border-radius-10px gap-12px border-1 bg-primary py-12px px-16px shadow-0-4-12-rgba-15-23-42-0-04"
+                   class="flex flex-column border-radius-10px gap-12px border-1 bg-primary py-12px px-16px shadow-md"
                    :class="{ 'is-offline': !group.gateway.active }"
                  >
                   <header class="drivepage-gateway-card-header flex-align-center-justify-space-between gap-8px">

@@ -42,7 +42,7 @@
       <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-10px mt-12px">
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-md-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -52,7 +52,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-md-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'image' }"
           @click="setType('image')"
@@ -62,7 +62,7 @@
         </UiButton>
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-0-4-12-rgba-0-0-0-0-08-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-md-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'all' }"
           @click="setType('all')"
@@ -135,7 +135,7 @@
         <UiCard padding="none" :shadow="false" radius="xl" v-for="(r, idx) in imageResults"
           :key="r.id"
          
-          :data-result-index="idx" class="content-visibility-auto-240-220 hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a30-hover shadow-0-16-32-primary-a15-hover">
+          :data-result-index="idx" class="content-visibility-auto-240-220 hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a30-hover hover-shadow-primary">
           <button
             type="button"
             class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-1 right-8px hover-color-accent hover-border-primary-a30"

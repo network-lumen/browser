@@ -30,14 +30,14 @@
             </div>
 
             <div class="walletonboard-info-cards gap-16px grid grid-cols-1fr-1fr">
-              <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-primary-a10-hover">
+              <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent hover-shadow-primary">
                 <Lock :size="20" class="color-primary" />
                 <h4 class="text-12px line-height-12 txt-weight-strong mt-8px m-0px">Set a Password</h4>
                 <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">
                   Protect your wallet with a strong password
                 </p>
               </div>
-              <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent shadow-0-4-12-primary-a10-hover">
+              <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent hover-shadow-primary">
                 <Download :size="20" class="color-primary" />
                 <h4 class="text-12px line-height-12 txt-weight-strong mt-8px m-0px">Backup Your Wallet</h4>
                 <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">

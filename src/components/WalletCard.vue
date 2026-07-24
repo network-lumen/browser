@@ -1,5 +1,5 @@
 <template>
-  <section class="max-w-800px my-0px mx-auto bg-white border-radius-20px shadow-0-6-20-black-a06 p-16px w-full" aria-labelledby="wallet-title">
+  <section class="max-w-800px my-0px mx-auto bg-white border-radius-20px shadow-lg p-16px w-full" aria-labelledby="wallet-title">
     <header class="flex-align-start flex-justify-space-between mb-8px">
       <div class="m-4px flex-align-center gap-8px">
         <div class="flex flex-column gap-0px">
