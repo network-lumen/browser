@@ -8,12 +8,12 @@
         :class="{ 'hover-bg-secondary cursor-pointer': toast.dismissible }"
         @click="toast.dismissible && removeToast(toast.id)"
       >
-        <div class="flex-align-justify-center size-24px border-radius-circle flex-shrink-0" :style="toastIconStyle(toast.type)">
+        <UiIconBadge size-class="size-24px" badge-class="flex-shrink-0" :style="toastIconStyle(toast.type)">
           <CheckCircle v-if="toast.type === 'success'" :size="18" />
           <AlertCircle v-else-if="toast.type === 'error'" :size="18" />
           <AlertTriangle v-else-if="toast.type === 'warning'" :size="18" />
           <Info v-else :size="18" />
-        </div>
+        </UiIconBadge>
         <div class="flex flex-column flex-1 gap-2px min-w-0">
           <span v-if="toast.title" class="text-13px txt-weight-light color-text-primary line-height-12">{{ toast.title }}</span>
           <span class="text-12px color-text-secondary line-height-14 break-word cursor-select-text">{{ toast.message }}</span>
@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import UiIconBadge from './UiIconBadge.vue';
 import { CheckCircle, AlertCircle, AlertTriangle, Info, X, Copy, Check } from 'lucide-vue-next';
 import { toastList, removeToast, type Toast, type ToastType } from '../stores/toastStore';
 
