@@ -40,10 +40,7 @@
       </UiPageHeader>
 
       <!-- Loading State -->
-      <div v-if="isLoading" class="daopage-loading-state flex flex-column flex-align-justify-center color-text-secondary py-64px px-32px">
-        <UiSpinner size="lg" class="mb-16px" />
-        <p>Loading governance data...</p>
-      </div>
+      <UiLoadingBlock v-if="isLoading" message="Loading governance data..." />
 
       <template v-else>
         <!-- Stats Grid -->
@@ -308,7 +305,7 @@
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
-import UiSpinner from '../../ui/UiSpinner.vue';
+import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
