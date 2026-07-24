@@ -112,7 +112,7 @@
             <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcuts</div>
           </div>
 
-          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-10px flex-justify-end">
+          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-10px flex-justify-start w-full">
             <UiButton variant="secondary" type="button" @click="beginCreateShortcut" class="outline-none">
               <Plus :size="15" />
               <span>Add shortcut</span>
@@ -187,7 +187,7 @@
             <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Recent</div>
           </div>
 
-          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-10px flex-justify-end">
+          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-10px flex-justify-start w-full">
             <UiButton variant="secondary" type="button" @click="goto('lumen://history')" class="outline-none">
               <History :size="15" />
               <span>Open history</span>
