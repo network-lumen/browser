@@ -159,9 +159,50 @@ function registerFindTargetWithRetry(attempts = 40) {
   }, 50);
 }
 
+// Lets F12 toggle devtools for this personal-site webview even in packaged builds
+// (see electron/main.cjs's siteDevtoolsTargetIds) - scoped to lumen://mysite.lmn pages only,
+// unlike Ctrl+Alt+I/Ctrl+Shift+I which stay dev-build-only for everything else.
+let registeredDevtoolsTargetId: number | null = null;
+
+function registerDevtoolsTargetOnce(): number | null {
+  const id = getWebviewWebContentsId();
+  if (id != null && id !== registeredDevtoolsTargetId) {
+    try {
+      useInternalLumen()?.devtools?.registerSiteTarget(id);
+      registeredDevtoolsTargetId = id;
+    } catch {
+      // ignore
+    }
+  }
+  return id;
+}
+
+function registerDevtoolsTargetWithRetry(attempts = 40) {
+  const id = registerDevtoolsTargetOnce();
+  if (id != null) return;
+  if (attempts <= 0) return;
+  if (!resolvedHttpUrl.value || isHlsPath.value) return;
+  window.setTimeout(() => {
+    registerDevtoolsTargetWithRetry(attempts - 1);
+  }, 50);
+}
+
+function unregisterDevtoolsTarget() {
+  if (registeredDevtoolsTargetId == null) return;
+  try {
+    useInternalLumen()?.devtools?.unregisterSiteTarget(registeredDevtoolsTargetId);
+  } catch {
+    // ignore
+  }
+  registeredDevtoolsTargetId = null;
+}
+
 function onDomReady() {
   webviewLoading.value = false;
-  void nextTick(() => registerFindTargetWithRetry());
+  void nextTick(() => {
+    registerFindTargetWithRetry();
+    registerDevtoolsTargetWithRetry();
+  });
 }
 
 function onWebviewEnterHtmlFullscreen() {
@@ -653,20 +694,28 @@ watch(
       } catch {
         // ignore
       }
+      unregisterDevtoolsTarget();
       return;
     }
 
     await nextTick();
     registerFindTargetWithRetry();
+    registerDevtoolsTargetWithRetry();
   },
   { immediate: true, flush: "post" },
 );
 
 onMounted(() => {
-  void nextTick(() => registerFindTargetWithRetry());
+  void nextTick(() => {
+    registerFindTargetWithRetry();
+    registerDevtoolsTargetWithRetry();
+  });
 });
 onActivated(() => {
-  void nextTick(() => registerFindTargetWithRetry());
+  void nextTick(() => {
+    registerFindTargetWithRetry();
+    registerDevtoolsTargetWithRetry();
+  });
 });
 onDeactivated(() => {
   webviewLoading.value = false;
@@ -676,11 +725,13 @@ onDeactivated(() => {
   } catch {
     // ignore
   }
+  unregisterDevtoolsTarget();
 });
 
 onBeforeUnmount(() => {
   webviewLoading.value = false;
   onWebviewLeaveHtmlFullscreen();
+  unregisterDevtoolsTarget();
   try {
     siteWebview.value?.stop?.();
   } catch {

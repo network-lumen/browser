@@ -83,7 +83,10 @@ contextBridge.exposeInMainWorld('lumen', {
     }
   },
   devtools: {
-    openActive: () => ipcRenderer.invoke('devtools:openActive')
+    openActive: () => ipcRenderer.invoke('devtools:openActive'),
+    /** Marks a <webview>'s webContents as a personal-site page: F12 will toggle its devtools even in packaged builds. */
+    registerSiteTarget: (targetWebContentsId) => ipcRenderer.send('devtools:registerSiteTarget', targetWebContentsId),
+    unregisterSiteTarget: (targetWebContentsId) => ipcRenderer.send('devtools:unregisterSiteTarget', targetWebContentsId)
   },
   settingsGetAll: () => ipcRenderer.invoke('settings:getAll'),
   settingsSet: (partial) => ipcRenderer.invoke('settings:set', partial || {}),
