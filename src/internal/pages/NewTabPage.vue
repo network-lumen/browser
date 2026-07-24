@@ -149,10 +149,7 @@
               <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
-              <span class="newtab-shortcut-copy flex flex-column min-w-0 gap-4px">
-                <span class="txt-weight-strong block text-15px nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
-                <span class="newtab-shortcut-subtitle block color-text-tertiary text-13px line-height-14 nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.subtitle }}</span>
-              </span>
+              <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" gap-class="gap-4px" title-class="txt-weight-strong block text-15px" subtitle-class="block color-text-tertiary text-13px line-height-14" />
             </UiButton>
 
             <div class="newtab-shortcut-card-actions absolute top-8px right-8px">
@@ -214,10 +211,7 @@
             <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
               {{ entry.monogram }}
             </span>
-            <span class="newtab-history-preview-copy flex flex-column flex-1 min-w-0 gap-2px">
-              <span class="newtab-history-preview-title block txt-weight-medium nowrap overflow-hidden txt-overflow-ellipsis">{{ entry.title }}</span>
-              <span class="newtab-history-preview-subtitle block nowrap overflow-hidden txt-overflow-ellipsis color-text-tertiary text-13px">{{ entry.subtitle }}</span>
-            </span>
+            <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" wrapper-class="flex-1" title-class="block txt-weight-medium" subtitle-class="block color-text-tertiary text-13px" />
             <span class="newtab-history-preview-time flex-0-0-auto txt-weight-medium ml-auto pl-8px color-text-tertiary text-13px">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
           </UiButton>
         </div>
@@ -232,6 +226,7 @@ import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiMenuItem from '../../ui/UiMenuItem.vue';
 import UiFormField from '../../ui/UiFormField.vue';
+import UiTitleSubtitle from '../../ui/UiTitleSubtitle.vue';
 import { computed, inject, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import UiCheckbox from "../../ui/UiCheckbox.vue";
 import UiModal from "../../ui/UiModal.vue";

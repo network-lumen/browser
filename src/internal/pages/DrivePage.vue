@@ -118,10 +118,7 @@
       <!-- Search and Filter Bar -->
       <div class="drivepage-search-filter-bar flex-align-center-justify-space-between flex-wrap-wrap gap-16px mb-16px">
         <div class="drivepage-search-box flex-align-center gap-8px flex-1 border-radius-10px py-8px px-12px bg-primary border-1 transition-all-02 focus-within-border-accent focus-within-ring max-w-400px min-w-200px">
-          <svg class="drivepage-search-icon color-text-tertiary flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-          </svg>
+          <Search :size="16" class="color-text-tertiary flex-shrink-0" />
           <input
             v-model="searchQuery"
             type="text"
