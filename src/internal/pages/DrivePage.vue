@@ -53,7 +53,7 @@
               }}</span>
               <span
                 v-if="sub.regionLabel"
-                class="grid-col-3 grid-row-1 justify-self-end txt-weight-medium color-text-tertiary text-12px nowrap overflow-hidden txt-overflow-ellipsis align-self-center max-w-120px"
+                class="grid-col-3 grid-row-1 justify-self-end txt-weight-medium color-text-tertiary text-12px nowrap overflow-hidden txt-overflow-ellipsis align-self-center max-w-1275px"
                 :title="sub.regionTitle"
               >
                 {{ sub.regionLabel }}
