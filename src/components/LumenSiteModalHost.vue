@@ -52,43 +52,27 @@
 
           <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ sendError }}</div>
 
-          <div class="mb-12px">
-            <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">From</label>
-            <div class="sitemodal-input-wrapper readonly relative">
-              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
-            </div>
-          </div>
+          <UiFormGroup label="From" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
+          </UiFormGroup>
 
-          <div class="mb-12px">
-            <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">To <span class="color-error">*</span></label>
-            <div class="sitemodal-input-wrapper relative">
-              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
-            </div>
-          </div>
+          <UiFormGroup required label="To" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
+          </UiFormGroup>
 
-          <div class="mb-12px">
-            <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">Amount (LMN) <span class="color-error">*</span></label>
-            <div class="sitemodal-input-wrapper relative">
-              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
-              <span class="sitemodal-input-suffix text-12px color-text-secondary absolute top-half translate-y-center right-12px">LMN</span>
-            </div>
-            <div class="sitemodal-balance-hint text-12px color-text-secondary mt-8px" v-if="balanceUlmn !== null">
-              Available: {{ balanceLmnDisplay }} LMN
-            </div>
-            <div class="sitemodal-balance-hint color-error text-12px mt-8px" v-else>
-              Balance unavailable
-            </div>
-            <div class="sitemodal-balance-hint color-error text-12px mt-8px" v-if="insufficientFunds">
-              not enough funds
-            </div>
-          </div>
+          <UiFormGroup required label="Amount (LMN)" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
+            <span class="sitemodal-input-suffix text-12px color-text-secondary absolute top-half translate-y-center right-12px">LMN</span>
+            <template #hint>
+              <div v-if="balanceUlmn !== null">Available: {{ balanceLmnDisplay }} LMN</div>
+              <div v-else class="color-error">Balance unavailable</div>
+              <div v-if="insufficientFunds" class="color-error mt-8px">not enough funds</div>
+            </template>
+          </UiFormGroup>
 
-          <div class="mb-12px">
-            <label class="text-12px color-text-secondary sitemodal-send-label block mb-4px">Memo (optional)</label>
-            <div class="sitemodal-input-wrapper relative">
-              <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendMemo" :disabled="sending" />
-            </div>
-          </div>
+          <UiFormGroup label="Memo (optional)" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendMemo" :disabled="sending" />
+          </UiFormGroup>
     <template #footer>
       <UiButton variant="secondary" type="button" @click="closeSend(false)" :disabled="sending">
         Cancel
@@ -308,6 +292,7 @@
 <script setup lang="ts">
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
+import UiFormGroup from '../ui/UiFormGroup.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';

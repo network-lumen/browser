@@ -1,6 +1,6 @@
 <template>
-  <div class="mb-20px">
-    <label class="block text-14px txt-weight-light color-text-primary mb-8px">
+  <div :class="wrapperClass">
+    <label :class="labelClass">
       <slot name="label">{{ label }}</slot><span v-if="required" class="color-error"> *</span>
     </label>
     <div class="relative" :class="{ 'opacity-70': dimmed }">
@@ -22,11 +22,15 @@ withDefaults(defineProps<{
   hint?: string;
   /** Override for the hint's color (e.g. color-error for a validation message). */
   hintClass?: string;
+  wrapperClass?: string;
+  labelClass?: string;
 }>(), {
   label: '',
   required: false,
   dimmed: false,
   hint: '',
   hintClass: 'color-text-secondary',
+  wrapperClass: 'mb-20px',
+  labelClass: 'block text-14px txt-weight-light color-text-primary mb-8px',
 });
 </script>
