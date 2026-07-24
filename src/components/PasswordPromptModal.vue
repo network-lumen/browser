@@ -1,10 +1,9 @@
 <template>
   <UiModal :model-value="visible" panel-class="pwd-modal w-full max-w-360px shadow-lg" :closable="false" @update:model-value="handleCancel">
     <template #header>
-      <div class="pwd-modal-header flex-align-center gap-12px">
-        <LockKeyhole :size="24" class="color-primary" />
-        <h3 class="color-text-primary m-0px txt-weight-light pwd-modal-header-h3 text-18px">Password Required</h3>
-      </div>
+      <UiModalHeader title="Password Required" badge-class="color-primary" title-class="text-18px">
+        <template #icon><LockKeyhole :size="24" /></template>
+      </UiModalHeader>
     </template>
           <p class="pwd-modal-message color-text-secondary text-14px line-height-14 m-0px mb-20px">
             {{ message || 'Enter your password to authorize this operation.' }}
@@ -19,9 +18,7 @@
               @keyup.enter="handleSubmit"
               @keyup.escape="handleCancel" class="focus-border-primary border-default disabled-fade-50 transition-colors-015 placeholder-tertiary" />
 
-            <div v-if="error" class="pwd-modal-error color-error text-14px mt-8px py-8px px-12px bg-fill-error border-radius-8px">
-              {{ error }}
-            </div>
+            <UiBanner v-if="error" variant="error" class="mt-8px">{{ error }}</UiBanner>
           </div>
 
     <template #footer>
@@ -48,6 +45,8 @@ import UiInput from '../ui/UiInput.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
 import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
+import UiModalHeader from '../ui/UiModalHeader.vue';
+import UiBanner from '../ui/UiBanner.vue';
 import { ref, watch, nextTick } from 'vue';
 import { LockKeyhole } from 'lucide-vue-next';
 import { useInternalLumen } from '../composables/useInternalLumen';
