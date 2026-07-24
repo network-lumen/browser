@@ -3,7 +3,7 @@
     <header class="extensions-store-header flex-align-center-justify-space-between flex-wrap-wrap gap-16px border-bottom-1-slate-a16 pt-20px px-24px pb-16px">
       <div class="extensions-store-copy">
         <h1 class="extensions-store-copy-h1 color-store-heading">{{ headerTitle }}</h1>
-        <p class="extensions-store-copy-p m-0px mt-8px max-w-760px color-rgba-226-232-240-0-78" v-if="headerDescription">{{ headerDescription }}</p>
+        <p class="extensions-store-copy-p m-0px mt-8px max-w-760px color-store-subtitle" v-if="headerDescription">{{ headerDescription }}</p>
       </div>
 
       <div v-if="storeInstallId" class="extensions-store-header-actions flex-align-center flex-wrap-wrap flex-justify-end gap-10px flex-1-1-420px">
@@ -43,10 +43,10 @@
       @dom-ready="onDomReady"
     ></webview>
 
-    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap text-11px gap-12px line-height-14 color-rgba-148-163-184-0-88 mt-0px mx-24px mb-18px">
-      <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
-      <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Lumen install:</strong> installation is handled by Lumen.</span>
-      <span><strong class="txt-weight-light extensions-store-footnote-strong color-rgba-226-232-240-0-94">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
+    <footer class="extensions-store-footnote flex-align-center flex-wrap-wrap text-11px gap-12px line-height-14 color-store-footnote mt-0px mx-24px mb-18px">
+      <span><strong class="txt-weight-light extensions-store-footnote-strong color-store-strong">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
+      <span><strong class="txt-weight-light extensions-store-footnote-strong color-store-strong">Lumen install:</strong> installation is handled by Lumen.</span>
+      <span><strong class="txt-weight-light extensions-store-footnote-strong color-store-strong">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
     </footer>
   </div>
 </template>

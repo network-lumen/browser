@@ -92,19 +92,19 @@
         <!-- Balance Card -->
         <div class="border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 shadow-glow-primary-lg">
           <div class="walletpage-balance-header flex-align-center-justify-space-between mb-16px">
-            <span class="walletpage-balance-label text-uppercase txt-weight-light text-13px letter-spacing-008em color-rgba-255-255-255-0-85">Total Balance</span>
+            <span class="walletpage-balance-label text-uppercase txt-weight-light text-13px letter-spacing-008em color-white-a85">Total Balance</span>
             <UiButton variant="icon" icon-padding-class="" @click="showBalance = !showBalance" class="hover-bg-card flex-inline-align-justify-center size-32px color-white backdrop-blur-10">
               <Eye v-if="showBalance" :size="18" />
               <EyeOff v-else :size="18" />
             </UiButton>
           </div>
           <div class="walletpage-balance-amount flex gap-12px flex-align-baseline mb-12px">
-            <span class="walletpage-currency txt-weight-light text-18px color-rgba-255-255-255-0-9">LMN</span>
+            <span class="walletpage-currency txt-weight-light text-18px color-white-a90">LMN</span>
             <span class="walletpage-amount txt-weight-strong letter-spacing-n002 text-48px text-shadow-soft">
               {{ showBalance ? balanceLabel : '••••••' }}
             </span>
           </div>
-          <div class="walletpage-balance-change flex-align-center gap-8px fw-500 text-14px color-rgba-255-255-255-0-85">
+          <div class="walletpage-balance-change flex-align-center gap-8px fw-500 text-14px color-white-a85">
             <TrendingUp :size="14" />
             <span v-if="isConnected && !balanceError">On-chain balance</span>
             <span v-else-if="balanceError">Error loading balance</span>

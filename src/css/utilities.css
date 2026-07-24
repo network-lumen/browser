@@ -261,14 +261,12 @@
 .color-indigo { color: var(--color-indigo); }
 .color-purple { color: var(--color-purple); }
 .color-yellow-override { color: var(--color-yellow); }
-.color-rgba-148-163-184-0-88 { color: rgba(148, 163, 184, 0.88); }
-.color-rgba-226-232-240-0-78 { color: rgba(226, 232, 240, 0.78); }
-.color-rgba-226-232-240-0-94 { color: rgba(226, 232, 240, 0.94); }
-.color-rgba-255-255-255-0-85 { color: rgba(255, 255, 255, 0.85); }
-.color-rgba-255-255-255-0-9 { color: rgba(255, 255, 255, 0.9); }
 .color-scheme-light-dark { color-scheme: light dark; }
 .color-store-button { color: var(--store-button); }
 .color-store-error { color: var(--store-error); }
+.color-store-footnote { color: var(--store-footnote); }
+.color-store-strong { color: var(--store-strong); }
+.color-store-subtitle { color: var(--store-subtitle); }
 .color-store-heading { color: var(--store-heading); }
 .color-store-info { color: var(--store-info); }
 .color-success { color: var(--color-success); }
@@ -281,7 +279,9 @@
 .color-warning { color: var(--color-warning); }
 .color-white { color: #fff; }
 .color-white-a82 { color: rgba(255, 255, 255, 0.82); }
+.color-white-a85 { color: rgba(255, 255, 255, 0.85); }
 .color-white-a86 { color: rgba(255, 255, 255, 0.86); }
+.color-white-a90 { color: rgba(255, 255, 255, 0.9); }
 .color-white-a92 { color: rgba(255, 255, 255, 0.92); }
 .content-visibility-auto-240-220 { content-visibility: auto; contain-intrinsic-size: 240px 220px; }
 .content-visibility-auto-920-56 { content-visibility: auto; contain-intrinsic-size: 920px 56px; }

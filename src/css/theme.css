@@ -82,6 +82,9 @@
   --store-button: #e2e8f0;
   --store-info: #dbeafe;
   --store-error: #fecaca;
+  --store-subtitle: rgba(226, 232, 240, 0.78);
+  --store-strong: rgba(226, 232, 240, 0.94);
+  --store-footnote: rgba(148, 163, 184, 0.88);
   --extension-error-text: #ffb4b4;
 }
 
