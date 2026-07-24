@@ -9,7 +9,7 @@
         <div
           v-for="(t, i) in tabs"
           :key="t.id"
-          class="mainscreen-tab tone-tab-active reveal-on-active relative h-32px min-w-240px max-w-480px flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-hover flex-align-justify-center transition-ui border-1-transparent bg-transparent"
+          class="mainscreen-tab tone-tab-active reveal-on-active relative h-32px min-w-240px max-w-510px flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-hover flex-align-justify-center transition-ui border-1-transparent bg-transparent"
           :data-id="t.id"
           :class="tabClasses(t)"
           :style="tabStyle(t.id)"
