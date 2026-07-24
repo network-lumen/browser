@@ -1590,11 +1590,11 @@ function resultAccentGradient(r: ResultItem): string {
   if (!r) return "var(--gradient-brand)";
   if (r.kind === "tx") return "linear-gradient(180deg, var(--color-warning) 0%, rgba(var(--color-warning-rgb), 0.5) 100%)";
   if (r.kind === "block") return "linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%)";
-  if (r.kind === "address") return "linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%)";
+  if (r.kind === "address") return "linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)";
   if (r.kind === "ipfs") {
     switch (r.fileKind) {
       case "epub": return "linear-gradient(180deg, var(--ios-purple) 0%, rgba(var(--ios-purple-rgb), 0.5) 100%)";
-      case "docx": return "linear-gradient(180deg, var(--ios-teal) 0%, rgba(var(--ios-teal-rgb), 0.5) 100%)";
+      case "docx": return "linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)";
       case "html": return "linear-gradient(180deg, var(--color-primary) 0%, rgba(var(--color-primary-rgb), 0.5) 100%)";
       case "pdf": return "linear-gradient(180deg, var(--color-error) 0%, rgba(var(--color-error-rgb), 0.5) 100%)";
       case "txt": return "linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%)";
@@ -1628,7 +1628,7 @@ function resultIconStyle(r: ResultItem): Record<string, string> {
     case "block":
       return { background: "linear-gradient(135deg, rgba(var(--ios-indigo-rgb), 0.12) 0%, rgba(var(--ios-purple-rgb), 0.12) 100%)", color: "var(--ios-purple)" };
     case "address":
-      return { background: "linear-gradient(135deg, rgba(var(--ios-teal-rgb), 0.12) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--ios-teal)" };
+      return { background: "linear-gradient(135deg, rgba(var(--color-secondary-rgb), 0.12) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--color-secondary)" };
     case "link":
       return { background: "var(--fill-tertiary)" };
     default:
@@ -1640,7 +1640,7 @@ function typeBadgeStyle(r: ResultItem): Record<string, string> {
   if (r && r.kind === "ipfs") {
     switch (r.fileKind || "unknown") {
       case "epub": return { background: "rgba(var(--ios-purple-rgb), 0.12)", color: "var(--ios-purple)" };
-      case "docx": return { background: "rgba(var(--ios-teal-rgb), 0.12)", color: "var(--ios-teal)" };
+      case "docx": return { background: "rgba(var(--color-secondary-rgb), 0.12)", color: "var(--color-secondary)" };
       case "html": return { background: "rgba(var(--color-primary-rgb), 0.12)", color: "var(--color-primary)" };
       case "pdf": return { background: "var(--fill-error)" };
       case "txt": return { background: "var(--fill-tertiary)" };
@@ -1650,7 +1650,7 @@ function typeBadgeStyle(r: ResultItem): Record<string, string> {
   switch (r?.kind) {
     case "tx": return { background: "rgba(var(--color-warning-rgb), 0.12)" };
     case "block": return { background: "rgba(var(--ios-indigo-rgb), 0.12)", color: "var(--ios-purple)" };
-    case "address": return { background: "rgba(var(--ios-teal-rgb), 0.12)", color: "var(--ios-teal)" };
+    case "address": return { background: "rgba(var(--color-secondary-rgb), 0.12)", color: "var(--color-secondary)" };
     case "link": return { background: "var(--fill-tertiary)" };
     default: return {};
   }

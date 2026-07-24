@@ -3,8 +3,8 @@
   --black-rgb: 0, 0, 0;
   --color-primary: #007AFF;
   --color-primary-rgb: 0, 122, 255;
-  --ios-teal: #5AC8FA;
-  --ios-teal-rgb: 90, 200, 250;
+  --color-secondary: #5AC8FA;
+  --color-secondary-rgb: 90, 200, 250;
   --color-success: #34C759;
   --color-success-rgb: 52, 199, 89;
   --ios-indigo: #5856D6;
@@ -61,9 +61,8 @@
   --fill-success: rgba(var(--color-success-rgb), 0.15);
   --fill-error: rgba(var(--color-error-rgb), 0.15);
   --fill-blue: rgba(0, 122, 255, 0.15);
-  --accent-secondary: var(--ios-teal);
   --border: var(--border-color);
-  --blue-sky: var(--accent-secondary);
+  --blue-sky: var(--color-secondary);
   --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--ios-indigo) 100%);
   --gradient-primary-hover: linear-gradient(135deg, #0051D5 0%, var(--color-primary) 100%);
   --gradient-primary-soft: linear-gradient(135deg, var(--primary-a10) 0%, var(--primary-a05) 100%);
@@ -99,7 +98,7 @@
 /* System mode - Original Blue Theme */
 :root.system {
   --color-primary: #3498db !important;
-  --accent-secondary: #2980b9 !important;
+  --color-secondary: #2980b9 !important;
   --gradient-primary: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
   --gradient-primary-hover: linear-gradient(135deg, #2980b9 0%, #21618c 100%) !important;
   --gradient-brand: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
@@ -144,8 +143,8 @@
   --fill-blue: rgba(10, 132, 255, 0.25);
   --color-primary: #0A84FF;
   --color-primary-rgb: 10, 132, 255;
-  --ios-teal: #64D2FF;
-  --ios-teal-rgb: 100, 210, 255;
+  --color-secondary: #64D2FF;
+  --color-secondary-rgb: 100, 210, 255;
   --color-success: #32D74B;
   --color-success-rgb: 50, 215, 75;
   --ios-indigo: #5E5CE6;
@@ -160,7 +159,6 @@
   --ios-yellow-rgb: 255, 214, 10;
   --color-error: #FF453A;
   --color-error-rgb: 255, 69, 58;
-  --accent-secondary: #64D2FF;
   --ios-gray-1: #8E8E93;
   --ios-gray-2: #636366;
   --ios-gray-4: #3A3A3C;

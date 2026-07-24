@@ -97,7 +97,7 @@
 .bg-gradient-secondary { background: var(--gradient-secondary); }
 .bg-gradient-secondary-hover { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--hover-bg) 100%); }
 .bg-gradient-shell { background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a25), transparent 60%), radial-gradient(1200px 400px at 110% -50%, var(--primary-a06), transparent 60%), linear-gradient(135deg, var(--primary-a06), var(--primary-a06)); }
-.bg-gradient-teal-green { background: linear-gradient(90deg, var(--ios-teal), var(--color-success)); }
+.bg-gradient-teal-green { background: linear-gradient(90deg, var(--color-secondary), var(--color-success)); }
 .bg-gradient-teal-sky { background: linear-gradient(135deg, #0f766e, #0ea5e9); }
 .bg-gradient-thumb-overlay { background: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.55)); }
 .bg-gradient-voting-power { background: linear-gradient(90deg, rgba(var(--color-success-rgb), 0.8), rgba(var(--color-success-rgb), 0.6)); }
@@ -258,7 +258,7 @@
    !important beats a later inline style, so a plain (non-important)
    class or a literal style="" attribute would both lose to it. */
 .chart-canvas-fixed-100px { width: 100px !important; height: 100px !important; }
-.color-accent-secondary { color: var(--accent-secondary); }
+.color-accent-secondary { color: var(--color-secondary); }
 .color-error { color: var(--color-error); }
 .color-extension-error { color: var(--extension-error-text); }
 .color-inherit { color: inherit; }
@@ -411,7 +411,7 @@
 .hover-bg-error:hover { background: var(--color-error); }
 .hover-bg-fill-error:hover { background: var(--fill-error); }
 .hover-bg-fill-success:hover { background: var(--fill-success); }
-.hover-bg-gradient-accent-secondary-lift:hover { background: linear-gradient(135deg, var(--accent-secondary) 0%, color-mix(in srgb, var(--accent-secondary) 60%, black) 100%); transform: translateY(-1px); }
+.hover-bg-gradient-accent-secondary-lift:hover { background: linear-gradient(135deg, var(--color-secondary) 0%, color-mix(in srgb, var(--color-secondary) 60%, black) 100%); transform: translateY(-1px); }
 .hover-bg-gradient-danger-deep:hover { background: linear-gradient(135deg, color-mix(in srgb, var(--color-error) 80%, black) 0%, color-mix(in srgb, var(--color-error) 60%, black) 100%); }
 .hover-bg-hover:hover { background: var(--hover-bg); }
 .hover-bg-hover-enabled:hover:not(:disabled) { background: var(--hover-bg); }
@@ -433,7 +433,7 @@
 .hover-border-primary-a30:hover { border-color: var(--primary-a30); }
 .hover-border-radius-6px:hover { border-radius: 6px; }
 .hover-color-accent:hover { color: var(--color-primary); }
-.hover-color-accent-secondary:hover { color: var(--accent-secondary); }
+.hover-color-accent-secondary:hover { color: var(--color-secondary); }
 .hover-color-error:hover { color: var(--color-error); }
 .hover-color-primary:hover { color: var(--color-primary); }
 .hover-color-text-primary:hover { color: var(--text-primary); }
