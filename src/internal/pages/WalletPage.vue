@@ -588,71 +588,47 @@
               </span>
             </div>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Asset</label>
-              <div class="walletpage-input-wrapper opacity-70 relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                  :value="`${assetTransferContext.displayName} (${assetTransferContext.displaySymbol})`"
-                  readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-              </div>
-            </div>
+            <UiFormGroup label="Asset" dimmed>
+              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
+                :value="`${assetTransferContext.displayName} (${assetTransferContext.displaySymbol})`"
+                readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+            </UiFormGroup>
 
             <div class="walletpage-asset-modal-grid gap-16px grid grid-cols-2-minmax0">
-              <div class="walletpage-form-group mb-20px">
-                <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From chain</label>
-                <div class="walletpage-input-wrapper opacity-70 relative">
-                  <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.chainLabel" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-                </div>
-              </div>
-              <div class="walletpage-form-group mb-20px">
-                <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">To chain</label>
-                <div class="walletpage-input-wrapper relative">
-                  <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="assetTransferForm.destinationKey">
-                    <option
-                      v-for="target in assetTransferContext.transferTargets"
-                      :key="target.key"
-                      :value="target.key"
-                    >
-                      {{ target.chainLabel }}
-                    </option>
-                  </select>
-                </div>
-              </div>
+              <UiFormGroup label="From chain" dimmed>
+                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.chainLabel" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+              </UiFormGroup>
+              <UiFormGroup label="To chain">
+                <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="assetTransferForm.destinationKey">
+                  <option
+                    v-for="target in assetTransferContext.transferTargets"
+                    :key="target.key"
+                    :value="target.key"
+                  >
+                    {{ target.chainLabel }}
+                  </option>
+                </select>
+              </UiFormGroup>
             </div>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From address</label>
-              <div class="walletpage-input-wrapper opacity-70 relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.ownerAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-              </div>
-            </div>
+            <UiFormGroup label="From address" dimmed>
+              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.ownerAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+            </UiFormGroup>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Recipient <span class="walletpage-required color-error">*</span></label>
-              <div class="walletpage-input-wrapper relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                  v-model="assetTransferForm.recipient"
-                  :placeholder="selectedAssetTransferTarget?.defaultRecipient || 'Destination address'" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-              </div>
-              <div v-if="selectedAssetTransferTarget" class="walletpage-field-hint color-text-secondary mt-8px text-13px">
-                Default wallet on destination: {{ selectedAssetTransferTarget.defaultRecipient }}
-              </div>
-            </div>
+            <UiFormGroup required label="Recipient" :hint="selectedAssetTransferTarget ? `Default wallet on destination: ${selectedAssetTransferTarget.defaultRecipient}` : ''">
+              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
+                v-model="assetTransferForm.recipient"
+                :placeholder="selectedAssetTransferTarget?.defaultRecipient || 'Destination address'" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+            </UiFormGroup>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Amount <span class="walletpage-required color-error">*</span></label>
-              <div class="walletpage-input-wrapper walletpage-amount-input relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                  inputmode="decimal"
-                  v-model="assetTransferForm.amount"
-                  placeholder="0.000000"
-                  @input="validateAssetTransferAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ assetTransferContext.displaySymbol }}</span>
-              </div>
-              <div class="walletpage-balance-hint color-text-secondary mt-8px text-13px">
-                Available: {{ assetTransferContext.displayAmount }} {{ assetTransferContext.displaySymbol }}
-              </div>
-            </div>
+            <UiFormGroup required label="Amount" :hint="`Available: ${assetTransferContext.displayAmount} ${assetTransferContext.displaySymbol}`">
+              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
+                inputmode="decimal"
+                v-model="assetTransferForm.amount"
+                placeholder="0.000000"
+                @input="validateAssetTransferAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
+              <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ assetTransferContext.displaySymbol }}</span>
+            </UiFormGroup>
 
             <UiSummaryCard title="Transfer Summary">
               <UiSummaryRow label="Route" :value="selectedAssetTransferTarget?.routeLabel || 'Select destination'" />
@@ -690,74 +666,60 @@
                 After that, transactions are confirmed within ~6 seconds.</span>
             </div>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">From</label>
-              <div class="walletpage-input-wrapper opacity-70 relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="sendSourceAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-              </div>
-              <div class="walletpage-field-hint color-text-secondary mt-8px text-13px">Chain: {{ sendSourceChainLabel }}</div>
-            </div>
+            <UiFormGroup label="From" dimmed :hint="`Chain: ${sendSourceChainLabel}`">
+              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="sendSourceAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+            </UiFormGroup>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Asset</label>
-              <div class="walletpage-input-wrapper opacity-70 relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-              </div>
-            </div>
+            <UiFormGroup label="Asset" dimmed>
+              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+            </UiFormGroup>
 
-            <div v-if="!sendAssetContext" class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Send to</label>
-              <div class="walletpage-input-wrapper relative">
-                <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="sendTargetMode">
-                  <option value="lumen">On the current chain</option>
-                  <option value="ibc">Across IBC to another chain</option>
-                </select>
-              </div>
-            </div>
+            <UiFormGroup v-if="!sendAssetContext" label="Send to">
+              <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="sendTargetMode">
+                <option value="lumen">On the current chain</option>
+                <option value="ibc">Across IBC to another chain</option>
+              </select>
+            </UiFormGroup>
 
-            <div v-if="isIbcSend" class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">IBC route <span class="walletpage-required color-error">*</span></label>
-              <div class="walletpage-input-wrapper relative">
-                <select
-                  class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none"
-                  v-model="ibcForm.sourceChannel"
-                  :disabled="ibcChannelsLoading || !ibcChannels.length"
+            <UiFormGroup v-if="isIbcSend" required label="IBC route">
+              <select
+                class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none"
+                v-model="ibcForm.sourceChannel"
+                :disabled="ibcChannelsLoading || !ibcChannels.length"
+              >
+                <option value="" disabled>
+                  {{ ibcChannelsLoading ? 'Loading IBC channels...' : 'Select an IBC route' }}
+                </option>
+                <option
+                  v-for="channel in ibcChannels"
+                  :key="`${channel.portId}:${channel.channelId}`"
+                  :value="channel.channelId"
                 >
-                  <option value="" disabled>
-                    {{ ibcChannelsLoading ? 'Loading IBC channels...' : 'Select an IBC route' }}
-                  </option>
-                  <option
-                    v-for="channel in ibcChannels"
-                    :key="`${channel.portId}:${channel.channelId}`"
-                    :value="channel.channelId"
-                  >
-                    {{ channel.label }}
-                  </option>
-                </select>
-              </div>
-              <div v-if="selectedIbcChannel" class="walletpage-field-hint color-text-secondary mt-8px text-13px">
-                Route: {{ selectedIbcChannel.portId }}/{{ selectedIbcChannel.channelId }}
-                <span v-if="selectedIbcChannel.chainId"> · Destination chain: {{ selectedIbcChannel.chainId }}</span>
-              </div>
-              <div v-else-if="ibcChannelsError" class="walletpage-field-hint color-error mt-8px text-13px">
-                {{ ibcChannelsError }}
-              </div>
-            </div>
+                  {{ channel.label }}
+                </option>
+              </select>
+              <template v-if="selectedIbcChannel || ibcChannelsError" #hint>
+                <template v-if="selectedIbcChannel">
+                  Route: {{ selectedIbcChannel.portId }}/{{ selectedIbcChannel.channelId }}
+                  <span v-if="selectedIbcChannel.chainId"> · Destination chain: {{ selectedIbcChannel.chainId }}</span>
+                </template>
+                <template v-else-if="ibcChannelsError">{{ ibcChannelsError }}</template>
+              </template>
+            </UiFormGroup>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">{{ isIbcSend ? 'Destination address' : 'Recipient' }} <span class="walletpage-required color-error">*</span></label>
+            <UiFormGroup required :label="isIbcSend ? 'Destination address' : 'Recipient'">
               <div class="walletpage-input-wrapper-relative relative">
                 <div class="walletpage-input-wrapper relative">
-                  <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" 
-                    v-model="sendForm.recipient" 
+                  <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
+                    v-model="sendForm.recipient"
                     :placeholder="sendRecipientPlaceholder" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
                   <UiButton variant="secondary" @click="openQrScanner"
                     type="button"
                     title="Scan QR Code" class="hover-bg-accent-color-white absolute top-half translate-y-center right-12px">
                     <QrCode :size="16" />
                   </UiButton>
-                  <button 
-                    v-if="contacts.length > 0" 
+                  <button
+                    v-if="contacts.length > 0"
                     class="hover-bg-accent-color-white flex-align-justify-center color-text-secondary cursor-pointer absolute p-8px border-none bg-hover border-radius-6px transition-all-02 top-half translate-y-center right-3-5rem"
                     @click="showContactPicker = !showContactPicker"
                     type="button"
@@ -774,8 +736,8 @@
                     </UiButton>
                   </div>
                   <div class="max-h-300px overflow-y-auto">
-                    <button 
-                      v-for="contact in contacts" 
+                    <button
+                      v-for="contact in contacts"
                       :key="contact.id"
                       class="hover-bg-hover last-border-bottom-none flex-align-center gap-12px w-full text-left cursor-pointer py-12px px-16px border-none bg-transparent transition-all-02 border-bottom-1"
                       @click="selectContactForSend(contact)"
@@ -789,22 +751,16 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </UiFormGroup>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Amount ({{ sendAssetSymbol }}) <span class="walletpage-required color-error">*</span></label>
-              <div class="walletpage-input-wrapper walletpage-amount-input relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                  inputmode="decimal"
-                  v-model="sendForm.amount"
-                  placeholder="0.000000"
-                  @input="validateAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
-                <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ sendAssetSymbol }}</span>
-              </div>
-              <div class="walletpage-balance-hint color-text-secondary mt-8px text-13px" v-if="sendAvailableLabel">
-                Available: {{ sendAvailableLabel }} {{ sendAssetSymbol }}
-              </div>
-            </div>
+            <UiFormGroup required :label="`Amount (${sendAssetSymbol})`" :hint="sendAvailableLabel ? `Available: ${sendAvailableLabel} ${sendAssetSymbol}` : ''">
+              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
+                inputmode="decimal"
+                v-model="sendForm.amount"
+                placeholder="0.000000"
+                @input="validateAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
+              <span class="walletpage-input-suffix txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ sendAssetSymbol }}</span>
+            </UiFormGroup>
 
             <UiSummaryCard :title="isIbcSend ? 'Transfer Summary' : 'Transaction Summary'">
               <UiSummaryRow :label="isIbcSend ? 'Transfer amount' : 'Amount debited'" :value="`${sendSummary.amount} ${sendAssetSymbol}`" />
@@ -867,33 +823,24 @@
           <template #icon><Users :size="20" /></template>
         </UiModalHeader>
       </template>
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Name <span class="walletpage-required color-error">*</span></label>
-              <div class="walletpage-input-wrapper relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" 
-                  v-model="contactForm.name" 
-                  placeholder="Enter contact name" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-              </div>
-            </div>
+            <UiFormGroup required label="Name">
+              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
+                v-model="contactForm.name"
+                placeholder="Enter contact name" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+            </UiFormGroup>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Address <span class="walletpage-required color-error">*</span></label>
-              <div class="walletpage-input-wrapper relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" 
-                  v-model="contactForm.address" 
-                  placeholder="lmn1..." 
-                  :readonly="!!editingContact" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-              </div>
-            </div>
+            <UiFormGroup required label="Address">
+              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
+                v-model="contactForm.address"
+                placeholder="lmn1..."
+                :readonly="!!editingContact" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+            </UiFormGroup>
 
-            <div class="walletpage-form-group mb-20px">
-              <label class="walletpage-form-group-label block text-14px txt-weight-light color-text-primary mb-8px">Note (optional)</label>
-              <div class="walletpage-input-wrapper relative">
-                <UiInput type="textarea" bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" v-model="contactForm.note" 
-                  placeholder="Add a note about this contact"
-                  rows="3" class="textarea-min-h-80-font-inherit resize-vertical mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary"></UiInput>
-              </div>
-            </div>
+            <UiFormGroup label="Note (optional)">
+              <UiInput type="textarea" bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" v-model="contactForm.note"
+                placeholder="Add a note about this contact"
+                rows="3" class="textarea-min-h-80-font-inherit resize-vertical mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary"></UiInput>
+            </UiFormGroup>
 
             <UiButton variant="primary" @click="saveContact" 
               :disabled="!contactForm.name || !contactForm.address || savingContact" class="disabled-fade-50">
@@ -947,6 +894,7 @@ import UiChartHeader from '../../ui/UiChartHeader.vue';
 import UiModalHeader from '../../ui/UiModalHeader.vue';
 import UiSummaryCard from '../../ui/UiSummaryCard.vue';
 import UiSummaryRow from '../../ui/UiSummaryRow.vue';
+import UiFormGroup from '../../ui/UiFormGroup.vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
