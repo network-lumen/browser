@@ -67,46 +67,18 @@
           <section class="quick-actions flex flex-column gap-16px">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">Get Started</h3>
             <div class="helppage-actions-grid gap-12px grid grid-cols-2">
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-16px text-left py-16px px-20px border-default bg-card transition-all-fast hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://drive')">
-                <div class="helppage-action-icon drive flex-align-justify-center size-48px border-radius-14px flex-shrink-0 color-primary bg-fill-blue">
-                  <FolderOpen :size="24" />
-                </div>
-                <div class="helppage-action-info flex-1 flex flex-column gap-2px min-w-0">
-                  <span class="helppage-action-title color-text-primary txt-weight-medium text-15px">Drive</span>
-                  <span class="helppage-action-desc color-text-secondary text-13px">Upload and manage your files</span>
-                </div>
-                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
-              </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-16px text-left py-16px px-20px border-default bg-card transition-all-fast hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://domain')">
-                <div class="helppage-action-icon domain flex-align-justify-center size-48px border-radius-14px flex-shrink-0 helppage-action-icon-domain color-purple bg-purple-a15">
-                  <Link2 :size="24" />
-                </div>
-                <div class="helppage-action-info flex-1 flex flex-column gap-2px min-w-0">
-                  <span class="helppage-action-title color-text-primary txt-weight-medium text-15px">Domains</span>
-                  <span class="helppage-action-desc color-text-secondary text-13px">Register your .lmn domain</span>
-                </div>
-                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
-              </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-16px text-left py-16px px-20px border-default bg-card transition-all-fast hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://wallet')">
-                <div class="helppage-action-icon wallet bg-fill-success color-success flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
-                  <Wallet :size="24" />
-                </div>
-                <div class="helppage-action-info flex-1 flex flex-column gap-2px min-w-0">
-                  <span class="helppage-action-title color-text-primary txt-weight-medium text-15px">Wallet</span>
-                  <span class="helppage-action-desc color-text-secondary text-13px">Manage your LMN tokens</span>
-                </div>
-                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
-              </button>
-              <button class="helppage-action-card flex-align-center cursor-pointer gap-16px border-radius-16px text-left py-16px px-20px border-default bg-card transition-all-fast hover-bg-hover hover-lift-1" type="button" @click="goto('lumen://search')">
-                <div class="helppage-action-icon search bg-warning-a15 color-warning flex-align-justify-center size-48px border-radius-14px flex-shrink-0">
-                  <Search :size="24" />
-                </div>
-                <div class="helppage-action-info flex-1 flex flex-column gap-2px min-w-0">
-                  <span class="helppage-action-title color-text-primary txt-weight-medium text-15px">Search</span>
-                  <span class="helppage-action-desc color-text-secondary text-13px">Discover decentralized content</span>
-                </div>
-                <ArrowRight :size="16" class="helppage-action-arrow color-text-tertiary flex-shrink-0" />
-              </button>
+              <UiActionCard title="Drive" description="Upload and manage your files" icon-class="color-primary bg-fill-blue" @click="goto('lumen://drive')">
+                <template #icon><FolderOpen :size="24" /></template>
+              </UiActionCard>
+              <UiActionCard title="Domains" description="Register your .lmn domain" icon-class="color-purple bg-purple-a15" @click="goto('lumen://domain')">
+                <template #icon><Link2 :size="24" /></template>
+              </UiActionCard>
+              <UiActionCard title="Wallet" description="Manage your LMN tokens" icon-class="bg-fill-success color-success" @click="goto('lumen://wallet')">
+                <template #icon><Wallet :size="24" /></template>
+              </UiActionCard>
+              <UiActionCard title="Search" description="Discover decentralized content" icon-class="bg-warning-a15 color-warning" @click="goto('lumen://search')">
+                <template #icon><Search :size="24" /></template>
+              </UiActionCard>
             </div>
           </section>
 
@@ -114,27 +86,9 @@
           <section class="how-it-works flex flex-column gap-16px">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">How Lumen Works</h3>
             <div class="helppage-steps-grid gap-16px grid grid-cols-3">
-              <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
-                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">1</div>
-                <div class="helppage-step-content">
-                  <h4 class="color-text-primary txt-weight-medium helppage-step-content-h4 text-14px m-0px mb-4px">Blockchain Names</h4>
-                  <p class="color-text-secondary text-13px line-height-14 m-0px">Domain names are stored on the blockchain - no central authority can take them away.</p>
-                </div>
-              </UiCard>
-              <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
-                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">2</div>
-                <div class="helppage-step-content">
-                  <h4 class="color-text-primary txt-weight-medium helppage-step-content-h4 text-14px m-0px mb-4px">Distributed Storage</h4>
-                  <p class="color-text-secondary text-13px line-height-14 m-0px">Content is stored across multiple nodes, ensuring availability even if some go offline.</p>
-                </div>
-              </UiCard>
-              <UiCard padding="none" :shadow="false" class="helppage-step-card flex gap-16px p-20px">
-                <div class="helppage-step-number flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-16px">3</div>
-                <div class="helppage-step-content">
-                  <h4 class="color-text-primary txt-weight-medium helppage-step-content-h4 text-14px m-0px mb-4px">Verified Access</h4>
-                  <p class="color-text-secondary text-13px line-height-14 m-0px">Every piece of content is cryptographically verified for authenticity.</p>
-                </div>
-              </UiCard>
+              <UiStepCard :number="1" title="Blockchain Names">Domain names are stored on the blockchain - no central authority can take them away.</UiStepCard>
+              <UiStepCard :number="2" title="Distributed Storage">Content is stored across multiple nodes, ensuring availability even if some go offline.</UiStepCard>
+              <UiStepCard :number="3" title="Verified Access">Every piece of content is cryptographically verified for authenticity.</UiStepCard>
             </div>
           </section>
 
@@ -142,42 +96,22 @@
           <section class="features-section flex flex-column gap-16px">
             <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">Key Features</h3>
             <div class="helppage-features-grid gap-16px grid grid-cols-2">
-              <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="flex-align-justify-center border-radius-12px bg-fill-tertiary color-primary flex-shrink-0 size-48px">
-                  <Globe :size="24" />
-                </div>
-                <div class="helppage-feature-content">
-                  <h4 class="color-text-primary txt-weight-medium helppage-feature-content-h4 text-14px m-0px mb-4px">Human-Readable Links</h4>
-                  <p class="color-text-secondary m-0px helppage-feature-content-p text-13px line-height-14">Type <code>demo.lmn</code> instead of long cryptographic hashes.</p>
-                </div>
-              </UiCard>
-              <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="flex-align-justify-center border-radius-12px bg-fill-tertiary color-primary flex-shrink-0 size-48px">
-                  <Database :size="24" />
-                </div>
-                <div class="helppage-feature-content">
-                  <h4 class="color-text-primary txt-weight-medium helppage-feature-content-h4 text-14px m-0px mb-4px">Content Everywhere</h4>
-                  <p class="color-text-secondary m-0px helppage-feature-content-p text-13px line-height-14">Your website exists in many places, so it stays available.</p>
-                </div>
-              </UiCard>
-              <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="flex-align-justify-center border-radius-12px bg-fill-tertiary color-primary flex-shrink-0 size-48px">
-                  <Server :size="24" />
-                </div>
-                <div class="helppage-feature-content">
-                  <h4 class="color-text-primary txt-weight-medium helppage-feature-content-h4 text-14px m-0px mb-4px">Pro Cloud Service</h4>
-                  <p class="color-text-secondary m-0px helppage-feature-content-p text-13px line-height-14">Optional premium service for faster loading and reliability.</p>
-                </div>
-              </UiCard>
-              <UiCard padding="none" :shadow="false" class="helppage-feature-card flex gap-16px p-20px">
-                <div class="flex-align-justify-center border-radius-12px bg-fill-tertiary color-primary flex-shrink-0 size-48px">
-                  <Wallet :size="24" />
-                </div>
-                <div class="helppage-feature-content">
-                  <h4 class="color-text-primary txt-weight-medium helppage-feature-content-h4 text-14px m-0px mb-4px">Your Identity</h4>
-                  <p class="color-text-secondary m-0px helppage-feature-content-p text-13px line-height-14">Your wallet proves what you own and enables transactions.</p>
-                </div>
-              </UiCard>
+              <UiFeatureCard title="Human-Readable Links">
+                <template #icon><Globe :size="24" /></template>
+                Type <code>demo.lmn</code> instead of long cryptographic hashes.
+              </UiFeatureCard>
+              <UiFeatureCard title="Content Everywhere">
+                <template #icon><Database :size="24" /></template>
+                Your website exists in many places, so it stays available.
+              </UiFeatureCard>
+              <UiFeatureCard title="Pro Cloud Service">
+                <template #icon><Server :size="24" /></template>
+                Optional premium service for faster loading and reliability.
+              </UiFeatureCard>
+              <UiFeatureCard title="Your Identity">
+                <template #icon><Wallet :size="24" /></template>
+                Your wallet proves what you own and enables transactions.
+              </UiFeatureCard>
             </div>
           </section>
         </div>
@@ -196,45 +130,33 @@
 
           <!-- Steps -->
           <div class="tutorial-steps flex flex-column gap-16px">
-            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
-              <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">1</div>
-                <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Build Your Website</h4>
-              </div>
-              <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.</p>
-            </UiCard>
+            <UiTutorialStep :number="1" title="Build Your Website">
+              Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.
+            </UiTutorialStep>
 
-            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
-              <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">2</div>
-                <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Upload It to Drive</h4>
-              </div>
-              <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Open Drive, upload that folder, then copy its Lumen link — that's your content's address.</p>
-              <UiButton variant="primary" type="button" @click="goto('lumen://drive')" class="helppage-step-action">
-                <FolderOpen :size="18" />
-                <span>Open Drive</span>
-              </UiButton>
-            </UiCard>
+            <UiTutorialStep :number="2" title="Upload It to Drive">
+              Open Drive, upload that folder, then copy its Lumen link — that's your content's address.
+              <template #action>
+                <UiButton variant="primary" type="button" @click="goto('lumen://drive')" class="helppage-step-action">
+                  <FolderOpen :size="18" />
+                  <span>Open Drive</span>
+                </UiButton>
+              </template>
+            </UiTutorialStep>
 
-            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
-              <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">3</div>
-                <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Get a Domain</h4>
-              </div>
-              <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.</p>
-              <UiButton variant="primary" type="button" @click="goto('lumen://domain')" class="helppage-step-action">
-                <Link2 :size="18" />
-                <span>Open Domains</span>
-              </UiButton>
-            </UiCard>
+            <UiTutorialStep :number="3" title="Get a Domain">
+              Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.
+              <template #action>
+                <UiButton variant="primary" type="button" @click="goto('lumen://domain')" class="helppage-step-action">
+                  <Link2 :size="18" />
+                  <span>Open Domains</span>
+                </UiButton>
+              </template>
+            </UiTutorialStep>
 
-            <UiCard padding="none" :shadow="false" class="helppage-tutorial-step p-20px">
-              <div class="helppage-step-header flex-align-center gap-12px mb-8px">
-                <div class="helppage-step-number flex-align-justify-center size-28px border-radius-circle txt-weight-medium bg-gradient-primary color-white flex-shrink-0 text-14px">4</div>
-                <h4 class="color-text-primary m-0px txt-weight-medium helppage-step-header-h4 text-16px">Link Your Domain to Your Content</h4>
-              </div>
-              <p class="color-text-secondary helppage-tutorial-step-p text-14px line-height-15 m-0px mb-12px">Edit your domain, then add a new record: set <strong>Key</strong> to <code>cid</code> and <strong>Value</strong> to the link you copied in step 2. Save.</p>
-            </UiCard>
+            <UiTutorialStep :number="4" title="Link Your Domain to Your Content">
+              Edit your domain, then add a new record: set <strong>Key</strong> to <code>cid</code> and <strong>Value</strong> to the link you copied in step 2. Save.
+            </UiTutorialStep>
           </div>
 
           <div class="helppage-discover-note color-text-primary mt-16px border-radius-14px text-14px py-12px px-16px bg-fill-blue line-height-14 border-1-primary-a15">
@@ -317,7 +239,10 @@
 import UiButton from '../../ui/UiButton.vue';
 import { computed, inject, ref, watch } from 'vue';
 import type { ComputedRef } from 'vue';
-import UiCard from '../../ui/UiCard.vue';
+import UiActionCard from '../../ui/UiActionCard.vue';
+import UiFeatureCard from '../../ui/UiFeatureCard.vue';
+import UiStepCard from '../../ui/UiStepCard.vue';
+import UiTutorialStep from '../../ui/UiTutorialStep.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { 
