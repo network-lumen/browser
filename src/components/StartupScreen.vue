@@ -9,7 +9,7 @@
 
     <main class="startup-body h-auto flex flex-1-1-auto min-h-0">
       <div v-if="phase === 'starting' || phase === 'retrying'" class="startup-center flex-align-center flex-column text-center gap-12px py-28px px-24px mt-auto mx-auto mb-32px">
-        <div class="border-radius-full w-40px h-40px border-3-fill-secondary spinner-accent" aria-label="Loading"></div>
+        <UiLoadingSpinner aria-label="Loading" />
       </div>
 
       <div v-else-if="phase === 'error'" class="startup-center flex-align-center flex-column text-center gap-12px py-28px px-24px mt-auto mx-auto mb-32px">
@@ -34,6 +34,7 @@
 <script setup lang="ts">
 import UiCard from '../ui/UiCard.vue';
 import UiButton from '../ui/UiButton.vue';
+import UiLoadingSpinner from '../ui/UiLoadingSpinner.vue';
 import { ref, onMounted } from 'vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
 import logoUrl from '../img/logo.png';
