@@ -929,7 +929,7 @@
             <div class="walletpage-address-box border-radius-12px p-20px border-2 bg-secondary mb-0px">
               <div class="walletpage-address-label txt-weight-medium color-text-secondary text-uppercase text-14px mb-12px letter-spacing-005em">Your Wallet Address</div>
               <div class="walletpage-address-value mono text-13px p-14px text-15px color-text-primary break-all mb-16px bg-card border-1 border-radius-8px line-height-15">{{ address || '-' }}</div>
-              <UiButton variant="secondary" type="button" @click="copyAddressWithToast" :disabled="!address" class="border-2-solid-accent-primary disabled-fade-50">
+              <UiButton variant="secondary" type="button" @click="copyAddressWithToast" :disabled="!address" class="border-2-primary disabled-fade-50">
                 <Copy :size="16" />
                 <span>Copy Address</span>
               </UiButton>

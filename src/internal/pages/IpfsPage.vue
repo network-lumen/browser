@@ -24,7 +24,7 @@
             class="ipfspage-plans-btn disabled-fade-50"
             type="button"
             @click="openSaveModal"
-            :class="{ 'bg-success-a12-override border-1-success-a38-override color-success': saved }"
+            :class="{ 'bg-success-a12-override border-1-success-a38 color-success': saved }"
             :disabled="!canSaveToDrive || saving || saved"
             :title="
               saved ? 'Saved to Drive' : saving ? 'Saving...' : 'Save to Drive'
@@ -54,7 +54,7 @@
         <UiSpinner size="md" />
       </UiCard>
 
-      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-16px color-error bg-fill-error border-error-a35">
+      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-16px color-error bg-fill-error border-05-error-a35">
         {{ error }}
       </div>
 
