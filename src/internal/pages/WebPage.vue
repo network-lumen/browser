@@ -30,6 +30,7 @@
       @did-start-loading="onDidStartLoading"
       @did-stop-loading="onDidStopLoading"
       @dom-ready="onDomReady"
+      @page-favicon-updated="onPageFaviconUpdated"
       @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
       @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
     ></webview>
@@ -53,6 +54,7 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
    "findRegisterTarget",
    null,
  );
+ const setTabFavicon = inject<((icon: string | null) => void) | null>("setTabFavicon", null);
 
 const webviewRef = ref<any>(null);
 const pageActive = ref(false);
@@ -392,6 +394,13 @@ function syncNavFromWebview(rawUrl: string) {
  function onDomReady() {
    webviewLoading.value = false;
    void nextTick(() => reportFindTarget());
+ }
+
+ function onPageFaviconUpdated(ev: any) {
+   if (!pageActive.value) return;
+   const favicons = Array.isArray(ev?.favicons) ? ev.favicons : [];
+   const icon = typeof favicons[0] === "string" ? favicons[0].trim() : "";
+   setTabFavicon?.(icon || null);
  }
 
  function onWebviewEnterHtmlFullscreen() {

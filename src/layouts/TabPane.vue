@@ -93,6 +93,12 @@ function setCurrentTabLoading(next: boolean) {
 
 provide("setCurrentTabLoading", setCurrentTabLoading);
 
+provide("setTabFavicon", (icon: string | null) => {
+  const tab = tabState.value;
+  if (!tab) return;
+  tab.favicon = icon || null;
+});
+
 provide("navigate", (url: string, opts?: { push?: boolean }) => {
   navigateInternal(url, opts || {});
 });

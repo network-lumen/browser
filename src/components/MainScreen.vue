@@ -700,36 +700,59 @@ async function openInNewTab(url: string) {
     t.favicon = null;
   }
 
+  function webHostOf(url: string): string {
+    try {
+      const u = new URL(url);
+      return u.protocol === 'http:' || u.protocol === 'https:' ? u.host.toLowerCase() : '';
+    } catch {
+      return '';
+    }
+  }
+
   async function ensureTabFavicon(t: Tab) {
     const url = String(t.url || '').trim();
-    const host = parseLumenHost(url);
+    const lumenHost = parseLumenHost(url);
+    const webHost = lumenHost ? '' : webHostOf(url);
+    // Track lumen hosts and regular web hosts under distinct namespaces so a
+    // real navigation change is never mistaken for a no-op (both resolve to
+    // an empty string on their own, which used to collide).
+    const trackKey = lumenHost ? `lumen:${lumenHost}` : webHost ? `web:${webHost}` : '';
 
     const prev = tabHostById.get(t.id) || '';
-    if (prev === host) return;
-    tabHostById.set(t.id, host);
+    if (prev === trackKey) return;
+    tabHostById.set(t.id, trackKey);
 
-    if (!host) {
-      t.favicon = lumenFavicon;
+    if (lumenHost) {
+      if (INTERNAL_KEYS.has(lumenHost)) {
+        t.favicon = lumenFavicon;
+        return;
+      }
+
+      if (!isDomainHost(lumenHost)) {
+        t.favicon = null;
+        return;
+      }
+
+      // Clear immediately so a domain switch never shows the previous site's
+      // icon while this one's favicon is still resolving.
+      t.favicon = null;
+      const icon = await getFaviconForHost(lumenHost);
+      if (tabHostById.get(t.id) !== trackKey) return;
+      if (icon) t.favicon = icon;
       return;
     }
 
-    if (INTERNAL_KEYS.has(host)) {
-      t.favicon = lumenFavicon;
-      return;
-    }
-
-    if (!isDomainHost(host)) {
+    if (webHost) {
+      // Regular http(s) site: clear the previous icon immediately so a
+      // domain switch never shows a stale one. The real favicon comes from
+      // the webview's own `page-favicon-updated` event (wired in
+      // WebPage.vue via the `setTabFavicon` injection) once the page's
+      // <link rel="icon"> is parsed - browsers don't guess this from a URL.
       t.favicon = null;
       return;
     }
 
-    // Clear immediately so a domain switch never shows the previous site's
-    // icon while this one's favicon is still resolving.
-    t.favicon = null;
-    const reqHost = host;
-    const icon = await getFaviconForHost(reqHost);
-    if (tabHostById.get(t.id) !== reqHost) return;
-    if (icon) t.favicon = icon;
+    t.favicon = lumenFavicon;
   }
 
   watch(
