@@ -62,30 +62,18 @@
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Theme Preference" description="Choose your preferred color scheme">
             <div class="settingspage-theme-selector flex gap-8px border-radius-10px bg-secondary border-1 p-4px">
-              <button
-                class="flex-align-center gap-8px fw-500 color-text-secondary cursor-pointer py-8px px-16px bg-transparent border-none border-radius-8px text-14px transition-all-02 hover-color-text-primary hover-bg-hover"
-                :class="{ 'shadow-sm bg-card color-primary': theme === 'light' }"
-                @click="setTheme('light')"
-              >
+              <UiSegmentedButton :active="theme === 'light'" @click="setTheme('light')">
                 <Sun :size="18" />
                 <span>Light</span>
-              </button>
-              <button
-                class="flex-align-center gap-8px fw-500 color-text-secondary cursor-pointer py-8px px-16px bg-transparent border-none border-radius-8px text-14px transition-all-02 hover-color-text-primary hover-bg-hover"
-                :class="{ 'shadow-sm bg-card color-primary': theme === 'dark' }"
-                @click="setTheme('dark')"
-              >
+              </UiSegmentedButton>
+              <UiSegmentedButton :active="theme === 'dark'" @click="setTheme('dark')">
                 <Moon :size="18" />
                 <span>Dark</span>
-              </button>
-              <button
-                class="flex-align-center gap-8px fw-500 color-text-secondary cursor-pointer py-8px px-16px bg-transparent border-none border-radius-8px text-14px transition-all-02 hover-color-text-primary hover-bg-hover"
-                :class="{ 'shadow-sm bg-card color-primary': theme === 'system' }"
-                @click="setTheme('system')"
-              >
+              </UiSegmentedButton>
+              <UiSegmentedButton :active="theme === 'system'" @click="setTheme('system')">
                 <Monitor :size="18" />
                 <span>System</span>
-              </button>
+              </UiSegmentedButton>
             </div>
           </UiOptionRow>
           <UiOptionRow label="Font Size" description="Adjust the default font size">
@@ -169,33 +157,15 @@
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Kubo connectivity" description="Controls how many peer connections the embedded IPFS node tries to keep." control-class="flex-justify-end">
             <div class="settingspage-theme-selector settingspage-network-mode-selector flex gap-8px border-radius-10px flex-wrap-wrap bg-secondary border-1 p-4px">
-              <button
-                type="button"
-                class="flex-align-center gap-8px fw-500 color-text-secondary cursor-pointer py-8px px-16px bg-transparent border-none border-radius-8px text-14px transition-all-02 flex-justify-center hover-color-text-primary hover-bg-hover min-w-140px"
-                :class="{ 'shadow-sm bg-card color-primary': ipfsConnectivityMode === 'light' }"
-                :disabled="networkSettingsSaving"
-                @click="saveIpfsConnectivityMode('light')"
-              >
+              <UiSegmentedButton :active="ipfsConnectivityMode === 'light'" :disabled="networkSettingsSaving" extra-class="flex-justify-center min-w-140px" @click="saveIpfsConnectivityMode('light')">
                 <span>Light</span>
-              </button>
-              <button
-                type="button"
-                class="flex-align-center gap-8px fw-500 color-text-secondary cursor-pointer py-8px px-16px bg-transparent border-none border-radius-8px text-14px transition-all-02 flex-justify-center hover-color-text-primary hover-bg-hover min-w-140px"
-                :class="{ 'shadow-sm bg-card color-primary': ipfsConnectivityMode === 'normal' }"
-                :disabled="networkSettingsSaving"
-                @click="saveIpfsConnectivityMode('normal')"
-              >
+              </UiSegmentedButton>
+              <UiSegmentedButton :active="ipfsConnectivityMode === 'normal'" :disabled="networkSettingsSaving" extra-class="flex-justify-center min-w-140px" @click="saveIpfsConnectivityMode('normal')">
                 <span>Normal</span>
-              </button>
-              <button
-                type="button"
-                class="flex-align-center gap-8px fw-500 color-text-secondary cursor-pointer py-8px px-16px bg-transparent border-none border-radius-8px text-14px transition-all-02 flex-justify-center hover-color-text-primary hover-bg-hover min-w-140px"
-                :class="{ 'shadow-sm bg-card color-primary': ipfsConnectivityMode === 'high' }"
-                :disabled="networkSettingsSaving"
-                @click="saveIpfsConnectivityMode('high')"
-              >
+              </UiSegmentedButton>
+              <UiSegmentedButton :active="ipfsConnectivityMode === 'high'" :disabled="networkSettingsSaving" extra-class="flex-justify-center min-w-140px" @click="saveIpfsConnectivityMode('high')">
                 <span>High connectivity</span>
-              </button>
+              </UiSegmentedButton>
             </div>
           </UiOptionRow>
 
@@ -855,6 +825,7 @@
 <script setup lang="ts">
 import UiCard from '../../ui/UiCard.vue';
 import UiOptionRow from '../../ui/UiOptionRow.vue';
+import UiSegmentedButton from '../../ui/UiSegmentedButton.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiInput from '../../ui/UiInput.vue';
 import UiToggle from '../../ui/UiToggle.vue';
