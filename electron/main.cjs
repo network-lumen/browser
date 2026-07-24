@@ -316,6 +316,27 @@ function deriveSiteKeyFromHref(href) {
   }
 }
 
+// Domain-backed <webview> instances (SitePage.vue's lumen://mysite.lmn) navigate to the
+// resolved gateway URL under the hood, so sender.getURL() alone only ever reveals the
+// backing ipfs:/ipns: identity - never the domain the user actually visited. SitePage.vue
+// (trusted renderer only, see site:registerDomainTarget in preload.cjs - untrusted webview
+// content has no route to this channel) registers its own webContents id -> host here so
+// senderSiteContext can report the domain identity instead.
+const siteDomainByWebContentsId = new Map();
+
+ipcMain.on('site:registerDomainTarget', (_evt, targetWebContentsId, host) => {
+  const id = Number(targetWebContentsId);
+  const h = safeString(host, 256).toLowerCase();
+  if (!Number.isFinite(id)) return;
+  if (h) siteDomainByWebContentsId.set(id, h);
+  else siteDomainByWebContentsId.delete(id);
+});
+
+ipcMain.on('site:unregisterDomainTarget', (_evt, targetWebContentsId) => {
+  const id = Number(targetWebContentsId);
+  if (Number.isFinite(id)) siteDomainByWebContentsId.delete(id);
+});
+
 function senderSiteContext(evt) {
   const sender = evt && evt.sender ? evt.sender : null;
   if (!sender || sender.isDestroyed()) return { ok: false, error: 'sender_missing' };
@@ -330,7 +351,8 @@ function senderSiteContext(evt) {
   }
 
   const href = safeString(typeof sender.getURL === 'function' ? sender.getURL() : '', 4096);
-  const siteKey = deriveSiteKeyFromHref(href);
+  const domainHost = siteDomainByWebContentsId.get(sender.id);
+  const siteKey = domainHost ? `domain:${domainHost}` : deriveSiteKeyFromHref(href);
   if (!siteKey) return { ok: false, error: 'unsupported_origin' };
 
   return { ok: true, sender, href, siteKey };
@@ -341,7 +363,8 @@ function isSenderSiteContextStillValid(ctx) {
     const sender = ctx && ctx.sender ? ctx.sender : null;
     if (!sender || sender.isDestroyed()) return false;
     const hrefNow = safeString(typeof sender.getURL === 'function' ? sender.getURL() : '', 4096);
-    const siteKeyNow = deriveSiteKeyFromHref(hrefNow);
+    const domainHost = siteDomainByWebContentsId.get(sender.id);
+    const siteKeyNow = domainHost ? `domain:${domainHost}` : deriveSiteKeyFromHref(hrefNow);
     return !!(siteKeyNow && siteKeyNow === ctx.siteKey);
   } catch {
     return false;
@@ -2079,7 +2102,10 @@ app.whenReady().then(async () => {
   // (lumen://mysite.lmn, see devtools:registerSiteTarget) use F12 like Chrome's own
   // devtools shortcut, without exposing devtools on arbitrary web/extension content in prod.
   app.on('web-contents-created', (_event, contents) => {
-    contents.once('destroyed', () => siteDevtoolsTargetIds.delete(contents.id));
+    contents.once('destroyed', () => {
+      siteDevtoolsTargetIds.delete(contents.id);
+      siteDomainByWebContentsId.delete(contents.id);
+    });
     contents.on('before-input-event', (event, input) => {
       if (allowDevtools && isDevtoolsToggle(input)) {
         event.preventDefault();

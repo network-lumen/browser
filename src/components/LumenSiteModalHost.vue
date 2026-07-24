@@ -41,7 +41,7 @@
       </UiModalHeader>
     </template>
           <UiBanner variant="info" v-if="siteLabel">
-            <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
+            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
 
           <div v-if="sendError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ sendError }}</div>
@@ -85,7 +85,7 @@
       </UiModalHeader>
     </template>
           <UiBanner variant="info" v-if="siteLabel">
-            <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
+            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
           <div v-if="pinError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ pinError }}</div>
 
@@ -162,7 +162,7 @@
       </UiModalHeader>
     </template>
           <UiBanner variant="info" v-if="siteLabel">
-            <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
+            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
           <div v-if="stableLinkError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ stableLinkError }}</div>
 
@@ -244,7 +244,7 @@
       </UiModalHeader>
     </template>
           <UiBanner variant="info" v-if="siteLabel">
-            <span>Requested by <span class="mono">{{ siteLabel }}</span></span>
+            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
           <div v-if="stableLinkSetupError" class="sitemodal-error border-radius-10px text-13px color-error bg-fill-error mb-12px py-10px px-12px border-05-error-a25">{{ stableLinkSetupError }}</div>
           <div class="mb-12px">
