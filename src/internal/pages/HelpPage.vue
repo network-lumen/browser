@@ -39,27 +39,9 @@
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">The decentralized web browser for the next generation of internet</p>
             </div>
             <div class="helppage-hero-features flex flex-wrap-wrap flex-justify-center gap-24px">
-              <div class="helppage-feature-point flex gap-12px text-left flex-align-start">
-                <div class="helppage-point-icon text-24px line-height-1">🌐</div>
-                <div class="helppage-point-text flex flex-column gap-2px">
-                  <strong class="color-text-primary helppage-point-text-strong text-14px">Decentralized Storage</strong>
-                  <span class="color-text-secondary helppage-point-text-span text-13px">Store and share content without central servers</span>
-                </div>
-              </div>
-              <div class="helppage-feature-point flex gap-12px text-left flex-align-start">
-                <div class="helppage-point-icon text-24px line-height-1">🔐</div>
-                <div class="helppage-point-text flex flex-column gap-2px">
-                  <strong class="color-text-primary helppage-point-text-strong text-14px">Blockchain Domains</strong>
-                  <span class="color-text-secondary helppage-point-text-span text-13px">Own your identity with .lmn domains</span>
-                </div>
-              </div>
-              <div class="helppage-feature-point flex gap-12px text-left flex-align-start">
-                <div class="helppage-point-icon text-24px line-height-1">⚡</div>
-                <div class="helppage-point-text flex flex-column gap-2px">
-                  <strong class="color-text-primary helppage-point-text-strong text-14px">Secure by Design</strong>
-                  <span class="color-text-secondary helppage-point-text-span text-13px">Encrypted connections and local-first data</span>
-                </div>
-              </div>
+              <UiFeaturePoint icon="🌐" title="Decentralized Storage" description="Store and share content without central servers" />
+              <UiFeaturePoint icon="🔐" title="Blockchain Domains" description="Own your identity with .lmn domains" />
+              <UiFeaturePoint icon="⚡" title="Secure by Design" description="Encrypted connections and local-first data" />
             </div>
           </section>
 
@@ -243,6 +225,7 @@ import UiActionCard from '../../ui/UiActionCard.vue';
 import UiFeatureCard from '../../ui/UiFeatureCard.vue';
 import UiStepCard from '../../ui/UiStepCard.vue';
 import UiTutorialStep from '../../ui/UiTutorialStep.vue';
+import UiFeaturePoint from '../../ui/UiFeaturePoint.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { 
