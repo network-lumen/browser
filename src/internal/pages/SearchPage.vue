@@ -4,13 +4,12 @@
     ref="scrollRoot"
     class="flex-align-center flex-column w-full h-full min-h-full overflow-y-auto bg-primary relative overflow-x-hidden pt-32px pr-24px pb-80px pl-24px"
     @scroll.passive="onScroll"
-    @keydown.slash.prevent="focusInput"
+    @keydown="onSlashShortcut"
   >
-          <UiButton variant="secondary" type="button"
-       
+          <UiButton variant="none" type="button"
         title="How search works"
         aria-label="How search works"
-        @click="openHowSearchWorks" class="active-translate-y-0 size-36px">
+        @click="openHowSearchWorks" class="border-radius-circle border-1 bg-secondary color-text-primary hover-bg-hover cursor-pointer flex-inline-align-justify-center active-translate-y-0 size-36px">
         <HelpCircle :size="18" />
       </UiButton>
     <section class="mt-15vh flex-column flex-inline-align-center gap-24px w-full relative flex z-1">
@@ -90,7 +89,7 @@
         </UiButton>
       </div>
 
-      <ul v-if="loading" class="flex flex-column gap-12px p-0px m-0px list-style-none gap-16px">
+      <ul v-if="loading" class="flex flex-column p-0px m-0px list-style-none gap-16px">
         <li v-for="i in 5" :key="i" class="flex-align-start gap-16px border-radius-20px border-default bg-card py-20px px-24px">
           <div class="bg-shimmer border-radius-16px flex-shrink-0 w-48px h-48px"></div>
           <div class="flex-1 min-w-0">
@@ -135,7 +134,6 @@
       <div v-else-if="selectedType === 'image'" class="grid-cols-auto-fill-200 gap-16px grid">
         <UiCard padding="none" :shadow="false" radius="xl" v-for="(r, idx) in imageResults"
           :key="r.id"
-         
           :data-result-index="idx" class="content-visibility-auto-240-220 hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a30-hover hover-shadow-primary">
           <button
             type="button"
@@ -210,14 +208,14 @@
                 <Image :size="18" />
               </div>
             </template>
-            <div v-else class="aspect-4-3 bg-gradient-fallback-shimmer flex-align-justify-center w-full color-text-secondary color-text-tertiary bg-secondary">
+            <div v-else class="aspect-4-3 flex-align-justify-center w-full color-text-tertiary bg-secondary">
               <Image :size="18" />
             </div>
           </button>
           <div class="flex-align-center gap-8px flex-justify-start pt-12px pr-12px pb-14px pl-12px">
             <div v-if="r.badges?.length" class="flex flex-wrap-wrap gap-6px flex-1 min-w-0">
               <span
-                v-for="(b, bIdx) in r.badges.slice(0, 4)"
+                v-for="b in r.badges.slice(0, 4)"
                 :key="`${r.id}:${b}`"
                 class="border-radius-full color-primary text-11px line-height-1 bg-primary-a10 nowrap border-1-primary-a15 py-4px px-6px"
                 >{{ b }}</span
@@ -237,7 +235,6 @@
         <li
           v-for="(r, idx) in results"
           :key="r.id"
-          class=""
           :data-result-index="idx"
         >
           <button
@@ -311,7 +308,7 @@
               <div v-if="shouldShowResultUrl(r)" class="reveal-target mono mt-8px color-primary fw-500 text-13px truncate opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="line-clamp-2 color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-14 mono pre-wrap m-0px py-8px px-10px bg-primary-a05 border-1-primary-a10"
+                class="line-clamp-2 color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px mono pre-wrap m-0px py-8px px-10px bg-primary-a05 border-1-primary-a10"
                 :class="{ 'is-placeholder-text': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
@@ -370,8 +367,7 @@
       </template>
           <div class="max-h-min-72vh-720px color-text-primary">
             <div class="grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
-              <section class="border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
-                <h3 class="txt-weight-strong m-0px color-text-primary text-15px letter-spacing-n001">What gets indexed</h3>
+              <UiTitledCard title="What gets indexed">
                 <p class="m-0px mt-8px color-text-secondary line-height-14">
                   Search results come from content indexed in the Lumen Cloud. When content is
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
@@ -384,10 +380,9 @@
                     search.
                   </div>
                 </div>
-              </section>
+              </UiTitledCard>
 
-              <section class="border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
-                <h3 class="txt-weight-strong m-0px color-text-primary text-15px letter-spacing-n001">How to get indexed</h3>
+              <UiTitledCard title="How to get indexed">
                 <ol class="flex flex-column p-0px color-text-secondary list-style-none gap-8px line-height-14 m-0px mt-8px">
                   <li class="flex gap-10px">
                     <span class="flex-inline-align-justify-center flex-0-0-auto w-24px h-24px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">1</span>
@@ -408,10 +403,9 @@
                     </span>
                   </li>
                 </ol>
-              </section>
+              </UiTitledCard>
 
-              <section class="border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
-                <h3 class="txt-weight-strong m-0px color-text-primary text-15px letter-spacing-n001">How queries work</h3>
+              <UiTitledCard title="How queries work">
                 <ul class="list-style-disc pl-20px color-text-secondary line-height-14 m-0px mt-8px">
                   <li class="m-0px mt-8px mb-8px">
                     Queries are tokenized; the index uses an inverted map (token → content) to find
@@ -426,10 +420,9 @@
                     <strong>Explore everything</strong>.
                   </li>
                 </ul>
-              </section>
+              </UiTitledCard>
 
-              <section class="border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
-                <h3 class="txt-weight-strong m-0px color-text-primary text-15px letter-spacing-n001">How results are ranked</h3>
+              <UiTitledCard title="How results are ranked">
                 <ul class="list-style-disc pl-20px color-text-secondary line-height-14 m-0px mt-8px">
                   <li class="m-0px mt-8px mb-8px"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
                   <li class="m-0px mt-8px mb-8px"><strong>Freshness</strong>: recently seen content tends to rank higher.</li>
@@ -437,7 +430,7 @@
                   <li class="m-0px mt-8px mb-8px"><strong>Availability</strong>: prefer content that is reachable and healthy.</li>
                   <li class="m-0px mt-8px mb-8px"><strong>Verified sites</strong>: linked domains can be boosted.</li>
                 </ul>
-              </section>
+              </UiTitledCard>
 
               <p class="color-text-secondary border-radius-14px border-1-light bg-primary text-14px py-12px px-16px m-0px mt-4px grid-col-full">
                 Results can vary while indexing is in progress and as the network evolves.
@@ -454,6 +447,7 @@ import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
+import UiTitledCard from '../../ui/UiTitledCard.vue';
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -487,7 +481,7 @@ import {
   blockedCategories,
   isBlockedBySettings,
   isGreyZoneByTags,
-  shouldSkipAnalysisAndRenderClear,shouldBlurImmediatelyByTags,
+  shouldSkipAnalysisAndRenderClear,
   type ThumbSafetyBlockedCategory,
   type ThumbSafetyScores,
 } from "./searchSafety/thumbSafetyService";
@@ -1515,6 +1509,18 @@ function focusInput() {
   inputEl.value?.focus();
 }
 
+function onSlashShortcut(e: KeyboardEvent) {
+  if (e.key !== "/") return;
+  const active = document.activeElement;
+  const isTyping =
+    active instanceof HTMLInputElement ||
+    active instanceof HTMLTextAreaElement ||
+    (active instanceof HTMLElement && active.isContentEditable);
+  if (isTyping) return;
+  e.preventDefault();
+  focusInput();
+}
+
 function openHowSearchWorks() {
   showHowSearchWorks.value = true;
 }
@@ -1736,7 +1742,7 @@ function shouldShowResultUrl(r: ResultItem): boolean {
   // Sites tab: the URL line is redundant (clicking opens it), keep the list compact.
   if (r.kind === "site") return false;
   // Hide the raw lumen://ipfs/... line for "CID ..." results (it’s redundant/noisy in UI).
-  if (r.kind === "site" && isCidTitle(r.title)) return false;
+  if (isCidTitle(r.title)) return false;
   return true;
 }
 
@@ -1862,16 +1868,6 @@ function normalizeSearchCursor(raw: any): SearchCursor | null {
   const rankAt =
     Number.isFinite(rankAtNum) && rankAtNum > 0 ? Math.floor(rankAtNum) : null;
   return rankAt ? { score, id, rankAt } : { score, id };
-}
-
-function serializeSearchCursor(cursor: SearchCursor | null): string {
-  const cur = normalizeSearchCursor(cursor);
-  if (!cur) return "";
-  return JSON.stringify(cur);
-}
-
-function searchCursorKey(cursor: SearchCursor | null): string {
-  return serializeSearchCursor(cursor);
 }
 
 function searchCursorRankAt(cursor: SearchCursor | null): number | null {
@@ -3787,16 +3783,6 @@ async function searchGateways(
     const pageCursor = rawPageCursor == null ? normalizeSearchCursor(requestedCursor) : normalizeSearchCursor(rawPageCursor);
     const prevCursor = normalizeSearchCursor(rawPrevCursor);
     const nextCursor = normalizeSearchCursor(rawNextCursor);
-    const rawCount =
-      wantedType === "site"
-        ? Array.isArray((data as any).results)
-          ? (data as any).results.length
-          : 0
-        : Array.isArray((data as any).hits)
-          ? (data as any).hits.length
-          : Array.isArray((data as any).results)
-          ? (data as any).results.length
-            : 0;
     const hasPrev =
       typeof rawHasPrev === "boolean"
         ? rawHasPrev
