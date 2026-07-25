@@ -42,13 +42,13 @@
             </p>
 
             <UiFormGroup label="Password (minimum 8 characters)" wrapper-class="mb-24px">
-              <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="password"
+              <UiInput type="password" bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="password"
                 placeholder="Enter password"
                 @keyup.enter="handlePasswordSubmit" class="border-default focus-ring-blue placeholder-tertiary" />
             </UiFormGroup>
 
             <UiFormGroup label="Confirm Password" wrapper-class="mb-24px">
-              <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="confirmPassword"
+              <UiInput type="password" bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="confirmPassword"
                 placeholder="Confirm password"
                 @keyup.enter="handlePasswordSubmit" class="border-default focus-ring-blue placeholder-tertiary" />
             </UiFormGroup>
