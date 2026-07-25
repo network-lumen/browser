@@ -38,7 +38,7 @@
 
           <div v-else-if="step === 'password'" class="walletonboard-step animate-walletonboard-fade-in">
             <p class="text-14px line-height-15 color-text-tertiary mb-16px">
-              Create a strong password to protect your wallet. You'll need this password to send transactions.
+              Create a strong password to protect your wallet. You'll need it to unlock Lumen - when you start the app, and again if your session times out from inactivity.
             </p>
 
             <UiFormGroup label="Password (minimum 8 characters)" wrapper-class="mb-24px">
@@ -124,7 +124,7 @@
               <p class="text-14px txt-weight-medium m-0px mb-12px color-text-primary">Remember:</p>
               <div class="flex flex-column gap-8px">
                 <div v-for="item in completeReminders" :key="item" class="flex-align-start gap-8px text-13px line-height-14 color-text-tertiary">
-                  <Check :size="14" class="color-success flex-shrink-0" />
+                  <Check :size="14" class="color-success flex-shrink-0 mt-2px" />
                   <span>{{ item }}</span>
                 </div>
               </div>
