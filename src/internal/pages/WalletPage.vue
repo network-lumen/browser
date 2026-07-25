@@ -1,6 +1,7 @@
 <template>
+  <!-- ####### lumen://wallet WALLET ####### -->
   <div class="internal-page flex">
-    <!-- Sidebar -->
+    <!-- ####### lumen://wallet SIDEBAR ####### -->
     <InternalSidebar title="Wallet" :icon="Wallet" activeKey="wallet">
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Activity">
@@ -32,7 +33,7 @@
       </nav>
     </InternalSidebar>
 
-    <!-- Main Content -->
+    <!-- ####### lumen://wallet MAIN CONTENT ####### -->
     <main class="flex flex-column flex-1 m-0px min-w-0 overflow-y-auto py-32px px-40px bg-secondary border-radius-0">
       <!-- Header -->
       <UiPageHeader :title="getViewTitle()" title-size="20px" title-weight="light" :subtitle="getViewDescription()">
@@ -56,7 +57,7 @@
         </template>
       </UiPageHeader>
 
-      <!-- Overview View -->
+      <!-- ####### lumen://wallet OVERVIEW VIEW ####### -->
       <div v-if="currentView === 'overview'" class="flex flex-column gap-24px">
         <!-- Balance Card -->
         <div class="border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 shadow-glow-primary-lg">
@@ -120,7 +121,7 @@
         </div>
       </div>
 
-      <!-- Assets View -->
+      <!-- ####### lumen://wallet ASSETS VIEW ####### -->
       <div v-else-if="currentView === 'assets'" class="flex flex-column gap-24px w-full max-w-full">
         <UiChartHeader title="Cross-chain Assets" />
         <UiEmptyState v-if="!isConnected" class="mt-32px" title="Connect Your Wallet" description="Connect a wallet to view your assets across linked IBC chains.">
@@ -208,7 +209,7 @@
         </div>
       </div>
 
-      <!-- DEX View -->
+      <!-- ####### lumen://wallet DEX VIEW ####### -->
       <div v-else-if="currentView === 'dex'" class="flex flex-column gap-24px w-full max-w-full">
         <UiBanner v-if="dexError" variant="warning" class="mb-16px">
           <span>{{ dexError }}</span>
@@ -311,7 +312,7 @@
         </div>
       </div>
 
-        <!-- Transactions View -->
+        <!-- ####### lumen://wallet TRANSACTIONS VIEW ####### -->
         <div v-else-if="currentView === 'transactions'" class="flex flex-column gap-24px w-full max-w-full">
 
         <UiChartHeader v-if="activities.length > 0" title="Recent Transactions">
@@ -511,7 +512,7 @@
         </div>
       </div>
 
-      <!-- Address Book View -->
+      <!-- ####### lumen://wallet ADDRESS BOOK VIEW ####### -->
       <div v-else-if="currentView === 'addressbook'" class="flex flex-column gap-24px w-full max-w-full">
         <UiEmptyState v-if="!contacts.length && !contactsLoading" class="mt-32px" title="No Contacts Yet" description="Add addresses you frequently send to for quick access.">
           <Users :size="32" />
@@ -563,7 +564,7 @@
         </div>
       </div>
 
-      <!-- Recurring Payments View -->
+      <!-- ####### lumen://wallet RECURRING PAYMENTS VIEW ####### -->
       <div v-else-if="currentView === 'recurring'" class="flex flex-column gap-24px w-full p-0px gap-0px max-w-full">
         <SubscriptionsView 
           ref="subscriptionsRef"
@@ -574,7 +575,7 @@
 
     </main>
 
-    <!-- Asset Transfer Modal -->
+    <!-- ####### lumen://wallet ASSET TRANSFER MODAL ####### -->
     <UiModal :model-value="showAssetTransferModal" panel-class="asset-transfer-modal w-full max-w-500px" @update:model-value="closeAssetTransferModal">
       <template #header>
         <UiModalHeader title="IBC Transfer">
@@ -645,7 +646,7 @@
           </template>
     </UiModal>
 
-    <!-- Send Modal -->
+    <!-- ####### lumen://wallet SEND MODAL ####### -->
     <UiModal :model-value="showSendModal" panel-class="send-modal w-full max-w-500px" @update:model-value="closeSendModal">
       <template #header>
         <UiModalHeader :title="sendModalTitle">
@@ -778,7 +779,7 @@
             </UiButton>
     </UiModal>
 
-    <!-- Receive Modal -->
+    <!-- ####### lumen://wallet RECEIVE MODAL ####### -->
     <UiModal :model-value="showReceiveModal" panel-class="receive-modal w-full max-w-500px" @update:model-value="closeReceiveModal">
       <template #header>
         <UiModalHeader title="Receive LMN">
@@ -816,7 +817,7 @@
             </div>
     </UiModal>
 
-    <!-- Add/Edit Contact Modal -->
+    <!-- ####### lumen://wallet ADD/EDIT CONTACT MODAL ####### -->
     <UiModal :model-value="showContactModal" panel-class="walletpage-contact-modal w-full max-w-500px" @update:model-value="closeContactModal">
       <template #header>
         <UiModalHeader :title="editingContact ? 'Edit Contact' : 'Add Contact'">
@@ -850,15 +851,15 @@
             </UiButton>
     </UiModal>
 
-    <!-- QR Scanner Modal -->
-    <QrScanner 
+    <!-- ####### lumen://wallet QR SCANNER MODAL ####### -->
+    <QrScanner
       v-if="showQrScanner" 
       @close="closeQrScanner"
       @scan="handleQrScan"
       :title="qrScannerTitle"
     />
 
-    <!-- Delete Confirmation Modal -->
+    <!-- ####### lumen://wallet DELETE CONFIRMATION MODAL ####### -->
     <UiModal v-model="showDeleteConfirmModal" title="Delete Contact">
       <p class="color-text-primary text-15px mb-8px line-height-15">
         Are you sure you want to delete <strong>{{ contactToDelete?.name }}</strong>?

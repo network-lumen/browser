@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://ipfs IPFS / IPNS ####### -->
   <div class="flex w-full h-full bg-primary" :class="{ 'bg-primary': isBareHtmlView }">
     <main class="flex flex-column flex-1" :class="isBareHtmlView ? 'p-0px overflow-hidden' : 'p-24px overflow-auto'">
       <UiPageHeader v-if="!isBareHtmlView">

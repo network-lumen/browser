@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://block BLOCK DETAIL ####### -->
   <div class="w-full h-full overflow-y-auto bg-primary">
     <UiLoadingState v-if="loading" message="Loading block data..." wrapper-class="py-64px px-32px" />
 

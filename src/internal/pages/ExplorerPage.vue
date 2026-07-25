@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://explorer EXPLORER ####### -->
   <div class="internal-page flex">
     <!-- Show Block Detail if URL contains /block/ -->
     <BlockDetailPage v-if="isBlockDetailView" />
@@ -11,7 +12,7 @@
     
     <!-- Show normal explorer view otherwise -->
     <template v-else>
-    <!-- Sidebar -->
+    <!-- ####### lumen://explorer SIDEBAR ####### -->
     <InternalSidebar title="Explorer" :icon="LayoutGrid" activeKey="explorer">
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Browse">
@@ -52,7 +53,7 @@
       </nav>
     </InternalSidebar>
 
-    <!-- Main Content -->
+    <!-- ####### lumen://explorer MAIN CONTENT ####### -->
     <main class="flex-1 p-24px overflow-y-auto bg-secondary">
       <!-- Search Bar -->
       <div class="mb-32px">
@@ -83,7 +84,7 @@
       <UiLoadingBlock v-if="isLoading" message="Loading blockchain data..." />
 
       <template v-else>
-        <!-- Overview View -->
+        <!-- ####### lumen://explorer OVERVIEW VIEW ####### -->
         <div v-if="currentView === 'overview'" class="border-radius-12px bg-transparent overflow-visible">
           <!-- Section Header -->
           <div class="mb-24px text-center">
@@ -234,7 +235,7 @@
           </div>
         </div>
 
-        <!-- Blocks View -->
+        <!-- ####### lumen://explorer BLOCKS VIEW ####### -->
         <div v-else-if="currentView === 'blocks'" class="text-12px border-radius-12px bg-transparent bg-card overflow-visible">
           <div class="flex-align-start flex-wrap-wrap gap-16px relative bg-card border-bottom-1 flex-justify-space-between p-0px pt-16px pr-24px pb-12px pl-24px">
             <div class="flex-1 min-w-200px">
@@ -320,7 +321,7 @@
           </div>
         </div>
 
-        <!-- Transactions View -->
+        <!-- ####### lumen://explorer TRANSACTIONS VIEW ####### -->
         <div v-else-if="currentView === 'transactions'" class="border-radius-12px bg-transparent bg-card overflow-visible">
           <div class="flex-align-start flex-wrap-wrap gap-16px border-bottom-1 flex-justify-space-between pt-24px pr-24px pb-16px pl-24px">
             <div class="flex-1 min-w-200px">
@@ -413,7 +414,7 @@
           </div>
         </div>
 
-        <!-- Validators View -->
+        <!-- ####### lumen://explorer VALIDATORS VIEW ####### -->
         <div v-else-if="currentView === 'validators'" class="border-radius-12px p-32px bg-transparent overflow-visible">
           <div class="mb-32px">
             <h2 class="text-28px txt-weight-medium color-text-primary mb-8px">Active Validators</h2>
@@ -514,7 +515,7 @@
       <span>{{ copiedText }} copied!</span>
     </div>
 
-    <!-- Stake Management Modal -->
+    <!-- ####### lumen://explorer STAKE MANAGEMENT MODAL ####### -->
     <UiModal :model-value="showStakeModal" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="shadow-lg animate-modal-slide-in w-90pct max-w-420px" @update:model-value="closeStakeModal">
           <div class="flex gap-16px mb-24px p-16px bg-secondary border-radius-8px">
             <div class="flex flex-column flex-1 gap-4px">

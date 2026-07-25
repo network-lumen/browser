@@ -1,6 +1,7 @@
 <template>
+  <!-- ####### lumen://settings SETTINGS ####### -->
   <div class="internal-page flex">
-    <!-- Sidebar -->
+    <!-- ####### lumen://settings SIDEBAR ####### -->
     <InternalSidebar title="Settings" :icon="Settings" activeKey="settings">
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="General">
@@ -52,12 +53,12 @@
 
     </InternalSidebar>
 
-    <!-- Main Content -->
+    <!-- ####### lumen://settings MAIN CONTENT ####### -->
     <main class="flex flex-column flex-1 m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
       <!-- Header -->
       <UiPageHeader :title="getViewTitle()" :subtitle="getViewDescription()" />
 
-      <!-- Appearance View -->
+      <!-- ####### lumen://settings APPEARANCE VIEW ####### -->
       <div v-if="currentView === 'appearance'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Theme Preference" description="Choose your preferred color scheme">
@@ -97,7 +98,7 @@
         </div>
       </div>
 
-      <!-- Content View -->
+      <!-- ####### lumen://settings CONTENT VIEW ####### -->
       <div v-else-if="currentView === 'content'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Show sexual content">
@@ -118,7 +119,7 @@
         </div>
       </div>
 
-      <!-- Privacy View -->
+      <!-- ####### lumen://settings PRIVACY VIEW ####### -->
       <div v-else-if="currentView === 'privacy'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Save browsing history">
@@ -152,7 +153,7 @@
         </div>
       </div>
 
-      <!-- Network View -->
+      <!-- ####### lumen://settings NETWORK VIEW ####### -->
       <div v-else-if="currentView === 'network'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Kubo connectivity" description="Controls how many peer connections the embedded IPFS node tries to keep." control-class="flex-justify-end">
@@ -185,7 +186,7 @@
         </div>
       </div>
 
-      <!-- Security View -->
+      <!-- ####### lumen://settings SECURITY VIEW ####### -->
       <div v-else-if="currentView === 'security'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <!-- Status Display -->
@@ -358,7 +359,7 @@
         </div>
       </div>
 
-      <!-- Profiles View -->
+      <!-- ####### lumen://settings PROFILES VIEW ####### -->
       <div v-else-if="currentView === 'profiles'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Profiles" description="Select one or more profiles to export." control-class="gap-8px">
@@ -492,7 +493,7 @@
          </div>
        </div>
 
-      <!-- Developer settings View -->
+      <!-- ####### lumen://settings DEVELOPER SETTINGS VIEW ####### -->
       <div v-else-if="currentView === 'advanced'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
@@ -635,7 +636,7 @@
         </div>
       </div>
 
-      <!-- Troubleshooting View -->
+      <!-- ####### lumen://settings TROUBLESHOOTING VIEW ####### -->
       <div v-else-if="currentView === 'troubleshooting'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
@@ -672,7 +673,7 @@
         </div>
       </div>
 
-      <!-- Private Cloud View -->
+      <!-- ####### lumen://settings PRIVATE CLOUD VIEW ####### -->
       <div v-else-if="currentView === 'privatecloud'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <!-- Main Enable Toggle -->
@@ -785,7 +786,7 @@
         </div>
       </div>
 
-      <!-- About View -->
+      <!-- ####### lumen://settings ABOUT VIEW ####### -->
       <div v-else-if="currentView === 'about'" class="flex-1 overflow-y-auto">
         <div class="flex-align-center flex-column text-center border-radius-20px bg-card p-48px border-1">
           <div class="mb-24px">

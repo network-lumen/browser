@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://network NETWORK PARAMS ####### -->
   <section class="p-32px">
     <header class="flex mb-20px flex-wrap-wrap gap-16px flex-align-start flex-justify-space-between">
       <div>

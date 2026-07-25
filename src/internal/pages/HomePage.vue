@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://home HOME ####### -->
   <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Lumen" :icon="Hexagon" activeKey="home" :showAllPages="false">

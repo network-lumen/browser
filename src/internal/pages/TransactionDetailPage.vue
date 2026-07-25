@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://transaction TRANSACTION DETAIL ####### -->
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
     <UiLoadingState v-if="loading" message="Loading transaction data..." />
 

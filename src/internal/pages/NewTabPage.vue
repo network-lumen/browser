@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://newtab NEW TAB ####### -->
   <div class="bg-gradient-newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden pt-24px pr-16px pb-32px pl-16px">
     <UiModal :model-value="showOnboarding" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-544px-full" :closable="false" @update:model-value="dismissOnboarding">
       <div class="flex-align-start gap-16px mb-16px">

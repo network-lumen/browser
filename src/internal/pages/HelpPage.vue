@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://help HELP ####### -->
   <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Help" :icon="HelpCircle" activeKey="help">

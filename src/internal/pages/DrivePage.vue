@@ -1,6 +1,7 @@
 <template>
+  <!-- ####### lumen://drive DRIVE ####### -->
   <div class="internal-page flex">
-    <!-- Sidebar -->
+    <!-- ####### lumen://drive SIDEBAR ####### -->
     <InternalSidebar title="Drive" :icon="Cloud" activeKey="drive">
       <!-- Hosting -->
       <div class="flex flex-column gap-6px mt-12px">
@@ -73,7 +74,7 @@
       </div>
     </InternalSidebar>
 
-    <!-- Main Content -->
+    <!-- ####### lumen://drive FILE BROWSER ####### -->
     <main class="flex flex-column flex-1 m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
       <!-- Header -->
       <UiPageHeader :title="headerTitle" :subtitle="headerSubtitle">
@@ -534,7 +535,7 @@
       </UiEmptyState>
     </main>
 
-    <!-- File Detail Panel -->
+    <!-- ####### lumen://drive FILE DETAIL PANEL ####### -->
     <aside v-if="selectedFile" class="flex flex-column p-24px m-0px bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px max-w-280px border-left-1-border-color">
       <div class="flex-align-center-justify-space-between mb-20px">
         <h3 class="text-12px line-height-12 txt-weight-strong">
@@ -640,7 +641,7 @@
       </div>
     </div> -->
 
-    <!-- Upload Path Modal (fallback for environments without a working file picker) -->
+    <!-- ####### lumen://drive UPLOAD PATH MODAL (fallback for environments without a working file picker) ####### -->
     <UiModal :model-value="showUploadPathModal" :title="uploadPathMode === 'folder' ? 'Upload folder' : 'Upload files'" panel-class="w-full max-w-520px" @update:model-value="closeUploadPathModal">
             <p class="color-text-secondary mb-24px text-14px">
               Paste {{ uploadPathMode === "folder" ? "folder" : "file" }} path{{
@@ -671,7 +672,7 @@
             </template>
     </UiModal>
 
-    <!-- Local Details Modal -->
+    <!-- ####### lumen://drive LOCAL DETAILS MODAL ####### -->
     <UiModal :model-value="showLocalDetails" title="Local drive" panel-class="w-full max-w-520px" @update:model-value="closeLocalDetails">
 
             <div class="flex flex-column">
@@ -754,7 +755,7 @@
             </div>
     </UiModal>
 
-    <!-- Export Snapshot Modal -->
+    <!-- ####### lumen://drive EXPORT SNAPSHOT MODAL ####### -->
     <UiModal :model-value="showDriveBackupExportModal" title="Export drive snapshot" panel-class="w-full max-w-520px" @update:model-value="closeDriveBackupExportModal">
             <p class="color-text-secondary mb-24px text-14px">
               Set a password to encrypt your drive metadata backup for
@@ -814,7 +815,7 @@
             </template>
     </UiModal>
 
-    <!-- Import Snapshot Modal -->
+    <!-- ####### lumen://drive IMPORT SNAPSHOT MODAL ####### -->
     <UiModal :model-value="showDriveBackupImportModal" title="Import drive snapshot" panel-class="w-full max-w-520px" @update:model-value="closeDriveBackupImportModal">
             <p class="color-text-secondary mb-24px text-14px">
               This will replace your local drive metadata (CIDs, names, favourites) for
@@ -929,7 +930,7 @@
             </template>
     </UiModal>
 
-    <!-- Subscription Details Modal -->
+    <!-- ####### lumen://drive SUBSCRIPTION DETAILS MODAL ####### -->
     <UiModal :model-value="showGatewayDetails" title="Subscription details" panel-class="w-full max-w-520px" @update:model-value="closeGatewayDetails">
             <UiLoadingBlock v-if="gatewayDetailsLoading" wrapper-class="flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-220px" spinner-class="" />
 
@@ -1030,7 +1031,7 @@
             </template>
     </UiModal>
 
-    <!-- Plans Modal -->
+    <!-- ####### lumen://drive PLANS MODAL ####### -->
     <UiModal :model-value="showPlansModal" title="Cloud plans" panel-class="drivepage-plans-modal w-full max-w-860px" @update:model-value="closePlansModal">
           <div class="p-24px">
 
@@ -1339,7 +1340,7 @@
          </div>
      </UiModal>
 
-    <!-- Subscribe Plan Modal -->
+    <!-- ####### lumen://drive SUBSCRIBE PLAN MODAL ####### -->
     <UiModal :model-value="!!(showSubscribeModal && subscribePlan)" :title='`Confirm subscription "${planDisplayName(subscribePlan)}"`' panel-class="w-full max-w-520px" @update:model-value="closeSubscribeModal">
             <p class="color-text-secondary mb-24px text-14px">
               Review the plan details and confirm your subscription.
