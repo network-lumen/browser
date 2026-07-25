@@ -1,17 +1,17 @@
 <template>
-  <div class="history-page internal-page flex min-h-full">
+  <div class="internal-page flex min-h-full">
     <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
 
-    <main class="history-main flex-1 min-w-0 min-h-0 p-20px flex flex-column gap-16px overflow-y-auto">
-      <header class="history-header flex-align-center-justify-space-between gap-16px flex-justify-space-between border-default bg-card shadow-sm border-radius-24px py-20px px-20px">
-        <div class="history-copy">
+    <main class="flex-1 min-w-0 min-h-0 p-20px flex flex-column gap-16px overflow-y-auto">
+      <header class="flex-align-center-justify-space-between gap-16px flex-justify-space-between border-default bg-card shadow-sm border-radius-24px py-20px px-20px">
+        <div class="">
           <h1 class="color-text-primary m-0px text-clamp-18-4vw-28rem">History</h1>
         </div>
 
-        <div class="history-header-actions flex-align-center gap-10px flex-wrap-wrap">
+        <div class="flex-align-center gap-10px flex-wrap-wrap">
           <button
             type="button"
-            class="history-mode-btn flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
+            class="flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
             :class="{ active: historyEnabled, 'bg-fill-success': historyEnabled }"
             @click="toggleHistoryMode"
           >
@@ -21,7 +21,7 @@
 
           <button
             type="button"
-            class="history-clear-btn disabled-fade-50 bg-fill-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
+            class="disabled-fade-50 bg-fill-error flex-inline-align-justify-center border-none cursor-pointer color-error border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
             :disabled="!historyEntries.length"
             @click="clearAllHistory"
           >
@@ -31,8 +31,8 @@
         </div>
       </header>
 
-      <section class="history-toolbar flex-align-center-justify-space-between flex-justify-space-between gap-12px border-default bg-card shadow-sm py-12px px-16px border-radius-24px">
-        <label class="history-search flex-align-center flex-1 min-w-0 border-radius-full color-text-tertiary gap-10px bg-fill-tertiary py-12px px-16px">
+      <section class="flex-align-center-justify-space-between flex-justify-space-between gap-12px border-default bg-card shadow-sm py-12px px-16px border-radius-24px">
+        <label class="flex-align-center flex-1 min-w-0 border-radius-full color-text-tertiary gap-10px bg-fill-tertiary py-12px px-16px">
           <Search :size="17" />
           <input
             v-model="query"
@@ -40,40 +40,40 @@
             placeholder="Search history"
             spellcheck="false"
             autocomplete="off"
-            class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary history-search-input text-15px placeholder-tertiary"
+            class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary text-15px placeholder-tertiary"
           />
         </label>
       </section>
 
-      <div v-if="!historyEnabled" class="history-banner color-text-secondary border-radius-16px py-12px px-16px bg-warning-a08 border-1-warning-a15">
+      <div v-if="!historyEnabled" class="color-text-secondary border-radius-16px py-12px px-16px bg-warning-a08 border-1-warning-a15">
         New pages are no longer saved for this profile. Existing history stays available until you clear it.
       </div>
 
       <div v-if="groupedEntries.length" class="flex flex-column gap-12px">
-        <section v-for="group in groupedEntries" :key="group.label" class="history-group p-16px border-default bg-card shadow-sm border-radius-24px">
-          <div class="history-group-head flex-align-center-justify-space-between gap-12px flex-justify-space-between pt-0px pr-2px pb-12px pl-2px">
-            <h2 class="color-text-primary m-0px history-group-head-h2 text-16px">{{ group.label }}</h2>
+        <section v-for="group in groupedEntries" :key="group.label" class="p-16px border-default bg-card shadow-sm border-radius-24px">
+          <div class="flex-align-center-justify-space-between gap-12px flex-justify-space-between pt-0px pr-2px pb-12px pl-2px">
+            <h2 class="color-text-primary m-0px text-16px">{{ group.label }}</h2>
             <UiCountPill :count="group.entries.length" pill-class="color-text-secondary txt-weight-strong h-28px py-0px px-8px bg-fill-secondary text-12px min-w-24px" />
           </div>
 
           <div class="flex flex-column">
-            <article v-for="entry in group.entries" :key="entry.id" class="history-item flex-align-center-justify-space-between flex-justify-space-between py-12px px-2px border-top-1-separator">
+            <article v-for="entry in group.entries" :key="entry.id" class="flex-align-center-justify-space-between flex-justify-space-between py-12px px-2px border-top-1-separator">
               <button class="color-inherit flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-12px" type="button" @click="openEntry(entry.url)">
-                <span class="history-item-avatar flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary size-48px" :style="avatarToneStyle(entry.kind)">
+                <span class="flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary size-48px" :style="avatarToneStyle(entry.kind)">
                   {{ entry.monogram }}
                 </span>
 
                 <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" title-class="color-text-primary txt-weight-medium" subtitle-class="color-text-tertiary text-14px" />
               </button>
 
-              <div class="history-item-meta flex-inline-align-center flex-0-0-auto gap-8px ml-8px">
-                <span class="history-item-time color-text-tertiary text-12px txt-weight-medium">{{ formatTime(entry.lastVisitedAt) }}</span>
-                <span v-if="entry.visitCount > 1" class="history-item-visits color-text-tertiary text-12px txt-weight-medium">
+              <div class="flex-inline-align-center flex-0-0-auto gap-8px ml-8px">
+                <span class="color-text-tertiary text-12px txt-weight-medium">{{ formatTime(entry.lastVisitedAt) }}</span>
+                <span v-if="entry.visitCount > 1" class="color-text-tertiary text-12px txt-weight-medium">
                   {{ entry.visitCount }} visits
                 </span>
                 <button
                   type="button"
-                  class="history-item-remove border-none bg-transparent color-text-tertiary cursor-pointer h-32px border-radius-10px transition-all-fast w-32px hover-color-error hover-bg-fill-error"
+                  class="border-none bg-transparent color-text-tertiary cursor-pointer h-32px border-radius-10px transition-all-fast w-32px hover-color-error hover-bg-fill-error"
                   title="Remove from history"
                   @click.stop="removeHistoryEntry(entry.id)"
                 >
@@ -85,7 +85,7 @@
         </section>
       </div>
 
-      <div v-else class="history-empty flex-1 flex-align-justify-center">
+      <div v-else class="flex-1 flex-align-justify-center">
         <UiCard padding="none" :shadow="false" radius="24px" class="shadow-sm w-min-560px-full">
           <UiEmptyState :title="emptyTitle" :description="emptyCopy">
             <HistoryIcon :size="22" />

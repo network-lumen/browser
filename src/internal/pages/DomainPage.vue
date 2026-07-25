@@ -1,8 +1,8 @@
 <template>
-  <div class="domain-page internal-page flex">
+  <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Domains" :icon="Globe" activeKey="domain">
-      <nav class="domainpage-names-nav flex flex-column gap-6px mb-16px">
+      <nav class="flex flex-column gap-6px mb-16px">
         <button
           type="button"
           class="hover-fill-primary flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
@@ -25,7 +25,7 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="domainpage-main flex-1 min-w-0 bg-secondary overflow-y-auto py-32px px-40px">
+    <main class="flex-1 min-w-0 bg-secondary overflow-y-auto py-32px px-40px">
       <UiPageHeader :title="pageTitle" title-size="24px" :subtitle="pageDescription">
         <template #actions>
           <template v-if="activeNameTab === 'lumen'">
@@ -50,9 +50,9 @@
       <UiCard v-if="activeNameTab === 'lumen'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
         <UiErrorState v-if="error" :message="error" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
         <UiLoadingBlock v-else-if="loading" message="Loading your domains..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
-        <div v-else-if="!domains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
-          <p class="domainpage-hero-title txt-weight-light m-0px text-16px">Get your name on Lumen</p>
-          <p class="domainpage-hero-text text-14px color-text-tertiary m-0px">
+        <div v-else-if="!domains.length" class="flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
+          <p class="txt-weight-light m-0px text-16px">Get your name on Lumen</p>
+          <p class="text-14px color-text-tertiary m-0px">
             Register a new domain and open it as
             <span class="mono">lumen://your-name.lmn</span>
           </p>
@@ -61,12 +61,12 @@
             <span>Buy domain</span>
           </UiButton>
         </div>
-        <ul v-else class="domainpage-domains-list flex flex-column gap-8px p-0px list-style-none m-0px mt-12px">
-          <li v-for="d in domains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary py-10px px-12px">
-            <div class="domain-main flex flex-column gap-2px min-w-0">
-              <span class="domainpage-domain-name txt-weight-light color-text-primary text-14px">{{ d.name }}</span>
+        <ul v-else class="flex flex-column gap-8px p-0px list-style-none m-0px mt-12px">
+          <li v-for="d in domains" :key="d.name" class="flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary py-10px px-12px">
+            <div class="flex flex-column gap-2px min-w-0">
+              <span class="txt-weight-light color-text-primary text-14px">{{ d.name }}</span>
             </div>
-            <div class="domainpage-domain-right flex-align-center gap-6px">
+            <div class="flex-align-center gap-6px">
               <span
                 v-if="d.expireAtSeconds"
                 class="border-radius-full fw-500 text-12px line-height-12 cursor-pointer text-11px py-4px px-10px"
@@ -103,9 +103,9 @@
       <UiCard v-else border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
         <UiLoadingBlock v-if="rawDomainsLoading" message="Loading stable links..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
         <UiErrorState v-else-if="rawDomainsError" :message="rawDomainsError" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
-        <div v-else-if="!rawDomains.length" class="domainpage-empty hero flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
-          <p class="domainpage-hero-title txt-weight-light m-0px text-16px">Generate a stable link</p>
-          <p class="domainpage-hero-text text-14px color-text-tertiary m-0px">
+        <div v-else-if="!rawDomains.length" class="flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
+          <p class="txt-weight-light m-0px text-16px">Generate a stable link</p>
+          <p class="text-14px color-text-tertiary m-0px">
             Stable links are cryptographic names backed by IPNS.
           </p>
           <UiButton variant="primary" type="button" @click="createStableLink" class="outline-none">
@@ -113,10 +113,10 @@
             <span>Generate</span>
           </UiButton>
         </div>
-        <ul v-else class="domainpage-domains-list flex flex-column gap-8px p-0px list-style-none m-0px mt-12px">
-          <li v-for="d in rawDomains" :key="d.name" class="domainpage-domain-row flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary py-10px px-12px">
-            <div class="domain-main flex flex-column gap-2px min-w-0">
-              <div class="domainpage-stable-link-label-row flex-align-center gap-6px min-w-0">
+        <ul v-else class="flex flex-column gap-8px p-0px list-style-none m-0px mt-12px">
+          <li v-for="d in rawDomains" :key="d.name" class="flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary py-10px px-12px">
+            <div class="flex flex-column gap-2px min-w-0">
+              <div class="flex-align-center gap-6px min-w-0">
                 <input
                   class="hover-focus-bg-card-border-outline-none color-text-primary txt-weight-light border-1-transparent border-radius-8px bg-transparent text-14px min-w-120px py-4px px-6px w-min-260px-full"
                   type="text"
@@ -132,9 +132,9 @@
                   :size="14"
                 />
               </div>
-              <span class="domainpage-domain-subtitle mono text-12px color-text-tertiary truncate max-w-520px">{{ d.id || 'IPNS id unavailable' }}</span>
+              <span class="mono text-12px color-text-tertiary truncate max-w-520px">{{ d.id || 'IPNS id unavailable' }}</span>
             </div>
-            <div class="domainpage-domain-right flex-align-center gap-6px">
+            <div class="flex-align-center gap-6px">
               <UiButton variant="icon" type="button"
                 title="Open stable link"
                 :disabled="!d.id"
@@ -171,23 +171,23 @@
       </UiCard>
 
       <UiModal :model-value="!!stableLinkModalMode" :title="stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link'" panel-class="max-w-500px" @update:model-value="closeStableLinkModal">
-            <form class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px" @submit.prevent="confirmStableLinkModal">
-              <p class="domainpage-modal-desc text-14px color-text-tertiary m-0px mb-12px">
+            <form class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px" @submit.prevent="confirmStableLinkModal">
+              <p class="text-14px color-text-tertiary m-0px mb-12px">
                 {{ stableLinkModalMode === 'import'
                   ? 'Choose a local private key file and attach it to this stable link name.'
                   : 'Create a new IPNS-backed stable link with a local private key.' }}
               </p>
-              <div class="domainpage-form-group mb-16px">
-                <label class="color-text-secondary domainpage-form-group-label block mb-4px text-13px">Stable link name</label>
+              <div class="mb-16px">
+                <label class="color-text-secondary block mb-4px text-13px">Stable link name</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" v-model="stableLinkNameDraft"
                  
                  
                   autocomplete="off"
                   placeholder="my-link"
                   :disabled="stableLinkSaving"
-                  autofocus class="domainpage-form-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                  autofocus class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
               </div>
-              <div class="modal-actions flex flex-justify-end gap-8px">
+              <div class="flex flex-justify-end gap-8px">
                 <UiButton variant="secondary" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal" class="outline-none">
                   Cancel
                 </UiButton>
@@ -204,24 +204,24 @@
       </UiModal>
 
       <UiModal :model-value="showStableSettingsModal" title="Stable link records" panel-class="max-w-500px" @update:model-value="closeStableSettingsModal">
-            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <p class="domainpage-modal-desc text-14px color-text-tertiary m-0px mb-12px">Publish resolver records for this stable link.</p>
-              <div class="domainpage-info-card border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
-                <div class="domainpage-info-name txt-weight-light text-15px">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
-                <div class="domainpage-info-expiry mono text-13px mt-4px">{{ selectedStableLink?.id || 'IPNS id unavailable' }}</div>
+            <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
+              <p class="text-14px color-text-tertiary m-0px mb-12px">Publish resolver records for this stable link.</p>
+              <div class="border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
+                <div class="txt-weight-light text-15px">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
+                <div class="mono text-13px mt-4px">{{ selectedStableLink?.id || 'IPNS id unavailable' }}</div>
               </div>
 
-              <div class="domainpage-form-group mb-16px">
-                <label class="color-text-secondary domainpage-form-group-label block mb-4px text-13px">Records (key / value)</label>
-                <div v-if="stableSettingsLoading" class="domainpage-records-empty color-text-tertiary text-13px mb-8px">
+              <div class="mb-16px">
+                <label class="color-text-secondary block mb-4px text-13px">Records (key / value)</label>
+                <div v-if="stableSettingsLoading" class="color-text-tertiary text-13px mb-8px">
                   Loading records...
                 </div>
-                <div v-else-if="!stableSettingsRecords.length" class="domainpage-records-empty color-text-tertiary text-13px mb-8px">
+                <div v-else-if="!stableSettingsRecords.length" class="color-text-tertiary text-13px mb-8px">
                   No records yet. Add a target like <span class="mono">cid</span>, <span class="mono">ipfs</span>, or <span class="mono">ipns</span>.
                 </div>
-                <div v-else class="domainpage-records-list flex flex-column gap-6px mb-8px">
+                <div v-else class="flex flex-column gap-6px mb-8px">
                   <div
-                    class="domainpage-record-row flex-align-center gap-6px"
+                    class="flex-align-center gap-6px"
                     v-for="(r, idx) in stableSettingsRecords"
                     :key="idx"
                   >
@@ -229,12 +229,12 @@
                      
                       v-model="r.key"
                       placeholder="cid | ipns | site | ..."
-                      :disabled="stableSettingsSaving" class="domainpage-form-input flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                      :disabled="stableSettingsSaving" class="flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                      
                       v-model="r.value"
                       placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
-                      :disabled="stableSettingsSaving" class="domainpage-form-input flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                      :disabled="stableSettingsSaving" class="flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiButton variant="danger" type="button"
                       @click="removeStableSettingsRecord(idx)"
                       title="Remove row"
@@ -248,7 +248,7 @@
                 </UiButton>
               </div>
 
-              <div class="modal-actions flex flex-justify-end gap-8px">
+              <div class="flex flex-justify-end gap-8px">
                 <UiButton variant="secondary" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving" class="outline-none">
                   Cancel
                 </UiButton>
@@ -265,39 +265,39 @@
 
       <!-- Register Domain Modal -->
       <UiModal :model-value="showRegisterModal" title="Register domain" panel-class="max-w-500px" @update:model-value="closeRegisterModal">
-            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <div class="domainpage-form-group mb-16px">
-                <label class="color-text-secondary domainpage-form-group-label block mb-4px text-13px">Domain</label>
-                <div class="domainpage-domain-input-wrapper flex-align-center gap-6px">
+            <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
+              <div class="mb-16px">
+                <label class="color-text-secondary block mb-4px text-13px">Domain</label>
+                <div class="flex-align-center gap-6px">
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                    
                     v-model="registerForm.domainName"
                     placeholder="myname"
                     @input="sanitizeDomainInput"
-                    @blur="refreshAvailability" class="domainpage-form-input flex-12 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                  <span class="domainpage-dot-sep txt-weight-light color-text-tertiary text-14px">.</span>
+                    @blur="refreshAvailability" class="flex-12 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                  <span class="txt-weight-light color-text-tertiary text-14px">.</span>
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                    
                     v-model="registerForm.ext"
                     placeholder="lmn"
-                    @blur="refreshAvailability" class="domainpage-form-input flex-08 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                    @blur="refreshAvailability" class="flex-08 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                 </div>
                 <div
                   v-if="registerForm.domainName"
-                  class="domainpage-availability mt-8px border-radius-8px text-13px py-8px px-10px"
+                  class="mt-8px border-radius-8px text-13px py-8px px-10px"
                   :class="domainAvailable ? 'color-success bg-fill-success' : 'color-error bg-fill-error'"
                 >
                   <span>{{ domainAvailable ? 'Available' : 'Already taken' }}</span>
                 </div>
               </div>
 
-              <div class="domainpage-form-group mb-16px flex-align-center-justify-space-between">
-                <label class="color-text-secondary domainpage-form-group-label text-13px">Registration period</label>
-                <span class="domainpage-period-static color-text-primary text-13px txt-weight-medium">1 year</span>
+              <div class="mb-16px flex-align-center-justify-space-between">
+                <label class="color-text-secondary text-13px">Registration period</label>
+                <span class="color-text-primary text-13px txt-weight-medium">1 year</span>
               </div>
 
               <UiCard bg-class="bg-secondary" border-class="border-1" radius="10px" padding-class="py-8px px-12px" class="m-0px mt-8px mb-16px" :shadow="false">
-                <div class="domainpage-price-row total mt-4px flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px pt-6px border-top-1 txt-weight-light">
+                <div class="mt-4px flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px pt-6px border-top-1 txt-weight-light">
                   <span>Total (1 year)</span>
                   <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
                 </div>
@@ -317,33 +317,33 @@
 
       <!-- Settings Modal -->
       <UiModal :model-value="showSettingsModal" title="Domain settings" panel-class="max-w-500px" @update:model-value="closeSettingsModal">
-            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <div class="domainpage-info-card border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
-                <div class="domainpage-info-name txt-weight-light text-15px">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
-                <div class="domainpage-info-expiry text-13px mt-4px">
+            <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
+              <div class="border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
+                <div class="txt-weight-light text-15px">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
+                <div class="text-13px mt-4px">
                   {{ selectedDomain ? expiryText(selectedDomain) : 'Expires: unknown' }}
                 </div>
               </div>
 
-              <div class="domainpage-form-group mb-16px">
-                <label class="color-text-secondary domainpage-form-group-label block mb-4px text-13px">Records (key / value)</label>
-                <div v-if="!settingsRecords.length" class="domainpage-records-empty color-text-tertiary text-13px mb-8px">
+              <div class="mb-16px">
+                <label class="color-text-secondary block mb-4px text-13px">Records (key / value)</label>
+                <div v-if="!settingsRecords.length" class="color-text-tertiary text-13px mb-8px">
                   No records yet. Add a new row below.
                 </div>
-                <div v-else class="domainpage-records-list flex flex-column gap-6px mb-8px">
+                <div v-else class="flex flex-column gap-6px mb-8px">
                   <div
-                    class="domainpage-record-row flex-align-center gap-6px"
+                    class="flex-align-center gap-6px"
                     v-for="(r, idx) in settingsRecords"
                     :key="idx"
                   >
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                      
                       v-model="r.key"
-                      placeholder="cid | ipns | txt | ..." class="domainpage-form-input flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                      placeholder="cid | ipns | txt | ..." class="flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                      
                       v-model="r.value"
-                      placeholder="Value" class="domainpage-form-input flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                      placeholder="Value" class="flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiButton variant="danger" type="button"
                       @click="removeSettingsRecord(idx)"
                       title="Remove row">
@@ -357,20 +357,20 @@
               </div>
 
               <UiCard bg-class="bg-secondary" border-class="border-1" radius="10px" padding-class="py-8px px-12px" class="m-0px mt-8px mb-16px" :shadow="false">
-                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
+                <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
                   <span>Cost</span>
                   <span class="txt-weight-light">{{ settingsCostLabel }}</span>
                 </div>
-                <div class="domainpage-price-row flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
+                <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
                   <span>Balance</span>
                   <span class="txt-weight-light">{{ settingsWalletBalanceLabel }}</span>
                 </div>
-                <p class="domainpage-owner-hint text-12px color-text-tertiary mt-8px" v-if="settingsInsufficientBalance">
+                <p class="text-12px color-text-tertiary mt-8px" v-if="settingsInsufficientBalance">
                   You need at least {{ settingsCostLabel }} available to keep your PQC link active.
                 </p>
               </UiCard>
 
-              <div class="modal-actions flex flex-justify-end gap-8px">
+              <div class="flex flex-justify-end gap-8px">
                 <UiButton variant="secondary" type="button" @click="closeSettingsModal" class="outline-none">
                   Cancel
                 </UiButton>
@@ -389,33 +389,33 @@
 
       <!-- Transfer Modal -->
       <UiModal :model-value="showTransferModal" title="Transfer domain" panel-class="max-w-500px" @update:model-value="closeTransferModal">
-            <div class="domainpage-modal-body overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <p class="domainpage-modal-desc text-14px color-text-tertiary m-0px mb-12px">Transfer ownership of this domain to another address.</p>
+            <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
+              <p class="text-14px color-text-tertiary m-0px mb-12px">Transfer ownership of this domain to another address.</p>
               
-              <div class="domainpage-info-card border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
-                <div class="domainpage-info-name txt-weight-light text-15px">{{ transferDomain?.name || 'mydomain.lmn' }}</div>
-                <div class="domainpage-info-expiry text-13px mt-4px">
+              <div class="border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
+                <div class="txt-weight-light text-15px">{{ transferDomain?.name || 'mydomain.lmn' }}</div>
+                <div class="text-13px mt-4px">
                   {{ transferDomain ? expiryText(transferDomain) : 'Expires: unknown' }}
                 </div>
               </div>
 
-              <div class="domainpage-form-group mb-16px">
-                <label class="color-text-secondary domainpage-form-group-label block mb-4px text-13px">New Owner Address</label>
+              <div class="mb-16px">
+                <label class="color-text-secondary block mb-4px text-13px">New Owner Address</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                  
                   v-model="transferForm.newOwner"
-                  placeholder="lumen1..." class="domainpage-form-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                <p class="domainpage-form-hint text-12px color-text-tertiary mt-8px">Enter the Lumen address of the new owner</p>
+                  placeholder="lumen1..." class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                <p class="text-12px color-text-tertiary mt-8px">Enter the Lumen address of the new owner</p>
               </div>
 
-              <div class="domainpage-warning-box flex border-radius-10px gap-12px p-14px bg-fill-error border-1-error-a30 m-0px mt-16px mb-16px">
-                <div class="domainpage-warning-icon text-20px flex-shrink-0">⚠️</div>
-                <div class="domainpage-warning-content color-text-primary text-13px">
+              <div class="flex border-radius-10px gap-12px p-14px bg-fill-error border-1-error-a30 m-0px mt-16px mb-16px">
+                <div class="text-20px flex-shrink-0">⚠️</div>
+                <div class="color-text-primary text-13px">
                   <strong class="color-error txt-weight-light">Warning:</strong> This action cannot be undone. Once transferred, you will lose control of this domain.
                 </div>
               </div>
 
-              <div class="modal-actions flex flex-justify-end gap-8px">
+              <div class="flex flex-justify-end gap-8px">
                 <UiButton variant="secondary" type="button" @click="closeTransferModal" class="outline-none">
                   Cancel
                 </UiButton>

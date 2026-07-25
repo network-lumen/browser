@@ -1,14 +1,14 @@
 <template>
   <UiModal :model-value="true" panel-class="w-full max-w-600px" @update:model-value="$emit('close')">
     <template #header>
-      <h2 class="flex-align-center m-0px color-text-primary text-20px txt-weight-light recurpay-header-h2 gap-12px">
+      <h2 class="flex-align-center m-0px color-text-primary text-20px txt-weight-light gap-12px">
         <Calendar :size="24" />
         <span>{{ isEditing ? 'Edit Recurring Payment' : 'Schedule Recurring Payment' }}</span>
       </h2>
     </template>
         <!-- Basic Information -->
-        <div class="recurpay-section mb-32px">
-          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light recurpay-section-h3 gap-8px m-0px mb-16px">Payment Details</h3>
+        <div class="mb-32px">
+          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light gap-8px m-0px mb-16px">Payment Details</h3>
 
           <UiFormGroup required label="Payment Name" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
             <UiInput v-model="form.name" placeholder="e.g., Netflix Subscription" />
@@ -17,11 +17,11 @@
           <UiFormGroup label="Description" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
             <UiInput type="textarea" v-model="form.description"
               placeholder="Optional notes about this payment"
-              rows="2" class="recurpay-input resize-vertical placeholder-tertiary min-h-60px"></UiInput>
+              rows="2" class="resize-vertical placeholder-tertiary min-h-60px"></UiInput>
           </UiFormGroup>
 
           <UiFormGroup label="Category" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
-            <select v-model="form.category" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
+            <select v-model="form.category" class="w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
               <option value="">Select category</option>
               <option value="subscription">Subscription</option>
               <option value="bill">Bill</option>
@@ -34,16 +34,16 @@
         </div>
 
         <!-- Payment Configuration -->
-        <div class="recurpay-section mb-32px">
-          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light recurpay-section-h3 gap-8px m-0px mb-16px">Payment Configuration</h3>
+        <div class="mb-32px">
+          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light gap-8px m-0px mb-16px">Payment Configuration</h3>
 
           <UiFormGroup required label="Recipient Address" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
-            <div class="recurpay-input-with-button flex gap-8px">
+            <div class="flex gap-8px">
               <input
                 v-model="form.recipient"
                 type="text"
                 placeholder="lumen1..."
-                class="recurpay-input flex-1 bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary"
+                class="flex-1 bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary"
               />
               <UiButton variant="primary" @click="$emit('scan-address')"
                 title="Scan QR Code">
@@ -52,17 +52,17 @@
             </div>
           </UiFormGroup>
 
-          <div class="recurpay-row grid gap-16px grid-cols-1fr-1fr">
+          <div class="grid gap-16px grid-cols-1fr-1fr">
             <UiFormGroup required label="Amount" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
               <UiInput v-model="form.amount"
                 step="0.000001"
                 min="0"
-                placeholder="0.000000" class="recurpay-input pr-48px placeholder-tertiary" />
-              <span class="currency absolute top-half translate-y-center text-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
+                placeholder="0.000000" class="pr-48px placeholder-tertiary" />
+              <span class="absolute top-half translate-y-center text-14px txt-weight-light color-text-secondary cursor-events-none right-12px">LMN</span>
             </UiFormGroup>
 
             <UiFormGroup required label="Frequency" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
-              <select v-model="form.frequency" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
+              <select v-model="form.frequency" class="w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="biweekly">Bi-weekly</option>
@@ -73,13 +73,13 @@
             </UiFormGroup>
           </div>
 
-          <div class="recurpay-row grid gap-16px grid-cols-1fr-1fr">
+          <div class="grid gap-16px grid-cols-1fr-1fr">
             <UiFormGroup required label="Start Date" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
               <input
                 v-model="form.startDate"
                 type="date"
                 :min="minDate"
-                class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none"
+                class="date-input-icon-filter w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none"
               />
             </UiFormGroup>
 
@@ -88,7 +88,7 @@
                 v-model="form.endDate"
                 type="date"
                 :min="form.startDate || minDate"
-                class="date-input-icon-filter recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none"
+                class="date-input-icon-filter w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none"
               />
             </UiFormGroup>
           </div>
@@ -96,13 +96,13 @@
           <UiFormGroup label="Maximum Payments (Optional)" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px" hint="Payment will stop after this many successful transactions" hint-class="color-text-secondary text-12px">
             <UiInput v-model="form.maxPayments"
               min="1"
-              placeholder="Leave empty for unlimited" class="recurpay-input placeholder-tertiary" />
+              placeholder="Leave empty for unlimited" class="placeholder-tertiary" />
           </UiFormGroup>
         </div>
 
         <!-- Reminder Settings -->
-        <div class="recurpay-section mb-32px">
-          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light recurpay-section-h3 gap-8px m-0px mb-16px">
+        <div class="mb-32px">
+          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light gap-8px m-0px mb-16px">
             <Bell :size="18" />
             <span>Payment Reminders</span>
           </h3>
@@ -112,7 +112,7 @@
           </div>
 
           <UiFormGroup v-if="form.reminderEnabled" label="Remind me (days before payment)" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
-            <select v-model="form.reminderDaysBefore" class="recurpay-input w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
+            <select v-model="form.reminderDaysBefore" class="w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
               <option :value="0">On the same day</option>
               <option :value="1">1 day before</option>
               <option :value="2">2 days before</option>
@@ -123,21 +123,21 @@
         </div>
 
         <!-- Payment Summary -->
-        <div class="recurpay-summary border-radius-12px p-20px color-white bg-gradient-brand">
-          <h4 class="m-0px text-16px txt-weight-light recurpay-summary-h4 mb-16px">Payment Summary</h4>
-          <div class="recurpay-summary-row last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
+        <div class="border-radius-12px p-20px color-white bg-gradient-brand">
+          <h4 class="m-0px text-16px txt-weight-light mb-16px">Payment Summary</h4>
+          <div class="last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
             <span>Amount per payment:</span>
             <strong class="txt-weight-light">{{ formatAmount(form.amount) }} LMN</strong>
           </div>
-          <div class="recurpay-summary-row last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
+          <div class="last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
             <span>Frequency:</span>
             <strong class="txt-weight-light">{{ frequencyLabel }}</strong>
           </div>
-          <div class="recurpay-summary-row last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="form.startDate">
+          <div class="last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="form.startDate">
             <span>First payment:</span>
             <strong class="txt-weight-light">{{ formatDate(form.startDate) }}</strong>
           </div>
-          <div class="recurpay-summary-row last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="estimatedTotal">
+          <div class="last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="estimatedTotal">
             <span>{{ estimatedTotalLabel }}:</span>
             <strong class="txt-weight-light">{{ estimatedTotal }} LMN</strong>
           </div>

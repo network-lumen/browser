@@ -1,11 +1,11 @@
 <template>
-  <div class="network-page internal-page flex">
+  <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Network" :icon="Network" activeKey="network">
-      <nav class="lsb-nav flex flex-column gap-12px">
+      <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Monitoring">
           <UiSidebarNavItem reveal :active="activeView === 'status'" @click="activeView = 'status'">
-            <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 3v18h18"/>
               <path d="M18 17l-4-4-4 4-4-4"/>
             </svg>
@@ -16,7 +16,7 @@
             <span>Params</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem v-if="activeView === 'status'" :disabled="refreshing" @click="refreshData">
-            <svg class="lsb-item-svg flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
+            <svg class="flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>
             <span>{{ refreshing ? 'Refreshing...' : 'Refresh' }}</span>
@@ -24,27 +24,27 @@
         </UiSidebarNavSection>
 
         <UiSidebarNavSection title="Metrics">
-          <div class="netpage-metric-item flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
+          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
             <span class="color-text-secondary fw-500">Block Height</span>
             <span class="color-text-primary txt-weight-light">{{ formatNumber(blockHeight) }}</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
+          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
             <span class="color-text-secondary fw-500">Validators</span>
             <span class="color-text-primary txt-weight-light">{{ validators.active }}/{{ validators.total }}</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
+          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
             <span class="color-text-secondary fw-500">Block Time</span>
             <span class="color-text-primary txt-weight-light">{{ blockTime.toFixed(2) }}s</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
+          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
             <span class="color-text-secondary fw-500">Throughput</span>
             <span class="color-text-primary txt-weight-light">{{ tps.toFixed(1) }} tx/s</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
+          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
             <span class="color-text-secondary fw-500">Blocks/Hour</span>
             <span class="color-text-primary txt-weight-light">{{ blocksPerHour }}</span>
           </div>
-          <div class="netpage-metric-item flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
+          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
             <span class="color-text-secondary fw-500">24h Volume</span>
             <span class="color-text-primary txt-weight-light">{{ formatNumber(txVolume24h) }}</span>
           </div>
@@ -52,62 +52,62 @@
 
         <UiSidebarNavSection title="Node Info">
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Chain ID</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">lumen</span>
+            <span class="color-text-tertiary fw-500 text-11px">Chain ID</span>
+            <span class="color-text-secondary txt-weight-light text-12px mono">lumen</span>
           </div>
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Network</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">Mainnet</span>
+            <span class="color-text-tertiary fw-500 text-11px">Network</span>
+            <span class="color-text-secondary txt-weight-light text-12px mono">Mainnet</span>
           </div>
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">SDK</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">v0.47.0</span>
+            <span class="color-text-tertiary fw-500 text-11px">SDK</span>
+            <span class="color-text-secondary txt-weight-light text-12px mono">v0.47.0</span>
           </div>
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Peers</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">{{ peers }}</span>
+            <span class="color-text-tertiary fw-500 text-11px">Peers</span>
+            <span class="color-text-secondary txt-weight-light text-12px mono">{{ peers }}</span>
           </div>
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="netpage-node-detail-label color-text-tertiary fw-500 text-11px">Uptime</span>
-            <span class="netpage-node-detail-value color-text-secondary txt-weight-light text-12px mono">{{ uptime }}</span>
+            <span class="color-text-tertiary fw-500 text-11px">Uptime</span>
+            <span class="color-text-secondary txt-weight-light text-12px mono">{{ uptime }}</span>
           </div>
         </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
     <!-- Main Content -->
-    <div class="netpage-main flex-1 overflow-y-auto bg-secondary">
+    <div class="flex-1 overflow-y-auto bg-secondary">
       <template v-if="activeView === 'status'">
         <!-- Main Grid Layout -->
-        <div class="netpage-main-grid gap-24px p-32px flex flex-wrap-wrap align-items-start">
+        <div class="gap-24px p-32px flex flex-wrap-wrap align-items-start">
         <!-- Left Column: Overview Cards -->
-        <div class="netpage-left-column flex flex-column gap-12px flex-1-1-320px">
+        <div class="flex flex-column gap-12px flex-1-1-320px">
           <UiStatCard label="Block Height" detail="Latest block on chain">
             {{ formatNumber(blockHeight) }}
           </UiStatCard>
 
           <UiStatCard label="Validators" :detail="`${validatorPercent.toFixed(1)}% active`">
-            {{ validators.active }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">/{{ validators.total }}</span>
+            {{ validators.active }}<span class="color-text-secondary txt-weight-normal text-18px ml-4px">/{{ validators.total }}</span>
           </UiStatCard>
 
           <UiStatCard label="Block Time" :detail="`Avg: ${avgBlockTime.toFixed(2)}s`">
-            {{ blockTime.toFixed(2) }}<span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">s</span>
+            {{ blockTime.toFixed(2) }}<span class="color-text-secondary txt-weight-normal text-18px ml-4px">s</span>
           </UiStatCard>
 
           <UiStatCard label="Throughput" :detail="`Peak: ${maxTps.toFixed(1)} tx/s`">
-            {{ tps.toFixed(1) }} <span class="netpage-card-unit color-text-secondary txt-weight-normal text-18px ml-4px">tx/s</span>
+            {{ tps.toFixed(1) }} <span class="color-text-secondary txt-weight-normal text-18px ml-4px">tx/s</span>
           </UiStatCard>
         </div>
 
       <!-- Middle Column: Health & Activity -->
-      <div class="middle-column flex flex-column gap-20px flex-2-1-480px">
+      <div class="flex flex-column gap-20px flex-2-1-480px">
         <!-- Network Health -->
-        <section class="netpage-health-section bg-card border-1 border-radius-14px py-20px px-24px">
-          <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Health</h2>
-          <div class="netpage-health-grid gap-12px grid grid-cols-2">
+        <section class="bg-card border-1 border-radius-14px py-20px px-24px">
+          <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Health</h2>
+          <div class="gap-12px grid grid-cols-2">
             <UiMeterCard label="Chain Status" value="Synced">
               <template #fill>
-                <div class="netpage-indicator-fill--w100 h-full w-full border-radius-4px transition-width-03" :style="indicatorFillStyle('excellent')"></div>
+                <div class="h-full w-full border-radius-4px transition-width-03" :style="indicatorFillStyle('excellent')"></div>
               </template>
             </UiMeterCard>
 
@@ -119,38 +119,38 @@
 
             <UiMeterCard label="Block Production" :value="blockTimeStatus">
               <template #fill>
-                <div class="netpage-indicator-fill--w85 h-full border-radius-4px transition-width-03 w-85pct" :style="indicatorFillStyle(blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
+                <div class="h-full border-radius-4px transition-width-03 w-85pct" :style="indicatorFillStyle(blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
               </template>
             </UiMeterCard>
 
             <UiMeterCard label="Peer Connections" :value="String(peers)">
               <template #fill>
-                <div class="netpage-indicator-fill--w70 h-full border-radius-4px transition-width-03 w-70pct" :style="indicatorFillStyle('good')"></div>
+                <div class="h-full border-radius-4px transition-width-03 w-70pct" :style="indicatorFillStyle('good')"></div>
               </template>
             </UiMeterCard>
           </div>
         </section>
 
         <!-- Network Activity Chart -->
-        <section class="netpage-activity-section bg-card border-1 border-radius-14px py-20px px-24px">
-          <div class="netpage-section-header flex-align-center-justify-space-between mb-24px">
-            <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Activity</h2>
-            <div class="netpage-chart-tabs flex gap-8px">
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
-              <button class="netpage-tab-btn bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
+        <section class="bg-card border-1 border-radius-14px py-20px px-24px">
+          <div class="flex-align-center-justify-space-between mb-24px">
+            <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Activity</h2>
+            <div class="flex gap-8px">
+              <button class="bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
+              <button class="bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
+              <button class="bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
             </div>
           </div>
-          <div class="netpage-activity-chart p-24px bg-secondary border-radius-12px">
+          <div class="p-24px bg-secondary border-radius-12px">
             <div class="h-160px w-full relative">
-              <svg class="netpage-chart-container-svg w-full h-full" v-if="activeChart === 'blocks'" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <svg class="w-full h-full" v-if="activeChart === 'blocks'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <path :d="blockChartLinePath" stroke="var(--color-primary)" stroke-width="2" fill="none" />
                 <circle v-for="(point, i) in blockChartPoints" :key="i" :cx="point.x" :cy="point.y" r="3" fill="var(--color-primary)" />
               </svg>
-              <svg class="netpage-chart-container-svg w-full h-full" v-if="activeChart === 'txs'" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <svg class="w-full h-full" v-if="activeChart === 'txs'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <rect v-for="(point, i) in txChartPoints" :key="i" :x="point.x - 8" :y="point.y" width="16" :height="120 - point.y" fill="#6366f1" opacity="0.8" rx="2" />
               </svg>
-              <svg class="netpage-chart-container-svg w-full h-full" v-if="activeChart === 'tps'" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <svg class="w-full h-full" v-if="activeChart === 'tps'" viewBox="0 0 400 120" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="grad-tps" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stop-color="#059669" stop-opacity="0.3" />
@@ -166,11 +166,11 @@
       </div>
 
       <!-- Right Column: Recent Blocks & Node Info -->
-      <div class="netpage-right-column flex flex-column gap-0px flex-1-1-380px">
+      <div class="flex flex-column gap-0px flex-1-1-380px">
         <!-- Recent Blocks -->
-        <section class="netpage-data-table flex flex-column h-full bg-card border-1 border-radius-14px py-20px px-24px">
-          <h2 class="netpage-section-title color-text-primary txt-weight-light text-18px m-0px mb-16px">Recent Blocks</h2>
-          <div class="netpage-blocks-list flex flex-column gap-8px mt-16px flex-1">
+        <section class="flex flex-column h-full bg-card border-1 border-radius-14px py-20px px-24px">
+          <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">Recent Blocks</h2>
+          <div class="flex flex-column gap-8px mt-16px flex-1">
             <UiCard
               class="hover-translate-x-4px flex-align-center-justify-space-between cursor-pointer min-h-64px"
               bg-class="bg-secondary"
@@ -183,33 +183,33 @@
               v-for="block in recentBlocks"
               :key="block.height"
             >
-              <div class="netpage-block-left flex-align-center gap-12px flex-1 min-w-0">
-                <div class="netpage-validator-avatar flex-align-justify-center flex-0-0-auto border-radius-circle size-36px text-13px txt-weight-medium color-white overflow-hidden border-2-white-a15 shadow-md bg-gradient-indigo-purple" :title="block.validator">
-                  <img class="netpage-validator-avatar-img w-full h-full object-fit-cover" v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
+              <div class="flex-align-center gap-12px flex-1 min-w-0">
+                <div class="flex-align-justify-center flex-0-0-auto border-radius-circle size-36px text-13px txt-weight-medium color-white overflow-hidden border-2-white-a15 shadow-md bg-gradient-indigo-purple" :title="block.validator">
+                  <img class="w-full h-full object-fit-cover" v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
                   <span v-else class="block">{{ block.validator.substring(0, 2).toUpperCase() }}</span>
                 </div>
-                <div class="netpage-block-info flex flex-column gap-4px flex-1 min-w-0">
-                  <div class="netpage-block-height-row flex-align-baseline gap-8px">
-                    <span class="netpage-height-label color-text-secondary txt-weight-light text-uppercase text-10px letter-spacing-005em">Block</span>
-                    <span class="netpage-height-value color-text-primary txt-weight-medium text-15px mono">#{{ formatNumber(block.height) }}</span>
+                <div class="flex flex-column gap-4px flex-1 min-w-0">
+                  <div class="flex-align-baseline gap-8px">
+                    <span class="color-text-secondary txt-weight-light text-uppercase text-10px letter-spacing-005em">Block</span>
+                    <span class="color-text-primary txt-weight-medium text-15px mono">#{{ formatNumber(block.height) }}</span>
                   </div>
-                  <div class="block-validator flex-align-center gap-8px">
-                    <span class="netpage-validator-name-compact color-text-secondary text-12px truncate line-height-12">{{ block.validator }}</span>
+                  <div class="flex-align-center gap-8px">
+                    <span class="color-text-secondary text-12px truncate line-height-12">{{ block.validator }}</span>
                   </div>
                 </div>
               </div>
-              <div class="netpage-block-right flex-align-center flex-0-0-auto gap-16px">
-                <div class="netpage-block-meta flex flex-column flex-align-end gap-6px flex-justify-center">
-                  <div class="meta-item flex-align-center gap-8px">
-                    <span class="netpage-meta-label color-text-secondary txt-weight-light text-uppercase text-10px">TXS</span>
-                    <span class="netpage-meta-value flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-primary border-1 border-radius-4px text-13px py-0px px-8px h-24px min-w-32px" :class="{ 'bg-fill-success border-color-success-a30 color-success': block.txs > 0 }">{{ block.txs }}</span>
+              <div class="flex-align-center flex-0-0-auto gap-16px">
+                <div class="flex flex-column flex-align-end gap-6px flex-justify-center">
+                  <div class="flex-align-center gap-8px">
+                    <span class="color-text-secondary txt-weight-light text-uppercase text-10px">TXS</span>
+                    <span class="flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-primary border-1 border-radius-4px text-13px py-0px px-8px h-24px min-w-32px" :class="{ 'bg-fill-success border-color-success-a30 color-success': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
-                  <div class="netpage-meta-time flex-align-center color-text-secondary gap-6px text-12px line-height-1">
+                  <div class="flex-align-center color-text-secondary gap-6px text-12px line-height-1">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" opacity="0.5">
                       <path d="M6 0C2.7 0 0 2.7 0 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm0 10.8c-2.65 0-4.8-2.15-4.8-4.8S3.35 1.2 6 1.2s4.8 2.15 4.8 4.8-2.15 4.8-4.8 4.8z"/>
                       <path d="M6.6 3H5.4v3.3l2.85 1.7.6-1-2.25-1.35V3z"/>
                     </svg>
-                    <span class="netpage-time-text nowrap line-height-1">{{ formatTime(block.time) }}</span>
+                    <span class="nowrap line-height-1">{{ formatTime(block.time) }}</span>
                   </div>
                 </div>
               </div>

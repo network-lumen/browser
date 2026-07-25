@@ -17,7 +17,7 @@
         </p>
       </div>
     </template>
-          <div v-if="step === 'intro'" class="walletonboard-step animate-walletonboard-fade-in">
+          <div v-if="step === 'intro'" class="animate-walletonboard-fade-in">
             <UiWarningBox>
               <p class="text-14px txt-weight-medium m-0px">Important: No one can recover your wallet</p>
               <p class="text-13px line-height-15 color-text-tertiary mt-4px m-0px">
@@ -26,7 +26,7 @@
               </p>
             </UiWarningBox>
 
-            <div class="walletonboard-info-cards gap-16px grid grid-cols-1fr-1fr">
+            <div class="gap-16px grid grid-cols-1fr-1fr">
               <UiCenteredInfoCard title="Set a Password" description="Protect your wallet with a strong password">
                 <template #icon><Lock :size="20" class="color-primary" /></template>
               </UiCenteredInfoCard>
@@ -36,7 +36,7 @@
             </div>
           </div>
 
-          <div v-else-if="step === 'password'" class="walletonboard-step animate-walletonboard-fade-in">
+          <div v-else-if="step === 'password'" class="animate-walletonboard-fade-in">
             <p class="text-14px line-height-15 color-text-tertiary mb-16px">
               Create a strong password to protect your wallet. You'll need it to unlock Lumen - when you start the app, and again if your session times out from inactivity.
             </p>
@@ -56,7 +56,7 @@
             <UiBanner v-if="passwordError" variant="error" class="mt-8px">{{ passwordError }}</UiBanner>
           </div>
 
-          <div v-else-if="step === 'profile-name'" class="walletonboard-step animate-walletonboard-fade-in">
+          <div v-else-if="step === 'profile-name'" class="animate-walletonboard-fade-in">
             <UiSuccessBanner v-if="passwordSet" message="Password set successfully!" />
 
             <p class="text-14px line-height-15 color-text-tertiary mt-16px mb-16px">
@@ -73,7 +73,7 @@
             <UiBanner v-if="profileNameError" variant="error" class="mt-8px">{{ profileNameError }}</UiBanner>
           </div>
 
-          <div v-else-if="step === 'creating-wallet'" class="walletonboard-step animate-walletonboard-fade-in">
+          <div v-else-if="step === 'creating-wallet'" class="animate-walletonboard-fade-in">
             <UiSuccessBanner v-if="passwordSet" message="Password set successfully!" />
 
             <div>
@@ -96,7 +96,7 @@
             </div>
           </div>
 
-          <div v-else-if="step === 'backup'" class="walletonboard-step animate-walletonboard-fade-in">
+          <div v-else-if="step === 'backup'" class="animate-walletonboard-fade-in">
             <UiSuccessBanner v-if="passwordSet" message="Password set successfully!" />
 
             <p class="text-14px line-height-15 color-text-tertiary mt-16px mb-16px">
@@ -115,7 +115,7 @@
             <UiBanner v-if="backupSuccess" variant="success" class="mt-8px">{{ backupSuccess }}</UiBanner>
           </div>
 
-          <div v-else-if="step === 'complete'" class="walletonboard-step animate-walletonboard-fade-in">
+          <div v-else-if="step === 'complete'" class="animate-walletonboard-fade-in">
             <UiResultState title="All Set!" description="Your wallet is now protected. Remember to keep your password and backup file safe." wrapper-class="py-32px px-16px">
               <template #icon><CheckCircle :size="48" class="color-success" /></template>
             </UiResultState>
@@ -136,7 +136,7 @@
         Skip for now
       </UiButton>
       <UiButton variant="primary" v-if="step === 'intro'"
-        @click="step = 'password'" class="walletonboard-btn-primary disabled-fade-50">
+        @click="step = 'password'" class="disabled-fade-50">
         Get Started
       </UiButton>
 
@@ -146,13 +146,13 @@
       </UiButton>
       <UiButton variant="primary" v-if="step === 'password'"
         :disabled="settingPassword"
-        @click="handlePasswordSubmit" class="walletonboard-btn-primary disabled-fade-50">
+        @click="handlePasswordSubmit" class="disabled-fade-50">
         <UiSpinner v-if="settingPassword" size="sm" />
         <span>{{ settingPassword ? 'Setting Password...' : 'Set Password' }}</span>
       </UiButton>
 
       <UiButton variant="primary" v-if="step === 'profile-name'"
-        @click="handleProfileNameSubmit" class="walletonboard-btn-primary disabled-fade-50">
+        @click="handleProfileNameSubmit" class="disabled-fade-50">
         Continue
       </UiButton>
 
@@ -162,13 +162,13 @@
       </UiButton>
       <UiButton variant="primary" v-if="step === 'backup'"
         :disabled="exportingBackup"
-        @click="handleExportBackup" class="walletonboard-btn-primary disabled-fade-50">
+        @click="handleExportBackup" class="disabled-fade-50">
         <UiSpinner v-if="exportingBackup" size="sm" />
         <span>{{ exportingBackup ? 'Exporting...' : 'Export Backup' }}</span>
       </UiButton>
 
       <UiButton variant="primary" v-if="step === 'complete'"
-        @click="handleComplete" class="walletonboard-btn-primary disabled-fade-50">
+        @click="handleComplete" class="disabled-fade-50">
         Start Using Lumen
       </UiButton>
     </template>

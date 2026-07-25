@@ -8,19 +8,19 @@
       <!-- Transaction Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Transaction Overview" title-class="text-16px letter-spacing-0025em txt-weight-light" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <UiDetailRow label="Transaction Hash:">
             <UiCopyField :value="transaction.hash" title="Copy hash" code-class="bg-secondary color-text-primary flex-1 py-8px px-12px border-1 border-radius-6px mono text-12px break-all" />
           </UiDetailRow>
           <UiDetailRow label="Status:">
-            <span class="chaindetail-value color-text-primary text-14px break-all">
+            <span class="color-text-primary text-14px break-all">
               <span class="py-4px px-12px border-radius-full text-12px" :class="transaction.success ? 'bg-fill-success' : 'bg-fill-error'">
                 {{ transaction.success ? '✓ Success' : '✗ Failed' }}
               </span>
             </span>
           </UiDetailRow>
           <UiDetailRow label="Block Height:">
-            <span class="chaindetail-value underline cursor-pointer color-primary text-14px break-all hover-color-accent-secondary" @click="navigateToBlock(transaction.height)">
+            <span class="underline cursor-pointer color-primary text-14px break-all hover-color-accent-secondary" @click="navigateToBlock(transaction.height)">
               {{ transaction.height }}
             </span>
           </UiDetailRow>
@@ -34,14 +34,14 @@
       <!-- Messages Card -->
       <UiCard v-if="transaction.messages && transaction.messages.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader :title="`Messages (${transaction.messages.length})`" title-class="text-16px letter-spacing-0025em txt-weight-light" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(msg, index) in transaction.messages" :key="index">
-              <div class="txdetail-item-header flex-align-center flex-justify-space-between mb-12px">
-                <span class="txdetail-item-type color-text-primary txt-weight-light text-14px">{{ msg.type }}</span>
-                <span class="txdetail-item-index color-text-tertiary text-12px">#{{ Number(index) + 1 }}</span>
+              <div class="flex-align-center flex-justify-space-between mb-12px">
+                <span class="color-text-primary txt-weight-light text-14px">{{ msg.type }}</span>
+                <span class="color-text-tertiary text-12px">#{{ Number(index) + 1 }}</span>
               </div>
-              <div class="txdetail-item-data">
+              <div class="">
                 <pre class="bg-primary color-text-primary p-16px m-0px word-wrap-break border-1 border-radius-6px mono text-12px pre-wrap overflow-x-auto">{{ JSON.stringify(msg.value, null, 2) }}</pre>
               </div>
             </UiCard>
@@ -52,13 +52,13 @@
       <!-- Events Card -->
       <UiCard v-if="transaction.events && transaction.events.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader :title="`Events (${transaction.events.length})`" title-class="text-16px letter-spacing-0025em txt-weight-light" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(event, index) in transaction.events" :key="index">
-              <div class="txdetail-item-type color-text-primary txt-weight-light text-14px">{{ event.type }}</div>
-              <div class="txdetail-event-attributes flex flex-column gap-8px mt-12px">
+              <div class="color-text-primary txt-weight-light text-14px">{{ event.type }}</div>
+              <div class="flex flex-column gap-8px mt-12px">
                 <div class="flex gap-8px text-12px" v-for="(attr, attrIndex) in event.attributes" :key="attrIndex">
-                  <span class="txdetail-attr-key color-text-secondary txt-weight-light min-w-120px">{{ attr.key }}:</span>
+                  <span class="color-text-secondary txt-weight-light min-w-120px">{{ attr.key }}:</span>
                   <span class="color-text-primary break-all">{{ attr.value }}</span>
                 </div>
               </div>
@@ -70,7 +70,7 @@
       <!-- Raw Data Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Raw Transaction Data" title-class="text-16px letter-spacing-0025em txt-weight-light" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <div>
             <pre class="bg-primary color-text-primary">{{ JSON.stringify(transaction.raw, null, 2) }}</pre>
           </div>

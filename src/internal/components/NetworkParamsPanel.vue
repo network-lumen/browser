@@ -1,51 +1,51 @@
 <template>
   <section class="p-32px">
-    <header class="netparams-header flex mb-20px flex-wrap-wrap gap-16px flex-align-start flex-justify-space-between">
+    <header class="flex mb-20px flex-wrap-wrap gap-16px flex-align-start flex-justify-space-between">
       <div>
-        <h1 class="color-text-primary txt-weight-strong m-0px netparams-header-h1 text-24px">Params</h1>
-        <p class="color-text-secondary netparams-header-p text-14px m-0px mt-8px">Live view of the blockchain parameters (fetched from the REST API).</p>
+        <h1 class="color-text-primary txt-weight-strong m-0px text-24px">Params</h1>
+        <p class="color-text-secondary text-14px m-0px mt-8px">Live view of the blockchain parameters (fetched from the REST API).</p>
       </div>
 
-      <div class="netparams-header-actions flex flex-wrap-wrap gap-12px flex-inline-align-center">
-        <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="netparams-btn hover-border-primary-a15 disabled-fade-50">
+      <div class="flex flex-wrap-wrap gap-12px flex-inline-align-center">
+        <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="hover-border-primary-a15 disabled-fade-50">
           <Copy :size="16" />
           Copy all
         </UiButton>
 
-        <UiButton variant="secondary" type="button" @click="refreshAll" :disabled="loadingAll" class="netparams-btn hover-border-primary-a15 disabled-fade-50">
+        <UiButton variant="secondary" type="button" @click="refreshAll" :disabled="loadingAll" class="hover-border-primary-a15 disabled-fade-50">
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </UiButton>
       </div>
     </header>
 
-    <div v-if="fatalError" class="netparams-fatal-error color-text-primary p-20px border-radius-16px border-1-error-a25 bg-error-a08">
-      <p class="netparams-fatal-title m-0px txt-weight-strong">Unable to fetch params</p>
-      <p class="netparams-fatal-desc color-text-secondary text-14px m-0px mt-8px">{{ fatalError }}</p>
+    <div v-if="fatalError" class="color-text-primary p-20px border-radius-16px border-1-error-a25 bg-error-a08">
+      <p class="m-0px txt-weight-strong">Unable to fetch params</p>
+      <p class="color-text-secondary text-14px m-0px mt-8px">{{ fatalError }}</p>
     </div>
 
     <div v-else class="flex flex-column gap-12px">
-      <div v-if="loadingAll && !hasAnyData" class="netparams-loading-state flex-align-center bg-primary color-text-secondary gap-12px p-16px border-1 border-radius-16px">
+      <div v-if="loadingAll && !hasAnyData" class="flex-align-center bg-primary color-text-secondary gap-12px p-16px border-1 border-radius-16px">
         <UiSpinner size="sm" />
         <span>Loading params…</span>
       </div>
 
-      <section v-for="s in sections" :key="s.id" class="netparams-section bg-primary border-1 border-radius-16px overflow-hidden">
-        <button type="button" class="netparams-section-head w-full flex bg-transparent border-none cursor-pointer gap-16px text-left flex-justify-space-between py-16px px-20px" @click="toggleSection(s.id)">
-          <div class="netparams-section-title flex flex-column gap-4px min-w-0">
-            <div class="netparams-title-row flex-align-center gap-10px min-w-0">
-              <span class="netparams-section-name color-text-primary txt-weight-strong text-15px truncate">{{ s.title }}</span>
-              <span v-if="!s.data" class="netparams-status-badge border-radius-full flex-0-0-auto txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(s)">
+      <section v-for="s in sections" :key="s.id" class="bg-primary border-1 border-radius-16px overflow-hidden">
+        <button type="button" class="w-full flex bg-transparent border-none cursor-pointer gap-16px text-left flex-justify-space-between py-16px px-20px" @click="toggleSection(s.id)">
+          <div class="flex flex-column gap-4px min-w-0">
+            <div class="flex-align-center gap-10px min-w-0">
+              <span class="color-text-primary txt-weight-strong text-15px truncate">{{ s.title }}</span>
+              <span v-if="!s.data" class="border-radius-full flex-0-0-auto txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(s)">
                 {{ statusLabel(s) }}
               </span>
             </div>
-            <span class="netparams-section-path color-text-tertiary mono text-12px truncate">{{ s.path }}</span>
+            <span class="color-text-tertiary mono text-12px truncate">{{ s.path }}</span>
           </div>
 
-          <div class="netparams-section-actions flex-inline-align-center color-text-tertiary gap-8px flex-0-0-auto">
+          <div class="flex-inline-align-center color-text-tertiary gap-8px flex-0-0-auto">
             <button
               type="button"
-              class="netparams-icon-btn hover-border-primary-a15 disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light transition-colors-015 hover-bg-primary-a10 hover-color-accent"
+              class="hover-border-primary-a15 disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light transition-colors-015 hover-bg-primary-a10 hover-color-accent"
               title="Copy JSON"
               :disabled="!s.data"
               @click.stop="copySection(s)"
@@ -56,15 +56,15 @@
           </div>
         </button>
 
-        <div v-if="s.open" class="netparams-section-body bg-secondary border-top-1-light pt-14px pr-20px pb-20px pl-20px">
-          <div v-if="s.loading" class="netparams-section-loading flex-align-center color-text-secondary gap-12px">
+        <div v-if="s.open" class="bg-secondary border-top-1-light pt-14px pr-20px pb-20px pl-20px">
+          <div v-if="s.loading" class="flex-align-center color-text-secondary gap-12px">
             <UiSpinner size="sm" />
             <span>Loading…</span>
           </div>
-          <div v-else-if="s.error" class="netparams-section-error color-error text-14px">
+          <div v-else-if="s.error" class="color-error text-14px">
             {{ s.error }}
           </div>
-          <pre v-else class="netparams-json-block mono bg-primary color-text-primary m-0px border-radius-12px p-14px border-1-light overflow-auto text-12px line-height-14 max-h-420px">{{ pretty(s.data) }}</pre>
+          <pre v-else class="mono bg-primary color-text-primary m-0px border-radius-12px p-14px border-1-light overflow-auto text-12px line-height-14 max-h-420px">{{ pretty(s.data) }}</pre>
         </div>
       </section>
     </div>

@@ -1,6 +1,6 @@
 <template>
   <transition name="fade-slide">
-    <section v-if="visible && latest" class="release-update bg-card border-default color-text-primary border-radius-16px fixed p-16px w-min-380px-92vw shadow-lg z-9998 bottom-24px right-24px">
+    <section v-if="visible && latest" class="bg-card border-default color-text-primary border-radius-16px fixed p-16px w-min-380px-92vw shadow-lg z-9998 bottom-24px right-24px">
       <header class="flex flex-column gap-2px">
         <p class="color-primary text-11px line-height-12 txt-weight-medium text-uppercase letter-spacing-01em m-0px">
           Update available
@@ -23,7 +23,7 @@
         <li v-if="shaFull">
           <strong>SHA256:</strong>
           <button type="button" class="hover-opacity-85 bg-transparent border-none cursor-pointer p-0px ml-4px" @click.stop="copySha" aria-label="Copy SHA-256">
-            <code class="release-prompt-sha-short color-text-primary bg-fill-tertiary border-light border-radius-8px mono py-0px px-8px">{{ shaShort }}</code>
+            <code class="color-text-primary bg-fill-tertiary border-light border-radius-8px mono py-0px px-8px">{{ shaShort }}</code>
           </button>
         </li>
       </ul>
@@ -57,7 +57,7 @@
   </transition>
 
   <UiModal :model-value="notesOpen" title="Change notes" panel-class="w-min-720px-92vw" @update:model-value="notesOpen = false">
-    <pre class="release-prompt-notes-body color-text-primary bg-primary m-0px overflow-auto text-14px line-height-14 break-word pre-wrap mono">{{ fullNotes }}</pre>
+    <pre class="color-text-primary bg-primary m-0px overflow-auto text-14px line-height-14 break-word pre-wrap mono">{{ fullNotes }}</pre>
   </UiModal>
 </template>
 

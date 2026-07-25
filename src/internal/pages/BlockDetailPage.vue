@@ -4,19 +4,19 @@
 
     <UiErrorState v-else-if="error" :message="error" wrapper-class="py-64px px-32px" message-class="" />
 
-    <div v-else-if="block" class="blockdetail-content flex flex-column gap-24px bg-secondary p-32px min-h-100vh-200px">
+    <div v-else-if="block" class="flex flex-column gap-24px bg-secondary p-32px min-h-100vh-200px">
       <!-- Block Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Block Overview" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <UiDetailRow variant="flex" label="Height:" :value="block.height" />
           <UiDetailRow variant="flex" label="Hash:">
             <UiCopyField :value="block.hash" title="Copy hash" wrapper-class="flex-1 gap-12px" code-class="flex-1 py-8px px-12px border-1 border-radius-6px text-13px mono break-all" />
           </UiDetailRow>
           <UiDetailRow variant="flex" label="Proposer:">
             <div class="flex-align-center gap-12px">
-              <div class="blockdetail-proposer-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium text-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
-                <img class="blockdetail-proposer-avatar-img w-full h-full object-fit-cover"
+              <div class="flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium text-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
+                <img class="w-full h-full object-fit-cover"
                   v-if="block.proposerAvatar"
                   :src="block.proposerAvatar"
                   :alt="block.proposer"
@@ -34,10 +34,10 @@
       <!-- Block Data Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Block Data" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <UiDetailRow variant="flex" label="Chain ID:" :value="block.chainId || 'lumen-mainnet'" />
           <UiDetailRow variant="flex" label="Block Size:">
-            <span class="blockdetail-value color-text-primary flex-1 fw-500 text-15px">{{ calculateBlockSize(block) }} KB</span>
+            <span class="color-text-primary flex-1 fw-500 text-15px">{{ calculateBlockSize(block) }} KB</span>
           </UiDetailRow>
           <UiDetailRow variant="flex" label="Gas Used:" :value="formatNumber(block.gasUsed || 0)" />
           <UiDetailRow variant="flex" label="Gas Limit:" :value="formatNumber(block.gasLimit || 0)" />
@@ -47,10 +47,10 @@
       <!-- Transactions Card -->
       <UiCard v-if="block.txs > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader :title="`Transactions (${block.txs})`" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <div class="flex flex-column gap-16px">
-            <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="blockdetail-tx-item flex gap-16px cursor-pointer flex-align-start py-16px px-20px shadow-xs transition-smooth-all hover-border-accent hover-lift-1 hover-shadow-primary">
-              <div class="blockdetail-tx-icon flex-align-justify-center size-32px border-radius-12px color-primary min-w-32px bg-gradient-secondary">
+            <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="flex gap-16px cursor-pointer flex-align-start py-16px px-20px shadow-xs transition-smooth-all hover-border-accent hover-lift-1 hover-shadow-primary">
+              <div class="flex-align-justify-center size-32px border-radius-12px color-primary min-w-32px bg-gradient-secondary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                 </svg>
@@ -59,7 +59,7 @@
                 <UiCopyField :value="tx.hash" title="" wrapper-class="gap-8px mb-8px" code-class="flex-1 border-radius-10px py-8px px-10px bg-card border-default text-12px mono break-all" :icon-size="12" />
                 <div class="flex-align-center gap-16px text-13px">
                   <span class="color-text-secondary fw-500">{{ tx.type }}</span>
-                  <span class="blockdetail-tx-status-success flex-align-center gap-4px color-success txt-weight-light bg-fill-success border-radius-4px py-4px px-6px">✓ Success</span>
+                  <span class="flex-align-center gap-4px color-success txt-weight-light bg-fill-success border-radius-4px py-4px px-6px">✓ Success</span>
                 </div>
               </div>
             </UiCard>

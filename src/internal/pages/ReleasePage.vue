@@ -1,7 +1,7 @@
 <template>
-  <div class="release-page internal-page flex">
+  <div class="internal-page flex">
     <InternalSidebar title="Releases" :icon="Rocket" activeKey="release">
-      <nav class="lsb-nav flex flex-column gap-12px">
+      <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Manage">
           <UiSidebarNavItem active>
             <Rocket :size="18" />
@@ -11,7 +11,7 @@
       </nav>
     </InternalSidebar>
 
-    <main class="relpage-main flex-1 min-w-0 flex flex-column overflow-hidden bg-secondary py-32px px-40px">
+    <main class="flex-1 min-w-0 flex flex-column overflow-hidden bg-secondary py-32px px-40px">
       <UiPageHeader title="Releases" title-weight="strong">
         <p class="color-text-secondary text-14px m-0px mt-8px" v-if="allowed">Publisher access enabled for the active profile.</p>
         <p class="color-text-secondary text-14px m-0px mt-8px" v-else-if="loading">Checking publisher permissions…</p>
@@ -31,48 +31,48 @@
         </template>
       </UiPageHeader>
 
-      <section class="relpage-toolbar flex flex-wrap-wrap mb-16px flex-align-end gap-y-14px gap-x-16px" aria-label="Filters">
-        <div class="relpage-filter flex flex-column gap-6px min-w-220px">
-          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Channel</label>
-          <select v-model="channelFilter" class="relpage-form-input w-full text-14px color-text-primary border-radius-12px border-1 bg-primary py-10px px-12px focus-outline-none focus-border-primary focus-ring focus-shadow" :disabled="loading">
+      <section class="flex flex-wrap-wrap mb-16px flex-align-end gap-y-14px gap-x-16px" aria-label="Filters">
+        <div class="flex flex-column gap-6px min-w-220px">
+          <label class="txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Channel</label>
+          <select v-model="channelFilter" class="w-full text-14px color-text-primary border-radius-12px border-1 bg-primary py-10px px-12px focus-outline-none focus-border-primary focus-ring focus-shadow" :disabled="loading">
             <option value="all">All</option>
             <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
           </select>
         </div>
 
-        <div class="relpage-filter grow flex flex-column gap-6px relpage-filter-grow min-w-260px min-w-220px flex-1-1-320px">
-          <label class="relpage-filter-label txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Search</label>
+        <div class="flex flex-column gap-6px min-w-260px min-w-220px flex-1-1-320px">
+          <label class="txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Search</label>
           <UiInput radius-class="border-radius-12px" font-size-class="text-14px" :focus-ring="false" v-model.trim="searchTerm"
            
             placeholder="Version, publisher, ID…"
-            :disabled="loading" class="relpage-form-input focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+            :disabled="loading" class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
         </div>
 
-        <div v-if="testMode.enabled" class="relpage-test-tools flex-align-center gap-12px flex-wrap-wrap border-radius-14px border-1 bg-primary py-8px px-12px" aria-label="Update test tools">
-          <span class="relpage-test-label txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Update test</span>
+        <div v-if="testMode.enabled" class="flex-align-center gap-12px flex-wrap-wrap border-radius-14px border-1 bg-primary py-8px px-12px" aria-label="Update test tools">
+          <span class="txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Update test</span>
           <UiCheckbox v-model="testMode.forcePrompt" :disabled="loading" @update:modelValue="applyTestMode">Force prompt</UiCheckbox>
           <UiCheckbox v-model="testMode.allowUnvalidatedStable" :disabled="loading" @update:modelValue="applyTestMode">Allow pending (stable)</UiCheckbox>
           <UiButton variant="secondary" type="button" @click="pollNow" :disabled="loading">Re-check</UiButton>
         </div>
       </section>
 
-      <section v-if="!allowed && !loading" class="relpage-no-access">
+      <section v-if="!allowed && !loading" class="">
         <p>Redirecting…</p>
       </section>
 
-      <section v-else class="relpage-grid flex-1 overflow-hidden gap-16px flex flex-wrap-wrap min-h-0">
-        <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-11-1-420px">
-          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
+      <section v-else class="flex-1 overflow-hidden gap-16px flex flex-wrap-wrap min-h-0">
+        <article class="overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-11-1-420px">
+          <div class="flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
             <span>Releases</span>
-            <span class="relpage-muted color-text-tertiary fw-500">{{ filteredReleases.length }} total</span>
+            <span class="color-text-tertiary fw-500">{{ filteredReleases.length }} total</span>
           </div>
 
-          <div v-if="loading" class="relpage-panel-loading flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">
+          <div v-if="loading" class="flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">
             <UiSpinner size="sm" />
             <span>Loading releases…</span>
           </div>
 
-          <div v-else-if="!filteredReleases.length" class="relpage-panel-empty flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">No releases found.</div>
+          <div v-else-if="!filteredReleases.length" class="flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">No releases found.</div>
 
           <button
             v-for="r in filteredReleases"
@@ -82,13 +82,13 @@
             :class="{ 'row-state-active-primary': selectedRelease?.id === r.id }"
             @click="selectedRelease = r"
           >
-            <div class="relpage-row-main">
-              <div class="relpage-row-top flex-align-center gap-8px">
-                <span class="relpage-row-id color-text-tertiary text-14px">#{{ r.id }}</span>
-                <span class="relpage-row-version txt-weight-medium color-text-primary">{{ r.version }}</span>
+            <div class="">
+              <div class="flex-align-center gap-8px">
+                <span class="color-text-tertiary text-14px">#{{ r.id }}</span>
+                <span class="txt-weight-medium color-text-primary">{{ r.version }}</span>
                 <span class="bg-transparent border-radius-full txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(r)">{{ r.status }}</span>
               </div>
-              <div class="relpage-row-sub relpage-muted flex-align-center gap-8px color-text-tertiary fw-500 text-13px mt-4px">
+              <div class="flex-align-center gap-8px color-text-tertiary fw-500 text-13px mt-4px">
                 <span>{{ r.channel }}</span>
                 <span>•</span>
                 <span>{{ formatDate(r.createdAt) }}</span>
@@ -96,17 +96,17 @@
                 <span v-if="r.publisher">{{ shortAddr(r.publisher) }}</span>
               </div>
             </div>
-            <div class="relpage-row-right relpage-muted color-text-tertiary fw-500 text-13px nowrap">{{ artifactSummary(r) }}</div>
+            <div class="color-text-tertiary fw-500 text-13px nowrap">{{ artifactSummary(r) }}</div>
           </button>
         </article>
 
-        <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-1-1-380px" v-if="selectedRelease">
-          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
+        <article class="overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-1-1-380px" v-if="selectedRelease">
+          <div class="flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
             <span>Release #{{ selectedRelease.id }}</span>
-            <span class="relpage-muted color-text-tertiary fw-500">{{ selectedRelease.version }} · {{ selectedRelease.channel }}</span>
+            <span class="color-text-tertiary fw-500">{{ selectedRelease.version }} · {{ selectedRelease.channel }}</span>
           </div>
 
-          <div v-if="selectedRelease.status === 'PENDING'" class="relpage-detail-actions flex flex-wrap-wrap gap-12px m-0px mt-8px mb-16px">
+          <div v-if="selectedRelease.status === 'PENDING'" class="flex flex-wrap-wrap gap-12px m-0px mt-8px mb-16px">
             <UiButton variant="primary" type="button" :disabled="submittingDao" @click="openDaoModal('validate')">
               Send to DAO (validate)
             </UiButton>
@@ -115,7 +115,7 @@
             </UiButton>
           </div>
 
-          <div class="relpage-detail-grid gap-12px mb-16px grid grid-cols-1fr-1fr">
+          <div class="gap-12px mb-16px grid grid-cols-1fr-1fr">
             <UiKeyValue label="Status">
               <span class="bg-transparent border-radius-full txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(selectedRelease)">{{ selectedRelease.status }}</span>
             </UiKeyValue>
@@ -124,19 +124,19 @@
             <UiKeyValue v-if="selectedRelease.supersedes.length" label="Supersedes" :value="selectedRelease.supersedes.join(', ')" value-class="mono" />
           </div>
 
-          <div class="relpage-notes pt-12px mt-12px border-top-1-light" v-if="selectedRelease.notes">
-            <div class="relpage-notes-title txt-weight-medium color-text-primary mb-8px">Release notes</div>
-            <div class="relpage-notes-body color-text-secondary pre-wrap">{{ selectedRelease.notes }}</div>
+          <div class="pt-12px mt-12px border-top-1-light" v-if="selectedRelease.notes">
+            <div class="txt-weight-medium color-text-primary mb-8px">Release notes</div>
+            <div class="color-text-secondary pre-wrap">{{ selectedRelease.notes }}</div>
           </div>
 
-          <div class="relpage-artifacts">
-            <div class="relpage-notes-title txt-weight-medium color-text-primary mb-8px">Artifacts ({{ selectedRelease.artifacts.length }})</div>
-            <div v-for="(a, idx) in selectedRelease.artifacts" :key="`${a.platform}-${a.kind}-${idx}`" class="relpage-artifact-card border-radius-12px border-1-light p-12px mt-12px bg-secondary">
-              <div class="relpage-artifact-head flex-align-baseline flex-justify-space-between gap-12px">
-                <div class="relpage-artifact-title txt-weight-medium color-text-primary">{{ a.platform }} · {{ a.kind }}</div>
-                <div class="relpage-muted color-text-tertiary fw-500">{{ formatBytes(a.size) }}</div>
+          <div class="">
+            <div class="txt-weight-medium color-text-primary mb-8px">Artifacts ({{ selectedRelease.artifacts.length }})</div>
+            <div v-for="(a, idx) in selectedRelease.artifacts" :key="`${a.platform}-${a.kind}-${idx}`" class="border-radius-12px border-1-light p-12px mt-12px bg-secondary">
+              <div class="flex-align-baseline flex-justify-space-between gap-12px">
+                <div class="txt-weight-medium color-text-primary">{{ a.platform }} · {{ a.kind }}</div>
+                <div class="color-text-tertiary fw-500">{{ formatBytes(a.size) }}</div>
               </div>
-              <div class="relpage-artifact-meta">
+              <div class="">
                 <UiKeyValue label="SHA-256" :value="a.sha256Hex || '-'" value-class="mono break-word" />
                 <UiKeyValue v-if="a.cid" label="CID" :value="a.cid" value-class="mono break-word" />
                 <UiKeyValue v-if="a.urls.length" label="URLs">
@@ -147,40 +147,40 @@
           </div>
         </article>
 
-        <article class="relpage-panel overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-1-1-380px" v-else>
-          <div class="relpage-panel-title flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
+        <article class="overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-1-1-380px" v-else>
+          <div class="flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
             <span>Details</span>
-            <span class="relpage-muted color-text-tertiary fw-500">Select a release</span>
+            <span class="color-text-tertiary fw-500">Select a release</span>
           </div>
-          <div class="relpage-panel-empty flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">Pick a release from the list.</div>
+          <div class="flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">Pick a release from the list.</div>
         </article>
       </section>
     </main>
 
     <UiModal :model-value="daoModalOpen" title="Send to DAO" panel-class="w-min-900px-96vw" @update:model-value="closeDaoModal">
-        <div class="relpage-modal-body flex flex-column gap-12px">
-          <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
+        <div class="flex flex-column gap-12px">
+          <div class="gap-12px grid grid-cols-2-minmax0">
             <UiFormField label="Action">
-              <select v-model="daoForm.kind" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
+              <select v-model="daoForm.kind" class="w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option value="validate">Validate release</option>
                 <option value="reject">Reject release</option>
               </select>
             </UiFormField>
             <UiFormField label="Deposit (LMN)">
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.depositLmn" placeholder="0" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.depositLmn" placeholder="0" class="focus-outline-none focus-ring focus-shadow" />
             </UiFormField>
           </div>
 
           <UiFormField label="Title">
-            <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.title" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+            <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.title" class="focus-outline-none focus-ring focus-shadow" />
           </UiFormField>
 
           <UiFormField label="Summary">
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.summary" rows="3" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.summary" rows="3" class="focus-outline-none focus-ring focus-shadow" />
           </UiFormField>
 
           <UiFormField v-if="daoForm.kind === 'reject'" label="Reason (optional)">
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.reason" rows="3" placeholder="Why should this release be rejected?" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.reason" rows="3" placeholder="Why should this release be rejected?" class="focus-outline-none focus-ring focus-shadow" />
           </UiFormField>
         </div>
 
@@ -194,9 +194,9 @@
     </UiModal>
 
     <UiModal :model-value="publishModalOpen" title="Publish release" panel-class="w-min-900px-96vw" @update:model-value="closePublishModal">
-        <div class="relpage-modal-body flex flex-column gap-12px">
-          <div class="relpage-import-box mb-16px border-radius-16px border-1 bg-primary pt-14px pr-14px pb-4px pl-14px">
-            <div class="relpage-builder-head flex-align-center flex-justify-space-between mt-8px">
+        <div class="flex flex-column gap-12px">
+          <div class="mb-16px border-radius-16px border-1 bg-primary pt-14px pr-14px pb-4px pl-14px">
+            <div class="flex-align-center flex-justify-space-between mt-8px">
               <h3>Import from GitHub release</h3>
               <UiButton variant="secondary" size="sm" type="button"
                 :disabled="importingGithub || !githubReleaseUrl.trim()"
@@ -208,21 +208,21 @@
 
             <UiFormField label="GitHub release URL" hint="Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.">
               <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="githubReleaseUrl"
-                placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8" class="relpage-input mono focus-outline-none focus-ring focus-shadow" />
+                placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8" class="mono focus-outline-none focus-ring focus-shadow" />
             </UiFormField>
           </div>
 
-          <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
+          <div class="gap-12px grid grid-cols-2-minmax0">
             <UiFormField label="Version">
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.version" placeholder="0.1.9" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.version" placeholder="0.1.9" class="focus-outline-none focus-ring focus-shadow" />
             </UiFormField>
             <UiFormField label="Channel">
-              <select v-model="draft.channel" class="relpage-input w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
+              <select v-model="draft.channel" class="w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
               </select>
             </UiFormField>
             <UiFormField label="Supersedes (IDs)">
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.supersedes" placeholder="12, 13" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.supersedes" placeholder="12, 13" class="focus-outline-none focus-ring focus-shadow" />
             </UiFormField>
             <UiFormField label="Emergency flag">
               <UiCheckbox v-model="draft.emergencyOk">Allow emergency rollout</UiCheckbox>
@@ -230,18 +230,18 @@
           </div>
 
           <UiFormField label="Release notes" :hint="`${draft.notes.length} / ${params?.maxNotesLen || '∞'}`">
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="draft.notes" rows="4" placeholder="Changelog, highlights, etc." class="relpage-input focus-outline-none focus-ring focus-shadow" />
+            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="draft.notes" rows="4" placeholder="Changelog, highlights, etc." class="focus-outline-none focus-ring focus-shadow" />
           </UiFormField>
 
-          <div class="relpage-artifacts-builder">
-            <div class="relpage-builder-head flex-align-center flex-justify-space-between mt-8px">
+          <div class="">
+            <div class="flex-align-center flex-justify-space-between mt-8px">
               <h3>Artifacts</h3>
               <UiButton variant="secondary" size="sm" type="button" @click="addArtifact">Add artifact</UiButton>
             </div>
 
-            <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="relpage-artifact-draft border-radius-12px border-1-light p-12px mt-12px bg-primary">
-              <div class="relpage-artifact-draft-head flex-align-center flex-justify-space-between mb-8px">
-                <div class="relpage-muted color-text-tertiary fw-500">Artifact #{{ idx + 1 }}</div>
+            <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="border-radius-12px border-1-light p-12px mt-12px bg-primary">
+              <div class="flex-align-center flex-justify-space-between mb-8px">
+                <div class="color-text-tertiary fw-500">Artifact #{{ idx + 1 }}</div>
                 <UiButton
                   v-if="draft.artifacts.length > 1"
                   variant="secondary"
@@ -253,29 +253,29 @@
                 </UiButton>
               </div>
 
-              <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
+              <div class="gap-12px grid grid-cols-2-minmax0">
                 <UiFormField label="Platform">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.platform" placeholder="windows-amd64" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.platform" placeholder="windows-amd64" class="focus-outline-none focus-ring focus-shadow" />
                 </UiFormField>
                 <UiFormField label="Kind">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.kind" placeholder="browser" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.kind" placeholder="browser" class="focus-outline-none focus-ring focus-shadow" />
                 </UiFormField>
               </div>
 
-              <div class="relpage-form-grid gap-12px grid grid-cols-2-minmax0">
+              <div class="gap-12px grid grid-cols-2-minmax0">
                 <UiFormField label="CID">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.cid" placeholder="Optional" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.cid" placeholder="Optional" class="focus-outline-none focus-ring focus-shadow" />
                 </UiFormField>
                 <UiFormField label="SHA-256">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.sha256Hex" placeholder="64 hex chars" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.sha256Hex" placeholder="64 hex chars" class="focus-outline-none focus-ring focus-shadow" />
                 </UiFormField>
                 <UiFormField label="Size (bytes)">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.size" placeholder="123456" class="relpage-input focus-outline-none focus-ring focus-shadow" />
+                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.size" placeholder="123456" class="focus-outline-none focus-ring focus-shadow" />
                 </UiFormField>
               </div>
 
               <UiFormField label="URLs (one per line)">
-                <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="a.urlsText" rows="3" placeholder="https://example.com/file.exe" class="relpage-input mono focus-outline-none focus-ring focus-shadow" />
+                <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="a.urlsText" rows="3" placeholder="https://example.com/file.exe" class="mono focus-outline-none focus-ring focus-shadow" />
               </UiFormField>
             </div>
           </div>

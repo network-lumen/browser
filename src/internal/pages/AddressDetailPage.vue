@@ -18,7 +18,7 @@
       <!-- Address Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Address Overview" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <UiDetailRow label="Address:">
             <UiCopyField :value="address.address" title="Copy address" />
           </UiDetailRow>
@@ -30,19 +30,19 @@
       <!-- Balances Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Balances" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-16px">
             <UiCard class="flex-align-center gap-16px" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(balance, index) in address.balances" :key="index">
               <UiIconBadge size-class="size-40px" badge-class="color-white bg-gradient-primary">
                 <Clock :size="20" />
               </UiIconBadge>
               <div class="flex-1">
-                <div class="addrdetail-balance-amount color-text-primary txt-weight-light text-18px">{{ formatAmount(balance.amount) }}</div>
+                <div class="color-text-primary txt-weight-light text-18px">{{ formatAmount(balance.amount) }}</div>
                 <div class="text-12px color-text-tertiary">{{ balance.denom.toUpperCase() }}</div>
               </div>
             </UiCard>
           </div>
-          <div v-else class="addrdetail-empty-state color-text-tertiary p-32px text-center">
+          <div v-else class="color-text-tertiary p-32px text-center">
             <p>No balances found</p>
           </div>
         </div>
@@ -51,19 +51,19 @@
       <!-- Delegations Card -->
       <UiCard v-if="address.delegations && address.delegations.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader :title="`Delegations (${address.delegations.length})`" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard class="flex-align-center flex-justify-space-between" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(delegation, index) in address.delegations" :key="index">
               <div class="flex-align-center gap-12px flex-1">
-                <div class="addrdetail-validator-avatar flex-align-justify-center color-white size-32px border-radius-circle txt-weight-light text-14px" :style="{ background: getValidatorColor(delegation.validator) }">
+                <div class="flex-align-justify-center color-white size-32px border-radius-circle txt-weight-light text-14px" :style="{ background: getValidatorColor(delegation.validator) }">
                   <span>{{ delegation.validatorMoniker?.charAt(0).toUpperCase() || 'V' }}</span>
                 </div>
                 <div class="flex flex-column gap-4px">
-                  <div class="addrdetail-validator-name color-text-primary txt-weight-light text-14px">{{ delegation.validatorMoniker || delegation.validator }}</div>
-                  <div class="addrdetail-validator-address color-text-tertiary text-12px mono">{{ shortenAddress(delegation.validator) }}</div>
+                  <div class="color-text-primary txt-weight-light text-14px">{{ delegation.validatorMoniker || delegation.validator }}</div>
+                  <div class="color-text-tertiary text-12px mono">{{ shortenAddress(delegation.validator) }}</div>
                 </div>
               </div>
-              <div class="addrdetail-delegation-amount color-text-primary txt-weight-light text-14px">
+              <div class="color-text-primary txt-weight-light text-14px">
                 {{ formatAmount(delegation.amount) }} LUMEN
               </div>
             </UiCard>
@@ -74,7 +74,7 @@
       <!-- Recent Transactions Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Recent Transactions" />
-        <div class="chaindetail-card-body p-24px">
+        <div class="p-24px">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-16px">
             <UiCard class="flex-align-center gap-16px" bg-class="bg-primary" border-class="border-1" radius="8px" :shadow="false" hoverable hover-class="transition-all-02 hover-lift-2 hover-shadow-md" v-for="(tx, index) in address.transactions" :key="index">
               <UiIconBadge size-class="size-32px" badge-class="color-text-secondary bg-secondary">
@@ -84,8 +84,8 @@
                 <div class="underline-on-hover cursor-pointer mb-4px" @click="navigateToTx(tx.hash)">
                   <code class="underline-target color-primary mono text-12px">{{ shortenHash(tx.hash) }}</code>
                 </div>
-                <div class="addrdetail-tx-meta flex gap-16px color-text-tertiary text-12px">
-                  <span class="addrdetail-tx-height hover-underline cursor-pointer color-primary" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>
+                <div class="flex gap-16px color-text-tertiary text-12px">
+                  <span class="hover-underline cursor-pointer color-primary" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>
                   <span>{{ tx.time }}</span>
                 </div>
               </div>
@@ -96,7 +96,7 @@
               </div>
             </UiCard>
           </div>
-          <div v-else class="addrdetail-empty-state color-text-tertiary p-32px text-center">
+          <div v-else class="color-text-tertiary p-32px text-center">
             <p>No recent transactions found</p>
           </div>
         </div>

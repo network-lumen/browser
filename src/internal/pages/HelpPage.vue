@@ -1,8 +1,8 @@
 <template>
-  <div class="help-page internal-page flex">
+  <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Help" :icon="HelpCircle" activeKey="help">
-      <nav class="lsb-nav flex flex-column gap-12px">
+      <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Resources">
           <UiSidebarNavItem :active="currentView === 'discover'" @click="setView('discover')">
             <Sparkles :size="18" />
@@ -28,17 +28,17 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="helppage-main flex-1 flex flex-column m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
+    <main class="flex-1 flex flex-column m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
       <!-- Discover View -->
-      <div v-if="currentView === 'discover'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
-        <div class="discover flex flex-column gap-20px">
+      <div v-if="currentView === 'discover'" class="flex-1 overflow-y-auto pr-4px overflow-x-hidden">
+        <div class="flex flex-column gap-20px">
           <!-- Hero Section -->
           <section class="bg-gradient-primary-a10-card p-32px border-radius-16px text-center border-default shadow-sm">
-            <div class="helppage-hero-content mb-24px">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Welcome to <span class="gradient-text-clip bg-gradient-primary">Lumen</span></h2>
+            <div class="mb-24px">
+              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Welcome to <span class="gradient-text-clip bg-gradient-primary">Lumen</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">The decentralized web browser for the next generation of internet</p>
             </div>
-            <div class="helppage-hero-features flex flex-wrap-wrap flex-justify-center gap-24px">
+            <div class="flex flex-wrap-wrap flex-justify-center gap-24px">
               <UiFeaturePoint icon="🌐" title="Decentralized Storage" description="Store and share content without central servers" />
               <UiFeaturePoint icon="🔐" title="Blockchain Domains" description="Own your identity with .lmn domains" />
               <UiFeaturePoint icon="⚡" title="Secure by Design" description="Encrypted connections and local-first data" />
@@ -46,9 +46,9 @@
           </section>
 
           <!-- Quick Actions -->
-          <section class="quick-actions flex flex-column gap-16px">
-            <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">Get Started</h3>
-            <div class="helppage-actions-grid gap-12px grid grid-cols-2">
+          <section class="flex flex-column gap-16px">
+            <h3 class="color-text-primary txt-weight-medium m-0px text-16px">Get Started</h3>
+            <div class="gap-12px grid grid-cols-2">
               <UiActionCard title="Drive" description="Upload and manage your files" icon-class="color-primary bg-fill-blue" @click="goto('lumen://drive')">
                 <template #icon><FolderOpen :size="24" /></template>
               </UiActionCard>
@@ -65,9 +65,9 @@
           </section>
 
           <!-- How it Works -->
-          <section class="how-it-works flex flex-column gap-16px">
-            <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">How Lumen Works</h3>
-            <div class="helppage-steps-grid gap-16px grid grid-cols-3">
+          <section class="flex flex-column gap-16px">
+            <h3 class="color-text-primary txt-weight-medium m-0px text-16px">How Lumen Works</h3>
+            <div class="gap-16px grid grid-cols-3">
               <UiStepCard :number="1" title="Blockchain Names">Domain names are stored on the blockchain - no central authority can take them away.</UiStepCard>
               <UiStepCard :number="2" title="Distributed Storage">Content is stored across multiple nodes, ensuring availability even if some go offline.</UiStepCard>
               <UiStepCard :number="3" title="Verified Access">Every piece of content is cryptographically verified for authenticity.</UiStepCard>
@@ -75,9 +75,9 @@
           </section>
 
           <!-- Features Grid -->
-          <section class="features-section flex flex-column gap-16px">
-            <h3 class="helppage-section-title color-text-primary txt-weight-medium m-0px text-16px">Key Features</h3>
-            <div class="helppage-features-grid gap-16px grid grid-cols-2">
+          <section class="flex flex-column gap-16px">
+            <h3 class="color-text-primary txt-weight-medium m-0px text-16px">Key Features</h3>
+            <div class="gap-16px grid grid-cols-2">
               <UiFeatureCard title="Human-Readable Links">
                 <template #icon><Globe :size="24" /></template>
                 Type <code>demo.lmn</code> instead of long cryptographic hashes.
@@ -100,18 +100,18 @@
       </div>
 
       <!-- Publish My Site View -->
-      <div v-else-if="currentView === 'publish'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
-        <div class="discover flex flex-column gap-20px">
+      <div v-else-if="currentView === 'publish'" class="flex-1 overflow-y-auto pr-4px overflow-x-hidden">
+        <div class="flex flex-column gap-20px">
           <!-- Hero -->
           <section class="bg-gradient-primary-a10-card border-radius-16px text-center border-default shadow-sm p-24px">
-            <div class="helppage-hero-content mb-24px">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Create Your <span class="gradient-text-clip bg-gradient-primary">First Website</span></h2>
+            <div class="mb-24px">
+              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Create Your <span class="gradient-text-clip bg-gradient-primary">First Website</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
             </div>
           </section>
 
           <!-- Steps -->
-          <div class="tutorial-steps flex flex-column gap-16px">
+          <div class="flex flex-column gap-16px">
             <UiTutorialStep :number="1" title="Build Your Website">
               Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.
             </UiTutorialStep>
@@ -119,7 +119,7 @@
             <UiTutorialStep :number="2" title="Upload It to Drive">
               Open Drive, upload that folder, then copy its Lumen link — that's your content's address.
               <template #action>
-                <UiButton variant="primary" type="button" @click="goto('lumen://drive')" class="helppage-step-action">
+                <UiButton variant="primary" type="button" @click="goto('lumen://drive')" class="">
                   <FolderOpen :size="18" />
                   <span>Open Drive</span>
                 </UiButton>
@@ -129,7 +129,7 @@
             <UiTutorialStep :number="3" title="Get a Domain">
               Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.
               <template #action>
-                <UiButton variant="primary" type="button" @click="goto('lumen://domain')" class="helppage-step-action">
+                <UiButton variant="primary" type="button" @click="goto('lumen://domain')" class="">
                   <Link2 :size="18" />
                   <span>Open Domains</span>
                 </UiButton>
@@ -141,7 +141,7 @@
             </UiTutorialStep>
           </div>
 
-          <div class="helppage-discover-note color-text-primary mt-16px border-radius-14px text-14px py-12px px-16px bg-fill-blue line-height-14 border-1-primary-a15">
+          <div class="color-text-primary mt-16px border-radius-14px text-14px py-12px px-16px bg-fill-blue line-height-14 border-1-primary-a15">
             <strong>That's it — you're live.</strong> Visit <code>lumen://yourname.lmn</code> to see your site.
             If it still shows as unavailable, double-check that <code>index.html</code> sits at the root of the
             uploaded folder, and give it a minute to propagate.
@@ -150,18 +150,18 @@
       </div>
 
       <!-- Contact View -->
-      <div v-else-if="currentView === 'contact'" class="helppage-content-area flex-1 overflow-y-auto pr-4px overflow-x-hidden">
-        <div class="discover flex flex-column gap-20px">
+      <div v-else-if="currentView === 'contact'" class="flex-1 overflow-y-auto pr-4px overflow-x-hidden">
+        <div class="flex flex-column gap-20px">
           <!-- Hero -->
           <section class="bg-gradient-primary-a10-card border-radius-16px text-center border-default shadow-sm p-24px">
-            <div class="helppage-hero-content mb-24px">
-              <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Get <span class="gradient-text-clip bg-gradient-primary">Help</span></h2>
+            <div class="mb-24px">
+              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Get <span class="gradient-text-clip bg-gradient-primary">Help</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Connect with our community and get support</p>
             </div>
           </section>
 
           <!-- Contact Cards -->
-          <div class="helppage-contact-grid gap-16px grid grid-cols-1">
+          <div class="gap-16px grid grid-cols-1">
             <UiActionCard
               title="Discord Community"
               description="Join our active community, ask questions, and get help from other users."
@@ -214,14 +214,14 @@
       </div>
       
       <!-- Docs View -->
-      <div v-else-if="currentView === 'docs'" class="helppage-content-area helppage-docs-content-area flex flex-column overflow-hidden flex-1 overflow-y-auto pr-4px overflow-x-hidden">
-        <div class="discover helppage-docs-discover flex flex-column gap-20px flex-1 min-h-0">
-          <div class="helppage-docs-header flex-shrink-0">
-            <h2 class="helppage-hero-title color-text-primary txt-weight-strong m-0px text-20px letter-spacing-n002">{{ getViewTitle() }}</h2>
+      <div v-else-if="currentView === 'docs'" class="flex flex-column overflow-hidden flex-1 overflow-y-auto pr-4px overflow-x-hidden">
+        <div class="flex flex-column gap-20px flex-1 min-h-0">
+          <div class="flex-shrink-0">
+            <h2 class="color-text-primary txt-weight-strong m-0px text-20px letter-spacing-n002">{{ getViewTitle() }}</h2>
             <p class="m-0px mt-4px color-text-secondary text-14px line-height-15">{{ getViewDescription() }}</p>
           </div>
           <iframe
-            class="helppage-doc-frame w-full h-full border-radius-16px block border-default shadow-sm bg-card min-h-520px"
+            class="w-full h-full border-radius-16px block border-default shadow-sm bg-card min-h-520px"
             :src="lumenDocFrameSrc"
             title="window.lumen API Reference"
             loading="lazy"

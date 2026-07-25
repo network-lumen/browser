@@ -1,12 +1,12 @@
 <template>
-  <div class="newtab-page bg-gradient-newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden pt-24px pr-16px pb-32px pl-16px">
+  <div class="bg-gradient-newtab-page internal-page relative block min-h-full overflow-y-auto overflow-x-hidden pt-24px pr-16px pb-32px pl-16px">
     <UiModal :model-value="showOnboarding" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-544px-full" :closable="false" @update:model-value="dismissOnboarding">
       <div class="flex-align-start gap-16px mb-16px">
-        <div class="newtab-brand-logo flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-16px size-48px" aria-hidden="true">
+        <div class="flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-16px size-48px" aria-hidden="true">
           <Hexagon :size="22" />
         </div>
-        <div class="newtab-onboarding-text">
-          <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Welcome</div>
+        <div class="">
+          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Welcome</div>
           <h2 id="lumen-onboarding-title" class="color-text-primary">Learn what Lumen is</h2>
           <p id="lumen-onboarding-desc" class="color-text-secondary mt-8px line-height-15">
             Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
@@ -27,13 +27,13 @@
     <UiModal :model-value="showShortcutModal" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-512px-full" @update:model-value="closeShortcutModal">
       <template #header>
         <div>
-          <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcut</div>
+          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcut</div>
           <h2 id="shortcut-modal-title" class="color-text-primary">
             {{ shortcutModalMode === "create" ? "Add shortcut" : "Edit shortcut" }}
           </h2>
         </div>
       </template>
-          <div class="newtab-shortcut-form flex flex-column gap-12px">
+          <div class="flex flex-column gap-12px">
             <UiFormField label="Name" label-class="color-text-secondary text-14px txt-weight-light">
               <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.title"
                 placeholder="Optional custom title"
@@ -49,7 +49,7 @@
 
             <UiCheckbox v-model="shortcutDraft.pinned">Mark this shortcut as favourite</UiCheckbox>
 
-            <div v-if="shortcutError" class="newtab-shortcut-error color-error txt-weight-light text-14px">
+            <div v-if="shortcutError" class="color-error txt-weight-light text-14px">
               {{ shortcutError }}
             </div>
           </div>
@@ -64,41 +64,41 @@
       </template>
     </UiModal>
 
-    <div class="newtab-backdrop absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
+    <div class="absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
       <div class="h-448px-blur-36px top-n14rem-left-n10rem border-radius-full absolute opacity-55 bg-primary-a15 w-448px"></div>
       <div class="h-448px-blur-36px top-2rem-right-n12rem border-radius-full absolute opacity-55 bg-indigo-a15 w-448px"></div>
     </div>
 
-    <div class="newtab-shell flex flex-column my-0px mx-auto gap-16px relative z-1 w-min-1040px-full">
-      <section class="newtab-hero bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
-        <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Search Lumen</div>
+    <div class="flex flex-column my-0px mx-auto gap-16px relative z-1 w-min-1040px-full">
+      <section class="bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
+        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Search Lumen</div>
 
         <form class="bg-card-a90 focus-within-shadow-ring-primary-a10 flex-align-center gap-12px border-radius-full border-1-light w-full py-12px px-16px border-color-primary-a50-focus-within mt-12px mx-auto mb-0px" @submit.prevent="submitOmnibox">
-          <Search :size="18" class="newtab-omnibox-icon color-text-tertiary flex-0-0-auto" />
+          <Search :size="18" class="color-text-tertiary flex-0-0-auto" />
           <input
             v-model="commandInput"
             type="text"
-            class="newtab-omnibox-input flex-1 border-none outline-none bg-transparent color-text-primary min-w-0 text-16px placeholder-tertiary"
+            class="flex-1 border-none outline-none bg-transparent color-text-primary min-w-0 text-16px placeholder-tertiary"
             placeholder="Search Lumen or enter a URL"
             spellcheck="false"
             autocapitalize="off"
             autocomplete="off"
             aria-label="Search Lumen or enter a URL"
           />
-          <UiButton variant="primary" type="submit" class="newtab-omnibox-submit transition-lift-015">
+          <UiButton variant="primary" type="submit" class="transition-lift-015">
             <ArrowUpRight :size="15" />
             <span>Go</span>
           </UiButton>
         </form>
 
-        <div v-if="!hasProfiles" class="newtab-hero-hint color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-full m-0px mt-16px">
+        <div v-if="!hasProfiles" class="color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-full m-0px mt-16px">
           Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
           Lumen space.
         </div>
       </section>
 
       <section class="bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
-        <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Discover</div>
+        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Discover</div>
         <div class="flex flex-wrap-wrap gap-12px mt-16px">
           <button type="button" disabled class="disabled-fade-50 flex-align-center gap-8px border-1-light border-radius-full bg-transparent color-text-tertiary text-13px fw-500 py-8px px-16px cursor-not-allowed">
             <Sparkles :size="15" />
@@ -116,12 +116,12 @@
       </section>
 
       <section class="bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
-        <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
+        <div class="flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
           <div>
-            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcuts</div>
+            <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcuts</div>
           </div>
 
-          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-10px flex-justify-start w-full">
+          <div class="flex flex-wrap-wrap gap-10px flex-justify-start w-full">
             <UiButton variant="secondary" type="button" @click="beginCreateShortcut" class="outline-none">
               <Plus :size="15" />
               <span>Add shortcut</span>
@@ -129,7 +129,7 @@
           </div>
         </div>
 
-        <div class="newtab-shortcut-grid flex flex-wrap-wrap gap-12px mt-16px">
+        <div class="flex flex-wrap-wrap gap-12px mt-16px">
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
@@ -145,14 +145,14 @@
             @drop.prevent="onShortcutDrop(entry.id)"
             @dragend="onShortcutDragEnd"
           >
-            <UiButton variant="none" type="button" @click="openTarget(entry.url, $event)" :title="entry.title" class="newtab-shortcut-card-main flex-align-center gap-12px cursor-pointer w-full bg-transparent border-none text-left">
-              <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
+            <UiButton variant="none" type="button" @click="openTarget(entry.url, $event)" :title="entry.title" class="flex-align-center gap-12px cursor-pointer w-full bg-transparent border-none text-left">
+              <span class="flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
               <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" gap-class="gap-4px" title-class="txt-weight-strong block text-15px" subtitle-class="block color-text-tertiary text-13px line-height-14" />
             </UiButton>
 
-            <div class="newtab-shortcut-card-actions absolute top-8px right-8px">
+            <div class="absolute top-8px right-8px">
               <UiButton variant="icon" type="button" title="More actions"
                 class="newtab-shortcut-menu-trigger bg-card-a92"
                 @click.stop="toggleShortcutMenu(entry.id)">
@@ -175,8 +175,8 @@
           </article>
         </div>
 
-        <div v-if="!renderedFavouriteEntries.length" class="newtab-shortcuts-empty mt-16px border-radius-20px py-12px px-16px bg-black-a02 border-1-dashed-color">
-          <div class="newtab-shortcuts-empty-copy">
+        <div v-if="!renderedFavouriteEntries.length" class="mt-16px border-radius-20px py-12px px-16px bg-black-a02 border-1-dashed-color">
+          <div class="">
             <h3 class="color-text-primary mt-4px letter-spacing-n002">No shortcuts yet</h3>
             <p class="color-text-secondary mt-8px line-height-15">
               Star a page from the address bar or create a custom shortcut here. Favourite
@@ -188,14 +188,14 @@
 
       <section
         v-if="historyEnabled && renderedHistoryPreview.length"
-        class="bg-card-a94-shadow-soft newtab-history-preview-panel pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16"
+        class="bg-card-a94-shadow-soft pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16"
       >
-        <div class="newtab-shortcuts-head flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
+        <div class="flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
           <div>
-            <div class="newtab-section-kicker txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Recent</div>
+            <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Recent</div>
           </div>
 
-          <div class="newtab-shortcuts-head-actions flex flex-wrap-wrap gap-10px flex-justify-start w-full">
+          <div class="flex flex-wrap-wrap gap-10px flex-justify-start w-full">
             <UiButton variant="secondary" type="button" @click="goto('lumen://history')" class="outline-none">
               <History :size="15" />
               <span>Open history</span>
@@ -203,16 +203,16 @@
           </div>
         </div>
 
-        <div class="newtab-history-preview-list grid gap-10px mt-8px grid-cols-auto-fit-280">
+        <div class="grid gap-10px mt-8px grid-cols-auto-fit-280">
           <UiButton variant="none" v-for="entry in renderedHistoryPreview"
             :key="entry.id"
             type="button"
             @click="openTarget(entry.url, $event)" class="transition-transform-bg-border-015 flex-align-center gap-12px cursor-pointer w-full bg-transparent border-1-light border-radius-16px text-left p-14px hover-border-primary-a14">
-            <span class="newtab-shortcut-avatar flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
+            <span class="flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
               {{ entry.monogram }}
             </span>
             <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" wrapper-class="flex-1" title-class="block txt-weight-medium" subtitle-class="block color-text-tertiary text-13px" />
-            <span class="newtab-history-preview-time flex-0-0-auto txt-weight-medium ml-auto pl-8px color-text-tertiary text-13px">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
+            <span class="flex-0-0-auto txt-weight-medium pl-8px color-text-tertiary text-13px">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
           </UiButton>
         </div>
       </section>
