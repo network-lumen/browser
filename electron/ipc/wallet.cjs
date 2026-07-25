@@ -2128,6 +2128,227 @@ function registerWalletIpc() {
     }
   });
 
+  const GOV_VOTE_OPTIONS = {
+    VOTE_OPTION_YES: 1,
+    VOTE_OPTION_ABSTAIN: 2,
+    VOTE_OPTION_NO: 3,
+    VOTE_OPTION_NO_WITH_VETO: 4,
+  };
+
+  function lmnToUlmn(value) {
+    const raw = String(value == null ? '0' : value).trim();
+    if (!/^\d*(\.\d{0,6})?$/.test(raw) || raw === '' || raw === '.') {
+      throw new Error('invalid_amount');
+    }
+    const [intPartRaw, fracRaw = ''] = raw.split('.');
+    const intPart = intPartRaw || '0';
+    const frac = (fracRaw + '000000').slice(0, 6);
+    const normalized = `${intPart}${frac}`.replace(/^0+(?=\d)/, '');
+    return normalized;
+  }
+
+  ipcMain.handle('wallet:govSubmitProposal', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const address = String(input && input.address ? input.address : '').trim();
+      const title = String(input && input.title ? input.title : '').trim();
+      const summary = String(input && input.summary ? input.summary : '').trim();
+      const metadata = String(input && input.metadata ? input.metadata : '');
+      const password = input && input.password ? String(input.password) : null;
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!address || !title || !summary) {
+        return { ok: false, error: 'missing_required_fields' };
+      }
+
+      let depositUlmn;
+      try {
+        depositUlmn = lmnToUlmn(input && input.depositLmn != null ? input.depositLmn : '0');
+      } catch {
+        return { ok: false, error: 'invalid_deposit' };
+      }
+
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const addressStr = String(address || '');
+      const prefixMatch = addressStr.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const client = await connectSigningClientWithFailover(mod, signer, {
+        pqc: { homeDir: resolvePqcHome() }
+      });
+
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
+      }
+
+      try {
+        const { MsgSubmitProposal } = await import('cosmjs-types/cosmos/gov/v1/tx.js');
+
+        const msg = {
+          typeUrl: '/cosmos.gov.v1.MsgSubmitProposal',
+          value: MsgSubmitProposal.fromPartial({
+            messages: [],
+            initialDeposit: depositUlmn !== '0' ? [{ denom: 'ulmn', amount: depositUlmn }] : [],
+            proposer: address,
+            metadata,
+            title,
+            summary
+          })
+        };
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '500000' }));
+
+        const fee = zeroFee();
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address,
+          msgs: [msg],
+          fee,
+          memo: 'dao:submit',
+          label: 'wallet_govSubmitProposal',
+        });
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:govVote', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const address = String(input && input.address ? input.address : '').trim();
+      const proposalId = String(input && input.proposalId ? input.proposalId : '').trim();
+      const optionKey = String(input && input.option ? input.option : '').trim().toUpperCase();
+      const password = input && input.password ? String(input.password) : null;
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!address || !proposalId || !/^\d+$/.test(proposalId)) {
+        return { ok: false, error: 'missing_required_fields' };
+      }
+      const option = GOV_VOTE_OPTIONS[optionKey];
+      if (!option) return { ok: false, error: 'invalid_vote_option' };
+
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const addressStr = String(address || '');
+      const prefixMatch = addressStr.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const client = await connectSigningClientWithFailover(mod, signer, {
+        pqc: { homeDir: resolvePqcHome() }
+      });
+
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
+      }
+
+      try {
+        const { MsgVote } = await import('cosmjs-types/cosmos/gov/v1/tx.js');
+
+        const msg = {
+          typeUrl: '/cosmos.gov.v1.MsgVote',
+          value: MsgVote.fromPartial({
+            proposalId: BigInt(proposalId),
+            voter: address,
+            option,
+            metadata: ''
+          })
+        };
+
+        const zeroFee =
+          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
+          (mod.utils && mod.utils.zeroFee) ||
+          (() => ({ amount: [], gas: '220000' }));
+
+        const fee = zeroFee();
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address,
+          msgs: [msg],
+          fee,
+          memo: 'dao:vote',
+          label: 'wallet_govVote',
+        });
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   ipcMain.handle('release:publish', async (_evt, input) => {
     try {
       const profileId = String(input && input.profileId ? input.profileId : '').trim();
