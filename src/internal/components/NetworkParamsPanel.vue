@@ -35,7 +35,7 @@
           <div class="netparams-section-title flex flex-column gap-4px min-w-0">
             <div class="netparams-title-row flex-align-center gap-10px min-w-0">
               <span class="netparams-section-name color-text-primary txt-weight-strong text-15px truncate">{{ s.title }}</span>
-              <span v-if="!s.data" class="netparams-status-badge bg-transparent color-text-tertiary border-radius-full flex-0-0-auto txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(s)">
+              <span v-if="!s.data" class="netparams-status-badge border-radius-full flex-0-0-auto txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(s)">
                 {{ statusLabel(s) }}
               </span>
             </div>
@@ -231,17 +231,21 @@ function pretty(value: any): string {
   }
 }
 
+// Only ever called for a section whose badge is showing (v-if="!s.data"),
+// so there's no reachable "success" state here - a loaded section hides
+// the badge entirely instead. Bakes in the idle bg/color too since this is
+// now the sole source of the badge's background/color (a static
+// bg-transparent/color-text-tertiary used to sit alongside this on the
+// same element, silently winning the cascade over every state's colors).
 function statusClass(s: ParamSection): string {
   if (s.loading) return 'bg-warning-a15 color-warning';
   if (s.error) return 'bg-fill-error color-error';
-  if (s.data) return 'bg-fill-success color-success';
-  return '';
+  return 'bg-transparent color-text-tertiary';
 }
 
 function statusLabel(s: ParamSection): string {
   if (s.loading) return 'Loading';
   if (s.error) return 'Error';
-  if (s.data) return 'OK';
   return 'Idle';
 }
 
