@@ -1,19 +1,11 @@
 <template>
-  <!-- ####### lumen://address ADDRESS DETAIL ####### -->
+  <!-- ####### lumen://explorer/address/<addr> ADDRESS DETAIL (embedded sub-view of ExplorerPage) ####### -->
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
-    <div class="mb-32px">
-      <UiButton variant="ghost" @click="goBack" class="hover-shadow-primary">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Back to Explorer
-      </UiButton>
-      <h1 class="text-28px txt-weight-light color-text-primary m-0px">Address Details</h1>
-    </div>
-
     <UiLoadingState v-if="loading" message="Loading address data..." />
 
     <UiErrorState v-else-if="error" :message="error" />
+
+    <UiEmptyState v-else-if="notFound" title="No activity found" description="This address is correctly formatted, but has never sent or received anything on this blockchain." />
 
     <div v-else-if="address" class="flex flex-column gap-24px">
       <!-- Address Overview Card -->
@@ -107,12 +99,12 @@
 </template>
 
 <script setup lang="ts">
-import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiDetailRow from '../../ui/UiDetailRow.vue';
 import UiLoadingState from '../../ui/UiLoadingState.vue';
 import UiCopyField from '../../ui/UiCopyField.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
+import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
 import UiIconBadge from '../../ui/UiIconBadge.vue';
 import { Clock, Activity } from 'lucide-vue-next';
@@ -122,6 +114,7 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const loading = ref(true);
 const error = ref('');
+const notFound = ref(false);
 const address = ref<any>(null);
 
 useTabLoadingSync(loading);
@@ -138,14 +131,6 @@ const accountAddress = computed(() => {
   const match = currentTabUrl.value.match(/\/explorer\/address\/([a-z0-9]+)/i);
   return match ? match[1] : null;
 });
-
-function goBack() {
-  if (openInNewTab) {
-    openInNewTab('lumen://explorer');
-  } else {
-    window.location.href = 'lumen://explorer';
-  }
-}
 
 function navigateToTx(hash: string) {
   if (openInNewTab) {
@@ -187,18 +172,6 @@ function getValidatorColor(validator: string): string {
   return colors[hash % colors.length];
 }
 
-function formatTime(timestamp: string): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const minutes = Math.floor(diff / 60000);
-  
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (minutes < 1440) return `${Math.floor(minutes / 60)}h ago`;
-  return `${Math.floor(minutes / 1440)}d ago`;
-}
-
 async function loadAddressData() {
   if (!accountAddress.value) {
     error.value = 'No address provided';
@@ -209,13 +182,21 @@ async function loadAddressData() {
   try {
     loading.value = true;
     error.value = '';
+    notFound.value = false;
 
     const accountResponse = await lumen.net.restGet(
       `/cosmos/auth/v1beta1/accounts/${accountAddress.value}`
     );
-    
+
     if (!accountResponse.ok) {
-      throw new Error(`Failed to fetch account: ${accountResponse.statusText || 'Unknown error'}`);
+      // Cosmos SDK's account query 404s for a well-formed address that has
+      // never sent or received anything on-chain - not a real error.
+      if (accountResponse.status === 404) {
+        notFound.value = true;
+        loading.value = false;
+        return;
+      }
+      throw new Error(`Failed to fetch account (status ${accountResponse.status ?? 'unknown'})`);
     }
 
     const accountData = accountResponse.json;

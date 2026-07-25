@@ -38,7 +38,7 @@
       <!-- Advanced gateway management -->
       <div class="overflow-y-auto">
         <!-- Private Gateways Section -->
-        <div v-if="privateGateways.length > 0" class="">
+        <div v-if="privateGateways.length > 0">
           <div class="flex-align-center-justify-space-between">
             <h2 class="color-text-primary txt-weight-light m-0px text-20px">Private Gateways</h2>
             <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="hover-opacity-80 color-primary text-14px transition-opacity-02 hover-underline">
@@ -61,7 +61,7 @@
         </div>
 
         <!-- DAO Gateways Section -->
-        <div v-if="hasProfile" class="">
+        <div v-if="hasProfile">
           <div class="flex-align-center-justify-space-between">
             <h2 class="color-text-primary txt-weight-light m-0px text-20px">DAO Gateways</h2>
           </div>
@@ -92,7 +92,7 @@
                   </span>
                   <span class="mono color-text-tertiary text-12px">#{{ gw.id }}</span>
                 </div>
-                <div class="">
+                <div>
                   <span class="text-11px py-4px px-10px" :class="gw.active ? 'bg-fill-success' : 'bg-yellow-a15'">
                     {{ gw.active ? 'Active' : 'Inactive' }}
                   </span>
@@ -100,38 +100,27 @@
               </header>
 
               <div class="grid gap-y-14px gap-x-16px grid-cols-2-minmax0" v-if="editMap[gw.id]">
-                <div class="">
-                  <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Endpoint</label>
+                <UiFormField label="Endpoint" label-class="text-12px color-text-tertiary letter-spacing-006em">
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].endpoint" placeholder="gateway.city" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                </div>
-                <div class="">
-                  <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Regions</label>
+                </UiFormField>
+                <UiFormField label="Regions" label-class="text-12px color-text-tertiary letter-spacing-006em">
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].regions"
-                   
                     placeholder="us-east, eu-west" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                </div>
-                <div class="">
-                  <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Payout address</label>
+                </UiFormField>
+                <UiFormField label="Payout address" label-class="text-12px color-text-tertiary letter-spacing-006em">
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].payout" placeholder="lmn1..." class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                </div>
-                <div class="">
-                  <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Active</label>
-                  <label class="flex-inline-align-center">
-                    <input v-model="editMap[gw.id].active" type="checkbox" class="w-16px h-16px" />
-                    <span class="hidden"></span>
-                  </label>
-                </div>
-                <div class="grid-col-full">
-                  <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Metadata (JSON object)</label>
+                </UiFormField>
+                <UiFormField label="Active" label-class="text-12px color-text-tertiary letter-spacing-006em">
+                  <UiCheckbox v-model="editMap[gw.id].active" />
+                </UiFormField>
+                <UiFormField class="grid-col-full" label="Metadata (JSON object)" label-class="text-12px color-text-tertiary letter-spacing-006em">
                   <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].metadata"
-                   
                     rows="7"
                     placeholder='{\n  "name": "My gateway"\n}' class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary"></UiInput>
-                </div>
-                <div class="grid-col-full">
-                  <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Memo</label>
+                </UiFormField>
+                <UiFormField class="grid-col-full" label="Memo" label-class="text-12px color-text-tertiary letter-spacing-006em">
                   <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].memo" placeholder="Optional memo" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                </div>
+                </UiFormField>
               </div>
 
               <div v-if="editMap[gw.id]?.error" class="mt-12px p-12px border-1-error-a25 bg-error-a08">
@@ -143,13 +132,11 @@
 
               <footer class="flex flex-justify-end">
                 <UiButton variant="secondary" type="button"
-                 
                   @click="resetEdit(gw.id)"
                   :disabled="editMap[gw.id].busy">
                   Reset
                 </UiButton>
                 <UiButton variant="primary" type="button"
-                 
                   @click="updateGateway(gw.id)"
                   :disabled="editMap[gw.id].busy || !isDirty(gw.id)">
                   <span v-if="!editMap[gw.id].busy">Save changes</span>
@@ -167,31 +154,24 @@
               </div>
             </template>
                 <div class="grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
-                  <div class="">
-                    <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Endpoint</label>
+                  <UiFormField label="Endpoint" label-class="text-12px color-text-tertiary letter-spacing-006em">
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.endpoint" placeholder="gateway.city" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                  </div>
-                  <div class="">
-                    <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Regions</label>
+                  </UiFormField>
+                  <UiFormField label="Regions" label-class="text-12px color-text-tertiary letter-spacing-006em">
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.regions"
-                     
                       placeholder="us-east, eu-west" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                  </div>
-                  <div class="">
-                    <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Payout address</label>
+                  </UiFormField>
+                  <UiFormField label="Payout address" label-class="text-12px color-text-tertiary letter-spacing-006em">
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.payout" placeholder="lmn1..." class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                  </div>
-                  <div class="grid-col-full">
-                    <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Metadata (JSON object)</label>
+                  </UiFormField>
+                  <UiFormField class="grid-col-full" label="Metadata (JSON object)" label-class="text-12px color-text-tertiary letter-spacing-006em">
                     <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.metadata"
-                     
                       rows="7"
                       placeholder='{\n  "name": "My gateway"\n}' class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary"></UiInput>
-                  </div>
-                  <div class="">
-                    <label class="block color-text-tertiary text-12px mb-4px letter-spacing-006em">Memo</label>
+                  </UiFormField>
+                  <UiFormField label="Memo" label-class="text-12px color-text-tertiary letter-spacing-006em">
                     <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.memo" placeholder="Optional memo" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                  </div>
+                  </UiFormField>
 
                   <div v-if="registerState.error" class="mt-12px p-12px border-1-error-a25 bg-error-a08">
                     {{ registerState.error }}
@@ -221,6 +201,8 @@
 
 <script setup lang="ts">
 import UiInput from '../../ui/UiInput.vue';
+import UiFormField from '../../ui/UiFormField.vue';
+import UiCheckbox from '../../ui/UiCheckbox.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';

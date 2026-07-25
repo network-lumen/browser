@@ -14,7 +14,6 @@
 .cursor-select-text { user-select: text; }
 .disabled-fade-50:disabled { cursor: not-allowed; opacity: 0.5; }
 .disabled-opacity-35-not-allowed:disabled { opacity: 0.35; cursor: not-allowed; }
-.disabled-opacity-50-not-allowed-no-transform-important:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 .disabled-opacity-55-cursor-not-allowed:disabled { opacity: 0.55; cursor: not-allowed; }
 .disabled-opacity-60-cursor-default:disabled { opacity: 0.6; cursor: default; }
 .disabled-opacity-60-not-allowed-no-transform:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }

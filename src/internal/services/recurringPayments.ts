@@ -446,7 +446,7 @@ class RecurringPaymentsService {
         reminderDate: new Date(r.reminderDate),
         createdAt: new Date(r.createdAt),
       }));
-    } catch (e) {
+    } catch {
       return [];
     }
   }

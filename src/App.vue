@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, onErrorCaptured } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import StartupScreen from './components/StartupScreen.vue';
 import MainScreen from './components/MainScreen.vue';
 import SecurityGate from './components/SecurityGate.vue';

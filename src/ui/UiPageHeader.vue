@@ -1,5 +1,5 @@
 <template>
-  <header class="flex-align-start flex-wrap-wrap gap-16px mb-24px" :class="hasText ? 'flex-justify-space-between' : 'flex-justify-end'">
+  <header class="flex-align-start flex-wrap-wrap gap-16px" :class="[marginClass, hasText ? 'flex-justify-space-between' : 'flex-justify-end']">
     <div v-if="hasText">
       <h1 v-if="title" class="m-0px color-text-primary" :class="[`text-${titleSize}`, `txt-weight-${titleWeight}`]">{{ title }}</h1>
       <slot>
@@ -21,11 +21,14 @@ const props = withDefaults(defineProps<{
   /** One of scale.css's text-Npx steps, e.g. '20px'/'24px'/'28px'/'32px'. */
   titleSize?: string;
   titleWeight?: 'light' | 'medium' | 'strong';
+  /** Overrides the default bottom margin - e.g. 'mb-0px' when the parent already spaces children via flex gap. */
+  marginClass?: string;
 }>(), {
   title: '',
   subtitle: '',
   titleSize: '28px',
   titleWeight: 'medium',
+  marginClass: 'mb-24px',
 });
 
 const slots = useSlots();

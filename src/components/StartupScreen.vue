@@ -54,7 +54,6 @@ async function pollOnce(): Promise<boolean> {
       return false;
     }
     const res = await useInternalLumen().ipfsStatus();
-    console.log('[startup] ipfsStatus result', res);
     return !!res?.ok;
   } catch (e) {
     console.error('[startup] ipfsStatus error', e);

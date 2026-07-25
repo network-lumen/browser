@@ -17,36 +17,19 @@
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Browse">
           <UiSidebarNavItem reveal :active="currentView === 'overview'" @click="currentView = 'overview'">
-            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <line x1="3" y1="9" x2="21" y2="9"/>
-              <line x1="9" y1="21" x2="9" y2="9"/>
-            </svg>
+            <PanelsTopLeft class="reveal-target flex-shrink-0 opacity-85" :size="18" />
             <span>Overview</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'blocks'" @click="currentView = 'blocks'">
-            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="7" height="7" rx="1"/>
-              <rect x="14" y="3" width="7" height="7" rx="1"/>
-              <rect x="14" y="14" width="7" height="7" rx="1"/>
-              <rect x="3" y="14" width="7" height="7" rx="1"/>
-            </svg>
+            <LayoutGrid class="reveal-target flex-shrink-0 opacity-85" :size="18" />
             <span>Blocks</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'transactions'" @click="currentView = 'transactions'">
-            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
-              <path d="M21 3v5h-5"/>
-            </svg>
+            <RotateCw class="reveal-target flex-shrink-0 opacity-85" :size="18" />
             <span>Transactions</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'validators'" @click="currentView = 'validators'">
-            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
+            <Users class="reveal-target flex-shrink-0 opacity-85" :size="18" />
             <span>Validators</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
@@ -154,17 +137,17 @@
                   <img class="w-full h-full object-fit-cover border-radius-full" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                   <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                 </div>
-                <div class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ latestProposer.moniker }}</div>
+                <div class="mt-0px txt-weight-medium color-text-primary text-center text-16px">{{ latestProposer.moniker }}</div>
                 <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">Latest Block Proposer</div>
                 <div class="w-full mt-8px">
                   <div class="gap-8px w-full grid grid-cols-1fr-1fr">
                     <div class="flex flex-column text-center gap-2px">
-                      <span class="color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block</span>
-                      <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
+                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">Block</span>
+                      <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
                     </div>
                     <div class="flex flex-column text-center gap-2px">
-                      <span class="color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block Time</span>
-                      <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
+                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">Block Time</span>
+                      <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
                     </div>
                   </div>
                 </div>
@@ -182,12 +165,7 @@
               <div class="flex flex-column gap-12px">
                 <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
                   <div class="flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="3" width="7" height="7" rx="1"/>
-                      <rect x="14" y="3" width="7" height="7" rx="1"/>
-                      <rect x="14" y="14" width="7" height="7" rx="1"/>
-                      <rect x="3" y="14" width="7" height="7" rx="1"/>
-                    </svg>
+                    <LayoutGrid :size="16" />
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="txt-weight-light color-text-primary text-14px mb-4px">#{{ formatNumber(block.height) }}</div>
@@ -212,10 +190,7 @@
               <div class="flex flex-column gap-12px">
                 <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
                   <div class="flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
-                      <path d="M21 3v5h-5"/>
-                    </svg>
+                    <RotateCw :size="16" />
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="txt-weight-light color-text-primary text-14px mb-4px">{{ shortenHash(tx.hash) }}</div>
@@ -240,7 +215,7 @@
           <div class="flex-align-start flex-wrap-wrap gap-16px relative bg-card border-bottom-1 flex-justify-space-between p-0px pt-16px pr-24px pb-12px pl-24px">
             <div class="flex-1 min-w-200px">
               <h2 class="text-20px txt-weight-medium color-text-primary m-0px mb-4px">Blocks</h2>
-              <p class="text-12px color-text-tertiary m-0px">View all blocks on the lumen-mainnet</p>
+              <p class="text-12px color-text-tertiary m-0px">View all blocks on lumen</p>
             </div>
             <div class="flex flex-inline-align-center gap-12px flex-wrap-wrap">
               <div class="flex-align-center flex-wrap-wrap gap-8px">
@@ -257,7 +232,7 @@
                   class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow min-w-150px placeholder-tertiary"
                 />
               </div>
-              <span class="tone-green flex-align-center gap-8px color-text-tertiary fw-500 text-13px inline-flex flex-inline-align-center gap-6px border-radius-4px text-11px txt-weight-light color-success bg-success-a08 border-1-success-a30 py-4px px-6px" :class="{ active: autoRefresh }">
+              <span class="tone-green flex-align-center gap-8px color-text-tertiary text-13px inline-flex flex-inline-align-center border-radius-4px txt-weight-light bg-success-a08 border-1-success-a30 py-4px px-6px" :class="{ active: autoRefresh }">
                 <span class="animate-pulse-live border-radius-circle w-8px h-8px bg-current"></span>
                 Live
               </span>
@@ -266,54 +241,45 @@
 
           <div class="w-full">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-90-320-22fr-130-140">
-              <div class="">HEIGHT</div>
-              <div class="">PROPOSER</div>
-              <div class="">HASH</div>
-              <div class="">TRANSACTIONS</div>
-              <div class="">TIME</div>
+              <div>HEIGHT</div>
+              <div>PROPOSER</div>
+              <div>HASH</div>
+              <div>TRANSACTIONS</div>
+              <div>TIME</div>
             </div>
             
             <div class="max-h-none flex flex-column overflow-y-auto">
               <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-recipe explorer-table-row-recipe grid-cols-90-320-22fr-130-140 active-scale-998 reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none cursor-pointer flex-inline-align-center bg-black-a04-active" @click="navigateToBlock(block.height)">
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <div class="flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-4px" @click="navigateToBlock(block.height)">
-                    <svg class="flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                    </svg>
+                    <Link class="flex-shrink-0 opacity-70 w-12px h-12px" :size="16" />
                     <span class="txt-weight-light text-12px">{{ formatNumber(block.height) }}</span>
                   </div>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <div class="flex-align-center gap-6px">
-                    <div class="flex-align-justify-center size-24px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden flex-shrink-0 border-2-primary-a30 min-w-24px text-10px">
+                    <div class="flex-align-justify-center size-24px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden flex-shrink-0 border-2-primary-a30 min-w-24px">
                       <img class="w-full h-full object-fit-cover border-radius-full" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
                       <span v-else>{{ block.proposer.charAt(0) }}</span>
                     </div>
-                    <span class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ block.proposer }}</span>
+                    <span class="mt-0px txt-weight-medium color-text-primary text-center text-16px">{{ block.proposer }}</span>
                   </div>
                 </div>
-                <div class="reveal-on-hover flex-align-center gap-8px text-13px text-14px">
+                <div class="reveal-on-hover flex-align-center gap-8px text-14px">
                   <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click.stop="navigateToBlock(block.height)" title="View block details">
                     <code class="reveal-hash-code-target color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ block.hash }}</code>
-                    <svg class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                    </svg>
+                    <Link class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" :size="14" />
                   </div>
                   <UiButton variant="icon" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash" class="size-24px">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
+                    <Copy :size="14" />
                   </UiButton>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="txt-weight-light color-text-tertiary bg-secondary border-radius-4px py-4px px-6px text-12px" :class="{ 'has-txs': block.txCount > 0, 'bg-fill-success': block.txCount > 0 }">
                     {{ block.txCount }}
                   </span>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="text-12px color-text-secondary">{{ formatTimeAgo(block.time) }}</span>
                 </div>
               </div>
@@ -326,7 +292,7 @@
           <div class="flex-align-start flex-wrap-wrap gap-16px border-bottom-1 flex-justify-space-between pt-24px pr-24px pb-16px pl-24px">
             <div class="flex-1 min-w-200px">
               <h2 class="text-24px txt-weight-medium color-text-primary m-0px mb-4px">Transactions</h2>
-              <p class="color-text-tertiary m-0px text-14px">Latest transactions on the lumen-mainnet</p>
+              <p class="color-text-tertiary m-0px text-14px">Latest transactions on lumen</p>
             </div>
             <div class="flex-align-center flex-wrap-wrap gap-8px">
               <select v-model="txTypeFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
@@ -351,62 +317,48 @@
           </div>
 
           <div v-if="transactions.length === 0" class="flex-align-justify-center flex-column color-text-tertiary border-radius-12px bg-card border-1 py-64px px-32px">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-16px opacity-55">
-              <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
-              <path d="M21 3v5h-5"/>
-            </svg>
+            <RotateCw :size="64" stroke-width="1.5" class="mb-16px opacity-55" />
             <p>No recent transactions</p>
           </div>
 
           <div v-else class="w-full">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr">
-              <div class="">Transaction Hash</div>
-              <div class="">Type</div>
-              <div class="">Result</div>
-              <div class="">Height</div>
-              <div class="">Fee</div>
-              <div class="">Time</div>
+              <div>Transaction Hash</div>
+              <div>Type</div>
+              <div>Result</div>
+              <div>Height</div>
+              <div>Fee</div>
+              <div>Time</div>
             </div>
             
             <div class="max-h-600px flex flex-column overflow-y-auto">
               <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-recipe explorer-table-row-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr active-scale-998 reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
-                <div class="reveal-on-hover flex-align-center gap-8px text-13px text-14px">
+                <div class="reveal-on-hover flex-align-center gap-8px text-14px">
                   <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
-                    <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
+                    <Activity class="animate-icon-bounce color-text-tertiary flex-shrink-0" :size="14" />
                     <code class="reveal-hash-code-target color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ shortenHash(tx.hash) }}</code>
-                    <svg class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                    </svg>
+                    <Link class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" :size="14" />
                   </div>
                   <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash" class="size-24px">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
+                    <Copy :size="14" />
                   </UiButton>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="text-12px txt-weight-light border-radius-4px py-4px px-12px bg-fill-blue color-accent-secondary">{{ tx.type }}</span>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="flex-inline-align-center text-12px txt-weight-light gap-6px border-radius-4px py-4px px-12px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
-                    <svg class="w-14px h-14px" v-if="tx.success" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
+                    <CircleCheckBig class="w-14px h-14px" v-if="tx.success" :size="14" />
                     {{ tx.success ? 'Success' : 'Failed' }}
                   </span>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="transition-color-02 hover-underline color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="text-12px color-text-primary fw-500 mono">{{ tx.fee || '—' }}</span>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="text-12px color-text-secondary">{{ formatTimeAgo(tx.time) }}</span>
                 </div>
               </div>
@@ -423,34 +375,34 @@
 
           <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-sm backdrop-blur">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-120-160-100-110-120">
-              <div class="">#</div>
-              <div class="">VALIDATOR</div>
-              <div class="">VOTING POWER %</div>
-              <div class="">24H CHANGES</div>
-              <div class="">CUMULATIVE SHARE %</div>
-              <div class="">COMM. %</div>
-              <div class="">UPTIME %</div>
-              <div class="">ACTIONS</div>
+              <div>#</div>
+              <div>VALIDATOR</div>
+              <div>VOTING POWER %</div>
+              <div>24H CHANGES</div>
+              <div>CUMULATIVE SHARE %</div>
+              <div>COMM. %</div>
+              <div>UPTIME %</div>
+              <div>ACTIONS</div>
             </div>
             
             <div class="max-h-600px flex flex-column overflow-y-auto">
               <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-recipe explorer-table-row-recipe grid-cols-50-220-200-120-160-100-110-120 active-scale-998 hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <div class="flex-align-center gap-12px">
-                    <div class="bg-gradient-indigo-purple flex-align-justify-center size-36px border-radius-circle txt-weight-medium color-white text-24px overflow-hidden text-13px flex-shrink-0 border-2">
+                    <div class="bg-gradient-indigo-purple flex-align-justify-center size-36px border-radius-circle txt-weight-medium color-white text-24px overflow-hidden flex-shrink-0 border-2">
                       <img class="w-full h-full object-fit-cover" v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
                       <span v-else>{{ validator.moniker.substring(0, 2).toUpperCase() }}</span>
                     </div>
                     <div class="flex flex-column gap-4px">
-                      <span class="txt-weight-light color-text-primary text-18px text-14px">{{ validator.moniker }}</span>
+                      <span class="txt-weight-light color-text-primary text-18px">{{ validator.moniker }}</span>
                       <span class="transition-color-02 color-text-tertiary cursor-pointer mt-8px pt-12px text-11px border-top-1 mono hover-color-primary" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
                     </div>
                   </div>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <div class="flex flex-column gap-4px w-full">
                     <div class="txt-weight-medium color-text-primary text-15px mb-4px">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
                     <div class="h-5px w-full bg-border border-radius-4px overflow-hidden mb-4px">
@@ -459,10 +411,10 @@
                     <div class="color-text-tertiary fw-500 text-11px">{{ formatVotingPower(validator.tokens) }} LMN</div>
                   </div>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="txt-weight-light text-14px">—</span>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <div class="flex-align-justify-center relative size-64px">
                     <svg class="block filter-none" width="66" height="66" viewBox="0 0 66 66">
                       <circle cx="33" cy="33" r="27" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
@@ -479,24 +431,20 @@
                     <span class="flex-align-justify-center txt-weight-medium color-text-primary absolute inset-0 text-11px line-height-1 cursor-events-none">{{ getCumulativeProgress(index).toFixed(2) }}%</span>
                   </div>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="txt-weight-light color-text-secondary text-14px">{{ (parseFloat(validator.commission) * 100).toFixed(2) }}%</span>
                 </div>
-                <div class="flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-14px">
                   <span class="txt-weight-light color-text-secondary text-14px">{{ getUptimeLabel(validator.address) }}</span>
                 </div>
-                <div class="flex-align-center flex-align-justify-center text-13px text-14px">
+                <div class="flex-align-center flex-align-justify-center text-14px">
                   <UiButton
                     variant="primary"
                     size="sm"
                     :disabled="!hasActiveProfile"
                     @click="openStakeModal(validator, 'Delegate')"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <line x1="12" y1="8" x2="12" y2="16"/>
-                      <line x1="8" y1="12" x2="16" y2="12"/>
-                    </svg>
+                    <CirclePlus :size="14" />
                     Manage
                   </UiButton>
                 </div>
@@ -509,9 +457,7 @@
     
     <!-- Copy Notification -->
     <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-success z-9999 bottom-32px shadow-success">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>
+      <Check :size="16" />
       <span>{{ copiedText }} copied!</span>
     </div>
 
@@ -544,11 +490,7 @@
             <!-- Withdraw Rewards - No amount needed -->
             <div v-if="currentStakeAction === 'Withdraw'" class="p-0px pt-8px pb-8px">
               <div class="flex-align-start gap-12px p-16px border-radius-10px bg-primary-a10 border-1-primary-a15">
-                <svg class="flex-shrink-0 color-primary mt-4px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 16v-4"/>
-                  <path d="M12 8h.01"/>
-                </svg>
+                <Info class="flex-shrink-0 color-primary mt-4px" :size="20" />
                 <div class="flex flex-column gap-4px">
                   <strong class="text-15px txt-weight-light color-text-primary">Withdraw Staking Rewards</strong>
                   <p class="m-0px text-13px color-text-secondary line-height-14">This will claim all pending rewards from this validator to your wallet.</p>
@@ -560,10 +502,9 @@
             <div v-else class="flex flex-column gap-8px">
               <label class="text-14px txt-weight-light color-text-primary">Amount to {{ currentStakeAction.toLowerCase() }}</label>
               <div class="flex-align-center relative">
-                <UiInput bg-class="bg-secondary" font-size-class="txt-weight-light" padding-class="pt-12px pr-64px pb-12px pl-16px" :focus-ring="false" type="number" 
-                  v-model="stakeAmount" 
+                <UiInput bg-class="bg-secondary" font-size-class="txt-weight-light" padding-class="pt-12px pr-64px pb-12px pl-16px" :focus-ring="false" type="number"
+                  v-model="stakeAmount"
                   :placeholder="`0.0`"
-                 
                   step="0.000001"
                   min="0" class="text-15px focus-outline-none focus-ring focus-shadow" />
                 <span class="txt-weight-light color-text-secondary absolute text-14px right-16px">LMN</span>
@@ -600,64 +541,36 @@
               </select>
             </div>
 
-            <div class="" v-if="showAdvancedOptions">
-              <UiButton variant="secondary" @click="showAdvancedOptions = !showAdvancedOptions" class="hover-border-accent hover-color-accent">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="3"/>
-                  <path d="M12 1v6m0 6v6"/>
-                </svg>
-                Advanced Options
-              </UiButton>
-            </div>
-
             <!-- Transaction Status Popup -->
             <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-lg min-w-400px max-w-90vw" :style="txStatusPopupStyle(txStatus)">
               <div class="flex-align-center flex-column gap-24px text-center">
                 <!-- Processing -->
-                <div v-if="txStatus === 'processing'" class="flex flex-column flex-inline-align-center gap-16px w-full">
-                  <UiSpinner size="lg" />
-                  <div class="flex flex-column gap-8px">
-                    <strong class="text-18px color-text-primary txt-weight-medium">Processing Transaction</strong>
-                    <p class="word-wrap-break text-14px color-text-secondary m-0px max-w-320px">{{ txMessage }}</p>
-                  </div>
-                </div>
+                <UiResultState v-if="txStatus === 'processing'" title="Processing Transaction" :description="txMessage">
+                  <template #icon><UiSpinner size="lg" /></template>
+                </UiResultState>
 
                 <!-- Success -->
-                <div v-else-if="txStatus === 'success'" class="flex flex-column flex-inline-align-center gap-16px w-full">
-                  <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="rgba(var(--color-success-rgb), 0.7)" stroke-width="2"/>
-                    <path d="M8 12l3 3 5-5" stroke="rgba(var(--color-success-rgb), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <div class="flex flex-column gap-8px">
-                    <strong class="text-18px color-text-primary txt-weight-medium">Transaction Successful!</strong>
-                    <p class="word-wrap-break text-14px color-text-secondary m-0px max-w-320px">{{ txMessage }}</p>
+                <UiResultState v-else-if="txStatus === 'success'" title="Transaction Successful!" :description="txMessage">
+                  <template #icon><CircleCheckBig class="animate-icon-bounce" :size="48" color="rgba(var(--color-success-rgb), 0.7)" /></template>
+                  <template #action>
                     <div v-if="txHash" class="w-full mt-12px p-12px bg-secondary border-radius-8px border-1">
                       <small class="block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">Transaction Hash:</small>
                       <UiButton variant="none" @click="viewTransaction(txHash)" class="reveal-on-hover hover-translate-x-2px flex-align-center gap-8px cursor-pointer w-full">
                         <code class="flex-1 mono text-12px color-primary break-all txt-weight-light">{{ txHash }}</code>
-                        <svg class="reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                          <polyline points="15 3 21 3 21 9"/>
-                          <line x1="10" y1="14" x2="21" y2="3"/>
-                        </svg>
+                        <ExternalLink class="reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" :size="16" />
                       </UiButton>
                     </div>
-                  </div>
-                  <button class="mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px hover-shadow-primary" @click="closeStakeModal">Close</button>
-                </div>
+                    <button class="mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px hover-shadow-primary" @click="closeStakeModal">Close</button>
+                  </template>
+                </UiResultState>
 
                 <!-- Error -->
-                <div v-else-if="txStatus === 'error'" class="flex flex-column flex-inline-align-center gap-16px w-full">
-                  <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="var(--color-error)" stroke-width="2"/>
-                    <path d="M12 8v4m0 4h.01" stroke="var(--color-error)" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                  <div class="flex flex-column gap-8px">
-                    <strong class="text-18px color-text-primary txt-weight-medium">Transaction Failed</strong>
-                    <p class="word-wrap-break text-14px color-text-secondary m-0px max-w-320px">{{ txMessage }}</p>
-                  </div>
-                  <UiButton variant="primary" class="mt-8px" @click="txStatus = 'idle'">Try Again</UiButton>
-                </div>
+                <UiResultState v-else-if="txStatus === 'error'" title="Transaction Failed" :description="txMessage">
+                  <template #icon><CircleAlert class="animate-icon-bounce" :size="48" color="var(--color-error)" /></template>
+                  <template #action>
+                    <UiButton variant="primary" class="mt-8px" @click="txStatus = 'idle'">Try Again</UiButton>
+                  </template>
+                </UiResultState>
               </div>
             </div>
 
@@ -690,6 +603,7 @@ import UiStatTile from '../../ui/UiStatTile.vue';
 import UiChartCard from '../../ui/UiChartCard.vue';
 import UiLegendItem from '../../ui/UiLegendItem.vue';
 import UiFilterButton from '../../ui/UiFilterButton.vue';
+import UiResultState from '../../ui/UiResultState.vue';
 import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import BlockDetailPage from './BlockDetailPage.vue';
@@ -697,11 +611,12 @@ import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
-import { LayoutGrid, Search } from 'lucide-vue-next';
+import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, Info, ExternalLink, CirclePlus, CircleAlert, CircleCheckBig, Activity } from 'lucide-vue-next';
 import { useToast } from '../../composables/useToast';
 import { fromBase64, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
+import { computeTxHash } from '../chainRpc';
 
 const toast = useToast();
 const lumen = useInternalLumen();
@@ -835,7 +750,6 @@ const stakeActions = ['Delegate', 'Undelegate', 'Redelegate', 'Withdraw'];
 const stakeAmount = ref('0.0');
 const stakePercentage = ref(0);
 const targetValidator = ref('');
-const showAdvancedOptions = ref(false);
 const stakedBalance = ref('0.000 LMN');
 const availableBalance = ref('0.000 LMN');
 const isProcessingTx = ref(false);
@@ -1211,7 +1125,7 @@ async function fetchTransactions() {
         
         for (let i = 0; i < txs.length; i++) {
           const txData = txs[i];
-          const txHash = await getTxHash(txData);
+          const txHash = await computeTxHash(txData);
           const txResults = blockResultsRes.json?.result?.txs_results;
           const txResult = txResults?.[i];
           
@@ -1235,23 +1149,6 @@ async function fetchTransactions() {
   }
 }
 
-async function getTxHash(txDataBase64: string): Promise<string> {
-  try {
-    const binaryString = atob(txDataBase64);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    
-    const hashBuffer = await crypto.subtle.digest('SHA-256', bytes);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-    return hashHex;
-  } catch (e) {
-    console.error('Failed to hash tx:', e);
-    return '0000000000000000000000000000000000000000000000000000000000000000';
-  }
-}
 
 async function fetchValidators() {
   if (!lumen?.http?.get) return;
@@ -1364,8 +1261,8 @@ async function fetchKeybaseAvatars() {
           }
         }
       }
-    } catch (e) {
-      console.log(`Failed to fetch avatar for ${validator.moniker}`);
+    } catch {
+      console.warn(`Failed to fetch avatar for ${validator.moniker}`);
     }
   }
   
@@ -1558,10 +1455,6 @@ function getCumulativeProgress(index: number): number {
   return Number(bp) / 100;
 }
 
-function manageValidator(validator: Validator) {
-  console.log('Manage validator:', validator);
-}
-
 // Stake modal functions
 function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw' = 'Delegate') {
   if (!hasActiveProfile.value) {
@@ -1574,7 +1467,6 @@ function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' 
   stakeAmount.value = '0.0';
   stakePercentage.value = 0;
   targetValidator.value = '';
-  showAdvancedOptions.value = false;
   showStakeModal.value = true;
   
   // Fetch actual balance from profile
@@ -1583,13 +1475,10 @@ function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' 
 
 async function fetchStakeBalances(validatorAddress: string) {
   if (!activeProfile.value) {
-    console.log('No active profile');
     return;
   }
 
   const profileAddress = activeProfile.value.address || activeProfile.value.walletAddress;
-  console.log('Fetching balances for profile:', activeProfile.value);
-  console.log('Profile address:', profileAddress);
 
   try {
     const walletApi = useInternalLumen()?.wallet;
@@ -1605,12 +1494,10 @@ async function fetchStakeBalances(validatorAddress: string) {
     if (typeof walletApi.getBalance === 'function' && profileAddress) {
       try {
         const res = await walletApi.getBalance(profileAddress, { denom: 'ulmn' });
-        console.log('Balance response:', res);
-        
+
         if (res && res.ok !== false) {
           const amt = Number(res.balance?.amount ?? '0') || 0;
           availableBalance.value = (amt / 1_000_000).toFixed(6);
-          console.log('Available balance (LMN):', availableBalance.value);
         } else {
           console.error('Balance error:', res?.error);
           availableBalance.value = '0.000000';
@@ -1627,17 +1514,15 @@ async function fetchStakeBalances(validatorAddress: string) {
     if (typeof walletApi.getDelegations === 'function' && profileAddress) {
       try {
         const delegations = await walletApi.getDelegations(profileAddress);
-        console.log('Delegations response:', delegations);
-        
+
         if (delegations && delegations.ok !== false && Array.isArray(delegations.delegations)) {
-          const delegation = delegations.delegations.find((d: any) => 
+          const delegation = delegations.delegations.find((d: any) =>
             d.delegation?.validator_address === validatorAddress
           );
-          
+
           if (delegation?.balance?.amount) {
             const amt = Number(delegation.balance.amount) || 0;
             stakedBalance.value = (amt / 1_000_000).toFixed(6);
-            console.log('Staked balance (LMN):', stakedBalance.value);
           } else {
             stakedBalance.value = '0.000000';
           }
@@ -1726,13 +1611,7 @@ async function confirmStakeAction() {
     }
     
     let result;
-    
-    console.log(`Executing ${currentStakeAction.value}...`);
-    console.log('Profile ID:', profileId);
-    console.log('Address:', profileAddress);
-    console.log('Validator:', selectedValidator.value.address);
-    console.log('Amount (ulmn):', amountInUlmn);
-    
+
     const baseParams = {
       profileId: profileId,
       address: profileAddress,
@@ -1783,8 +1662,6 @@ async function confirmStakeAction() {
         }
         break;
     }
-    
-    console.log('Transaction result:', result);
     
     // Handle password_required error
     if (result?.ok === false && (result?.error === 'password_required' || result?.error === 'invalid_password')) {

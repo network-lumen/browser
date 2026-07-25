@@ -1,6 +1,6 @@
 <template>
   <!-- ####### lumen://my-gateways MY GATEWAYS ####### -->
-  <div class="internal-page flex bg-primary h-100vh">
+  <div class="internal-page flex">
     <InternalSidebar title="My Gateways" :icon="Server" activeKey="my-gateways">
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Manage">
@@ -31,18 +31,7 @@
         >
           <div class="flex-align-center gap-20px mb-24px">
             <div class="flex-align-justify-center size-48px border-radius-12px color-text-secondary bg-hover transition-all-03" :class="{ 'bg-success-a15 color-success': embeddedServerRunning }">
-              <svg v-if="embeddedServerRunning" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                <line x1="6" y1="18" x2="6.01" y2="18"></line>
-              </svg>
-              <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                <line x1="6" y1="18" x2="6.01" y2="18"></line>
-              </svg>
+              <Server :size="24" />
             </div>
             <div class="flex-1">
               <h3 class="text-18px txt-weight-light color-text-primary m-0px mb-4px">Embedded Gateway Server</h3>
@@ -57,29 +46,24 @@
 
           <div class="flex gap-12px">
             <UiButton variant="primary" v-if="embeddedServerRunning"
-              type="button" 
-             
+              type="button"
               @click="viewApiKey">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
-              </svg>
+              <Key :size="16" />
               Copy API Key
             </UiButton>
-            <button 
-              type="button" 
-              class="disabled-opacity-50-not-allowed-no-transform-important flex-align-center gap-8px border-none cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02" :class="embeddedServerRunning ? 'hover-lift-2-enabled hover-shadow-danger' : 'hover-lift-2-enabled hover-shadow-success'" :style="serverToggleBtnStyle(embeddedServerRunning)"
+            <UiButton
+              variant="none"
+              type="button"
+              class="flex-align-center gap-8px cursor-pointer color-white fw-500 py-12px px-20px border-radius-10px text-14px transition-all-02"
+              :class="embeddedServerRunning ? 'hover-lift-2-enabled hover-shadow-danger' : 'hover-lift-2-enabled hover-shadow-success'"
+              :style="serverToggleBtnStyle(embeddedServerRunning)"
               @click="toggleEmbeddedServer"
               :disabled="serverLoading"
             >
-              <svg v-if="embeddedServerRunning" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="6" y="4" width="4" height="16"></rect>
-                <rect x="14" y="4" width="4" height="16"></rect>
-              </svg>
-              <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
+              <Pause v-if="embeddedServerRunning" :size="16" fill="currentColor" />
+              <Play v-else :size="16" fill="currentColor" />
               {{ embeddedServerRunning ? 'Stop Server' : 'Start Server' }}
-            </button>
+            </UiButton>
           </div>
         </UiCard>
 
@@ -224,29 +208,20 @@
                 For local embedded server, use the "Start Embedded Server" button instead.
               </p>
               
-              <div class="mb-20px">
-                <label class="block fw-500 color-text-secondary mb-8px text-14px">Gateway Name</label>
+              <UiFormField class="mb-20px" label="Gateway Name" label-class="block fw-500 color-text-secondary text-14px">
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.name"
-                 
-                 
                   placeholder="My Private Gateway" class="focus-outline-none focus-ring-blue" />
-              </div>
+              </UiFormField>
 
-              <div class="mb-20px">
-                <label class="block fw-500 color-text-secondary mb-8px text-14px">Gateway URL</label>
+              <UiFormField class="mb-20px" label="Gateway URL" label-class="block fw-500 color-text-secondary text-14px">
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.url"
-                 
-                 
                   placeholder="https://gateway.example.com" class="focus-outline-none focus-ring-blue" />
-              </div>
+              </UiFormField>
 
-              <div class="mb-20px">
-                <label class="block fw-500 color-text-secondary mb-8px text-14px">API Key</label>
+              <UiFormField class="mb-20px" label="API Key" label-class="block fw-500 color-text-secondary text-14px">
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.apiKey"
-                 
-                 
                   placeholder="Your gateway API key" class="focus-outline-none focus-ring-blue" />
-              </div>
+              </UiFormField>
 
               <div v-if="modalError" class="color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
                 {{ modalError }}
@@ -277,30 +252,22 @@
 
       <!-- Whitelist Add/Edit Modal -->
       <UiModal :model-value="showWhitelistModal" :title="editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist'" panel-class="max-w-500px w-90pct" @update:model-value="closeWhitelistModal">
-              <div class="mb-20px">
-                <label class="block fw-500 color-text-secondary mb-8px text-14px">Wallet Address</label>
+              <UiFormField class="mb-20px" label="Wallet Address" label-class="block fw-500 color-text-secondary text-14px">
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.address"
-                 
-                 
                   placeholder="lumen1..."
                   :disabled="!!editingWhitelistEntry" class="focus-outline-none focus-ring-blue" />
-              </div>
+              </UiFormField>
 
-              <div class="mb-20px">
-                <label class="block fw-500 color-text-secondary mb-8px text-14px">Display Name (Optional)</label>
+              <UiFormField class="mb-20px" label="Display Name (Optional)" label-class="block fw-500 color-text-secondary text-14px">
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.displayName"
-                 
-                 
                   placeholder="John Doe" class="focus-outline-none focus-ring-blue" />
-              </div>
+              </UiFormField>
 
-              <div class="mb-20px">
-                <label class="block fw-500 color-text-secondary mb-8px text-14px">Notes (Optional)</label>
+              <UiFormField class="mb-20px" label="Notes (Optional)" label-class="block fw-500 color-text-secondary text-14px">
                 <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.notes"
-                 
                   rows="3"
                   placeholder="Additional notes about this user..." class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring-blue"></UiInput>
-              </div>
+              </UiFormField>
 
               <div v-if="whitelistModalError" class="color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
                 {{ whitelistModalError }}
@@ -341,8 +308,9 @@ import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import UiFormField from '../../ui/UiFormField.vue';
 import { ref, computed, onMounted, watch } from 'vue';
-import { Server, List, Plus, Edit2, Trash2, AlertCircle } from 'lucide-vue-next';
+import { Server, List, Plus, Edit2, Trash2, AlertCircle, Key, Play, Pause } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
@@ -638,7 +606,7 @@ async function toggleEmbeddedServer() {
               duration: 6000 
             }
           );
-        } catch (clipboardError) {
+        } catch {
           // If clipboard fails, show API key in notification
           toast.success(
             `Server running at ${result.url}`,

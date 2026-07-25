@@ -7,7 +7,7 @@ import { initAppSettings } from './internal/services/appSettings';
 
 // Prevent tree-shaking of route components
 if (import.meta.env.DEV) {
-  console.log('[main.ts] Loaded components:', ALL_COMPONENTS.length);
+  console.warn('[main.ts] Loaded components:', ALL_COMPONENTS.length);
 }
 
 void initAppSettings();

@@ -32,8 +32,6 @@ const shouldPrompt = ref(false);
 const busy = ref(false);
 const updateProgress = ref<any | null>(null);
 const initialized = ref(false);
-let unsub: null | (() => void) = null;
-let unsubProgress: null | (() => void) = null;
 let lastBlockedToastKey = '';
 
 type SemverParts = { major: number; minor: number; patch: number; pre: string[] };
@@ -197,14 +195,14 @@ async function initReleaseUpdates() {
   initialized.value = true;
   await fetchSnapshot();
   try {
-    unsub = useInternalLumen()?.release?.onUpdateAvailable?.(handleReleaseEvent) || null;
+    useInternalLumen()?.release?.onUpdateAvailable?.(handleReleaseEvent);
   } catch {
-    unsub = null;
+    // ignore
   }
   try {
-    unsubProgress = useInternalLumen()?.release?.onUpdateProgress?.(handleProgressEvent) || null;
+    useInternalLumen()?.release?.onUpdateProgress?.(handleProgressEvent);
   } catch {
-    unsubProgress = null;
+    // ignore
   }
 }
 

@@ -73,7 +73,7 @@ import pkg from '../../package.json';
 
 const { favouriteEntries, removeFavouriteById } = useFavourites();
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   title: string;
   icon: any;
   activeKey?: string;

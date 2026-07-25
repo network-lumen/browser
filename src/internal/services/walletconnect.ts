@@ -62,7 +62,6 @@ export class WalletConnectService {
     // });
 
     this.isInitialized = true;
-    console.log('[WalletConnect] Service initialized');
   }
 
   /**
@@ -77,8 +76,6 @@ export class WalletConnectService {
     if (!uri.startsWith('wc:')) {
       throw new Error('Invalid WalletConnect URI');
     }
-
-    console.log('[WalletConnect] Connecting to:', uri);
 
     // TODO: Implement actual WalletConnect pairing
     // Example:
@@ -113,7 +110,6 @@ export class WalletConnectService {
    */
   async disconnect(topic: string): Promise<void> {
     // TODO: Implement disconnect
-    console.log('[WalletConnect] Disconnecting from:', topic);
     this.sessions.delete(topic);
   }
 
@@ -127,7 +123,7 @@ export class WalletConnectService {
   /**
    * Sign a transaction request from a dApp
    */
-  async signTransaction(topic: string, transaction: any): Promise<string> {
+  async signTransaction(_topic: string, _transaction: any): Promise<string> {
     // TODO: Implement transaction signing
     throw new Error('Not implemented');
   }
@@ -169,8 +165,8 @@ export function parseWalletConnectUri(uri: string): {
 
   try {
     // WalletConnect v2 format: wc:topic@version?relay-protocol=...
-    const [protocol, rest] = uri.split(':');
-    const [topicAndVersion, params] = rest.split('?');
+    const [, rest] = uri.split(':');
+    const [topicAndVersion] = rest.split('?');
     const [topic, versionStr] = topicAndVersion.split('@');
     const version = parseInt(versionStr || '2', 10);
 

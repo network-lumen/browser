@@ -1,6 +1,5 @@
 .border-05-error-a25 { border: 0.5px solid rgba(var(--color-error-rgb), 0.25); }
 .border-05-success-a25 { border: 0.5px solid rgba(var(--color-success-rgb), 0.25); }
-.border-05-yellow-a40 { border: 0.5px solid rgba(var(--color-yellow-rgb), 0.4); }
 .border-05-light { border: 0.5px solid var(--border-light); }
 .border-1 { border: 1px solid var(--border-color); }
 .border-1-dashed-color { border: 1px dashed var(--border-color); }

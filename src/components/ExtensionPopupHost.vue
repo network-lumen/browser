@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { X } from "lucide-vue-next";
 import { isBrowserUrl, isExtensionUrl } from "../internal/navigationUrl";
 import { useInternalLumen } from '../composables/useInternalLumen';

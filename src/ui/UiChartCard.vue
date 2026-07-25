@@ -3,7 +3,7 @@
     <UiChartHeader :title="title">
       <slot name="header" />
     </UiChartHeader>
-    <div class="">
+    <div>
       <slot />
     </div>
   </UiCard>

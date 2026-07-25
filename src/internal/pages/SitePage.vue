@@ -59,21 +59,21 @@
           allowpopups
           allowfullscreen
           allow="fullscreen"
-           :webpreferences="webprefs"
-           @will-navigate="onWillNavigate"
-           @did-navigate="onDidNavigate"
-           @did-navigate-in-page="onDidNavigateInPage"
-           @new-window="onNewWindow"
-           @ipc-message="onIpcMessage"
-           @did-start-loading="onWebviewDidStartLoading"
-           @did-stop-loading="onWebviewDidStopLoading"
-           @dom-ready="onDomReady"
-           @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
-           @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
-         ></webview>
-         <div v-else class="w-full h-full border-none bg-primary"></div>
-       </div>
-     </main>
+          :webpreferences="webprefs"
+          @will-navigate="onWillNavigate"
+          @did-navigate="onDidNavigate"
+          @did-navigate-in-page="onDidNavigateInPage"
+          @new-window="onNewWindow"
+          @ipc-message="onIpcMessage"
+          @did-start-loading="onWebviewDidStartLoading"
+          @did-stop-loading="onWebviewDidStopLoading"
+          @dom-ready="onDomReady"
+          @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
+          @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
+        ></webview>
+        <div v-else class="w-full h-full border-none bg-primary"></div>
+      </div>
+    </main>
   </div>
 </template>
 
@@ -427,8 +427,6 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
     return;
   }
   suppressNextResolve = false;
-
-  const prev = active.value;
 
   loading.value = true;
   error.value = false;

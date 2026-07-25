@@ -104,11 +104,7 @@
       <!-- Privacy Warning Banner -->
       <div class="bg-gradient-warning-banner animate-fade-in flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-warning-a30">
         <div class="flex-align-justify-center size-36px color-warning flex-shrink-0 border-radius-8px bg-warning-a15">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
+          <AlertTriangle :size="20" />
         </div>
         <div class="flex flex-column flex-1 gap-4px">
           <strong class="text-14px txt-weight-light color-text-primary">Privacy Notice:</strong>
@@ -127,7 +123,7 @@
             placeholder="Search files..."
             @input="currentPage = 1"
           />
-          <UiButton variant="secondary" v-if="searchQuery" @click="searchQuery = ''; currentPage = 1" class="">
+          <UiButton variant="secondary" v-if="searchQuery" @click="searchQuery = ''; currentPage = 1">
             <X :size="14" />
           </UiButton>
         </div>
@@ -157,7 +153,6 @@
             Clear
           </UiButton>
           <UiButton variant="primary" v-if="canBulkConvertSelectedLocal"
-           
             type="button"
             @click="convertSelectedLocalToHls" class="disabled-fade-50">
             Convert to HLS
@@ -173,7 +168,7 @@
 
       <!-- Breadcrumb (folders) -->
       <div v-if="isBrowsing" class="flex-align-center gap-12px mb-12px p-0px pt-8px pb-8px">
-        <UiButton variant="secondary" type="button" @click="exitBrowse" class="">
+        <UiButton variant="secondary" type="button" @click="exitBrowse">
           Back
         </UiButton>
         <div class="flex-align-center flex-wrap-wrap gap-6px min-w-0">
@@ -195,10 +190,9 @@
 
       <UiLoadingBlock v-if="browseLoading" wrapper-class="flex-1 min-h-280px" spinner-class="" />
 
-      <div v-else-if="browseError" class="text-11px line-height-12 mt-4px color-error mt-16px">
+      <div v-else-if="browseError" class="text-11px line-height-12 color-error mt-16px">
         {{ browseError }}
       </div>
-
 
       <!-- Upload Progress -->
       <div v-for="(upload, key) in uploadActivitiesComputed" :key="key" class="border-radius-10px mb-16px bg-secondary py-16px px-20px">
@@ -227,23 +221,6 @@
           ></div>
         </div>
       </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
       <!-- HLS Conversion Progress -->
       <div v-if="converting" class="border-radius-10px mb-16px bg-secondary py-16px px-20px">
@@ -291,7 +268,6 @@
           </div>
           <div class="flex-inline-align-center flex-wrap-wrap gap-8px flex-justify-end">
             <UiButton variant="secondary" v-if="hlsQueueCanPause"
-             
               type="button"
               @click="pauseHlsQueue"
               :disabled="convertingPauseRequested" class="hover-border-color-accent-enabled disabled-fade-50">
@@ -299,7 +275,6 @@
               <span>{{ convertingPauseRequested ? "Pausing..." : "Pause" }}</span>
             </UiButton>
             <UiButton variant="secondary" v-if="hlsQueueCanResume"
-             
               type="button"
               @click="resumeHlsQueue" class="hover-border-color-accent-enabled disabled-fade-50">
               <Play :size="14" />
@@ -366,7 +341,6 @@
       </div>
 
       <UiLoadingBlock v-if="showSavedListSpinner" wrapper-class="flex-1 min-h-280px" spinner-class="" />
-
 
       <!-- Files List View -->
       <div
@@ -471,18 +445,14 @@
         <UiButton variant="secondary" :disabled="currentPage === 1"
           @click="currentPage = 1"
           title="First page" class="disabled-fade-50 size-32px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
-          </svg>
+          <ChevronsLeft :size="16" />
         </UiButton>
         <UiButton variant="secondary" :disabled="currentPage === 1"
           @click="currentPage--"
           title="Previous page" class="disabled-fade-50 size-32px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
+          <ChevronLeft :size="16" />
         </UiButton>
-        
+
         <div class="flex-align-center gap-4px">
           <template v-for="(page, idx) in pageNumbers" :key="idx">
             <span v-if="page === '...'" class="color-text-tertiary text-14px p-0px pr-4px pl-4px">...</span>
@@ -496,22 +466,18 @@
             </button>
           </template>
         </div>
-        
+
         <UiButton variant="secondary" :disabled="currentPage === totalPages"
           @click="currentPage++"
           title="Next page" class="disabled-fade-50 size-32px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
+          <ChevronRight :size="16" />
         </UiButton>
         <UiButton variant="secondary" :disabled="currentPage === totalPages"
           @click="currentPage = totalPages"
           title="Last page" class="disabled-fade-50 size-32px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>
-          </svg>
+          <ChevronsRight :size="16" />
         </UiButton>
-        
+
         <span class="color-text-secondary text-13px ml-8px nowrap">
           {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredFiles.length) }} of {{ filteredFiles.length }}
         </span>
@@ -585,9 +551,7 @@
         <div class="flex flex-column gap-4px">
           <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">Name</span>
           <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" padding-class="py-8px px-10px" :focus-ring="false" v-if="canRenameSelected"
-           
             v-model.trim="renameDraft"
-           
             placeholder="Unknown"
             @keyup.enter="saveSelectedName"
             @blur="saveSelectedName" class="fw-500 text-13px focus-outline-none focus-ring focus-bg-primary focus-shadow" />
@@ -607,13 +571,11 @@
 
       <div class="flex flex-column gap-8px">
         <UiButton variant="primary" v-if="!isDirEntry(selectedFile)"
-         
           @click="downloadFile(selectedFile)">
           <Download :size="16" />
           Download
         </UiButton>
         <UiButton variant="secondary" v-if="!isDirEntry(selectedFile) && isVideoFile(selectedFile.name)"
-         
           :disabled="converting || uploading"
           @click="convertSelectedToHls"
           title="Convert to HLS (creates a new CID)">
@@ -631,74 +593,18 @@
       </div>
     </aside>
 
-    <!-- Drop Overlay
-    <div v-if="isDragging" class="drivepage-drop-overlay flex-align-justify-center fixed inset-0 z-100 bg-black-a80">
-      <div class="drivepage-drop-content text-center color-white">
-        <Upload :size="48" />
-        <p class="text-15px line-height-12 txt-weight-strong mt-4px">
-          Drop files to upload
-        </p>
-      </div>
-    </div> -->
-
-    <!-- ####### lumen://drive UPLOAD PATH MODAL (fallback for environments without a working file picker) ####### -->
-    <UiModal :model-value="showUploadPathModal" :title="uploadPathMode === 'folder' ? 'Upload folder' : 'Upload files'" panel-class="w-full max-w-520px" @update:model-value="closeUploadPathModal">
-            <p class="color-text-secondary mb-24px text-14px">
-              Paste {{ uploadPathMode === "folder" ? "folder" : "file" }} path{{
-                uploadPathMode === "folder" ? "" : "s"
-              }}
-              (one per line).
-            </p>
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" padding-class="p-12px" :focus-ring="false" v-model="uploadPathText"
-             
-              rows="5"
-              :placeholder="
-                uploadPathMode === 'folder'
-                  ? '/root/my-folder'
-                  : '/root/my-file.txt'
-              " class="mono resize-vertical focus-ring focus-outline-none focus-shadow"></UiInput>
-
-            <template #footer>
-              <UiButton variant="secondary" type="button"
-                @click="closeUploadPathModal"
-                :disabled="uploadPathBusy" class="disabled-fade-50">
-                Cancel
-              </UiButton>
-              <UiButton variant="primary" type="button"
-                :disabled="uploadPathBusy" class="">
-                <UiSpinner v-if="uploadPathBusy" size="sm" />
-                <span>{{ uploadPathBusy ? "Uploading..." : "Upload" }}</span>
-              </UiButton>
-            </template>
-    </UiModal>
-
     <!-- ####### lumen://drive LOCAL DETAILS MODAL ####### -->
     <UiModal :model-value="showLocalDetails" title="Local drive" panel-class="w-full max-w-520px" @update:model-value="closeLocalDetails">
 
             <div class="flex flex-column">
-              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                <span class="color-text-secondary text-14px">Status</span>
-                <span
-                  class="color-text-primary text-15px fw-500"
-                  :class="ipfsConnected ? 'color-success' : 'color-error'"
-                >
+              <UiDetailRow variant="modal" label="Status">
+                <span class="color-text-primary text-15px fw-500" :class="ipfsConnected ? 'color-success' : 'color-error'">
                   {{ ipfsConnected ? "Online" : "Offline" }}
                 </span>
-              </div>
-              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none" v-if="stats">
-                <span class="color-text-secondary text-14px">Used</span>
-                <span class="color-text-primary text-15px fw-500">{{
-                  formatSize(stats.repoSize)
-                }}</span>
-              </div>
-              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                <span class="color-text-secondary text-14px">Saved items</span>
-                <span class="color-text-primary text-15px fw-500">{{ localSavedCount }}</span>
-              </div>
-              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                <span class="color-text-secondary text-14px">Pinned locally</span>
-                <span class="color-text-primary text-15px fw-500">{{ pinnedFiles.length }}</span>
-              </div>
+              </UiDetailRow>
+              <UiDetailRow v-if="stats" variant="modal" label="Used" :value="formatSize(stats.repoSize)" />
+              <UiDetailRow variant="modal" label="Saved items" :value="localSavedCount" />
+              <UiDetailRow variant="modal" label="Pinned locally" :value="pinnedFiles.length" />
             </div>
 
             <div class="mt-24px">
@@ -719,29 +625,19 @@
               </div>
 
               <div class="flex flex-column">
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                  <span class="color-text-secondary text-14px">Last export</span>
-                  <span class="color-text-primary text-15px fw-500">{{
-                    driveBackupLastExportAt ? formatDate(driveBackupLastExportAt) : "—"
-                  }}</span>
-                </div>
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                  <span class="color-text-secondary text-14px">Last import</span>
-                  <span class="color-text-primary text-15px fw-500">{{
-                    driveBackupLastImportAt ? formatDate(driveBackupLastImportAt) : "—"
-                  }}</span>
-                </div>
+                <UiDetailRow variant="modal" label="Last export" :value="driveBackupLastExportAt ? formatDate(driveBackupLastExportAt) : '—'" />
+                <UiDetailRow variant="modal" label="Last import" :value="driveBackupLastImportAt ? formatDate(driveBackupLastImportAt) : '—'" />
               </div>
 
               <div class="mt-12px flex-wrap-wrap flex-inline-align-center gap-6px">
                 <UiButton variant="secondary" type="button"
                   :disabled="driveBackupBusy"
-                  @click="openDriveBackupExportModal" class="">
+                  @click="openDriveBackupExportModal">
                   Export snapshot
                 </UiButton>
                 <UiButton variant="secondary" type="button"
                   :disabled="driveBackupBusy"
-                  @click="triggerImportDriveBackup" class="">
+                  @click="triggerImportDriveBackup">
                   Import snapshot
                 </UiButton>
                 <input
@@ -790,7 +686,7 @@
                 If you lose the password, this backup cannot be recovered.
               </p>
 
-              <div v-if="driveBackupError" class="mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
+              <div v-if="driveBackupError" class="mt-12px flex flex-column border-radius-12px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                 <div class="text-14px txt-weight-light color-text-primary">Backup failed</div>
                 <div class="color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -808,7 +704,7 @@
                   driveBackupExportPassword.length < 8 ||
                   driveBackupExportPassword !== driveBackupExportPasswordConfirm
                 "
-                @click="confirmDriveBackupExport" class="">
+                @click="confirmDriveBackupExport">
                 <UiSpinner v-if="driveBackupBusy" size="sm" />
                 <span>{{ driveBackupBusy ? "Exporting..." : "Export" }}</span>
               </UiButton>
@@ -823,10 +719,7 @@
             </p>
 
             <div v-if="driveBackupImportFilename" class="flex flex-column">
-              <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                <span class="color-text-secondary text-14px">File</span>
-                <span class="color-text-primary text-15px fw-500">{{ driveBackupImportFilename }}</span>
-              </div>
+              <UiDetailRow variant="modal" label="File" :value="driveBackupImportFilename" />
             </div>
 
             <div
@@ -846,7 +739,7 @@
 
               <UiCheckbox v-model="driveBackupImportShowPassword" :disabled="driveBackupBusy">Show password</UiCheckbox>
 
-              <div v-if="driveBackupError" class="mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
+              <div v-if="driveBackupError" class="mt-12px flex flex-column border-radius-12px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                 <div class="text-14px txt-weight-light color-text-primary">Import failed</div>
                 <div class="color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -854,33 +747,15 @@
 
             <template v-else>
               <div class="flex flex-column mt-16px">
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                  <span class="color-text-secondary text-14px">Wallet</span>
-                  <span class="color-text-primary text-15px fw-500 mono">{{
-                    driveBackupRestoreDetails.walletAddress || "—"
-                  }}</span>
-                </div>
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                  <span class="color-text-secondary text-14px">Created</span>
-                  <span class="color-text-primary text-15px fw-500">{{
-                    driveBackupRestoreDetails.createdAt
-                      ? formatDate(driveBackupRestoreDetails.createdAt)
-                      : "—"
-                  }}</span>
-                </div>
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                  <span class="color-text-secondary text-14px">Saved items</span>
-                  <span class="color-text-primary text-15px fw-500">{{ driveBackupRestoreDetails.filesCount }}</span>
-                </div>
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                  <span class="color-text-secondary text-14px">Favourites</span>
-                  <span class="color-text-primary text-15px fw-500">{{ driveBackupRestoreDetails.favCount }}</span>
-                </div>
+                <UiDetailRow variant="modal" label="Wallet" value-class="color-text-primary text-15px fw-500 mono" :value="driveBackupRestoreDetails.walletAddress || '—'" />
+                <UiDetailRow variant="modal" label="Created" :value="driveBackupRestoreDetails.createdAt ? formatDate(driveBackupRestoreDetails.createdAt) : '—'" />
+                <UiDetailRow variant="modal" label="Saved items" :value="driveBackupRestoreDetails.filesCount" />
+                <UiDetailRow variant="modal" label="Favourites" :value="driveBackupRestoreDetails.favCount" />
               </div>
 
               <div
                 v-if="driveBackupRestoreDetails.walletMismatch"
-                class="mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08"
+                class="mt-16px flex flex-column border-radius-12px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08"
               >
                 <div class="text-14px txt-weight-light color-text-primary">Different wallet</div>
                 <div class="color-text-secondary text-13px">
@@ -889,7 +764,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupRestoreDetails.rollback" class="mt-16px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
+              <div v-if="driveBackupRestoreDetails.rollback" class="mt-16px flex flex-column border-radius-12px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                 <div class="text-14px txt-weight-light color-text-primary">Older snapshot</div>
                 <div class="color-text-secondary text-13px">
                   This snapshot looks older than your current local version (seq
@@ -897,7 +772,7 @@
                 </div>
               </div>
 
-              <div v-if="driveBackupError" class="mt-12px flex flex-column border-radius-12px mt-8px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
+              <div v-if="driveBackupError" class="mt-12px flex flex-column border-radius-12px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
                 <div class="text-14px txt-weight-light color-text-primary">Import failed</div>
                 <div class="color-text-secondary text-13px">{{ driveBackupError }}</div>
               </div>
@@ -915,7 +790,7 @@
                   (!driveBackupRestoreDetails &&
                     (!driveBackupImportPassword || driveBackupImportPassword.length < 8))
                 "
-                @click="driveBackupRestoreDetails ? confirmDriveBackupRestore() : decryptDriveBackupImport()" class="">
+                @click="driveBackupRestoreDetails ? confirmDriveBackupRestore() : decryptDriveBackupImport()">
                 <UiSpinner v-if="driveBackupBusy" size="sm" />
                 <span>{{
                   driveBackupBusy
@@ -936,31 +811,13 @@
 
             <template v-else>
               <div class="flex flex-column">
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                  <span class="color-text-secondary text-14px">Gateway</span>
-                  <span class="color-text-primary text-15px fw-500">{{
-                    gatewayDetailsGatewayLabel
-                  }}</span>
-                </div>
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none" v-if="false">
-                  <span class="color-text-secondary text-14px">Base URL</span>
-                  <span class="color-text-primary text-15px fw-500 mono">{{ gatewayBase || "-" }}</span>
-                </div>
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                  <span class="color-text-secondary text-14px">Status</span>
-                  <span
-                    class="color-text-primary text-15px fw-500"
-                    :class="gatewayDetailsStatusClass"
-                  >
+                <UiDetailRow variant="modal" label="Gateway" :value="gatewayDetailsGatewayLabel" />
+                <UiDetailRow variant="modal" label="Status">
+                  <span class="color-text-primary text-15px fw-500" :class="gatewayDetailsStatusClass">
                     {{ gatewayDetailsStatusLabel }}
                   </span>
-                </div>
-                <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                  <span class="color-text-secondary text-14px">Saved</span>
-                  <span class="color-text-primary text-15px fw-500">
-                    {{ gatewayDetailsPinned.length }}
-                  </span>
-                </div>
+                </UiDetailRow>
+                <UiDetailRow variant="modal" label="Saved" :value="gatewayDetailsPinned.length" />
               </div>
 
               <div class="mt-24px">
@@ -976,7 +833,7 @@
                     Unlock your Lumen identity to fetch usage from this cloud.
                   </div>
                   <UiButton variant="secondary" type="button"
-                    @click="requestUnlock" class="">
+                    @click="requestUnlock">
                     Unlock
                   </UiButton>
                 </div>
@@ -984,48 +841,26 @@
                   {{ gatewayDetailsUsageError }}
                 </div>
                 <div v-else-if="gatewayDetailsUsage" class="flex flex-column">
-                  <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                    <span class="color-text-secondary text-14px">Quota</span>
-                    <span class="color-text-primary text-15px fw-500">
-                      {{
-                        gatewayDetailsUsage.plan?.quota_bytes_total != null ||
-                        gatewayDetailsUsage.plan?.quotaBytesTotal != null
-                          ? formatSize(
-                              (gatewayDetailsUsage.plan.quota_bytes_total ??
-                                gatewayDetailsUsage.plan.quotaBytesTotal) as number,
-                            )
-                          : "-"
-                      }}
-                    </span>
-                  </div>
-                  <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                    <span class="color-text-secondary text-14px">Used</span>
-                    <span class="color-text-primary text-15px fw-500">
-                      {{
-                        gatewayDetailsUsage.plan?.quota_bytes_used != null ||
-                        gatewayDetailsUsage.plan?.quotaBytesUsed != null
-                          ? formatSize(
-                              (gatewayDetailsUsage.plan.quota_bytes_used ??
-                                gatewayDetailsUsage.plan.quotaBytesUsed) as number,
-                            )
-                          : "-"
-                      }}
-                    </span>
-                  </div>
-                  <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                    <span class="color-text-secondary text-14px">Bandwidth</span>
-                    <span class="color-text-primary text-15px fw-500">{{
-                      gatewayDetailsBandwidthUsed
-                    }}</span>
-                  </div>
-                  <div class="flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none">
-                    <span class="color-text-secondary text-14px">Roots</span>
-                    <span class="color-text-primary text-15px fw-500">{{
-                      gatewayDetailsUsage.usage?.roots_total ??
-                      gatewayDetailsUsage.usage?.rootsTotal ??
-                      "-"
-                    }}</span>
-                  </div>
+                  <UiDetailRow variant="modal" label="Quota" :value="
+                      gatewayDetailsUsage.plan?.quota_bytes_total != null ||
+                      gatewayDetailsUsage.plan?.quotaBytesTotal != null
+                        ? formatSize(
+                            (gatewayDetailsUsage.plan.quota_bytes_total ??
+                              gatewayDetailsUsage.plan.quotaBytesTotal) as number,
+                          )
+                        : '-'
+                    " />
+                  <UiDetailRow variant="modal" label="Used" :value="
+                      gatewayDetailsUsage.plan?.quota_bytes_used != null ||
+                      gatewayDetailsUsage.plan?.quotaBytesUsed != null
+                        ? formatSize(
+                            (gatewayDetailsUsage.plan.quota_bytes_used ??
+                              gatewayDetailsUsage.plan.quotaBytesUsed) as number,
+                          )
+                        : '-'
+                    " />
+                  <UiDetailRow variant="modal" label="Bandwidth" :value="gatewayDetailsBandwidthUsed" />
+                  <UiDetailRow variant="modal" label="Roots" :value="gatewayDetailsUsage.usage?.roots_total ?? gatewayDetailsUsage.usage?.rootsTotal ?? '-'" />
                 </div>
               </div>
             </template>
@@ -1037,65 +872,15 @@
 
             <UiLoadingBlock v-if="plansLoading" wrapper-class="flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-220px" spinner-class="" />
 
-            <div v-else-if="plansError" class="">
+            <div v-else-if="plansError">
               <p>{{ plansError }}</p>
             </div>
 
-            <div v-else-if="!plans.length" class="">
+            <div v-else-if="!plans.length">
               <p>No plans available at the moment.</p>
             </div>
 
             <div v-else class="flex flex-column flex-wrap-wrap gap-12px">
-              <div v-if="false">
-                <div v-for="plan in plans" :key="plan.id" class="basis-full flex flex-column gap-8px p-16px border-radius-12px border-1 bg-secondary mb-8px">
-                  <div class="flex flex-column flex-1 gap-6px">
-                    <div class="flex-align-center-justify-space-between gap-8px">
-                      <span class="txt-weight-light color-text-primary text-15px">{{ planDisplayName(plan) }}</span>
-                      <span
-                        class="border-radius-full txt-weight-light color-text-secondary text-11px bg-primary border-1 py-2px px-10px"
-                        :class="planStatusBadgeClass(plan)"
-                      >
-                        {{ planStatusLabel(plan) }}
-                      </span>
-                    </div>
-                    <div class="color-text-secondary text-13px">
-                      {{ plan.gatewayName }}
-                      <template v-if="plan.gatewayEndpoint">
-                        · {{ plan.gatewayEndpoint }}
-                      </template>
-                    </div>
-                  </div>
-                  <div class="flex flex-column gap-4px min-w-170px">
-                    <div class="flex-justify-space-between text-12px">
-                      <span class="color-text-secondary">Storage</span>
-                      <span class="fw-500 color-text-primary">
-                        {{
-                          plan.storageGbPerMonth
-                            ? `${plan.storageGbPerMonth} GB / month`
-                            : "Not specified"
-                        }}
-                      </span>
-                    </div>
-                    <div class="flex-justify-space-between text-12px">
-                      <span class="color-text-secondary">Egress</span>
-                      <span class="fw-500 color-text-primary">
-                        {{
-                          plan.networkGbPerMonth
-                            ? `${plan.networkGbPerMonth} GB / month`
-                            : "Fair usage"
-                        }}
-                      </span>
-                    </div>
-                    <div class="flex-justify-space-between text-12px">
-                      <span class="color-text-secondary">Price</span>
-                      <span class="fw-500 color-text-primary">
-                        {{ formatPlanPrice(plan.priceUlmn) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
                <!-- Filters -->
                <div class="flex-align-center-justify-space-between flex-column gap-12px mt-12px mb-8px pb-8px border-bottom-1">
                  <div class="flex-align-center-justify-space-between gap-12px w-full flex-wrap-nowrap">
@@ -1106,7 +891,7 @@
                          v-model.trim="planFilter"
                          type="search"
                          placeholder="Search gateways or plans"
-                         class="outline-none color-text-primary h-full border-1 text-14px bg-secondary border-none bg-transparent py-12px px-16px focus-outline-none focus-border-primary focus-bg-primary focus-ring focus-shadow min-w-140px"
+                         class="outline-none color-text-primary h-full text-14px bg-secondary border-none bg-transparent py-12px px-16px focus-outline-none focus-border-primary focus-bg-primary focus-ring focus-shadow min-w-140px"
                          @keydown.stop
                          aria-label="Search gateways"
                        />
@@ -1146,15 +931,15 @@
                  <template #actions>
                    <UiButton variant="secondary" v-if="planFilter"
                      type="button"
-                     @click="planFilter = ''" class="">
+                     @click="planFilter = ''">
                      Clear search
                    </UiButton>
                    <UiButton variant="secondary" v-if="hasPlanFilters"
                      type="button"
-                     @click="resetPlanFilters" class="">
+                     @click="resetPlanFilters">
                      Reset filters
                    </UiButton>
-                   <UiButton variant="secondary" type="button" @click="openPlansModal" class="">
+                   <UiButton variant="secondary" type="button" @click="openPlansModal">
                      Reload
                    </UiButton>
                  </template>
@@ -1203,7 +988,6 @@
                         </UiTag>
                       </span>
                       <UiButton variant="secondary" type="button"
-                       
                         @click.stop="toggleGatewayExpanded(group.gateway.id)">
                         {{
                           isGatewayExpanded(group.gateway.id)
@@ -1217,7 +1001,6 @@
                   <div class="flex flex-column gap-12px pt-12px border-top-1">
                     <div
                       v-if="isGatewayExpanded(group.gateway.id)"
-                      class=""
                     >
                       <div
                         v-for="plan in group.plans"
@@ -1268,7 +1051,6 @@
                         <div class="flex-justify-end mt-4px">
                           <UiButton variant="secondary" v-if="planStatus(plan) === 'none'"
                             type="button"
-                           
                             @click.stop="openSubscribeModal(plan)">
                             {{ planStatusLabel(plan) }}
                           </UiButton>
@@ -1297,13 +1079,11 @@
                </div>
                <div class="flex-align-justify-center flex-wrap-wrap gap-6px">
                  <UiButton variant="secondary" type="button"
-                  
                    :disabled="planPage === 1"
                    @click="planPage = 1" class="disabled-fade-50">
                    ⟪
                  </UiButton>
                  <UiButton variant="secondary" type="button"
-                  
                    :disabled="planPage === 1"
                    @click="planPage--" class="disabled-fade-50">
                    Prev
@@ -1312,13 +1092,11 @@
                    Page {{ planPage }} / {{ planTotalPages || 1 }}
                  </span>
                  <UiButton variant="secondary" type="button"
-                  
                    :disabled="planPage === planTotalPages"
                    @click="planPage++" class="disabled-fade-50">
                    Next
                  </UiButton>
                  <UiButton variant="secondary" type="button"
-                  
                    :disabled="planPage === planTotalPages"
                    @click="planPage = planTotalPages" class="disabled-fade-50">
                    ⟫
@@ -1346,7 +1124,7 @@
               Review the plan details and confirm your subscription.
             </p>
 
-            <div class="" v-if="subscribePlan">
+            <div v-if="subscribePlan">
               <div class="flex-justify-space-between text-12px">
                 <span class="color-text-secondary">Gateway</span>
                 <span class="fw-500 color-text-primary">
@@ -1424,7 +1202,7 @@
               </p>
             </div>
 
-            <div v-if="subscribeError" class="text-11px line-height-12 mt-4px color-error mt-16px">
+            <div v-if="subscribeError" class="text-11px line-height-12 color-error mt-16px">
               {{ subscribeError }}
             </div>
 
@@ -1442,7 +1220,7 @@
                 @click="confirmSubscribe"
                 :disabled="
                   subscribeBusy || hasInsufficientFunds || !subscribePlan
-                " class="">
+                ">
                 <UiSpinner v-if="subscribeBusy" size="sm" />
                 <span>{{ subscribeBusy ? "Submitting..." : "Confirm" }}</span>
               </UiButton>
@@ -1506,14 +1284,18 @@ import {
   File,
   Pause,
   Play,
-  LayoutGrid,
-  List,
   TableProperties,
   MapPin,
+  AlertTriangle,
+  ChevronsLeft,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsRight,
 } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import UiLoadingBlock from "../../ui/UiLoadingBlock.vue";
 import UiCheckbox from "../../ui/UiCheckbox.vue";
+import UiDetailRow from "../../ui/UiDetailRow.vue";
 import UiModal from "../../ui/UiModal.vue";
 import UiFormGroup from "../../ui/UiFormGroup.vue";
 import UiCountPill from "../../ui/UiCountPill.vue";
@@ -1526,11 +1308,6 @@ import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
 } from "../services/contentResolver";
-import {
-  appSettingsState,
-  type IpfsConnectivityMode,
-  setAppSettings,
-} from "../services/appSettings";
 import { profilesState, activeProfileId } from "../profilesStore";
 import {
   useFavourites,
@@ -1576,7 +1353,6 @@ interface IpfsStats {
 type HostingKind = "local" | "gateway";
 type HostingState = { kind: HostingKind; gatewayId: string };
 
-
 const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);
 const localPinnedLoading = ref(false);
@@ -1592,7 +1368,6 @@ const currentPage = ref(1);
 const itemsPerPage = ref(20);
 
 const uploading = ref(false);
-
 
 const converting = ref(false);
 const convertingFile = ref("");
@@ -1628,24 +1403,9 @@ const archiveDownloadPercent = ref<number | null>(null);
 const archiveDownloadBytesProcessed = ref<number | null>(null);
 const archiveDownloadTotalBytes = ref<number | null>(null);
 const archiveDownloadCanceling = ref(false);
-const isDragging = ref(false);
 const showUploadMenu = ref(false);
-const showUploadPathModal = ref(false);
-const uploadPathMode = ref<"files" | "folder">("files");
-const uploadPathText = ref("");
-const uploadPathBusy = ref(false);
-
-
-
-
-const publicGatewayPropagationFailed = computed(() =>
-  Math.max(
-    0,
-  ),
-);
 
 const toastApi = useToast();
-
 
 const convertingStatusLabel = computed(() => {
   if (convertingPauseRequested.value) return "Pausing…";
@@ -1731,10 +1491,6 @@ const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
 const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
 const HLS_QUEUE_KEY_PREFIX = "lumen:drive:hlsQueue:v1";
 
-const TEMP_LIGHT_MODE_IPFS_READY_TIMEOUT_MS = 20_000;
-const TEMP_LIGHT_MODE_IPFS_READY_POLL_MS = 400;
-
-
 function filesStorageKey(profileId: string): string {
   const pid = String(profileId || "").trim();
   return pid ? `${STORAGE_KEY_PREFIX}:${pid}` : `${STORAGE_KEY_PREFIX}:guest`;
@@ -1757,8 +1513,6 @@ const imagePreviewInFlight = new Set<string>();
 const videoThumbReady = ref<Record<string, true>>({});
 
 // Gateway / PQC usage (DrivePanel-style)
-const gatewayUsage = ref<any | null>(null);
-const gatewayUsageError = ref("");
 const gatewayDetailsLoading = ref(false);
 const gatewayPinned = ref<string[]>([]);
 const gatewayPinnedNames = ref<Record<string, string>>({});
@@ -1770,7 +1524,6 @@ const gatewayDetailsUsage = ref<any | null>(null);
 const gatewayDetailsUsageError = ref("");
 const gatewayDetailsPinned = ref<string[]>([]);
 const gatewayDetailsPinnedError = ref("");
-const gatewayBase = ref<string | null>(null);
 const optimisticGatewayPinned = ref<Record<string, Record<string, number>>>({});
 const OPTIMISTIC_GATEWAY_PIN_TTL_MS = 2 * 60 * 1000;
 
@@ -2676,10 +2429,6 @@ watch(
   { immediate: true },
 );
 
-
-
-
-
 const gatewayDetailsSubscriptionRow = computed(() => {
   const gid = String(gatewayDetailsGatewayId.value || "").trim();
   if (!gid) return null;
@@ -2703,7 +2452,6 @@ const gatewayDetailsStatusClass = computed(() => {
       ? "pending"
       : "color-error";
 });
-
 
 const gatewayDetailsBandwidthUsed = computed(() => {
   const u = gatewayDetailsUsage.value?.usage || {};
@@ -2774,8 +2522,6 @@ let driveUpdateHandler: ((ev: any) => void) | null = null;
 let hlsProgressUnsub: (() => void) | null = null;
 let hlsArchiveProgressUnsub: (() => void) | null = null;
 let ipfsAddProgressUnsub: (() => void) | null = null;
-let gatewayIngestProgressUnsub: (() => void) | null = null;
-let publicGatewayPropagationUnsub: (() => void) | null = null;
 let hlsQueueProcessing = false;
 
 function readUrlBarUrl(): string {
@@ -2856,6 +2602,7 @@ onMounted(async () => {
 
   void refreshGatewayOverview();
   startSubscribedGatewayHealthPolling();
+  startUploadActivitiesPolling();
 
   try {
       hlsProgressUnsub = lumen_api.driveOnHlsProgress((payload: any) => {
@@ -2898,7 +2645,6 @@ onMounted(async () => {
       });
   } catch {}
 
-
   try {
       hlsArchiveProgressUnsub = lumen_api.driveOnHlsArchiveProgress((payload: any) => {
         const stage = String(payload?.stage || "");
@@ -2925,32 +2671,6 @@ onMounted(async () => {
           typeof totalBytes === "number" && Number.isFinite(totalBytes)
             ? Math.max(0, Math.round(totalBytes))
             : null;
-      });
-  } catch {}
-
-  try {
-      publicGatewayPropagationUnsub = lumen_api.ipfsOnPublicGatewayPropagationProgress(
-        (payload: any) => {
-          if (!uploading.value) return;
-
-          const stage = String(payload?.stage || "");
-          if (
-            stage === "fetching-list" ||
-            stage === "probing" ||
-            stage === "propagating" ||
-            stage === "done" ||
-            stage === "cancelled"
-          ) {
-          }
-
-        },
-      );
-  } catch {}
-
-  try {
-      gatewayIngestProgressUnsub = lumen_api.gateway.onIngestProgress((payload: any) => {
-        if (!uploading.value) return;
-
       });
   } catch {}
 
@@ -3015,26 +2735,26 @@ onMounted(async () => {
   } catch {}
 
   startUrlBarSync();
-  document.addEventListener("dragover", handleDragOver);
-  document.addEventListener("dragleave", handleDragLeave);
-  document.addEventListener("drop", handleDrop);
   document.addEventListener("click", handleDocumentClick);
 });
 
 onActivated(() => {
   startUrlBarSync();
   startSubscribedGatewayHealthPolling();
+  startUploadActivitiesPolling();
   void syncBrowseFromUrl(readInjectedTabUrl() || readUrlBarUrl());
 });
 
 onDeactivated(() => {
   stopUrlBarSync();
   stopSubscribedGatewayHealthPolling();
+  stopUploadActivitiesPolling();
 });
 
 onUnmounted(() => {
   stopUrlBarSync();
   stopSubscribedGatewayHealthPolling();
+  stopUploadActivitiesPolling();
   try {
     hlsProgressUnsub?.();
   } catch {
@@ -3053,18 +2773,6 @@ onUnmounted(() => {
     // ignore
   }
   ipfsAddProgressUnsub = null;
-  try {
-    gatewayIngestProgressUnsub?.();
-  } catch {
-    // ignore
-  }
-  gatewayIngestProgressUnsub = null;
-  try {
-    publicGatewayPropagationUnsub?.();
-  } catch {
-    // ignore
-  }
-  publicGatewayPropagationUnsub = null;
   try {
     if (tabUrlChangedHandler)
       window.removeEventListener(
@@ -3089,9 +2797,6 @@ onUnmounted(() => {
       );
   } catch {}
   driveUpdateHandler = null;
-  document.removeEventListener("dragover", handleDragOver);
-  document.removeEventListener("dragleave", handleDragLeave);
-  document.removeEventListener("drop", handleDrop);
   document.removeEventListener("click", handleDocumentClick);
 
   for (const url of Object.values(imagePreviewUrls.value)) {
@@ -3106,17 +2811,6 @@ onUnmounted(() => {
   imagePreviewUrls.value = {};
   imagePreviewTried.value = {};
 });
-
-function handleDragOver(e: DragEvent) {
-  e.preventDefault();
-  isDragging.value = true;
-}
-
-function handleDragLeave(e: DragEvent) {
-  if (e.relatedTarget === null) {
-    isDragging.value = false;
-  }
-}
 
 function handleDocumentClick() {
   showUploadMenu.value = false;
@@ -3139,29 +2833,26 @@ async function openFolderPicker() {
 }
 
 const uploadActivitiesComputed = ref<any>();
-let counter = 0;
-setInterval(() => {
-    uploadActivitiesComputed.value = {...uploadActivities};
-    if(counter != Object.keys(uploadActivitiesComputed.value).length)
-      loadFiles();
-    if(Object.keys(uploadActivitiesComputed.value).length <= 0)
-      uploading.value = false;
-    counter = Object.keys(uploadActivitiesComputed.value).length
-}, 500);
+let uploadActivitiesPollCounter = 0;
+let uploadActivitiesPollTimer: number | null = null;
 
-
-
-
-function closeUploadPathModal() {
-  if (uploadPathBusy.value) return;
-  showUploadPathModal.value = false;
-  uploadPathText.value = "";
+function pollUploadActivities(): void {
+  uploadActivitiesComputed.value = { ...uploadActivities };
+  const activeCount = Object.keys(uploadActivitiesComputed.value).length;
+  if (uploadActivitiesPollCounter !== activeCount) loadFiles();
+  if (activeCount <= 0) uploading.value = false;
+  uploadActivitiesPollCounter = activeCount;
 }
 
+function startUploadActivitiesPolling(): void {
+  if (uploadActivitiesPollTimer != null) return;
+  uploadActivitiesPollTimer = window.setInterval(pollUploadActivities, 500);
+}
 
-
-async function handleDrop(e: DragEvent) {
-
+function stopUploadActivitiesPolling(): void {
+  if (uploadActivitiesPollTimer == null) return;
+  window.clearInterval(uploadActivitiesPollTimer);
+  uploadActivitiesPollTimer = null;
 }
 
 async function checkIpfsStatus() {
@@ -3173,14 +2864,12 @@ async function checkIpfsStatus() {
   }
 }
 
-
 function selectHosting(kind: HostingKind) {
   if (kind === hosting.value.kind) return;
   if (kind === "gateway") return;
   exitBrowseSilent();
   currentPage.value = 1;
   hosting.value = { kind, gatewayId: "" };
-  gatewayBase.value = null;
   void checkIpfsStatus();
   void loadStats();
   void loadPinnedFiles();
@@ -3223,7 +2912,6 @@ function closeGatewayDetails() {
   gatewayDetailsPinnedError.value = "";
   gatewayDetailsLoading.value = false;
 }
-
 
 async function getActiveProfileId(): Promise<string | null> {
   try {
@@ -3400,33 +3088,6 @@ async function refreshGatewayOverview() {
     }));
   } catch {
     // ignore background refresh errors
-  }
-}
-
-async function refreshGatewayBase(baseUrlHint?: string) {
-  try {
-    if (!gateway_lumen_api.getBaseUrl) return;
-
-    const profileId = await getActiveProfileId()
-    if (!profileId) return;
-
-    const res = await gateway_lumen_api
-      .getBaseUrl(profileId, baseUrlHint)
-      .catch(() => null);
-    if (!res || res.ok === false) {
-      const code = String(res?.error || "").trim();
-      if (code === "password_required" || code === "invalid_password") {
-        try {
-          await lumen_api?.security?.lockSession?.();
-        } catch {}
-      }
-      gatewayBase.value = null;
-      return;
-    }
-    gatewayBase.value =
-      typeof res.baseUrl === "string" ? String(res.baseUrl) : null;
-  } catch {
-    gatewayBase.value = null;
   }
 }
 
@@ -3928,7 +3589,7 @@ function saveFiles() {
     if (!key) return;
     localStorage.setItem(key, JSON.stringify(files.value));
     nextDriveBackupSeq(pid);
-  } catch (err){
+  } catch {
     // ignore
   }
 }
@@ -4568,81 +4229,6 @@ function setSavedName(cid: string, name: string) {
   saveLocalNames();
 }
 
-
-function delay(ms: number) {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
-
-async function waitForIpfsConnected(
-  timeoutMs = TEMP_LIGHT_MODE_IPFS_READY_TIMEOUT_MS,
-): Promise<boolean> {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    await checkIpfsStatus();
-    if (ipfsConnected.value) return true;
-    await delay(TEMP_LIGHT_MODE_IPFS_READY_POLL_MS);
-  }
-  await checkIpfsStatus();
-  return ipfsConnected.value;
-}
-
-async function restoreIpfsConnectivityMode(mode: IpfsConnectivityMode): Promise<void> {
-  const currentMode = appSettingsState.value.ipfsConnectivityMode;
-  if (currentMode === mode) return;
-
-  const restoreRes = await setAppSettings({ ipfsConnectivityMode: mode }).catch(
-    (e: any) => ({ ok: false, error: String(e?.message || e) }),
-  );
-  if (!restoreRes?.ok) {
-    console.warn("[drive] failed to restore IPFS connectivity mode:", restoreRes?.error);
-    showToast("Couldn't restore the previous IPFS network mode.", "error");
-    return;
-  }
-
-  const ready = await waitForIpfsConnected().catch(() => false);
-  if (!ready) {
-    console.warn("[drive] IPFS did not reconnect after restoring connectivity mode");
-    showToast("IPFS took too long to reconnect after the upload.", "error");
-  }
-}
-
-async function withTemporaryLocalUploadLightMode(task: () => Promise<void>): Promise<void> {
-  if (hosting.value.kind !== "local") {
-    await task();
-    return;
-  }
-
-  const originalMode = appSettingsState.value.ipfsConnectivityMode;
-  if (originalMode === "light") {
-    await task();
-    return;
-  }
-
-  const switchRes = await setAppSettings({ ipfsConnectivityMode: "light" }).catch(
-    (e: any) => ({ ok: false, error: String(e?.message || e) }),
-  );
-  if (!switchRes?.ok) {
-    console.warn("[drive] failed to switch IPFS connectivity mode to light:", switchRes?.error);
-    showToast("Couldn't switch IPFS to light mode. Upload will continue normally.", "error");
-    await task();
-    return;
-  }
-
-  const ready = await waitForIpfsConnected().catch(() => false);
-  if (!ready) {
-    console.warn("[drive] IPFS did not reconnect after switching to light mode");
-    showToast("IPFS restart timed out while preparing the upload.", "error");
-    await restoreIpfsConnectivityMode(originalMode);
-    return;
-  }
-
-  try {
-    await task();
-  } finally {
-    await restoreIpfsConnectivityMode(originalMode);
-  }
-}
-
 function normalizeStoredHlsQueueStatus(rawStatus: unknown): HlsQueueItemStatus {
   const status = String(rawStatus || "").trim().toLowerCase();
   if (status === "done") return "done";
@@ -4826,10 +4412,8 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
   addOptimisticGatewayPinnedCid(cid);
 
   await refreshActiveGatewayPinned();
-  await refreshGatewayBase(activeGatewayHint.value);
   return { ok: true as const };
 }
-
 
 function startConvertingState(fileName: string) {
   converting.value = true;
@@ -5274,24 +4858,6 @@ async function downloadFile(file: DriveFile) {
         await downloadHlsAsZip(file);
         showToast("Downloaded!", "success");
         return;
-
-      const root = String(file?.rootCid || file?.cid || "").trim();
-      const base = String(localIpfsGatewayBase() || "")
-        .replace(/\/+$/, "")
-        .trim();
-      if (!root || !base) {
-        showToast("Download failed", "error");
-        return;
-      }
-
-      const tarUrl = `${base}/ipfs/${root}?format=tar`;
-      const a = document.createElement("a");
-      a.href = tarUrl;
-      a.rel = "noopener";
-      a.download = `${stripExt(file.name) || file.name || root}.tar`;
-      a.click();
-      showToast("Download started.", "success");
-      return;
     }
 
     const target = contentTargetFor(file);
@@ -5324,7 +4890,6 @@ function lumenLinkFor(file: DriveFile): string {
     String((file as any)?.type || "") === "dir" && target === contentTargetFor(file);
   return `lumen://ipfs/${encoded}${isDir ? "/" : ""}`;
 }
-
 
 async function copyText(text: string) {
   try {
@@ -6106,7 +5671,6 @@ async function sniffContentType(url: string): Promise<string> {
       );
       ct = headerKey ? String(headers[headerKey] || "") : "";
 
-
     return String(ct || "").toLowerCase();
   } catch {
     return "";
@@ -6265,12 +5829,9 @@ async function reloadForActiveProfileChange() {
 
   // Reset per-profile gateway state.
   optimisticGatewayPinned.value = {};
-  gatewayUsage.value = null;
-  gatewayUsageError.value = "";
   gatewayPinned.value = [];
   gatewayPinnedNames.value = {};
   gatewayPinnedError.value = "";
-  gatewayBase.value = null;
 
   // Reload per-profile local state immediately (don't block on network/gateway calls).
   loadFiles();

@@ -3,25 +3,17 @@
   <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Domains" :icon="Globe" activeKey="domain">
-      <nav class="flex flex-column gap-6px mb-16px">
-        <button
-          type="button"
-          class="hover-fill-primary flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
-          :class="{ 'bg-hover color-text-primary': activeNameTab === 'lumen' }"
-          @click="activeNameTab = 'lumen'"
-        >
-          <Globe :size="16" />
-          <span>Lumen Domains</span>
-        </button>
-        <button
-          type="button"
-          class="hover-fill-primary flex-align-center w-full border-none border-radius-10px color-text-secondary text-14px cursor-pointer text-left gap-10px bg-transparent py-10px px-12px"
-          :class="{ 'bg-hover color-text-primary': activeNameTab === 'stable' }"
-          @click="activeNameTab = 'stable'"
-        >
-          <KeyRound :size="16" />
-          <span>Stable links</span>
-        </button>
+      <nav class="flex flex-column gap-12px mb-16px">
+        <UiSidebarNavSection>
+          <UiSidebarNavItem :active="activeNameTab === 'lumen'" @click="activeNameTab = 'lumen'">
+            <Globe :size="16" />
+            <span>Lumen Domains</span>
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="activeNameTab === 'stable'" @click="activeNameTab = 'stable'">
+            <KeyRound :size="16" />
+            <span>Stable links</span>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -51,17 +43,20 @@
       <UiCard v-if="activeNameTab === 'lumen'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
         <UiErrorState v-if="error" :message="error" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
         <UiLoadingBlock v-else-if="loading" message="Loading your domains..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
-        <div v-else-if="!domains.length" class="flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
-          <p class="txt-weight-light m-0px text-16px">Get your name on Lumen</p>
-          <p class="text-14px color-text-tertiary m-0px">
-            Register a new domain and open it as
-            <span class="mono">lumen://your-name.lmn</span>
-          </p>
-          <UiButton variant="primary" type="button" @click="openRegisterModal" class="outline-none">
-            <Plus :size="16" />
-            <span>Buy domain</span>
-          </UiButton>
-        </div>
+        <UiEmptyState v-else-if="!domains.length" title="Get your name on Lumen">
+          <template #description>
+            <p class="text-14px color-text-tertiary m-0px">
+              Register a new domain and open it as
+              <span class="mono">lumen://your-name.lmn</span>
+            </p>
+          </template>
+          <template #actions>
+            <UiButton variant="primary" type="button" @click="openRegisterModal" class="outline-none">
+              <Plus :size="16" />
+              <span>Buy domain</span>
+            </UiButton>
+          </template>
+        </UiEmptyState>
         <ul v-else class="flex flex-column gap-8px p-0px list-style-none m-0px mt-12px">
           <li v-for="d in domains" :key="d.name" class="flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary py-10px px-12px">
             <div class="flex flex-column gap-2px min-w-0">
@@ -70,7 +65,7 @@
             <div class="flex-align-center gap-6px">
               <span
                 v-if="d.expireAtSeconds"
-                class="border-radius-full fw-500 text-12px line-height-12 cursor-pointer text-11px py-4px px-10px"
+                class="border-radius-full fw-500 text-12px line-height-12 cursor-pointer py-4px px-10px"
                 :class="expiryClass(d)"
                 :title="prettyDate(d.expireAtSeconds * 1000)"
               >
@@ -104,16 +99,14 @@
       <UiCard v-else border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
         <UiLoadingBlock v-if="rawDomainsLoading" message="Loading stable links..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
         <UiErrorState v-else-if="rawDomainsError" :message="rawDomainsError" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
-        <div v-else-if="!rawDomains.length" class="flex flex-column flex-align-justify-center text-center gap-8px flex-inline-align-center gap-24px w-full relative z-1 py-32px px-24px">
-          <p class="txt-weight-light m-0px text-16px">Generate a stable link</p>
-          <p class="text-14px color-text-tertiary m-0px">
-            Stable links are cryptographic names backed by IPNS.
-          </p>
-          <UiButton variant="primary" type="button" @click="createStableLink" class="outline-none">
-            <Plus :size="16" />
-            <span>Generate</span>
-          </UiButton>
-        </div>
+        <UiEmptyState v-else-if="!rawDomains.length" title="Generate a stable link" description="Stable links are cryptographic names backed by IPNS.">
+          <template #actions>
+            <UiButton variant="primary" type="button" @click="createStableLink" class="outline-none">
+              <Plus :size="16" />
+              <span>Generate</span>
+            </UiButton>
+          </template>
+        </UiEmptyState>
         <ul v-else class="flex flex-column gap-8px p-0px list-style-none m-0px mt-12px">
           <li v-for="d in rawDomains" :key="d.name" class="flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary py-10px px-12px">
             <div class="flex flex-column gap-2px min-w-0">
@@ -181,8 +174,6 @@
               <div class="mb-16px">
                 <label class="color-text-secondary block mb-4px text-13px">Stable link name</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" v-model="stableLinkNameDraft"
-                 
-                 
                   autocomplete="off"
                   placeholder="my-link"
                   :disabled="stableLinkSaving"
@@ -227,12 +218,10 @@
                     :key="idx"
                   >
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                     
                       v-model="r.key"
                       placeholder="cid | ipns | site | ..."
                       :disabled="stableSettingsSaving" class="flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                     
                       v-model="r.value"
                       placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
                       :disabled="stableSettingsSaving" class="flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
@@ -271,14 +260,12 @@
                 <label class="color-text-secondary block mb-4px text-13px">Domain</label>
                 <div class="flex-align-center gap-6px">
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                   
                     v-model="registerForm.domainName"
                     placeholder="myname"
                     @input="sanitizeDomainInput"
                     @blur="refreshAvailability" class="flex-12 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                   <span class="txt-weight-light color-text-tertiary text-14px">.</span>
                   <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                   
                     v-model="registerForm.ext"
                     placeholder="lmn"
                     @blur="refreshAvailability" class="flex-08 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
@@ -298,7 +285,7 @@
               </div>
 
               <UiCard bg-class="bg-secondary" border-class="border-1" radius="10px" padding-class="py-8px px-12px" class="m-0px mt-8px mb-16px" :shadow="false">
-                <div class="mt-4px flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px pt-6px border-top-1 txt-weight-light">
+                <div class="mt-4px flex-align-center flex-justify-space-between color-text-primary text-13px px-0px pt-6px border-top-1 txt-weight-light">
                   <span>Total (1 year)</span>
                   <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
                 </div>
@@ -338,11 +325,9 @@
                     :key="idx"
                   >
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                     
                       v-model="r.key"
                       placeholder="cid | ipns | txt | ..." class="flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                     
                       v-model="r.value"
                       placeholder="Value" class="flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                     <UiButton variant="danger" type="button"
@@ -403,7 +388,6 @@
               <div class="mb-16px">
                 <label class="color-text-secondary block mb-4px text-13px">New Owner Address</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                 
                   v-model="transferForm.newOwner"
                   placeholder="lumen1..." class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                 <p class="text-12px color-text-tertiary mt-8px">Enter the Lumen address of the new owner</p>
@@ -446,7 +430,10 @@ import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiCard from '../../ui/UiCard.vue';
-import { computed, inject, ref, watch, watchEffect } from 'vue';
+import UiEmptyState from '../../ui/UiEmptyState.vue';
+import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
+import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import { computed, inject, ref, watch } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   Globe,
@@ -1132,10 +1119,6 @@ async function loadDomains() {
   }
 }
 
-function reloadDomains() {
-  void loadDomains();
-}
-
 function openDomain(d: DomainRow) {
   const url = `lumen://${d.name}`;
   openInNewTab?.(url);
@@ -1226,28 +1209,6 @@ async function refreshPrice() {
     registerPriceUlmn.value = null;
   }
 }
-
-const registrationFeeLabel = computed(() => {
-  if (!registerForm.value.domainName) return 'ƒ?"';
-  if (registerPriceUlmn.value == null) return '...';
-  const lmn = registerPriceUlmn.value / 1_000_000;
-  return `${lmn.toFixed(3)} LMN`;
-});
-
-const totalFeeLabel = computed(() => {
-  if (!registerForm.value.domainName) return 'ƒ?"';
-  const base =
-    registerPriceUlmn.value == null ? 0 : registerPriceUlmn.value / 1_000_000;
-  const gas = 0.0005;
-  return `${(base + gas).toFixed(3)} LMN`;
-});
-
-const dnsRegistrationFeeLabel = computed(() => {
-  if (!registerForm.value.domainName) return '…';
-  if (registerPriceUlmn.value == null) return '...';
-  const lmn = registerPriceUlmn.value / 1_000_000;
-  return `${lmn.toFixed(6)} LMN`;
-});
 
 const dnsTotalFeeLabel = computed(() => {
   if (!registerForm.value.domainName) return '…';

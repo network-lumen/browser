@@ -1,18 +1,16 @@
 <template>
   <!-- ####### lumen://ipfs IPFS / IPNS ####### -->
-  <div class="flex w-full h-full bg-primary" :class="{ 'bg-primary': isBareHtmlView }">
+  <div class="flex w-full h-full bg-primary">
     <main class="flex flex-column flex-1" :class="isBareHtmlView ? 'p-0px overflow-hidden' : 'p-24px overflow-auto'">
       <UiPageHeader v-if="!isBareHtmlView">
         <template #actions>
           <UiButton variant="primary" v-if="isDir && indexHtmlEntry"
-           
             type="button"
             @click="openIndexHtml"
             :disabled="!navigate" class="disabled-fade-50">
             <span>Open website</span>
           </UiButton>
           <UiButton variant="primary" v-if="isDir && masterM3u8Entry"
-           
             type="button"
             @click="openMasterHls"
             :disabled="!navigate"
@@ -76,7 +74,7 @@
           </div>
         </div>
 
-        <div v-else-if="isDir" class="">
+        <div v-else-if="isDir">
           <div class="flex-align-center flex-wrap-wrap gap-6px p-0px pt-8px pb-8px">
             <UiButton variant="primary" type="button"
               @click="openDirRoot"
@@ -115,11 +113,11 @@
               </div>
               <div class="flex-justify-end gap-8px">
                 <UiButton variant="primary" type="button"
-                  @click.stop="copyLinkFor(it)" class="">
+                  @click.stop="copyLinkFor(it)">
                   Copy link
                 </UiButton>
                 <UiButton variant="primary" type="button"
-                  @click.stop="openEntry(it)" class="">
+                  @click.stop="openEntry(it)">
                   Open
                 </UiButton>
               </div>
@@ -223,11 +221,9 @@
             <label class="text-14px txt-weight-light color-text-primary" for="save-name">Name</label>
             <UiInput radius-class="border-radius-12px" :focus-ring="false" id="save-name"
               v-model="saveNameDraft"
-             
-             
               :placeholder="saveNamePlaceholder"
               :disabled="savePreparing || saving"
-              @keydown.enter.prevent="confirmSaveToDrive" class="focus-ring focus-outline-none focus-shadow" />
+              @keydown.enter.prevent="confirmSaveToDrive" class="focus-shadow" />
 
             <div v-if="saveModalError" class="text-14px color-error mt-4px">
               {{ saveModalError }}
@@ -348,9 +344,6 @@ const docxContent = ref("");
 const mediaErrored = ref(false);
 const hlsError = ref("");
 const webviewLoading = ref(false);
- const htmlSrcdoc = ref("");
- const htmlFrameUrl = ref("");
- const siteFrame = ref<HTMLIFrameElement | null>(null);
  const siteWebview = ref<any>(null);
  const videoEl = ref<HTMLVideoElement | null>(null);
 let hlsInstance: any = null;
@@ -633,34 +626,6 @@ function encodePath(p: string): string {
     .filter((x) => x.length > 0)
     .map((s) => encodeURIComponent(s))
     .join("/");
-}
-
-let htmlFrameObjectUrl: string | null = null;
-function clearHtmlFrame() {
-  try {
-    if (htmlFrameObjectUrl) URL.revokeObjectURL(htmlFrameObjectUrl);
-  } catch {
-    // ignore
-  }
-  htmlFrameObjectUrl = null;
-  htmlFrameUrl.value = "";
-}
-
-function setHtmlFrameFromSrcdoc(srcdoc: string) {
-  const html = String(srcdoc || "");
-  if (!html) {
-    clearHtmlFrame();
-    return;
-  }
-  clearHtmlFrame();
-  try {
-    htmlFrameObjectUrl = URL.createObjectURL(
-      new Blob([html], { type: "text/html" }),
-    );
-    htmlFrameUrl.value = htmlFrameObjectUrl || "";
-  } catch {
-    clearHtmlFrame();
-  }
 }
 
 function splitPathSuffix(rawPath: string): { path: string; suffix: string } {
@@ -1126,7 +1091,6 @@ async function sniffViewKindFromHead(
       ct = headerKey ? String(headers[headerKey] || "") : "";
 
     ct = String(ct || "").toLowerCase();
-    console.log("[ipfs-page] sniffed content-type:", ct, "for", url);
     if (!ct) return "unknown";
     if (ct.startsWith("image/")) return "image";
     if (ct.startsWith("video/")) return "video";
@@ -1484,130 +1448,6 @@ async function ensureHlsPlaying(url: string) {
   } catch {}
 }
 
-function safeInjectIntoHead(html: string, inject: string): string {
-  const src = String(html || "");
-  const m = src.match(/<head\b[^>]*>/i);
-  if (m && m.index != null) {
-    const idx = m.index + m[0].length;
-    return src.slice(0, idx) + inject + src.slice(idx);
-  }
-  return inject + src;
-}
-
-function buildIpfsSiteSrcdoc(params: {
-  html: string;
-  proto: "ipfs" | "ipns";
-  cid: string;
-  relEncoded: string;
-  suffix: string;
-  baseHref: string;
-}): string {
-  const cid = String(params.cid || "").trim();
-  const proto = params.proto === "ipns" ? "ipns" : "ipfs";
-  const relEncoded = String(params.relEncoded || "").replace(/^\/+/, "");
-  const suffix = String(params.suffix || "");
-  const baseHref = String(params.baseHref || "");
-
-  const lumenPath = `lumen://${proto}/${cid}${relEncoded ? `/${relEncoded}` : ""}`;
-  const pseudoPath = `/${proto}/${cid}${relEncoded ? `/${relEncoded}` : ""}`;
-
-  const escapedBaseHref = baseHref.replace(/"/g, "&quot;");
-  const inject = `
-<base href="${escapedBaseHref}" />
-<script>
-(function(){
-  const LUMEN_PATH = ${JSON.stringify(lumenPath)};
-  const PSEUDO_PATH = ${JSON.stringify(pseudoPath)};
-  const BASE_HREF = ${JSON.stringify(baseHref)};
-
-  function post(msg){
-    try{ parent.postMessage(Object.assign({ __lumen_ipfs_site: true }, msg), '*') }catch{}
-  }
-
-  function applySuffix(suf){
-    try{
-      const s = (typeof suf === 'string' ? suf : '').trim()
-      const nextSuffix = (s && (s[0] === '?' || s[0] === '#')) ? s : ''
-      if (!nextSuffix) return
-      if (nextSuffix[0] === '#') {
-        if (location.hash !== nextSuffix) location.hash = nextSuffix
-        return
-      }
-      if ((location.search || '') + (location.hash || '') !== nextSuffix) {
-        history.replaceState(null, '', nextSuffix)
-      }
-    }catch{}
-    try{
-      if (location.hash && location.hash.length > 1) {
-        const id = decodeURIComponent(location.hash.slice(1));
-        requestAnimationFrame(function(){
-          try{ const el = document.getElementById(id); if (el) el.scrollIntoView(); }catch{}
-        });
-      }
-    }catch{}
-  }
-
-  function toLumenUrl(href){
-    try{
-      const raw = String(href || '').trim();
-      if (raw && raw[0] === '#') return LUMEN_PATH + (location.search || '') + raw;
-      const u = new URL(String(href || ''), BASE_HREF);
-      const m = u.pathname.match(/\\/(ipfs|ipns)\\/([^\\/]+)(\\/.*)?$/);
-      if (!m) return null;
-      const nextProto = m[1] || 'ipfs';
-      const nextCid = m[2] || '';
-      const rest = m[3] || '';
-      return 'lumen://' + nextProto + '/' + nextCid + rest + (u.search || '') + (u.hash || '');
-    }catch{
-      return null;
-    }
-  }
-
-  applySuffix(${JSON.stringify(suffix)});
-
-  document.addEventListener('click', function(e){
-    try{
-      if (!e || e.defaultPrevented) return;
-      if (e.button !== 0) return;
-      const el = e.target && e.target.closest ? e.target.closest('a[href]') : null;
-      if (!el) return;
-      const href = (el.getAttribute('href') || '').trim();
-      if (!href) return;
-      if (/^(javascript:|mailto:|tel:)/i.test(href)) return;
-
-      const target = (el.getAttribute('target') || '').toLowerCase();
-      const wantsNewTab = target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
-      const next = toLumenUrl(href);
-      if (!next) return;
-
-      e.preventDefault();
-      if (wantsNewTab) post({ type: 'newtab', url: next });
-      else post({ type: 'navigate', url: next });
-    }catch{}
-  }, true);
-
-  window.addEventListener('message', function(ev){
-    try{
-      const d = ev && ev.data ? ev.data : null;
-      if (!d || d.__lumen_ipfs_parent !== true) return;
-      if (d.type === 'setSuffix') {
-        const suf = typeof d.suffix === 'string' ? d.suffix : '';
-        applySuffix(suf);
-      }
-    }catch{}
-  });
-
-  // If JS changes the hash, keep the address bar in sync (without reloading).
-  window.addEventListener('hashchange', function(){
-    try{ post({ type: 'sync', url: LUMEN_PATH + (location.search || '') + (location.hash || '') }) }catch{}
-  });
-})();
-${"</scr" + "ipt>"}
-`.trim();
-
-  return safeInjectIntoHead(params.html, `\n${inject}\n`);
-}
-
 function normalizeSuffix(raw: string): {
   search: string;
   hash: string;
@@ -1647,26 +1487,6 @@ function isResolvedStableTargetUrl(input: string): boolean {
   if (!stableDisplayUrl.value) return false;
   const parsed = parseIpfsUrl(input);
   return !!parsed.cid && parsed.proto === rootProto.value && parsed.cid === rootCid.value;
-}
-
-function onSiteMessage(evt: MessageEvent) {
-  const d: any = (evt as any)?.data;
-  if (!d || d.__lumen_ipfs_site !== true) return;
-  const next = typeof d.url === "string" ? d.url : "";
-  if (!next) return;
-  if (d.type === "newtab") {
-    openInNewTab?.(next);
-    return;
-  }
-  if (d.type === "sync") {
-    if (isResolvedStableTargetUrl(next)) return;
-    navigate?.(next, { push: false });
-    return;
-  }
-  if (d.type === "navigate") {
-    if (isResolvedStableTargetUrl(next)) return;
-    navigate?.(next);
-  }
 }
 
 function toLumenFromWebHref(raw: string): string | null {
@@ -1910,8 +1730,6 @@ async function load() {
   textContent.value = "";
   docxContent.value = "";
   mediaErrored.value = false;
-  htmlSrcdoc.value = "";
-  clearHtmlFrame();
   resolvedGatewayBase.value = "";
   saved.value = false;
   savedCid.value = "";
@@ -2065,23 +1883,6 @@ async function load() {
           const bytes = new Uint8Array(got.data);
           if (bytes.byteLength > 2_000_000) {
             viewKind.value = "unknown";
-          } else {
-            const html = new TextDecoder("utf-8", { fatal: false }).decode(
-              bytes,
-            );
-            const relEncoded = relPath.value ? encodePath(relPath.value) : "";
-            const baseHref = relEncoded
-              ? `${localIpfsGatewayBase()}/${rootProto.value}/${rootCid.value}/${relEncoded}`
-              : `${localIpfsGatewayBase()}/${rootProto.value}/${rootCid.value}/`;
-            htmlSrcdoc.value = buildIpfsSiteSrcdoc({
-              html,
-              proto: rootProto.value,
-              cid: rootCid.value,
-              relEncoded,
-              suffix: suffix.value,
-              baseHref,
-            });
-            setHtmlFrameFromSrcdoc(htmlSrcdoc.value);
           }
         } else {
           viewKind.value = "unknown";
@@ -2415,23 +2216,6 @@ function onMediaError() {
   if (!isHlsManifest.value) viewKind.value = "unknown";
 }
 
-function openInNewWindow() {
-  if (!contentUrl.value) return;
-  window.open(contentUrl.value, "_blank");
-}
-
-let siteMsgListenerAttached = false;
-function attachSiteMsgListener() {
-  if (siteMsgListenerAttached) return;
-  window.addEventListener("message", onSiteMessage);
-  siteMsgListenerAttached = true;
-}
-function detachSiteMsgListener() {
-  if (!siteMsgListenerAttached) return;
-  window.removeEventListener("message", onSiteMessage);
-  siteMsgListenerAttached = false;
-}
-
 // Watch for refresh signal from navbar
 watch(
   () => currentTabRefresh?.value,
@@ -2442,7 +2226,6 @@ watch(
 
 onMounted(() => {
   pageActive.value = true;
-  attachSiteMsgListener();
   startUrlWatch();
   void nextTick(() => registerFindTargetWithRetry());
   try {
@@ -2460,14 +2243,12 @@ onMounted(() => {
 });
 onActivated(() => {
   pageActive.value = true;
-  attachSiteMsgListener();
   startUrlWatch();
   void nextTick(() => registerFindTargetWithRetry());
 });
 onDeactivated(() => {
   pageActive.value = false;
   webviewLoading.value = false;
-  detachSiteMsgListener();
   stopUrlWatch();
   try {
     const tabId = String(currentTabId?.value || "").trim();
@@ -2479,9 +2260,7 @@ onDeactivated(() => {
 onBeforeUnmount(() => {
   pageActive.value = false;
   webviewLoading.value = false;
-  detachSiteMsgListener();
   stopUrlWatch();
-  clearHtmlFrame();
   void ensureHlsStopped();
   try {
     const tabId = String(currentTabId?.value || "").trim();

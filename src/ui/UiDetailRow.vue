@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-type Variant = 'grid' | 'flex' | 'compact' | 'baseline';
+type Variant = 'grid' | 'flex' | 'compact' | 'baseline' | 'modal';
 
 const props = withDefaults(defineProps<{
   label: string;
@@ -26,6 +26,8 @@ const props = withDefaults(defineProps<{
    * compact: SubscriptionsView's tight, borderless, no-hover style.
    * baseline: LumenSiteModalHost's small permission-summary rows (11px/12px
    * label, baseline-aligned, no border/hover - a modal detail, not a list row).
+   * modal: DrivePage's info-modal rows (Local/Gateway details, backup
+   * summaries) - bordered divider between rows, 14px/15px text.
    */
   variant?: Variant;
   /** Override for the value's color/weight/font class. */
@@ -46,6 +48,8 @@ const rowClass = computed(() => {
       return 'flex-align-center-justify-space-between text-13px py-6px px-0px';
     case 'baseline':
       return 'flex-align-baseline flex-justify-space-between gap-12px py-6px px-0px';
+    case 'modal':
+      return 'flex-align-center-justify-space-between gap-12px py-10px border-bottom-1 last-border-bottom-none';
     default:
       return 'border-bottom-1-light grid grid-cols-180-1fr gap-16px hover-bg-hover hover-border-radius-6px hover-mx-n05rem-px-05rem px-0px py-14px';
   }
@@ -59,6 +63,8 @@ const labelClass = computed(() => {
       return 'color-text-secondary text-14px';
     case 'baseline':
       return 'color-text-secondary text-12px';
+    case 'modal':
+      return 'color-text-secondary text-14px';
     default:
       return 'color-text-secondary fw-500 text-14px';
   }
@@ -72,6 +78,8 @@ const defaultValueClass = computed(() => {
       return 'color-text-primary fw-500';
     case 'baseline':
       return 'color-text-primary text-right text-13px overflow-hidden txt-overflow-ellipsis max-w-360px';
+    case 'modal':
+      return 'color-text-primary text-15px fw-500';
     default:
       return 'break-all color-text-primary text-14px';
   }

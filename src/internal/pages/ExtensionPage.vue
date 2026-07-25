@@ -193,10 +193,6 @@ function resolveExtensionRouteTarget(rawUrl: string): string {
   return "";
 }
 
-function loadUrl(url: string) {
-  queueGuestLoad(url);
-}
-
 function normalizeDocumentBase(rawUrl: string): string {
   try {
     const url = new URL(String(rawUrl || "").trim());
