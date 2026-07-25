@@ -18,32 +18,21 @@
       </div>
     </template>
           <div v-if="step === 'intro'" class="walletonboard-step animate-walletonboard-fade-in">
-            <div class="walletonboard-warning-box flex gap-12px p-16px mb-24px border-radius-8px bg-warning-a15 border-1-warning-a30">
-              <AlertCircle :size="20" class="color-warning" />
-              <div class="flex-1 color-text-primary">
-                <p class="text-12px line-height-12 txt-weight-strong m-0px">Important: No one can recover your wallet</p>
-                <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">
-                  Lumen is a self-custodial wallet. If you lose access to your wallet without backing it up,
-                  your funds are permanently lost. We cannot help you recover them.
-                </p>
-              </div>
-            </div>
+            <UiWarningBox>
+              <p class="text-12px line-height-12 txt-weight-strong m-0px">Important: No one can recover your wallet</p>
+              <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">
+                Lumen is a self-custodial wallet. If you lose access to your wallet without backing it up,
+                your funds are permanently lost. We cannot help you recover them.
+              </p>
+            </UiWarningBox>
 
             <div class="walletonboard-info-cards gap-16px grid grid-cols-1fr-1fr">
-              <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent hover-shadow-primary">
-                <Lock :size="20" class="color-primary" />
-                <h4 class="text-12px line-height-12 txt-weight-strong mt-8px m-0px">Set a Password</h4>
-                <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">
-                  Protect your wallet with a strong password
-                </p>
-              </div>
-              <div class="walletonboard-info-card color-text-primary p-24px border-radius-12px text-center border-default transition-all-02 bg-secondary hover-border-accent hover-shadow-primary">
-                <Download :size="20" class="color-primary" />
-                <h4 class="text-12px line-height-12 txt-weight-strong mt-8px m-0px">Backup Your Wallet</h4>
-                <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">
-                  Export and save your wallet backup file securely
-                </p>
-              </div>
+              <UiCenteredInfoCard title="Set a Password" description="Protect your wallet with a strong password">
+                <template #icon><Lock :size="20" class="color-primary" /></template>
+              </UiCenteredInfoCard>
+              <UiCenteredInfoCard title="Backup Your Wallet" description="Export and save your wallet backup file securely">
+                <template #icon><Download :size="20" class="color-primary" /></template>
+              </UiCenteredInfoCard>
             </div>
           </div>
 
@@ -52,27 +41,19 @@
               Create a strong password to protect your wallet. You'll need this password to send transactions.
             </p>
 
-            <div class="walletonboard-group mb-24px">
-              <label class="block text-11px line-height-12 txt-weight-strong mb-4px color-text-primary">Password (minimum 8 characters)</label>
+            <UiFormGroup label="Password (minimum 8 characters)" wrapper-class="mb-24px" label-class="text-11px line-height-12 txt-weight-strong color-text-primary">
               <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="password"
-               
-               
                 placeholder="Enter password"
                 @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
-            </div>
+            </UiFormGroup>
 
-            <div class="walletonboard-group mb-24px">
-              <label class="block text-11px line-height-12 txt-weight-strong mb-4px color-text-primary">Confirm Password</label>
+            <UiFormGroup label="Confirm Password" wrapper-class="mb-24px" label-class="text-11px line-height-12 txt-weight-strong color-text-primary">
               <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="confirmPassword"
-               
-               
                 placeholder="Confirm password"
                 @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
-            </div>
+            </UiFormGroup>
 
-            <div v-if="passwordError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-error-a30">
-              {{ passwordError }}
-            </div>
+            <UiBanner v-if="passwordError" variant="error" class="mt-8px">{{ passwordError }}</UiBanner>
           </div>
 
           <div v-else-if="step === 'profile-name'" class="walletonboard-step animate-walletonboard-fade-in">
@@ -82,19 +63,14 @@
               Choose a name for your first profile before creating your wallet.
             </p>
 
-            <div class="walletonboard-group mb-24px">
-              <label class="block text-11px line-height-12 txt-weight-strong mb-4px color-text-primary">Profile name</label>
+            <UiFormGroup label="Profile name" wrapper-class="mb-24px" label-class="text-11px line-height-12 txt-weight-strong color-text-primary">
               <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="profileName"
-               
-               
                 placeholder="Enter a profile name"
                 maxlength="64"
                 @keyup.enter="handleProfileNameSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
-            </div>
+            </UiFormGroup>
 
-            <div v-if="profileNameError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-error-a30">
-              {{ profileNameError }}
-            </div>
+            <UiBanner v-if="profileNameError" variant="error" class="mt-8px">{{ profileNameError }}</UiBanner>
           </div>
 
           <div v-else-if="step === 'creating-wallet'" class="walletonboard-step animate-walletonboard-fade-in">
@@ -127,23 +103,16 @@
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
             </p>
 
-            <div class="walletonboard-warning-box flex gap-12px p-16px mb-24px border-radius-8px bg-warning-a15 border-1-warning-a30">
-              <AlertCircle :size="20" class="color-warning" />
-              <div class="flex-1 color-text-primary">
-                <p class="text-11px line-height-12 m-0px">
-                  Store your backup in a secure location like an encrypted USB drive or password manager.
-                  Never share it with anyone.
-                </p>
-              </div>
-            </div>
+            <UiWarningBox>
+              <p class="text-11px line-height-12 m-0px">
+                Store your backup in a secure location like an encrypted USB drive or password manager.
+                Never share it with anyone.
+              </p>
+            </UiWarningBox>
 
-            <div v-if="backupError" class="walletonboard-error-message block text-11px line-height-12 color-error mt-8px color-text-primary p-12px bg-fill-error border-radius-6px border-1-error-a30">
-              {{ backupError }}
-            </div>
+            <UiBanner v-if="backupError" variant="error" class="mt-8px">{{ backupError }}</UiBanner>
 
-            <div v-if="backupSuccess" class="walletonboard-success-message block text-11px line-height-12 color-success mt-8px color-text-primary p-12px bg-fill-success border-radius-6px border-1-success-a30">
-              {{ backupSuccess }}
-            </div>
+            <UiBanner v-if="backupSuccess" variant="success" class="mt-8px">{{ backupSuccess }}</UiBanner>
           </div>
 
           <div v-else-if="step === 'complete'" class="walletonboard-step animate-walletonboard-fade-in">
@@ -215,6 +184,10 @@ import { Shield, Lock, Download, AlertCircle, CheckCircle } from 'lucide-vue-nex
 import UiSpinner from '../ui/UiSpinner.vue';
 import UiSuccessBanner from '../ui/UiSuccessBanner.vue';
 import UiResultState from '../ui/UiResultState.vue';
+import UiFormGroup from '../ui/UiFormGroup.vue';
+import UiBanner from '../ui/UiBanner.vue';
+import UiWarningBox from '../ui/UiWarningBox.vue';
+import UiCenteredInfoCard from '../ui/UiCenteredInfoCard.vue';
 import { activeProfileId, createProfile, initProfiles, profilesState } from '../internal/profilesStore';
 import { useInternalLumen } from '../composables/useInternalLumen';
 
