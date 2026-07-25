@@ -2,7 +2,7 @@
   <!-- ####### lumen://extensions EXTENSIONS ####### -->
   <div class="bg-gradient-extensions-store w-full h-full min-h-0 flex flex-column">
     <header class="flex-align-center-justify-space-between flex-wrap-wrap gap-16px border-bottom-1-slate-a16 pt-20px px-24px pb-16px">
-      <div class="">
+      <div>
         <h1 class="color-store-heading">{{ headerTitle }}</h1>
         <p class="m-0px mt-8px max-w-760px color-store-subtitle" v-if="headerDescription">{{ headerDescription }}</p>
       </div>
@@ -10,7 +10,7 @@
       <div v-if="storeInstallId" class="flex-align-center flex-wrap-wrap flex-justify-end gap-10px flex-1-1-420px">
         <button
           type="button"
-          class="disabled-fade-50 cursor-pointer border-none py-12px px-16px color-white min-w-170px min-h-48px color-store-button bg-gradient-teal-sky shadow-0-18-40-rgba-14-165-233-0-26"
+          class="disabled-fade-50 cursor-pointer border-none py-12px px-16px color-white min-w-170px min-h-48px bg-gradient-teal-sky shadow-0-18-40-rgba-14-165-233-0-26"
           :disabled="installInFlight"
           @click="importCurrentExtension"
         >

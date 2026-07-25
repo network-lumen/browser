@@ -41,7 +41,7 @@
           <UiBanner v-if="sendError" variant="error" class="mb-12px">{{ sendError }}</UiBanner>
 
           <UiFormGroup label="From" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
+            <input class="w-full border-radius-10px color-text-primary text-14px border-default py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
           </UiFormGroup>
 
           <UiFormGroup required label="To" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
@@ -111,19 +111,16 @@
         Cancel
       </UiButton>
       <UiButton variant="secondary" v-if="pinCanPause"
-
         type="button"
         @click="pausePinJob">
         Pause
       </UiButton>
       <UiButton variant="secondary" v-if="pinCanResume"
-
         type="button"
         @click="resumePinJob">
         Resume
       </UiButton>
       <UiButton variant="danger" v-if="pinCanStop"
-
         type="button"
         @click="cancelPinJob">
         Stop
@@ -178,7 +175,7 @@
           <div class="border-radius-10px border-default py-10px px-12px">
             <UiDetailRow variant="baseline" label="Live" :value="stableLinkLiveTitle || 'Untitled live'" />
             <UiDetailRow variant="baseline" label="Records">
-              <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded" class="">
+              <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
                 <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
                 <ChevronDown :size="14" class="transition-transform-02" :class="{ 'rotate-180': stableLinkRecordsExpanded }" />
               </UiButton>
@@ -251,7 +248,7 @@ import UiDetailRow from '../ui/UiDetailRow.vue';
 import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
 import UiPinProgressCard from '../ui/UiPinProgressCard.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { ChevronDown, Link, Plus, Save, Send, Shield, X } from "lucide-vue-next";
+import { ChevronDown, Link, Plus, Save, Send, Shield } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
 
 type UiReq = { id: string; type: string; data: any };

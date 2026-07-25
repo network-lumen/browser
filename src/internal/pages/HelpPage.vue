@@ -120,7 +120,7 @@
             <UiTutorialStep :number="2" title="Upload It to Drive">
               Open Drive, upload that folder, then copy its Lumen link — that's your content's address.
               <template #action>
-                <UiButton variant="primary" type="button" @click="goto('lumen://drive')" class="">
+                <UiButton variant="primary" type="button" @click="goto('lumen://drive')">
                   <FolderOpen :size="18" />
                   <span>Open Drive</span>
                 </UiButton>
@@ -130,7 +130,7 @@
             <UiTutorialStep :number="3" title="Get a Domain">
               Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.
               <template #action>
-                <UiButton variant="primary" type="button" @click="goto('lumen://domain')" class="">
+                <UiButton variant="primary" type="button" @click="goto('lumen://domain')">
                   <Link2 :size="18" />
                   <span>Open Domains</span>
                 </UiButton>
@@ -217,10 +217,7 @@
       <!-- Docs View -->
       <div v-else-if="currentView === 'docs'" class="flex flex-column overflow-hidden flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="flex flex-column gap-20px flex-1 min-h-0">
-          <div class="flex-shrink-0">
-            <h2 class="color-text-primary txt-weight-strong m-0px text-20px letter-spacing-n002">{{ getViewTitle() }}</h2>
-            <p class="m-0px mt-4px color-text-secondary text-14px line-height-15">{{ getViewDescription() }}</p>
-          </div>
+          <UiPageHeader class="flex-shrink-0" :title="getViewTitle()" :subtitle="getViewDescription()" title-size="20px" title-weight="strong" margin-class="mb-0px" />
           <iframe
             class="w-full h-full border-radius-16px block border-default shadow-sm bg-card min-h-520px"
             :src="lumenDocFrameSrc"
@@ -235,6 +232,7 @@
 
 <script setup lang="ts">
 import UiButton from '../../ui/UiButton.vue';
+import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { computed, inject, ref, watch } from 'vue';
 import type { ComputedRef } from 'vue';
 import UiActionCard from '../../ui/UiActionCard.vue';

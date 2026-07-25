@@ -143,7 +143,7 @@
           <UiBanner v-if="assetsError && assetRows.length" variant="warning" class="mb-16px">
             <span>{{ assetsError }}</span>
           </UiBanner>
-          <div v-if="assetRows.length" class="flex flex-column mt-16px gap-12px gap-16px">
+          <div v-if="assetRows.length" class="flex flex-column mt-16px gap-16px">
             <div
               v-for="asset in assetRows"
               :key="asset.id"
@@ -174,7 +174,7 @@
               </div>
               <div class="flex-align-end flex-column gap-12px flex-justify-space-between flex-1">
                 <div class="text-right fw-500 color-text-primary flex-align-end flex-column gap-2px text-14px">
-                  <span class="">{{ asset.displayAmount }}</span>
+                  <span>{{ asset.displayAmount }}</span>
                   <span class="text-12px color-text-tertiary txt-weight-light">{{ asset.displaySymbol }}</span>
                 </div>
                 <div class="flex-align-center flex-wrap-wrap gap-8px">
@@ -255,7 +255,6 @@
               <div class="flex-align-end flex-column flex-justify-space-between gap-12px flex-1">
                 <div class="flex-align-center-justify-end flex-wrap-wrap gap-8px">
                   <UiButton variant="secondary" type="button"
-                   
                     @click="toggleDexExpanded(dex.key)">
                     <ChevronDown
                       :size="16"
@@ -265,7 +264,6 @@
                     <span>{{ isDexExpanded(dex.key) ? 'Hide details' : 'Details' }}</span>
                   </UiButton>
                   <UiButton variant="primary" type="button"
-                   
                     @click="openDexTab(dex.openUrl || dex.baseUrl)">
                     <ExternalLink :size="16" />
                     <span>Open DEX</span>
@@ -276,14 +274,14 @@
 
             <div v-if="isDexExpanded(dex.key)" class="bg-secondary border-top-1-light pt-16px pr-20px pb-20px pl-20px">
               <div class="gap-12px flex flex-wrap-wrap">
-                <div class="flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px py-10px px-12px gap-4px flex-1-1-140px">
-                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em text-10px">Trading pairs</span>
-                  <span class="txt-weight-medium color-text-primary text-15px truncate text-13px">{{ formatDexCount(dex.tradingPairsCount) }}</span>
+                <div class="flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
+                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">Trading pairs</span>
+                  <span class="txt-weight-medium color-text-primary text-15px truncate">{{ formatDexCount(dex.tradingPairsCount) }}</span>
                 </div>
 
-                <div class="flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px py-10px px-12px gap-4px flex-1-1-140px">
-                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em text-10px">Liquidity pools</span>
-                  <span class="txt-weight-medium color-text-primary text-15px truncate text-13px">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
+                <div class="flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
+                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">Liquidity pools</span>
+                  <span class="txt-weight-medium color-text-primary text-15px truncate">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
                 </div>
 
                 <div class="flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
@@ -301,8 +299,7 @@
                 <UiButton variant="secondary" v-for="link in dex.quickLinks"
                   :key="`${dex.key}:${link.label}:${link.url}`"
                   type="button"
-                 
-                  @click="openDexTab(link.url)" class="">
+                  @click="openDexTab(link.url)">
                   <span>{{ link.label }}</span>
                   <ExternalLink :size="13" />
                 </UiButton>
@@ -421,7 +418,7 @@
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
                 <div class="flex flex-column gap-2px min-w-0 line-height-12">
-                  <span class="">{{ getActivityLabel(tx) }}</span>
+                  <span>{{ getActivityLabel(tx) }}</span>
                   <span
                     v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx) || isWithdrawRewardsTx(tx) || isPublishReleaseTx(tx)) && tx.dnsName"
                     class="fw-500 color-text-tertiary text-11px truncate max-w-140px"
@@ -543,15 +540,15 @@
             </div>
             <p class="color-text-secondary mb-16px text-14px line-height-15" v-if="contact.note">{{ contact.note }}</p>
             <div class="flex flex-wrap-wrap gap-8px">
-              <UiButton variant="secondary" @click="sendToContact(contact)" class="">
+              <UiButton variant="secondary" @click="sendToContact(contact)">
                 <Send :size="16" />
                 <span>Send</span>
               </UiButton>
-              <UiButton variant="secondary" @click="copyToClipboard(contact.address, 'Address copied!')" class="">
+              <UiButton variant="secondary" @click="copyToClipboard(contact.address, 'Address copied!')">
                 <Copy :size="16" />
                 <span>Copy</span>
               </UiButton>
-              <UiButton variant="secondary" @click="editContact(contact)" class="">
+              <UiButton variant="secondary" @click="editContact(contact)">
                 <Edit :size="16" />
                 <span>Edit</span>
               </UiButton>
@@ -600,7 +597,7 @@
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.chainLabel" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
               </UiFormGroup>
               <UiFormGroup label="To chain">
-                <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="assetTransferForm.destinationKey">
+                <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="assetTransferForm.destinationKey">
                   <option
                     v-for="target in assetTransferContext.transferTargets"
                     :key="target.key"
@@ -676,7 +673,7 @@
             </UiFormGroup>
 
             <UiFormGroup v-if="!sendAssetContext" label="Send to">
-              <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="sendTargetMode">
+              <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="sendTargetMode">
                 <option value="lumen">On the current chain</option>
                 <option value="ibc">Across IBC to another chain</option>
               </select>
@@ -684,7 +681,7 @@
 
             <UiFormGroup v-if="isIbcSend" required label="IBC route">
               <select
-                class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono font-inherit focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none"
+                class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none"
                 v-model="ibcForm.sourceChannel"
                 :disabled="ibcChannelsLoading || !ibcChannels.length"
               >
@@ -732,7 +729,7 @@
                 <div v-if="showContactPicker" class="border-radius-12px absolute top-full mt-8px bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-md">
                   <div class="flex-align-center-justify-space-between txt-weight-light color-text-primary py-12px px-16px bg-secondary border-bottom-1 text-14px">
                     <span>Select Contact</span>
-                    <UiButton variant="icon" @click="showContactPicker = false" class="">
+                    <UiButton variant="icon" @click="showContactPicker = false">
                       <X :size="14" />
                     </UiButton>
                   </div>
@@ -809,7 +806,7 @@
 
             <div class="border-radius-12px p-20px border-2 bg-secondary mb-0px">
               <div class="txt-weight-medium color-text-secondary text-uppercase text-14px mb-12px letter-spacing-005em">Your Wallet Address</div>
-              <div class="mono text-13px p-14px text-15px color-text-primary break-all mb-16px bg-card border-1 border-radius-8px line-height-15">{{ address || '-' }}</div>
+              <div class="mono p-14px text-15px color-text-primary break-all mb-16px bg-card border-1 border-radius-8px line-height-15">{{ address || '-' }}</div>
               <UiButton variant="secondary" type="button" @click="copyAddressWithToast" :disabled="!address" class="border-2-primary disabled-fade-50">
                 <Copy :size="16" />
                 <span>Copy Address</span>
@@ -840,7 +837,7 @@
             <UiFormGroup label="Note (optional)">
               <UiInput type="textarea" bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" v-model="contactForm.note"
                 placeholder="Add a note about this contact"
-                rows="3" class="textarea-min-h-80-font-inherit resize-vertical mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary"></UiInput>
+                rows="3" class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary"></UiInput>
             </UiFormGroup>
 
             <UiButton variant="primary" @click="saveContact" 
@@ -868,10 +865,10 @@
         This action cannot be undone.
       </p>
       <template #footer>
-        <UiButton variant="secondary" @click="cancelDeleteContact" class="">
+        <UiButton variant="secondary" @click="cancelDeleteContact">
           Cancel
         </UiButton>
-        <UiButton variant="danger" @click="confirmDeleteContact" class="">
+        <UiButton variant="danger" @click="confirmDeleteContact">
           <Trash2 :size="18" />
           <span>Delete</span>
         </UiButton>
@@ -923,7 +920,6 @@ import {
   ChevronDown,
   Check,
   AlertCircle,
-  User,
   Users,
   Edit,
   Trash2,
@@ -939,10 +935,9 @@ import QRCode from 'qrcode';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import QrScanner from '../../components/QrScanner.vue';
 import SubscriptionsView from '../../components/SubscriptionsView.vue';
-import { getWalletConnectService, parseWalletConnectUri } from '../services/walletconnect';
+import { parseWalletConnectUri } from '../services/walletconnect';
 import { getRecurringPaymentsService } from '../services/recurringPayments';
 import { useToast } from '../../composables/useToast';
-import { useTheme } from '../../composables/useTheme';
 
 const currentView = ref<'overview' | 'assets' | 'dex' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
@@ -951,7 +946,6 @@ const manualDisconnected = ref(false);
 
 const profiles = profilesState;
 const activeProfile = computed(() => profiles.value.find((p) => p.id === activeProfileId.value) || null);
-const activeProfileDisplay = computed(() => activeProfile.value?.name || activeProfile.value?.id || '');
 
 const address = computed(() => {
   const p: any = activeProfile.value as any;
@@ -1234,7 +1228,6 @@ const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
 
 // Use global toast system
 const toast = useToast();
-const { effectiveTheme } = useTheme();
 
 onMounted(() => {
   loadContacts();
@@ -1901,11 +1894,6 @@ function connectWallet() {
   }
 }
 
-function disconnectWallet() {
-  manualDisconnected.value = true;
-  isConnected.value = false;
-}
-
 watch(
   [address, manualDisconnected],
   ([addr, manual]) => {
@@ -2128,8 +2116,7 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
       const url = new URL(raw.startsWith('lumen:') ? raw : `lumen:${raw}`);
       const address = url.pathname.replace('//', '');
       const amount = url.searchParams.get('amount');
-      const memo = url.searchParams.get('memo');
-      
+
       if (address) {
         sendForm.value.recipient = address;
       }
@@ -2142,7 +2129,7 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
       }
       
       showToast('Payment request scanned successfully', 'success');
-    } catch (e) {
+    } catch {
       // If not a valid URL, treat as simple address
       sendForm.value.recipient = content;
       if (!showSendModal.value) {
@@ -2609,7 +2596,6 @@ async function fetchDexSnapshot(config: DexListingConfig): Promise<DexRow> {
   const exchangeDoc = parseHtmlDocument(exchangeHtml);
   const poolsDoc = parseHtmlDocument(poolsHtml);
 
-  const homeText = normalizeWhitespace(homeDoc?.body?.textContent || '');
   const exchangeText = normalizeWhitespace(exchangeDoc?.body?.textContent || '');
   const poolsText = normalizeWhitespace(poolsDoc?.body?.textContent || '');
 

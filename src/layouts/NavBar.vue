@@ -14,7 +14,6 @@
         <ArrowRight :size="16" />
       </UiButton>
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" v-if="!isExtensionTab"
-
         :aria-busy="loading ? 'true' : 'false'"
         :disabled="loading"
         :title="loading ? 'Loading…' : 'Refresh'"
@@ -29,8 +28,6 @@
       <Search :size="15" stroke-width="2" class="color-text-tertiary absolute cursor-events-none left-12px" />
       <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-13px" padding-class="pt-8px pr-48px pb-8px pl-40px" :focus-ring="false" :value="urlField"
         @input="onInput"
-       
-       
         placeholder="Search or enter a URL"
         @keydown.enter="onEnter" class="navbar-url-bar-input border-default focus-outline-none focus-bg-primary focus-ring focus-shadow placeholder-tertiary" />
       <UiButton
@@ -159,7 +156,6 @@
       </UiButton>
 
       <UiCard padding="none" :shadow="false" v-if="showProfileMenu"
-       
         role="menu" class="navbar-profile-menu absolute p-8px shadow-xl z-100 right-0 min-w-260px max-w-300px calc-top-100-6px">
         <ActiveProfileCard
           v-if="activeProfile"
@@ -168,7 +164,7 @@
           :label="isGuestOnly ? 'Guest mode' : 'Active profile'"
         />
 
-        <div v-if="hasProfiles && !isGuestOnly" class="">
+        <div v-if="hasProfiles && !isGuestOnly">
           <div class="text-11px txt-weight-light color-text-tertiary text-uppercase mt-8px letter-spacing-005em py-0px px-8px mb-4px">Profiles</div>
           <ul class="flex flex-column p-0px m-0px gap-2px list-style-none overflow-y-auto max-h-200px">
             <li
@@ -242,11 +238,16 @@
           <!-- Password required for decryption notice -->
           <div v-if="exportRequiresPassword" class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
             <UiFormGroup label="Wallet Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-              <input
+              <UiInput
                 type="password"
                 v-model="exportPassword"
                 placeholder="Enter your wallet password"
-                class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                radius-class="border-radius-10px"
+                font-size-class="text-13px"
+                padding-class="py-8px px-10px"
+                border-class="border-default"
+                :focus-ring="false"
+                class="focus-shadow"
                 @keyup.enter="confirmExportProfile"
               />
             </UiFormGroup>
@@ -264,19 +265,29 @@
             
             <div v-if="exportEncrypted" class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
               <UiFormGroup label="Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <input
+                <UiInput
                   type="password"
                   v-model="exportPassword"
                   placeholder="Enter password (min 6 characters)"
-                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                  radius-class="border-radius-10px"
+                  font-size-class="text-13px"
+                  padding-class="py-8px px-10px"
+                  border-class="border-default"
+                  :focus-ring="false"
+                  class="focus-shadow"
                 />
               </UiFormGroup>
               <UiFormGroup label="Confirm Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <input
+                <UiInput
                   type="password"
                   v-model="exportPasswordConfirm"
                   placeholder="Confirm password"
-                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                  radius-class="border-radius-10px"
+                  font-size-class="text-13px"
+                  padding-class="py-8px px-10px"
+                  border-class="border-default"
+                  :focus-ring="false"
+                  class="focus-shadow"
                   @keyup.enter="confirmExportProfile"
                 />
               </UiFormGroup>
@@ -362,39 +373,59 @@
 
             <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
               <UiFormGroup label="Profile Name" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <input
+                <UiInput
                   v-model="manualImportName"
                   type="text"
-                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                  radius-class="border-radius-10px"
+                  font-size-class="text-13px"
+                  padding-class="py-8px px-10px"
+                  border-class="border-default"
+                  :focus-ring="false"
+                  class="focus-shadow"
                   placeholder="Enter profile name"
                 />
               </UiFormGroup>
 
               <UiFormGroup label="Mnemonic" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <textarea
+                <UiInput
                   v-model="manualImportMnemonic"
-                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
-                  rows="4"
+                  type="textarea"
+                  radius-class="border-radius-10px"
+                  font-size-class="text-13px"
+                  padding-class="py-8px px-10px"
+                  border-class="border-default"
+                  :focus-ring="false"
+                  class="focus-shadow resize-vertical min-h-84px"
                   placeholder="Enter wallet mnemonic"
-                ></textarea>
+                />
               </UiFormGroup>
 
               <UiFormGroup label="PQC Public Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <textarea
+                <UiInput
                   v-model="manualImportPqcPublicKey"
-                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
-                  rows="3"
+                  type="textarea"
+                  radius-class="border-radius-10px"
+                  font-size-class="text-13px"
+                  padding-class="py-8px px-10px"
+                  border-class="border-default"
+                  :focus-ring="false"
+                  class="focus-shadow mono resize-vertical min-h-84px"
                   placeholder="Optional"
-                ></textarea>
+                />
               </UiFormGroup>
 
               <UiFormGroup label="PQC Private Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <textarea
+                <UiInput
                   v-model="manualImportPqcPrivateKey"
-                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
-                  rows="3"
+                  type="textarea"
+                  radius-class="border-radius-10px"
+                  font-size-class="text-13px"
+                  padding-class="py-8px px-10px"
+                  border-class="border-default"
+                  :focus-ring="false"
+                  class="focus-shadow mono resize-vertical min-h-84px"
                   placeholder="Optional"
-                ></textarea>
+                />
               </UiFormGroup>
             </div>
 
@@ -435,11 +466,16 @@
           
           <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
             <UiFormGroup label="Backup Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-              <input
+              <UiInput
                 type="password"
                 v-model="importPassword"
                 placeholder="Enter backup password"
-                class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                radius-class="border-radius-10px"
+                font-size-class="text-13px"
+                padding-class="py-8px px-10px"
+                border-class="border-default"
+                :focus-ring="false"
+                class="focus-shadow"
                 @keyup.enter="confirmImportEncrypted"
               />
             </UiFormGroup>
@@ -739,7 +775,7 @@ function normalizeInput(raw: string): string {
   return normalizeAddressInput(raw, builtin);
 }
 
-function onEnter(ev: KeyboardEvent) {
+function onEnter() {
   const raw = urlField.value;
   const target = normalizeInput(raw || '');
 
@@ -924,10 +960,8 @@ async function onExportProfile() {
   exportRequiresPassword.value = false;
   try {
     const api = useInternalLumen()?.profiles;
-    console.log('[NavBar] checkExportRequiresPassword API available:', !!api?.checkExportRequiresPassword);
     if (api?.checkExportRequiresPassword) {
       const check = await api.checkExportRequiresPassword(id);
-      console.log('[NavBar] checkExportRequiresPassword result:', check);
       if (check?.ok && check.requiresPassword) {
         exportRequiresPassword.value = true;
       }
@@ -935,9 +969,7 @@ async function onExportProfile() {
   } catch (e) {
     console.error('[NavBar] checkExportRequiresPassword error:', e);
   }
-  
-  console.log('[NavBar] exportRequiresPassword after check:', exportRequiresPassword.value);
-  
+
   // Show export options modal
   showExportModal.value = true;
   exportEncrypted.value = false;
@@ -993,22 +1025,15 @@ async function confirmExportProfile() {
     
     // encryptOutput is true when user explicitly wants to encrypt the backup file
     const encryptOutput = exportEncrypted.value;
-    
-    // Debug: show an alert with the values before export
-    const debugInfo = `Password: ${password ? password.length + ' chars' : 'none'}\nEncrypt output: ${encryptOutput}\nrequiresPassword: ${exportRequiresPassword.value}`;
-    console.log('[NavBar] Export debug:', debugInfo);
-    
-    // Call IPC directly to bypass any module caching issues
+
     const api = useInternalLumen()?.profiles;
-    console.log('[NavBar] Direct IPC call - password:', password ? `${password.length} chars` : 'none', 'encryptOutput:', encryptOutput);
     if (!api || typeof api.exportBackup !== 'function') {
       exportError.value = 'Export API not available';
       return;
     }
-    
+
     const res = await api.exportBackup(id, password, encryptOutput);
-    console.log('[NavBar] Direct IPC result:', res);
-    
+
     if (!res || res.ok === false) {
       // Handle specific error messages
       if (res?.error === 'invalid_password') {

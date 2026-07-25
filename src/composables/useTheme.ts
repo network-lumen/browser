@@ -1,4 +1,4 @@
-import { ref, watch, onMounted } from 'vue';
+import { ref } from 'vue';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -24,22 +24,17 @@ function updateEffectiveTheme() {
     // System mode uses original blue theme
     root.classList.add('system');
     effectiveTheme.value = systemPrefersDark.value ? 'dark' : 'light';
-    console.log('[Theme] Applied system mode (blue theme)');
   } else if (theme.value === 'dark') {
     // Dark mode uses dark green/lime theme
     root.classList.add('dark');
     effectiveTheme.value = 'dark';
-    console.log('[Theme] Applied dark mode (green/lime theme)');
   } else {
     // Light mode uses light green/lime theme (no class needed - default)
     effectiveTheme.value = 'light';
-    console.log('[Theme] Applied light mode (green/lime theme)');
   }
-  console.log('[Theme] Root classes:', root.className);
 }
 
 function setTheme(newTheme: Theme) {
-  console.log('[Theme] Setting theme to:', newTheme);
   theme.value = newTheme;
   localStorage.setItem(STORAGE_KEY, newTheme);
   updateEffectiveTheme();

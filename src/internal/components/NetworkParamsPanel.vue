@@ -1,13 +1,8 @@
 <template>
   <!-- ####### lumen://network NETWORK PARAMS ####### -->
   <section class="p-32px">
-    <header class="flex mb-20px flex-wrap-wrap gap-16px flex-align-start flex-justify-space-between">
-      <div>
-        <h1 class="color-text-primary txt-weight-strong m-0px text-24px">Params</h1>
-        <p class="color-text-secondary text-14px m-0px mt-8px">Live view of the blockchain parameters (fetched from the REST API).</p>
-      </div>
-
-      <div class="flex flex-wrap-wrap gap-12px flex-inline-align-center">
+    <UiPageHeader title="Params" subtitle="Live view of the blockchain parameters (fetched from the REST API)." title-size="24px" title-weight="strong">
+      <template #actions>
         <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="hover-border-primary-a15 disabled-fade-50">
           <Copy :size="16" />
           Copy all
@@ -17,8 +12,8 @@
           <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
           <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </UiButton>
-      </div>
-    </header>
+      </template>
+    </UiPageHeader>
 
     <div v-if="fatalError" class="color-text-primary p-20px border-radius-16px border-1-error-a25 bg-error-a08">
       <p class="m-0px txt-weight-strong">Unable to fetch params</p>
@@ -44,15 +39,17 @@
           </div>
 
           <div class="flex-inline-align-center color-text-tertiary gap-8px flex-0-0-auto">
-            <button
-              type="button"
-              class="hover-border-primary-a15 disabled-fade-50 bg-transparent color-text-secondary flex-inline-align-justify-center cursor-pointer size-32px border-radius-10px border-1-light transition-colors-015 hover-bg-primary-a10 hover-color-accent"
+            <UiButton
+              variant="icon"
+              icon-radius-class="border-radius-10px"
+              icon-padding-class=""
+              class="hover-border-primary-a15 disabled-fade-50 size-32px border-1-light transition-colors-015 hover-bg-primary-a10 hover-color-accent"
               title="Copy JSON"
               :disabled="!s.data"
               @click.stop="copySection(s)"
             >
               <Copy :size="16" />
-            </button>
+            </UiButton>
             <component :is="s.open ? ChevronDown : ChevronRight" :size="18" />
           </div>
         </button>
@@ -75,6 +72,7 @@
 
 <script setup lang="ts">
 import UiButton from '../../ui/UiButton.vue';
+import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { useToast } from '../../composables/useToast';

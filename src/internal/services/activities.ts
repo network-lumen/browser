@@ -143,18 +143,6 @@ function sortDescByTime(list: Activity[]): Activity[] {
   });
 }
 
-async function httpGetJson(url: string): Promise<any | null> {
-  // Not used anymore: activities now come directly from the chain
-  // via the Electron wallet:listSendTxs IPC. Kept for compatibility.
-  try {
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
 export async function fetchActivities(params: ListActivitiesParams): Promise<Activity[]> {
   const { walletId, limit = 20, offset = 0 } = params;
   const cacheKey = `${walletId}|${limit}|${offset}`;

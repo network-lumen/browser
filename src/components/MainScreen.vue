@@ -110,7 +110,7 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import ReleaseUpdateOverlay from './ReleaseUpdateOverlay.vue';
   import LumenSiteModalHost from './LumenSiteModalHost.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
-  import { isBrowserUrl, isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
+  import { isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
   import { normalizeHistoryUrlForComparison, useHistory } from '../internal/historyStore';
   import { activeProfileId, initProfiles, profilesState } from '../internal/profilesStore';
   import lumenFavicon from '../img/favicon.ico';
@@ -538,7 +538,6 @@ function makeTab(partial?: Partial<Tab>): Tab {
   const defaultTitle = getInternalTitle(defaultUrl);
   const history = partial?.history || [{ url: defaultUrl, title: defaultTitle }];
   const history_position = partial?.history_position ?? 0;
-  const current = history[history_position] || history[0];
   const normalizedHistory = history.map((h) =>
     h && typeof h.url === "string" ? { ...h, url: normalizeTabUrl(h.url) } : h,
   );

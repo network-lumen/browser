@@ -66,7 +66,6 @@ function computeScores(img: ImageData): {
   let redCount = 0;
   let darkCount = 0;
 
-  let lumaSum = 0;
   let edgeSum = 0;
 
   const luma = new Uint8Array(pixels);
@@ -77,7 +76,6 @@ function computeScores(img: ImageData): {
 
     const y = (r * 30 + g * 59 + b * 11) / 100;
     luma[p] = y & 0xff;
-    lumaSum += y;
 
     if (y < 42) darkCount++;
 

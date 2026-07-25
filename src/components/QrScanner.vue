@@ -1,6 +1,6 @@
 <template>
   <UiModal :model-value="true" :title="title" panel-class="w-full max-w-500px max-h-90vh" @update:model-value="$emit('close')">
-        <div class="">
+        <div>
           <!-- Camera View -->
           <div v-if="!scannedData && !error" class="border-radius-12px relative overflow-hidden bg-black aspect-square max-h-400px">
             <video ref="videoElement" class="w-full h-full object-fit-cover" autoplay playsinline></video>
@@ -34,7 +34,7 @@
                 <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Type:</span>
                 <span class="color-text-primary text-14px fw-500">{{ detectedType }}</span>
               </div>
-              <div class="">
+              <div>
                 <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Content:</span>
                 <div class="bg-card color-text-primary text-13px border-1 border-radius-6px p-12px break-all overflow-y-auto mono max-h-120px">{{ scannedData }}</div>
               </div>
@@ -67,7 +67,7 @@ interface Props {
   acceptedTypes?: ('address' | 'payment' | 'walletconnect')[];
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   title: 'Scan QR Code',
   acceptedTypes: () => ['address', 'payment', 'walletconnect']
 });

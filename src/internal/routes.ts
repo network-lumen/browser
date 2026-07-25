@@ -133,14 +133,16 @@ export function getInternalTitle(rawUrl: string): string {
     const routeInfo = parseExtensionTabUrl(rawUrl);
     if (routeInfo?.name) return routeInfo.name;
   }
-  if (key === 'block') {
-    const match = asString.match(/\/block\/(\d+)/i);
-    if (match) return `Block details ${match[1]}`;
-  }
-  if (key === 'transaction' || key === 'tx') {
-    const match = asString.match(/\/(?:transaction|tx)\/([A-F0-9]+)/i);
-    if (match) return `Tx ${shortenHash(match[1])}`;
-  }
+  // Block/tx/address detail views are usually reached as embedded sub-views of
+  // ExplorerPage (lumen://explorer/block/<h>, /tx/<hash>, /address/<addr> -
+  // host is "explorer", not "block"/"tx"/"address"), so these must match on
+  // the URL's PATH rather than on `key` (the host).
+  const blockMatch = asString.match(/\/block\/(\d+)/i);
+  if (blockMatch) return `Block details ${blockMatch[1]}`;
+  const txMatch = asString.match(/\/(?:transaction|tx)\/([A-F0-9]+)/i);
+  if (txMatch) return `Tx ${shortenHash(txMatch[1])}`;
+  const addressMatch = asString.match(/\/address\/([a-z0-9]+)/i);
+  if (addressMatch) return `Address ${shortenHash(addressMatch[1])}`;
   const route = INTERNAL_ROUTES[key];
   if (route) return route.title;
   if (isLikelyDomainHost(key)) return key;

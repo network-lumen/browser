@@ -270,16 +270,12 @@ export async function deleteProfile(id: string): Promise<{ ok: boolean; error?: 
 }
 
 export async function exportProfileBackup(id: string, password?: string, encryptOutput?: boolean): Promise<{ ok: boolean; path?: string; error?: string }> {
-  console.log('[profilesStore] exportProfileBackup called with:', { id, passwordProvided: !!password, passwordLength: password?.length, encryptOutput });
   try {
     const api = getApi();
-    console.log('[profilesStore] api available:', !!api, 'exportBackup func:', typeof api?.exportBackup);
     if (!api || typeof api.exportBackup !== 'function') {
       return { ok: false, error: 'backup_api_unavailable' };
     }
-    console.log('[profilesStore] Calling api.exportBackup with password:', !!password, 'encryptOutput:', !!encryptOutput);
     const res = await api.exportBackup(id, password, encryptOutput);
-    console.log('[profilesStore] api.exportBackup result:', res);
     if (!res) return { ok: false, error: 'backup_failed' };
     return res;
   } catch (e) {

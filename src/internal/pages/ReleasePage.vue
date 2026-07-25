@@ -41,10 +41,9 @@
           </select>
         </div>
 
-        <div class="flex flex-column gap-6px min-w-260px min-w-220px flex-1-1-320px">
+        <div class="flex flex-column gap-6px min-w-260px flex-1-1-320px">
           <label class="txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Search</label>
           <UiInput radius-class="border-radius-12px" font-size-class="text-14px" :focus-ring="false" v-model.trim="searchTerm"
-           
             placeholder="Version, publisher, ID…"
             :disabled="loading" class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
         </div>
@@ -57,11 +56,11 @@
         </div>
       </section>
 
-      <section v-if="!allowed && !loading" class="">
+      <section v-if="!allowed && !loading">
         <p>Redirecting…</p>
       </section>
 
-      <section v-else class="flex-1 overflow-hidden gap-16px flex flex-wrap-wrap min-h-0">
+      <section v-else class="flex-1 overflow-hidden gap-16px flex min-h-0">
         <article class="overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-11-1-420px">
           <div class="flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
             <span>Releases</span>
@@ -83,7 +82,7 @@
             :class="{ 'row-state-active-primary': selectedRelease?.id === r.id }"
             @click="selectedRelease = r"
           >
-            <div class="">
+            <div>
               <div class="flex-align-center gap-8px">
                 <span class="color-text-tertiary text-14px">#{{ r.id }}</span>
                 <span class="txt-weight-medium color-text-primary">{{ r.version }}</span>
@@ -130,14 +129,14 @@
             <div class="color-text-secondary pre-wrap">{{ selectedRelease.notes }}</div>
           </div>
 
-          <div class="">
+          <div>
             <div class="txt-weight-medium color-text-primary mb-8px">Artifacts ({{ selectedRelease.artifacts.length }})</div>
             <div v-for="(a, idx) in selectedRelease.artifacts" :key="`${a.platform}-${a.kind}-${idx}`" class="border-radius-12px border-1-light p-12px mt-12px bg-secondary">
               <div class="flex-align-baseline flex-justify-space-between gap-12px">
                 <div class="txt-weight-medium color-text-primary">{{ a.platform }} · {{ a.kind }}</div>
                 <div class="color-text-tertiary fw-500">{{ formatBytes(a.size) }}</div>
               </div>
-              <div class="">
+              <div>
                 <UiKeyValue label="SHA-256" :value="a.sha256Hex || '-'" value-class="mono break-word" />
                 <UiKeyValue v-if="a.cid" label="CID" :value="a.cid" value-class="mono break-word" />
                 <UiKeyValue v-if="a.urls.length" label="URLs">
@@ -234,7 +233,7 @@
             <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="draft.notes" rows="4" placeholder="Changelog, highlights, etc." class="focus-outline-none focus-ring focus-shadow" />
           </UiFormField>
 
-          <div class="">
+          <div>
             <div class="flex-align-center flex-justify-space-between mt-8px">
               <h3>Artifacts</h3>
               <UiButton variant="secondary" size="sm" type="button" @click="addArtifact">Add artifact</UiButton>

@@ -1,5 +1,5 @@
 <template>
-  <!-- ####### lumen://block BLOCK DETAIL ####### -->
+  <!-- ####### lumen://explorer/block/<height> BLOCK DETAIL (embedded sub-view of ExplorerPage) ####### -->
   <div class="w-full h-full overflow-y-auto bg-primary">
     <UiLoadingState v-if="loading" message="Loading block data..." wrapper-class="py-64px px-32px" />
 
@@ -21,6 +21,7 @@
                   v-if="block.proposerAvatar"
                   :src="block.proposerAvatar"
                   :alt="block.proposer"
+                  @error="handleImageError"
                 />
                 <span v-else>{{ block.proposer.charAt(0).toUpperCase() }}</span>
               </div>
@@ -36,7 +37,7 @@
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Block Data" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="p-24px">
-          <UiDetailRow variant="flex" label="Chain ID:" :value="block.chainId || 'lumen-mainnet'" />
+          <UiDetailRow variant="flex" label="Chain ID:" :value="block.chainId || 'lumen'" />
           <UiDetailRow variant="flex" label="Block Size:">
             <span class="color-text-primary flex-1 fw-500 text-15px">{{ calculateBlockSize(block) }} KB</span>
           </UiDetailRow>
@@ -52,12 +53,10 @@
           <div class="flex flex-column gap-16px">
             <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="flex gap-16px cursor-pointer flex-align-start py-16px px-20px shadow-xs transition-smooth-all hover-border-accent hover-lift-1 hover-shadow-primary">
               <div class="flex-align-justify-center size-32px border-radius-12px color-primary min-w-32px bg-gradient-secondary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg>
+                <Activity :size="16" />
               </div>
               <div class="flex-1 min-w-0">
-                <UiCopyField :value="tx.hash" title="" wrapper-class="gap-8px mb-8px" code-class="flex-1 border-radius-10px py-8px px-10px bg-card border-default text-12px mono break-all" :icon-size="12" />
+                <UiCopyField :value="tx.hash" title="Copy hash" wrapper-class="gap-8px mb-8px" code-class="flex-1 border-radius-10px py-8px px-10px bg-card border-default text-12px mono break-all" :icon-size="12" />
                 <div class="flex-align-center gap-16px text-13px">
                   <span class="color-text-secondary fw-500">{{ tx.type }}</span>
                   <span class="flex-align-center gap-4px color-success txt-weight-light bg-fill-success border-radius-4px py-4px px-6px">✓ Success</span>
@@ -78,9 +77,11 @@ import UiLoadingState from '../../ui/UiLoadingState.vue';
 import UiCopyField from '../../ui/UiCopyField.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
+import { Activity } from 'lucide-vue-next';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { computeTxHash } from '../chainRpc';
 
 const loading = ref(true);
 const error = ref('');
@@ -100,7 +101,6 @@ const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null
 
 const blockHeight = computed(() => {
   const url = currentTabUrl?.value || window.location.href;
-  console.log('BlockDetailPage URL:', url);
   let match = url.match(/explorer\/block\/(\d+)/);
   if (!match) {
     match = url.match(/\/block\/(\d+)/);
@@ -108,9 +108,7 @@ const blockHeight = computed(() => {
   if (!match) {
     match = url.match(/block(\d+)/);
   }
-  const height = match ? match[1] : null;
-  console.log('Extracted block height:', height);
-  return height;
+  return match ? match[1] : null;
 });
 
 const blockTransactions = computed(() => {
@@ -121,12 +119,6 @@ const blockTransactions = computed(() => {
     status: 'success'
   }));
 });
-
-function generateMockHash(): string {
-  return Array.from({ length: 64 }, () => 
-    Math.floor(Math.random() * 16).toString(16).toUpperCase()
-  ).join('');
-}
 
 function getProposerColor(proposer: string): string {
   const colors = [
@@ -148,14 +140,13 @@ function getProposerColor(proposer: string): string {
   return colors[Math.abs(hash) % colors.length];
 }
 
-function handleImageError(event: Event) {
-  const target = event.target as HTMLImageElement;
-  target.style.display = 'none';
+function handleImageError() {
+  // Broken avatar URL - fall back to the colored-initial avatar (the `v-else` sibling).
+  if (block.value) block.value.proposerAvatar = null;
 }
 
 function calculateBlockSize(block: any): string {
-  const size = (block.hash.length + (block.txs * 500)) / 1024;
-  return size.toFixed(2);
+  return ((block.txBytesTotal || 0) / 1024).toFixed(2);
 }
 
 function formatNumber(num: number): string {
@@ -173,10 +164,9 @@ function navigateToTransaction(hash: string) {
 async function loadBlockData() {
   loading.value = true;
   error.value = '';
-  
+
   const height = blockHeight.value;
-  console.log('Loading block data for height:', height);
-  
+
   if (!height) {
     error.value = 'No block height specified';
     loading.value = false;
@@ -199,33 +189,41 @@ async function loadBlockData() {
     }
     
     const data = response.json;
-    console.log('Block data:', data);
-    
+
     if (!data?.result?.block) {
       throw new Error('Invalid block data received');
     }
-    
+
     const blockData = data.result.block;
     const blockId = data.result.block_id;
     const header = blockData.header;
     const proposerAddr = header.proposer_address;
-    
+
     const proposerInfo = proposerMap.value[proposerAddr];
-    
+
+    const rawTxs: string[] = blockData.data?.txs || [];
+    const txHashes = await Promise.all(rawTxs.map((raw) => computeTxHash(raw)));
+    const txBytesTotal = rawTxs.reduce((sum, raw) => {
+      try {
+        return sum + atob(raw).length;
+      } catch {
+        return sum;
+      }
+    }, 0);
+
     block.value = {
       height: height,
       hash: blockId?.hash || header.app_hash || 'N/A',
       proposer: proposerInfo?.moniker || proposerAddr.substring(0, 8),
       proposerAvatar: proposerInfo?.avatar || null,
       time: new Date(header.time).toLocaleString(),
-      txs: blockData.data?.txs?.length || 0,
-      txHashes: blockData.data?.txs || [],
+      txs: rawTxs.length,
+      txHashes,
+      txBytesTotal,
       gasUsed: 0,
       gasLimit: parseInt(header.max_gas) || 0,
-      chainId: header.chain_id || 'lumen-mainnet'
+      chainId: header.chain_id || 'lumen'
     };
-    
-    console.log('Formatted block:', block.value);
   } catch (err) {
     console.error('Error loading block:', err);
     error.value = `Failed to load block data: ${err instanceof Error ? err.message : 'Unknown error'}`;
@@ -279,8 +277,6 @@ async function buildProposerMap() {
     }
     
     await fetchKeybaseAvatars();
-    
-    console.log('Proposer map built:', proposerMap.value);
   } catch (err) {
     console.error('Error building proposer map:', err);
   }
@@ -312,8 +308,8 @@ async function fetchKeybaseAvatars() {
           }
         }
       }
-    } catch (e) {
-      console.log(`Failed to fetch avatar for ${validator.moniker}`);
+    } catch {
+      console.warn(`Failed to fetch avatar for ${validator.moniker}`);
     }
   }
 }

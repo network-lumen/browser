@@ -32,10 +32,11 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-column m-0px min-w-0 overflow-y-auto py-20px px-24px bg-secondary border-radius-0">
-      <div v-if="!hasProfiles" class="color-warning border-radius-12px mb-16px py-12px px-16px bg-yellow-a08 border-05-yellow-a40">
+      <UiWarningBox v-if="!hasProfiles" box-class="mb-16px">
+        <template #icon></template>
         <div class="txt-weight-light text-13px">No profile found</div>
         <div class="text-12px mt-4px opacity-85">Create one using the button in the top right.</div>
-      </div>
+      </UiWarningBox>
 
       <!-- Quick Actions -->
       <section class="mb-20px">
@@ -61,8 +62,8 @@
           <button
             v-for="key in mySpaceCards"
             :key="key"
-            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-fast shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
-            :class="{ 'is-drag-over-target': dragOverMySpace && draggedItem === key }"
+            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-fast shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30"
+            :class="{ 'is-drag-over-target': dragOverCardKey === key && draggedItem !== key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'myspace')"
             @dragover.prevent="onCardDragOver($event, key, 'myspace')"
@@ -84,7 +85,7 @@
             </div>
             <div class="flex flex-column flex-1 min-w-0 gap-2px">
               <span class="color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
-              <span class="color-text-secondary text-12px line-height-14">{{ getCardDescription(key) }}</span>
+              <span class="color-text-secondary text-12px line-height-14">{{ getRouteDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="reveal-accent-shift-target color-text-tertiary transition-all-fast" />
           </button>
@@ -114,8 +115,8 @@
           <button
             v-for="key in lumenCards"
             :key="key"
-            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-fast shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30 hover-shadow-md"
-            :class="{ 'is-drag-over-target': dragOverLumen && draggedItem === key }"
+            class="reveal-on-hover active-translate-y-0 disabled-opacity-55-cursor-not-allowed flex-align-center cursor-pointer gap-12px border-radius-12px text-left relative bg-card border-default transition-all-fast shadow-xs py-12px px-16px backdrop-blur hover-bg-hover hover-lift-2 hover-border-primary-a30"
+            :class="{ 'is-drag-over-target': dragOverCardKey === key && draggedItem !== key }"
             draggable="true"
             @dragstart="onCardDragStart($event, key, 'lumen')"
             @dragover.prevent="onCardDragOver($event, key, 'lumen')"
@@ -136,7 +137,7 @@
             </div>
             <div class="flex flex-column flex-1 min-w-0 gap-2px">
               <span class="color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
-              <span class="color-text-secondary text-12px line-height-14">{{ getCardDescription(key) }}</span>
+              <span class="color-text-secondary text-12px line-height-14">{{ getRouteDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="reveal-accent-shift-target color-text-tertiary transition-all-fast" />
           </button>
@@ -150,45 +151,45 @@
 
 <script setup lang="ts">
 import UiButton from '../../ui/UiButton.vue';
-import { inject, computed, ref, watch } from 'vue';
+import UiWarningBox from '../../ui/UiWarningBox.vue';
+import { inject, computed, ref } from 'vue';
 
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../routes';
 import { profilesState } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
-import { 
-  Home, HardDrive, Wallet, Globe, Settings, 
+import {
+  Home, Cloud, Wallet, Globe, Settings,
   ArrowUpRight, Network, FileText, Hexagon,
-  Database, Vote, Package, AtSign, Search, History,
+  Database, Users, Rocket, Server, LayoutGrid, Search, History,
   HelpCircle, Layers, ChevronDown, ChevronUp, X
 } from 'lucide-vue-next';
 
-// My Space section cards yang bisa di-customize
+// My Space section cards, customizable via drag-and-drop
 const MY_SPACE_CARDS_KEY = 'my_space_cards_order';
 const savedMySpaceCards = localStorage.getItem(MY_SPACE_CARDS_KEY);
 const DEFAULT_MY_SPACE_CARDS = ['drive', 'domain', 'wallet', 'dao', 'settings'];
 const mySpaceCards = ref<string[]>(savedMySpaceCards ? JSON.parse(savedMySpaceCards) : DEFAULT_MY_SPACE_CARDS.slice());
 
-// Lumen section cards yang bisa di-customize
+// Lumen section cards, customizable via drag-and-drop
 const LUMEN_CARDS_KEY = 'lumen_cards_order';
 const savedLumenCards = localStorage.getItem(LUMEN_CARDS_KEY);
 const DEFAULT_LUMEN_CARDS = ['explorer', 'network', 'search', 'help'];
 const lumenCards = ref<string[]>(savedLumenCards ? JSON.parse(savedLumenCards) : DEFAULT_LUMEN_CARDS.slice());
 
-// Custom order untuk All Pages dengan localStorage
+// Custom order for All Pages, persisted to localStorage
 const ORDER_KEY = 'lumen_all_pages_order';
 const savedOrder = localStorage.getItem(ORDER_KEY);
 const customOrder = ref<string[]>(savedOrder ? JSON.parse(savedOrder) : []);
 
-  const allRoutes = computed(() => {
-    const routes = INTERNAL_ROUTE_KEYS.filter(
-      (key) => !['home', 'ipfs', 'ipns', 'domains', 'gateways', 'release', 'block', 'transaction', 'tx', 'address', 'extension'].includes(key),
-    );
-    if (customOrder.value.length === 0) return routes;
-    
-    // Sort berdasarkan custom order, items yang tidak ada di custom order di akhir
-    const ordered = [...routes].sort((a, b) => {
-      const indexA = customOrder.value.indexOf(a);
+const allRoutes = computed(() => {
+  const routes = INTERNAL_ROUTE_KEYS.filter(
+    (key) => !['home', 'ipfs', 'ipns', 'domains', 'gateways', 'release', 'block', 'transaction', 'tx', 'address', 'extension'].includes(key),
+  );
+  if (customOrder.value.length === 0) return routes;
+
+  // Sort by custom order, items not in the custom order go last.
+  const ordered = [...routes].sort((a, b) => {
+    const indexA = customOrder.value.indexOf(a);
     const indexB = customOrder.value.indexOf(b);
     if (indexA === -1 && indexB === -1) return 0;
     if (indexA === -1) return 1;
@@ -215,7 +216,6 @@ function onItemDragStart(e: DragEvent, key: string) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', key);
   }
-  console.log('Drag started from sidebar:', key);
 }
 
 function onItemDragOver(e: DragEvent, key: string) {
@@ -225,7 +225,6 @@ function onItemDragOver(e: DragEvent, key: string) {
   }
   if (dragOverItem.value !== key) {
     dragOverItem.value = key;
-    console.log('Drag over:', key);
   }
 }
 
@@ -239,8 +238,11 @@ function onItemDragLeave(e: DragEvent) {
   }
 }
 
-// Drag handlers untuk cards (support both My Space and Lumen)
+// Drag handlers for cards (support both My Space and Lumen)
 const dragSource = ref<'myspace' | 'lumen' | 'sidebar' | null>(null);
+// Tracks which specific card is currently being hovered as a drop target
+// (distinct from draggedItem, which is the card being dragged).
+const dragOverCardKey = ref<string | null>(null);
 
 function onCardDragStart(e: DragEvent, key: string, source: 'myspace' | 'lumen') {
   wasDragging = true;
@@ -250,17 +252,17 @@ function onCardDragStart(e: DragEvent, key: string, source: 'myspace' | 'lumen')
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', key);
   }
-  console.log('Card drag started:', key, 'from', source);
 }
 
 function onCardDragLeave(e: DragEvent) {
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
   const x = e.clientX;
   const y = e.clientY;
-  
+
   if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
     dragOverLumen.value = false;
     dragOverMySpace.value = false;
+    dragOverCardKey.value = null;
   }
 }
 
@@ -269,6 +271,7 @@ function onCardDragEnd() {
   dragSource.value = null;
   dragOverLumen.value = false;
   dragOverMySpace.value = false;
+  dragOverCardKey.value = null;
   setTimeout(() => {
     wasDragging = false;
   }, 100);
@@ -304,7 +307,7 @@ function onMySpaceDrop(e: DragEvent) {
   
   if (!draggedItem.value) return;
   
-  // Add ke akhir My Space cards jika drop di area kosong
+  // Add to the end of My Space cards when dropped on the empty area.
   if (!mySpaceCards.value.includes(draggedItem.value)) {
     // Ensure a card lives in only one section.
     if (lumenCards.value.includes(draggedItem.value)) {
@@ -313,7 +316,6 @@ function onMySpaceDrop(e: DragEvent) {
     }
     mySpaceCards.value.push(draggedItem.value);
     localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
-    console.log('Added to end of My Space:', draggedItem.value);
   }
   
   draggedItem.value = null;
@@ -326,7 +328,6 @@ function onMySpaceDrop(e: DragEvent) {
 function removeMySpaceCard(key: string) {
   mySpaceCards.value = mySpaceCards.value.filter(k => k !== key);
   localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
-  console.log('Removed from My Space:', key);
 }
 
 // Lumen drag handlers
@@ -344,10 +345,13 @@ function onLumenDragLeave(e: DragEvent) {
   }
 }
 
-function onCardDragOver(e: DragEvent, key: string, section: 'myspace' | 'lumen') {
+function onCardDragOver(e: DragEvent, key: string, _section: 'myspace' | 'lumen') {
   e.preventDefault();
   if (e.dataTransfer) {
     e.dataTransfer.dropEffect = 'move';
+  }
+  if (dragOverCardKey.value !== key) {
+    dragOverCardKey.value = key;
   }
 }
 
@@ -356,25 +360,23 @@ function onCardDrop(e: DragEvent, dropKey: string, section: 'myspace' | 'lumen')
   e.stopPropagation();
   dragOverLumen.value = false;
   dragOverMySpace.value = false;
-  
-  console.log('Card drop on:', dropKey, 'in', section, 'Dragged:', draggedItem.value, 'from', dragSource.value);
-  
+  dragOverCardKey.value = null;
+
   if (!draggedItem.value) return;
-  
+
   if (section === 'myspace') {
     const draggedIndex = mySpaceCards.value.indexOf(draggedItem.value);
     const dropIndex = mySpaceCards.value.indexOf(dropKey);
-    
+
     if (draggedIndex !== -1 && dropIndex !== -1) {
-      // Reorder dalam My Space cards
+      // Reorder within My Space cards.
       const newCards = [...mySpaceCards.value];
       newCards.splice(draggedIndex, 1);
       newCards.splice(dropIndex, 0, draggedItem.value);
       mySpaceCards.value = newCards;
       localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(newCards));
-      console.log('Reordered My Space cards:', newCards);
     } else if (draggedIndex === -1) {
-      // Add from sidebar/other section ke My Space
+      // Add from sidebar/other section to My Space.
       const newCards = [...mySpaceCards.value];
       // Ensure a card lives in only one section.
       if (lumenCards.value.includes(draggedItem.value)) {
@@ -384,22 +386,20 @@ function onCardDrop(e: DragEvent, dropKey: string, section: 'myspace' | 'lumen')
       newCards.splice(dropIndex, 0, draggedItem.value);
       mySpaceCards.value = newCards;
       localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(newCards));
-      console.log('Added to My Space cards:', newCards);
     }
   } else if (section === 'lumen') {
     const draggedIndex = lumenCards.value.indexOf(draggedItem.value);
     const dropIndex = lumenCards.value.indexOf(dropKey);
-    
+
     if (draggedIndex !== -1 && dropIndex !== -1) {
-      // Reorder dalam Lumen cards
+      // Reorder within Lumen cards.
       const newCards = [...lumenCards.value];
       newCards.splice(draggedIndex, 1);
       newCards.splice(dropIndex, 0, draggedItem.value);
       lumenCards.value = newCards;
       localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(newCards));
-      console.log('Reordered Lumen cards:', newCards);
     } else if (draggedIndex === -1) {
-      // Add from sidebar/other section ke Lumen
+      // Add from sidebar/other section to Lumen.
       const newCards = [...lumenCards.value];
       // Ensure a card lives in only one section.
       if (mySpaceCards.value.includes(draggedItem.value)) {
@@ -409,10 +409,9 @@ function onCardDrop(e: DragEvent, dropKey: string, section: 'myspace' | 'lumen')
       newCards.splice(dropIndex, 0, draggedItem.value);
       lumenCards.value = newCards;
       localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(newCards));
-      console.log('Added to Lumen cards:', newCards);
     }
   }
-  
+
   draggedItem.value = null;
   dragSource.value = null;
   setTimeout(() => {
@@ -426,7 +425,7 @@ function onLumenDrop(e: DragEvent) {
   
   if (!draggedItem.value) return;
   
-  // Add ke akhir Lumen cards jika drop di area kosong
+  // Add to the end of Lumen cards when dropped on the empty area.
   if (!lumenCards.value.includes(draggedItem.value)) {
     // Ensure a card lives in only one section.
     if (mySpaceCards.value.includes(draggedItem.value)) {
@@ -435,7 +434,6 @@ function onLumenDrop(e: DragEvent) {
     }
     lumenCards.value.push(draggedItem.value);
     localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
-    console.log('Added to end of Lumen:', draggedItem.value);
   }
   
   draggedItem.value = null;
@@ -448,7 +446,6 @@ function onLumenDrop(e: DragEvent) {
 function removeLumenCard(key: string) {
   lumenCards.value = lumenCards.value.filter(k => k !== key);
   localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
-  console.log('Removed from Lumen:', key);
 }
 
 function restoreMySpaceDefaults() {
@@ -472,8 +469,6 @@ function restoreLumenDefaults() {
 function onItemDrop(e: DragEvent, dropKey: string) {
   e.preventDefault();
   e.stopPropagation();
-  
-  console.log('Drop on:', dropKey, 'Dragged:', draggedItem.value);
 
   if (dragSource.value !== 'sidebar') {
     draggedItem.value = null;
@@ -497,16 +492,12 @@ function onItemDrop(e: DragEvent, dropKey: string) {
     return;
   }
   
-  console.log('Reordering from', draggedIndex, 'to', dropIndex);
-  
   currentRoutes.splice(draggedIndex, 1);
   currentRoutes.splice(dropIndex, 0, draggedItem.value);
-  
+
   customOrder.value = currentRoutes;
   localStorage.setItem(ORDER_KEY, JSON.stringify(currentRoutes));
-  
-  console.log('New order:', currentRoutes);
-  
+
   draggedItem.value = null;
   dragOverItem.value = null;
   
@@ -591,10 +582,6 @@ function getCardTitle(key: string): string {
   return titles[key] || formatRouteName(key);
 }
 
-function getCardDescription(key: string): string {
-  return getRouteDescription(key);
-}
-
 const ACTION_ICON_STYLES: Record<string, { background: string; color: string }> = {
   drive: { background: "linear-gradient(135deg, var(--color-success) 0%, var(--color-secondary) 100%)", color: "#fff" },
   wallet: { background: "linear-gradient(135deg, var(--color-warning) 0%, var(--color-yellow) 100%)", color: "#fff" },
@@ -615,18 +602,18 @@ function actionIconStyle(key: string): Record<string, string> {
 function getCardIcon(key: string) {
   const icons: Record<string, any> = {
     home: Home,
-    drive: HardDrive,
+    drive: Cloud,
     wallet: Wallet,
     network: Network,
     settings: Settings,
-    explorer: Globe,
-    domain: AtSign,
-    dao: Vote,
-    release: Package,
+    explorer: LayoutGrid,
+    domain: Globe,
+    dao: Users,
+    release: Rocket,
     newtab: Layers,
     search: Search,
     history: History,
-    gateways: Globe,
+    gateways: Server,
     help: HelpCircle,
     ipfs: Database
   };
@@ -636,18 +623,18 @@ function getCardIcon(key: string) {
 function getRouteIcon(key: string) {
   const icons: Record<string, any> = {
     home: Home,
-    drive: HardDrive,
+    drive: Cloud,
     wallet: Wallet,
     network: Network,
     settings: Settings,
-    explorer: Globe,
-    domain: AtSign,
-    dao: Vote,
-    release: Package,
+    explorer: LayoutGrid,
+    domain: Globe,
+    dao: Users,
+    release: Rocket,
     newtab: Layers,
     search: Search,
     history: History,
-    gateways: Globe,
+    gateways: Server,
     help: HelpCircle
   };
   return icons[key] || FileText;

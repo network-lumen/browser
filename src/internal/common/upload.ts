@@ -104,7 +104,6 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         const result = fileType == "dir" 
             ? await api.ipfsAddDirectoryFromPathWithProgress({ rootPath, rootName: name, uploadId }, { signal: controller.signal })
             : await api.ipfsAddPathWithProgress({ filePath: dirPath, filename: name, uploadId }, { signal: controller.signal });
-        console.log(JSON.stringify(result))
         if(!result.ok && result.error === "cancelled")
             throw new Error("Upload cancelled");
         if (!result?.cid)

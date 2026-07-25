@@ -14,7 +14,7 @@
             <X :size="18" />
           </button>
         </div>
-        <div class="p-20px overflow-y-auto">
+        <div class="p-20px overflow-y-auto min-h-0">
           <slot />
         </div>
         <div v-if="$slots.footer" class="flex-justify-end gap-12px p-20px border-top-default">

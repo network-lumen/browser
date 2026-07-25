@@ -1,11 +1,11 @@
 <template>
   <!-- ####### lumen://history HISTORY ####### -->
-  <div class="internal-page flex min-h-full">
+  <div class="internal-page flex">
     <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
 
     <main class="flex-1 min-w-0 min-h-0 p-20px flex flex-column gap-16px overflow-y-auto">
       <header class="flex-align-center-justify-space-between gap-16px flex-justify-space-between border-default bg-card shadow-sm border-radius-24px py-20px px-20px">
-        <div class="">
+        <div>
           <h1 class="color-text-primary m-0px text-clamp-18-4vw-28rem">History</h1>
         </div>
 
@@ -13,7 +13,7 @@
           <button
             type="button"
             class="flex-inline-align-justify-center border-none color-text-secondary cursor-pointer bg-fill-secondary border-radius-full gap-8px py-12px px-16px txt-weight-medium transition-lift-015 hover-lift-1"
-            :class="{ active: historyEnabled, 'bg-fill-success': historyEnabled }"
+            :class="{ 'bg-fill-success': historyEnabled }"
             @click="toggleHistoryMode"
           >
             <component :is="historyEnabled ? Power : ShieldOff" :size="15" />
@@ -72,14 +72,16 @@
                 <span v-if="entry.visitCount > 1" class="color-text-tertiary text-12px txt-weight-medium">
                   {{ entry.visitCount }} visits
                 </span>
-                <button
-                  type="button"
-                  class="border-none bg-transparent color-text-tertiary cursor-pointer h-32px border-radius-10px transition-all-fast w-32px hover-color-error hover-bg-fill-error"
+                <UiButton
+                  variant="icon"
+                  icon-radius-class="border-radius-10px"
+                  icon-padding-class=""
+                  class="color-text-tertiary h-32px w-32px flex-inline-align-justify-center transition-all-fast hover-color-error hover-bg-fill-error"
                   title="Remove from history"
                   @click.stop="removeHistoryEntry(entry.id)"
                 >
                   <Trash2 :size="14" />
-                </button>
+                </UiButton>
               </div>
             </article>
           </div>
@@ -91,9 +93,9 @@
           <UiEmptyState :title="emptyTitle" :description="emptyCopy">
             <HistoryIcon :size="22" />
             <template #actions>
-              <UiButton variant="secondary" v-if="!historyEnabled"
+              <UiButton variant="none" v-if="!historyEnabled"
                 type="button"
-                @click="setHistoryEnabled(true)" class="active bg-fill-success">
+                @click="setHistoryEnabled(true)" class="border-radius-10px border-1 bg-fill-success color-success text-12px line-height-12 py-12px px-20px hover-bg-hover">
                 <Power :size="15" />
                 <span>Turn on history</span>
               </UiButton>

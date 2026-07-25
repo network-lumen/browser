@@ -6,10 +6,7 @@
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Monitoring">
           <UiSidebarNavItem reveal :active="activeView === 'status'" @click="activeView = 'status'">
-            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 3v18h18"/>
-              <path d="M18 17l-4-4-4 4-4-4"/>
-            </svg>
+            <ChartLine class="reveal-target flex-shrink-0 opacity-85" :size="18" />
             <span>Status</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="activeView === 'params'" @click="activeView = 'params'">
@@ -17,9 +14,7 @@
             <span>Params</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem v-if="activeView === 'status'" :disabled="refreshing" @click="refreshData">
-            <svg class="flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: refreshing }">
-              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-            </svg>
+            <RefreshCw class="flex-shrink-0 opacity-85" :size="18" :class="{ spinning: refreshing }" />
             <span>{{ refreshing ? 'Refreshing...' : 'Refresh' }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
@@ -54,15 +49,15 @@
         <UiSidebarNavSection title="Node Info">
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="color-text-tertiary fw-500 text-11px">Chain ID</span>
-            <span class="color-text-secondary txt-weight-light text-12px mono">lumen</span>
+            <span class="color-text-secondary txt-weight-light text-12px mono">{{ chainId || 'lumen' }}</span>
           </div>
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="color-text-tertiary fw-500 text-11px">Network</span>
-            <span class="color-text-secondary txt-weight-light text-12px mono">Mainnet</span>
+            <span class="color-text-secondary txt-weight-light text-12px mono">{{ networkLabel }}</span>
           </div>
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="color-text-tertiary fw-500 text-11px">SDK</span>
-            <span class="color-text-secondary txt-weight-light text-12px mono">v0.47.0</span>
+            <span class="color-text-secondary txt-weight-light text-12px mono">{{ sdkVersion || '—' }}</span>
           </div>
           <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
             <span class="color-text-tertiary fw-500 text-11px">Peers</span>
@@ -207,10 +202,7 @@
                     <span class="flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-primary border-1 border-radius-4px text-13px py-0px px-8px h-24px min-w-32px" :class="{ 'bg-fill-success border-color-success-a30 color-success': block.txs > 0 }">{{ block.txs }}</span>
                   </div>
                   <div class="flex-align-center color-text-secondary gap-6px text-12px line-height-1">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" opacity="0.5">
-                      <path d="M6 0C2.7 0 0 2.7 0 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm0 10.8c-2.65 0-4.8-2.15-4.8-4.8S3.35 1.2 6 1.2s4.8 2.15 4.8 4.8-2.15 4.8-4.8 4.8z"/>
-                      <path d="M6.6 3H5.4v3.3l2.85 1.7.6-1-2.25-1.35V3z"/>
-                    </svg>
+                    <Clock :size="12" class="opacity-40" />
                     <span class="nowrap line-height-1">{{ formatTime(block.time) }}</span>
                   </div>
                 </div>
@@ -234,7 +226,7 @@ import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiStatCard from '../../ui/UiStatCard.vue';
 import UiMeterCard from '../../ui/UiMeterCard.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch, inject } from 'vue';
-import { Network, SlidersHorizontal } from 'lucide-vue-next';
+import { Network, SlidersHorizontal, ChartLine, RefreshCw, Clock } from 'lucide-vue-next';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
@@ -254,9 +246,33 @@ const blockTime = ref(0);
 const validators = ref({ total: 0, active: 0, jailed: 0 });
 const tps = ref(0);
 const peers = ref(0);
-const uptime = ref('0%');
+const uptime = ref('—');
 const connectionStatus = ref<'online' | 'syncing' | 'offline'>('offline');
 const refreshing = ref(false);
+
+// Node info (chain id / network label / SDK version) - fetched once, rarely changes.
+const chainId = ref('');
+const sdkVersion = ref('');
+const networkLabel = computed(() => {
+  const id = chainId.value.toLowerCase();
+  if (!id) return '—';
+  if (id.includes('test')) return 'Testnet';
+  if (id.includes('dev')) return 'Devnet';
+  return 'Mainnet';
+});
+
+// Session uptime: how long this tab has been continuously connected (real, not a fabricated network-wide %).
+let sessionConnectedSince: number | null = null;
+function formatUptime(ms: number): string {
+  const totalSec = Math.floor(ms / 1000);
+  const days = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400) / 3600);
+  const minutes = Math.floor((totalSec % 3600) / 60);
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m`;
+  return `${totalSec}s`;
+}
 
 // Chart data
 const activeChart = ref<'blocks' | 'txs' | 'tps'>('blocks');
@@ -276,15 +292,6 @@ interface Block {
 const recentBlocks = ref<Block[]>([]);
 const avatarCache = ref<Record<string, string>>({});
 const proposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});
-
-// Computed
-const connectionStatusText = computed(() => {
-  switch (connectionStatus.value) {
-    case 'online': return 'Online';
-    case 'syncing': return 'Syncing';
-    default: return 'Offline';
-  }
-});
 
 function indicatorFillStyle(state: string): Record<string, string> {
   if (state === "excellent") return { background: "var(--color-success)" };
@@ -360,7 +367,14 @@ function getAreaPath(points: { x: number; y: number }[], height = 120): string {
 const blockChartPoints = computed(() => getChartPoints(blockTimeHistory.value));
 const blockChartLinePath = computed(() => getLinePath(blockChartPoints.value));
 const txChartPoints = computed(() => getChartPoints(txHistory.value));
-const tpsChartPoints = computed(() => getChartPoints([15, 18, 12, 22, 17, 20, 14, 19, 16, 21]));
+// Per-interval TPS, derived from the same tx-count/block-time history used for maxTps.
+const tpsHistory = computed(() =>
+  txHistory.value.map((tx, i) => {
+    const seconds = blockTimeHistory.value[i];
+    return seconds > 0 ? tx / seconds : 0;
+  })
+);
+const tpsChartPoints = computed(() => getChartPoints(tpsHistory.value));
 const tpsChartPath = computed(() => getAreaPath(tpsChartPoints.value));
 const tpsChartLinePath = computed(() => getLinePath(tpsChartPoints.value));
 
@@ -453,8 +467,8 @@ async function fetchKeybaseAvatars() {
           }
         }
       }
-    } catch (e) {
-      console.log(`Failed to fetch avatar for ${validator.moniker}`);
+    } catch {
+      console.warn(`Failed to fetch avatar for ${validator.moniker}`);
     }
   }
 }
@@ -606,12 +620,30 @@ async function fetchNetStats() {
       }
     }
     
-    // Estimate uptime (if chain is online, assume high uptime)
+    // Session uptime: time this tab has been continuously connected.
     if (connectionStatus.value === 'online') {
-      uptime.value = '99.9%';
+      if (sessionConnectedSince == null) sessionConnectedSince = Date.now();
+      uptime.value = formatUptime(Date.now() - sessionConnectedSince);
+    } else {
+      sessionConnectedSince = null;
+      uptime.value = '—';
     }
   } catch (e) {
     console.error('Failed to fetch network stats:', e);
+  }
+}
+
+// Fetch chain id / SDK version (rarely changes, fetched once on mount).
+async function fetchNodeInfo() {
+  try {
+    if (!lumen?.http?.get) return;
+    const res = await lumen.net.restGet('/cosmos/base/tendermint/v1beta1/node_info');
+    if (res.ok && res.json) {
+      chainId.value = res.json.default_node_info?.network || '';
+      sdkVersion.value = res.json.application_version?.cosmos_sdk_version || '';
+    }
+  } catch (e) {
+    console.error('Failed to fetch node info:', e);
   }
 }
 
@@ -622,6 +654,7 @@ async function fetchData() {
 
 onMounted(() => {
   fetchData();
+  void fetchNodeInfo();
   const interval = setInterval(fetchData, 10000);
   onBeforeUnmount(() => clearInterval(interval));
 });

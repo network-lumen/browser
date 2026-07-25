@@ -113,9 +113,9 @@
             <UiToggle v-model="showDisturbingImagery" />
           </UiOptionRow>
 
-          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText>
             Sensitive content is blurred by default. You can choose what to reveal.
-          </div>
+          </UiHintText>
         </div>
       </div>
 
@@ -147,9 +147,9 @@
             </UiButton>
           </UiOptionRow>
 
-          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText>
             Turning history off stops new entries from being saved, but does not delete existing ones.
-          </div>
+          </UiHintText>
         </div>
       </div>
 
@@ -170,19 +170,19 @@
             </div>
           </UiOptionRow>
 
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText>
             If your network is unstable or your device is resource-constrained, Light is recommended.
-          </p>
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText>
             Changes are applied automatically by restarting the embedded Kubo daemon.
-          </p>
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText>
             Current idle connection target:
             <span class="break-all mono">{{ networkModeSummary }}</span>
-          </p>
-          <p v-if="networkSettingsError" class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText v-if="networkSettingsError">
             {{ networkSettingsError }}
-          </p>
+          </UiHintText>
         </div>
       </div>
 
@@ -351,7 +351,7 @@
             </div>
           </div>
 
-          <p class="mt-16px text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="mt-16px color-text-tertiary text-13px">
             <strong>How it works:</strong> When enabled, every wallet signing operation 
             (send tokens, delegate, create domain, etc.) will require your password. 
             {{ securitySessionHintText }}
@@ -398,7 +398,7 @@
               </div>
             </label>
           </UiCard>
-          <p v-else class="text-12px color-text-tertiary mt-8px text-13px mt-4px">No profiles found.</p>
+          <UiHintText v-else>No profiles found.</UiHintText>
 
           <UiOptionRow v-if="profiles.length" label="Display name" description="Rename a profile without changing its internal profile ID." control-class="gap-8px">
             <select
@@ -432,9 +432,9 @@
               {{ profileRenameSaving ? 'Saving...' : 'Save' }}
             </UiButton>
           </UiOptionRow>
-          <p v-if="profileRenameError" class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText v-if="profileRenameError">
             {{ profileRenameError }}
-          </p>
+          </UiHintText>
 
           <UiOptionRow v-if="profiles.length" label="Profile photo" description="Override the generated profile thumbnail with a local image." control-class="flex-wrap-wrap gap-8px flex-justify-end">
             <select
@@ -467,12 +467,12 @@
               Reset
             </UiButton>
           </UiOptionRow>
-          <p v-if="profileAvatarError" class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText v-if="profileAvatarError">
             {{ profileAvatarError }}
-          </p>
-          <p v-if="profiles.length" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText v-if="profiles.length">
             Lumen crops the selected image to a square thumbnail and stores it with the profile.
-          </p>
+          </UiHintText>
 
            <UiOptionRow label="Backups" description="Export full backup folders (profiles + PQC keys)." control-class="gap-8px">
              <UiButton variant="secondary" type="button"
@@ -481,10 +481,10 @@
                Export selected ({{ selectedProfileIds.length }})
              </UiButton>
            </UiOptionRow>
-           <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+           <UiHintText>
              Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
-           </p>
-           <p v-if="backupExportSummary" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">{{ backupExportSummary }}</p>
+           </UiHintText>
+           <UiHintText v-if="backupExportSummary">{{ backupExportSummary }}</UiHintText>
            <div v-if="backupExportFailures.length" class="flex flex-column gap-4px mt-4px">
              <div v-for="f in backupExportFailures" :key="f.id" class="color-error text-13px">
                {{ f.id }}: {{ f.error || 'failed' }}
@@ -496,9 +496,9 @@
       <!-- ####### lumen://settings DEVELOPER SETTINGS VIEW ####### -->
       <div v-else-if="currentView === 'advanced'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText>
             These settings are intended for developers. Most users should not need to change them.
-          </p>
+          </UiHintText>
 
           <div class="flex-align-center gap-8px mt-16px txt-weight-medium color-text-primary mb-8px text-14px">
             <Globe :size="18" />
@@ -538,9 +538,9 @@
             <span class="color-text-secondary text-13px">GB</span>
           </UiOptionRow>
 
-          <div v-if="devSettingsError" class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText v-if="devSettingsError">
             {{ devSettingsError }}
-          </div>
+          </UiHintText>
 
           <div class="mt-12px gap-8px">
             <UiButton variant="secondary" type="button"
@@ -555,12 +555,12 @@
             </UiButton>
           </div>
 
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText>
             Note: the local IPFS daemon must actually be configured to use these ports/addresses.
-          </p>
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText>
             Network changes are applied automatically (no restart prompt).
-          </p>
+          </UiHintText>
 
           <div class="flex-align-center gap-8px mt-16px txt-weight-medium color-text-primary mb-8px text-14px">
             <FolderOpen :size="18" />
@@ -584,27 +584,24 @@
             </div>
           </UiOptionRow>
 
-          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText>
             Active now: <span class="break-all mono">{{ activeUserDataPath || 'Unavailable' }}</span>
-          </div>
-          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText>
             Next launch target: <span class="break-all mono">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
-          </div>
-          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText>
             Default target: <span class="break-all mono">{{ defaultUserDataPath || 'Unavailable' }}</span>
-          </div>
-          <div v-if="bootstrapConfigPath" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText v-if="bootstrapConfigPath">
             Bootstrap config: <span class="break-all mono">{{ bootstrapConfigPath }}</span>
-          </div>
-          <div v-if="activeLogsPath" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText v-if="activeLogsPath">
             Active logs folder: <span class="break-all mono">{{ activeLogsPath }}</span>
-          </div>
-          <div
-            v-if="lumenDataFolderError"
-            class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px"
-          >
+          </UiHintText>
+          <UiHintText v-if="lumenDataFolderError">
             {{ lumenDataFolderError }}
-          </div>
+          </UiHintText>
 
           <div class="mt-12px gap-8px">
             <UiButton variant="secondary" type="button"
@@ -624,24 +621,24 @@
             </UiButton>
           </div>
 
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText>
             Leave the field empty to go back to the default folder target.
-          </p>
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText>
             Restart Lumen after changing this target. Existing files are not moved automatically.
-          </p>
-          <p v-if="bootstrapRestartRequired" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          </UiHintText>
+          <UiHintText v-if="bootstrapRestartRequired">
             Restart required: the running app is still using <span class="break-all mono">{{ activeUserDataPath }}</span>.
-          </p>
+          </UiHintText>
         </div>
       </div>
 
       <!-- ####### lumen://settings TROUBLESHOOTING VIEW ####### -->
       <div v-else-if="currentView === 'troubleshooting'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText>
             Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.
-          </p>
+          </UiHintText>
 
           <UiOptionRow label="Copy Debug Report" description="Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.">
             <UiButton variant="secondary" type="button"
@@ -661,9 +658,9 @@
             </UiButton>
           </UiOptionRow>
 
-          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <UiHintText>
             The logs folder is regenerated on demand so people can inspect the current support snapshot and share relevant log excerpts.
-          </p>
+          </UiHintText>
           <p v-if="troubleshootingDir" class="border-radius-12px color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
             Logs folder: {{ troubleshootingDir }}
           </p>
@@ -679,9 +676,7 @@
           <!-- Main Enable Toggle -->
           <UiOptionRow :class="{ 'border-color-success bg-gradient-success-soft': privateCloudEnabled }" class="border-width-2px" description="Use your own private IPFS gateways for content delivery">
             <template #label>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-block align-middle mr-8px">
-                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
-              </svg>
+              <Cloud :size="18" class="inline-block align-middle mr-8px" />
               Enable Private Cloud
             </template>
             <UiToggle v-model="privateCloudEnabled" />
@@ -692,7 +687,7 @@
             <!-- Gateway Preferences -->
             <div class="mt-16px">
               <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway Preferences</h3>
-              
+
               <UiOptionRow label="Prefer Private Gateways" description="Try private gateways first before DAO gateways">
                 <UiToggle v-model="preferPrivateGateways" />
               </UiOptionRow>
@@ -720,12 +715,7 @@
                   </div>
                 </div>
                 <UiEmptyState v-else title="No gateway IDs configured" description="Add your first gateway ID below">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-40">
-                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                    <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                    <line x1="6" y1="18" x2="6.01" y2="18"></line>
-                  </svg>
+                  <Server :size="40" class="opacity-40" />
                 </UiEmptyState>
 
                 <div class="flex gap-12px">
@@ -772,11 +762,7 @@
 
             <!-- Info Box -->
             <div class="flex gap-16px border-radius-12px mt-16px py-16px px-20px border-15-primary-a20">
-              <svg class="flex-shrink-0 color-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
+              <Info :size="20" class="flex-shrink-0 color-primary" />
               <div>
                 <strong class="block text-14px color-text-primary mb-4px">Need to create a gateway?</strong>
                 <p class="text-14px color-text-secondary m-0px line-height-15">Visit <a class="color-primary fw-500 hover-underline" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
@@ -834,6 +820,7 @@ import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import UiHintText from '../../ui/UiHintText.vue';
 import { ref, watch, computed, inject, onMounted } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 
@@ -858,6 +845,7 @@ import {
   Lock,
   LockKeyhole,
   Cloud,
+  Server,
   Plus,
   X
 } from 'lucide-vue-next';
@@ -917,7 +905,7 @@ function clearProfileHistory() {
 }
 
 const currentView = ref<'appearance' | 'content' | 'network' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'troubleshooting' | 'privatecloud' | 'about'>('appearance');
-const { theme, effectiveTheme, setTheme, initTheme } = useTheme();
+const { theme, setTheme, initTheme } = useTheme();
 const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
 const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
 const { historyEntries, historyEnabled, clearHistory, setHistoryEnabled } = useHistory();
@@ -1607,16 +1595,13 @@ async function loadPrivateCloudConfig() {
   privateCloudLoading.value = true;
   try {
     const config = await useInternalLumen().settingsLoadPrivateCloudConfig();
-    console.log('[SettingsPage] Loaded config:', config);
-    
+
     privateCloudEnabled.value = !!config.enabled;
     preferPrivateGateways.value = !!config.preferPrivate;
     fallbackToDAO.value = config.fallbackToDAO !== false;
     gatewayIds.value = Array.isArray(config.gatewayIds) ? config.gatewayIds : [];
     gatewayTimeout.value = typeof config.timeout === 'number' ? config.timeout : 5000;
     maxRetries.value = typeof config.maxRetries === 'number' ? config.maxRetries : 3;
-    
-    console.log('[SettingsPage] Config loaded successfully');
   } catch (e) {
     console.error('Failed to load private cloud config:', e);
   } finally {
@@ -1624,7 +1609,6 @@ async function loadPrivateCloudConfig() {
     // Use nextTick to ensure all reactive updates are done before enabling watch
     await new Promise(resolve => setTimeout(resolve, 100));
     privateCloudInitialized.value = true;
-    console.log('[SettingsPage] Private cloud initialized');
   }
 }
 
@@ -1639,15 +1623,11 @@ async function savePrivateCloudConfig() {
       maxRetries: maxRetries.value
     };
     
-    console.log('[SettingsPage] Saving private cloud config:', config);
     const result = await useInternalLumen().settingsSavePrivateCloudConfig(config);
-    console.log('[SettingsPage] Save result:', result);
-    
+
     if (!result.ok) {
       console.error('Failed to save private cloud config:', result.error);
       toast.error(result.error || 'Failed to save private cloud settings');
-    } else {
-      console.log('[SettingsPage] Config saved successfully');
     }
   } catch (e) {
     console.error('Failed to save private cloud config:', e);
@@ -1676,10 +1656,7 @@ function removeGatewayId(index: number) {
 watch([privateCloudEnabled, preferPrivateGateways, fallbackToDAO, gatewayTimeout, maxRetries], () => {
   // Only auto-save if not loading and has been initialized (prevents save on initial load)
   if (!privateCloudLoading.value && privateCloudInitialized.value) {
-    console.log('[SettingsPage] Watch triggered, saving config...');
     savePrivateCloudConfig();
-  } else {
-    console.log('[SettingsPage] Watch triggered but skipped (loading:', privateCloudLoading.value, 'initialized:', privateCloudInitialized.value, ')');
   }
 });
 

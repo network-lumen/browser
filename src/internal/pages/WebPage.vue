@@ -217,9 +217,7 @@ async function installChromeWebStoreExtension(input: string) {
     const result = await api.installFromChromeWebStore(input);
     if (!result || result.ok === false) {
       console.warn("[webview][extensions] install from store failed:", result?.error || "unknown_error");
-      return;
     }
-    console.log("[webview][extensions] extension imported from store:", input);
   } catch (error: any) {
     console.warn("[webview][extensions] install from store failed:", error?.message || error || "unknown_error");
   }

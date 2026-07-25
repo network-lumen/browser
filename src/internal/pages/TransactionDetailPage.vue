@@ -1,5 +1,5 @@
 <template>
-  <!-- ####### lumen://transaction TRANSACTION DETAIL ####### -->
+  <!-- ####### lumen://explorer/tx/<hash> TRANSACTION DETAIL (embedded sub-view of ExplorerPage) ####### -->
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
     <UiLoadingState v-if="loading" message="Loading transaction data..." />
 
@@ -42,9 +42,7 @@
                 <span class="color-text-primary txt-weight-light text-14px">{{ msg.type }}</span>
                 <span class="color-text-tertiary text-12px">#{{ Number(index) + 1 }}</span>
               </div>
-              <div class="">
-                <pre class="bg-primary color-text-primary p-16px m-0px word-wrap-break border-1 border-radius-6px mono text-12px pre-wrap overflow-x-auto">{{ JSON.stringify(msg.value, null, 2) }}</pre>
-              </div>
+              <pre class="bg-primary color-text-primary p-16px m-0px word-wrap-break border-1 border-radius-6px mono text-12px pre-wrap overflow-x-auto">{{ JSON.stringify(msg.value, null, 2) }}</pre>
             </UiCard>
           </div>
         </div>
@@ -72,9 +70,7 @@
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Raw Transaction Data" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="p-24px">
-          <div>
-            <pre class="bg-primary color-text-primary">{{ JSON.stringify(transaction.raw, null, 2) }}</pre>
-          </div>
+          <pre class="bg-primary color-text-primary p-16px m-0px word-wrap-break border-1 border-radius-6px mono text-12px pre-wrap overflow-x-auto">{{ JSON.stringify(transaction.raw, null, 2) }}</pre>
         </div>
       </UiCard>
     </div>
@@ -176,7 +172,8 @@ async function loadTransactionData() {
 
     const txResult = data.result;
     const txData = txResult.tx_result;
-    const tx = txResult.tx;
+
+    const { fee, messages } = await fetchTxRestData(upperHash);
 
     transaction.value = {
       hash: txHash.value,
@@ -185,8 +182,8 @@ async function loadTransactionData() {
       success: txData.code === 0,
       gasUsed: txData.gas_used || 0,
       gasWanted: txData.gas_wanted || 0,
-      fee: parseFee(tx),
-      messages: parseMessages(tx),
+      fee,
+      messages,
       events: txData.events || [],
       raw: txResult
     };
@@ -199,20 +196,33 @@ async function loadTransactionData() {
   }
 }
 
-function parseFee(tx: string): string {
-  try {
-    const decoded = atob(tx);
-    return '0 LUMEN';
-  } catch (err) {
-    return 'N/A';
-  }
+function formatDenom(denom: string): string {
+  if (!denom) return '';
+  const lower = String(denom).toLowerCase();
+  if (lower === 'ulmn') return 'LMN';
+  if (lower === 'ulumen') return 'LUMEN';
+  if (lower.startsWith('u')) return lower.slice(1).toUpperCase();
+  return denom;
 }
 
-function parseMessages(tx: string): any[] {
+function formatFeeAmount(coins: any): string {
+  if (!Array.isArray(coins) || !coins.length) return '0 LMN';
+  return coins.map((c) => `${Number(c.amount) / 1e6} ${formatDenom(c.denom)}`).join(', ');
+}
+
+async function fetchTxRestData(hash: string): Promise<{ fee: string; messages: any[] }> {
   try {
-    return [];
-  } catch (err) {
-    return [];
+    const res = await lumen.net.restGet(`/cosmos/tx/v1beta1/txs/${hash}`);
+    if (!res.ok) return { fee: 'N/A', messages: [] };
+    const txResp = res.json?.tx_response;
+    const fee = formatFeeAmount(txResp?.tx?.auth_info?.fee?.amount);
+    const rawMessages = txResp?.tx?.body?.messages;
+    const messages = Array.isArray(rawMessages)
+      ? rawMessages.map((m: any) => ({ type: m?.['@type'] || 'Unknown', value: m }))
+      : [];
+    return { fee, messages };
+  } catch {
+    return { fee: 'N/A', messages: [] };
   }
 }
 

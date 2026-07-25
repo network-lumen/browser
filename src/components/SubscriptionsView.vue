@@ -19,7 +19,7 @@
             <h4 class="color-text-primary text-14px m-0px mb-4px">{{ reminder.paymentName }}</h4>
             <p class="color-text-secondary m-0px text-13px">{{ formatAmount(reminder.amount) }} LMN · {{ formatRelativeDate(reminder.scheduledDate) }}</p>
           </div>
-          <UiButton variant="primary" @click="dismissReminder(reminder.id)" class="">
+          <UiButton variant="primary" @click="dismissReminder(reminder.id)">
             <X :size="16" />
           </UiButton>
         </div>
@@ -120,21 +120,19 @@
 
           <div class="flex gap-8px pt-16px border-top-1">
             <UiButton variant="secondary" @click="viewHistory(payment)"
-              title="View History" class="">
+              title="View History">
               <History :size="16" />
             </UiButton>
             <UiButton variant="secondary" @click="editPayment(payment)"
-              title="Edit" class="">
+              title="Edit">
               <Edit :size="16" />
             </UiButton>
             <UiButton variant="secondary" v-if="payment.status === 'active'"
-             
               @click="pausePayment(payment.id)"
               title="Pause" class="hover-bg-warning-a15">
               <PauseCircle :size="16" />
             </UiButton>
             <UiButton variant="secondary" v-else-if="payment.status === 'paused'"
-             
               @click="resumePayment(payment.id)"
               title="Resume" class="hover-bg-fill-success">
               <PlayCircle :size="16" />
@@ -221,7 +219,7 @@ import {
 } from 'lucide-vue-next';
 import RecurringPaymentModal from './RecurringPaymentModal.vue';
 import QrScanner from './QrScanner.vue';
-import { getRecurringPaymentsService, type RecurringPayment, type PaymentHistory, type PaymentReminder } from '../internal/services/recurringPayments';
+import { getRecurringPaymentsService, type RecurringPayment, type PaymentHistory } from '../internal/services/recurringPayments';
 
 const emit = defineEmits<{
   (e: 'execute-payment', paymentId: string): void;

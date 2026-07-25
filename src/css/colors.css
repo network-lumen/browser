@@ -6,7 +6,6 @@
 .bg-black-a35 { background: rgba(0, 0, 0, 0.35); }
 .bg-black-a50 { background: rgba(0, 0, 0, 0.5); }
 .bg-black-a60 { background: rgba(0, 0, 0, 0.6); }
-.bg-black-a80 { background: rgba(0, 0, 0, 0.8); }
 .bg-blue-sky { background-color: var(--blue-sky); }
 .bg-border { background: var(--border-color); }
 .bg-card { background: var(--card-bg); }
@@ -26,7 +25,6 @@
 .bg-gradient-brand { background: var(--gradient-brand); }
 .bg-gradient-danger { background: linear-gradient(135deg, var(--color-error) 0%, color-mix(in srgb, var(--color-error) 80%, black) 100%); }
 .bg-gradient-extensions-store { background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%), linear-gradient(180deg, rgba(8, 15, 29, 0.98), rgba(5, 10, 20, 1)); }
-.bg-gradient-fallback-shimmer { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--bg-secondary) 76%, white) 100%); }
 .bg-gradient-gray { background: linear-gradient(135deg, var(--ios-gray-2) 0%, var(--ios-gray-1) 100%); }
 .bg-gradient-indigo-purple { background: linear-gradient(135deg, var(--color-indigo) 0%, var(--color-purple) 100%); }
 .bg-gradient-legend-bonded { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
@@ -34,7 +32,6 @@
 .bg-legend-unbonded { background: rgba(139, 92, 246, 0.2); }
 .spinner-color-white { --spinner-color: #fff; }
 .bg-gradient-success-soft { background: linear-gradient(135deg, rgba(var(--color-success-rgb), 0.05) 0%, rgba(var(--color-success-rgb), 0.02) 100%); }
-.bg-gradient-newtab-page { background: radial-gradient(900px 420px at 50% 0%, var(--primary-a10), transparent 72%), radial-gradient(700px 340px at 100% 10%, rgba(var(--color-indigo-rgb), 0.1), transparent 62%), var(--bg-primary); }
 .bg-gradient-panel { background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary)); }
 .bg-gradient-primary-a10-card { background: var(--gradient-primary-soft); }
 .bg-gradient-primary { background: var(--gradient-primary); }
@@ -61,7 +58,6 @@
 .bg-error { background: var(--color-error); }
 .bg-error-a08 { background: rgba(var(--color-error-rgb), 0.08); }
 .bg-error-a15 { background: rgba(var(--color-error-rgb), 0.15); }
-.bg-yellow-a08 { background: rgba(var(--color-yellow-rgb), 0.08); }
 .bg-yellow-a15 { background: rgba(var(--color-yellow-rgb), 0.15); }
 .bg-primary { background: var(--bg-primary); }
 .bg-primary-a05-selected { background: var(--primary-a05); }
@@ -101,7 +97,6 @@
 .color-purple { color: var(--color-purple); }
 .color-yellow-override { color: var(--color-yellow); }
 .color-scheme-light-dark { color-scheme: light dark; }
-.color-store-button { color: var(--store-button); }
 .color-store-error { color: var(--store-error); }
 .color-store-footnote { color: var(--store-footnote); }
 .color-store-strong { color: var(--store-strong); }
