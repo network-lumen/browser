@@ -1,7 +1,7 @@
 <template>
   <UiModal :model-value="visible" panel-class="walletonboard-modal w-90pct max-w-560px" :closable="false" @update:model-value="() => {}">
     <template #header>
-      <div class="text-center">
+      <div class="text-center w-full">
         <UiIconBadge size-class="size-64px mx-auto" badge-class="bg-gradient-primary color-white shadow-primary mb-16px">
           <Shield :size="30" />
         </UiIconBadge>
