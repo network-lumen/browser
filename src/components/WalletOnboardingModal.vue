@@ -1,14 +1,14 @@
 <template>
   <UiModal :model-value="visible" panel-class="walletonboard-modal w-90pct max-w-560px" :closable="false" @update:model-value="() => {}">
     <template #header>
-      <div class="walletonboard-header text-center">
-        <div class="walletonboard-header-icon flex-align-justify-center mb-16px">
-          <Shield :size="32" class="color-primary" />
-        </div>
-        <h2 class="walletonboard-title color-text-primary txt-weight-light text-24px m-0px mb-8px">
+      <div class="text-center">
+        <UiIconBadge size-class="size-64px mx-auto" badge-class="bg-gradient-primary color-white shadow-primary mb-16px">
+          <Shield :size="30" />
+        </UiIconBadge>
+        <h2 class="color-text-primary txt-weight-light text-24px m-0px mb-8px">
           {{ requiresProfileCreation ? "Create Your First Profile" : "Protect Your Wallet" }}
         </h2>
-        <p class="walletonboard-subtitle color-text-secondary m-0px text-14px">
+        <p class="color-text-secondary m-0px text-14px">
           {{
             requiresProfileCreation
               ? "A profile is required to use Drive, Wallet, and personal storage."
@@ -19,8 +19,8 @@
     </template>
           <div v-if="step === 'intro'" class="walletonboard-step animate-walletonboard-fade-in">
             <UiWarningBox>
-              <p class="text-12px line-height-12 txt-weight-strong m-0px">Important: No one can recover your wallet</p>
-              <p class="text-11px line-height-12 color-text-tertiary mt-4px m-0px">
+              <p class="text-14px txt-weight-medium m-0px">Important: No one can recover your wallet</p>
+              <p class="text-13px line-height-15 color-text-tertiary mt-4px m-0px">
                 Lumen is a self-custodial wallet. If you lose access to your wallet without backing it up,
                 your funds are permanently lost. We cannot help you recover them.
               </p>
@@ -37,20 +37,20 @@
           </div>
 
           <div v-else-if="step === 'password'" class="walletonboard-step animate-walletonboard-fade-in">
-            <p class="text-12px line-height-12 color-text-tertiary mb-16px">
+            <p class="text-14px line-height-15 color-text-tertiary mb-16px">
               Create a strong password to protect your wallet. You'll need this password to send transactions.
             </p>
 
-            <UiFormGroup label="Password (minimum 8 characters)" wrapper-class="mb-24px" label-class="text-11px line-height-12 txt-weight-strong color-text-primary">
+            <UiFormGroup label="Password (minimum 8 characters)" wrapper-class="mb-24px">
               <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="password"
                 placeholder="Enter password"
-                @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
+                @keyup.enter="handlePasswordSubmit" class="border-default focus-ring-blue placeholder-tertiary" />
             </UiFormGroup>
 
-            <UiFormGroup label="Confirm Password" wrapper-class="mb-24px" label-class="text-11px line-height-12 txt-weight-strong color-text-primary">
+            <UiFormGroup label="Confirm Password" wrapper-class="mb-24px">
               <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="confirmPassword"
                 placeholder="Confirm password"
-                @keyup.enter="handlePasswordSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
+                @keyup.enter="handlePasswordSubmit" class="border-default focus-ring-blue placeholder-tertiary" />
             </UiFormGroup>
 
             <UiBanner v-if="passwordError" variant="error" class="mt-8px">{{ passwordError }}</UiBanner>
@@ -59,15 +59,15 @@
           <div v-else-if="step === 'profile-name'" class="walletonboard-step animate-walletonboard-fade-in">
             <UiSuccessBanner v-if="passwordSet" message="Password set successfully!" />
 
-            <p class="text-12px line-height-12 color-text-tertiary mt-16px mb-16px">
+            <p class="text-14px line-height-15 color-text-tertiary mt-16px mb-16px">
               Choose a name for your first profile before creating your wallet.
             </p>
 
-            <UiFormGroup label="Profile name" wrapper-class="mb-24px" label-class="text-11px line-height-12 txt-weight-strong color-text-primary">
+            <UiFormGroup label="Profile name" wrapper-class="mb-24px">
               <UiInput bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="profileName"
                 placeholder="Enter a profile name"
                 maxlength="64"
-                @keyup.enter="handleProfileNameSubmit" class="walletonboard-input border-default focus-ring-blue placeholder-tertiary" />
+                @keyup.enter="handleProfileNameSubmit" class="border-default focus-ring-blue placeholder-tertiary" />
             </UiFormGroup>
 
             <UiBanner v-if="profileNameError" variant="error" class="mt-8px">{{ profileNameError }}</UiBanner>
@@ -99,12 +99,12 @@
           <div v-else-if="step === 'backup'" class="walletonboard-step animate-walletonboard-fade-in">
             <UiSuccessBanner v-if="passwordSet" message="Password set successfully!" />
 
-            <p class="text-12px line-height-12 color-text-tertiary mt-16px mb-16px">
+            <p class="text-14px line-height-15 color-text-tertiary mt-16px mb-16px">
               Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.
             </p>
 
             <UiWarningBox>
-              <p class="text-11px line-height-12 m-0px">
+              <p class="text-13px line-height-15 m-0px">
                 Store your backup in a secure location like an encrypted USB drive or password manager.
                 Never share it with anyone.
               </p>
@@ -120,14 +120,14 @@
               <template #icon><CheckCircle :size="48" class="color-success" /></template>
             </UiResultState>
 
-            <div class="walletonboard-reminder-box mt-32px p-24px border-radius-12px bg-secondary">
-              <p class="text-11px line-height-12 txt-weight-strong m-0px mb-8px color-text-primary">Remember:</p>
-              <ul class="text-11px line-height-12 color-text-tertiary m-0px pl-24px">
-                <li class="mb-8px">Never share your password or backup file</li>
-                <li class="mb-8px">Store your backup in multiple secure locations</li>
-                <li class="mb-8px">You'll need your password for all transactions</li>
-                <li>No one can recover your wallet if you lose both</li>
-              </ul>
+            <div class="mt-32px p-24px border-radius-12px bg-secondary">
+              <p class="text-14px txt-weight-medium m-0px mb-12px color-text-primary">Remember:</p>
+              <div class="flex flex-column gap-8px">
+                <div v-for="item in completeReminders" :key="item" class="flex-align-start gap-8px text-13px line-height-14 color-text-tertiary">
+                  <Check :size="14" class="color-success flex-shrink-0" />
+                  <span>{{ item }}</span>
+                </div>
+              </div>
             </div>
           </div>
     <template #footer>
@@ -180,7 +180,7 @@ import UiInput from '../ui/UiInput.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
 import { computed, ref, watch } from 'vue';
-import { Shield, Lock, Download, AlertCircle, CheckCircle } from 'lucide-vue-next';
+import { Shield, Lock, Download, AlertCircle, CheckCircle, Check } from 'lucide-vue-next';
 import UiSpinner from '../ui/UiSpinner.vue';
 import UiSuccessBanner from '../ui/UiSuccessBanner.vue';
 import UiResultState from '../ui/UiResultState.vue';
@@ -188,10 +188,18 @@ import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiBanner from '../ui/UiBanner.vue';
 import UiWarningBox from '../ui/UiWarningBox.vue';
 import UiCenteredInfoCard from '../ui/UiCenteredInfoCard.vue';
+import UiIconBadge from '../ui/UiIconBadge.vue';
 import { activeProfileId, createProfile, initProfiles, profilesState } from '../internal/profilesStore';
 import { useInternalLumen } from '../composables/useInternalLumen';
 
 type OnboardingStep = 'intro' | 'password' | 'profile-name' | 'creating-wallet' | 'backup' | 'complete';
+
+const completeReminders = [
+  'Never share your password or backup file',
+  'Store your backup in multiple secure locations',
+  "You'll need your password for all transactions",
+  'No one can recover your wallet if you lose both',
+];
 
 const props = defineProps<{
   visible: boolean;
@@ -219,10 +227,6 @@ const exportingBackup = ref(false);
 const requiresProfileCreation = computed(
   () => !profilesState.value.some((profile) => profile && profile.role !== 'guest'),
 );
-
-function handleOverlayClick() {
-  // Prevent closing by clicking overlay during onboarding
-}
 
 function handleSkip() {
   emit('skip');
