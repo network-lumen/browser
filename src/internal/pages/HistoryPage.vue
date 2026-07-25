@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://history HISTORY ####### -->
   <div class="internal-page flex min-h-full">
     <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
 

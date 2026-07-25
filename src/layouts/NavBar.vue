@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### NavBar TOP BAR (shared across all pages) ####### -->
   <header class="flex-align-center gap-12px py-8px px-12px bg-primary border-bottom-default min-h-48px">
     <!-- Navigation Controls -->
     <div class="flex-align-center gap-4px">
@@ -226,7 +227,7 @@
     </div>
   </header>
 
-  <!-- Export Options Modal -->
+  <!-- ####### NavBar EXPORT OPTIONS MODAL ####### -->
   <UiModal :model-value="showExportModal" title="Export Profile" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelExportModal">
           <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
             Export your profile backup.
@@ -296,7 +297,7 @@
     </template>
   </UiModal>
 
-  <!-- Import Modal -->
+  <!-- ####### NavBar IMPORT MODAL ####### -->
   <UiModal :model-value="showImportModal" title="Import profile" panel-class="min-w-360px max-w-90vw w-min-560px-92vw" @update:model-value="cancelImportModal">
           <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
             Choose how you want to import your profile.
@@ -426,7 +427,7 @@
     </template>
   </UiModal>
 
-  <!-- Import Password Modal (for encrypted backups) -->
+  <!-- ####### NavBar IMPORT PASSWORD MODAL (encrypted backups) ####### -->
   <UiModal :model-value="showImportPasswordModal" title="Encrypted Backup" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelImportPasswordModal">
           <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
             This backup is encrypted. Please enter the password to decrypt and import it.

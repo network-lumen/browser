@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://domain DOMAIN ####### -->
   <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Domains" :icon="Globe" activeKey="domain">

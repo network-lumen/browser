@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### http(s)/file/extension tabs WEB PAGE (fallback) ####### -->
   <div class="w-full h-full min-h-0 bg-primary overflow-hidden" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
     <div v-if="isChromeWebStorePage" class="w-full h-full flex-align-justify-center p-32px bg-primary">
       <div class="flex flex-column gap-12px text-center p-24px border-radius-20px border-1 bg-card shadow-xl max-w-520px">

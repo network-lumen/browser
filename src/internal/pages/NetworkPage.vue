@@ -1,6 +1,7 @@
 <template>
+  <!-- ####### lumen://network NETWORK ####### -->
   <div class="internal-page flex">
-    <!-- Sidebar -->
+    <!-- ####### lumen://network SIDEBAR ####### -->
     <InternalSidebar title="Network" :icon="Network" activeKey="network">
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Monitoring">
@@ -75,8 +76,9 @@
       </nav>
     </InternalSidebar>
 
-    <!-- Main Content -->
+    <!-- ####### lumen://network MAIN CONTENT ####### -->
     <div class="flex-1 overflow-y-auto bg-secondary">
+      <!-- ####### lumen://network STATUS VIEW ####### -->
       <template v-if="activeView === 'status'">
         <!-- Main Grid Layout -->
         <div class="gap-24px p-32px flex flex-wrap-wrap align-items-start">

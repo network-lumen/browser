@@ -1,6 +1,7 @@
 <template>
+  <!-- ####### lumen://dao DAO ####### -->
   <div class="internal-page flex">
-    <!-- Sidebar -->
+    <!-- ####### lumen://dao SIDEBAR ####### -->
     <InternalSidebar title="DAO" :icon="Users" activeKey="dao">
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Governance">
@@ -27,7 +28,7 @@
       </nav>
     </InternalSidebar>
 
-    <!-- Main Content -->
+    <!-- ####### lumen://dao MAIN CONTENT ####### -->
     <main class="flex-1 min-w-0 flex flex-column overflow-hidden bg-secondary m-0px py-32px px-40px">
       <!-- Header -->
       <UiPageHeader :title="getViewTitle()" :subtitle="getViewDescription()">
@@ -74,7 +75,7 @@
           </div>
         </div>
 
-        <!-- Proposals View -->
+        <!-- ####### lumen://dao PROPOSALS VIEW ####### -->
         <div v-if="currentView === 'proposals'" class="flex-1 overflow-y-auto">
           <UiEmptyState v-if="proposals.length === 0" description="No proposals found">
             <FileText :size="48" />
@@ -102,7 +103,7 @@
           </div>
         </div>
 
-        <!-- Voting View -->
+        <!-- ####### lumen://dao VOTING VIEW ####### -->
         <div v-else-if="currentView === 'voting'" class="flex-1 overflow-y-auto">
           <UiCard class="text-center" padding-class="p-32px" radius="16px" :shadow="false">
             <h3 class="txt-weight-light color-text-secondary text-16px m-0px mb-8px">Active Voting Proposals</h3>
@@ -139,7 +140,7 @@
           </div>
         </div>
 
-        <!-- Treasury View -->
+        <!-- ####### lumen://dao TREASURY VIEW ####### -->
         <div v-else-if="currentView === 'treasury'" class="flex-1 overflow-y-auto">
           <UiEmptyState v-if="treasuryAssets.length === 0" description="No treasury assets found">
             <Wallet :size="48" />
@@ -154,7 +155,7 @@
           </div>
         </div>
 
-        <!-- Members View -->
+        <!-- ####### lumen://dao MEMBERS VIEW ####### -->
         <div v-else-if="currentView === 'members'" class="flex-1 overflow-y-auto">
           <UiEmptyState v-if="members.length === 0" description="No validators found">
             <Users :size="48" />
@@ -177,7 +178,7 @@
       </template>
     </main>
 
-    <!-- Create Proposal Modal -->
+    <!-- ####### lumen://dao CREATE PROPOSAL MODAL ####### -->
     <UiModal :model-value="showCreateProposalModal" title="Create Proposal" panel-class="w-full max-w-640px" @update:model-value="closeCreateProposalModal">
             <p class="color-text-secondary mb-24px text-14px">Submit a proposal for DAO governance</p>
 
@@ -233,7 +234,7 @@
             </UiButton>
     </UiModal>
 
-    <!-- Vote Modal -->
+    <!-- ####### lumen://dao VOTE MODAL ####### -->
     <UiModal :model-value="showVoteModal" title="Cast Your Vote" panel-class="w-full max-w-520px" @update:model-value="closeVoteModal">
             <div class="flex-align-center flex-justify-space-between mb-24px border-radius-12px p-24px bg-gradient-primary">
               <h4 class="m-0px txt-weight-light text-18px color-white">{{ selectedProposal?.title || 'Proposal Title' }}</h4>

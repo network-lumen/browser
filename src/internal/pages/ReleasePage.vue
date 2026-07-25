@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://release RELEASE ####### -->
   <div class="internal-page flex">
     <InternalSidebar title="Releases" :icon="Rocket" activeKey="release">
       <nav class="flex flex-column gap-12px">

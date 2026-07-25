@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://gateways GATEWAYS ####### -->
   <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Gateways" :icon="Server" activeKey="gateways">

@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://extension EXTENSION POPUP ####### -->
   <div class="absolute inset-0 flex min-h-0 min-w-0 bg-dark-111">
     <UiExtensionStatus v-if="error" error>{{ error }}</UiExtensionStatus>
     <UiExtensionStatus v-else-if="guestPreloadLoading">Preparing extension host…</UiExtensionStatus>

@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://<domain>.lmn PERSONAL DOMAIN SITE (fallback) ####### -->
   <div class="w-full h-full min-h-0 bg-primary overflow-hidden flex" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
     <main class="fullscreen-target flex-1 flex flex-column overflow-hidden min-h-0 p-0px">
       <div v-if="loading" class="flex-1 flex-align-justify-center">

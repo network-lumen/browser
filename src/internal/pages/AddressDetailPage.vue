@@ -1,4 +1,5 @@
 <template>
+  <!-- ####### lumen://address ADDRESS DETAIL ####### -->
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
     <div class="mb-32px">
       <UiButton variant="ghost" @click="goBack" class="hover-shadow-primary">
