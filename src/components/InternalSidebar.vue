@@ -1,16 +1,16 @@
 <template>
-  <aside class="lumen-sidebar color-text-primary flex flex-column p-16px flex-shrink-0 min-h-0 w-240px backdrop-blur bg-sidebar-bg min-w-240px max-w-240px border-right-05-border-color">
-    <div class="lumen-sidebar-header flex gap-10px mb-16px flex-inline-align-center py-8px px-10px">
-      <div class="lumen-sidebar-icon bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-10px shadow-primary">
+  <aside class="color-text-primary flex flex-column p-16px flex-shrink-0 min-h-0 w-240px backdrop-blur bg-sidebar-bg min-w-240px max-w-240px border-right-05-border-color">
+    <div class="flex gap-10px mb-16px flex-inline-align-center py-8px px-10px">
+      <div class="bg-gradient-primary color-white flex-align-justify-center size-36px border-radius-10px shadow-primary">
         <component :is="icon" :size="20" />
       </div>
-      <span class="lumen-sidebar-title color-text-primary txt-weight-medium text-18px letter-spacing-n002">{{ title }}</span>
+      <span class="color-text-primary txt-weight-medium text-18px letter-spacing-n002">{{ title }}</span>
     </div>
 
     <ActiveProfileCard v-if="activeProfile" :profile="activeProfile" />
     <UiNoticeCard v-else title="No active profile" description="Create or import one from the navbar." class="mb-16px" />
 
-    <div class="lumen-sidebar-scroll flex-1 min-h-0 overflow-y-auto pr-4px overflow-x-hidden">
+    <div class="flex-1 min-h-0 overflow-y-auto pr-4px overflow-x-hidden">
       <slot />
 
       <AllPagesDropdown
@@ -19,19 +19,19 @@
         :exclude="allPagesExclude"
       />
 
-      <div v-if="renderedFavouriteEntries.length" class="sidebar-section mt-16px pt-12px border-top-05-border-light">
-        <div class="sidebar-section-header flex-align-center-justify-space-between gap-8px mb-8px py-0px px-8px">
-          <div class="sidebar-section-title color-text-tertiary text-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
+      <div v-if="renderedFavouriteEntries.length" class="mt-16px pt-12px border-top-05-border-light">
+        <div class="flex-align-center-justify-space-between gap-8px mb-8px py-0px px-8px">
+          <div class="color-text-tertiary text-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
           <UiCountPill :count="renderedFavouriteEntries.length" />
         </div>
-        <div class="sidebar-favs flex flex-column gap-2px">
+        <div class="flex flex-column gap-2px">
           <div
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="sidebar-fav-item reveal-on-hover flex-align-center gap-4px flex"
+            class="reveal-on-hover flex-align-center gap-4px flex"
           >
-            <UiButton variant="none" @click="openFavourite(entry.url, $event)" class="sidebar-fav-hit flex-align-center gap-8px border-none bg-transparent cursor-pointer color-text-primary border-radius-10px py-6px px-8px text-left hover-bg-hover transition-all-fast flex-1 min-w-0">
-              <span class="sidebar-fav-avatar color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light w-28px h-28px" :style="avatarToneStyle(entry.kind)">
+            <UiButton variant="none" @click="openFavourite(entry.url, $event)" class="flex-align-center gap-8px border-none bg-transparent cursor-pointer color-text-primary border-radius-10px py-6px px-8px text-left hover-bg-hover transition-all-fast flex-1 min-w-0">
+              <span class="color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light h-28px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
               <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" />
@@ -47,9 +47,9 @@
       </div>
     </div>
 
-    <div v-if="showVersion || $slots.footer" class="lumen-sidebar-footer flex flex-column pt-12px gap-6px border-top-05-border-light">
+    <div v-if="showVersion || $slots.footer" class="flex flex-column pt-12px gap-6px border-top-05-border-light">
       <slot name="footer" />
-      <div v-if="showVersion" class="lumen-sidebar-version color-text-tertiary text-center text-11px p-8px">
+      <div v-if="showVersion" class="color-text-tertiary text-center text-11px p-8px">
         Lumen v{{ appVersion }}
       </div>
     </div>

@@ -1,8 +1,8 @@
 <template>
-  <div class="settingspage-settings-page internal-page flex">
+  <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Settings" :icon="Settings" activeKey="settings">
-      <nav class="lsb-nav flex flex-column gap-12px">
+      <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="General">
           <UiSidebarNavItem :active="currentView === 'appearance'" @click="currentView = 'appearance'">
             <Palette :size="18" />
@@ -53,15 +53,15 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="settingspage-main-content flex flex-column flex-1 m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
+    <main class="flex flex-column flex-1 m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
       <!-- Header -->
       <UiPageHeader :title="getViewTitle()" :subtitle="getViewDescription()" />
 
       <!-- Appearance View -->
-      <div v-if="currentView === 'appearance'" class="settingspage-settings-section flex-1 overflow-y-auto">
+      <div v-if="currentView === 'appearance'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Theme Preference" description="Choose your preferred color scheme">
-            <div class="settingspage-theme-selector flex gap-8px border-radius-10px bg-secondary border-1 p-4px">
+            <div class="flex gap-8px border-radius-10px bg-secondary border-1 p-4px">
               <UiSegmentedButton :active="theme === 'light'" @click="setTheme('light')">
                 <Sun :size="18" />
                 <span>Light</span>
@@ -77,14 +77,14 @@
             </div>
           </UiOptionRow>
           <UiOptionRow label="Font Size" description="Adjust the default font size">
-            <select class="settingspage-select-control text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px" v-model="fontSize">
+            <select class="text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px" v-model="fontSize">
               <option value="small">Small</option>
               <option value="medium">Medium</option>
               <option value="large">Large</option>
             </select>
           </UiOptionRow>
           <UiOptionRow label="Brightness" :description="`Adjust screen brightness (${brightness}%)`" control-class="gap-16px w-full max-w-320px">
-            <Sun :size="16" class="settingspage-brightness-icon color-text-secondary flex-shrink-0" />
+            <Sun :size="16" class="color-text-secondary flex-shrink-0" />
             <input
               type="range"
               min="50"
@@ -92,13 +92,13 @@
               v-model="brightness"
               class="slider-thumb-accent flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
             />
-            <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-48px">{{ brightness }}%</span>
+            <span class="text-right text-14px txt-weight-light color-text-secondary min-w-48px">{{ brightness }}%</span>
           </UiOptionRow>
         </div>
       </div>
 
       <!-- Content View -->
-      <div v-else-if="currentView === 'content'" class="settingspage-settings-section flex-1 overflow-y-auto">
+      <div v-else-if="currentView === 'content'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Show sexual content">
             <UiToggle v-model="showSexualContent" />
@@ -112,14 +112,14 @@
             <UiToggle v-model="showDisturbingImagery" />
           </UiOptionRow>
 
-          <div class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Sensitive content is blurred by default. You can choose what to reveal.
           </div>
         </div>
       </div>
 
       <!-- Privacy View -->
-      <div v-else-if="currentView === 'privacy'" class="settingspage-settings-section flex-1 overflow-y-auto">
+      <div v-else-if="currentView === 'privacy'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Save browsing history">
             <template #description>
@@ -146,17 +146,17 @@
             </UiButton>
           </UiOptionRow>
 
-          <div class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Turning history off stops new entries from being saved, but does not delete existing ones.
           </div>
         </div>
       </div>
 
       <!-- Network View -->
-      <div v-else-if="currentView === 'network'" class="settingspage-settings-section flex-1 overflow-y-auto">
+      <div v-else-if="currentView === 'network'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Kubo connectivity" description="Controls how many peer connections the embedded IPFS node tries to keep." control-class="flex-justify-end">
-            <div class="settingspage-theme-selector settingspage-network-mode-selector flex gap-8px border-radius-10px flex-wrap-wrap bg-secondary border-1 p-4px">
+            <div class="flex gap-8px border-radius-10px flex-wrap-wrap bg-secondary border-1 p-4px">
               <UiSegmentedButton :active="ipfsConnectivityMode === 'light'" :disabled="networkSettingsSaving" extra-class="flex-justify-center min-w-140px" @click="saveIpfsConnectivityMode('light')">
                 <span>Light</span>
               </UiSegmentedButton>
@@ -169,24 +169,24 @@
             </div>
           </UiOptionRow>
 
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             If your network is unstable or your device is resource-constrained, Light is recommended.
           </p>
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Changes are applied automatically by restarting the embedded Kubo daemon.
           </p>
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Current idle connection target:
-            <span class="settingspage-mono-path break-all mono">{{ networkModeSummary }}</span>
+            <span class="break-all mono">{{ networkModeSummary }}</span>
           </p>
-          <p v-if="networkSettingsError" class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p v-if="networkSettingsError" class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
             {{ networkSettingsError }}
           </p>
         </div>
       </div>
 
       <!-- Security View -->
-      <div v-else-if="currentView === 'security'" class="settingspage-settings-section flex-1 overflow-y-auto">
+      <div v-else-if="currentView === 'security'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <!-- Status Display -->
           <UiOptionRow label="Password Protection">
@@ -196,7 +196,7 @@
                 : 'No password set - wallet operations are unprotected' }}
             </template>
             <span
-              class="settingspage-status-badge flex-inline-align-center gap-6px border-radius-20px fw-500 inline-flex py-4px px-12px"
+              class="flex-inline-align-center gap-6px border-radius-20px fw-500 inline-flex py-4px px-12px"
               :class="securityStatus.enabled ? 'status-enabled bg-fill-success' : 'bg-fill-tertiary'"
             >
               {{ securityStatus.enabled ? 'Enabled' : 'Disabled' }}
@@ -210,7 +210,7 @@
               <LockKeyhole :size="16" />
               Lock Now
             </UiButton>
-            <span v-else class="settingspage-status-badge status-locked bg-warning-a15 color-warning flex-inline-align-center gap-6px border-radius-20px fw-500 inline-flex py-4px px-12px">
+            <span v-else class="bg-warning-a15 color-warning flex-inline-align-center gap-6px border-radius-20px fw-500 inline-flex py-4px px-12px">
               <LockKeyhole :size="14" />
               Locked
             </span>
@@ -219,7 +219,7 @@
           <UiOptionRow v-if="securityStatus.enabled" label="Password Cache Duration" description="Choose how long the password stays cached before the session locks.">
             <select
               v-model="securitySessionTimeoutValue"
-              class="settingspage-select-control text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px"
+              class="text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px"
               :disabled="securitySessionTimeoutSaving"
               @change="saveSecuritySessionTimeout"
             >
@@ -236,9 +236,9 @@
           <!-- Set Password (when no password is set) -->
           <UiOptionRow v-if="!securityStatus.enabled" label="Set Password" description="Create a password to protect wallet signing operations. Your keys will be encrypted with this password." />
 
-          <div v-if="!securityStatus.enabled" class="settingspage-security-form flex flex-column gap-16px border-radius-12px py-16px px-20px bg-fill-tertiary mt-8px">
-            <div class="form-row flex flex-column gap-6px">
-              <label class="settingspage-form-label fw-500 color-text-secondary text-13px">New Password</label>
+          <div v-if="!securityStatus.enabled" class="flex flex-column gap-16px border-radius-12px py-16px px-20px bg-fill-tertiary mt-8px">
+            <div class="flex flex-column gap-6px">
+              <label class="fw-500 color-text-secondary text-13px">New Password</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
@@ -247,8 +247,8 @@
                 :disabled="securityLoading"
               />
             </div>
-            <div class="form-row flex flex-column gap-6px">
-              <label class="settingspage-form-label fw-500 color-text-secondary text-13px">Confirm Password</label>
+            <div class="flex flex-column gap-6px">
+              <label class="fw-500 color-text-secondary text-13px">Confirm Password</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
@@ -258,7 +258,7 @@
                 @keyup.enter="setSecurityPassword"
               />
             </div>
-            <div v-if="securityError" class="settingspage-security-error color-error text-14px p-0px pt-8px pb-8px">
+            <div v-if="securityError" class="color-error text-14px p-0px pt-8px pb-8px">
               {{ securityError }}
             </div>
             <UiButton variant="primary" @click="setSecurityPassword"
@@ -270,9 +270,9 @@
           <!-- Change/Remove Password (when password is set) -->
           <UiOptionRow v-if="securityStatus.enabled" label="Change Password" description="Update your security password. You'll need to enter your current password." />
 
-          <div v-if="securityStatus.enabled" class="settingspage-security-form flex flex-column gap-16px border-radius-12px py-16px px-20px bg-fill-tertiary mt-8px">
-            <div class="form-row flex flex-column gap-6px">
-              <label class="settingspage-form-label fw-500 color-text-secondary text-13px">Current Password</label>
+          <div v-if="securityStatus.enabled" class="flex flex-column gap-16px border-radius-12px py-16px px-20px bg-fill-tertiary mt-8px">
+            <div class="flex flex-column gap-6px">
+              <label class="fw-500 color-text-secondary text-13px">Current Password</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
@@ -281,8 +281,8 @@
                 :disabled="securityLoading"
               />
             </div>
-            <div class="form-row flex flex-column gap-6px">
-              <label class="settingspage-form-label fw-500 color-text-secondary text-13px">New Password</label>
+            <div class="flex flex-column gap-6px">
+              <label class="fw-500 color-text-secondary text-13px">New Password</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
@@ -291,8 +291,8 @@
                 :disabled="securityLoading"
               />
             </div>
-            <div class="form-row flex flex-column gap-6px">
-              <label class="settingspage-form-label fw-500 color-text-secondary text-13px">Confirm New Password</label>
+            <div class="flex flex-column gap-6px">
+              <label class="fw-500 color-text-secondary text-13px">Confirm New Password</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
@@ -302,13 +302,13 @@
                 @keyup.enter="changeSecurityPassword"
               />
             </div>
-            <div v-if="securityError" class="settingspage-security-error color-error text-14px p-0px pt-8px pb-8px">
+            <div v-if="securityError" class="color-error text-14px p-0px pt-8px pb-8px">
               {{ securityError }}
             </div>
-            <div v-if="securitySuccess" class="settingspage-security-success color-success text-14px p-0px pt-8px pb-8px">
+            <div v-if="securitySuccess" class="color-success text-14px p-0px pt-8px pb-8px">
               {{ securitySuccess }}
             </div>
-            <div class="settingspage-security-actions flex gap-12px mt-8px">
+            <div class="flex gap-12px mt-8px">
               <UiButton variant="primary" @click="changeSecurityPassword"
                 :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword" class="disabled-fade-50">
                 {{ securityLoading ? 'Changing...' : 'Change Password' }}
@@ -325,8 +325,8 @@
           </UiOptionRow>
 
           <!-- Remove Password Confirmation -->
-          <div v-if="showRemovePasswordConfirm" class="settingspage-security-confirm-box flex flex-column gap-12px border-radius-12px py-16px px-20px bg-fill-error mt-12px border-1-error-a25">
-            <p class="settingspage-security-confirm-box-p m-0px text-14px color-text-primary">Enter your current password to disable protection:</p>
+          <div v-if="showRemovePasswordConfirm" class="flex flex-column gap-12px border-radius-12px py-16px px-20px bg-fill-error mt-12px border-1-error-a25">
+            <p class="m-0px text-14px color-text-primary">Enter your current password to disable protection:</p>
             <UiInput
               type="password"
               font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
@@ -335,10 +335,10 @@
               :disabled="securityLoading"
               @keyup.enter="removeSecurityPassword"
             />
-            <div v-if="securityError" class="settingspage-security-error color-error text-14px p-0px pt-8px pb-8px">
+            <div v-if="securityError" class="color-error text-14px p-0px pt-8px pb-8px">
               {{ securityError }}
             </div>
-            <div class="settingspage-security-actions flex gap-12px mt-8px">
+            <div class="flex gap-12px mt-8px">
               <UiButton variant="secondary" @click="cancelRemovePassword"
                 :disabled="securityLoading" class="disabled-fade-50">
                 Cancel
@@ -350,7 +350,7 @@
             </div>
           </div>
 
-          <p class="settingspage-setting-hint mt-16px text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="mt-16px text-12px color-text-tertiary mt-8px text-13px mt-4px">
             <strong>How it works:</strong> When enabled, every wallet signing operation 
             (send tokens, delegate, create domain, etc.) will require your password. 
             {{ securitySessionHintText }}
@@ -359,7 +359,7 @@
       </div>
 
       <!-- Profiles View -->
-      <div v-else-if="currentView === 'profiles'" class="settingspage-settings-section flex-1 overflow-y-auto">
+      <div v-else-if="currentView === 'profiles'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow label="Profiles" description="Select one or more profiles to export." control-class="gap-8px">
             <UiButton variant="secondary" type="button"
@@ -374,7 +374,7 @@
             </UiButton>
           </UiOptionRow>
 
-          <UiCard padding="none" :shadow="false" v-if="profiles.length" class="settingspage-profiles-list flex flex-column gap-4px p-8px">
+          <UiCard padding="none" :shadow="false" v-if="profiles.length" class="flex flex-column gap-4px p-8px">
             <label
               v-for="p in profiles"
               :key="p.id"
@@ -382,27 +382,27 @@
               :class="{ 'bg-primary-a15': p.id === activeProfileId }"
             >
               <input
-                class="settingspage-profile-checkbox w-16px h-16px"
+                class="w-16px h-16px"
                 type="checkbox"
                 :value="p.id"
                 v-model="selectedProfileIds"
               />
-              <ProfileAvatar class="settingspage-profile-row-avatar flex-shrink-0" :profile="p" :size="32" :title="p.name || p.id" />
-              <div class="settingspage-profile-row-main flex flex-column gap-4px min-w-0">
-                <div class="settingspage-profile-row-title flex-align-center gap-8px min-w-0">
-                  <span class="settingspage-profile-title txt-weight-light color-text-primary text-14px truncate max-w-520px">{{ p.name || p.id }}</span>
-                  <span v-if="p.id === activeProfileId" class="settingspage-profile-badge border-radius-full color-text-primary text-11px py-0px px-8px bg-primary-a15 border-1-primary-a20">Active</span>
+              <ProfileAvatar class="flex-shrink-0" :profile="p" :size="32" :title="p.name || p.id" />
+              <div class="flex flex-column gap-4px min-w-0">
+                <div class="flex-align-center gap-8px min-w-0">
+                  <span class="txt-weight-light color-text-primary text-14px truncate max-w-520px">{{ p.name || p.id }}</span>
+                  <span v-if="p.id === activeProfileId" class="border-radius-full color-text-primary text-11px py-0px px-8px bg-primary-a15 border-1-primary-a20">Active</span>
                 </div>
-                <span class="settingspage-profile-id text-12px color-text-tertiary truncate max-w-520px">{{ p.id }}</span>
+                <span class="text-12px color-text-tertiary truncate max-w-520px">{{ p.id }}</span>
               </div>
             </label>
           </UiCard>
-          <p v-else class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">No profiles found.</p>
+          <p v-else class="text-12px color-text-tertiary mt-8px text-13px mt-4px">No profiles found.</p>
 
           <UiOptionRow v-if="profiles.length" label="Display name" description="Rename a profile without changing its internal profile ID." control-class="gap-8px">
             <select
               v-model="renameProfileId"
-              class="settingspage-select-control text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px"
+              class="text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px"
               :disabled="profileRenameSaving"
             >
               <option
@@ -431,14 +431,14 @@
               {{ profileRenameSaving ? 'Saving...' : 'Save' }}
             </UiButton>
           </UiOptionRow>
-          <p v-if="profileRenameError" class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p v-if="profileRenameError" class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
             {{ profileRenameError }}
           </p>
 
           <UiOptionRow v-if="profiles.length" label="Profile photo" description="Override the generated profile thumbnail with a local image." control-class="flex-wrap-wrap gap-8px flex-justify-end">
             <select
               v-model="avatarProfileId"
-              class="settingspage-select-control text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px"
+              class="text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px"
               :disabled="profileAvatarSaving"
             >
               <option
@@ -450,7 +450,7 @@
               </option>
             </select>
             <ProfileAvatar
-              class="settingspage-profile-photo-preview flex-shrink-0"
+              class="flex-shrink-0"
               :profile="avatarProfileTarget"
               :size="44"
               :title="avatarProfileTarget?.name || avatarProfileTarget?.id || 'Profile'"
@@ -466,10 +466,10 @@
               Reset
             </UiButton>
           </UiOptionRow>
-          <p v-if="profileAvatarError" class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p v-if="profileAvatarError" class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
             {{ profileAvatarError }}
           </p>
-          <p v-if="profiles.length" class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p v-if="profiles.length" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Lumen crops the selected image to a square thumbnail and stores it with the profile.
           </p>
 
@@ -480,12 +480,12 @@
                Export selected ({{ selectedProfileIds.length }})
              </UiButton>
            </UiOptionRow>
-           <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+           <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
              Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
            </p>
-           <p v-if="backupExportSummary" class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">{{ backupExportSummary }}</p>
-           <div v-if="backupExportFailures.length" class="settingspage-backup-failures flex flex-column gap-4px mt-4px">
-             <div v-for="f in backupExportFailures" :key="f.id" class="settingspage-backup-failure color-error text-13px">
+           <p v-if="backupExportSummary" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">{{ backupExportSummary }}</p>
+           <div v-if="backupExportFailures.length" class="flex flex-column gap-4px mt-4px">
+             <div v-for="f in backupExportFailures" :key="f.id" class="color-error text-13px">
                {{ f.id }}: {{ f.error || 'failed' }}
              </div>
            </div>
@@ -493,13 +493,13 @@
        </div>
 
       <!-- Developer settings View -->
-      <div v-else-if="currentView === 'advanced'" class="settingspage-settings-section flex-1 overflow-y-auto">
+      <div v-else-if="currentView === 'advanced'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             These settings are intended for developers. Most users should not need to change them.
           </p>
 
-          <div class="settingspage-advanced-title flex-align-center gap-8px mt-16px txt-weight-medium color-text-primary mb-8px text-14px">
+          <div class="flex-align-center gap-8px mt-16px txt-weight-medium color-text-primary mb-8px text-14px">
             <Globe :size="18" />
             <span>Network</span>
           </div>
@@ -512,7 +512,7 @@
             />
           </UiOptionRow>
 
-          <div class="settingspage-advanced-title flex-align-center gap-8px mt-16px txt-weight-medium color-text-primary mb-8px text-14px">
+          <div class="flex-align-center gap-8px mt-16px txt-weight-medium color-text-primary mb-8px text-14px">
             <Database :size="18" />
             <span>IPFS</span>
           </div>
@@ -534,14 +534,14 @@
               v-model="localDriveMaxUploadSizeDraft"
               :placeholder="String(DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB)"
             />
-            <span class="settingspage-setting-inline-note color-text-secondary text-13px">GB</span>
+            <span class="color-text-secondary text-13px">GB</span>
           </UiOptionRow>
 
-          <div v-if="devSettingsError" class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <div v-if="devSettingsError" class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px">
             {{ devSettingsError }}
           </div>
 
-          <div class="settingspage-profile-backup-actions mt-12px gap-8px">
+          <div class="mt-12px gap-8px">
             <UiButton variant="secondary" type="button"
               :disabled="devSettingsSaving"
               @click="resetDevSettings" class="disabled-fade-50">
@@ -554,20 +554,20 @@
             </UiButton>
           </div>
 
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Note: the local IPFS daemon must actually be configured to use these ports/addresses.
           </p>
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Network changes are applied automatically (no restart prompt).
           </p>
 
-          <div class="settingspage-advanced-title flex-align-center gap-8px mt-16px txt-weight-medium color-text-primary mb-8px text-14px">
+          <div class="flex-align-center gap-8px mt-16px txt-weight-medium color-text-primary mb-8px text-14px">
             <FolderOpen :size="18" />
             <span>Lumen data folder</span>
           </div>
 
           <UiOptionRow label="Custom data folder target" description="Override the default folder used by the Lumen binary for IPFS, profiles, logs and app metadata." control-class="flex-justify-end min-w-420px">
-            <div class="settingspage-data-folder-input-row flex-align-center-justify-end gap-8px w-full">
+            <div class="flex-align-center-justify-end gap-8px w-full">
               <UiInput
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-min-520px-full"
                 v-model="lumenDataFolderDraft"
@@ -583,29 +583,29 @@
             </div>
           </UiOptionRow>
 
-          <div class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
-            Active now: <span class="settingspage-mono-path break-all mono">{{ activeUserDataPath || 'Unavailable' }}</span>
+          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+            Active now: <span class="break-all mono">{{ activeUserDataPath || 'Unavailable' }}</span>
           </div>
-          <div class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
-            Next launch target: <span class="settingspage-mono-path break-all mono">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
+          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+            Next launch target: <span class="break-all mono">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
           </div>
-          <div class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
-            Default target: <span class="settingspage-mono-path break-all mono">{{ defaultUserDataPath || 'Unavailable' }}</span>
+          <div class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+            Default target: <span class="break-all mono">{{ defaultUserDataPath || 'Unavailable' }}</span>
           </div>
-          <div v-if="bootstrapConfigPath" class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
-            Bootstrap config: <span class="settingspage-mono-path break-all mono">{{ bootstrapConfigPath }}</span>
+          <div v-if="bootstrapConfigPath" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+            Bootstrap config: <span class="break-all mono">{{ bootstrapConfigPath }}</span>
           </div>
-          <div v-if="activeLogsPath" class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
-            Active logs folder: <span class="settingspage-mono-path break-all mono">{{ activeLogsPath }}</span>
+          <div v-if="activeLogsPath" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+            Active logs folder: <span class="break-all mono">{{ activeLogsPath }}</span>
           </div>
           <div
             v-if="lumenDataFolderError"
-            class="settingspage-setting-hint color-error text-12px color-text-tertiary mt-8px text-13px mt-4px"
+            class="color-error text-12px color-text-tertiary mt-8px text-13px mt-4px"
           >
             {{ lumenDataFolderError }}
           </div>
 
-          <div class="settingspage-profile-backup-actions mt-12px gap-8px">
+          <div class="mt-12px gap-8px">
             <UiButton variant="secondary" type="button"
               :disabled="lumenDataFolderBusy"
               @click="revertLumenDataFolderDraft" class="disabled-fade-50">
@@ -623,22 +623,22 @@
             </UiButton>
           </div>
 
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Leave the field empty to go back to the default folder target.
           </p>
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Restart Lumen after changing this target. Existing files are not moved automatically.
           </p>
-          <p v-if="bootstrapRestartRequired" class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
-            Restart required: the running app is still using <span class="settingspage-mono-path break-all mono">{{ activeUserDataPath }}</span>.
+          <p v-if="bootstrapRestartRequired" class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
+            Restart required: the running app is still using <span class="break-all mono">{{ activeUserDataPath }}</span>.
           </p>
         </div>
       </div>
 
       <!-- Troubleshooting View -->
-      <div v-else-if="currentView === 'troubleshooting'" class="settingspage-settings-section flex-1 overflow-y-auto">
+      <div v-else-if="currentView === 'troubleshooting'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.
           </p>
 
@@ -660,20 +660,20 @@
             </UiButton>
           </UiOptionRow>
 
-          <p class="settingspage-setting-hint text-12px color-text-tertiary mt-8px text-13px mt-4px">
+          <p class="text-12px color-text-tertiary mt-8px text-13px mt-4px">
             The logs folder is regenerated on demand so people can inspect the current support snapshot and share relevant log excerpts.
           </p>
-          <p v-if="troubleshootingDir" class="settingspage-troubleshooting-path border-radius-12px color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
+          <p v-if="troubleshootingDir" class="border-radius-12px color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
             Logs folder: {{ troubleshootingDir }}
           </p>
-          <p v-if="troubleshootingReportPath" class="settingspage-troubleshooting-path border-radius-12px color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
+          <p v-if="troubleshootingReportPath" class="border-radius-12px color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
             Debug report: {{ troubleshootingReportPath }}
           </p>
         </div>
       </div>
 
       <!-- Private Cloud View -->
-      <div v-else-if="currentView === 'privatecloud'" class="settingspage-settings-section flex-1 overflow-y-auto">
+      <div v-else-if="currentView === 'privatecloud'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <!-- Main Enable Toggle -->
           <UiOptionRow :class="{ 'border-color-success bg-gradient-success-soft': privateCloudEnabled }" class="border-width-2px" description="Use your own private IPFS gateways for content delivery">
@@ -689,8 +689,8 @@
           <!-- Settings when enabled -->
           <template v-if="privateCloudEnabled">
             <!-- Gateway Preferences -->
-            <div class="settingspage-settings-subsection mt-16px">
-              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway Preferences</h3>
+            <div class="mt-16px">
+              <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway Preferences</h3>
               
               <UiOptionRow label="Prefer Private Gateways" description="Try private gateways first before DAO gateways">
                 <UiToggle v-model="preferPrivateGateways" />
@@ -702,17 +702,17 @@
             </div>
 
             <!-- Gateway IDs -->
-            <div class="settingspage-settings-subsection mt-16px">
-              <div class="settingspage-subsection-header flex-align-center-justify-space-between mb-8px">
-                <h3 class="settingspage-subsection-title txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway IDs</h3>
-                <span class="settingspage-count-badge flex-inline-align-justify-center text-12px txt-weight-light color-primary border-radius-10px h-24px py-0px px-8px bg-primary-a15 min-w-24px">{{ gatewayIds.length }}</span>
+            <div class="mt-16px">
+              <div class="flex-align-center-justify-space-between mb-8px">
+                <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway IDs</h3>
+                <span class="flex-inline-align-justify-center text-12px txt-weight-light color-primary border-radius-10px h-24px py-0px px-8px bg-primary-a15 min-w-24px">{{ gatewayIds.length }}</span>
               </div>
-              <p class="settingspage-subsection-desc text-14px color-text-secondary m-0px mb-16px">Add gateway IDs to use for private content delivery</p>
+              <p class="text-14px color-text-secondary m-0px mb-16px">Add gateway IDs to use for private content delivery</p>
 
-              <div class="settingspage-gateway-ids-wrapper border-radius-12px p-16px bg-secondary border-1">
-                <div v-if="gatewayIds.length > 0" class="settingspage-gateway-ids-list flex flex-column gap-8px mb-16px">
-                  <div v-for="(id, index) in gatewayIds" :key="index" class="settingspage-gateway-id-item flex-align-center-justify-space-between py-12px px-16px bg-card border-1 border-radius-8px transition-all-02 hover-border-primary">
-                    <span class="settingspage-gateway-id-text mono color-text-primary text-14px">{{ id }}</span>
+              <div class="border-radius-12px p-16px bg-secondary border-1">
+                <div v-if="gatewayIds.length > 0" class="flex flex-column gap-8px mb-16px">
+                  <div v-for="(id, index) in gatewayIds" :key="index" class="flex-align-center-justify-space-between py-12px px-16px bg-card border-1 border-radius-8px transition-all-02 hover-border-primary">
+                    <span class="mono color-text-primary text-14px">{{ id }}</span>
                     <UiButton variant="icon" @click="removeGatewayId(index)">
                       <X :size="16" />
                     </UiButton>
@@ -727,7 +727,7 @@
                   </svg>
                 </UiEmptyState>
 
-                <div class="settingspage-add-gateway-id flex gap-12px">
+                <div class="flex gap-12px">
                   <UiInput
                     v-model="newGatewayId"
                     font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-320px flex-1"
@@ -743,8 +743,8 @@
             </div>
 
             <!-- Advanced Settings -->
-            <div class="settingspage-settings-subsection mt-16px">
-              <h3 class="settingspage-subsection-title txt-weight-light color-text-primary text-15px m-0px mb-12px">Advanced Settings</h3>
+            <div class="mt-16px">
+              <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">Advanced Settings</h3>
 
               <UiOptionRow label="Request Timeout" :description="`Maximum time to wait for gateway response (${gatewayTimeout / 1000}s)`">
                 <input
@@ -755,7 +755,7 @@
                   v-model="gatewayTimeout"
                   class="slider-thumb-accent flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
                 />
-                <span class="settingspage-brightness-value text-right text-14px txt-weight-light color-text-secondary min-w-48px">{{ gatewayTimeout / 1000 }}s</span>
+                <span class="text-right text-14px txt-weight-light color-text-secondary min-w-48px">{{ gatewayTimeout / 1000 }}s</span>
               </UiOptionRow>
 
               <UiOptionRow label="Max Retries" description="Maximum retry attempts per gateway">
@@ -770,15 +770,15 @@
             </div>
 
             <!-- Info Box -->
-            <div class="bg-gradient-primary-soft flex gap-16px border-radius-12px mt-16px py-16px px-20px border-15-primary-a20">
-              <svg class="settingspage-info-box-svg flex-shrink-0 color-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="flex gap-16px border-radius-12px mt-16px py-16px px-20px border-15-primary-a20">
+              <svg class="flex-shrink-0 color-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="16" x2="12" y2="12"></line>
                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
               </svg>
               <div>
-                <strong class="settingspage-info-box-strong block text-14px color-text-primary mb-4px">Need to create a gateway?</strong>
-                <p class="settingspage-info-box-p text-14px color-text-secondary m-0px line-height-15">Visit <a class="settingspage-info-box-a color-primary fw-500 hover-underline" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
+                <strong class="block text-14px color-text-primary mb-4px">Need to create a gateway?</strong>
+                <p class="text-14px color-text-secondary m-0px line-height-15">Visit <a class="color-primary fw-500 hover-underline" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">My Gateways</a> to set up your private gateway server.</p>
               </div>
             </div>
           </template>
@@ -786,32 +786,32 @@
       </div>
 
       <!-- About View -->
-      <div v-else-if="currentView === 'about'" class="settingspage-settings-section flex-1 overflow-y-auto">
-        <div class="settingspage-about-card flex-align-center flex-column text-center border-radius-20px bg-card p-48px border-1">
-          <div class="settingspage-about-logo mb-24px">
+      <div v-else-if="currentView === 'about'" class="flex-1 overflow-y-auto">
+        <div class="flex-align-center flex-column text-center border-radius-20px bg-card p-48px border-1">
+          <div class="mb-24px">
             <div class="flex-align-justify-center size-64px border-radius-20px bg-gradient-primary color-white shadow-primary">
               <Hexagon :size="32" />
             </div>
           </div>
-          <h2 class="settingspage-about-card-h2 text-24px txt-weight-medium color-text-primary m-0px mb-8px">Lumen Browser</h2>
-          <p class="settingspage-version text-14px color-text-secondary m-0px mb-16px">Version {{ appVersion }}</p>
-          <p class="settingspage-description text-14px color-text-secondary m-0px mb-24px">The Decentralized Internet Stack</p>
-          <div class="settingspage-about-links flex gap-16px">
+          <h2 class="text-24px txt-weight-medium color-text-primary m-0px mb-8px">Lumen Browser</h2>
+          <p class="text-14px color-text-secondary m-0px mb-16px">Version {{ appVersion }}</p>
+          <p class="text-14px color-text-secondary m-0px mb-24px">The Decentralized Internet Stack</p>
+          <div class="flex gap-16px">
             <a
               href="https://lumen-browser.com/"
-              class="settingspage-about-link color-primary fw-500 text-14px hover-underline"
+              class="color-primary fw-500 text-14px hover-underline"
               @click.prevent="openInNewTabSafe('https://lumen-browser.com/')"
               >Website</a
             >
             <a
               href="https://github.com/network-lumen"
-              class="settingspage-about-link color-primary fw-500 text-14px hover-underline"
+              class="color-primary fw-500 text-14px hover-underline"
               @click.prevent="openInNewTabSafe('https://github.com/network-lumen')"
               >GitHub</a
             >
             <a
               href="lumen://help"
-              class="settingspage-about-link color-primary fw-500 text-14px hover-underline"
+              class="color-primary fw-500 text-14px hover-underline"
               @click.prevent="openInNewTabSafe('lumen://help')"
               >Documentation</a
             >

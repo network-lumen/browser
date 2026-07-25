@@ -1,11 +1,11 @@
 <template>
-  <div class="site-page w-full h-full min-h-0 bg-primary overflow-hidden flex" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
+  <div class="w-full h-full min-h-0 bg-primary overflow-hidden flex" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
     <main class="fullscreen-target flex-1 flex flex-column overflow-hidden min-h-0 p-0px">
       <div v-if="loading" class="flex-1 flex-align-justify-center">
         <UiSpinner size="lg" />
       </div>
 
-      <div v-else-if="domainNotFound" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-primary p-32px">
+      <div v-else-if="domainNotFound" class="flex-1 flex-align-justify-center bg-primary p-32px">
         <UiCard padding="none" :shadow="false" class="shadow-md max-w-380px">
           <UiEmptyState title="This domain belongs to no one">
             <Tag :size="26" />
@@ -21,7 +21,7 @@
         </UiCard>
       </div>
 
-      <div v-else-if="error" class="sitepage-domain-empty-wrap flex-1 flex-align-justify-center bg-primary p-32px">
+      <div v-else-if="error" class="flex-1 flex-align-justify-center bg-primary p-32px">
         <UiCard padding="none" :shadow="false" class="shadow-md max-w-380px">
           <UiEmptyState title="This content isn't available right now">
             <FileQuestion :size="26" />
@@ -40,12 +40,12 @@
         <template v-if="resolvedHttpUrl && isHlsPath">
           <video
             ref="videoEl"
-            class="sitepage-video w-full h-full border-none bg-primary"
+            class="w-full h-full border-none bg-primary"
             controls
             autoplay
             playsinline
           ></video>
-          <div v-if="hlsError" class="sitepage-hls-error absolute text-14px cursor-events-none py-12px px-16px right-16px bg-error-a15 border-1-error-a30 left-16px bottom-16px backdrop-blur-6">
+          <div v-if="hlsError" class="absolute text-14px cursor-events-none py-12px px-16px right-16px bg-error-a15 border-1-error-a30 left-16px bottom-16px backdrop-blur-6">
             {{ hlsError }}
           </div>
         </template>
@@ -70,7 +70,7 @@
            @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
            @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
          ></webview>
-         <div v-else class="sitepage-empty w-full h-full border-none bg-primary"></div>
+         <div v-else class="w-full h-full border-none bg-primary"></div>
        </div>
      </main>
   </div>

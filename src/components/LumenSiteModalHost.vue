@@ -11,7 +11,7 @@
             </span>
           </UiBanner>
 
-          <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
+          <div class="border-radius-10px border-default py-10px px-12px">
             <UiDetailRow variant="baseline" label="Site" :value="siteLabel" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
             <UiDetailRow v-if="actionKind" variant="baseline" label="Action" :value="actionKind" />
           </div>
@@ -41,16 +41,16 @@
           <UiBanner v-if="sendError" variant="error" class="mb-12px">{{ sendError }}</UiBanner>
 
           <UiFormGroup label="From" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
+            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
           </UiFormGroup>
 
           <UiFormGroup required label="To" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
+            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
           </UiFormGroup>
 
           <UiFormGroup required label="Amount (LMN)" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
-            <span class="sitemodal-input-suffix text-12px color-text-secondary absolute top-half translate-y-center right-12px">LMN</span>
+            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
+            <span class="text-12px color-text-secondary absolute top-half translate-y-center right-12px">LMN</span>
             <template #hint>
               <div v-if="balanceUlmn !== null">Available: {{ balanceLmnDisplay }} LMN</div>
               <div v-else class="color-error">Balance unavailable</div>
@@ -59,7 +59,7 @@
           </UiFormGroup>
 
           <UiFormGroup label="Memo (optional)" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendMemo" :disabled="sending" />
+            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendMemo" :disabled="sending" />
           </UiFormGroup>
     <template #footer>
       <UiButton variant="secondary" type="button" @click="closeSend(false)" :disabled="sending">
@@ -85,7 +85,7 @@
 
           <UiFormGroup required label="Name" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <input
-              class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
+              class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
               type="text"
               v-model="saveNameDraft"
               placeholder="Enter a name"
@@ -94,7 +94,7 @@
             />
           </UiFormGroup>
 
-          <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
+          <div class="border-radius-10px border-default py-10px px-12px">
             <UiDetailRow variant="baseline" label="Target" :value="pinTargetDisplay" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
           </div>
 
@@ -146,17 +146,17 @@
           </UiBanner>
           <UiBanner v-if="stableLinkError" variant="error" class="mb-12px">{{ stableLinkError }}</UiBanner>
 
-          <div class="sitemodal-segmented-control border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
+          <div class="border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
               Existing
             </button>
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium sitemodal-segmented-control-button border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
+            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
               Create new
             </button>
           </div>
 
           <UiFormGroup v-if="stableLinkMode === 'existing'" label="Stable link" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
+            <select class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
               <option value="">{{ stableLinkLoading ? 'Loading stable links...' : 'Select a stable link' }}</option>
               <option v-for="item in stableLinks" :key="item.name" :value="item.name">
                 {{ item.label }} — {{ shortStableIpns(item.id) }}
@@ -166,7 +166,7 @@
 
           <UiFormGroup v-else label="New stable link label" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <input
-              class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
+              class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
               type="text"
               v-model="stableLinkNewLabel"
               placeholder="my-live"
@@ -175,23 +175,23 @@
             />
           </UiFormGroup>
 
-          <div class="sitemodal-perm-box border-radius-10px border-default py-10px px-12px">
+          <div class="border-radius-10px border-default py-10px px-12px">
             <UiDetailRow variant="baseline" label="Live" :value="stableLinkLiveTitle || 'Untitled live'" />
             <UiDetailRow variant="baseline" label="Records">
-              <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded" class="sitemodal-records-toggle">
+              <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded" class="">
                 <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
                 <ChevronDown :size="14" class="transition-transform-02" :class="{ 'rotate-180': stableLinkRecordsExpanded }" />
               </UiButton>
             </UiDetailRow>
-            <div v-if="stableLinkRecordsExpanded" class="sitemodal-records-detail-list grid gap-6px mt-8px pt-8px border-top-default">
-              <div v-for="record in stableLinkRecords" :key="record.key" class="sitemodal-record-detail-row grid gap-10px grid-cols-70-1fr align-items-start">
-                <span class="sitemodal-record-key mono text-12px color-text-secondary">{{ record.key }}</span>
-                <span class="sitemodal-record-value mono text-12px color-text-primary overflow-wrap-anywhere" :title="record.value">{{ record.value }}</span>
+            <div v-if="stableLinkRecordsExpanded" class="grid gap-6px mt-8px pt-8px border-top-default">
+              <div v-for="record in stableLinkRecords" :key="record.key" class="grid gap-10px grid-cols-70-1fr align-items-start">
+                <span class="mono text-12px color-text-secondary">{{ record.key }}</span>
+                <span class="mono text-12px color-text-primary overflow-wrap-anywhere" :title="record.value">{{ record.value }}</span>
               </div>
             </div>
           </div>
 
-          <p class="sitemodal-balance-hint text-12px color-text-secondary mt-8px">
+          <p class="text-12px color-text-secondary mt-8px">
             The stable link URL will be copied after it is attached to this live.
           </p>
     <template #footer>
@@ -218,14 +218,14 @@
           </UiBanner>
           <UiBanner v-if="stableLinkSetupError" variant="error" class="mb-12px">{{ stableLinkSetupError }}</UiBanner>
           <UiFormGroup label="Live link" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <select class="sitemodal-form-input w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
+            <select class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
               <option value="">{{ stableLinkSetupLoading ? 'Loading live links...' : 'Select a live link' }}</option>
               <option v-for="item in stableLinks" :key="item.name" :value="item.name">
                 {{ item.label }} — {{ shortStableIpns(item.id) }}
               </option>
             </select>
           </UiFormGroup>
-          <p class="sitemodal-balance-hint text-12px color-text-secondary mt-8px">
+          <p class="text-12px color-text-secondary mt-8px">
             Previous live settings will be loaded from this link if records are available.
           </p>
     <template #footer>

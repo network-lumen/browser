@@ -1,28 +1,28 @@
 <template>
-  <UiCard padding="none" :shadow="false" radius="0" role="status" aria-live="polite" class="startup-card flex flex-column w-full h-full shadow-none overflow-hidden">
-    <header class="startup-head flex-align-center gap-12px p-10px border-bottom-default">
-      <img :src="logoUrl" alt="" class="startup-mark flex-0-0-auto border-radius-14px size-48px" aria-hidden="true" />
+  <UiCard padding="none" :shadow="false" radius="0" role="status" aria-live="polite" class="flex flex-column w-full h-full shadow-none overflow-hidden">
+    <header class="flex-align-center gap-12px p-10px border-bottom-default">
+      <img :src="logoUrl" alt="" class="flex-0-0-auto border-radius-14px size-48px" aria-hidden="true" />
       <div class="min-w-0">
-        <div class="startup-title text-16px txt-weight-strong line-height-12 letter-spacing-n002">Lumen</div>
+        <div class="text-16px txt-weight-strong line-height-12 letter-spacing-n002">Lumen</div>
       </div>
     </header>
 
-    <main class="startup-body h-auto flex flex-1-1-auto min-h-0">
-      <div v-if="phase === 'starting' || phase === 'retrying' || phase === 'error'" class="startup-center flex-align-center flex-column text-center gap-12px py-28px px-24px mt-auto mx-auto mb-32px">
+    <main class="h-auto flex flex-1-1-auto min-h-0">
+      <div v-if="phase === 'starting' || phase === 'retrying' || phase === 'error'" class="flex-align-center flex-column text-center gap-12px py-28px px-24px mt-auto mx-auto mb-32px">
         <UiLoadingSpinner v-if="phase !== 'error'" aria-label="Loading" />
         <div v-else>
-          <div class="startup-msg-subtitle color-text-secondary text-13px">
+          <div class="color-text-secondary text-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
-          <UiButton variant="primary" type="button" :disabled="busy" @click="restartAll" class="active-not-disabled-lift-1px disabled-opacity-60-cursor-default startup-btn-primary transition-lift-015">
+          <UiButton variant="primary" type="button" :disabled="busy" @click="restartAll" class="active-not-disabled-lift-1px disabled-opacity-60-cursor-default transition-lift-015">
             Retry
           </UiButton>
         </div>
       </div>
     </main>
 
-    <footer class="startup-foot flex-justify-center border-top-default py-12px px-16px">
-      <span class="startup-hint color-text-tertiary text-12px">{{ phase !== 'error' ? 'This usually takes a few seconds.' : 'If it keeps failing, restart Lumen.' }}</span>
+    <footer class="flex-justify-center border-top-default py-12px px-16px">
+      <span class="color-text-tertiary text-12px">{{ phase !== 'error' ? 'This usually takes a few seconds.' : 'If it keeps failing, restart Lumen.' }}</span>
     </footer>
   </UiCard>
 </template>

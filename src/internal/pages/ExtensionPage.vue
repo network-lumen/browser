@@ -1,5 +1,5 @@
 <template>
-  <div class="extension-page absolute inset-0 flex min-h-0 min-w-0 bg-dark-111">
+  <div class="absolute inset-0 flex min-h-0 min-w-0 bg-dark-111">
     <UiExtensionStatus v-if="error" error>{{ error }}</UiExtensionStatus>
     <UiExtensionStatus v-else-if="guestPreloadLoading">Preparing extension host…</UiExtensionStatus>
     <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error>Extension guest preload is unavailable.</UiExtensionStatus>
@@ -7,7 +7,7 @@
     <webview
       v-else-if="webviewMountUrl"
       ref="webviewRef"
-      class="extension-webview flex-1 w-full h-full bg-dark-111 border-none"
+      class="flex-1 w-full h-full bg-dark-111 border-none"
       :src="webviewMountUrl"
       :preload="extensionGuestPreloadUrl"
       partition="persist:lumen"

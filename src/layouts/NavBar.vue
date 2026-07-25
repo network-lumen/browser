@@ -1,7 +1,7 @@
 <template>
-  <header class="navbar flex-align-center gap-12px py-8px px-12px bg-primary border-bottom-default min-h-48px">
+  <header class="flex-align-center gap-12px py-8px px-12px bg-primary border-bottom-default min-h-48px">
     <!-- Navigation Controls -->
-    <div class="navbar-nav-controls flex-align-center gap-4px">
+    <div class="flex-align-center gap-4px">
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" :disabled="!canGoBack"
         title="Back"
         @click="previous" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
@@ -24,8 +24,8 @@
     </div>
 
     <!-- URL Bar -->
-    <div class="navbar-url-bar-container appregion-no-drag flex-align-center flex-1 relative min-w-0">
-      <Search :size="15" stroke-width="2" class="navbar-url-bar-icon color-text-tertiary absolute cursor-events-none left-12px" />
+    <div class="appregion-no-drag flex-align-center flex-1 relative min-w-0">
+      <Search :size="15" stroke-width="2" class="color-text-tertiary absolute cursor-events-none left-12px" />
       <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-13px" padding-class="pt-8px pr-48px pb-8px pl-40px" :focus-ring="false" :value="urlField"
         @input="onInput"
        
@@ -36,7 +36,7 @@
         variant="icon"
         icon-radius-class="border-radius-8px"
         icon-padding-class=""
-        class="navbar-url-bar-action flex-inline-align-justify-center size-28px color-text-tertiary absolute top-half translate-y-center right-6px"
+        class="flex-inline-align-justify-center size-28px color-text-tertiary absolute top-half translate-y-center right-6px"
         :class="{ 'color-yellow-override': favActive }"
         :title="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
         :aria-label="favActive ? 'Remove from shortcuts' : 'Add to shortcuts'"
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="navbar-quick-actions flex-align-center gap-4px">
+    <div class="flex-align-center gap-4px">
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" title="Home"
         @click="$emit('goto', 'lumen://home')" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <House :size="16" />
@@ -60,7 +60,7 @@
       </UiButton>
     </div>
 
-    <div class="navbar-extensions-section appregion-no-drag relative ml-n8px">
+    <div class="appregion-no-drag relative ml-n8px">
       <UiButton
         variant="icon"
         icon-radius-class="border-radius-10px"
@@ -74,26 +74,26 @@
       </UiButton>
 
       <UiCard padding="none" :shadow="false" v-if="showExtensionsMenu" role="menu" class="navbar-extensions-menu absolute p-8px shadow-xl z-100 right-0 w-340px max-w-min-92vw-340px calc-top-100-6px">
-        <div class="navbar-extensions-menu-title text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em p-0px pr-8px pb-8px pl-8px">Extensions</div>
+        <div class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em p-0px pr-8px pb-8px pl-8px">Extensions</div>
 
-        <div v-if="extensions.length" class="navbar-extensions-list flex flex-column gap-6px overflow-y-auto pr-4px max-h-280px">
+        <div v-if="extensions.length" class="flex flex-column gap-6px overflow-y-auto pr-4px max-h-280px">
           <div
             v-for="ext in extensions"
             :key="ext.id"
-            class="navbar-extension-row flex-align-start gap-10px p-10px border-radius-12px bg-secondary border-05-light"
+            class="flex-align-start gap-10px p-10px border-radius-12px bg-secondary border-05-light"
           >
-            <div class="navbar-extension-main flex-1 min-w-0">
-              <div class="navbar-extension-name text-13px txt-weight-light color-text-primary truncate">{{ ext.name }}</div>
-              <div class="navbar-extension-meta flex-align-center flex-wrap-wrap gap-6px mt-4px">
-                <span class="navbar-extension-state text-11px color-text-tertiary" :class="{ 'color-error': !!ext.lastError, disabled: !ext.enabled }">
+            <div class="flex-1 min-w-0">
+              <div class="text-13px txt-weight-light color-text-primary truncate">{{ ext.name }}</div>
+              <div class="flex-align-center flex-wrap-wrap gap-6px mt-4px">
+                <span class="text-11px color-text-tertiary" :class="{ 'color-error': !!ext.lastError, disabled: !ext.enabled }">
                   {{ extensionStateLabel(ext) }}
                 </span>
-                <span v-if="ext.version" class="navbar-extension-version text-11px color-text-tertiary">v{{ ext.version }}</span>
+                <span v-if="ext.version" class="text-11px color-text-tertiary">v{{ ext.version }}</span>
               </div>
               <div v-if="ext.lastError" class="color-error text-11px mt-4px break-word line-height-14">{{ ext.lastError }}</div>
             </div>
 
-            <div class="navbar-extension-actions flex-align-center gap-6px">
+            <div class="flex-align-center gap-6px">
               <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" type="button"
                 title="Open extension"
                 :disabled="extensionsBusy || !ext.enabled || !ext.launchUrl"
@@ -126,11 +126,11 @@
           </div>
         </div>
 
-        <div v-else class="navbar-extensions-menu-hint text-center text-12px color-text-tertiary py-14px px-8px">
+        <div v-else class="text-center text-12px color-text-tertiary py-14px px-8px">
           No extensions installed yet.
         </div>
 
-        <div class="navbar-extensions-menu-actions flex flex-column gap-8px mt-8px pt-8px border-top-05-border-light">
+        <div class="flex flex-column gap-8px mt-8px pt-8px border-top-05-border-light">
           <UiMenuItem :disabled="extensionsBusy" @click.stop="loadUnpackedExtension">
             Load unpacked extension
           </UiMenuItem>
@@ -142,7 +142,7 @@
             <ExternalLink :size="13" />
           </UiButton>
 
-          <div v-if="extensionsMessage" class="navbar-extensions-menu-message text-12px color-text-tertiary py-0px px-2px">
+          <div v-if="extensionsMessage" class="text-12px color-text-tertiary py-0px px-2px">
             {{ extensionsMessage }}
           </div>
         </div>
@@ -150,11 +150,11 @@
     </div>
 
     <!-- Profile -->
-    <div class="navbar-profile-section appregion-no-drag relative">
+    <div class="appregion-no-drag relative">
       <UiButton variant="secondary" size="xs" type="button" :title="activeProfileDisplay" @click.stop="toggleProfileMenu" class="navbar-profile-trigger border-radius-full border-none">
         <ProfileAvatar :profile="activeProfile" :size="24" :title="activeProfileDisplay" />
-        <span class="navbar-profile-trigger-name text-13px fw-500 color-text-primary truncate max-w-100px">{{ activeProfileDisplay }}</span>
-        <ChevronDown :size="14" class="navbar-profile-chevron color-text-tertiary ml-n2px" />
+        <span class="text-13px fw-500 color-text-primary truncate max-w-100px">{{ activeProfileDisplay }}</span>
+        <ChevronDown :size="14" class="color-text-tertiary ml-n2px" />
       </UiButton>
 
       <UiCard padding="none" :shadow="false" v-if="showProfileMenu"
@@ -167,19 +167,19 @@
           :label="isGuestOnly ? 'Guest mode' : 'Active profile'"
         />
 
-        <div v-if="hasProfiles && !isGuestOnly" class="navbar-profile-menu-section">
-          <div class="navbar-profile-menu-title text-11px txt-weight-light color-text-tertiary text-uppercase mt-8px letter-spacing-005em py-0px px-8px mb-4px">Profiles</div>
-          <ul class="navbar-profile-list flex flex-column p-0px m-0px gap-2px list-style-none overflow-y-auto max-h-200px">
+        <div v-if="hasProfiles && !isGuestOnly" class="">
+          <div class="text-11px txt-weight-light color-text-tertiary text-uppercase mt-8px letter-spacing-005em py-0px px-8px mb-4px">Profiles</div>
+          <ul class="flex flex-column p-0px m-0px gap-2px list-style-none overflow-y-auto max-h-200px">
             <li
               v-for="p in profiles"
               :key="p.id"
-              class="navbar-profile-row reveal-on-hover hover-bg-hover flex-align-center border-radius-10px gap-6px p-4px"
+              class="reveal-on-hover hover-bg-hover flex-align-center border-radius-10px gap-6px p-4px"
               :class="{ 'bg-primary-a10': p.id === activeProfileId }"
               role="menuitem"
             >
-              <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="navbar-profile-row-btn flex-1 flex-align-center gap-6px border-none bg-transparent cursor-pointer color-text-primary text-13px fw-500 border-radius-10px py-4px px-8px transition-all-fast text-left w-full min-w-0">
+              <UiButton variant="none" type="button" @click.stop="selectProfile(p.id)" class="flex-1 flex-align-center gap-6px border-none bg-transparent cursor-pointer color-text-primary text-13px fw-500 border-radius-10px py-4px px-8px transition-all-fast text-left w-full min-w-0">
                 <ProfileAvatar :profile="p" :size="26" :title="p.name || p.id" />
-                <span class="navbar-profile-row-name text-13px fw-500 color-text-primary truncate">{{ p.name || p.id }}</span>
+                <span class="text-13px fw-500 color-text-primary truncate">{{ p.name || p.id }}</span>
               </UiButton>
 
               <button type="button" class="reveal-target hover-bg-error-a10-color-error h-24px flex-inline-align-justify-center border-radius-10px cursor-pointer color-text-tertiary border-none bg-transparent transition-all-fast opacity-0 w-24px" title="Delete profile" @click.stop="requestDeleteProfile(p)">
@@ -189,13 +189,13 @@
           </ul>
         </div>
 
-        <div v-else class="navbar-profile-menu-hint text-12px color-text-tertiary text-center p-0px pt-12px pr-8px pb-12px pl-8px">
+        <div v-else class="text-12px color-text-tertiary text-center p-0px pt-12px pr-8px pb-12px pl-8px">
           {{ isGuestOnly
             ? 'Guest mode active. Create or import a profile to get started.'
             : 'No profiles yet.' }}
         </div>
 
-        <div class="navbar-profile-menu-actions flex flex-column gap-2px mt-8px pt-8px border-top-05-border-light">
+        <div class="flex flex-column gap-2px mt-8px pt-8px border-top-05-border-light">
           <UiMenuItem @click.stop="onCreateProfileClick">
             New profile…
           </UiMenuItem>
@@ -206,9 +206,9 @@
             Import profile…
           </UiMenuItem>
 
-          <div v-if="creatingProfile" class="navbar-profile-create flex flex-column mt-8px pt-8px gap-6px border-top-05-border-light">
-            <UiInput bg-class="bg-fill-primary" radius-class="border-radius-10px" font-size-class="text-13px" padding-class="py-8px px-10px" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="navbar-profile-create-input fw-500 border-default focus-outline-none focus-bg-fill-primary placeholder-tertiary-a60" />
-            <div class="navbar-profile-create-actions flex gap-6px">
+          <div v-if="creatingProfile" class="flex flex-column mt-8px pt-8px gap-6px border-top-05-border-light">
+            <UiInput bg-class="bg-fill-primary" radius-class="border-radius-10px" font-size-class="text-13px" padding-class="py-8px px-10px" :focus-ring="false" v-model="newProfileName" placeholder="Profile name" class="fw-500 border-default focus-outline-none focus-bg-fill-primary placeholder-tertiary-a60" />
+            <div class="flex gap-6px">
               <UiButton variant="primary" class="flex-1" @click="confirmCreateProfile">
                 Create
               </UiButton>
@@ -218,7 +218,7 @@
             </div>
           </div>
 
-          <div v-if="profileMessage" class="navbar-profile-menu-message mt-8px text-12px color-text-tertiary py-4px px-6px">
+          <div v-if="profileMessage" class="mt-8px text-12px color-text-tertiary py-4px px-6px">
             {{ profileMessage }}
           </div>
         </div>
@@ -228,7 +228,7 @@
 
   <!-- Export Options Modal -->
   <UiModal :model-value="showExportModal" title="Export Profile" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelExportModal">
-          <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
+          <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
             Export your profile backup.
             <template v-if="exportRequiresPassword">
               <br/><strong>Note:</strong> Your wallet is password-protected. Enter your password to include wallet data in the backup.
@@ -239,13 +239,13 @@
           </p>
           
           <!-- Password required for decryption notice -->
-          <div v-if="exportRequiresPassword" class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
+          <div v-if="exportRequiresPassword" class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
             <UiFormGroup label="Wallet Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
               <input
                 type="password"
                 v-model="exportPassword"
                 placeholder="Enter your wallet password"
-                class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                 @keyup.enter="confirmExportProfile"
               />
             </UiFormGroup>
@@ -261,13 +261,13 @@
               <UiCheckbox v-model="exportEncrypted">Encrypt backup with password</UiCheckbox>
             </div>
             
-            <div v-if="exportEncrypted" class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
+            <div v-if="exportEncrypted" class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
               <UiFormGroup label="Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <input
                   type="password"
                   v-model="exportPassword"
                   placeholder="Enter password (min 6 characters)"
-                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                 />
               </UiFormGroup>
               <UiFormGroup label="Confirm Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
@@ -275,14 +275,14 @@
                   type="password"
                   v-model="exportPasswordConfirm"
                   placeholder="Confirm password"
-                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                   @keyup.enter="confirmExportProfile"
                 />
               </UiFormGroup>
             </div>
           </template>
           
-          <div v-if="exportError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
+          <div v-if="exportError" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
             {{ exportError }}
           </div>
           
@@ -298,14 +298,14 @@
 
   <!-- Import Modal -->
   <UiModal :model-value="showImportModal" title="Import profile" panel-class="min-w-360px max-w-90vw w-min-560px-92vw" @update:model-value="cancelImportModal">
-          <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
+          <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
             Choose how you want to import your profile.
           </p>
 
-          <div class="navbar-import-mode-switch gap-8px mb-16px grid grid-cols-2-minmax0">
+          <div class="gap-8px mb-16px grid grid-cols-2-minmax0">
             <button
               type="button"
-              class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
+              class="hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
               :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': importMode === 'file' }"
               @click="setImportMode('file')"
             >
@@ -313,7 +313,7 @@
             </button>
             <button
               type="button"
-              class="navbar-import-mode-btn hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
+              class="hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
               :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': importMode === 'manual' }"
               @click="setImportMode('manual')"
             >
@@ -321,14 +321,14 @@
             </button>
           </div>
 
-          <div v-if="importMode === 'file'" class="import-mode-panel flex flex-column gap-12px">
-            <p class="navbar-import-mode-copy m-0px border-radius-12px color-text-secondary text-13px p-14px bg-secondary line-height-15 border-05-light">
+          <div v-if="importMode === 'file'" class="flex flex-column gap-12px">
+            <p class="m-0px border-radius-12px color-text-secondary text-13px p-14px bg-secondary line-height-15 border-05-light">
               Keep the current workflow and select a full profile backup file or folder.
             </p>
           </div>
 
-          <div v-else class="import-mode-panel flex flex-column gap-12px">
-            <div class="navbar-import-manual-actions flex flex-wrap-wrap gap-8px">
+          <div v-else class="flex flex-column gap-12px">
+            <div class="flex flex-wrap-wrap gap-8px">
               <UiButton
                 variant="secondary"
                 class="flex-1 min-w-180px"
@@ -349,22 +349,22 @@
 
             <div
               v-if="manualImportProfileSourceName || manualImportPqcSourceName"
-              class="navbar-import-source-summary flex flex-column border-radius-12px color-text-secondary text-12px gap-4px bg-secondary py-12px px-16px border-05-light"
+              class="flex flex-column border-radius-12px color-text-secondary text-12px gap-4px bg-secondary py-12px px-16px border-05-light"
             >
-              <div v-if="manualImportProfileSourceName" class="navbar-import-source-line line-height-14 break-word">
+              <div v-if="manualImportProfileSourceName" class="line-height-14 break-word">
                 Profile source: {{ manualImportProfileSourceName }}
               </div>
-              <div v-if="manualImportPqcSourceName" class="navbar-import-source-line line-height-14 break-word">
+              <div v-if="manualImportPqcSourceName" class="line-height-14 break-word">
                 Dilithium source: {{ manualImportPqcSourceName }}
               </div>
             </div>
 
-            <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
+            <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
               <UiFormGroup label="Profile Name" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <input
                   v-model="manualImportName"
                   type="text"
-                  class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                   placeholder="Enter profile name"
                 />
               </UiFormGroup>
@@ -372,7 +372,7 @@
               <UiFormGroup label="Mnemonic" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <textarea
                   v-model="manualImportMnemonic"
-                  class="navbar-export-input navbar-import-textarea border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
+                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
                   rows="4"
                   placeholder="Enter wallet mnemonic"
                 ></textarea>
@@ -381,7 +381,7 @@
               <UiFormGroup label="PQC Public Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <textarea
                   v-model="manualImportPqcPublicKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
+                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
@@ -390,23 +390,23 @@
               <UiFormGroup label="PQC Private Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <textarea
                   v-model="manualImportPqcPrivateKey"
-                  class="navbar-export-input navbar-import-textarea navbar-import-mono border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
+                  class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary mono font-inherit resize-vertical focus-outline-none focus-border-primary focus-ring focus-shadow min-h-84px"
                   rows="3"
                   placeholder="Optional"
                 ></textarea>
               </UiFormGroup>
             </div>
 
-            <p class="navbar-import-manual-hint m-0px text-12px color-text-tertiary line-height-15">
+            <p class="m-0px text-12px color-text-tertiary line-height-15">
               You can paste values manually or load `profile.json` and `lumen_pqc_*.json` to prefill the form.
             </p>
 
-            <p class="navbar-import-manual-hint m-0px text-12px color-text-tertiary line-height-15">
+            <p class="m-0px text-12px color-text-tertiary line-height-15">
               If you do not have PQC keys yet, leave both fields empty: they will be generated automatically.
             </p>
           </div>
 
-          <div v-if="importModalError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
+          <div v-if="importModalError" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
             {{ importModalError }}
           </div>
 
@@ -421,30 +421,30 @@
         @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
       >
         <span v-if="!importBusy">{{ importMode === 'file' ? 'Choose file…' : 'Import' }}</span>
-        <span v-else class="navbar-import-busy-label flex-inline-align-justify-center gap-8px"><UiSpinner size="sm" /> Importing…</span>
+        <span v-else class="flex-inline-align-justify-center gap-8px"><UiSpinner size="sm" /> Importing…</span>
       </UiButton>
     </template>
   </UiModal>
 
   <!-- Import Password Modal (for encrypted backups) -->
   <UiModal :model-value="showImportPasswordModal" title="Encrypted Backup" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelImportPasswordModal">
-          <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
+          <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
             This backup is encrypted. Please enter the password to decrypt and import it.
           </p>
           
-          <div class="navbar-export-password-fields flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
+          <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
             <UiFormGroup label="Backup Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
               <input
                 type="password"
                 v-model="importPassword"
                 placeholder="Enter backup password"
-                class="navbar-export-input border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
+                class="border-radius-10px color-text-primary text-13px py-8px px-10px border-default bg-primary focus-outline-none focus-border-primary focus-ring focus-shadow"
                 @keyup.enter="confirmImportEncrypted"
               />
             </UiFormGroup>
           </div>
           
-          <div v-if="importError" class="navbar-export-error border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
+          <div v-if="importError" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
             {{ importError }}
           </div>
           
@@ -460,7 +460,7 @@
 
   <!-- Delete Profile Confirm Modal -->
   <UiModal :model-value="showDeleteProfileModal" title="Delete profile?" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelDeleteProfileModal">
-    <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
+    <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
       You are about to permanently delete <strong>{{ pendingDeleteProfileName }}</strong>.
       This cannot be recovered.
     </p>
@@ -476,7 +476,7 @@
 
   <!-- PQC Link Notice -->
   <UiModal :model-value="showPqcLinkedModal" title="Post-quantum security enabled" panel-class="min-w-360px max-w-90vw" @update:model-value="dismissPqcLinkedModal">
-    <p class="navbar-export-modal-desc text-13px color-text-secondary line-height-15 m-0px mb-16px">
+    <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
       Re-export <strong>{{ pqcLinkedProfileDisplay }}</strong>.
       Your wallet is now linked on-chain and uses post-quantum security.
     </p>
@@ -1352,8 +1352,8 @@ function onGlobalClick(e: MouseEvent) {
 
   const el = e.target as HTMLElement | null;
   if (!el) return;
-  if (el.closest('.extensions-trigger') || el.closest('.extensions-menu')) return;
-  if (el.closest('.profile-trigger') || el.closest('.profile-menu')) return;
+  if (el.closest('.extensions-trigger') || el.closest('.navbar-extensions-menu')) return;
+  if (el.closest('.navbar-profile-trigger') || el.closest('.navbar-profile-menu')) return;
   showExtensionsMenu.value = false;
   showProfileMenu.value = false;
   resetProfileUi();

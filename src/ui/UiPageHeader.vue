@@ -1,12 +1,12 @@
 <template>
-  <header class="ui-page-header flex-align-start flex-wrap-wrap gap-16px mb-24px" :class="hasText ? 'flex-justify-space-between' : 'flex-justify-end'">
+  <header class="flex-align-start flex-wrap-wrap gap-16px mb-24px" :class="hasText ? 'flex-justify-space-between' : 'flex-justify-end'">
     <div v-if="hasText">
       <h1 v-if="title" class="m-0px color-text-primary" :class="[`text-${titleSize}`, `txt-weight-${titleWeight}`]">{{ title }}</h1>
       <slot>
         <p v-if="subtitle" class="mt-4px mb-0px color-text-secondary text-14px">{{ subtitle }}</p>
       </slot>
     </div>
-    <div v-if="$slots.actions" class="ui-page-header-actions flex-align-center flex-wrap-wrap gap-12px">
+    <div v-if="$slots.actions" class="flex-align-center flex-wrap-wrap gap-12px">
       <slot name="actions" />
     </div>
   </header>

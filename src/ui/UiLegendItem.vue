@@ -1,13 +1,13 @@
 <template>
-  <div class="explorer-legend-item flex-align-center gap-6px text-13px">
+  <div class="flex-align-center gap-6px text-13px">
     <span
       v-if="dotClass || dotColor"
-      class="explorer-legend-dot border-radius-circle flex-shrink-0 w-10px h-10px"
+      class="border-radius-circle flex-shrink-0 w-10px h-10px"
       :class="dotClass"
       :style="dotColor ? { background: dotColor } : undefined"
     ></span>
-    <span class="explorer-legend-label flex-1 color-text-secondary">{{ label }}</span>
-    <span class="explorer-legend-value txt-weight-light color-text-primary">{{ value }}</span>
+    <span class="flex-1 color-text-secondary">{{ label }}</span>
+    <span class="txt-weight-light color-text-primary">{{ value }}</span>
   </div>
 </template>
 

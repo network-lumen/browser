@@ -1,7 +1,7 @@
 <template>
-  <div class="my-gateways-page internal-page flex bg-primary h-100vh">
+  <div class="internal-page flex bg-primary h-100vh">
     <InternalSidebar title="My Gateways" :icon="Server" activeKey="my-gateways">
-      <nav class="lsb-nav flex flex-column gap-12px">
+      <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Manage">
           <UiSidebarNavItem active>
             <List :size="18" />
@@ -11,7 +11,7 @@
       </nav>
     </InternalSidebar>
 
-    <main class="mygw-main flex-1 flex flex-column overflow-hidden bg-secondary py-32px px-40px">
+    <main class="flex-1 flex flex-column overflow-hidden bg-secondary py-32px px-40px">
       <UiPageHeader
         title="My Private Gateways"
         title-size="32px"
@@ -21,15 +21,15 @@
       <div class="pt-2px flex-1 min-h-0 overflow-y-auto">
         <!-- Embedded Server Card -->
         <UiCard
-          class="mygw-server-card transition-all-03 mb-32px"
+          class="transition-all-03 mb-32px"
           :class="{ 'card-state-active-green': embeddedServerRunning }"
           border-class="border-2"
           radius="16px"
           padding-class="p-28px"
           :shadow="false"
         >
-          <div class="mygw-server-card-header flex-align-center gap-20px mb-24px">
-            <div class="mygw-server-icon flex-align-justify-center size-48px border-radius-12px color-text-secondary bg-hover transition-all-03" :class="{ 'bg-success-a15 color-success': embeddedServerRunning }">
+          <div class="flex-align-center gap-20px mb-24px">
+            <div class="flex-align-justify-center size-48px border-radius-12px color-text-secondary bg-hover transition-all-03" :class="{ 'bg-success-a15 color-success': embeddedServerRunning }">
               <svg v-if="embeddedServerRunning" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                 <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -43,18 +43,18 @@
                 <line x1="6" y1="18" x2="6.01" y2="18"></line>
               </svg>
             </div>
-            <div class="mygw-server-info flex-1">
-              <h3 class="text-18px txt-weight-light color-text-primary mygw-server-info-h3 m-0px mb-4px">Embedded Gateway Server</h3>
-              <p v-if="embeddedServerRunning" class="mygw-server-url m-0px text-14px color-primary mono">{{ embeddedServerUrl }}</p>
-              <p v-else class="mygw-server-status-text color-text-secondary m-0px text-14px">Start your personal gateway server</p>
+            <div class="flex-1">
+              <h3 class="text-18px txt-weight-light color-text-primary m-0px mb-4px">Embedded Gateway Server</h3>
+              <p v-if="embeddedServerRunning" class="m-0px text-14px color-primary mono">{{ embeddedServerUrl }}</p>
+              <p v-else class="color-text-secondary m-0px text-14px">Start your personal gateway server</p>
             </div>
             <div class="flex-align-center gap-8px fw-500 border-radius-20px py-8px px-16px text-14px transition-all-03" :class="embeddedServerRunning ? 'bg-fill-success color-success' : 'bg-fill-tertiary color-text-secondary'">
-              <span class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-success': embeddedServerRunning }"></span>
+              <span class="border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-success': embeddedServerRunning }"></span>
               {{ embeddedServerRunning ? 'Running' : 'Stopped' }}
             </div>
           </div>
 
-          <div class="mygw-server-card-actions flex gap-12px">
+          <div class="flex gap-12px">
             <UiButton variant="primary" v-if="embeddedServerRunning"
               type="button" 
              
@@ -84,8 +84,8 @@
 
         <!-- Whitelist Management Section (only show when embedded server is running) -->
         <div v-if="embeddedServerRunning" class="mb-32px border-top-1 pt-32px">
-          <div class="mygw-section-header flex-align-center flex-justify-space-between mb-24px">
-            <h2 class="txt-weight-light color-text-primary m-0px mygw-section-header-h2 text-20px">Whitelist Management</h2>
+          <div class="flex-align-center flex-justify-space-between mb-24px">
+            <h2 class="txt-weight-light color-text-primary m-0px text-20px">Whitelist Management</h2>
             <UiButton variant="primary" type="button" @click="openWhitelistModal">
               <Plus :size="18" />
               Add User
@@ -99,32 +99,32 @@
           <UiEmptyState v-else-if="whitelist.length === 0" description="No users in whitelist yet. Add wallet addresses to grant access." />
 
           <UiCard v-else class="overflow-hidden" border-class="border-15" radius="14px" padding="none" :shadow="false">
-            <table class="mygw-whitelist-table-table w-full border-collapse-collapse">
+            <table class="w-full border-collapse-collapse">
               <thead class="bg-hover">
                 <tr>
-                  <th class="mygw-whitelist-table-th py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Display Name</th>
-                  <th class="mygw-whitelist-table-th py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Wallet Address</th>
-                  <th class="mygw-whitelist-table-th py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Added</th>
-                  <th class="mygw-whitelist-table-th py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Actions</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Display Name</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Wallet Address</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Added</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class="hover-bg-hover" v-for="(entry, idx) in whitelist" :key="entry.wallet_address">
-                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
-                    <div class="mygw-user-display-name fw-500 color-text-primary">
+                  <td class="py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
+                    <div class="fw-500 color-text-primary">
                       {{ getUserDisplayName(entry.wallet_address) }}
                     </div>
                   </td>
-                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
-                    <span class="mygw-mono-text color-text-secondary text-13px mono">{{ formatAddress(entry.wallet_address) }}</span>
+                  <td class="py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
+                    <span class="color-text-secondary text-13px mono">{{ formatAddress(entry.wallet_address) }}</span>
                   </td>
-                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">{{ formatDate(entry.added_at) }}</td>
-                  <td class="mygw-whitelist-table-td py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
-                    <div class="mygw-table-actions flex gap-8px">
-                      <UiButton variant="secondary" @click="editWhitelistEntry(entry)" title="Edit display name" class="mygw-btn-icon size-32px">
+                  <td class="py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">{{ formatDate(entry.added_at) }}</td>
+                  <td class="py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
+                    <div class="flex gap-8px">
+                      <UiButton variant="secondary" @click="editWhitelistEntry(entry)" title="Edit display name" class="size-32px">
                         <Edit2 :size="14" />
                       </UiButton>
-                      <UiButton variant="danger" @click="confirmRemoveFromWhitelist(entry)" title="Remove" class="mygw-btn-icon size-32px hover-bg-error-a08">
+                      <UiButton variant="danger" @click="confirmRemoveFromWhitelist(entry)" title="Remove" class="size-32px hover-bg-error-a08">
                         <Trash2 :size="14" />
                       </UiButton>
                     </div>
@@ -136,8 +136,8 @@
         </div>
 
         <!-- External Gateways Section -->
-        <div class="mygw-section-header flex-align-center flex-justify-space-between mb-24px">
-          <h2 class="txt-weight-light color-text-primary m-0px mygw-section-header-h2 text-20px">External Gateways</h2>
+        <div class="flex-align-center flex-justify-space-between mb-24px">
+          <h2 class="txt-weight-light color-text-primary m-0px text-20px">External Gateways</h2>
           <UiButton variant="primary" type="button" @click="openCreateModal">
             <Plus :size="18" />
             Add Gateway
@@ -165,7 +165,7 @@
           </template>
         </UiEmptyState>
 
-        <div v-else class="mygw-gateways-grid gap-20px grid grid-cols-auto-fill-340">
+        <div v-else class="gap-20px grid grid-cols-auto-fill-340">
           <UiCard
             v-for="gateway in gateways"
             :key="gateway.id"
@@ -177,9 +177,9 @@
             hoverable
             hover-class="transition-all-02 hover-border-primary hover-shadow-md"
           >
-            <div class="mygw-gateway-header flex-align-start flex-justify-space-between mb-16px">
-              <div class="mygw-gateway-title flex-align-center gap-8px">
-                <div class="mygw-status-dot border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-success': gateway.status === 'active' }"></div>
+            <div class="flex-align-start flex-justify-space-between mb-16px">
+              <div class="flex-align-center gap-8px">
+                <div class="border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-success': gateway.status === 'active' }"></div>
                 <h3 class="text-18px txt-weight-light color-text-primary m-0px">{{ gateway.name }}</h3>
               </div>
               <span class="fw-500 border-radius-12px text-capitalize text-12px py-4px px-12px" :class="gatewayStatusBadgeClass(gateway.status)">
@@ -187,22 +187,22 @@
               </span>
             </div>
 
-            <div class="mygw-gateway-info flex flex-column gap-8px mb-16px">
-              <div class="mygw-info-row flex gap-8px text-14px">
-                <span class="mygw-info-label color-text-secondary fw-500 min-w-48px">URL:</span>
-                <span class="mygw-info-value mono break-all color-text-primary text-13px">{{ gateway.url }}</span>
+            <div class="flex flex-column gap-8px mb-16px">
+              <div class="flex gap-8px text-14px">
+                <span class="color-text-secondary fw-500 min-w-48px">URL:</span>
+                <span class="mono break-all color-text-primary text-13px">{{ gateway.url }}</span>
               </div>
-              <div class="mygw-info-row flex gap-8px text-14px">
-                <span class="mygw-info-label color-text-secondary fw-500 min-w-48px">ID:</span>
-                <span class="mygw-info-value mono break-all color-text-primary text-13px">{{ gateway.id }}</span>
+              <div class="flex gap-8px text-14px">
+                <span class="color-text-secondary fw-500 min-w-48px">ID:</span>
+                <span class="mono break-all color-text-primary text-13px">{{ gateway.id }}</span>
               </div>
-              <div class="mygw-info-row flex gap-8px text-14px">
-                <span class="mygw-info-label color-text-secondary fw-500 min-w-48px">Created:</span>
-                <span class="mygw-info-value break-all color-text-primary">{{ formatDate(gateway.createdAt) }}</span>
+              <div class="flex gap-8px text-14px">
+                <span class="color-text-secondary fw-500 min-w-48px">Created:</span>
+                <span class="break-all color-text-primary">{{ formatDate(gateway.createdAt) }}</span>
               </div>
             </div>
 
-            <div class="mygw-gateway-actions flex gap-8px mt-16px">
+            <div class="flex gap-8px mt-16px">
               <UiButton variant="secondary" @click="openEditModal(gateway)">
                 <Edit2 :size="16" />
                 Edit
@@ -218,36 +218,36 @@
 
       <!-- Create/Edit Modal -->
       <UiModal :model-value="showModal" :title="editingGateway ? 'Edit External Gateway' : 'Add External Gateway'" panel-class="max-w-500px w-90pct" @update:model-value="closeModal">
-              <p class="mygw-modal-description color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-primary-a20">
+              <p class="color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-primary-a20">
                 Add an external private gateway (e.g., your VPS or company server). 
                 For local embedded server, use the "Start Embedded Server" button instead.
               </p>
               
-              <div class="mygw-form-group mb-20px">
-                <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Gateway Name</label>
+              <div class="mb-20px">
+                <label class="block fw-500 color-text-secondary mb-8px text-14px">Gateway Name</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.name"
                  
                  
                   placeholder="My Private Gateway" class="focus-outline-none focus-ring-blue" />
               </div>
 
-              <div class="mygw-form-group mb-20px">
-                <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Gateway URL</label>
+              <div class="mb-20px">
+                <label class="block fw-500 color-text-secondary mb-8px text-14px">Gateway URL</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.url"
                  
                  
                   placeholder="https://gateway.example.com" class="focus-outline-none focus-ring-blue" />
               </div>
 
-              <div class="mygw-form-group mb-20px">
-                <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">API Key</label>
+              <div class="mb-20px">
+                <label class="block fw-500 color-text-secondary mb-8px text-14px">API Key</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.apiKey"
                  
                  
                   placeholder="Your gateway API key" class="focus-outline-none focus-ring-blue" />
               </div>
 
-              <div v-if="modalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
+              <div v-if="modalError" class="color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
                 {{ modalError }}
               </div>
         <template #footer>
@@ -263,7 +263,7 @@
       <!-- Delete Confirmation Modal -->
       <UiModal :model-value="showDeleteConfirm" title="Delete Gateway" panel-class="max-w-400px w-90pct" @update:model-value="closeDeleteConfirm">
               <p>Are you sure you want to delete <strong>{{ deletingGateway?.name }}</strong>?</p>
-              <p class="mygw-warning-text color-warning mt-8px text-14px">This action cannot be undone.</p>
+              <p class="color-warning mt-8px text-14px">This action cannot be undone.</p>
         <template #footer>
           <UiButton variant="secondary" @click="closeDeleteConfirm" :disabled="deleting">
             Cancel
@@ -276,8 +276,8 @@
 
       <!-- Whitelist Add/Edit Modal -->
       <UiModal :model-value="showWhitelistModal" :title="editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist'" panel-class="max-w-500px w-90pct" @update:model-value="closeWhitelistModal">
-              <div class="mygw-form-group mb-20px">
-                <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Wallet Address</label>
+              <div class="mb-20px">
+                <label class="block fw-500 color-text-secondary mb-8px text-14px">Wallet Address</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.address"
                  
                  
@@ -285,23 +285,23 @@
                   :disabled="!!editingWhitelistEntry" class="focus-outline-none focus-ring-blue" />
               </div>
 
-              <div class="mygw-form-group mb-20px">
-                <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Display Name (Optional)</label>
+              <div class="mb-20px">
+                <label class="block fw-500 color-text-secondary mb-8px text-14px">Display Name (Optional)</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.displayName"
                  
                  
                   placeholder="John Doe" class="focus-outline-none focus-ring-blue" />
               </div>
 
-              <div class="mygw-form-group mb-20px">
-                <label class="mygw-form-label block fw-500 color-text-secondary mb-8px text-14px">Notes (Optional)</label>
+              <div class="mb-20px">
+                <label class="block fw-500 color-text-secondary mb-8px text-14px">Notes (Optional)</label>
                 <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.notes"
                  
                   rows="3"
                   placeholder="Additional notes about this user..." class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring-blue"></UiInput>
               </div>
 
-              <div v-if="whitelistModalError" class="mygw-error-message color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
+              <div v-if="whitelistModalError" class="color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
                 {{ whitelistModalError }}
               </div>
         <template #footer>
@@ -317,7 +317,7 @@
       <!-- Whitelist Remove Confirmation Modal -->
       <UiModal :model-value="showWhitelistDeleteConfirm" title="Remove User" panel-class="max-w-400px w-90pct" @update:model-value="closeWhitelistDeleteConfirm">
               <p>Remove <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> from whitelist?</p>
-              <p class="mygw-warning-text color-warning mt-8px text-14px">They will no longer be able to access your gateway.</p>
+              <p class="color-warning mt-8px text-14px">They will no longer be able to access your gateway.</p>
         <template #footer>
           <UiButton variant="secondary" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
             Cancel

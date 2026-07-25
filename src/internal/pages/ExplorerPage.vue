@@ -1,5 +1,5 @@
 <template>
-  <div class="explorer-page internal-page flex">
+  <div class="internal-page flex">
     <!-- Show Block Detail if URL contains /block/ -->
     <BlockDetailPage v-if="isBlockDetailView" />
     
@@ -13,10 +13,10 @@
     <template v-else>
     <!-- Sidebar -->
     <InternalSidebar title="Explorer" :icon="LayoutGrid" activeKey="explorer">
-      <nav class="lsb-nav flex flex-column gap-12px">
+      <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Browse">
           <UiSidebarNavItem reveal :active="currentView === 'overview'" @click="currentView = 'overview'">
-            <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
               <line x1="3" y1="9" x2="21" y2="9"/>
               <line x1="9" y1="21" x2="9" y2="9"/>
@@ -24,7 +24,7 @@
             <span>Overview</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'blocks'" @click="currentView = 'blocks'">
-            <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="7" rx="1"/>
               <rect x="14" y="3" width="7" height="7" rx="1"/>
               <rect x="14" y="14" width="7" height="7" rx="1"/>
@@ -33,14 +33,14 @@
             <span>Blocks</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'transactions'" @click="currentView = 'transactions'">
-            <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
               <path d="M21 3v5h-5"/>
             </svg>
             <span>Transactions</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'validators'" @click="currentView = 'validators'">
-            <svg class="lsb-item-svg reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg class="reveal-target flex-shrink-0 opacity-85" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -53,14 +53,14 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="explorer-main-content flex-1 p-24px overflow-y-auto bg-secondary">
+    <main class="flex-1 p-24px overflow-y-auto bg-secondary">
       <!-- Search Bar -->
-      <div class="explorer-search-section mb-32px">
-        <div class="explorer-search-container flex-align-center gap-8px border-radius-12px bg-card border-2 py-12px px-16px transition-all-02 max-w-800px focus-within-border-accent focus-within-ring">
+      <div class="mb-32px">
+        <div class="flex-align-center gap-8px border-radius-12px bg-card border-2 py-12px px-16px transition-all-02 max-w-800px focus-within-border-accent focus-within-ring">
           <Search :size="20" class="color-text-tertiary" />
           <input 
             type="text" 
-            class="explorer-search-input flex-1 outline-none color-text-primary border-none text-15px bg-transparent placeholder-tertiary"
+            class="flex-1 outline-none color-text-primary border-none text-15px bg-transparent placeholder-tertiary"
             v-model="searchQuery"
             @keyup.enter="performSearch"
             placeholder="Search by Block Height, Tx Hash, or Address..."
@@ -72,7 +72,7 @@
       </div>
 
       <!-- Stats Bar -->
-      <div class="explorer-stats-bar gap-16px mb-32px grid grid-cols-auto-fit-200">
+      <div class="gap-16px mb-32px grid grid-cols-auto-fit-200">
         <UiStatTile label="Latest Block" :value="formatNumber(latestBlock)" />
         <UiStatTile :label="`Txs (last ${txHistoryWindow} blocks)`" :value="formatNumber(txHistoryTotal)" />
         <UiStatTile label="Validators" :value="String(validatorCount)" />
@@ -84,19 +84,19 @@
 
       <template v-else>
         <!-- Overview View -->
-        <div v-if="currentView === 'overview'" class="explorer-content-area border-radius-12px bg-transparent overflow-visible">
+        <div v-if="currentView === 'overview'" class="border-radius-12px bg-transparent overflow-visible">
           <!-- Section Header -->
-          <div class="explorer-overview-header mb-24px text-center">
-            <h1 class="explorer-overview-header-h1 text-28px txt-weight-medium color-text-primary mb-4px">Network Overview</h1>
-            <p class="explorer-overview-header-p text-15px color-text-secondary">Real-time blockchain statistics</p>
+          <div class="mb-24px text-center">
+            <h1 class="text-28px txt-weight-medium color-text-primary mb-4px">Network Overview</h1>
+            <p class="text-15px color-text-secondary">Real-time blockchain statistics</p>
           </div>
 
           <!-- Charts Section -->
           <div class="mb-0px gap-12px grid grid-cols-2">
             <UiChartCard :title="txHistoryTitle">
               <template #header>
-                <div class="time-filters flex-align-center gap-8px">
-                  <span class="explorer-filter-label text-12px color-text-tertiary mr-4px">Total: {{ formatNumber(txHistoryTotal) }}</span>
+                <div class="flex-align-center gap-8px">
+                  <span class="text-12px color-text-tertiary mr-4px">Total: {{ formatNumber(txHistoryTotal) }}</span>
                   <UiFilterButton :active="txHistoryWindow === 5" @click="txHistoryWindow = 5">5B</UiFilterButton>
                   <UiFilterButton :active="txHistoryWindow === 10" @click="txHistoryWindow = 10">10B</UiFilterButton>
                   <UiFilterButton :active="txHistoryWindow === 15" @click="txHistoryWindow = 15">15B</UiFilterButton>
@@ -107,14 +107,14 @@
             </UiChartCard>
 
             <UiChartCard title="Bonded / Supply">
-              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-140px h-140px">
+              <div class="relative m-0px mx-auto mb-12px w-140px h-140px">
                 <canvas ref="bondedSupplyChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
-                <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
-                  <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
-                  <div class="explorer-center-label color-text-tertiary text-11px mt-0px">Bonded</div>
+                <div class="text-center absolute cursor-events-none top-half left-half translate-center">
+                  <div class="txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
+                  <div class="color-text-tertiary text-11px mt-0px">Bonded</div>
                 </div>
               </div>
-              <div class="explorer-chart-legend flex flex-column gap-6px">
+              <div class="flex flex-column gap-6px">
                 <UiLegendItem dot-class="bg-gradient-legend-bonded" label="Bonded" :value="`${formatNumber(bondedTokens)} LMN`" />
                 <UiLegendItem dot-class="bg-legend-unbonded" label="Unbonded" :value="`${formatNumber(unbondedTokens)} LMN`" />
                 <UiLegendItem label="Total Supply" :value="`${formatNumber(totalSupply)} LMN`" />
@@ -122,14 +122,14 @@
             </UiChartCard>
 
             <UiChartCard title="Voting Power">
-              <div class="explorer-chart-donut-wrapper relative m-0px mx-auto mb-12px w-140px h-140px">
+              <div class="relative m-0px mx-auto mb-12px w-140px h-140px">
                 <canvas ref="votingPowerChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
-                <div class="explorer-chart-center-label text-center absolute cursor-events-none top-half left-half translate-center">
-                  <div class="explorer-center-value txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
-                  <div class="explorer-center-label color-text-tertiary text-11px mt-0px">Active</div>
+                <div class="text-center absolute cursor-events-none top-half left-half translate-center">
+                  <div class="txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
+                  <div class="color-text-tertiary text-11px mt-0px">Active</div>
                 </div>
               </div>
-              <div class="explorer-chart-legend flex flex-column gap-6px">
+              <div class="flex flex-column gap-6px">
                 <UiLegendItem
                   v-for="(vp, idx) in topValidatorsPower.slice(0, 5)"
                   :key="idx"
@@ -143,27 +143,27 @@
 
             <UiChartCard title="Block Production">
               <template #header>
-                <div class="explorer-live-indicator flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
+                <div class="flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
                   <span class="animate-pulse-ring border-radius-circle w-8px h-8px bg-success"></span>
                   <span>Live</span>
                 </div>
               </template>
-              <div class="explorer-block-proposer-info flex-align-justify-center flex-column gap-6px p-12px min-h-160px">
-                <div class="explorer-proposer-avatar flex-align-justify-center size-64px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden text-24px flex-shrink-0 border-2-primary-a30 min-w-24px">
-                  <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover border-radius-full" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
+              <div class="flex-align-justify-center flex-column gap-6px p-12px min-h-160px">
+                <div class="flex-align-justify-center size-64px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden text-24px flex-shrink-0 border-2-primary-a30 min-w-24px">
+                  <img class="w-full h-full object-fit-cover border-radius-full" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
                   <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                 </div>
                 <div class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ latestProposer.moniker }}</div>
                 <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">Latest Block Proposer</div>
-                <div class="explorer-proposer-stats w-full mt-8px">
-                  <div class="explorer-proposer-stat-group gap-8px w-full grid grid-cols-1fr-1fr">
-                    <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
-                      <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block</span>
-                      <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
+                <div class="w-full mt-8px">
+                  <div class="gap-8px w-full grid grid-cols-1fr-1fr">
+                    <div class="flex flex-column text-center gap-2px">
+                      <span class="color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block</span>
+                      <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
                     </div>
-                    <div class="explorer-proposer-stat flex flex-column text-center gap-2px">
-                      <span class="explorer-stat-label color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block Time</span>
-                      <span class="explorer-stat-value bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
+                    <div class="flex flex-column text-center gap-2px">
+                      <span class="color-text-tertiary text-uppercase color-text-secondary fw-500 text-13px text-11px">Block Time</span>
+                      <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px text-15px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
                     </div>
                   </div>
                 </div>
@@ -173,14 +173,14 @@
 
           <!-- Recent Activity -->
           <div class="mb-0px gap-12px grid mt-12px grid-cols-2">
-            <UiCard padding="none" :shadow="false" class="explorer-activity-column p-20px shadow-sm backdrop-blur">
-              <div class="explorer-activity-header flex-align-center-justify-space-between mb-12px">
-                <h3 class="explorer-activity-header-h3 text-16px txt-weight-light color-text-primary">Latest Blocks</h3>
+            <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
+              <div class="flex-align-center-justify-space-between mb-12px">
+                <h3 class="text-16px txt-weight-light color-text-primary">Latest Blocks</h3>
                 <UiButton variant="primary" @click="currentView = 'blocks'">View All →</UiButton>
               </div>
-              <div class="activity-list flex flex-column gap-12px">
+              <div class="flex flex-column gap-12px">
                 <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
-                  <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
+                  <div class="flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="3" width="7" height="7" rx="1"/>
                       <rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -188,45 +188,45 @@
                       <rect x="3" y="14" width="7" height="7" rx="1"/>
                     </svg>
                   </div>
-                  <div class="explorer-activity-content flex-1 min-w-0">
-                    <div class="explorer-activity-title txt-weight-light color-text-primary text-14px mb-4px">#{{ formatNumber(block.height) }}</div>
-                    <div class="explorer-activity-meta flex-align-center text-12px color-text-tertiary gap-8px">
-                      <img v-if="block.proposerAvatar" :src="block.proposerAvatar" class="explorer-proposer-mini-avatar border-radius-circle object-fit-cover w-16px h-16px" :alt="block.proposer" />
+                  <div class="flex-1 min-w-0">
+                    <div class="txt-weight-light color-text-primary text-14px mb-4px">#{{ formatNumber(block.height) }}</div>
+                    <div class="flex-align-center text-12px color-text-tertiary gap-8px">
+                      <img v-if="block.proposerAvatar" :src="block.proposerAvatar" class="border-radius-circle object-fit-cover w-16px h-16px" :alt="block.proposer" />
                       <span>{{ block.proposer }}</span>
                     </div>
                   </div>
-                  <div class="explorer-activity-side flex-align-end flex-column gap-4px">
-                    <div class="explorer-activity-value txt-weight-light color-text-primary text-14px">{{ block.txCount }} txs</div>
-                    <div class="explorer-activity-time text-12px color-text-tertiary">{{ formatTimeAgo(block.time) }}</div>
+                  <div class="flex-align-end flex-column gap-4px">
+                    <div class="txt-weight-light color-text-primary text-14px">{{ block.txCount }} txs</div>
+                    <div class="text-12px color-text-tertiary">{{ formatTimeAgo(block.time) }}</div>
                   </div>
                 </div>
               </div>
             </UiCard>
 
-            <UiCard padding="none" :shadow="false" class="explorer-activity-column p-20px shadow-sm backdrop-blur">
-              <div class="explorer-activity-header flex-align-center-justify-space-between mb-12px">
-                <h3 class="explorer-activity-header-h3 text-16px txt-weight-light color-text-primary">Latest Transactions</h3>
+            <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
+              <div class="flex-align-center-justify-space-between mb-12px">
+                <h3 class="text-16px txt-weight-light color-text-primary">Latest Transactions</h3>
                 <UiButton variant="primary" @click="currentView = 'transactions'">View All →</UiButton>
               </div>
-              <div class="activity-list flex flex-column gap-12px">
+              <div class="flex flex-column gap-12px">
                 <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
-                  <div class="explorer-activity-icon flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
+                  <div class="flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
                       <path d="M21 3v5h-5"/>
                     </svg>
                   </div>
-                  <div class="explorer-activity-content flex-1 min-w-0">
-                    <div class="explorer-activity-title txt-weight-light color-text-primary text-14px mb-4px">{{ shortenHash(tx.hash) }}</div>
-                    <div class="explorer-activity-meta flex-align-center text-12px color-text-tertiary gap-8px">
-                      <span class="explorer-tx-type-mini color-primary txt-weight-light text-uppercase border-radius-4px text-10px py-0px px-8px bg-primary-a10">{{ tx.type }}</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="txt-weight-light color-text-primary text-14px mb-4px">{{ shortenHash(tx.hash) }}</div>
+                    <div class="flex-align-center text-12px color-text-tertiary gap-8px">
+                      <span class="color-primary txt-weight-light text-uppercase border-radius-4px text-10px py-0px px-8px bg-primary-a10">{{ tx.type }}</span>
                     </div>
                   </div>
-                  <div class="explorer-activity-side flex-align-end flex-column gap-4px">
-                    <div class="explorer-activity-status text-12px txt-weight-light border-radius-12px py-0px px-8px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
+                  <div class="flex-align-end flex-column gap-4px">
+                    <div class="text-12px txt-weight-light border-radius-12px py-0px px-8px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
                       {{ tx.success ? 'Success' : 'Failed' }}
                     </div>
-                    <div class="explorer-activity-time text-12px color-text-tertiary">{{ formatTimeAgo(tx.time) }}</div>
+                    <div class="text-12px color-text-tertiary">{{ formatTimeAgo(tx.time) }}</div>
                   </div>
                 </div>
               </div>
@@ -235,14 +235,14 @@
         </div>
 
         <!-- Blocks View -->
-        <div v-else-if="currentView === 'blocks'" class="explorer-content-area text-12px border-radius-12px bg-transparent bg-card overflow-visible">
-          <div class="explorer-blocks-header flex-align-start flex-wrap-wrap gap-16px relative bg-card border-bottom-1 flex-justify-space-between p-0px pt-16px pr-24px pb-12px pl-24px">
-            <div class="explorer-header-content flex-1 min-w-200px">
-              <h2 class="explorer-blocks-header-h2 text-20px txt-weight-medium color-text-primary m-0px mb-4px">Blocks</h2>
-              <p class="explorer-blocks-subtitle text-12px color-text-tertiary m-0px">View all blocks on the lumen-mainnet</p>
+        <div v-else-if="currentView === 'blocks'" class="text-12px border-radius-12px bg-transparent bg-card overflow-visible">
+          <div class="flex-align-start flex-wrap-wrap gap-16px relative bg-card border-bottom-1 flex-justify-space-between p-0px pt-16px pr-24px pb-12px pl-24px">
+            <div class="flex-1 min-w-200px">
+              <h2 class="text-20px txt-weight-medium color-text-primary m-0px mb-4px">Blocks</h2>
+              <p class="text-12px color-text-tertiary m-0px">View all blocks on the lumen-mainnet</p>
             </div>
-            <div class="explorer-header-actions flex flex-inline-align-center gap-12px flex-wrap-wrap">
-              <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-8px">
+            <div class="flex flex-inline-align-center gap-12px flex-wrap-wrap">
+              <div class="flex-align-center flex-wrap-wrap gap-8px">
                 <select v-model="blockFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
                   <option value="all">All Blocks</option>
                   <option value="recent">Recent (Last 100)</option>
@@ -263,36 +263,36 @@
             </div>
           </div>
 
-          <div class="explorer-blocks-table w-full">
+          <div class="w-full">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-90-320-22fr-130-140">
-              <div class="th th-height">HEIGHT</div>
-              <div class="th th-proposer">PROPOSER</div>
-              <div class="th th-hash">HASH</div>
-              <div class="th th-txs">TRANSACTIONS</div>
-              <div class="th th-time">TIME</div>
+              <div class="">HEIGHT</div>
+              <div class="">PROPOSER</div>
+              <div class="">HASH</div>
+              <div class="">TRANSACTIONS</div>
+              <div class="">TIME</div>
             </div>
             
             <div class="max-h-none flex flex-column overflow-y-auto">
               <div v-for="block in filteredBlocks" :key="block.height" class="explorer-table-recipe explorer-table-row-recipe grid-cols-90-320-22fr-130-140 active-scale-998 reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none cursor-pointer flex-inline-align-center bg-black-a04-active" @click="navigateToBlock(block.height)">
-                <div class="explorer-td td-height flex-align-center text-13px text-14px">
-                  <div class="explorer-height-link flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-4px" @click="navigateToBlock(block.height)">
-                    <svg class="explorer-height-link-svg flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <div class="flex-align-center text-13px text-14px">
+                  <div class="flex-align-center color-primary cursor-pointer transition-all-02 hover-underline hover-color-accent-secondary gap-4px" @click="navigateToBlock(block.height)">
+                    <svg class="flex-shrink-0 opacity-70 w-12px h-12px" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                     <span class="txt-weight-light text-12px">{{ formatNumber(block.height) }}</span>
                   </div>
                 </div>
-                <div class="explorer-td td-proposer flex-align-center text-13px text-14px">
-                  <div class="explorer-proposer-info flex-align-center gap-6px">
-                    <div class="explorer-proposer-avatar flex-align-justify-center size-24px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden flex-shrink-0 border-2-primary-a30 min-w-24px text-10px">
-                      <img class="explorer-proposer-avatar-img w-full h-full object-fit-cover border-radius-full" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
+                <div class="flex-align-center text-13px text-14px">
+                  <div class="flex-align-center gap-6px">
+                    <div class="flex-align-justify-center size-24px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden flex-shrink-0 border-2-primary-a30 min-w-24px text-10px">
+                      <img class="w-full h-full object-fit-cover border-radius-full" v-if="block.proposerAvatar" :src="block.proposerAvatar" :alt="block.proposer" />
                       <span v-else>{{ block.proposer.charAt(0) }}</span>
                     </div>
                     <span class="mt-0px text-12px txt-weight-medium color-text-primary text-center text-13px text-16px">{{ block.proposer }}</span>
                   </div>
                 </div>
-                <div class="explorer-td explorer-td-hash reveal-on-hover flex-align-center gap-8px text-13px text-14px">
+                <div class="reveal-on-hover flex-align-center gap-8px text-13px text-14px">
                   <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click.stop="navigateToBlock(block.height)" title="View block details">
                     <code class="reveal-hash-code-target color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ block.hash }}</code>
                     <svg class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -300,19 +300,19 @@
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <UiButton variant="icon" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash" class="explorer-copy-icon-btn size-24px">
+                  <UiButton variant="icon" @click.stop="copyToClipboard(block.hash, 'Block hash')" title="Copy hash" class="size-24px">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                   </UiButton>
                 </div>
-                <div class="explorer-td td-txs flex-align-center text-13px text-14px">
-                  <span class="explorer-tx-count txt-weight-light color-text-tertiary bg-secondary border-radius-4px py-4px px-6px text-12px" :class="{ 'has-txs': block.txCount > 0, 'bg-fill-success': block.txCount > 0 }">
+                <div class="flex-align-center text-13px text-14px">
+                  <span class="txt-weight-light color-text-tertiary bg-secondary border-radius-4px py-4px px-6px text-12px" :class="{ 'has-txs': block.txCount > 0, 'bg-fill-success': block.txCount > 0 }">
                     {{ block.txCount }}
                   </span>
                 </div>
-                <div class="explorer-td td-time flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-13px text-14px">
                   <span class="text-12px color-text-secondary">{{ formatTimeAgo(block.time) }}</span>
                 </div>
               </div>
@@ -321,13 +321,13 @@
         </div>
 
         <!-- Transactions View -->
-        <div v-else-if="currentView === 'transactions'" class="explorer-content-area explorer-transactions-view border-radius-12px bg-transparent bg-card overflow-visible">
-          <div class="explorer-transactions-header flex-align-start flex-wrap-wrap gap-16px border-bottom-1 flex-justify-space-between pt-24px pr-24px pb-16px pl-24px">
-            <div class="explorer-header-content flex-1 min-w-200px">
-              <h2 class="explorer-transactions-header-h2 text-24px txt-weight-medium color-text-primary m-0px mb-4px">Transactions</h2>
-              <p class="explorer-transactions-subtitle color-text-tertiary m-0px text-14px">Latest transactions on the lumen-mainnet</p>
+        <div v-else-if="currentView === 'transactions'" class="border-radius-12px bg-transparent bg-card overflow-visible">
+          <div class="flex-align-start flex-wrap-wrap gap-16px border-bottom-1 flex-justify-space-between pt-24px pr-24px pb-16px pl-24px">
+            <div class="flex-1 min-w-200px">
+              <h2 class="text-24px txt-weight-medium color-text-primary m-0px mb-4px">Transactions</h2>
+              <p class="color-text-tertiary m-0px text-14px">Latest transactions on the lumen-mainnet</p>
             </div>
-            <div class="explorer-filter-controls flex-align-center flex-wrap-wrap gap-8px">
+            <div class="flex-align-center flex-wrap-wrap gap-8px">
               <select v-model="txTypeFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option value="all">All Types</option>
                 <option value="send">Send</option>
@@ -349,7 +349,7 @@
             </div>
           </div>
 
-          <div v-if="transactions.length === 0" class="explorer-empty-state flex-align-justify-center flex-column color-text-tertiary border-radius-12px bg-card border-1 py-64px px-32px">
+          <div v-if="transactions.length === 0" class="flex-align-justify-center flex-column color-text-tertiary border-radius-12px bg-card border-1 py-64px px-32px">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-16px opacity-55">
               <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
               <path d="M21 3v5h-5"/>
@@ -359,17 +359,17 @@
 
           <div v-else class="w-full">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr">
-              <div class="th th-hash">Transaction Hash</div>
-              <div class="th th-type">Type</div>
-              <div class="th th-result">Result</div>
-              <div class="th th-height">Height</div>
-              <div class="th th-fee">Fee</div>
-              <div class="th th-time">Time</div>
+              <div class="">Transaction Hash</div>
+              <div class="">Type</div>
+              <div class="">Result</div>
+              <div class="">Height</div>
+              <div class="">Fee</div>
+              <div class="">Time</div>
             </div>
             
             <div class="max-h-600px flex flex-column overflow-y-auto">
               <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-recipe explorer-table-row-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr active-scale-998 reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
-                <div class="explorer-td explorer-td-hash reveal-on-hover flex-align-center gap-8px text-13px text-14px">
+                <div class="reveal-on-hover flex-align-center gap-8px text-13px text-14px">
                   <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -380,32 +380,32 @@
                       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                     </svg>
                   </div>
-                  <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash" class="explorer-copy-icon-btn size-24px">
+                  <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash" class="size-24px">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
                   </UiButton>
                 </div>
-                <div class="explorer-td td-type flex-align-center text-13px text-14px">
-                  <span class="explorer-tx-type-badge text-12px txt-weight-light border-radius-4px py-4px px-12px bg-fill-blue color-accent-secondary">{{ tx.type }}</span>
+                <div class="flex-align-center text-13px text-14px">
+                  <span class="text-12px txt-weight-light border-radius-4px py-4px px-12px bg-fill-blue color-accent-secondary">{{ tx.type }}</span>
                 </div>
-                <div class="explorer-td td-result flex-align-center text-13px text-14px">
-                  <span class="explorer-tx-status flex-inline-align-center text-12px txt-weight-light gap-6px border-radius-4px py-4px px-12px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
-                    <svg class="explorer-tx-status-svg w-14px h-14px" v-if="tx.success" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <div class="flex-align-center text-13px text-14px">
+                  <span class="flex-inline-align-center text-12px txt-weight-light gap-6px border-radius-4px py-4px px-12px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
+                    <svg class="w-14px h-14px" v-if="tx.success" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                       <polyline points="22 4 12 14.01 9 11.01"></polyline>
                     </svg>
                     {{ tx.success ? 'Success' : 'Failed' }}
                   </span>
                 </div>
-                <div class="explorer-td td-height flex-align-center text-13px text-14px">
-                  <span class="transition-color-02 explorer-clickable hover-underline color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
+                <div class="flex-align-center text-13px text-14px">
+                  <span class="transition-color-02 hover-underline color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
                 </div>
-                <div class="explorer-td td-fee flex-align-center text-13px text-14px">
-                  <span class="explorer-fee-amount text-12px color-text-primary fw-500 mono">{{ tx.fee || '—' }}</span>
+                <div class="flex-align-center text-13px text-14px">
+                  <span class="text-12px color-text-primary fw-500 mono">{{ tx.fee || '—' }}</span>
                 </div>
-                <div class="explorer-td td-time flex-align-center text-13px text-14px">
+                <div class="flex-align-center text-13px text-14px">
                   <span class="text-12px color-text-secondary">{{ formatTimeAgo(tx.time) }}</span>
                 </div>
               </div>
@@ -414,56 +414,56 @@
         </div>
 
         <!-- Validators View -->
-        <div v-else-if="currentView === 'validators'" class="explorer-content-area explorer-validators-view border-radius-12px p-32px bg-transparent overflow-visible">
-          <div class="explorer-validators-header mb-32px">
-            <h2 class="explorer-validators-header-h2 text-28px txt-weight-medium color-text-primary mb-8px">Active Validators</h2>
-            <p class="explorer-validators-subtitle color-text-tertiary text-14px">{{ validators.length }} validators securing the network</p>
+        <div v-else-if="currentView === 'validators'" class="border-radius-12px p-32px bg-transparent overflow-visible">
+          <div class="mb-32px">
+            <h2 class="text-28px txt-weight-medium color-text-primary mb-8px">Active Validators</h2>
+            <p class="color-text-tertiary text-14px">{{ validators.length }} validators securing the network</p>
           </div>
 
           <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-sm backdrop-blur">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-120-160-100-110-120">
-              <div class="th th-rank">#</div>
-              <div class="th th-validator">VALIDATOR</div>
-              <div class="th th-voting-power">VOTING POWER %</div>
-              <div class="th th-changes">24H CHANGES</div>
-              <div class="th th-cumulative">CUMULATIVE SHARE %</div>
-              <div class="th th-commission">COMM. %</div>
-              <div class="th th-uptime">UPTIME %</div>
-              <div class="th th-actions">ACTIONS</div>
+              <div class="">#</div>
+              <div class="">VALIDATOR</div>
+              <div class="">VOTING POWER %</div>
+              <div class="">24H CHANGES</div>
+              <div class="">CUMULATIVE SHARE %</div>
+              <div class="">COMM. %</div>
+              <div class="">UPTIME %</div>
+              <div class="">ACTIONS</div>
             </div>
             
             <div class="max-h-600px flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-recipe explorer-table-row-recipe grid-cols-50-220-200-120-160-100-110-120 active-scale-998 hover-bg-secondary hover-cursor-default last-border-bottom-none validator-row flex-inline-align-center bg-black-a04-active">
-                <div class="explorer-td td-rank flex-align-center text-13px text-14px">
-                  <span class="explorer-rank-number txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-recipe explorer-table-row-recipe grid-cols-50-220-200-120-160-100-110-120 active-scale-998 hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
+                <div class="flex-align-center text-13px text-14px">
+                  <span class="txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
                 </div>
-                <div class="explorer-td td-validator flex-align-center text-13px text-14px">
-                  <div class="validator-info flex-align-center gap-12px">
+                <div class="flex-align-center text-13px text-14px">
+                  <div class="flex-align-center gap-12px">
                     <div class="bg-gradient-indigo-purple flex-align-justify-center size-36px border-radius-circle txt-weight-medium color-white text-24px overflow-hidden text-13px flex-shrink-0 border-2">
-                      <img class="explorer-validator-avatar-img w-full h-full object-fit-cover" v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
+                      <img class="w-full h-full object-fit-cover" v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
                       <span v-else>{{ validator.moniker.substring(0, 2).toUpperCase() }}</span>
                     </div>
-                    <div class="validator-name-wrapper flex flex-column gap-4px">
-                      <span class="explorer-validator-name txt-weight-light color-text-primary text-18px text-14px">{{ validator.moniker }}</span>
+                    <div class="flex flex-column gap-4px">
+                      <span class="txt-weight-light color-text-primary text-18px text-14px">{{ validator.moniker }}</span>
                       <span class="transition-color-02 color-text-tertiary cursor-pointer mt-8px pt-12px text-11px border-top-1 mono hover-color-primary" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
                     </div>
                   </div>
                 </div>
-                <div class="explorer-td td-voting-power flex-align-center text-13px text-14px">
-                  <div class="explorer-voting-power-container flex flex-column gap-4px w-full">
-                    <div class="explorer-voting-power-text txt-weight-medium color-text-primary text-15px mb-4px">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
+                <div class="flex-align-center text-13px text-14px">
+                  <div class="flex flex-column gap-4px w-full">
+                    <div class="txt-weight-medium color-text-primary text-15px mb-4px">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
                     <div class="h-5px w-full bg-border border-radius-4px overflow-hidden mb-4px">
                       <div class="bg-gradient-voting-power h-full border-radius-4px transition-width-03" :style="{ width: getVotingPowerPercentage(validator.tokens) + '%' }"></div>
                     </div>
-                    <div class="explorer-voting-power-amount color-text-tertiary fw-500 text-11px">{{ formatVotingPower(validator.tokens) }} LMN</div>
+                    <div class="color-text-tertiary fw-500 text-11px">{{ formatVotingPower(validator.tokens) }} LMN</div>
                   </div>
                 </div>
-                <div class="explorer-td td-changes flex-align-center text-13px text-14px">
-                  <span class="explorer-changes-value txt-weight-light text-14px">—</span>
+                <div class="flex-align-center text-13px text-14px">
+                  <span class="txt-weight-light text-14px">—</span>
                 </div>
-                <div class="explorer-td td-cumulative flex-align-center text-13px text-14px">
-                  <div class="explorer-cumulative-container flex-align-justify-center relative size-64px">
-                    <svg class="explorer-circular-progress block filter-none" width="66" height="66" viewBox="0 0 66 66">
+                <div class="flex-align-center text-13px text-14px">
+                  <div class="flex-align-justify-center relative size-64px">
+                    <svg class="block filter-none" width="66" height="66" viewBox="0 0 66 66">
                       <circle cx="33" cy="33" r="27" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
                       <circle
                         cx="33" cy="33" r="27"
@@ -475,16 +475,16 @@
                         stroke-linecap="round"
                       ></circle>
                     </svg>
-                    <span class="explorer-cumulative-text flex-align-justify-center txt-weight-medium color-text-primary absolute inset-0 text-11px line-height-1 cursor-events-none">{{ getCumulativeProgress(index).toFixed(2) }}%</span>
+                    <span class="flex-align-justify-center txt-weight-medium color-text-primary absolute inset-0 text-11px line-height-1 cursor-events-none">{{ getCumulativeProgress(index).toFixed(2) }}%</span>
                   </div>
                 </div>
-                <div class="explorer-td td-commission flex-align-center text-13px text-14px">
-                  <span class="explorer-commission-value txt-weight-light color-text-secondary text-14px">{{ (parseFloat(validator.commission) * 100).toFixed(2) }}%</span>
+                <div class="flex-align-center text-13px text-14px">
+                  <span class="txt-weight-light color-text-secondary text-14px">{{ (parseFloat(validator.commission) * 100).toFixed(2) }}%</span>
                 </div>
-                <div class="explorer-td td-uptime flex-align-center text-13px text-14px">
-                  <span class="explorer-uptime-value txt-weight-light color-text-secondary text-14px">{{ getUptimeLabel(validator.address) }}</span>
+                <div class="flex-align-center text-13px text-14px">
+                  <span class="txt-weight-light color-text-secondary text-14px">{{ getUptimeLabel(validator.address) }}</span>
                 </div>
-                <div class="explorer-td explorer-td-actions flex-align-center flex-align-justify-center text-13px text-14px">
+                <div class="flex-align-center flex-align-justify-center text-13px text-14px">
                   <UiButton
                     variant="primary"
                     size="sm"
@@ -516,18 +516,18 @@
 
     <!-- Stake Management Modal -->
     <UiModal :model-value="showStakeModal" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="shadow-lg animate-modal-slide-in w-90pct max-w-420px" @update:model-value="closeStakeModal">
-          <div class="explorer-balance-info flex gap-16px mb-24px p-16px bg-secondary border-radius-8px">
-            <div class="explorer-balance-item flex flex-column flex-1 gap-4px">
-              <span class="explorer-balance-label text-12px color-text-secondary fw-500">Staked:</span>
-              <span class="explorer-balance-value color-text-primary txt-weight-medium text-14px">{{ stakedBalance }} LMN</span>
+          <div class="flex gap-16px mb-24px p-16px bg-secondary border-radius-8px">
+            <div class="flex flex-column flex-1 gap-4px">
+              <span class="text-12px color-text-secondary fw-500">Staked:</span>
+              <span class="color-text-primary txt-weight-medium text-14px">{{ stakedBalance }} LMN</span>
             </div>
-            <div class="explorer-balance-item flex flex-column flex-1 gap-4px">
-              <span class="explorer-balance-label text-12px color-text-secondary fw-500">Balance:</span>
-              <span class="explorer-balance-value color-text-primary txt-weight-medium text-14px">{{ availableBalance }} LMN</span>
+            <div class="flex flex-column flex-1 gap-4px">
+              <span class="text-12px color-text-secondary fw-500">Balance:</span>
+              <span class="color-text-primary txt-weight-medium text-14px">{{ availableBalance }} LMN</span>
             </div>
           </div>
 
-          <div class="explorer-action-tabs flex gap-8px mb-24px p-4px bg-secondary border-radius-8px">
+          <div class="flex gap-8px mb-24px p-4px bg-secondary border-radius-8px">
             <button 
               v-for="action in stakeActions" 
               :key="action"
@@ -539,35 +539,35 @@
             </button>
           </div>
 
-          <div class="stake-form flex flex-column gap-20px">
+          <div class="flex flex-column gap-20px">
             <!-- Withdraw Rewards - No amount needed -->
-            <div v-if="currentStakeAction === 'Withdraw'" class="explorer-withdraw-info p-0px pt-8px pb-8px">
-              <div class="explorer-withdraw-notice flex-align-start gap-12px p-16px border-radius-10px bg-primary-a10 border-1-primary-a15">
-                <svg class="explorer-withdraw-notice-svg flex-shrink-0 color-primary mt-4px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div v-if="currentStakeAction === 'Withdraw'" class="p-0px pt-8px pb-8px">
+              <div class="flex-align-start gap-12px p-16px border-radius-10px bg-primary-a10 border-1-primary-a15">
+                <svg class="flex-shrink-0 color-primary mt-4px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <path d="M12 16v-4"/>
                   <path d="M12 8h.01"/>
                 </svg>
-                <div class="explorer-withdraw-text flex flex-column gap-4px">
-                  <strong class="explorer-withdraw-text-strong text-15px txt-weight-light color-text-primary">Withdraw Staking Rewards</strong>
-                  <p class="explorer-withdraw-text-p m-0px text-13px color-text-secondary line-height-14">This will claim all pending rewards from this validator to your wallet.</p>
+                <div class="flex flex-column gap-4px">
+                  <strong class="text-15px txt-weight-light color-text-primary">Withdraw Staking Rewards</strong>
+                  <p class="m-0px text-13px color-text-secondary line-height-14">This will claim all pending rewards from this validator to your wallet.</p>
                 </div>
               </div>
             </div>
 
             <!-- Amount Input - Not for Withdraw -->
-            <div v-else class="explorer-form-group flex flex-column gap-8px">
-              <label class="explorer-form-group-label text-14px txt-weight-light color-text-primary">Amount to {{ currentStakeAction.toLowerCase() }}</label>
-              <div class="explorer-input-wrapper flex-align-center relative">
+            <div v-else class="flex flex-column gap-8px">
+              <label class="text-14px txt-weight-light color-text-primary">Amount to {{ currentStakeAction.toLowerCase() }}</label>
+              <div class="flex-align-center relative">
                 <UiInput bg-class="bg-secondary" font-size-class="txt-weight-light" padding-class="pt-12px pr-64px pb-12px pl-16px" :focus-ring="false" type="number" 
                   v-model="stakeAmount" 
                   :placeholder="`0.0`"
                  
                   step="0.000001"
-                  min="0" class="explorer-stake-input text-15px focus-outline-none focus-ring focus-shadow" />
-                <span class="explorer-input-suffix txt-weight-light color-text-secondary absolute text-14px right-16px">LMN</span>
+                  min="0" class="text-15px focus-outline-none focus-ring focus-shadow" />
+                <span class="txt-weight-light color-text-secondary absolute text-14px right-16px">LMN</span>
               </div>
-              <div class="explorer-amount-slider flex flex-column gap-8px p-0px pt-8px pb-8px">
+              <div class="flex flex-column gap-8px p-0px pt-8px pb-8px">
                 <input 
                   type="range" 
                   v-model="stakePercentage" 
@@ -575,7 +575,7 @@
                   max="100" 
                   class="slider-thumb-accent w-full outline-none border-radius-4px bg-border h-6px appearance-none"
                 />
-                <div class="explorer-slider-labels flex-justify-space-between color-text-tertiary text-11px">
+                <div class="flex-justify-space-between color-text-tertiary text-11px">
                   <span>0%</span>
                   <span>50%</span>
                   <span>Max</span>
@@ -589,9 +589,9 @@
               </div>
             </div>
 
-            <div v-if="currentStakeAction === 'Redelegate'" class="explorer-form-group flex flex-column gap-8px">
-              <label class="explorer-form-group-label text-14px txt-weight-light color-text-primary">Select New Validator</label>
-              <select v-model="targetValidator" class="explorer-validator-select w-full color-text-primary cursor-pointer py-12px px-16px bg-secondary border-1 border-radius-8px text-14px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
+            <div v-if="currentStakeAction === 'Redelegate'" class="flex flex-column gap-8px">
+              <label class="text-14px txt-weight-light color-text-primary">Select New Validator</label>
+              <select v-model="targetValidator" class="w-full color-text-primary cursor-pointer py-12px px-16px bg-secondary border-1 border-radius-8px text-14px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
                 <option value="">Choose validator...</option>
                 <option v-for="val in validators.filter(v => v.address !== selectedValidator?.address)" :key="val.address" :value="val.address">
                   {{ val.moniker }}
@@ -599,7 +599,7 @@
               </select>
             </div>
 
-            <div class="advanced-options" v-if="showAdvancedOptions">
+            <div class="" v-if="showAdvancedOptions">
               <UiButton variant="secondary" @click="showAdvancedOptions = !showAdvancedOptions" class="hover-border-accent hover-color-accent">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="3"/>
@@ -611,30 +611,30 @@
 
             <!-- Transaction Status Popup -->
             <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-lg min-w-400px max-w-90vw" :style="txStatusPopupStyle(txStatus)">
-              <div class="explorer-tx-status-content flex-align-center flex-column gap-24px text-center">
+              <div class="flex-align-center flex-column gap-24px text-center">
                 <!-- Processing -->
-                <div v-if="txStatus === 'processing'" class="explorer-tx-processing flex flex-column flex-inline-align-center gap-16px w-full">
+                <div v-if="txStatus === 'processing'" class="flex flex-column flex-inline-align-center gap-16px w-full">
                   <UiSpinner size="lg" />
-                  <div class="explorer-tx-status-text flex flex-column gap-8px">
-                    <strong class="explorer-tx-status-text-strong text-18px color-text-primary txt-weight-medium">Processing Transaction</strong>
+                  <div class="flex flex-column gap-8px">
+                    <strong class="text-18px color-text-primary txt-weight-medium">Processing Transaction</strong>
                     <p class="word-wrap-break text-14px color-text-secondary m-0px max-w-320px">{{ txMessage }}</p>
                   </div>
                 </div>
 
                 <!-- Success -->
-                <div v-else-if="txStatus === 'success'" class="explorer-tx-success flex flex-column flex-inline-align-center gap-16px w-full">
+                <div v-else-if="txStatus === 'success'" class="flex flex-column flex-inline-align-center gap-16px w-full">
                   <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="rgba(var(--color-success-rgb), 0.7)" stroke-width="2"/>
                     <path d="M8 12l3 3 5-5" stroke="rgba(var(--color-success-rgb), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <div class="explorer-tx-status-text flex flex-column gap-8px">
-                    <strong class="explorer-tx-status-text-strong text-18px color-text-primary txt-weight-medium">Transaction Successful!</strong>
+                  <div class="flex flex-column gap-8px">
+                    <strong class="text-18px color-text-primary txt-weight-medium">Transaction Successful!</strong>
                     <p class="word-wrap-break text-14px color-text-secondary m-0px max-w-320px">{{ txMessage }}</p>
-                    <div v-if="txHash" class="explorer-tx-hash-display w-full mt-12px p-12px bg-secondary border-radius-8px border-1">
-                      <small class="explorer-tx-hash-display-small block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">Transaction Hash:</small>
-                      <UiButton variant="none" @click="viewTransaction(txHash)" class="explorer-tx-hash-link reveal-on-hover hover-translate-x-2px flex-align-center gap-8px cursor-pointer w-full">
-                        <code class="explorer-tx-hash-link-code flex-1 mono text-12px color-primary break-all txt-weight-light">{{ txHash }}</code>
-                        <svg class="explorer-tx-hash-link-svg reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <div v-if="txHash" class="w-full mt-12px p-12px bg-secondary border-radius-8px border-1">
+                      <small class="block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">Transaction Hash:</small>
+                      <UiButton variant="none" @click="viewTransaction(txHash)" class="reveal-on-hover hover-translate-x-2px flex-align-center gap-8px cursor-pointer w-full">
+                        <code class="flex-1 mono text-12px color-primary break-all txt-weight-light">{{ txHash }}</code>
+                        <svg class="reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                           <polyline points="15 3 21 3 21 9"/>
                           <line x1="10" y1="14" x2="21" y2="3"/>
@@ -642,17 +642,17 @@
                       </UiButton>
                     </div>
                   </div>
-                  <button class="explorer-tx-close-btn mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px hover-shadow-primary" @click="closeStakeModal">Close</button>
+                  <button class="mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px hover-shadow-primary" @click="closeStakeModal">Close</button>
                 </div>
 
                 <!-- Error -->
-                <div v-else-if="txStatus === 'error'" class="explorer-tx-error flex flex-column flex-inline-align-center gap-16px w-full">
+                <div v-else-if="txStatus === 'error'" class="flex flex-column flex-inline-align-center gap-16px w-full">
                   <svg class="animate-icon-bounce color-text-tertiary flex-shrink-0" width="48" height="48" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="var(--color-error)" stroke-width="2"/>
                     <path d="M12 8v4m0 4h.01" stroke="var(--color-error)" stroke-width="2" stroke-linecap="round"/>
                   </svg>
-                  <div class="explorer-tx-status-text flex flex-column gap-8px">
-                    <strong class="explorer-tx-status-text-strong text-18px color-text-primary txt-weight-medium">Transaction Failed</strong>
+                  <div class="flex flex-column gap-8px">
+                    <strong class="text-18px color-text-primary txt-weight-medium">Transaction Failed</strong>
                     <p class="word-wrap-break text-14px color-text-secondary m-0px max-w-320px">{{ txMessage }}</p>
                   </div>
                   <UiButton variant="primary" class="mt-8px" @click="txStatus = 'idle'">Try Again</UiButton>

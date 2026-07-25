@@ -1,6 +1,6 @@
 <template>
-  <div class="ipfspage-ipfs-page flex w-full h-full bg-primary" :class="{ 'bg-primary': isBareHtmlView }">
-    <main class="ipfspage-main-content flex flex-column flex-1" :class="isBareHtmlView ? 'p-0px overflow-hidden' : 'p-24px overflow-auto'">
+  <div class="flex w-full h-full bg-primary" :class="{ 'bg-primary': isBareHtmlView }">
+    <main class="flex flex-column flex-1" :class="isBareHtmlView ? 'p-0px overflow-hidden' : 'p-24px overflow-auto'">
       <UiPageHeader v-if="!isBareHtmlView">
         <template #actions>
           <UiButton variant="primary" v-if="isDir && indexHtmlEntry"
@@ -21,7 +21,7 @@
           </UiButton>
           <UiButton
             variant="secondary"
-            class="ipfspage-plans-btn disabled-fade-50"
+            class="disabled-fade-50"
             type="button"
             @click="openSaveModal"
             :class="{ 'bg-success-a12-override border-1-success-a38 color-success': saved }"
@@ -50,22 +50,22 @@
         </template>
       </UiPageHeader>
 
-      <UiCard padding="none" :shadow="false" v-if="loading" class="ipfspage-loading-wrap flex-align-center gap-12px p-16px">
+      <UiCard padding="none" :shadow="false" v-if="loading" class="flex-align-center gap-12px p-16px">
         <UiSpinner size="md" />
       </UiCard>
 
-      <div v-else-if="error" class="ipfspage-error-wrap p-16px border-radius-16px color-error bg-fill-error border-05-error-a35">
+      <div v-else-if="error" class="p-16px border-radius-16px color-error bg-fill-error border-05-error-a35">
         {{ error }}
       </div>
 
       <template v-else>
-        <div v-if="!rootCid" class="ipfspage-welcome-wrap flex-align-justify-center py-48px px-32px">
-          <div class="ipfspage-welcome-content text-center max-w-600px">
-            <h2 class="ipfspage-welcome-content-h2 text-28px txt-weight-light color-text-primary mb-12px">IPFS Content Viewer</h2>
+        <div v-if="!rootCid" class="flex-align-justify-center py-48px px-32px">
+          <div class="text-center max-w-600px">
+            <h2 class="text-28px txt-weight-light color-text-primary mb-12px">IPFS Content Viewer</h2>
             <p class="color-text-secondary text-16px mb-32px">View and download content from IPFS using CIDs.</p>
-            <UiCard padding="none" :shadow="false" class="ipfspage-welcome-example p-24px mb-32px">
-              <p class="ipfspage-example-label fw-500 color-text-secondary text-14px mb-12px">Example:</p>
-              <code class="ipfspage-welcome-example-code block bg-card border-default border-radius-8px py-12px px-16px mono text-14px color-primary break-all"
+            <UiCard padding="none" :shadow="false" class="p-24px mb-32px">
+              <p class="fw-500 color-text-secondary text-14px mb-12px">Example:</p>
+              <code class="block bg-card border-default border-radius-8px py-12px px-16px mono text-14px color-primary break-all"
                 >lumen://ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code
               >
             </UiCard>
@@ -75,50 +75,50 @@
           </div>
         </div>
 
-        <div v-else-if="isDir" class="dir-wrap">
-          <div class="ipfspage-breadcrumb flex-align-center flex-wrap-wrap gap-6px p-0px pt-8px pb-8px">
+        <div v-else-if="isDir" class="">
+          <div class="flex-align-center flex-wrap-wrap gap-6px p-0px pt-8px pb-8px">
             <UiButton variant="primary" type="button"
               @click="openDirRoot"
-              :disabled="!navigate" class="ipfspage-crumb disabled-fade-50">
+              :disabled="!navigate" class="disabled-fade-50">
               /
             </UiButton>
             <template v-for="(c, idx) in crumbs" :key="c.path">
-              <span v-if="idx > 0" class="ipfspage-sep color-text-secondary">/</span>
+              <span v-if="idx > 0" class="color-text-secondary">/</span>
               <UiButton variant="primary" type="button"
                 @click="openDirCrumb(idx)"
-                :disabled="!navigate" class="ipfspage-crumb disabled-fade-50">
+                :disabled="!navigate" class="disabled-fade-50">
                 {{ c.label }}
               </UiButton>
             </template>
           </div>
 
-          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="ipfspage-empty-dir p-16px color-text-secondary">Empty folder.</UiCard>
+          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="p-16px color-text-secondary">Empty folder.</UiCard>
 
-          <div v-else class="ipfspage-dir-table border-radius-16px border-default overflow-hidden">
+          <div v-else class="border-radius-16px border-default overflow-hidden">
             <div
               v-for="it in entries"
               :key="it.key"
               class="hover-bg-secondary grid-cols-200minmax-140-180 last-border-bottom-none gap-12px grid flex-inline-align-center py-12px px-16px border-bottom-1 bg-primary"
               @dblclick="openEntry(it)"
             >
-              <div class="ipfspage-dir-name flex-align-center cursor-pointer gap-10px min-w-0" @click="openEntry(it)">
-                <Folder v-if="it.type === 'dir'" :size="16" class="ipfspage-ico color-text-secondary" />
-                <BookOpen v-else-if="isEpubName(it.name)" :size="16" class="ipfspage-ico color-text-secondary" />
-                <File v-else :size="16" class="ipfspage-ico color-text-secondary" />
+              <div class="flex-align-center cursor-pointer gap-10px min-w-0" @click="openEntry(it)">
+                <Folder v-if="it.type === 'dir'" :size="16" class="color-text-secondary" />
+                <BookOpen v-else-if="isEpubName(it.name)" :size="16" class="color-text-secondary" />
+                <File v-else :size="16" class="color-text-secondary" />
                 <span class="truncate">{{
                   it.name
                 }}</span>
               </div>
-              <div class="ipfspage-dir-size mono text-right color-text-secondary text-14px">
+              <div class="mono text-right color-text-secondary text-14px">
                 {{ it.size != null ? formatSize(it.size) : "-" }}
               </div>
-              <div class="ipfspage-dir-actions flex-justify-end gap-8px">
+              <div class="flex-justify-end gap-8px">
                 <UiButton variant="primary" type="button"
-                  @click.stop="copyLinkFor(it)" class="ipfspage-btn-ghost">
+                  @click.stop="copyLinkFor(it)" class="">
                   Copy link
                 </UiButton>
                 <UiButton variant="primary" type="button"
-                  @click.stop="openEntry(it)" class="ipfspage-btn-ghost">
+                  @click.stop="openEntry(it)" class="">
                   Open
                 </UiButton>
               </div>
@@ -128,13 +128,13 @@
 
         <div
           v-else
-          class="ipfspage-viewer flex-align-justify-center border-radius-12px p-16px border-1 bg-secondary relative min-h-360px"
+          class="flex-align-justify-center border-radius-12px p-16px border-1 bg-secondary relative min-h-360px"
           :class="{ 'border-none border-radius-0 bg-transparent min-h-0': isBareHtmlView, 'block min-w-0': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
         >
           <img
             v-if="viewKind === 'image'"
             :src="contentUrl"
-            class="ipfspage-media img border-radius-12px border-1 bg-primary max-h-75vh max-w-full"
+            class="border-radius-12px border-1 bg-primary max-h-75vh max-w-full"
             alt=""
             @error="onMediaError"
           />
@@ -143,11 +143,11 @@
             <video
               ref="videoEl"
               :src="videoSrc"
-              class="ipfspage-media border-radius-12px border-1 bg-primary max-h-75vh max-w-full"
+              class="border-radius-12px border-1 bg-primary max-h-75vh max-w-full"
               controls
               playsinline
             ></video>
-            <div v-if="hlsError" class="ipfspage-hls-error border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-16px right-16px bg-error-a15 border-1-error-a30 left-16px bottom-16px backdrop-blur-6">
+            <div v-if="hlsError" class="border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-16px right-16px bg-error-a15 border-1-error-a30 left-16px bottom-16px backdrop-blur-6">
               {{ hlsError }}
             </div>
           </template>
@@ -156,7 +156,7 @@
             v-else-if="viewKind === 'audio'"
             :src="contentUrl"
             controls
-            class="ipfspage-audio w-full"
+            class="w-full"
           ></audio>
 
            <webview
@@ -191,25 +191,25 @@
             allow="fullscreen"
           ></iframe>
 
-          <pre v-else-if="viewKind === 'docx'" class="ipfspage-text w-full text-14px color-text-primary overflow-auto pre-wrap max-h-75vh">{{
+          <pre v-else-if="viewKind === 'docx'" class="w-full text-14px color-text-primary overflow-auto pre-wrap max-h-75vh">{{
             docxContent
           }}</pre>
 
           <article
             v-else-if="viewKind === 'markdown'"
-            class="markdown-body markdown-body-theme w-full my-0px mx-auto overflow-auto border-1 border-radius-16px shadow-none bg-card max-h-75vh"
+            class="markdown-body-theme w-full my-0px mx-auto overflow-auto border-1 border-radius-16px shadow-none bg-card max-h-75vh"
             data-color-mode="auto"
             v-html="markdownHtml"
             @click="onMarkdownClick"
           ></article>
 
-          <pre v-else-if="viewKind === 'text'" class="ipfspage-text w-full text-14px color-text-primary overflow-auto pre-wrap max-h-75vh">{{
+          <pre v-else-if="viewKind === 'text'" class="w-full text-14px color-text-primary overflow-auto pre-wrap max-h-75vh">{{
             textContent
           }}</pre>
 
-          <div v-else class="ipfspage-unsupported flex-align-justify-center w-full">
-            <div class="ipfspage-unsupported-content text-center p-32px max-w-500px">
-              <h3 class="ipfspage-unsupported-content-h3 text-20px txt-weight-light color-text-primary mb-12px">Preview not available</h3>
+          <div v-else class="flex-align-justify-center w-full">
+            <div class="text-center p-32px max-w-500px">
+              <h3 class="text-20px txt-weight-light color-text-primary mb-12px">Preview not available</h3>
               <p class="color-text-secondary mb-24px">This content type cannot be previewed directly.</p>
             </div>
           </div>
@@ -219,16 +219,16 @@
 
     <UiModal :model-value="showSaveModal" title="Save to Drive" panel-class="w-min-520px-92vw" @update:model-value="closeSaveModal">
           <div class="flex flex-column gap-8px">
-            <label class="ipfspage-modal-label text-14px txt-weight-light color-text-primary" for="save-name">Name</label>
+            <label class="text-14px txt-weight-light color-text-primary" for="save-name">Name</label>
             <UiInput radius-class="border-radius-12px" :focus-ring="false" id="save-name"
               v-model="saveNameDraft"
              
              
               :placeholder="saveNamePlaceholder"
               :disabled="savePreparing || saving"
-              @keydown.enter.prevent="confirmSaveToDrive" class="ipfspage-modal-input focus-ring focus-outline-none focus-shadow" />
+              @keydown.enter.prevent="confirmSaveToDrive" class="focus-ring focus-outline-none focus-shadow" />
 
-            <div v-if="saveModalError" class="ipfspage-modal-error text-14px color-error mt-4px">
+            <div v-if="saveModalError" class="text-14px color-error mt-4px">
               {{ saveModalError }}
             </div>
 

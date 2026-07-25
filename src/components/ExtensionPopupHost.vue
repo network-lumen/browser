@@ -1,7 +1,7 @@
 <template>
   <div class="absolute inset-0 z-1400 bg-transparent" @click="requestClose()">
-    <div class="extension-popup-shell absolute overflow-hidden border-radius-14px bg-dark-111 right-12px border-1-white-a08 shadow-lg w-min-420px-100vw-n24px" :style="popupShellStyle" @click.stop>
-      <button type="button" class="extension-popup-close absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full z-1 color-white-a86 bg-slate-900-a72 hover-bg-slate-900-a92 top-8px right-8px" aria-label="Close extension popup" @click="requestClose()">
+    <div class="absolute overflow-hidden border-radius-14px bg-dark-111 right-12px border-1-white-a08 shadow-lg w-min-420px-100vw-n24px" :style="popupShellStyle" @click.stop>
+      <button type="button" class="absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full z-1 color-white-a86 bg-slate-900-a72 hover-bg-slate-900-a92 top-8px right-8px" aria-label="Close extension popup" @click="requestClose()">
         <X :size="14" />
       </button>
 
@@ -12,7 +12,7 @@
       <webview
         v-else-if="webviewMountUrl"
         ref="webviewRef"
-        class="extension-popup-webview w-full h-full bg-dark-111 border-none"
+        class="w-full h-full bg-dark-111 border-none"
         :src="webviewMountUrl"
         :preload="extensionGuestPreloadUrl"
         partition="persist:lumen"

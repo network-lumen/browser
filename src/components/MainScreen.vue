@@ -1,7 +1,7 @@
 <template>
   <section class="bg-gradient-shell flex flex-column w-full h-full relative min-h-100vh">
     <UiToast />
-    <div class="app overflow-hidden">
+    <div class="overflow-hidden">
       <div
         class="h-32px pr-24px text-11px line-height-12 overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
         ref="hdr"
@@ -17,11 +17,11 @@
           @click="onTabClick(t.id)"
             @auxclick="(e) => e.button === 1 && closeTab(t.id)"
           >
-            <div class="tab-icon flex-align-justify-center border-radius-circle size-16px min-w-16px min-h-16px">
+            <div class="flex-align-justify-center border-radius-circle size-16px min-w-16px min-h-16px">
               <UiSpinner v-if="t.loading" size="sm" class="color-text-tertiary" />
               <img
                 v-else-if="t.favicon"
-                class="favicon border-radius-4px object-fit-cover w-16px h-16px"
+                class="border-radius-4px object-fit-cover w-16px h-16px"
                 :src="t.favicon"
                 alt=""
                 draggable="false"
@@ -58,7 +58,7 @@
 
         <div
           v-if="isDragging"
-          class="drop-indicator cursor-events-none bg-blue-sky absolute bottom-0 top-4px w-4px"
+          class="cursor-events-none bg-blue-sky absolute bottom-0 top-4px w-4px"
           :style="{ left: dropLeft + 'px' }"
         ></div>
       </div>

@@ -16,14 +16,14 @@
       <div class="bg-gradient-primary letter-spacing-n002 fw-900 text-56px gradient-text-clip">Lumen</div>
       <div class="text-14px txt-weight-light letter-spacing-015em text-uppercase color-text-tertiary">Search</div>
 
-      <div class="searchpage-search-row flex-justify-center w-full">
+      <div class="flex-justify-center w-full">
         <div class="focus-within-lift-2px flex-align-center gap-12px border-radius-full bg-card shadow-md transition-all-03 pt-14px pr-16px pb-14px pl-20px w-min-820px-full border-color-primary-focus-within border-2-transparent shadow-shadow-focus-focus-within">
-          <Search :size="18" class="searchpage-search-icon color-text-secondary flex-0-0-auto" />
+          <Search :size="18" class="color-text-secondary flex-0-0-auto" />
           <input
             ref="inputEl"
             v-model="q"
             type="text"
-            class="searchpage-search-input flex-1-1-auto outline-none color-text-primary min-w-0 border-none bg-transparent text-16px"
+            class="flex-1-1-auto outline-none color-text-primary min-w-0 border-none bg-transparent text-16px"
             placeholder="Search the network"
             @keydown.enter.prevent="submit"
           />
@@ -39,10 +39,10 @@
         </div>
       </div>
 
-      <div class="searchpage-tabs flex-justify-center flex-wrap-wrap gap-10px mt-12px">
+      <div class="flex-justify-center flex-wrap-wrap gap-10px mt-12px">
         <UiButton
           variant="tag"
-          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active pill-sites fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-md-hover-not-disabled-not-active"
+          class="pill-tone-primary-indigo disabled-transform-none hover-lift-2-enabled-not-active fw-500 text-12px line-height-12 disabled-fade-50 border-color-primary-a30-hover-not-disabled-not-active color-text-primary-hover-not-disabled-not-active bg-secondary-hover-not-disabled-not-active shadow-none-disabled shadow-md-hover-not-disabled-not-active"
           type="button"
           :class="{ active: selectedType === 'site' }"
           @click="setType('site')"
@@ -76,11 +76,11 @@
     </section>
 
     <section v-if="touched" class="m-3rem-auto-0 relative z-1 p-0px pr-8px pb-8px pl-8px w-min-920px-full">
-      <div class="searchpage-meta flex-align-center-justify-space-between gap-16px mb-16px p-0px pr-4px pl-4px">
+      <div class="flex-align-center-justify-space-between gap-16px mb-16px p-0px pr-4px pl-4px">
         <div v-if="errorMsg" class="text-13px fw-500 line-height-12 color-error">{{ errorMsg }}</div>
       </div>
 
-      <div v-if="showLoadPrevious || loadingPrevious" class="searchpage-load-more-bar searchpage-load-more-bar--top flex-justify-center p-0px pb-16px">
+      <div v-if="showLoadPrevious || loadingPrevious" class="flex-justify-center p-0px pb-16px">
         <UiButton variant="primary" type="button"
           :disabled="loadingPrevious"
           @click="loadPrevious" class="disabled-fade-50">
@@ -89,10 +89,10 @@
         </UiButton>
       </div>
 
-      <ul v-if="loading" class="searchpage-skeleton-list flex flex-column gap-12px p-0px m-0px list-style-none gap-16px">
-        <li v-for="i in 5" :key="i" class="searchpage-skeleton-item flex-align-start gap-16px border-radius-20px border-default bg-card py-20px px-24px">
+      <ul v-if="loading" class="flex flex-column gap-12px p-0px m-0px list-style-none gap-16px">
+        <li v-for="i in 5" :key="i" class="flex-align-start gap-16px border-radius-20px border-default bg-card py-20px px-24px">
           <div class="bg-shimmer border-radius-16px flex-shrink-0 w-48px h-48px"></div>
-          <div class="searchpage-skeleton-content flex-1 min-w-0">
+          <div class="flex-1 min-w-0">
             <div class="bg-shimmer h-20px border-radius-6px w-60pct"></div>
             <div class="bg-shimmer h-14px border-radius-6px mt-8px w-40pct"></div>
             <div class="bg-shimmer h-40px border-radius-6px mt-8px w-85pct"></div>
@@ -138,7 +138,7 @@
           :data-result-index="idx" class="content-visibility-auto-240-220 hover-lift-6-scale-102 overflow-hidden shadow-sm relative transition-smooth-all border-color-primary-a30-hover hover-shadow-primary">
           <button
             type="button"
-            class="searchpage-image-save-btn hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-1 right-8px hover-color-accent hover-border-primary-a30"
+            class="hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-1 right-8px hover-color-accent hover-border-primary-a30"
             :class="{ 'bg-accent border-color-primary color-white hover-bg-border-color-error': isPinnedImage(r) }"
             :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
             @click.stop="togglePinImage(r)"
@@ -150,7 +150,7 @@
           </button>
           <button
             type="button"
-            class="searchpage-image-card-btn w-full p-0px cursor-pointer border-none block bg-transparent"
+            class="w-full p-0px cursor-pointer border-none block bg-transparent"
             @click="openResult(r)"
             :title="r.url"
           >
@@ -185,7 +185,7 @@
                 />
                 <div v-if="shouldBlurThumb(r)" class="bg-gradient-thumb-overlay absolute py-8px px-10px left-0 right-0 bottom-0">
                   <div
-                    class="searchpage-safe-thumb-reveal w-full text-12px txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 py-8px px-10px backdrop-blur-8 cursor-events-auto color-white-a92 hover-bg-black-a50"
+                    class="w-full text-12px txt-weight-light cursor-pointer border-none border-radius-8px line-height-12 bg-black-a35 py-8px px-10px backdrop-blur-8 cursor-events-auto color-white-a92 hover-bg-black-a50"
                     @click.stop.prevent="revealThumb(r)"
                   >
                     {{ thumbBlurNoticeText(r) }}
@@ -213,12 +213,12 @@
               <Image :size="18" />
             </div>
           </button>
-          <div class="searchpage-image-meta flex-align-center gap-8px flex-justify-start pt-12px pr-12px pb-14px pl-12px">
-            <div v-if="r.badges?.length" class="searchpage-image-tags flex flex-wrap-wrap gap-6px flex-1 min-w-0">
+          <div class="flex-align-center gap-8px flex-justify-start pt-12px pr-12px pb-14px pl-12px">
+            <div v-if="r.badges?.length" class="flex flex-wrap-wrap gap-6px flex-1 min-w-0">
               <span
                 v-for="(b, bIdx) in r.badges.slice(0, 4)"
                 :key="`${r.id}:${b}`"
-                class="searchpage-image-badge border-radius-full color-primary text-11px line-height-1 bg-primary-a10 nowrap border-1-primary-a15 py-4px px-6px"
+                class="border-radius-full color-primary text-11px line-height-1 bg-primary-a10 nowrap border-1-primary-a15 py-4px px-6px"
                 >{{ b }}</span
               >
               <span
@@ -232,15 +232,15 @@
         </UiCard>
       </div>
 
-      <ul v-else class="searchpage-result-list list-style-none p-0px m-0px flex flex-column gap-16px">
+      <ul v-else class="list-style-none p-0px m-0px flex flex-column gap-16px">
         <li
           v-for="(r, idx) in results"
           :key="r.id"
-          class="result-item"
+          class=""
           :data-result-index="idx"
         >
           <button
-            class="searchpage-result-card reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-20px text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-primary hover-shadow-primary hover-bg-card"
+            class="reveal-on-hover hover-translate-y4-x4 flex-align-start w-full border-radius-20px text-left cursor-pointer py-20px px-24px border-default bg-card shadow-sm relative overflow-hidden transition-smooth-all gap-16px hover-border-primary hover-shadow-primary hover-bg-card"
             :class="[ r.media ? `media-${r.media}` : '', isExploreCompact(r) ? 'media-explore-compact p-0px gap-0px flex-align-stretch min-h-132px max-h-132px' : '' ]"
             type="button"
             @click="openResult(r)"
@@ -283,10 +283,10 @@
               <component v-else :is="iconFor(r)" :size="20" />
             </div>
             <div class="flex-1-1-auto min-w-0 py-20px px-24px" :class="{ 'overflow-hidden': isExploreCompact(r) }">
-              <div class="searchpage-result-header flex-align-center gap-8px mb-4px">
+              <div class="flex-align-center gap-8px mb-4px">
                 <span
                   v-if="r.kind !== 'site'"
-                  class="searchpage-result-type-badge flex-inline-align-center txt-weight-light text-uppercase text-11px letter-spacing-004em border-radius-4px py-4px px-6px"
+                  class="flex-inline-align-center txt-weight-light text-uppercase text-11px letter-spacing-004em border-radius-4px py-4px px-6px"
                   :style="typeBadgeStyle(r)"
                 >
                   {{ typeBadgeLabel(r) }}
@@ -294,23 +294,23 @@
               </div>
               <div
                 v-if="displayTitle(r)"
-                class="searchpage-result-title reveal-color-accent-target transition-color-02 m-0px txt-weight-light color-text-primary text-18px line-height-14 letter-spacing-n001"
+                class="reveal-color-accent-target transition-color-02 m-0px txt-weight-light color-text-primary text-18px line-height-14 letter-spacing-n001"
                 :class="{ 'text-15px italic opacity-70 letter-spacing-0': isNoTitlePlaceholder(r) }"
               >
                 {{ displayTitle(r) }}
               </div>
               <div
                 v-if="r.kind === 'site' && r.site?.domain"
-                class="searchpage-site-domain mono flex-inline-align-center mt-8px gap-6px color-primary txt-weight-light text-13px opacity-85"
+                class="mono flex-inline-align-center mt-8px gap-6px color-primary txt-weight-light text-13px opacity-85"
                 :title="r.site.domain"
               >
                 <Globe :size="14" class="flex-0-0-auto" />
                 {{ r.site.domain }}
               </div>
-              <div v-if="shouldShowResultUrl(r)" class="searchpage-result-url reveal-target mono mt-8px color-primary fw-500 text-13px truncate opacity-85 transition-opacity-02">{{ r.url }}</div>
+              <div v-if="shouldShowResultUrl(r)" class="reveal-target mono mt-8px color-primary fw-500 text-13px truncate opacity-85 transition-opacity-02">{{ r.url }}</div>
               <pre
                 v-if="displayTextPreviewList(r)"
-                class="line-clamp-2 searchpage-result-desc--code color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-14 mono pre-wrap m-0px py-8px px-10px bg-primary-a05 border-1-primary-a10"
+                class="line-clamp-2 color-text-secondary mt-8px text-14px overflow-hidden break-word border-radius-8px line-height-14 mono pre-wrap m-0px py-8px px-10px bg-primary-a05 border-1-primary-a10"
                 :class="{ 'is-placeholder-text': isNoTextPreviewPlaceholder(r) }"
                 :title="displayTextPreviewHover(r)"
                 v-text="displayTextPreviewList(r)"
@@ -327,12 +327,12 @@
                 <span
                   v-for="b in visibleBadges(r)"
                   :key="`${r.id}:${b}`"
-                  class="searchpage-badge reveal-badge-target txt-weight-light border-radius-full color-primary bg-primary-a10 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap"
+                  class="reveal-badge-target txt-weight-light border-radius-full color-primary bg-primary-a10 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap"
                   >{{ b }}</span
                 >
                 <span
                   v-if="hiddenBadges(r).length"
-                  class="searchpage-badge reveal-badge-target searchpage-badge-more txt-weight-light border-radius-full color-primary bg-primary-a10 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap opacity-85"
+                  class="reveal-badge-target txt-weight-light border-radius-full color-primary bg-primary-a10 transition-all-02 border-1-primary-a20 py-4px px-6px text-10px nowrap opacity-85"
                   :title="hiddenBadges(r).join(', ')"
                   >+{{ hiddenBadges(r).length }}</span
                 >
@@ -343,7 +343,7 @@
         </li>
       </ul>
 
-      <div v-if="showLoadMore" class="searchpage-load-more-bar flex-justify-center pt-20px pr-0px pb-8px pl-0px">
+      <div v-if="showLoadMore" class="flex-justify-center pt-20px pr-0px pb-8px pl-0px">
         <UiButton variant="primary" type="button"
           :disabled="loadingMore || loadingPrevious"
           @click="loadMore" class="disabled-fade-50">
@@ -357,59 +357,59 @@
 
     <UiModal :model-value="showHowSearchWorks" panel-class="searchpage-help-modal w-min-760px-full" @update:model-value="closeHowSearchWorks">
       <template #header>
-        <div class="searchpage-help-header-left flex-align-start gap-12px min-w-0">
-          <div class="searchpage-help-header-icon flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a10" aria-hidden="true">
+        <div class="flex-align-start gap-12px min-w-0">
+          <div class="flex-inline-align-justify-center size-36px border-radius-12px color-text-primary flex-0-0-auto border-1-light bg-primary-a10" aria-hidden="true">
             <HelpCircle :size="18" />
           </div>
           <div>
-            <h2 class="searchpage-modal-title m-0px txt-weight-strong color-text-primary text-16px">How search works</h2>
-            <p class="searchpage-modal-sub color-text-secondary text-14px m-0px mt-4px">Indexing, ranking, and how to get discovered.</p>
+            <h2 class="m-0px txt-weight-strong color-text-primary text-16px">How search works</h2>
+            <p class="color-text-secondary text-14px m-0px mt-4px">Indexing, ranking, and how to get discovered.</p>
           </div>
         </div>
       </template>
           <div class="max-h-min-72vh-720px color-text-primary">
-            <div class="searchpage-help-grid grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
-              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
+            <div class="grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
+              <section class="border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="txt-weight-strong m-0px color-text-primary text-15px letter-spacing-n001">What gets indexed</h3>
                 <p class="m-0px mt-8px color-text-secondary line-height-14">
                   Search results come from content indexed in the Lumen Cloud. When content is
                   uploaded to cloud storage, it’s scanned and tagged so it can be discovered by
                   keywords.
                 </p>
-                <div class="searchpage-help-callout flex-align-start mt-12px border-radius-14px gap-10px py-12px px-16px bg-indigo-a08 border-1-indigo-a15">
+                <div class="flex-align-start mt-12px border-radius-14px gap-10px py-12px px-16px bg-indigo-a08 border-1-indigo-a15">
                   <Sparkles :size="16" class="mt-0px color-text-primary flex-0-0-auto opacity-85" />
-                  <div class="searchpage-help-callout-text color-text-secondary line-height-14 text-14px">
+                  <div class="color-text-secondary line-height-14 text-14px">
                     Local-only content on your machine stays private and won’t appear in network
                     search.
                   </div>
                 </div>
               </section>
 
-              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
+              <section class="border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="txt-weight-strong m-0px color-text-primary text-15px letter-spacing-n001">How to get indexed</h3>
                 <ol class="flex flex-column p-0px color-text-secondary list-style-none gap-8px line-height-14 m-0px mt-8px">
                   <li class="flex gap-10px">
                     <span class="flex-inline-align-justify-center flex-0-0-auto w-24px h-24px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">1</span>
-                    <span class="searchpage-help-step-text min-w-0">
+                    <span class="min-w-0">
                       Upload your content to the cloud (Drive / cloud upload).
                     </span>
                   </li>
                   <li class="flex gap-10px">
                     <span class="flex-inline-align-justify-center flex-0-0-auto w-24px h-24px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">2</span>
-                    <span class="searchpage-help-step-text min-w-0">
+                    <span class="min-w-0">
                       Indexing is async — it can take a bit before results show up.
                     </span>
                   </li>
                   <li class="flex gap-10px">
                     <span class="flex-inline-align-justify-center flex-0-0-auto w-24px h-24px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">3</span>
-                    <span class="searchpage-help-step-text min-w-0">
+                    <span class="min-w-0">
                       For websites: publish a folder with an <code>index.html</code> entrypoint.
                     </span>
                   </li>
                 </ol>
               </section>
 
-              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
+              <section class="border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="txt-weight-strong m-0px color-text-primary text-15px letter-spacing-n001">How queries work</h3>
                 <ul class="list-style-disc pl-20px color-text-secondary line-height-14 m-0px mt-8px">
                   <li class="m-0px mt-8px mb-8px">
@@ -427,7 +427,7 @@
                 </ul>
               </section>
 
-              <section class="searchpage-help-card border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
+              <section class="border-1-light bg-secondary border-radius-16px shadow-sm p-0px pt-16px pr-16px pb-16px pl-16px">
                 <h3 class="txt-weight-strong m-0px color-text-primary text-15px letter-spacing-n001">How results are ranked</h3>
                 <ul class="list-style-disc pl-20px color-text-secondary line-height-14 m-0px mt-8px">
                   <li class="m-0px mt-8px mb-8px"><strong>Relevance</strong>: token matches in extracted tags/text.</li>
@@ -438,7 +438,7 @@
                 </ul>
               </section>
 
-              <p class="searchpage-help-note color-text-secondary border-radius-14px border-1-light bg-primary text-14px py-12px px-16px m-0px mt-4px grid-col-full">
+              <p class="color-text-secondary border-radius-14px border-1-light bg-primary text-14px py-12px px-16px m-0px mt-4px grid-col-full">
                 Results can vary while indexing is in progress and as the network evolves.
               </p>
             </div>

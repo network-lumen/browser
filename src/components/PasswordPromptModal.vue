@@ -5,7 +5,7 @@
         <template #icon><LockKeyhole :size="24" /></template>
       </UiModalHeader>
     </template>
-          <p class="pwd-modal-message color-text-secondary text-14px line-height-14 m-0px mb-20px">
+          <p class="color-text-secondary text-14px line-height-14 m-0px mb-20px">
             {{ message || 'Enter your password to authorize this operation.' }}
           </p>
 

@@ -1,21 +1,21 @@
 <template>
   <UiModal :model-value="true" :title="title" panel-class="w-full max-w-500px max-h-90vh" @update:model-value="$emit('close')">
-        <div class="qr-scanner-content">
+        <div class="">
           <!-- Camera View -->
-          <div v-if="!scannedData && !error" class="qr-camera-container border-radius-12px relative overflow-hidden bg-black aspect-square max-h-400px">
-            <video ref="videoElement" class="qr-camera-video w-full h-full object-fit-cover" autoplay playsinline></video>
-            <canvas ref="canvasElement" class="qr-camera-canvas hidden absolute top-0 left-0"></canvas>
-            <div class="qr-scan-frame border-radius-12px absolute top-half left-half translate-center border-2-white-a50 w-250px h-250px">
-              <div v-for="corner in QR_CORNERS" :key="corner.key" class="qr-corner absolute w-32px h-32px border-3-primary" :class="corner.class"></div>
+          <div v-if="!scannedData && !error" class="border-radius-12px relative overflow-hidden bg-black aspect-square max-h-400px">
+            <video ref="videoElement" class="w-full h-full object-fit-cover" autoplay playsinline></video>
+            <canvas ref="canvasElement" class="hidden absolute top-0 left-0"></canvas>
+            <div class="border-radius-12px absolute top-half left-half translate-center border-2-white-a50 w-250px h-250px">
+              <div v-for="corner in QR_CORNERS" :key="corner.key" class="absolute w-32px h-32px border-3-primary" :class="corner.class"></div>
             </div>
-            <p class="qr-scan-instruction color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half translate-x-center backdrop-blur-8 bg-black-a60">Position QR code within the frame</p>
+            <p class="color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half translate-x-center backdrop-blur-8 bg-black-a60">Position QR code within the frame</p>
           </div>
 
           <!-- Error State -->
-          <div v-if="error" class="qr-error-state text-center py-40px px-20px">
-            <AlertCircle :size="48" class="qr-error-icon color-error mb-16px" />
-            <h4 class="color-text-primary qr-error-state-h4 text-20px txt-weight-light m-0px mb-8px">{{ error }}</h4>
-            <p v-if="error.includes('permission')" class="color-text-secondary text-14px qr-error-state-p m-0px mb-24px">
+          <div v-if="error" class="text-center py-40px px-20px">
+            <AlertCircle :size="48" class="color-error mb-16px" />
+            <h4 class="color-text-primary text-20px txt-weight-light m-0px mb-8px">{{ error }}</h4>
+            <p v-if="error.includes('permission')" class="color-text-secondary text-14px m-0px mb-24px">
               Please allow camera access in your browser settings
             </p>
             <UiButton variant="primary" @click="initializeScanner">
@@ -25,22 +25,22 @@
           </div>
 
           <!-- Success State -->
-          <div v-if="scannedData" class="qr-success-state text-center py-40px px-20px">
-            <CheckCircle :size="48" class="qr-success-icon color-success mb-16px" />
-            <h4 class="color-text-primary qr-success-state-h4 text-20px txt-weight-light m-0px mb-8px">QR Code Scanned</h4>
+          <div v-if="scannedData" class="text-center py-40px px-20px">
+            <CheckCircle :size="48" class="color-success mb-16px" />
+            <h4 class="color-text-primary text-20px txt-weight-light m-0px mb-8px">QR Code Scanned</h4>
 
-            <div class="qr-scanned-data text-left bg-secondary border-radius-8px p-16px m-0px mt-24px mb-24px">
-              <div class="qr-data-type mb-12px">
-                <span class="qr-label color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Type:</span>
-                <span class="qr-value color-text-primary text-14px fw-500">{{ detectedType }}</span>
+            <div class="text-left bg-secondary border-radius-8px p-16px m-0px mt-24px mb-24px">
+              <div class="mb-12px">
+                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Type:</span>
+                <span class="color-text-primary text-14px fw-500">{{ detectedType }}</span>
               </div>
-              <div class="qr-data-content">
-                <span class="qr-label color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Content:</span>
-                <div class="qr-value-box bg-card color-text-primary text-13px border-1 border-radius-6px p-12px break-all overflow-y-auto mono max-h-120px">{{ scannedData }}</div>
+              <div class="">
+                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Content:</span>
+                <div class="bg-card color-text-primary text-13px border-1 border-radius-6px p-12px break-all overflow-y-auto mono max-h-120px">{{ scannedData }}</div>
               </div>
             </div>
 
-            <div class="qr-action-buttons flex-justify-center gap-12px">
+            <div class="flex-justify-center gap-12px">
               <UiButton variant="secondary" @click="scanAgain" >
                 <QrCode :size="16" />
                 <span>Scan Again</span>

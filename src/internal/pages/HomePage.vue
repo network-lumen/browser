@@ -1,13 +1,13 @@
 <template>
-  <div class="home-page internal-page flex">
+  <div class="internal-page flex">
     <!-- Sidebar -->
     <InternalSidebar title="Lumen" :icon="Hexagon" activeKey="home" :showAllPages="false">
-      <UiButton variant="secondary" type="button" :block="true" @click="showAllPages = !showAllPages" class="homepage-toggle-pages flex-justify-space-between">
+      <UiButton variant="secondary" type="button" :block="true" @click="showAllPages = !showAllPages" class="flex-justify-space-between">
         <span>All pages</span>
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
       </UiButton>
 
-      <div v-if="showAllPages" class="homepage-all-pages-list flex flex-column gap-4px pb-4px animate-homepage-fade-down">
+      <div v-if="showAllPages" class="flex flex-column gap-4px pb-4px animate-homepage-fade-down">
         <button
           v-for="key in allRoutes"
           :key="key"
@@ -30,17 +30,17 @@
     </InternalSidebar>
 
     <!-- Main Content -->
-    <main class="homepage-main flex-1 flex flex-column m-0px min-w-0 overflow-y-auto py-20px px-24px bg-secondary border-radius-0">
-      <div v-if="!hasProfiles" class="homepage-no-profile-banner color-warning border-radius-12px mb-16px py-12px px-16px bg-yellow-a08 border-05-yellow-a40">
-        <div class="homepage-no-profile-title txt-weight-light text-13px">No profile found</div>
-        <div class="homepage-no-profile-sub text-12px mt-4px opacity-85">Create one using the button in the top right.</div>
+    <main class="flex-1 flex flex-column m-0px min-w-0 overflow-y-auto py-20px px-24px bg-secondary border-radius-0">
+      <div v-if="!hasProfiles" class="color-warning border-radius-12px mb-16px py-12px px-16px bg-yellow-a08 border-05-yellow-a40">
+        <div class="txt-weight-light text-13px">No profile found</div>
+        <div class="text-12px mt-4px opacity-85">Create one using the button in the top right.</div>
       </div>
 
       <!-- Quick Actions -->
-      <section class="homepage-quick-actions mb-20px">
-        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">My Space</h2>
+      <section class="mb-20px">
+        <h2 class="flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">My Space</h2>
         <div
-          class="homepage-actions-grid gap-10px grid grid-cols-auto-fill-220"
+          class="gap-10px grid grid-cols-auto-fill-220"
           @dragover.prevent="onMySpaceDragOver"
           @dragleave="onMySpaceDragLeave"
           @drop.prevent="onMySpaceDrop"
@@ -51,8 +51,8 @@
             :class="{ 'is-drag-over-zone': dragOverMySpace }"
             @click="showAllPages = true"
           >
-            <div class="homepage-empty-title color-text-primary txt-weight-light text-13px">No cards yet</div>
-            <div class="homepage-empty-desc text-center color-text-secondary text-12px">Drag a page from “All Pages” to add it here.</div>
+            <div class="color-text-primary txt-weight-light text-13px">No cards yet</div>
+            <div class="text-center color-text-secondary text-12px">Drag a page from “All Pages” to add it here.</div>
             <UiButton variant="primary" type="button" @click.stop="restoreMySpaceDefaults">
               Restore defaults
             </UiButton>
@@ -81,19 +81,19 @@
             <div class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-fast" :style="actionIconStyle(key)">
               <component :is="getCardIcon(key)" :size="19" />
             </div>
-            <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
-              <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
-              <span class="homepage-action-desc color-text-secondary text-12px line-height-14">{{ getCardDescription(key) }}</span>
+            <div class="flex flex-column flex-1 min-w-0 gap-2px">
+              <span class="color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
+              <span class="color-text-secondary text-12px line-height-14">{{ getCardDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="reveal-accent-shift-target color-text-tertiary transition-all-fast" />
           </button>
         </div>
       </section>
 
-      <section class="homepage-quick-actions mb-20px">
-        <h2 class="homepage-section-title flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">Lumen</h2>
+      <section class="mb-20px">
+        <h2 class="flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">Lumen</h2>
         <div
-          class="homepage-actions-grid gap-10px grid grid-cols-auto-fill-220"
+          class="gap-10px grid grid-cols-auto-fill-220"
           @dragover.prevent="onLumenDragOver"
           @dragleave="onLumenDragLeave"
           @drop.prevent="onLumenDrop"
@@ -104,8 +104,8 @@
             :class="{ 'is-drag-over-zone': dragOverLumen }"
             @click="showAllPages = true"
           >
-            <div class="homepage-empty-title color-text-primary txt-weight-light text-13px">No cards yet</div>
-            <div class="homepage-empty-desc text-center color-text-secondary text-12px">Drag a page from “All Pages” to add it here.</div>
+            <div class="color-text-primary txt-weight-light text-13px">No cards yet</div>
+            <div class="text-center color-text-secondary text-12px">Drag a page from “All Pages” to add it here.</div>
             <UiButton variant="primary" type="button" @click.stop="restoreLumenDefaults">
               Restore defaults
             </UiButton>
@@ -133,9 +133,9 @@
             <div class="reveal-scale-target flex-align-justify-center flex-0-0-auto size-40px border-radius-10px shadow-sm transition-all-fast" :style="actionIconStyle(key)">
               <component :is="getCardIcon(key)" :size="19" />
             </div>
-            <div class="homepage-action-info flex flex-column flex-1 min-w-0 gap-2px">
-              <span class="homepage-action-title color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
-              <span class="homepage-action-desc color-text-secondary text-12px line-height-14">{{ getCardDescription(key) }}</span>
+            <div class="flex flex-column flex-1 min-w-0 gap-2px">
+              <span class="color-text-primary text-14px txt-weight-light letter-spacing-n001">{{ getCardTitle(key) }}</span>
+              <span class="color-text-secondary text-12px line-height-14">{{ getCardDescription(key) }}</span>
             </div>
             <ArrowUpRight :size="16" class="reveal-accent-shift-target color-text-tertiary transition-all-fast" />
           </button>
