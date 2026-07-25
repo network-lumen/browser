@@ -113,7 +113,6 @@
 .color-text-primary { color: var(--text-primary); }
 .color-text-primary-hover-not-disabled-not-active:hover:not(:disabled):not(.active) { color: var(--text-primary); }
 .color-text-secondary { color: var(--text-secondary); }
-.color-text-quaternary { color: var(--text-quaternary); }
 .color-text-tertiary { color: var(--text-tertiary); }
 .color-warning { color: var(--color-warning); }
 .color-white { color: #fff; }
