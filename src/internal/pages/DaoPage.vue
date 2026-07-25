@@ -46,33 +46,15 @@
       <template v-else>
         <!-- Stats Grid -->
         <div class="mb-24px gap-16px grid grid-cols-auto-fit-180">
-          <div class="flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
-            <div class="flex-align-justify-center color-white border-radius-10px bg-gradient-primary size-48px">
-              <FileText :size="20" />
-            </div>
-            <div class="flex flex-column">
-              <span class="txt-weight-medium color-text-primary text-20px">{{ activeProposalsCount }}</span>
-              <span class="text-uppercase color-text-secondary text-12px">Active Proposals</span>
-            </div>
-          </div>
-          <div class="flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
-            <div class="flex-align-justify-center color-white border-radius-10px bg-gradient-primary size-48px">
-              <Users :size="20" />
-            </div>
-            <div class="flex flex-column">
-              <span class="txt-weight-medium color-text-primary text-20px">{{ totalMembers }}</span>
-              <span class="text-uppercase color-text-secondary text-12px">Validators</span>
-            </div>
-          </div>
-          <div class="flex-align-center gap-16px p-20px border-radius-12px bg-gradient-secondary-hover">
-            <div class="flex-align-justify-center color-white border-radius-10px bg-gradient-primary size-48px">
-              <Wallet :size="20" />
-            </div>
-            <div class="flex flex-column">
-              <span class="txt-weight-medium color-text-primary text-20px">{{ treasuryBalance }} LUM</span>
-              <span class="text-uppercase color-text-secondary text-12px">Community Pool</span>
-            </div>
-          </div>
+          <UiStatIconTile label="Active Proposals" :value="activeProposalsCount" card-bg-class="bg-gradient-secondary-hover" icon-class="color-white bg-gradient-primary">
+            <template #icon><FileText :size="20" /></template>
+          </UiStatIconTile>
+          <UiStatIconTile label="Validators" :value="totalMembers" card-bg-class="bg-gradient-secondary-hover" icon-class="color-white bg-gradient-primary">
+            <template #icon><Users :size="20" /></template>
+          </UiStatIconTile>
+          <UiStatIconTile label="Community Pool" :value="`${treasuryBalance} LUM`" card-bg-class="bg-gradient-secondary-hover" icon-class="color-white bg-gradient-primary">
+            <template #icon><Wallet :size="20" /></template>
+          </UiStatIconTile>
         </div>
 
         <!-- ####### lumen://dao PROPOSALS VIEW ####### -->
@@ -121,7 +103,7 @@
             >
               <div class="flex-align-center flex-justify-space-between mb-12px">
                 <span class="color-text-secondary text-13px">#{{ proposal.id }}</span>
-                <span class="active border-radius-20px fw-500 text-12px py-4px px-12px color-accent-secondary bg-fill-blue">Voting</span>
+                <span class="border-radius-20px fw-500 text-12px py-4px px-12px color-accent-secondary bg-fill-blue">Voting</span>
               </div>
               <h3 class="color-text-primary text-18px txt-weight-light m-0px mb-8px">{{ proposal.title }}</h3>
               <div class="flex-align-center flex-justify-space-between">
@@ -204,13 +186,8 @@
             </div>
 
             <div class="mb-20px">
-              <label class="txt-weight-light color-text-primary block text-13px mb-8px">Voting Duration</label>
-              <select class="cursor-pointer w-full p-14px border-1 border-radius-10px text-14px color-text-primary transition-all-02 hover-border-color focus-outline-none focus-border-primary focus-ring focus-shadow bg-primary" v-model="proposalForm.duration">
-                <option value="3">3 Days</option>
-                <option value="7">7 Days</option>
-                <option value="14">14 Days</option>
-                <option value="30">30 Days</option>
-              </select>
+              <label class="txt-weight-light color-text-primary block text-13px mb-8px">Deposit (LMN)</label>
+              <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="proposalForm.depositLmn" placeholder="10" class="focus-outline-none focus-ring focus-shadow bg-primary" />
             </div>
 
             <UiCard class="mb-24px" padding="md" radius="10px" border-class="border-1-primary-a30" :shadow="false">
@@ -218,19 +195,13 @@
                 <svg class="flex-shrink-0 color-primary" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0C3.58 0 0 3.58 0 8C0 12.42 3.58 16 8 16C12.42 16 16 12.42 16 8C16 3.58 12.42 0 8 0ZM6.4 12L2.4 8L3.52 6.88L6.4 9.76L12.48 3.68L13.6 4.8L6.4 12Z"/>
                 </svg>
-                <span>Minimum 1000 LMN required to submit</span>
-              </div>
-              <div class="flex-align-center gap-12px color-text-secondary text-13px p-0px pt-8px pb-8px">
-                <svg class="flex-shrink-0 color-primary" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 0C3.58 0 0 3.58 0 8C0 12.42 3.58 16 8 16C12.42 16 16 12.42 16 8C16 3.58 12.42 0 8 0ZM6.4 12L2.4 8L3.52 6.88L6.4 9.76L12.48 3.68L13.6 4.8L6.4 12Z"/>
-                </svg>
-                <span>Proposal fee: 10 LMN</span>
+                <span>Minimum deposit to enter voting: {{ govMinDepositLmn }} LMN</span>
               </div>
             </UiCard>
 
-            <UiButton variant="primary" @click="submitProposal" :disabled="!canSubmitProposal()">
+            <UiButton variant="primary" @click="submitProposal" :disabled="!canSubmitProposal() || isSubmittingProposal">
               <Plus :size="18" />
-              Submit Proposal
+              {{ isSubmittingProposal ? 'Submitting…' : 'Submit Proposal' }}
             </UiButton>
     </UiModal>
 
@@ -238,7 +209,7 @@
     <UiModal :model-value="showVoteModal" title="Cast Your Vote" panel-class="w-full max-w-520px" @update:model-value="closeVoteModal">
             <div class="flex-align-center flex-justify-space-between mb-24px border-radius-12px p-24px bg-gradient-primary">
               <h4 class="m-0px txt-weight-light text-18px color-white">{{ selectedProposal?.title || 'Proposal Title' }}</h4>
-              <span class="active border-radius-20px fw-500 text-12px py-4px px-12px color-text-primary bg-primary border-1">Active</span>
+              <span class="border-radius-20px fw-500 text-12px py-4px px-12px color-text-primary bg-primary border-1">Active</span>
             </div>
 
             <div class="flex flex-column gap-12px mb-24px">
@@ -291,12 +262,12 @@
 
             <UiCard class="flex-align-center flex-justify-space-between mb-24px" padding="md" radius="10px" bg-class="bg-secondary" border-class="border-1" :shadow="false">
               <span class="color-text-secondary text-14px">Your Voting Power:</span>
-              <span class="color-text-primary txt-weight-light text-15px">9,000 LMN</span>
+              <span class="color-text-primary txt-weight-light text-15px">{{ votingPowerLmnDisplay }} LMN</span>
             </UiCard>
 
-            <UiButton variant="primary" @click="castVote" :disabled="!voteChoice">
+            <UiButton variant="primary" @click="castVote" :disabled="!voteChoice || isVoting">
               <Vote :size="18" />
-              Cast Vote
+              {{ isVoting ? 'Casting…' : 'Cast Vote' }}
             </UiButton>
     </UiModal>
   </div>
@@ -312,22 +283,32 @@ import UiCard from '../../ui/UiCard.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
-import { ref, onMounted, onUnmounted, computed, inject, watch } from 'vue';
+import UiStatIconTile from '../../ui/UiStatIconTile.vue';
+import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { profilesState, activeProfileId } from '../profilesStore';
+import { useToast } from '../../composables/useToast';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
-import { 
+import {
   Users,
   FileText,
   Vote,
   Wallet,
-  Plus,
-  X
+  Plus
 } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 
 const lumen = useInternalLumen();
+const toast = useToast();
+
+const activeProfile = computed(
+  () => profilesState.value.find((p) => p.id === activeProfileId.value) || null
+);
+const activeAddress = computed(
+  () => activeProfile.value?.address || activeProfile.value?.walletAddress || ''
+);
 
 const currentView = ref<'proposals' | 'voting' | 'treasury' | 'members'>('proposals');
 
@@ -335,12 +316,17 @@ const showCreateProposalModal = ref(false);
 const showVoteModal = ref(false);
 const selectedProposal = ref<any>(null);
 const voteChoice = ref('');
+const isSubmittingProposal = ref(false);
+const isVoting = ref(false);
+const votingPowerUlmn = ref<bigint>(0n);
+const votingPowerLmnDisplay = computed(() => (Number(votingPowerUlmn.value) / 1e6).toLocaleString());
+const govMinDepositLmn = ref('10');
 
 const proposalForm = ref({
   title: '',
   description: '',
   category: 'governance',
-  duration: '7'
+  depositLmn: '10'
 });
 
 const isLoading = ref(true);
@@ -411,27 +397,100 @@ function getViewDescription(): string {
 }
 
 function openCreateProposalModal() {
+  proposalForm.value.depositLmn = govMinDepositLmn.value;
   showCreateProposalModal.value = true;
 }
 
 function closeCreateProposalModal() {
   showCreateProposalModal.value = false;
-  proposalForm.value = { title: '', description: '', category: 'governance', duration: '7' };
+  proposalForm.value = {
+    title: '',
+    description: '',
+    category: 'governance',
+    depositLmn: govMinDepositLmn.value
+  };
 }
 
 function canSubmitProposal(): boolean {
-  return proposalForm.value.title.length > 0 && proposalForm.value.description.length > 0;
+  return (
+    proposalForm.value.title.trim().length > 0 &&
+    proposalForm.value.description.trim().length > 0 &&
+    !Number.isNaN(Number(proposalForm.value.depositLmn)) &&
+    Number(proposalForm.value.depositLmn) >= 0
+  );
 }
 
-function submitProposal() {
-  console.log('Submitting proposal:', proposalForm.value);
-  closeCreateProposalModal();
+async function handleSigningError(result: { ok?: boolean; error?: string }): Promise<boolean> {
+  if (result?.ok === false && (result.error === 'password_required' || result.error === 'invalid_password')) {
+    try {
+      await lumen?.security?.lockSession?.();
+    } catch {
+      // ignore - the security gate will re-prompt regardless
+    }
+    return true;
+  }
+  return false;
 }
 
-function openVoteModal(proposal: any) {
+async function submitProposal() {
+  if (!canSubmitProposal() || isSubmittingProposal.value) return;
+
+  const profileId = activeProfileId.value;
+  const address = activeAddress.value;
+  if (!profileId || !address) {
+    toast.error('Select a profile first.');
+    return;
+  }
+
+  const walletApi = lumen?.wallet;
+  if (!walletApi?.govSubmitProposal) {
+    toast.error('Governance submission is not available.');
+    return;
+  }
+
+  isSubmittingProposal.value = true;
+  try {
+    const metadata = proposalForm.value.category ? `category:${proposalForm.value.category}` : '';
+    const result = await walletApi.govSubmitProposal({
+      profileId,
+      address,
+      title: proposalForm.value.title.trim(),
+      summary: proposalForm.value.description.trim(),
+      metadata,
+      depositLmn: proposalForm.value.depositLmn || '0'
+    });
+
+    if (await handleSigningError(result)) return;
+    if (!toast.fromResult(result, 'Proposal submitted on-chain.')) return;
+
+    closeCreateProposalModal();
+    await fetchProposals();
+  } catch (err: any) {
+    toast.error(err?.message || 'Failed to submit proposal.');
+  } finally {
+    isSubmittingProposal.value = false;
+  }
+}
+
+async function openVoteModal(proposal: any) {
   selectedProposal.value = proposal || null;
   voteChoice.value = '';
   showVoteModal.value = true;
+  votingPowerUlmn.value = 0n;
+
+  const address = activeAddress.value;
+  if (!address || !lumen?.wallet?.getDelegations) return;
+  try {
+    const res = await lumen.wallet.getDelegations(address);
+    if (res?.ok && Array.isArray(res.delegations)) {
+      votingPowerUlmn.value = res.delegations.reduce(
+        (sum: bigint, d: any) => sum + BigInt(d?.balance?.amount || '0'),
+        0n
+      );
+    }
+  } catch (e) {
+    console.error('Failed to fetch voting power:', e);
+  }
 }
 
 function closeVoteModal() {
@@ -440,12 +499,50 @@ function closeVoteModal() {
   voteChoice.value = '';
 }
 
-function castVote() {
-  console.log('Casting vote:', voteChoice.value);
-  closeVoteModal();
+const VOTE_OPTION_MAP: Record<string, string> = {
+  for: 'VOTE_OPTION_YES',
+  against: 'VOTE_OPTION_NO',
+  abstain: 'VOTE_OPTION_ABSTAIN'
+};
+
+async function castVote() {
+  if (!voteChoice.value || !selectedProposal.value || isVoting.value) return;
+
+  const profileId = activeProfileId.value;
+  const address = activeAddress.value;
+  if (!profileId || !address) {
+    toast.error('Select a profile first.');
+    return;
+  }
+
+  const walletApi = lumen?.wallet;
+  if (!walletApi?.govVote) {
+    toast.error('Governance voting is not available.');
+    return;
+  }
+
+  isVoting.value = true;
+  try {
+    const result = await walletApi.govVote({
+      profileId,
+      address,
+      proposalId: selectedProposal.value.id,
+      option: VOTE_OPTION_MAP[voteChoice.value]
+    });
+
+    if (await handleSigningError(result)) return;
+    if (!toast.fromResult(result, 'Vote broadcasted.')) return;
+
+    closeVoteModal();
+    await fetchProposals();
+  } catch (err: any) {
+    toast.error(err?.message || 'Failed to cast vote.');
+  } finally {
+    isVoting.value = false;
+  }
 }
 
-function formatAmount(amount: string, denom: string = 'ulumen'): string {
+function formatAmount(amount: string): string {
   if (!amount) return '0';
   const num = parseInt(amount) / 1e6;
   if (num >= 1e9) return `${(num / 1e9).toFixed(2)}B`;
@@ -454,13 +551,9 @@ function formatAmount(amount: string, denom: string = 'ulumen'): string {
   return num.toFixed(2);
 }
 
-function formatNumber(num: number): string {
-  return new Intl.NumberFormat().format(num);
-}
-
 function getProposalStatusClass(status: string): string {
   switch (status) {
-    case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'active';
+    case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'color-accent-secondary bg-fill-blue';
     case 'PROPOSAL_STATUS_PASSED': return 'passed bg-fill-success';
     case 'PROPOSAL_STATUS_REJECTED': return 'rejected bg-fill-error';
     default: return '';
@@ -606,8 +699,8 @@ async function fetchKeybaseAvatars() {
           members.value[memberIndex].avatar = avatarUrl;
         }
       }
-    } catch (e) {
-      console.log(`Failed to fetch Keybase avatar for ${member.moniker}`);
+    } catch {
+      console.warn(`Failed to fetch Keybase avatar for ${member.moniker}`);
     }
   }
 }
@@ -635,14 +728,35 @@ async function fetchTreasury() {
   }
 }
 
+async function fetchGovParams() {
+  if (!lumen?.net?.restGet) return;
+
+  try {
+    const res = await lumen.net.restGet(`/cosmos/gov/v1/params`);
+    const minDeposit = res.ok && res.json?.params?.min_deposit?.[0];
+    if (minDeposit?.denom === 'ulmn' && minDeposit?.amount) {
+      const lmn = Number(minDeposit.amount) / 1e6;
+      if (Number.isFinite(lmn)) {
+        govMinDepositLmn.value = String(lmn);
+        if (!showCreateProposalModal.value) {
+          proposalForm.value.depositLmn = govMinDepositLmn.value;
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch gov params:', e);
+  }
+}
+
 async function fetchAllData() {
   isLoading.value = true;
-  
+
   try {
     await Promise.all([
       fetchProposals(),
       fetchMembers(),
-      fetchTreasury()
+      fetchTreasury(),
+      fetchGovParams()
     ]);
   } finally {
     isLoading.value = false;
