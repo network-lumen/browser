@@ -362,7 +362,7 @@
       <!-- ####### lumen://settings PROFILES VIEW ####### -->
       <div v-else-if="currentView === 'profiles'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <UiOptionRow label="Profiles" description="Select one or more profiles to export." control-class="gap-8px">
+          <UiOptionRow label="Profiles" description="Select one or more profiles to export." control-class="gap-8px flex-wrap-wrap flex-justify-end">
             <UiButton variant="secondary" type="button"
               @click="selectAllProfiles"
               :disabled="!profiles.length" class="disabled-fade-50">
@@ -373,7 +373,21 @@
               :disabled="!selectedProfileIds.length" class="disabled-fade-50">
               Clear
             </UiButton>
+            <UiButton variant="secondary" type="button"
+              @click="onExportSelectedBackups"
+              :disabled="!selectedProfileIds.length || exportingBackup" class="disabled-fade-50">
+              Export selected ({{ selectedProfileIds.length }})
+            </UiButton>
           </UiOptionRow>
+          <UiHintText>
+            Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
+          </UiHintText>
+          <UiHintText v-if="backupExportSummary">{{ backupExportSummary }}</UiHintText>
+          <div v-if="backupExportFailures.length" class="flex flex-column gap-4px mt-4px">
+            <div v-for="f in backupExportFailures" :key="f.id" class="color-error text-13px">
+              {{ f.id }}: {{ f.error || 'failed' }}
+            </div>
+          </div>
 
           <UiCard padding="none" :shadow="false" v-if="profiles.length" class="flex flex-column gap-4px p-8px">
             <label
@@ -474,24 +488,8 @@
             Lumen crops the selected image to a square thumbnail and stores it with the profile.
           </UiHintText>
 
-           <UiOptionRow label="Backups" description="Export full backup folders (profiles + PQC keys)." control-class="gap-8px">
-             <UiButton variant="secondary" type="button"
-               @click="onExportSelectedBackups"
-               :disabled="!selectedProfileIds.length || exportingBackup" class="disabled-fade-50">
-               Export selected ({{ selectedProfileIds.length }})
-             </UiButton>
-           </UiOptionRow>
-           <UiHintText>
-             Backups include the encrypted keystore, profile metadata and PQC keys (pqc_keys). Export creates one folder per selected profile.
-           </UiHintText>
-           <UiHintText v-if="backupExportSummary">{{ backupExportSummary }}</UiHintText>
-           <div v-if="backupExportFailures.length" class="flex flex-column gap-4px mt-4px">
-             <div v-for="f in backupExportFailures" :key="f.id" class="color-error text-13px">
-               {{ f.id }}: {{ f.error || 'failed' }}
-             </div>
-           </div>
-         </div>
-       </div>
+        </div>
+      </div>
 
       <!-- ####### lumen://settings DEVELOPER SETTINGS VIEW ####### -->
       <div v-else-if="currentView === 'advanced'" class="flex-1 overflow-y-auto">
@@ -542,7 +540,7 @@
             {{ devSettingsError }}
           </UiHintText>
 
-          <div class="mt-12px gap-8px">
+          <div class="flex mt-12px gap-8px">
             <UiButton variant="secondary" type="button"
               :disabled="devSettingsSaving"
               @click="resetDevSettings" class="disabled-fade-50">
@@ -1455,6 +1453,7 @@ async function saveDevSettings() {
     localDriveMaxUploadSizeDraft.value = String(
       appSettingsState.value.localDriveMaxUploadSizeGb || DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
     );
+    toast.success('Developer settings saved');
   } finally {
     devSettingsSaving.value = false;
   }
