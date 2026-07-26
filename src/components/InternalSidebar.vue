@@ -31,7 +31,7 @@
             class="reveal-on-hover flex-align-center gap-4px flex"
           >
             <UiButton variant="none" @click="openFavourite(entry.url, $event)" class="flex-align-center gap-8px border-none bg-transparent cursor-pointer color-text-primary border-radius-10px py-6px px-8px text-left hover-bg-hover transition-all-fast flex-1 min-w-0">
-              <span class="color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light h-28px" :style="avatarToneStyle(entry.kind)">
+              <span class="color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light size-28px" :style="avatarToneStyle(entry.kind)">
                 {{ entry.monogram }}
               </span>
               <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" />
