@@ -123,7 +123,7 @@
             placeholder="Search files..."
             @input="currentPage = 1"
           />
-          <UiButton variant="secondary" v-if="searchQuery" @click="searchQuery = ''; currentPage = 1">
+          <UiButton variant="icon" v-if="searchQuery" @click="searchQuery = ''; currentPage = 1" class="color-error hover-bg-error-a10-color-error">
             <X :size="14" />
           </UiButton>
         </div>
@@ -156,7 +156,7 @@
             type="button"
             @click="convertSelectedLocalToHls" class="disabled-fade-50">
             Convert to HLS
-            <UiCountPill v-if="selectedLocalConvertibleCount" :count="selectedLocalConvertibleCount" pill-class="h-24px color-primary txt-weight-medium text-12px bg-primary-a10 p-0px pr-4px pl-4px min-w-24px" />
+            <UiCountPill v-if="selectedLocalConvertibleCount" :count="selectedLocalConvertibleCount" pill-class="h-24px color-white txt-weight-medium text-12px bg-black-a35 p-0px pr-4px pl-4px min-w-24px" />
           </UiButton>
           <UiButton variant="danger" type="button"
             :disabled="!canBulkRemoveSelectedLocal"
@@ -442,14 +442,14 @@
 
       <!-- Pagination -->
       <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="flex-align-justify-center flex-wrap-wrap gap-8px mt-8px p-0px pt-16px pb-16px">
-        <UiButton variant="secondary" :disabled="currentPage === 1"
+        <UiButton variant="none" :disabled="currentPage === 1"
           @click="currentPage = 1"
-          title="First page" class="disabled-fade-50 size-32px">
+          title="First page" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
           <ChevronsLeft :size="16" />
         </UiButton>
-        <UiButton variant="secondary" :disabled="currentPage === 1"
+        <UiButton variant="none" :disabled="currentPage === 1"
           @click="currentPage--"
-          title="Previous page" class="disabled-fade-50 size-32px">
+          title="Previous page" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
           <ChevronLeft :size="16" />
         </UiButton>
 
@@ -467,14 +467,14 @@
           </template>
         </div>
 
-        <UiButton variant="secondary" :disabled="currentPage === totalPages"
+        <UiButton variant="none" :disabled="currentPage === totalPages"
           @click="currentPage++"
-          title="Next page" class="disabled-fade-50 size-32px">
+          title="Next page" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
           <ChevronRight :size="16" />
         </UiButton>
-        <UiButton variant="secondary" :disabled="currentPage === totalPages"
+        <UiButton variant="none" :disabled="currentPage === totalPages"
           @click="currentPage = totalPages"
-          title="Last page" class="disabled-fade-50 size-32px">
+          title="Last page" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
           <ChevronsRight :size="16" />
         </UiButton>
 
@@ -891,7 +891,7 @@
                          v-model.trim="planFilter"
                          type="search"
                          placeholder="Search gateways or plans"
-                         class="outline-none color-text-primary h-full text-14px bg-secondary border-none bg-transparent py-12px px-16px focus-outline-none focus-border-primary focus-bg-primary focus-ring focus-shadow min-w-140px"
+                         class="flex-1 min-w-0 outline-none color-text-primary h-full text-14px bg-secondary border-none bg-transparent py-12px px-16px focus-outline-none focus-border-primary focus-bg-primary focus-ring focus-shadow"
                          @keydown.stop
                          aria-label="Search gateways"
                        />
