@@ -554,10 +554,7 @@
           </div>
 
           <UiHintText>
-            Note: the local IPFS daemon must actually be configured to use these ports/addresses.
-          </UiHintText>
-          <UiHintText>
-            Network changes are applied automatically (no restart prompt).
+            Note: the local IPFS daemon must actually be configured to use these ports/addresses. Changes apply automatically here, no restart needed.
           </UiHintText>
 
           <div class="flex-align-center gap-8px mt-16px txt-weight-medium color-text-primary mb-8px text-14px">
