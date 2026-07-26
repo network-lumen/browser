@@ -2,7 +2,7 @@
   <!-- ####### lumen://home HOME ####### -->
   <div class="internal-page flex">
     <!-- Sidebar -->
-    <InternalSidebar title="Lumen" :icon="Hexagon" activeKey="home" :showAllPages="false">
+    <InternalSidebar title="Lumen" :icon="Home" activeKey="home" :showAllPages="false">
       <UiButton variant="secondary" type="button" :block="true" @click="showAllPages = !showAllPages" class="flex-justify-space-between">
         <span>All pages</span>
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
@@ -159,7 +159,7 @@ import { profilesState } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import {
   Home, Cloud, Wallet, Globe, Settings,
-  ArrowUpRight, Network, FileText, Hexagon,
+  ArrowUpRight, Network, FileText,
   Database, Users, Rocket, Server, LayoutGrid, Search, History,
   HelpCircle, Layers, ChevronDown, ChevronUp, X
 } from 'lucide-vue-next';
