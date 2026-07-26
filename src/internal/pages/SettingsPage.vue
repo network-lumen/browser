@@ -583,25 +583,13 @@
           </UiOptionRow>
 
           <UiHintText>
-            Active now: <span class="break-all mono">{{ activeUserDataPath || 'Unavailable' }}</span>
-          </UiHintText>
-          <UiHintText>
             Next launch target: <span class="break-all mono">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
-          </UiHintText>
-          <UiHintText>
-            Default target: <span class="break-all mono">{{ defaultUserDataPath || 'Unavailable' }}</span>
-          </UiHintText>
-          <UiHintText v-if="bootstrapConfigPath">
-            Bootstrap config: <span class="break-all mono">{{ bootstrapConfigPath }}</span>
-          </UiHintText>
-          <UiHintText v-if="activeLogsPath">
-            Active logs folder: <span class="break-all mono">{{ activeLogsPath }}</span>
           </UiHintText>
           <UiHintText v-if="lumenDataFolderError">
             {{ lumenDataFolderError }}
           </UiHintText>
 
-          <div class="mt-12px gap-8px">
+          <div class="flex mt-12px gap-8px">
             <UiButton variant="secondary" type="button"
               :disabled="lumenDataFolderBusy"
               @click="revertLumenDataFolderDraft" class="disabled-fade-50">
@@ -619,9 +607,6 @@
             </UiButton>
           </div>
 
-          <UiHintText>
-            Leave the field empty to go back to the default folder target.
-          </UiHintText>
           <UiHintText>
             Restart Lumen after changing this target. Existing files are not moved automatically.
           </UiHintText>
