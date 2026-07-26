@@ -109,32 +109,28 @@
             <Flame :size="15" />
             <span>Trending (soon)</span>
           </button>
-          <UiButton variant="secondary" type="button" @click="goto('lumen://web.lmn/')" class="outline-none">
+          <UiButton variant="primary" type="button" @click="goto('lumen://web.lmn/')" class="outline-none border-radius-full">
             <Globe :size="15" />
             <span>All known websites</span>
           </UiButton>
         </div>
       </section>
 
-      <section class="bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
-        <div class="flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
-          <div>
-            <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcuts</div>
-          </div>
+      <section class="bg-card-a94-shadow-soft border-1-light relative flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
+        <div class="flex-align-center flex-justify-space-between gap-16px">
+          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcuts</div>
 
-          <div class="flex flex-wrap-wrap gap-10px flex-justify-start w-full">
-            <UiButton variant="secondary" type="button" @click="beginCreateShortcut" class="outline-none">
-              <Plus :size="15" />
-              <span>Add shortcut</span>
-            </UiButton>
-          </div>
+          <UiButton variant="primary" type="button" @click="beginCreateShortcut" class="outline-none">
+            <Plus :size="15" />
+            <span>Add shortcut</span>
+          </UiButton>
         </div>
 
         <div class="flex flex-wrap-wrap gap-12px mt-16px">
           <article
             v-for="entry in renderedFavouriteEntries"
             :key="entry.id"
-            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-20px shadow-lg min-w-180px max-w-240px"
+            class="bg-card-a92 flex flex-column gap-12px relative p-14px border-1-light border-radius-20px shadow-md min-w-180px max-w-240px"
             :class="{
               'card-state-pinned': entry.pinned,
               'card-state-dragging': draggingShortcutId === entry.id,
@@ -191,17 +187,13 @@
         v-if="historyEnabled && renderedHistoryPreview.length"
         class="bg-card-a94-shadow-soft pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16"
       >
-        <div class="flex-align-start flex-justify-space-between flex-wrap-wrap gap-16px">
-          <div>
-            <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Recent</div>
-          </div>
+        <div class="flex-align-center flex-justify-space-between gap-16px">
+          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Recent</div>
 
-          <div class="flex flex-wrap-wrap gap-10px flex-justify-start w-full">
-            <UiButton variant="secondary" type="button" @click="goto('lumen://history')" class="outline-none">
-              <History :size="15" />
-              <span>Open history</span>
-            </UiButton>
-          </div>
+          <UiButton variant="primary" type="button" @click="goto('lumen://history')" class="outline-none">
+            <History :size="15" />
+            <span>Open history</span>
+          </UiButton>
         </div>
 
         <div class="grid gap-10px mt-8px grid-cols-auto-fit-280">
