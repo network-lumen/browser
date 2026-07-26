@@ -65,38 +65,6 @@
             </div>
           </section>
 
-          <!-- How it Works -->
-          <section class="flex flex-column gap-16px">
-            <h3 class="color-text-primary txt-weight-medium m-0px text-16px">How Lumen Works</h3>
-            <div class="gap-16px grid grid-cols-3">
-              <UiStepCard :number="1" title="Blockchain Names">Domain names are stored on the blockchain - no central authority can take them away.</UiStepCard>
-              <UiStepCard :number="2" title="Distributed Storage">Content is stored across multiple nodes, ensuring availability even if some go offline.</UiStepCard>
-              <UiStepCard :number="3" title="Verified Access">Every piece of content is cryptographically verified for authenticity.</UiStepCard>
-            </div>
-          </section>
-
-          <!-- Features Grid -->
-          <section class="flex flex-column gap-16px">
-            <h3 class="color-text-primary txt-weight-medium m-0px text-16px">Key Features</h3>
-            <div class="gap-16px grid grid-cols-2">
-              <UiFeatureCard title="Human-Readable Links">
-                <template #icon><Globe :size="24" /></template>
-                Type <code>demo.lmn</code> instead of long cryptographic hashes.
-              </UiFeatureCard>
-              <UiFeatureCard title="Content Everywhere">
-                <template #icon><Database :size="24" /></template>
-                Your website exists in many places, so it stays available.
-              </UiFeatureCard>
-              <UiFeatureCard title="Pro Cloud Service">
-                <template #icon><Server :size="24" /></template>
-                Optional premium service for faster loading and reliability.
-              </UiFeatureCard>
-              <UiFeatureCard title="Your Identity">
-                <template #icon><Wallet :size="24" /></template>
-                Your wallet proves what you own and enables transactions.
-              </UiFeatureCard>
-            </div>
-          </section>
         </div>
       </div>
 
@@ -236,8 +204,6 @@ import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { computed, inject, ref, watch } from 'vue';
 import type { ComputedRef } from 'vue';
 import UiActionCard from '../../ui/UiActionCard.vue';
-import UiFeatureCard from '../../ui/UiFeatureCard.vue';
-import UiStepCard from '../../ui/UiStepCard.vue';
 import UiTutorialStep from '../../ui/UiTutorialStep.vue';
 import UiFeaturePoint from '../../ui/UiFeaturePoint.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
@@ -248,8 +214,6 @@ import {
   MessageCircle,
   Github,
   Globe,
-  Database,
-  Server,
   Wallet,
   Search,
   FolderOpen,
