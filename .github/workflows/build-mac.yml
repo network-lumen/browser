@@ -117,11 +117,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
       - name: Build renderer (Vite)
         run: npm run build
 
       - name: Build Linux AppImage (x64)
         run: npx electron-builder --linux AppImage --x64 --publish=never
+
+      - name: Sign Linux AppImage
+        shell: bash
+        run: |
+          set -euo pipefail
+          APPIMAGE="$(find release -name '*.AppImage' | head -n1)"
+          gpg --batch --yes --armor --detach-sign "$APPIMAGE"
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
@@ -129,6 +142,7 @@ jobs:
           name: lumen-browser-linux-x64
           path: |
             release/*.AppImage
+            release/*.AppImage.asc
             !release/*.blockmap
 
   checksums:
@@ -184,6 +198,11 @@ jobs:
           cp "$mac_arm64" "release_assets/Lumen-Browser-${VERSION}-mac-arm64.dmg"
           cp "$win_x64" "release_assets/Lumen-Browser-Setup-${VERSION}-windows-x64.exe"
           cp "$linux_x64" "release_assets/Lumen-Browser-${VERSION}-linux-x64.AppImage"
+          linux_sig="$(ls -1t artifacts/lumen-browser-linux-x64/*.AppImage.asc 2>/dev/null | head -n1 || true)"
+
+          if [ -n "$linux_sig" ]; then
+            cp "$linux_sig" "release_assets/Lumen-Browser-${VERSION}-linux-x64.AppImage.asc"
+          fi
 
       - name: Build SHA256SUMS.txt
         shell: bash
