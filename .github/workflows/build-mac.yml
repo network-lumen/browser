@@ -114,7 +114,9 @@ jobs:
         shell: pwsh
         run: |
           $signtool = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
-          # … (ton Test-Path)
+
+          Write-Host "=== Fichiers avant signature ==="
+          Get-ChildItem release -Filter "*Setup*.exe" | Format-Table Name, Length
 
           $exe = Get-ChildItem release -Filter "*Setup*.exe" |
             Where-Object {
@@ -123,7 +125,7 @@ jobs:
             } |
             Select-Object -First 1
 
-          if (-not $exe) { throw "No setup exe to sign" }
+          Write-Host "Fichier choisi pour signature : $($exe.FullName)"
 
           & $signtool sign `
             /f "$env:PFX_PATH" `
@@ -137,6 +139,9 @@ jobs:
             throw "signtool failed with exit code $LASTEXITCODE"
           }
 
+          Write-Host "=== Après signature ==="
+          Get-AuthenticodeSignature $exe.FullName | Format-List Status, SignerCertificate
+
       - name: Rename signed installer
         shell: pwsh
         run: |
@@ -147,14 +152,11 @@ jobs:
             } |
             Select-Object -First 1
 
+          Write-Host "Fichier qui va être renommé en signed : $($exe.FullName)"
           Move-Item $exe.FullName "release/Lumen-Browser-Setup-signed-windows-x64.exe"
-      - name: Upload Windows artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: lumen-browser-windows-x64
-          path: |
-            release/Lumen-Browser-Setup-signed-windows-x64.exe
-            release/Lumen-Browser-Setup-unsigned-windows-x64.exe
+
+          Write-Host "=== Fichiers finaux ==="
+          Get-ChildItem release -Filter "*windows-x64*.exe" | Format-Table Name, Length
 
   build-linux:
     needs: [test]
