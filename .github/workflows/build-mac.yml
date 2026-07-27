@@ -157,6 +157,13 @@ jobs:
 
           Write-Host "=== Fichiers finaux ==="
           Get-ChildItem release -Filter "*windows-x64*.exe" | Format-Table Name, Length
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lumen-browser-windows-x64
+          path: |
+            release/Lumen-Browser-Setup-signed-windows-x64.exe
+            release/Lumen-Browser-Setup-unsigned-windows-x64.exe
 
   build-linux:
     needs: [test]
