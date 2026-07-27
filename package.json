@@ -94,6 +94,9 @@
     "win": {
       "icon": "src/img/logo.png",
       "signAndEditExecutable": false,
+      "signtoolOptions": {
+        "sign": "./resources/no-sign.cjs"
+      },
       "target": [
         "nsis"
       ],
