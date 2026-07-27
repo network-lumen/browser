@@ -83,6 +83,8 @@ jobs:
 
       - name: Build Windows installer (NSIS)
         run: npm run dist:win
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Keep unsigned installer
         shell: pwsh
@@ -94,39 +96,42 @@ jobs:
       - name: Import Windows signing certificate
         shell: pwsh
         run: |
+          $pfxPath = "$env:GITHUB_WORKSPACE\lumen-code-signing.pfx"
+
           [IO.File]::WriteAllBytes(
-            "lumen-code-signing.pfx",
+            $pfxPath,
             [Convert]::FromBase64String("${{ secrets.WINDOWS_CERT_PFX_BASE64 }}")
           )
+
+          echo "PFX_PATH=$pfxPath" >> $env:GITHUB_ENV
+          echo "PFX_PASSWORD=${{ secrets.WINDOWS_CERT_PASSWORD }}" >> $env:GITHUB_ENV
 
       - name: Sign Windows installer
         shell: pwsh
         run: |
-          $signtool = Get-ChildItem `
-            "C:\Program Files (x86)\Windows Kits\10\bin" `
-            -Recurse `
-            -Filter signtool.exe `
-            | Select-Object -First 1
+                $signtool = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
 
-          if (-not $signtool) {
-            throw "signtool.exe not found"
-          }
+                if (!(Test-Path $signtool)) {
+                  throw "signtool not found: $signtool"
+                }
 
-          Write-Host "Using signtool: $($signtool.FullName)"
+                $exe = Get-ChildItem release -Filter "*Setup*.exe" |
+                  Where-Object { $_.Name -notlike "*unsigned*" } |
+                  Select-Object -First 1
 
-          & $signtool.FullName sign `
-            /f lumen-code-signing.pfx `
-            /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" `
-            /fd sha256 `
-            /tr http://timestamp.digicert.com `
-            /td sha256 `
-            (Get-ChildItem release/*Setup*.exe | Select-Object -First 1)
+                & $signtool sign `
+                  /f "$env:PFX_PATH" `
+                  /p "$env:PFX_PASSWORD" `
+                  /fd SHA256 `
+                  /tr http://timestamp.digicert.com `
+                  /td SHA256 `
+                  $exe.FullName
 
       - name: Rename signed installer
         shell: pwsh
         run: |
           Move-Item `
-            (Get-ChildItem release/*Setup*.exe | Select-Object -First 1) `
+            (Get-ChildItem release/*Setup*.exe | Where-Object { $_.Name -notlike "*unsigned*" } | Select-Object -First 1) `
             release/Lumen-Browser-Setup-signed-windows-x64.exe
 
       - name: Upload Windows artifact
