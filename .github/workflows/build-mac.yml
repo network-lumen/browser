@@ -148,13 +148,13 @@ jobs:
             Select-Object -First 1
 
           Move-Item $exe.FullName "release/Lumen-Browser-Setup-signed-windows-x64.exe"
-            - name: Upload Windows artifact
-              uses: actions/upload-artifact@v4
-              with:
-                name: lumen-browser-windows-x64
-                path: |
-                  release/Lumen-Browser-Setup-signed-windows-x64.exe
-                  release/Lumen-Browser-Setup-unsigned-windows-x64.exe
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lumen-browser-windows-x64
+          path: |
+            release/Lumen-Browser-Setup-signed-windows-x64.exe
+            release/Lumen-Browser-Setup-unsigned-windows-x64.exe
 
   build-linux:
     needs: [test]
