@@ -254,8 +254,8 @@ jobs:
 
           mac_x64="$(ls -1t artifacts/lumen-browser-mac-x64/*.dmg 2>/dev/null | head -n 1 || true)"
           mac_arm64="$(ls -1t artifacts/lumen-browser-mac-arm64/*.dmg 2>/dev/null | head -n 1 || true)"
-          win_signed="$(ls -1t artifacts/lumen-browser-windows-x64/*signed*.exe 2>/dev/null | head -n 1 || true)"
-          win_unsigned="$(ls -1t artifacts/lumen-browser-windows-x64/*unsigned*.exe 2>/dev/null | head -n 1 || true)"
+          win_signed="$(find artifacts/lumen-browser-windows-x64 -name '*signed*.exe' ! -name '*unsigned*' | head -n1 || true)"
+          win_unsigned="$(find artifacts/lumen-browser-windows-x64 -name '*unsigned*.exe' | head -n1 || true)"
           linux_x64="$(ls -1t artifacts/lumen-browser-linux-x64/*.AppImage 2>/dev/null | head -n 1 || true)"
 
           if [ -z "$mac_x64" ] || [ -z "$mac_arm64" ] || [ -z "$win_signed" ] || [ -z "$win_unsigned" ] || [ -z "$linux_x64" ]; then
