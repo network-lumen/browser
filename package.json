@@ -93,6 +93,8 @@
     },
     "win": {
       "icon": "src/img/logo.png",
+      "sign": null,
+      "signAndEditExecutable": false,
       "target": [
         "nsis"
       ],
