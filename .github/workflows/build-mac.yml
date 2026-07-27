@@ -84,14 +84,46 @@ jobs:
       - name: Build Windows installer (NSIS)
         run: npm run dist:win
 
+      - name: Keep unsigned installer
+        shell: pwsh
+        run: |
+          Copy-Item `
+            (Get-ChildItem release/*Setup*.exe | Select-Object -First 1) `
+            release/Lumen-Browser-Setup-unsigned-windows-x64.exe
+
+      - name: Import Windows signing certificate
+        shell: pwsh
+        run: |
+          [IO.File]::WriteAllBytes(
+            "lumen-code-signing.pfx",
+            [Convert]::FromBase64String("${{ secrets.WINDOWS_CERT_PFX_BASE64 }}")
+          )
+
+      - name: Sign Windows installer
+        shell: pwsh
+        run: |
+          signtool sign `
+            /f lumen-code-signing.pfx `
+            /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" `
+            /fd sha256 `
+            /tr http://timestamp.digicert.com `
+            /td sha256 `
+            (Get-ChildItem release/*Setup*.exe | Select-Object -First 1)
+
+      - name: Rename signed installer
+        shell: pwsh
+        run: |
+          Move-Item `
+            (Get-ChildItem release/*Setup*.exe | Select-Object -First 1) `
+            release/Lumen-Browser-Setup-signed-windows-x64.exe
+
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: lumen-browser-windows-x64
           path: |
-            release/*Setup*.exe
-            !release/*.__uninstaller.exe
-            !release/*.blockmap
+            release/Lumen-Browser-Setup-signed-windows-x64.exe
+            release/Lumen-Browser-Setup-unsigned-windows-x64.exe
 
   build-linux:
     needs: [test]
@@ -182,26 +214,33 @@ jobs:
 
           mac_x64="$(ls -1t artifacts/lumen-browser-mac-x64/*.dmg 2>/dev/null | head -n 1 || true)"
           mac_arm64="$(ls -1t artifacts/lumen-browser-mac-arm64/*.dmg 2>/dev/null | head -n 1 || true)"
-          win_x64="$(ls -1t artifacts/lumen-browser-windows-x64/*Setup*.exe 2>/dev/null | head -n 1 || true)"
+          win_signed="$(ls -1t artifacts/lumen-browser-windows-x64/*signed*.exe 2>/dev/null | head -n 1 || true)"
+          win_unsigned="$(ls -1t artifacts/lumen-browser-windows-x64/*unsigned*.exe 2>/dev/null | head -n 1 || true)"
           linux_x64="$(ls -1t artifacts/lumen-browser-linux-x64/*.AppImage 2>/dev/null | head -n 1 || true)"
 
-          if [ -z "$mac_x64" ] || [ -z "$mac_arm64" ] || [ -z "$win_x64" ] || [ -z "$linux_x64" ]; then
+          if [ -z "$mac_x64" ] || [ -z "$mac_arm64" ] || [ -z "$win_signed" ] || [ -z "$win_unsigned" ] || [ -z "$linux_x64" ]; then
             echo "Missing one or more platform artifacts:" >&2
             echo "mac_x64=$mac_x64" >&2
             echo "mac_arm64=$mac_arm64" >&2
-            echo "win_x64=$win_x64" >&2
+            echo "win_signed=$win_signed" >&2
+            echo "win_unsigned=$win_unsigned" >&2
             echo "linux_x64=$linux_x64" >&2
             exit 1
           fi
 
           cp "$mac_x64" "release_assets/Lumen-Browser-${VERSION}-mac-x64.dmg"
           cp "$mac_arm64" "release_assets/Lumen-Browser-${VERSION}-mac-arm64.dmg"
-          cp "$win_x64" "release_assets/Lumen-Browser-Setup-${VERSION}-windows-x64.exe"
+          cp "$win_signed" "release_assets/Lumen-Browser-Setup-${VERSION}-windows-x64-signed.exe"
+          cp "$win_unsigned" "release_assets/Lumen-Browser-Setup-${VERSION}-windows-x64-unsigned.exe"
           cp "$linux_x64" "release_assets/Lumen-Browser-${VERSION}-linux-x64.AppImage"
           linux_sig="$(ls -1t artifacts/lumen-browser-linux-x64/*.AppImage.asc 2>/dev/null | head -n1 || true)"
 
           if [ -n "$linux_sig" ]; then
             cp "$linux_sig" "release_assets/Lumen-Browser-${VERSION}-linux-x64.AppImage.asc"
+          fi
+
+          if [ -f "resources/Lumen-public.cer" ]; then
+            cp "resources/Lumen-public.cer" "release_assets/Lumen-win-public.cer"
           fi
 
       - name: Build SHA256SUMS.txt
