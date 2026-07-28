@@ -68,6 +68,37 @@ jobs:
           # Force rebuild of native deps for the target arch
           npx electron-rebuild -f -w kubo --arch=${{ matrix.arch }}
 
+      - name: Force correct Kubo binary (manual download)
+        run: |
+          if [ "${{ matrix.arch }}" = "x64" ]; then
+            KUBO_PLATFORM="darwin-amd64"
+          else
+            KUBO_PLATFORM="darwin-arm64"
+          fi
+
+          echo "Downloading official Kubo binary for $KUBO_PLATFORM..."
+
+          KUBO_VERSION="v0.32.1"
+          curl -L -o kubo.tar.gz "https://github.com/ipfs/kubo/releases/download/${KUBO_VERSION}/kubo_${KUBO_VERSION}_${KUBO_PLATFORM}.tar.gz"
+
+          tar -xzf kubo.tar.gz
+
+          # Trouve le binaire installé par le package npm
+          KUBO_BIN_PATH=$(find node_modules -path "*/kubo/kubo/ipfs" | head -1)
+
+          if [ -z "$KUBO_BIN_PATH" ]; then
+            echo "ERROR: Kubo binary path not found!"
+            find node_modules -name "ipfs" || true
+            exit 1
+          fi
+
+          echo "Replacing binary at: $KUBO_BIN_PATH"
+          cp -f kubo/ipfs "$KUBO_BIN_PATH"
+          chmod +x "$KUBO_BIN_PATH"
+
+          echo "=== Verification ==="
+          file "$KUBO_BIN_PATH"
+
       - name: Build renderer (Vite)
         run: npm run build
 
@@ -81,7 +112,7 @@ jobs:
         with:
           name: lumen-browser-mac-${{ matrix.arch }}
           path: release/*.dmg
-          
+
   build-windows:
     needs: [test]
     runs-on: windows-latest
