@@ -47,20 +47,26 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Install dependencies (force correct Kubo arch)
+      - name: Install dependencies (force correct Kubo + rebuild arch)
         run: |
           if [ "${{ matrix.arch }}" = "x64" ]; then
             export GOARCH=amd64
             export npm_config_arch=x64
             export npm_config_target_arch=x64
-            echo "Forcing Kubo binary for darwin-amd64 (x64)"
+            export npm_config_target_platform=darwin
+            echo "=== Forcing everything for x64 / darwin-amd64 ==="
           else
             export GOARCH=arm64
             export npm_config_arch=arm64
             export npm_config_target_arch=arm64
-            echo "Forcing Kubo binary for darwin-arm64"
+            export npm_config_target_platform=darwin
+            echo "=== Forcing everything for arm64 ==="
           fi
+
           npm ci
+
+          # Force rebuild of native deps for the target arch
+          npx electron-rebuild -f -w kubo --arch=${{ matrix.arch }}
 
       - name: Build renderer (Vite)
         run: npm run build
