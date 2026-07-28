@@ -47,8 +47,20 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies (force correct Kubo arch)
+        run: |
+          if [ "${{ matrix.arch }}" = "x64" ]; then
+            export GOARCH=amd64
+            export npm_config_arch=x64
+            export npm_config_target_arch=x64
+            echo "Forcing Kubo binary for darwin-amd64 (x64)"
+          else
+            export GOARCH=arm64
+            export npm_config_arch=arm64
+            export npm_config_target_arch=arm64
+            echo "Forcing Kubo binary for darwin-arm64"
+          fi
+          npm ci
 
       - name: Build renderer (Vite)
         run: npm run build
@@ -63,7 +75,7 @@ jobs:
         with:
           name: lumen-browser-mac-${{ matrix.arch }}
           path: release/*.dmg
-
+          
   build-windows:
     needs: [test]
     runs-on: windows-latest
