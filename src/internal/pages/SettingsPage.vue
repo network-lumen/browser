@@ -193,8 +193,8 @@
           <UiOptionRow label="Password Protection">
             <template #description>
               {{ securityStatus.enabled
-                ? 'Password is required for wallet signing operations'
-                : 'No password set - wallet operations are unprotected' }}
+                ? 'Password is required to unlock the app and to sign wallet operations'
+                : 'No password set - the app and wallet operations are unprotected' }}
             </template>
             <span
               class="flex-inline-align-center gap-6px border-radius-20px fw-500 inline-flex py-4px px-12px"
@@ -235,7 +235,7 @@
           </UiOptionRow>
 
           <!-- Set Password (when no password is set) -->
-          <UiOptionRow v-if="!securityStatus.enabled" label="Set Password" description="Create a password to protect wallet signing operations. Your keys will be encrypted with this password." />
+          <UiOptionRow v-if="!securityStatus.enabled" label="Set Password" description="Create a password to lock the app and protect wallet signing operations. Your keys will be encrypted with this password." />
 
           <div v-if="!securityStatus.enabled" class="flex flex-column gap-16px border-radius-12px py-16px px-20px bg-fill-tertiary mt-8px">
             <div class="flex flex-column gap-6px">
@@ -352,9 +352,12 @@
           </div>
 
           <p class="mt-16px color-text-tertiary text-13px">
-            <strong>How it works:</strong> When enabled, every wallet signing operation 
-            (send tokens, delegate, create domain, etc.) will require your password. 
-            {{ securitySessionHintText }}
+            <strong>How it works:</strong> When enabled, the entire app locks and requires
+            your password whenever the session isn't active - on launch, and again once
+            the cache duration below expires from inactivity. Wallet signing operations
+            (send tokens, delegate, create domain, etc.) also check for an active session,
+            so an expired one re-locks the app instead of prompting inline just for that
+            operation. {{ securitySessionHintText }}
           </p>
         </div>
       </div>
@@ -1060,7 +1063,7 @@ const removePasswordInput = ref('');
 const showRemovePasswordConfirm = ref(false);
 const securitySessionStatusText = computed(() => {
   if (!securitySessionActive.value) {
-    return 'Session locked - password required for next operation';
+    return 'Session locked - password required to unlock the app';
   }
   return `Session unlocked - password cached ${getSecuritySessionTimeoutCacheText(
     appSettingsState.value.securitySessionTimeoutMs,
