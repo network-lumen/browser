@@ -116,14 +116,18 @@ onMounted(async () => {
     unsubscribeSessionChanged = api.onSessionChanged((payload: any) => {
       const active = !!payload?.active;
       if (active) {
-        sessionActive.value = true;
         everUnlocked = true;
         lockReason.value = "startup";
-        return;
+      } else if (everUnlocked) {
+        lockReason.value = "idle";
       }
-
-      if (everUnlocked) lockReason.value = "idle";
-      sessionActive.value = false;
+      // Re-fetch passwordEnabled/hasPassword too, not just sessionActive - a
+      // sessionChanged broadcast also fires when password protection itself
+      // was just turned off (Settings > Security > Remove Password), and
+      // trusting the old cached passwordEnabled/hasPassword here would show
+      // an unlock prompt for a password that no longer exists, with no way
+      // to satisfy it short of fully restarting the app.
+      void refreshSecurityStatus();
     });
   }
 
