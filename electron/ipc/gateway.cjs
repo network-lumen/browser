@@ -341,6 +341,13 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
 
   const store = await pqc.PqcKeyStore.open(resolvePqcHome());
   const existingLink = store.getLink(address);
+  // Tracks whether this call generated brand-new Dilithium private key
+  // material (as opposed to reusing/relinking a key that already existed on
+  // disk). This is the signal the caller uses to force the "export your PQC
+  // key now" warning - it must fire regardless of whether the on-chain link
+  // that follows succeeds, since the unrecoverable risk is losing this local
+  // file, not the on-chain link state.
+  let createdNew = false;
   const normalize = (rec) =>
     !rec
       ? rec
@@ -431,6 +438,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
           createdAt: new Date()
         };
         await store.saveKey(record);
+        createdNew = true;
       } else {
         record = normalize(record);
       }
@@ -461,7 +469,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
     }
   } catch {}
 
-  return { keyName, record, store };
+  return { keyName, record, store, createdNew };
 }
 
 async function ensureOnChainPqcLink(bridgeMod, client, address, record) {
@@ -635,14 +643,35 @@ async function signAndBroadcastWithPqcAutoLink({
           client.pqcStore = pqcLocal.store;
         }
       } catch {}
+
+      // Fire the "export your PQC key" notice as soon as we know brand-new
+      // Dilithium key material now sits on disk - BEFORE attempting the
+      // on-chain link below, and independent of whether that link submits,
+      // broadcasts, or confirms in time. Losing this local file with no
+      // backup is unrecoverable, so the user must be warned even if the
+      // link itself later throws (e.g. insufficient balance, RPC hiccup) -
+      // gating the notice on full on-chain confirmation (as before) meant a
+      // slow/failed link silently dropped the warning entirely.
+      if (pqcLocal && pqcLocal.createdNew) {
+        broadcastPqcLinked({
+          profileId: String(profileId || '').trim(),
+          address: String(address || '').trim()
+        });
+      }
+
       if (pqcLocal && pqcLocal.record) {
         const didLink = await ensureOnChainPqcLink(bridgeMod, client, address, pqcLocal.record);
-        const committed = didLink ? await waitForPqcLinkCommit(address).catch(() => false) : false;
-        if (didLink && committed) {
+        if (didLink && !pqcLocal.createdNew) {
+          // An already-existing local key just got linked on-chain for the
+          // first time - also worth a reminder in case it was never
+          // exported after being created.
           broadcastPqcLinked({
             profileId: String(profileId || '').trim(),
             address: String(address || '').trim()
           });
+        }
+        if (didLink) {
+          await waitForPqcLinkCommit(address).catch(() => false);
         }
       }
     } catch (linkErr) {
