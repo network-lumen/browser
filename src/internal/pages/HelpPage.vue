@@ -222,8 +222,7 @@ import {
   Rocket
 } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
-
-type HelpView = 'discover' | 'publish' | 'contact' | 'docs';
+import type { HelpView } from '../../types/helpPage';
 
 // Single source of truth for the window.lumen reference: this embeds the
 // actual generated docs/window-lumen.html (mirrored into public/docs/ by

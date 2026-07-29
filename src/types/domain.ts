@@ -13,3 +13,5 @@ export type DomainTarget = {
 };
 
 export type ResolverRecord = { key: string; value: string };
+
+export type GatewayCache = { ts: number; bases: string[] } | null;

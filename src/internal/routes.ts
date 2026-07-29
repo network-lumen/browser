@@ -22,11 +22,7 @@ import AddressDetailPage from './pages/AddressDetailPage.vue';
 import ExtensionsPage from './pages/ExtensionsPage.vue';
 import ExtensionPage from './pages/ExtensionPage.vue';
 import { getFileUrlTitle, isBrowserUrl, isFileUrl, parseExtensionTabUrl } from './navigationUrl';
-
-type InternalRoute = {
-  component: any;
-  title: string;
-};
+import type { InternalRoute } from '../types/routes';
 
 const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   newtab: { component: NewTabPage, title: 'New tab' },

@@ -557,14 +557,8 @@ import {
 } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';
 import { buildExtensionTabUrl, normalizeAddressInput } from '../internal/navigationUrl';
-
-type TabHistoryEntry = { url: string; title?: string };
-type Tab = {
-  id: string;
-  history?: TabHistoryEntry[];
-  history_position?: number;
-  draftUrl?: string;
-};
+import type { Tab } from '../types/tab';
+import type { NavBarExtensionSummary, NavBarImportMode } from '../types/navBar';
 
 const props = defineProps<{
   tabActive: string;
@@ -598,18 +592,8 @@ const profileMessage = ref('');
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 const openExtensionPopup = inject<((input: any) => void) | null>('openExtensionPopup', null);
 
-type InstalledExtension = {
-  id: string;
-  name: string;
-  version?: string;
-  enabled: boolean;
-  loaded?: boolean;
-  lastError?: string;
-  launchUrl?: string;
-};
-
 const showExtensionsMenu = ref(false);
-const extensions = ref<InstalledExtension[]>([]);
+const extensions = ref<NavBarExtensionSummary[]>([]);
 const extensionsBusy = ref(false);
 const extensionsMessage = ref('');
 
@@ -621,10 +605,8 @@ const exportPassword = ref('');
 const exportPasswordConfirm = ref('');
 const exportError = ref('');
 
-type ImportMode = 'file' | 'manual';
-
 const showImportModal = ref(false);
-const importMode = ref<ImportMode>('file');
+const importMode = ref<NavBarImportMode>('file');
 const importBusy = ref(false);
 const importModalError = ref('');
 const manualImportName = ref('');
@@ -794,7 +776,7 @@ function resetProfileUi() {
   newProfileName.value = '';
 }
 
-function normalizeExtensionPayload(payload: any): InstalledExtension[] {
+function normalizeExtensionPayload(payload: any): NavBarExtensionSummary[] {
   const items = Array.isArray(payload)
     ? payload
     : Array.isArray(payload?.extensions)
@@ -810,7 +792,7 @@ function normalizeExtensionPayload(payload: any): InstalledExtension[] {
       lastError: String(entry?.lastError || '').trim(),
       launchUrl: String(entry?.launchUrl || '').trim()
     }))
-    .filter((entry: InstalledExtension) => !!entry.id)
+    .filter((entry: NavBarExtensionSummary) => !!entry.id)
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
@@ -829,7 +811,7 @@ async function refreshExtensions() {
   }
 }
 
-function extensionStateLabel(ext: InstalledExtension) {
+function extensionStateLabel(ext: NavBarExtensionSummary) {
   if (ext.lastError) return 'Unavailable';
   if (!ext.enabled) return 'Disabled';
   if (ext.loaded) return 'Enabled';
@@ -880,7 +862,7 @@ async function loadUnpackedExtension() {
   }, 'Extension loaded.');
 }
 
-async function toggleExtensionEnabled(ext: InstalledExtension) {
+async function toggleExtensionEnabled(ext: NavBarExtensionSummary) {
   const api = useInternalLumen()?.extensions;
   if (!api) return;
   if (ext.enabled) {
@@ -908,7 +890,7 @@ async function removeExtension(id: string) {
   }, 'Extension removed.');
 }
 
-async function openExtension(ext: InstalledExtension) {
+async function openExtension(ext: NavBarExtensionSummary) {
   if (!ext?.enabled) return;
   showExtensionsMenu.value = false;
   if (typeof openExtensionPopup === 'function') {
@@ -1083,7 +1065,7 @@ function cancelImportModal() {
   manualImportPqcSourceName.value = '';
 }
 
-function setImportMode(mode: ImportMode) {
+function setImportMode(mode: NavBarImportMode) {
   importMode.value = mode;
   importModalError.value = '';
 }

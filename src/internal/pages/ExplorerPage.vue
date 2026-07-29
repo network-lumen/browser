@@ -617,6 +617,7 @@ import { fromBase64, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 import { computeTxHash } from '../chainRpc';
+import type { Block, Transaction, Validator, TxHistoryWindow } from '../../types/explorerPage';
 
 const toast = useToast();
 const lumen = useInternalLumen();
@@ -707,35 +708,6 @@ const avgBlockTimeLabelShort = computed(() => {
   return `~${v.toFixed(1)}s`;
 });
 
-interface Block {
-  height: number;
-  hash: string;
-  proposer: string;
-  proposerAvatar?: string;
-  txCount: number;
-  time: string;
-}
-
-interface Transaction {
-  hash: string;
-  type: string;
-  height: number;
-  success: boolean;
-  time: string;
-  fee?: string;
-}
-
-interface Validator {
-  address: string;
-  moniker: string;
-  tokens: string;
-  commission: string;
-  jailed: boolean;
-  avatar?: string;
-  keybaseId?: string;
-  consensusPubkeyB64?: string;
-}
-
 const blocks = ref<Block[]>([]);
 const transactions = ref<Transaction[]>([]);
 const validators = ref<Validator[]>([]);
@@ -783,7 +755,6 @@ const bondedRatioLabel = computed(() => {
   return `${pct.toFixed(1)}%`;
 });
 
-type TxHistoryWindow = 5 | 10 | 15 | 20;
 const txHistoryWindow = ref<TxHistoryWindow>(10);
 
 const txHistoryPoints = computed(() => {

@@ -191,8 +191,7 @@ import UiCenteredInfoCard from '../ui/UiCenteredInfoCard.vue';
 import UiIconBadge from '../ui/UiIconBadge.vue';
 import { activeProfileId, createProfile, initProfiles, profilesState } from '../internal/profilesStore';
 import { useInternalLumen } from '../composables/useInternalLumen';
-
-type OnboardingStep = 'intro' | 'password' | 'profile-name' | 'creating-wallet' | 'backup' | 'complete';
+import type { OnboardingStep } from '../types/walletOnboardingModal';
 
 const completeReminders = [
   'Never share your password or backup file',

@@ -485,74 +485,21 @@ import {
   type ThumbSafetyBlockedCategory,
   type ThumbSafetyScores,
 } from "./searchSafety/thumbSafetyService";
+import type {
+  SearchType,
+  ResultItem,
+  GatewayView,
+  SearchCursor,
+  SearchRouteCursorGateway,
+  SearchRouteCursor,
+  ParsedSearchUrl,
+  SearchPageCursorState,
+  GatewaySearchResult,
+  GatewaySearchHit,
+  GatewaySiteSearchResult,
+} from "../../types/searchPage";
 
 const toast = useToast();
-
-type SearchType = "site" | "image" | "all";
-type ResultKind = "site" | "ipfs" | "tx" | "block" | "address" | "link";
-type ResultItem = {
-  id: string;
-  title: string;
-  url: string;
-  description?: string;
-  kind: ResultKind;
-  badges?: string[];
-  thumbUrl?: string;
-  thumbCid?: string;
-  media?: "image" | "unknown";
-  fileKind?: "image" | "pdf" | "html" | "txt" | "epub" | "docx" | "unknown";
-  score?: number;
-  uniqueViews7d?: number;
-  viewCid?: string;
-  gateway?: { id: string; endpoint: string };
-  site?: {
-    domain?: string | null;
-    cid?: string | null;
-    entryCid?: string | null;
-    entryPath?: string | null;
-    wallet?: string | null;
-    owned?: boolean;
-  };
-};
-
-type GatewayView = {
-  id: string;
-  endpoint: string;
-  baseUrl?: string;
-  regions?: string[];
-};
-
-type SearchCursor = {
-  score: number;
-  id: string;
-  rankAt?: number;
-};
-
-type SearchRouteCursorGateway = {
-  id: string;
-  cursor: SearchCursor | null;
-};
-
-type SearchRouteCursor = {
-  version: 1;
-  rankAt?: number;
-  gateways: SearchRouteCursorGateway[];
-  anchorId?: string;
-};
-
-type ParsedSearchUrl = {
-  q: string;
-  type: SearchType;
-  cursor: SearchRouteCursor | null;
-  gatewayId: string | null;
-};
-
-type SearchPageCursorState = {
-  startIndex: number;
-  endIndex: number;
-  cursor: SearchRouteCursor | null;
-  gatewayId: string | null;
-};
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
@@ -2834,16 +2781,6 @@ function normalizeGatewayType(t: SearchType): string {
   return "";
 }
 
-type GatewaySearchResult = {
-  items: ResultItem[];
-  hasPrev: boolean;
-  prevCursor: SearchRouteCursor | null;
-  pageCursor: SearchRouteCursor | null;
-  hasMore: boolean;
-  nextCursor: SearchRouteCursor | null;
-  gateway: GatewayView | null;
-};
-
 async function getActiveProfileId(): Promise<string | null> {
   const active = await useInternalLumen()?.profiles.getActive().catch(() => null);
   const id = String(active?.id || "").trim();
@@ -2956,39 +2893,6 @@ async function loadGatewaysForSearch(
   }
   return items;
 }
-
-type GatewaySearchHit = {
-  cid?: string;
-  root_cid?: string;
-  path?: string;
-  title?: string;
-  kind?: string;
-  mime?: string;
-  ext_guess?: string;
-  resourceType?: string;
-  tags_json?: any;
-  topics?: any;
-  snippet?: string;
-  views_unique_7d?: number;
-  linked_domain?: string;
-  rank_signals?: any;
-};
-
-type GatewaySiteSearchResult = {
-  type?: string;
-  domain?: string;
-  rootDomain?: string;
-  cid?: string;
-  entry_cid?: string;
-  entry_path?: string;
-  wallet?: string;
-  score?: number;
-  views_unique_7d?: number;
-  tags?: any;
-  owned?: boolean;
-  title?: string;
-  snippet?: string;
-};
 
 function safePathSuffix(pathValue: any): string {
   const p = String(pathValue ?? "").trim();

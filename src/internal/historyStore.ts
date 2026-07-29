@@ -8,12 +8,9 @@ import {
   isHttpUrl,
   isLumenUrl,
 } from "./navigationUrl";
-import type { HistoryEntry, HistorySettings } from "../types/history";
+import type { HistoryEntry, HistorySettings, HistoryMap, HistorySettingsMap } from "../types/history";
 
 export type { HistoryEntry, HistorySettings };
-
-type HistoryMap = Record<string, HistoryEntry[]>;
-type HistorySettingsMap = Record<string, HistorySettings>;
 
 const HISTORY_KEY = "lumen:history:v1";
 const SETTINGS_KEY = "lumen:history:settings:v1";

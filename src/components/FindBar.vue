@@ -50,21 +50,7 @@ import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } fr
 import { ChevronDown, ChevronUp, X } from "lucide-vue-next";
 import UiButton from "../ui/UiButton.vue";
 import { useInternalLumen } from '../composables/useInternalLumen';
-
-type FindActionPayload = {
-  action?: string;
-  targetWebContentsId?: number | string | null;
-};
-
-type FindResultPayload = {
-  targetWebContentsId?: number | string | null;
-  result?: {
-    requestId?: number;
-    activeMatchOrdinal?: number;
-    matches?: number;
-    finalUpdate?: boolean;
-  };
-};
+import type { FindActionPayload, FindResultPayload } from '../types/findBar';
 
 const open = ref(false);
 const query = ref("");

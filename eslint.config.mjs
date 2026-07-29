@@ -1,4 +1,4 @@
-// Deliberately minimal: only the 5 rules below, chosen because they have a
+// Deliberately minimal: only the rules below, chosen because they have a
 // real AST behind them (unlike scripts/check-conventions.mjs's regex-based
 // checks) and each one caught an actual bug found by hand this session:
 //   - no-console          -> 8 debug console.log()s left in SettingsPage.vue
@@ -12,6 +12,11 @@
 //                            modifier Vue doesn't support (key modifiers
 //                            match event.key, and "/" produces key === "/",
 //                            not "Slash") - the shortcut silently never fired
+//   - no-restricted-syntax (TSInterfaceDeclaration/TSTypeAliasDeclaration)
+//                         -> enforces the src/types/ centralization convention
+//                            (see CONTRIBUTING.md) - added 2026-07-29 after a
+//                            real DriveFile interface had silently drifted
+//                            into 3 separate copies across the codebase.
 // Not a general "eslint:recommended" sweep on purpose - that would surface a
 // wave of unrelated pre-existing findings across ~90 files with no bearing
 // on this cleanup pass. The project's own CSS-utility-system rules (dead/
@@ -61,6 +66,31 @@ export default [
         varsIgnorePattern: '^_',
         caughtErrorsIgnorePattern: '^_',
       }],
+    },
+  },
+  {
+    // Every type/interface declaration must live in src/types/ (one file per
+    // concept/page, see CONTRIBUTING.md) - single source of truth, no
+    // colocated ad hoc types drifting out of sync across files. This is the
+    // TS-side equivalent of "all CSS lives in src/css/": a project-wide rule
+    // contributors can follow without having to judge case-by-case whether a
+    // given type is "shared enough" to deserve centralizing.
+    files: ['src/**/*.vue', 'src/**/*.ts'],
+    ignores: ['src/types/**'],
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      'no-restricted-syntax': ['error',
+        {
+          selector: 'TSInterfaceDeclaration',
+          message: 'Interfaces must live in src/types/<concept>.ts, not colocated with implementation. See CONTRIBUTING.md.',
+        },
+        {
+          selector: 'TSTypeAliasDeclaration',
+          message: 'Type aliases must live in src/types/<concept>.ts, not colocated with implementation. See CONTRIBUTING.md.',
+        },
+      ],
     },
   },
 ];

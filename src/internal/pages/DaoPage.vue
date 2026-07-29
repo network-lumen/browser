@@ -299,6 +299,7 @@ import {
   Plus
 } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
+import type { Proposal, Member, TreasuryAsset } from '../../types/daoPage';
 
 const lumen = useInternalLumen();
 const toast = useToast();
@@ -338,41 +339,10 @@ const activeProposalsCount = ref(0);
 const totalMembers = ref(0);
 const treasuryBalance = ref('0');
 
-interface Proposal {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  submitTime: string;
-  depositEndTime: string;
-  votingStartTime: string;
-  votingEndTime: string;
-  totalDeposit: string;
-  yesVotes: string;
-  noVotes: string;
-  abstainVotes: string;
-  noWithVetoVotes: string;
-  proposer: string;
-}
-
 const proposals = ref<Proposal[]>([]);
-
-interface Member {
-  address: string;
-  moniker: string;
-  tokens: string;
-  avatar?: string;
-  keybaseId?: string;
-}
 
 const members = ref<Member[]>([]);
 const avatarCache = ref<Record<string, string>>({});
-
-interface TreasuryAsset {
-  denom: string;
-  amount: string;
-  displayName: string;
-}
 
 const treasuryAssets = ref<TreasuryAsset[]>([]);
 

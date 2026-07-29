@@ -250,8 +250,8 @@ import UiPinProgressCard from '../ui/UiPinProgressCard.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, Link, Plus, Save, Send, Shield } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
-
-type UiReq = { id: string; type: string; data: any };
+import type { UiReq, StableLinkItem } from '../types/lumenSiteModalHost';
+import type { DriveSavedFile } from '../types/driveSavedFile';
 
 const queue = ref<UiReq[]>([]);
 let unsub: null | (() => void) = null;
@@ -440,16 +440,6 @@ const pinProgressPercent = ref<number | null>(null);
 const pinProgressUnit = ref("");
 const pinWaitJobId = ref("");
 let unsubPinProgress: null | (() => void) = null;
-
-type DriveSavedFile = {
-  cid: string;
-  name: string;
-  size: number;
-  uploadedAt: number;
-  type?: "file" | "dir";
-  rootCid?: string;
-  relPath?: string;
-};
 
 const DRIVE_FILES_KEY_PREFIX = "lumen:drive:files:v1";
 const DRIVE_LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
@@ -751,8 +741,6 @@ function closePin(confirm: boolean) {
   if (pinIsRunning.value) return;
   if (!confirm) respond({ ok: false, error: "user_cancelled" });
 }
-
-type StableLinkItem = { name: string; id: string; label: string };
 
 const stableLinkLoading = ref(false);
 const stableLinkSaving = ref(false);

@@ -88,11 +88,11 @@ import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   buildCandidateUrl,
-  DomainTarget,
   normalizePath,
   pickFastestSource,
   resolveDomainTarget,
 } from "../services/contentResolver";
+import type { ActiveState } from "../../types/sitePage";
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabId = inject<any>("currentTabId", null);
@@ -266,11 +266,6 @@ function onWebviewLeaveHtmlFullscreen() {
     useInternalLumen()?.setWindowMode?.("exit-fullscreen");
   } catch {}
 }
-
-type ActiveState = {
-  host: string;
-  target: DomainTarget;
-};
 
 const active = ref<ActiveState | null>(null);
 

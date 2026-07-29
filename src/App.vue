@@ -22,8 +22,7 @@ import SecurityGate from './components/SecurityGate.vue';
 import { useTheme } from './composables/useTheme';
 import { FATAL_ERROR_MAP, checkLumenAPIReferences } from './internal/common/fatal_errors';
 import { useInternalLumen } from './composables/useInternalLumen';
-
-type Stage = 'startup' | 'main';
+import type { Stage } from './types/app';
 
 // Initialize theme
 const { initTheme } = useTheme();

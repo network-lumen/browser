@@ -298,15 +298,8 @@ import {
   resolveStableLinkTarget,
 } from "../services/contentResolver";
 import { activeProfileId } from "../profilesStore";
-
-type Entry = {
-  key: string;
-  name: string;
-  cid: string;
-  type: "dir" | "file";
-  size: number | null;
-  relPath: string;
-};
+import type { Entry, MarkdownTarget, MarkdownResolvedLink } from "../../types/ipfsPage";
+import type { DriveSavedFile } from "../../types/driveSavedFile";
 
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
@@ -511,16 +504,6 @@ function applySavePinJobSnapshot(job: any) {
   );
 }
 
-type DriveSavedFile = {
-  cid: string;
-  name: string;
-  size: number;
-  uploadedAt: number;
-  type?: "file" | "dir";
-  rootCid?: string;
-  relPath?: string;
-};
-
 const DRIVE_FILES_KEY_PREFIX = "lumen:drive:files:v1";
 const DRIVE_LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
 const DRIVE_BACKUP_SEQ_KEY_PREFIX = "lumen:driveBackup:seq:v1";
@@ -693,19 +676,6 @@ const contentUrl = computed(() => {
 
   return `${b}/${rootProto.value}/${rootCid.value}${p}${suf}`;
 });
-
-type MarkdownTarget = {
-  proto: "ipfs" | "ipns";
-  id: string;
-  path: string;
-  dir: boolean;
-  suffix: string;
-};
-
-type MarkdownResolvedLink =
-  | { kind: "anchor"; value: string }
-  | { kind: "internal"; value: string }
-  | { kind: "external"; value: string };
 
 function isDangerousMarkdownScheme(value: string): boolean {
   const s = String(value || "").trim().toLowerCase();

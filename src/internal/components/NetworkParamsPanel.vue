@@ -83,17 +83,7 @@ import {
   RefreshCw
 } from 'lucide-vue-next';
 import UiSpinner from '../../ui/UiSpinner.vue';
-
-type ParamSection = {
-  id: string;
-  title: string;
-  path: string;
-  open: boolean;
-  loading: boolean;
-  error: string;
-  data: any;
-  extract?: (json: any) => any;
-};
+import type { ParamSection } from '../../types/networkParamsPanel';
 
 const props = defineProps<{
   restBase?: string;

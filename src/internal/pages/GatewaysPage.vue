@@ -219,6 +219,7 @@ import { useToast } from '../../composables/useToast';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import InternalSidebar from '../../components/InternalSidebar.vue';
+import type { GatewayParamsView, GatewayRecord, GatewayEditState } from '../../types/gatewaysPage';
 
 const profiles = profilesState;
 const activeProfile = computed(
@@ -232,40 +233,6 @@ const activeAddress = computed(
 // ---------------------------------------------------------------------------
 // Advanced gateway management (register/update)
 // ---------------------------------------------------------------------------
-
-type GatewayParamsView = {
-  registerFeeUlmn: string;
-  actionFeeUlmn: string;
-};
-
-type GatewayRecord = {
-  id: string;
-  endpoint: string;
-  operator: string;
-  payout?: string;
-  regions?: string[];
-  active: boolean;
-  metadata?: Record<string, any>;
-};
-
-type GatewayEditState = {
-  endpoint: string;
-  regions: string;
-  payout: string;
-  metadata: string;
-  active: boolean;
-  memo: string;
-  error: string;
-  txhash: string;
-  busy: boolean;
-  original: {
-    endpoint: string;
-    regions: string[];
-    payout: string;
-    extras: Record<string, any>;
-    active: boolean;
-  };
-};
 
 const gatewayParams = ref<GatewayParamsView | null>(null);
 const gateways = ref<GatewayRecord[]>([]);

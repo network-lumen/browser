@@ -14,8 +14,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-
-type Variant = 'grid' | 'flex' | 'compact' | 'baseline' | 'modal';
+import type { Variant } from '../types/uiDetailRow';
 
 const props = withDefaults(defineProps<{
   label: string;

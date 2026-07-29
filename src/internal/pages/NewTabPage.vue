@@ -241,9 +241,7 @@ import { FavouriteEntry, useFavourites } from "../favouritesStore";
 import { useHistory } from "../historyStore";
 import { profilesState } from "../profilesStore";
 import { normalizeAddressInput } from "../navigationUrl";
-
-
-type ShortcutModalMode = "create" | "edit";
+import type { ShortcutModalMode } from "../../types/newTabPage";
 
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);
 const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null);

@@ -48,14 +48,7 @@ import {
   parseExtensionTabUrl,
 } from "../navigationUrl";
 import { useTabLoadingSync } from "../useTabLoading";
-
-type InstalledExtension = {
-  id: string;
-  runtimeId: string;
-  name: string;
-  enabled: boolean;
-  launchUrl: string;
-};
+import type { InstalledExtension } from "../../types/extension";
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabId = inject<any>("currentTabId", null);

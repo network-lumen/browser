@@ -2,26 +2,13 @@ import type {
   ThumbSafetyScores,
   ThumbSafetyResultMsg,
   ThumbSafetyErrorMsg,
+  ThumbSafetySettings,
+  ThumbSafetyBlockedCategory,
+  PersistedCacheV1,
+  Pending,
 } from "../../../types/searchSafety";
 
-export type { ThumbSafetyScores };
-
-export type ThumbSafetySettings = {
-  showSexualContent: boolean;
-  showViolentContent: boolean;
-  showDisturbingImagery: boolean;
-};
-
-export type ThumbSafetyBlockedCategory = "sexual" | "violence" | "disturbing";
-
-type PersistedCacheV1 = {
-  v: 1;
-  at: number;
-  urls: Record<string, string>;
-  hashes: Record<string, ThumbSafetyScores & { at: number }>;
-  hiddenHashes?: Record<string, number>;
-  hiddenUrls?: Record<string, number>;
-};
+export type { ThumbSafetyScores, ThumbSafetyBlockedCategory, ThumbSafetySettings };
 
 const LS_KEY = "lumen-search-thumb-safety-v1.2";
 const MAX_HASHES = 1200;
@@ -182,11 +169,6 @@ function savePersisted(cache: PersistedCacheV1): void {
     // ignore
   }
 }
-
-type Pending = {
-  promise: Promise<{ hash: string; scores: ThumbSafetyScores } | null>;
-  resolve: (v: { hash: string; scores: ThumbSafetyScores } | null) => void;
-};
 
 class ThumbSafetyService {
   private worker: Worker | null = null;

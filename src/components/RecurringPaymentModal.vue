@@ -159,16 +159,13 @@ import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
 import { ref, computed, watch } from 'vue';
 import { Calendar, QrCode, Bell, Check } from 'lucide-vue-next';
-import type { RecurringPayment, PaymentFrequency } from '../internal/services/recurringPayments';
+import type { PaymentFrequency } from '../internal/services/recurringPayments';
 import UiCheckbox from '../ui/UiCheckbox.vue';
 import UiInput from '../ui/UiInput.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
+import type { RecurringPaymentModalProps } from '../types/recurringPaymentModal';
 
-interface Props {
-  payment?: RecurringPayment;
-}
-
-const props = defineProps<Props>();
+const props = defineProps<RecurringPaymentModalProps>();
 
 const emit = defineEmits<{
   (e: 'close'): void;

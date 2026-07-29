@@ -6,8 +6,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-
-type Padding = 'none' | 'sm' | 'md' | 'lg';
+import type { Padding } from '../types/uiCard';
 
 const props = withDefaults(defineProps<{
   padding?: Padding;

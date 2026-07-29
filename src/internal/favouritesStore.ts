@@ -1,12 +1,9 @@
 import { computed, ref } from "vue";
 import { activeProfileId } from "./profilesStore";
 import { canonicalizeLumenUrl, isLumenUrl } from "./navigationUrl";
-import type { FavouriteEntry } from "../types/favourites";
+import type { FavouriteEntry, FavMap, LegacyFavMap } from "../types/favourites";
 
 export type { FavouriteEntry };
-
-type FavMap = Record<string, FavouriteEntry[]>;
-type LegacyFavMap = Record<string, string[]>;
 
 const LEGACY_KEY = "lumen:favourites:v1";
 const KEY = "lumen:favourites:v2";

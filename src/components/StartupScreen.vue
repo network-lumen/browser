@@ -34,8 +34,7 @@ import UiLoadingSpinner from '../ui/UiLoadingSpinner.vue';
 import { ref, onMounted } from 'vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
 import logoUrl from '../img/logo.png';
-
-type Phase = 'starting' | 'retrying' | 'error' | 'ready';
+import type { Phase } from '../types/startupScreen';
 
 const emit = defineEmits<{ (e: 'ready'): void }>();
 

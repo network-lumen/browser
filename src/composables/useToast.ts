@@ -1,11 +1,5 @@
 import { toastList, addToast, removeToast, clearToasts, type ToastType, type Toast } from '../stores/toastStore';
-
-interface ToastOptions {
-  title?: string;
-  duration?: number;
-  dismissible?: boolean;
-  copyable?: boolean;
-}
+import type { ToastOptions } from '../types/toast';
 
 export { type ToastType, type Toast };
 

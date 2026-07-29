@@ -9,3 +9,6 @@ export type HistoryEntry = {
 export type HistorySettings = {
   enabled: boolean;
 };
+
+export type HistoryMap = Record<string, HistoryEntry[]>;
+export type HistorySettingsMap = Record<string, HistorySettings>;

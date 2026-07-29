@@ -41,19 +41,7 @@ import {
   getInternalTitle,
 } from "../internal/routes";
 import { normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
-
-type TabHistoryEntry = { url: string; title?: string };
-type Tab = {
-  id: string;
-  url?: string;
-  history?: TabHistoryEntry[];
-  history_position?: number;
-  loading?: boolean;
-  refreshTick?: number;
-  favicon?: string | null;
-
-  draftUrl?: string;
-};
+import type { Tab, TabHistoryEntry, RegisterFindTargetFn } from "../types/tab";
 
 const props = defineProps<{
   tabActive: string;
@@ -69,8 +57,6 @@ const activeTab = computed<Tab | undefined>(() =>
   props.tabs.find((t) => t.id === props.tabActive)
 );
 const activeTabIsExtension = computed(() => !!parseExtensionTabUrl(currentUrl()));
-
-type RegisterFindTargetFn = (tabId: string, targetWebContentsId: number | null) => void;
 
 const findTargets = reactive<Record<string, number | null>>({});
 
