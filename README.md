@@ -38,3 +38,23 @@ See `RELEASE.md` for the full end-to-end workflow (publisher UI at `lumen://rele
 ## Mac launch
 
 sudo xattr -rd com.apple.quarantine /Applications/Lumen\ Browser.app
+
+## Linux launch
+
+### Linux (VMware / Wayland)
+
+If the application does not open on some Linux environments (especially VMware + Wayland), try
+launching it with Ozone forced to X11:
+
+```bash
+./Lumen-Browser-x.x.x-linux-x64.AppImage --ozone-platform=x11
+```
+
+If that alone isn't enough in your environment, also try adding `--no-sandbox`:
+
+```bash
+./Lumen-Browser-x.x.x-linux-x64.AppImage --no-sandbox --ozone-platform=x11
+```
+
+This has been confirmed to work on VMware + Wayland; other environments may not need the extra
+flag, or may need a different one.
