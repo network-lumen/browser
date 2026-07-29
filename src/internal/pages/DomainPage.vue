@@ -11,7 +11,8 @@
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="activeNameTab === 'stable'" @click="activeNameTab = 'stable'">
             <KeyRound :size="16" />
-            <span>Stable links</span>
+            <span>Ugly domain</span>
+            <UiTag variant="accent">free</UiTag>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -433,6 +434,7 @@ import UiCard from '../../ui/UiCard.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import UiTag from '../../ui/UiTag.vue';
 import { computed, inject, ref, watch } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
@@ -476,7 +478,7 @@ const rawDomainsLoading = ref(false);
 const rawDomainsError = ref('');
 
 const pageTitle = computed(() =>
-  activeNameTab.value === 'stable' ? 'Stable links' : 'Lumen Domains'
+  activeNameTab.value === 'stable' ? 'Ugly domain (free)' : 'Lumen Domains'
 );
 const pageDescription = computed(() =>
   activeNameTab.value === 'stable'
