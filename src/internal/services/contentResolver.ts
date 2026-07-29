@@ -1,19 +1,8 @@
 import { getLocalGatewayBase } from './appSettings';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import type { DomainTarget, ResolverRecord } from '../../types/domain';
 
-export type DomainTarget = {
-  proto: 'ipfs' | 'ipns';
-  id: string;
-  /**
-   * Optional sub-path inside the target root. Allows domain records like:
-   * `lumen://ipfs/<cid>/some/subdir/`
-   * so the domain root maps to that subdir.
-   *
-   * Normalized form: '' (none) or '/path/without/trailing/slash'.
-   */
-  basePath?: string;
-  suffix?: string;
-};
+export type { DomainTarget, ResolverRecord };
 
 export function localIpfsGatewayBase(): string {
   return getLocalGatewayBase();
@@ -92,8 +81,6 @@ export function parseIpnsRecordTarget(value: any): DomainTarget | null {
   if (!id || /[/?#\s]/.test(id)) return null;
   return { proto: 'ipns', id };
 }
-
-export type ResolverRecord = { key: string; value: string };
 
 export function normalizeResolverRecords(input: any): ResolverRecord[] {
   const rawRecords = Array.isArray(input)

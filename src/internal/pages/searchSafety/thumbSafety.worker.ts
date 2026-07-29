@@ -1,23 +1,8 @@
-type AnalyzeMsg = {
-  type: "analyze";
-  url: string;
-  bitmap: ImageBitmap;
-};
-
-type ResultMsg = {
-  type: "result";
-  url: string;
-  hash: string;
-  sexual: number;
-  violence: number;
-  disturbing: number;
-};
-
-type ErrorMsg = {
-  type: "error";
-  url: string;
-  error: string;
-};
+import type {
+  ThumbSafetyAnalyzeMsg,
+  ThumbSafetyResultMsg,
+  ThumbSafetyErrorMsg,
+} from "../../../types/searchSafety";
 
 const SIZE = 224;
 
@@ -131,7 +116,7 @@ function computeScores(img: ImageData): {
   return { sexual, violence, disturbing };
 }
 
-self.onmessage = async (ev: MessageEvent<AnalyzeMsg>) => {
+self.onmessage = async (ev: MessageEvent<ThumbSafetyAnalyzeMsg>) => {
   const msg = ev.data;
   if (!msg || msg.type !== "analyze") return;
 
@@ -144,7 +129,7 @@ self.onmessage = async (ev: MessageEvent<AnalyzeMsg>) => {
     const hash = await sha256Hex(bytes);
     const scores = computeScores(img);
 
-    const out: ResultMsg = {
+    const out: ThumbSafetyResultMsg = {
       type: "result",
       url,
       hash,
@@ -154,7 +139,7 @@ self.onmessage = async (ev: MessageEvent<AnalyzeMsg>) => {
     };
     (self as any).postMessage(out);
   } catch (e: any) {
-    const out: ErrorMsg = {
+    const out: ThumbSafetyErrorMsg = {
       type: "error",
       url,
       error: String(e?.message || e || "analyze_failed"),

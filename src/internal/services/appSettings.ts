@@ -2,22 +2,11 @@ import { ref } from "vue";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   DEFAULT_SECURITY_SESSION_TIMEOUT_MS,
-  type SecuritySessionTimeoutMs,
   normalizeSecuritySessionTimeoutMs,
 } from "./securitySessionTimeout";
+import type { IpfsConnectivityMode, AppSettings } from "../../types/settings";
 
-export type IpfsConnectivityMode = "light" | "normal" | "high";
-
-export type AppSettings = {
-  localGatewayBase: string;
-  ipfsApiBase: string;
-  ipfsConnectivityMode: IpfsConnectivityMode;
-  localDriveMaxUploadSizeGb: number;
-  showSexualContent: boolean;
-  showViolentContent: boolean;
-  showDisturbingImagery: boolean;
-  securitySessionTimeoutMs: SecuritySessionTimeoutMs;
-};
+export type { IpfsConnectivityMode, AppSettings };
 
 export const BYTES_PER_GIB = 1024 * 1024 * 1024;
 export const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;

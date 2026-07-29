@@ -1,8 +1,10 @@
-export type ThumbSafetyScores = {
-  sexual: number;
-  violence: number;
-  disturbing: number;
-};
+import type {
+  ThumbSafetyScores,
+  ThumbSafetyResultMsg,
+  ThumbSafetyErrorMsg,
+} from "../../../types/searchSafety";
+
+export type { ThumbSafetyScores };
 
 export type ThumbSafetySettings = {
   showSexualContent: boolean;
@@ -181,17 +183,6 @@ function savePersisted(cache: PersistedCacheV1): void {
   }
 }
 
-type WorkerResultMsg = {
-  type: "result";
-  url: string;
-  hash: string;
-  sexual: number;
-  violence: number;
-  disturbing: number;
-};
-
-type WorkerErrorMsg = { type: "error"; url: string; error: string };
-
 type Pending = {
   promise: Promise<{ hash: string; scores: ThumbSafetyScores } | null>;
   resolve: (v: { hash: string; scores: ThumbSafetyScores } | null) => void;
@@ -289,7 +280,7 @@ class ThumbSafetyService {
       const w = new Worker(new URL("./thumbSafety.worker.ts", import.meta.url), {
         type: "module",
       });
-      w.onmessage = (ev: MessageEvent<WorkerResultMsg | WorkerErrorMsg>) => {
+      w.onmessage = (ev: MessageEvent<ThumbSafetyResultMsg | ThumbSafetyErrorMsg>) => {
         const msg = ev.data as any;
         if (!msg || typeof msg.url !== "string") return;
 

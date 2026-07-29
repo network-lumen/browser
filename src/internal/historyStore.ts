@@ -8,18 +8,9 @@ import {
   isHttpUrl,
   isLumenUrl,
 } from "./navigationUrl";
+import type { HistoryEntry, HistorySettings } from "../types/history";
 
-export type HistoryEntry = {
-  id: string;
-  url: string;
-  title?: string;
-  lastVisitedAt: number;
-  visitCount: number;
-};
-
-export type HistorySettings = {
-  enabled: boolean;
-};
+export type { HistoryEntry, HistorySettings };
 
 type HistoryMap = Record<string, HistoryEntry[]>;
 type HistorySettingsMap = Record<string, HistorySettings>;

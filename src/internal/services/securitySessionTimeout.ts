@@ -1,4 +1,6 @@
-export type SecuritySessionTimeoutMs = number | null;
+import type { SecuritySessionTimeoutMs } from "../../types/settings";
+
+export type { SecuritySessionTimeoutMs };
 
 export const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 5 * 60 * 1000;
 

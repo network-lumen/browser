@@ -1,16 +1,5 @@
 import { ref, readonly, type Ref } from 'vue';
-
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
-
-export interface Toast {
-  id: string;
-  type: ToastType;
-  title?: string;
-  message: string;
-  duration?: number;
-  dismissible?: boolean;
-  copyable?: boolean;
-}
+import type { Toast, ToastType } from '../types/toast';
 
 // Global shared toast state - singleton pattern
 const toasts = ref<Toast[]>([]);
