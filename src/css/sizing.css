@@ -37,7 +37,6 @@
 .max-h-75vh { max-height: 75vh; }
 .max-h-90vh { max-height: 90vh; }
 .max-h-min-72vh-720px { max-height: min(72vh, 720px); }
-.max-h-none { max-height: none; }
 .max-w-100px { max-width: 100px; }
 .max-w-1200px { max-width: 1200px; }
 .max-w-1275px { max-width: 7.5rem; }
@@ -78,7 +77,6 @@
 .min-h-48px { min-height: 48px; }
 .min-h-520px { min-height: 520px; }
 .min-h-60px { min-height: 60px; }
-.min-h-64px { min-height: 64px; }
 .min-h-84px { min-height: 84px; }
 .min-h-full { min-height: 100%; }
 .min-w-0 { min-width: 0; }
@@ -99,7 +97,6 @@
 .min-w-32px { min-width: 32px; }
 .min-w-360px { min-width: 360px; }
 .min-w-400px { min-width: 400px; }
-.min-w-40px { min-width: 40px; }
 .min-w-420px { min-width: 420px; }
 .min-w-48px { min-width: 48px; }
 .min-w-70px { min-width: 70px; }
@@ -115,7 +112,6 @@
 .size-80px { width: 80px; height: 80px; }
 .w-0 { width: 0; }
 .w-10px { width: 10px; }
-.w-12px { width: 12px; }
 .w-140px { width: 140px; }
 .w-14px { width: 14px; }
 .w-150px { width: 150px; }

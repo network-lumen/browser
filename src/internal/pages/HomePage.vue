@@ -160,20 +160,20 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import {
   Home, Cloud, Wallet, Globe, Settings,
   ArrowUpRight, Network, FileText,
-  Database, Users, Rocket, Server, LayoutGrid, Search, History,
+  Database, Rocket, Server, Search, History,
   HelpCircle, Layers, ChevronDown, ChevronUp, X
 } from 'lucide-vue-next';
 
 // My Space section cards, customizable via drag-and-drop
 const MY_SPACE_CARDS_KEY = 'my_space_cards_order';
 const savedMySpaceCards = localStorage.getItem(MY_SPACE_CARDS_KEY);
-const DEFAULT_MY_SPACE_CARDS = ['drive', 'domain', 'wallet', 'dao', 'settings'];
+const DEFAULT_MY_SPACE_CARDS = ['drive', 'domain', 'wallet', 'settings'];
 const mySpaceCards = ref<string[]>(savedMySpaceCards ? JSON.parse(savedMySpaceCards) : DEFAULT_MY_SPACE_CARDS.slice());
 
 // Lumen section cards, customizable via drag-and-drop
 const LUMEN_CARDS_KEY = 'lumen_cards_order';
 const savedLumenCards = localStorage.getItem(LUMEN_CARDS_KEY);
-const DEFAULT_LUMEN_CARDS = ['explorer', 'network', 'search', 'help'];
+const DEFAULT_LUMEN_CARDS = ['network', 'search', 'help'];
 const lumenCards = ref<string[]>(savedLumenCards ? JSON.parse(savedLumenCards) : DEFAULT_LUMEN_CARDS.slice());
 
 // Custom order for All Pages, persisted to localStorage
@@ -544,15 +544,13 @@ function formatRouteName(key: string): string {
 
 function getRouteDescription(key: string): string {
   const descriptions: Record<string, string> = {
-    explorer: 'Browse the blockchain',
-    network: 'View network status',
+    network: 'Browse the blockchain & view network status',
     search: 'Find content quickly',
     history: 'Review recent browsing',
     help: 'Documentation & support',
     drive: 'Store & share files',
     wallet: 'Manage crypto assets',
     domain: 'Manage your domains',
-    dao: 'Governance & voting',
     gateways: 'IPFS gateway management',
     settings: 'Configure preferences',
     ipfs: 'IPFS operations',
@@ -564,7 +562,6 @@ function getRouteDescription(key: string): string {
 
 function getCardTitle(key: string): string {
   const titles: Record<string, string> = {
-    explorer: 'Explorer',
     network: 'Network',
     search: 'Search',
     history: 'History',
@@ -572,7 +569,6 @@ function getCardTitle(key: string): string {
     drive: 'Drive',
     wallet: 'Wallet',
     domain: 'Domains',
-    dao: 'DAO',
     gateways: 'Gateways',
     settings: 'Settings',
     ipfs: 'IPFS',
@@ -585,12 +581,10 @@ function getCardTitle(key: string): string {
 const ACTION_ICON_STYLES: Record<string, { background: string; color: string }> = {
   drive: { background: "linear-gradient(135deg, var(--color-success) 0%, var(--color-secondary) 100%)", color: "#fff" },
   wallet: { background: "linear-gradient(135deg, var(--color-warning) 0%, var(--color-yellow) 100%)", color: "#fff" },
-  explorer: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
   gateways: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
   search: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
   network: { background: "linear-gradient(135deg, rgba(var(--color-pink-rgb), 0.22) 0%, rgba(var(--color-pink-rgb), 0.12) 100%)", color: "var(--color-pink)" },
   domain: { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.22) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--color-primary)" },
-  dao: { background: "linear-gradient(135deg, rgba(var(--color-warning-rgb), 0.22) 0%, rgba(var(--color-warning-rgb), 0.12) 100%)", color: "var(--color-warning)" },
   help: { background: "linear-gradient(135deg, rgba(var(--color-warning-rgb), 0.22) 0%, rgba(var(--color-warning-rgb), 0.12) 100%)", color: "var(--color-warning)" },
   settings: { background: "linear-gradient(135deg, rgba(var(--color-purple-rgb), 0.22) 0%, rgba(var(--color-purple-rgb), 0.12) 100%)", color: "var(--color-purple)" },
 };
@@ -606,9 +600,7 @@ function getCardIcon(key: string) {
     wallet: Wallet,
     network: Network,
     settings: Settings,
-    explorer: LayoutGrid,
     domain: Globe,
-    dao: Users,
     release: Rocket,
     newtab: Layers,
     search: Search,
@@ -627,9 +619,7 @@ function getRouteIcon(key: string) {
     wallet: Wallet,
     network: Network,
     settings: Settings,
-    explorer: LayoutGrid,
     domain: Globe,
-    dao: Users,
     release: Rocket,
     newtab: Layers,
     search: Search,

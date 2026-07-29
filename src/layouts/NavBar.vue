@@ -747,8 +747,6 @@ function normalizeInput(raw: string): string {
     'settings',
     'help',
     'domain',
-    'explorer',
-    'dao',
     'ipfs',
     'gateways',
     'release',

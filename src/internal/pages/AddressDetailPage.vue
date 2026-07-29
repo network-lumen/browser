@@ -1,5 +1,5 @@
 <template>
-  <!-- ####### lumen://explorer/address/<addr> ADDRESS DETAIL (embedded sub-view of ExplorerPage) ####### -->
+  <!-- ####### lumen://network/address/<addr> ADDRESS DETAIL (embedded sub-view of NetworkPage) ####### -->
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
     <UiLoadingState v-if="loading" message="Loading address data..." />
 
@@ -128,19 +128,19 @@ const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null
 
 const accountAddress = computed(() => {
   if (!currentTabUrl || !currentTabUrl.value) return null;
-  const match = currentTabUrl.value.match(/\/explorer\/address\/([a-z0-9]+)/i);
+  const match = currentTabUrl.value.match(/\/network\/address\/([a-z0-9]+)/i);
   return match ? match[1] : null;
 });
 
 function navigateToTx(hash: string) {
   if (openInNewTab) {
-    openInNewTab(`lumen://explorer/tx/${hash}`);
+    openInNewTab(`lumen://network/tx/${hash}`);
   }
 }
 
 function navigateToBlock(height: number) {
   if (openInNewTab) {
-    openInNewTab(`lumen://explorer/block/${height}`);
+    openInNewTab(`lumen://network/block/${height}`);
   }
 }
 

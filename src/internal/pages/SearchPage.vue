@@ -3154,8 +3154,8 @@ function domainKeyFromUrl(url: string): string | null {
   const without = raw.slice("lumen://".length);
   const host = (without.split(/[\/?#]/, 1)[0] || "").trim().toLowerCase();
   if (!host || host === "search") return null;
-  // Non-site routes (CID navigation, explorer, etc.)
-  if (host === "ipfs" || host === "ipns" || host === "explorer") return null;
+  // Non-site routes (CID navigation, network/explorer, etc.)
+  if (host === "ipfs" || host === "ipns" || host === "network") return null;
   return host;
 }
 
@@ -4079,7 +4079,7 @@ function buildFastResults(query: string): ResultItem[] {
     list.push({
       id: `tx:${s}`,
       title: "Transaction",
-      url: `lumen://explorer/tx/${s}`,
+      url: `lumen://network/tx/${s}`,
       description: "View transaction details",
       kind: "tx",
       badges: ["Explorer"],
@@ -4090,7 +4090,7 @@ function buildFastResults(query: string): ResultItem[] {
     list.push({
       id: `addr:${s}`,
       title: "Wallet address",
-      url: `lumen://explorer/address/${s}`,
+      url: `lumen://network/address/${s}`,
       description: "View address activity",
       kind: "address",
       badges: ["Explorer"],
@@ -4101,7 +4101,7 @@ function buildFastResults(query: string): ResultItem[] {
     list.push({
       id: `block:${s}`,
       title: "Block",
-      url: `lumen://explorer/block/${s}`,
+      url: `lumen://network/block/${s}`,
       description: "View block details",
       kind: "block",
       badges: ["Explorer"],

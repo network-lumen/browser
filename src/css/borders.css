@@ -31,7 +31,6 @@
 .border-2-primary-a30 { border: 2px solid var(--primary-a30); }
 .border-2-primary { border: 2px solid var(--color-primary); }
 .border-2-transparent { border: 2px solid transparent; }
-.border-2-white-a15 { border: 2px solid rgba(255, 255, 255, 0.15); }
 .border-2-white-a45 { border: 2px solid rgba(255, 255, 255, 0.45); }
 .border-2-white-a50 { border: 2px solid rgba(255, 255, 255, 0.5); }
 .border-3-primary { border: 3px solid var(--color-primary); }
@@ -48,7 +47,6 @@
 .border-collapse-collapse { border-collapse: collapse; }
 .border-default { border: var(--border-width) solid var(--border-color); }
 .border-left-1-border-color { border-left: 1px solid var(--border-color); }
-.border-left-2-transparent { border-left: 2px solid transparent; }
 .border-left-3-accent-primary-hover:hover { border-left: 3px solid var(--color-primary); }
 .border-left-none { border-left: none; }
 .border-light { border: var(--border-width) solid var(--border-light); }

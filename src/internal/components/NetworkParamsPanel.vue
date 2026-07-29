@@ -1,16 +1,11 @@
 <template>
   <!-- ####### lumen://network NETWORK PARAMS ####### -->
   <section class="p-32px">
-    <UiPageHeader title="Params" subtitle="Live view of the blockchain parameters (fetched from the REST API)." title-size="24px" title-weight="strong">
+    <UiPageHeader title="Params" title-size="24px" title-weight="strong">
       <template #actions>
         <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="hover-border-primary-a15 disabled-fade-50">
           <Copy :size="16" />
           Copy all
-        </UiButton>
-
-        <UiButton variant="secondary" type="button" @click="refreshAll" :disabled="loadingAll" class="hover-border-primary-a15 disabled-fade-50">
-          <RefreshCw :size="16" :class="{ spinning: loadingAll }" />
-          <span>{{ loadingAll ? 'Refreshing…' : 'Refresh' }}</span>
         </UiButton>
       </template>
     </UiPageHeader>
@@ -79,8 +74,7 @@ import { useToast } from '../../composables/useToast';
 import {
   ChevronDown,
   ChevronRight,
-  Copy,
-  RefreshCw
+  Copy
 } from 'lucide-vue-next';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import type { ParamSection } from '../../types/networkParamsPanel';

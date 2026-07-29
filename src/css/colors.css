@@ -13,7 +13,6 @@
 .bg-card-a92 { background: color-mix(in srgb, var(--card-bg) 92%, transparent); }
 .bg-card-a94-shadow-soft { background: color-mix(in srgb, var(--card-bg) 94%, transparent); box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
 .bg-card-disabled-hover:disabled:hover { background: var(--card-bg); }
-.bg-current { background: currentColor; }
 .bg-dark-111 { background: #111111; }
 .bg-fill-blue { background: var(--primary-a15); }
 .bg-fill-error { background: var(--fill-error); }
@@ -36,9 +35,7 @@
 .bg-gradient-primary-a10-card { background: var(--gradient-primary-soft); }
 .bg-gradient-primary { background: var(--gradient-primary); }
 .bg-gradient-secondary { background: var(--gradient-secondary); }
-.bg-gradient-secondary-hover { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--hover-bg) 100%); }
 .bg-gradient-shell { background: radial-gradient(1200px 400px at -10% 150%, var(--primary-a20), transparent 60%), radial-gradient(1200px 400px at 110% -50%, var(--primary-a05), transparent 60%), linear-gradient(135deg, var(--primary-a05), var(--primary-a05)); }
-.bg-gradient-teal-green { background: linear-gradient(90deg, var(--color-secondary), var(--color-success)); }
 .bg-gradient-teal-sky { background: linear-gradient(135deg, #0f766e, #0ea5e9); }
 .bg-gradient-thumb-overlay { background: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.55)); }
 .bg-gradient-voting-power { background: linear-gradient(90deg, rgba(var(--color-success-rgb), 0.8), rgba(var(--color-success-rgb), 0.6)); }
@@ -51,7 +48,6 @@
 .bg-success-a15 { background: rgba(var(--color-success-rgb), 0.15); }
 .bg-indigo-a08 { background: rgba(var(--color-indigo-rgb), 0.08); }
 .bg-indigo-a15 { background: rgba(var(--color-indigo-rgb), 0.15); }
-.bg-indigo-a25 { background: rgba(var(--color-indigo-rgb), 0.25); }
 .bg-warning-a08 { background: rgba(var(--color-warning-rgb), 0.08); }
 .bg-warning-a15 { background: rgba(var(--color-warning-rgb), 0.15); }
 .bg-purple-a15 { background: rgba(var(--color-purple-rgb), 0.15); }
@@ -80,7 +76,6 @@
 .border-color-accent-primary-focus-visible:focus-visible { border-color: var(--color-primary); }
 .border-color-primary-focus-within:focus-within { border-color: var(--color-primary); }
 .border-color-success { border-color: var(--color-success); }
-.border-color-success-a30 { border-color: rgba(var(--color-success-rgb), 0.3); }
 .border-color-warning-a30 { border-color: rgba(var(--color-warning-rgb), 0.3); }
 .border-color-primary-a15 { border-color: var(--primary-a15); }
 .border-color-primary-a30 { border-color: var(--primary-a30); }

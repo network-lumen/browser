@@ -22,7 +22,6 @@
 .grid-cols-4-1fr { grid-template-columns: repeat(4, 1fr); }
 .grid-cols-50-220-200-120-160-100-110-120 { grid-template-columns: 50px 220px 200px 120px 160px 100px 110px 120px; }
 .grid-cols-70-1fr { grid-template-columns: minmax(70px, 0.28fr) minmax(0, 1fr); }
-.grid-cols-90-320-22fr-130-140 { grid-template-columns: 90px 320px 2.2fr 130px 140px; }
 .grid-cols-auto-fill-200 { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 .grid-cols-auto-fill-220 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .grid-cols-auto-fill-280 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
@@ -30,7 +29,6 @@
 .grid-cols-auto-fill-320 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 .grid-cols-auto-fill-340 { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 .grid-cols-auto-fit-140 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-.grid-cols-auto-fit-180 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 .grid-cols-auto-fit-200 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .grid-cols-auto-fit-280 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .hidden { display: none; }

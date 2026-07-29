@@ -46,10 +46,6 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
-@keyframes pulse-live {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
 @keyframes slideInUp {
   from { transform: translateY(100%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }

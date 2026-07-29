@@ -50,11 +50,9 @@
 .hover-bg-slate-900-a92:hover { background: rgba(15, 23, 42, 0.92); }
 .hover-bg-primary:hover { background: var(--bg-primary); }
 .hover-border-accent:hover { border-color: var(--color-primary); }
-.hover-border-color:hover { border-color: var(--border-color); }
 .hover-border-color-accent-enabled:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
 .hover-border-primary:hover { border-color: var(--color-primary); }
 .hover-border-primary-a14:hover { border-color: rgba(var(--color-primary-rgb), 0.14); }
-.hover-border-left-accent-primary:hover { border-left-color: var(--color-primary); }
 .hover-border-primary-a15:hover { border-color: var(--primary-a15); }
 .hover-border-primary-a30:hover { border-color: var(--primary-a30); }
 .hover-border-radius-6px:hover { border-radius: 6px; }
@@ -92,7 +90,6 @@
 .hover-shadow-sm:hover { box-shadow: var(--shadow-sm); }
 .hover-shadow-success:hover:not(:disabled) { box-shadow: var(--shadow-success); }
 .hover-translate-x-2px:hover { transform: translateX(2px); }
-.hover-translate-x-4px:hover { transform: translateX(4px); }
 .hover-translate-y4-x4:hover { transform: translateY(-4px) translateX(4px); }
 .hover-underline { text-decoration: none; }
 .hover-underline:where(:hover, :focus-visible) { text-decoration: underline; }
