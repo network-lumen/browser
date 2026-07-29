@@ -1,5 +1,5 @@
 <template>
-  <!-- ####### lumen://explorer/block/<height> BLOCK DETAIL (embedded sub-view of ExplorerPage) ####### -->
+  <!-- ####### lumen://network/block/<height> BLOCK DETAIL (embedded sub-view of NetworkPage) ####### -->
   <div class="w-full h-full overflow-y-auto bg-primary">
     <UiLoadingState v-if="loading" message="Loading block data..." wrapper-class="py-64px px-32px" />
 
@@ -101,7 +101,7 @@ const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null
 
 const blockHeight = computed(() => {
   const url = currentTabUrl?.value || window.location.href;
-  let match = url.match(/explorer\/block\/(\d+)/);
+  let match = url.match(/network\/block\/(\d+)/);
   if (!match) {
     match = url.match(/\/block\/(\d+)/);
   }
@@ -155,9 +155,9 @@ function formatNumber(num: number): string {
 
 function navigateToTransaction(hash: string) {
   if (openInNewTab) {
-    openInNewTab(`lumen://explorer/tx/${hash}`);
+    openInNewTab(`lumen://network/tx/${hash}`);
   } else {
-    window.location.href = `lumen://explorer/tx/${hash}`;
+    window.location.href = `lumen://network/tx/${hash}`;
   }
 }
 

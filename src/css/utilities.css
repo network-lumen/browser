@@ -7,7 +7,6 @@
 .animate-modal-slide-in { animation: modalSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
 .animate-mygw-pulse { animation: mygw-pulse 2s ease-in-out infinite; }
 .animate-popup-fade-in { animation: popupFadeIn 0.3s ease; }
-.animate-pulse-live { animation: pulse-live 2s ease-in-out infinite; }
 .animate-pulse-ring { animation: pulse 2s infinite; }
 .animate-slide-in-up { animation: slideInUp 0.3s ease; }
 .animate-walletonboard-fade-in { animation: walletonboard-fade-in 0.3s ease-in-out; }
@@ -157,7 +156,6 @@
 .status-dot-ok { background: var(--color-success); box-shadow: 0 0 8px rgba(var(--color-success-rgb), 0.35); }
 .status-dot-pending { background: var(--color-warning); box-shadow: 0 0 8px rgba(var(--color-warning-rgb), 0.35); }
 .textarea-min-h-80-font-inherit { min-height: 80px; font-family: inherit; }
-.tone-green.active { color: var(--color-success); }
 .tone-tab-active.active { background: var(--tab-active-bg); z-index: 2; }
 .transform-origin-center { transform-origin: center; }
 .transition-all-02 { transition: all var(--transition-base); }

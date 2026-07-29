@@ -34,7 +34,6 @@ import {
   Search,
   HelpCircle,
   Globe,
-  Users,
   Layers,
   History
 } from 'lucide-vue-next';
@@ -59,8 +58,6 @@ const DEFAULT_ORDER = [
   'settings',
   'history',
   'search',
-  'explorer',
-  'dao',
   'help',
   'newtab'
 ];
@@ -100,8 +97,6 @@ function iconFor(key: string) {
     history: History,
     search: Search,
     help: HelpCircle,
-    explorer: Globe,
-    dao: Users,
     newtab: Layers
   };
   return map[k] || Globe;

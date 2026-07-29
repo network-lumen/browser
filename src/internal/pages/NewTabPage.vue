@@ -282,8 +282,6 @@ const builtinHosts = [
   "settings",
   "help",
   "domain",
-  "explorer",
-  "dao",
   "ipfs",
   "gateways",
   "release",

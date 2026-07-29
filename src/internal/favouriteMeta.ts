@@ -27,12 +27,10 @@ const INTERNAL_TITLES: Record<string, string> = {
   network: "Network",
   gateways: "Gateways",
   "my-gateways": "My Gateways",
-  explorer: "Explorer",
   block: "Block Details",
   transaction: "Transaction Details",
   tx: "Transaction Details",
   address: "Address Details",
-  dao: "DAO",
   release: "Release",
   help: "Help",
 };

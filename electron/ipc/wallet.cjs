@@ -32,6 +32,39 @@ function isHtmlInsteadOfJsonError(e) {
   );
 }
 
+// Derives a module's governance-authority address the same way the chain
+// does (sha256("gov") truncated to 20 bytes, bech32-encoded) - used to sign
+// authority-gated messages (MsgUpdateParams, MsgValidateRelease, etc.) that
+// get wrapped in a MsgSubmitProposal, without needing a REST round-trip.
+function moduleAddressBech32(moduleName, bech32Prefix) {
+  const bech32 = require('bech32');
+  if (!bech32 || typeof bech32.encode !== 'function' || typeof bech32.toWords !== 'function') {
+    throw new Error('bech32_unavailable');
+  }
+  const hash = crypto
+    .createHash('sha256')
+    .update(Buffer.from(String(moduleName || ''), 'utf8'))
+    .digest()
+    .subarray(0, 20);
+  return bech32.encode(String(bech32Prefix || 'lmn'), bech32.toWords(hash));
+}
+
+// The @lumen-chain/sdk client doesn't expose a stable public property for
+// its internal protobuf registry, so probe the handful of shapes it (or a
+// standard cosmjs SigningStargateClient) might use.
+function getRegistryForEncode(client) {
+  const candidates = [
+    client?._registry,
+    client?.registry,
+    client?.protoRegistry,
+    client?.signing?.protoRegistry,
+    client?.stargate?.registry,
+    client?.signingClient?.registry,
+    client?.client?.registry
+  ].filter(Boolean);
+  return candidates.find((r) => typeof r.encode === 'function') || null;
+}
+
 async function connectSigningClientWithFailover(mod, signer, connectArgs, { timeoutMs = 15_000 } = {}) {
   const pool = getNetworkPool();
   pool.start();
@@ -2147,6 +2180,205 @@ function registerWalletIpc() {
     return normalized;
   }
 
+  // --- Governance "action" builders -----------------------------------
+  // Each entry mirrors one src/internal/pages/governanceActionTemplates.ts
+  // template (same `id`/templateId). Builds a plain EncodeObject via the
+  // matching @lumen-chain/sdk module method - the caller Any-encodes it and
+  // wraps it into a MsgSubmitProposal.messages[] entry. Only messages whose
+  // Go msg_server checks the signer against the module's configured
+  // authority (i.e. genuinely gov-gated) are represented here.
+
+  function requireNonEmptyValue(value, fieldName) {
+    const v = String(value == null ? '' : value).trim();
+    if (!v) throw new Error(`missing_${fieldName}`);
+    return v;
+  }
+
+  function requireIntValue(value, fieldName) {
+    const n = Number(value);
+    if (!Number.isFinite(n) || !Number.isInteger(n)) throw new Error(`invalid_${fieldName}`);
+    return n;
+  }
+
+  function requireDecimalStringValue(value, fieldName) {
+    const v = String(value == null ? '' : value).trim();
+    if (v === '' || !/^\d*(\.\d+)?$/.test(v)) throw new Error(`invalid_${fieldName}`);
+    return v;
+  }
+
+  function parseLinesValue(value) {
+    return String(value || '')
+      .split(/[\n,]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  async function fetchModuleParamsForPatch(client, accessorName) {
+    const modAccessor = typeof client[accessorName] === 'function' ? client[accessorName]() : client[accessorName];
+    if (!modAccessor || typeof modAccessor.params !== 'function') {
+      throw new Error(`${accessorName}_module_unavailable`);
+    }
+    const raw = await modAccessor.params();
+    const params = raw && typeof raw === 'object' ? (raw.params ?? raw) : raw;
+    if (!params || typeof params !== 'object') throw new Error(`${accessorName}_params_unavailable`);
+    return { modAccessor, params };
+  }
+
+  function moduleAccessor(client, name) {
+    return typeof client[name] === 'function' ? client[name]() : client[name];
+  }
+
+  const GOVERNANCE_ACTION_BUILDERS = {
+    'dns-update-fee': async (client, authority, values) => {
+      const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'dns');
+      const updateFeeUlmn = Number(lmnToUlmn(requireNonEmptyValue(values.updateFeeUlmn, 'updateFeeUlmn')));
+      return modAccessor.msgUpdateParams(authority, { ...params, updateFeeUlmn });
+    },
+    'dns-update-guards': async (client, authority, values) => {
+      const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'dns');
+      return modAccessor.msgUpdateParams(authority, {
+        ...params,
+        updateRateLimitSeconds: requireIntValue(values.updateRateLimitSeconds, 'updateRateLimitSeconds'),
+        updatePowDifficulty: requireIntValue(values.updatePowDifficulty, 'updatePowDifficulty')
+      });
+    },
+    'dns-update-transfer-bid-fee': async (client, authority, values) => {
+      const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'dns');
+      return modAccessor.msgUpdateParams(authority, {
+        ...params,
+        transferFeeUlmn: Number(lmnToUlmn(requireNonEmptyValue(values.transferFeeUlmn, 'transferFeeUlmn'))),
+        bidFeeUlmn: Number(lmnToUlmn(requireNonEmptyValue(values.bidFeeUlmn, 'bidFeeUlmn')))
+      });
+    },
+    'gateways-update-params': async (client, authority, values) => {
+      const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'gateways');
+      const patched = { ...params };
+      if (String(values.platformCommissionBps || '').trim()) {
+        patched.platformCommissionBps = requireIntValue(values.platformCommissionBps, 'platformCommissionBps');
+      }
+      if (String(values.minPriceUlmnPerMonthLmn || '').trim()) {
+        patched.minPriceUlmnPerMonth = Number(lmnToUlmn(values.minPriceUlmnPerMonthLmn));
+      }
+      if (String(values.actionFeeUlmnLmn || '').trim()) {
+        patched.actionFeeUlmn = Number(lmnToUlmn(values.actionFeeUlmnLmn));
+      }
+      if (String(values.registerGatewayFeeUlmnLmn || '').trim()) {
+        patched.registerGatewayFeeUlmn = Number(lmnToUlmn(values.registerGatewayFeeUlmnLmn));
+      }
+      if (String(values.finalizeDelayMonths || '').trim()) {
+        patched.finalizeDelayMonths = requireIntValue(values.finalizeDelayMonths, 'finalizeDelayMonths');
+      }
+      if (String(values.maxActiveContractsPerGateway || '').trim()) {
+        patched.maxActiveContractsPerGateway = requireIntValue(values.maxActiveContractsPerGateway, 'maxActiveContractsPerGateway');
+      }
+      return modAccessor.msgUpdateParams(authority, patched);
+    },
+    'tokenomics-tax-rate': async (client, authority, values) => {
+      const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'tokenomics');
+      return modAccessor.msgUpdateParams(authority, {
+        ...params,
+        txTaxRate: requireDecimalStringValue(values.txTaxRate, 'txTaxRate')
+      });
+    },
+    'tokenomics-community-pool-spend': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'tokenomics');
+      const recipient = requireNonEmptyValue(values.recipient, 'recipient');
+      const amount = lmnToUlmn(requireNonEmptyValue(values.amountLmn, 'amountLmn'));
+      return modAccessor.msgCommunityPoolSpend(authority, { recipient, amount: [{ denom: 'ulmn', amount }] });
+    },
+    'tokenomics-gov-min-deposit': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'tokenomics');
+      const amount = lmnToUlmn(requireNonEmptyValue(values.minDepositLmn, 'minDepositLmn'));
+      return modAccessor.msgUpdateGovMinDeposit(authority, [{ denom: 'ulmn', amount }]);
+    },
+    'tokenomics-slashing-downtime': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'tokenomics');
+      return modAccessor.msgUpdateSlashingDowntimeParams(
+        authority,
+        requireDecimalStringValue(values.slashFractionDowntime, 'slashFractionDowntime'),
+        requireNonEmptyValue(values.downtimeJailDuration, 'downtimeJailDuration')
+      );
+    },
+    'tokenomics-slashing-liveness': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'tokenomics');
+      return modAccessor.msgUpdateSlashingLivenessParams(
+        authority,
+        requireIntValue(values.signedBlocksWindow, 'signedBlocksWindow'),
+        requireDecimalStringValue(values.minSignedPerWindow, 'minSignedPerWindow')
+      );
+    },
+    'pqc-add-ibc-relayer': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'pqc');
+      return modAccessor.msgAddIbcRelayer(authority, requireNonEmptyValue(values.relayer, 'relayer'));
+    },
+    'pqc-remove-ibc-relayer': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'pqc');
+      return modAccessor.msgRemoveIbcRelayer(authority, requireNonEmptyValue(values.relayer, 'relayer'));
+    },
+    'release-validate': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'releases');
+      return modAccessor.msgValidateRelease(authority, requireIntValue(values.releaseId, 'releaseId'));
+    },
+    'release-reject': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'releases');
+      return modAccessor.msgRejectRelease(authority, requireIntValue(values.releaseId, 'releaseId'));
+    },
+    'release-update-params': async (client, authority, values) => {
+      const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'releases');
+      const patched = { ...params };
+      if (String(values.allowedPublishers || '').trim()) {
+        patched.allowedPublishers = parseLinesValue(values.allowedPublishers);
+      }
+      if (String(values.channels || '').trim()) {
+        patched.channels = parseLinesValue(values.channels);
+      }
+      if (String(values.maxArtifacts || '').trim()) {
+        patched.maxArtifacts = requireIntValue(values.maxArtifacts, 'maxArtifacts');
+      }
+      if (String(values.maxUrlsPerArt || '').trim()) {
+        patched.maxUrlsPerArt = requireIntValue(values.maxUrlsPerArt, 'maxUrlsPerArt');
+      }
+      if (String(values.maxSigsPerArt || '').trim()) {
+        patched.maxSigsPerArt = requireIntValue(values.maxSigsPerArt, 'maxSigsPerArt');
+      }
+      if (String(values.maxNotesLen || '').trim()) {
+        patched.maxNotesLen = requireIntValue(values.maxNotesLen, 'maxNotesLen');
+      }
+      if (String(values.publishFeeUlmnLmn || '').trim()) {
+        patched.publishFeeUlmn = Number(lmnToUlmn(values.publishFeeUlmnLmn));
+      }
+      if (String(values.maxPendingTtlSeconds || '').trim()) {
+        patched.maxPendingTtl = requireIntValue(values.maxPendingTtlSeconds, 'maxPendingTtlSeconds');
+      }
+      if (String(values.rejectRefundBps || '').trim()) {
+        patched.rejectRefundBps = requireIntValue(values.rejectRefundBps, 'rejectRefundBps');
+      }
+      if (values.requireValidationForStable === 'true' || values.requireValidationForStable === 'false') {
+        patched.requireValidationForStable = values.requireValidationForStable === 'true';
+      }
+      return modAccessor.msgUpdateParams(authority, patched);
+    },
+    'upgrade-software': async (client, authority, values, registry) => {
+      const { MsgSoftwareUpgrade } = await import('cosmjs-types/cosmos/upgrade/v1beta1/tx.js');
+      const typeUrl = '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade';
+      try {
+        if (!registry.lookupType(typeUrl)) registry.register(typeUrl, MsgSoftwareUpgrade);
+      } catch {
+        registry.register(typeUrl, MsgSoftwareUpgrade);
+      }
+      const name = requireNonEmptyValue(values.name, 'name');
+      const height = requireIntValue(values.height, 'height');
+      return {
+        typeUrl,
+        // plan.time is deprecated/rejected by the chain - only name/height/info.
+        value: MsgSoftwareUpgrade.fromPartial({
+          authority,
+          plan: { name, height: BigInt(height), info: String(values.info || '') }
+        })
+      };
+    }
+  };
+
   ipcMain.handle('wallet:govSubmitProposal', async (_evt, input) => {
     try {
       const profileId = String(input && input.profileId ? input.profileId : '').trim();
@@ -2212,19 +2444,47 @@ function registerWalletIpc() {
       }
 
       try {
-        const { MsgSubmitProposal } = await import('cosmjs-types/cosmos/gov/v1/tx.js');
+        const govMod = typeof client.gov === 'function' ? client.gov() : client.gov;
+        if (!govMod || typeof govMod.msgSubmitProposal !== 'function') {
+          return { ok: false, error: 'gov_module_unavailable' };
+        }
 
-        const msg = {
-          typeUrl: '/cosmos.gov.v1.MsgSubmitProposal',
-          value: MsgSubmitProposal.fromPartial({
-            messages: [],
-            initialDeposit: depositUlmn !== '0' ? [{ denom: 'ulmn', amount: depositUlmn }] : [],
-            proposer: address,
-            metadata,
-            title,
-            summary
-          })
-        };
+        const rawActions = Array.isArray(input && input.actions) ? input.actions : [];
+        const encodedMessages = [];
+
+        if (rawActions.length) {
+          const registry = getRegistryForEncode(client);
+          if (!registry) return { ok: false, error: 'registry_unavailable' };
+
+          const authority = moduleAddressBech32('gov', prefix);
+          const { Any } = require('cosmjs-types/google/protobuf/any.js');
+
+          for (const rawAction of rawActions) {
+            const templateId = String(rawAction && rawAction.templateId ? rawAction.templateId : '').trim();
+            const builder = GOVERNANCE_ACTION_BUILDERS[templateId];
+            if (!builder) return { ok: false, error: `unknown_action_template:${templateId}` };
+            const values = rawAction && typeof rawAction.values === 'object' && rawAction.values ? rawAction.values : {};
+
+            let actionMsg;
+            try {
+              actionMsg = await builder(client, authority, values, registry);
+            } catch (buildErr) {
+              const buildErrMsg = buildErr && buildErr.message ? buildErr.message : String(buildErr);
+              return { ok: false, error: `action_build_failed:${templateId}:${buildErrMsg}` };
+            }
+
+            const actionBytes = registry.encode(actionMsg);
+            encodedMessages.push(Any.fromPartial({ typeUrl: actionMsg.typeUrl, value: actionBytes }));
+          }
+        }
+
+        const msg = govMod.msgSubmitProposal(address, {
+          messages: encodedMessages,
+          initialDeposit: depositUlmn !== '0' ? [{ denom: 'ulmn', amount: depositUlmn }] : [],
+          metadata,
+          title,
+          summary
+        });
 
         const zeroFee =
           (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
@@ -2573,34 +2833,8 @@ function registerWalletIpc() {
         if (!relMod) return { ok: false, error: 'release_module_unavailable' };
         if (!govMod || typeof govMod.msgSubmitProposal !== 'function') return { ok: false, error: 'gov_module_unavailable' };
 
-        function getRegistryForEncode(c) {
-          const candidates = [
-            c?._registry,
-            c?.registry,
-            c?.protoRegistry,
-            c?.signing?.protoRegistry,
-            c?.stargate?.registry,
-            c?.signingClient?.registry,
-            c?.client?.registry
-          ].filter(Boolean);
-          return candidates.find((r) => typeof r.encode === 'function') || null;
-        }
-
         const registry = getRegistryForEncode(client);
         if (!registry) return { ok: false, error: 'registry_unavailable' };
-
-        function moduleAddressBech32(moduleName, bech32Prefix) {
-          const bech32 = require('bech32');
-          if (!bech32 || typeof bech32.encode !== 'function' || typeof bech32.toWords !== 'function') {
-            throw new Error('bech32_unavailable');
-          }
-          const hash = crypto
-            .createHash('sha256')
-            .update(Buffer.from(String(moduleName || ''), 'utf8'))
-            .digest()
-            .subarray(0, 20);
-          return bech32.encode(String(bech32Prefix || 'lmn'), bech32.toWords(hash));
-        }
 
         const authority = moduleAddressBech32('gov', prefix);
         const actionReleaseId = Math.trunc(releaseId);

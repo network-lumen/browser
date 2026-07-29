@@ -1,477 +1,1392 @@
 <template>
-  <!-- ####### lumen://network NETWORK ####### -->
+  <!-- ####### lumen://network NETWORK (explorer + live network data, merged) ####### -->
   <div class="internal-page flex">
+    <!-- Show Block Detail if URL contains /block/ -->
+    <BlockDetailPage v-if="isBlockDetailView" />
+
+    <!-- Show Transaction Detail if URL contains /tx/ -->
+    <TransactionDetailPage v-else-if="isTransactionDetailView" />
+
+    <!-- Show Address Detail if URL contains /address/ -->
+    <AddressDetailPage v-else-if="isAddressDetailView" />
+
+    <!-- Show normal explorer/network view otherwise -->
+    <template v-else>
     <!-- ####### lumen://network SIDEBAR ####### -->
     <InternalSidebar title="Network" :icon="Network" activeKey="network">
       <nav class="flex flex-column gap-12px">
-        <UiSidebarNavSection title="Monitoring">
-          <UiSidebarNavItem reveal :active="activeView === 'status'" @click="activeView = 'status'">
-            <ChartLine class="reveal-target flex-shrink-0 opacity-85" :size="18" />
-            <span>Status</span>
+        <UiSidebarNavSection title="Explorer">
+          <UiSidebarNavItem reveal :active="currentView === 'overview'" @click="goToView('overview')">
+            <PanelsTopLeft class="reveal-target flex-shrink-0 opacity-85" :size="18" />
+            <span>Overview</span>
           </UiSidebarNavItem>
-          <UiSidebarNavItem :active="activeView === 'params'" @click="activeView = 'params'">
+          <UiSidebarNavItem reveal :active="currentView === 'blocks'" @click="goToView('blocks')">
+            <LayoutGrid class="reveal-target flex-shrink-0 opacity-85" :size="18" />
+            <span>Blocks</span>
+          </UiSidebarNavItem>
+          <UiSidebarNavItem reveal :active="currentView === 'transactions'" @click="goToView('transactions')">
+            <RotateCw class="reveal-target flex-shrink-0 opacity-85" :size="18" />
+            <span>Transactions</span>
+          </UiSidebarNavItem>
+          <UiSidebarNavItem reveal :active="currentView === 'validators'" @click="goToView('validators')">
+            <Users class="reveal-target flex-shrink-0 opacity-85" :size="18" />
+            <span>Validators</span>
+          </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'params'" @click="goToView('params')">
             <SlidersHorizontal :size="18" />
             <span>Params</span>
           </UiSidebarNavItem>
-          <UiSidebarNavItem v-if="activeView === 'status'" :disabled="refreshing" @click="refreshData">
-            <RefreshCw class="flex-shrink-0 opacity-85" :size="18" :class="{ spinning: refreshing }" />
-            <span>{{ refreshing ? 'Refreshing...' : 'Refresh' }}</span>
+          <UiSidebarNavItem reveal :active="currentView === 'governance'" @click="goToView('governance')">
+            <Vote class="reveal-target flex-shrink-0 opacity-85" :size="18" />
+            <span>Governance</span>
           </UiSidebarNavItem>
-        </UiSidebarNavSection>
-
-        <UiSidebarNavSection title="Metrics">
-          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
-            <span class="color-text-secondary fw-500">Block Height</span>
-            <span class="color-text-primary txt-weight-light">{{ formatNumber(blockHeight) }}</span>
-          </div>
-          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
-            <span class="color-text-secondary fw-500">Validators</span>
-            <span class="color-text-primary txt-weight-light">{{ validators.active }}/{{ validators.total }}</span>
-          </div>
-          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
-            <span class="color-text-secondary fw-500">Block Time</span>
-            <span class="color-text-primary txt-weight-light">{{ blockTime.toFixed(2) }}s</span>
-          </div>
-          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
-            <span class="color-text-secondary fw-500">Throughput</span>
-            <span class="color-text-primary txt-weight-light">{{ tps.toFixed(1) }} tx/s</span>
-          </div>
-          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
-            <span class="color-text-secondary fw-500">Blocks/Hour</span>
-            <span class="color-text-primary txt-weight-light">{{ blocksPerHour }}</span>
-          </div>
-          <div class="flex-align-center-justify-space-between text-13px p-0px pt-8px pr-24px pb-8px pl-24px">
-            <span class="color-text-secondary fw-500">24h Volume</span>
-            <span class="color-text-primary txt-weight-light">{{ formatNumber(txVolume24h) }}</span>
-          </div>
-        </UiSidebarNavSection>
-
-        <UiSidebarNavSection title="Node Info">
-          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="color-text-tertiary fw-500 text-11px">Chain ID</span>
-            <span class="color-text-secondary txt-weight-light text-12px mono">{{ chainId || 'lumen' }}</span>
-          </div>
-          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="color-text-tertiary fw-500 text-11px">Network</span>
-            <span class="color-text-secondary txt-weight-light text-12px mono">{{ networkLabel }}</span>
-          </div>
-          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="color-text-tertiary fw-500 text-11px">SDK</span>
-            <span class="color-text-secondary txt-weight-light text-12px mono">{{ sdkVersion || '—' }}</span>
-          </div>
-          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="color-text-tertiary fw-500 text-11px">Peers</span>
-            <span class="color-text-secondary txt-weight-light text-12px mono">{{ peers }}</span>
-          </div>
-          <div class="hover-border-left-accent-primary flex-align-center-justify-space-between text-12px transition-all-02 hover-bg-hover p-0px pt-8px pr-24px pb-8px pl-24px border-left-2-transparent">
-            <span class="color-text-tertiary fw-500 text-11px">Uptime</span>
-            <span class="color-text-secondary txt-weight-light text-12px mono">{{ uptime }}</span>
-          </div>
         </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
     <!-- ####### lumen://network MAIN CONTENT ####### -->
-    <div class="flex-1 overflow-y-auto bg-secondary">
-      <!-- ####### lumen://network STATUS VIEW ####### -->
-      <template v-if="activeView === 'status'">
-        <!-- Main Grid Layout -->
-        <div class="gap-24px p-32px flex flex-wrap-wrap align-items-start">
-        <!-- Left Column: Overview Cards -->
-        <div class="flex flex-column gap-12px flex-1-1-320px">
-          <UiStatCard label="Block Height" detail="Latest block on chain">
-            {{ formatNumber(blockHeight) }}
-          </UiStatCard>
-
-          <UiStatCard label="Validators" :detail="`${validatorPercent.toFixed(1)}% active`">
-            {{ validators.active }}<span class="color-text-secondary txt-weight-normal text-18px ml-4px">/{{ validators.total }}</span>
-          </UiStatCard>
-
-          <UiStatCard label="Block Time" :detail="`Avg: ${avgBlockTime.toFixed(2)}s`">
-            {{ blockTime.toFixed(2) }}<span class="color-text-secondary txt-weight-normal text-18px ml-4px">s</span>
-          </UiStatCard>
-
-          <UiStatCard label="Throughput" :detail="`Peak: ${maxTps.toFixed(1)} tx/s`">
-            {{ tps.toFixed(1) }} <span class="color-text-secondary txt-weight-normal text-18px ml-4px">tx/s</span>
-          </UiStatCard>
+    <main class="flex-1 p-24px overflow-y-auto bg-secondary">
+      <template v-if="isExplorerBrowseView">
+      <!-- Search Bar -->
+      <div class="mb-32px">
+        <div class="flex-align-center gap-8px border-radius-12px bg-card border-2 py-12px px-16px transition-all-02 max-w-800px focus-within-border-accent focus-within-ring">
+          <Search :size="20" class="color-text-tertiary" />
+          <input
+            type="text"
+            class="flex-1 outline-none color-text-primary border-none text-15px bg-transparent placeholder-tertiary"
+            v-model="searchQuery"
+            @keyup.enter="performSearch"
+            placeholder="Search by Block Height, Tx Hash, or Address..."
+          />
+          <UiButton variant="primary" @click="performSearch" :disabled="!searchQuery" class="disabled-fade-50">
+            Search
+          </UiButton>
         </div>
-
-      <!-- Middle Column: Health & Activity -->
-      <div class="flex flex-column gap-20px flex-2-1-480px">
-        <!-- Network Health -->
-        <section class="bg-card border-1 border-radius-14px py-20px px-24px">
-          <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Health</h2>
-          <div class="gap-12px grid grid-cols-2">
-            <UiMeterCard label="Chain Status" value="Synced">
-              <template #fill>
-                <div class="h-full w-full border-radius-4px transition-width-03" :style="indicatorFillStyle('excellent')"></div>
-              </template>
-            </UiMeterCard>
-
-            <UiMeterCard label="Validator Participation" :value="`${validatorPercent.toFixed(0)}%`">
-              <template #fill>
-                <div class="h-full border-radius-4px transition-width-03" :style="{ width: validatorPercent + '%', ...indicatorFillStyle(validatorPercent > 80 ? 'excellent' : validatorPercent > 60 ? 'good' : 'normal') }"></div>
-              </template>
-            </UiMeterCard>
-
-            <UiMeterCard label="Block Production" :value="blockTimeStatus">
-              <template #fill>
-                <div class="h-full border-radius-4px transition-width-03 w-85pct" :style="indicatorFillStyle(blockTimeStatus === 'fast' ? 'excellent' : blockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
-              </template>
-            </UiMeterCard>
-
-            <UiMeterCard label="Peer Connections" :value="String(peers)">
-              <template #fill>
-                <div class="h-full border-radius-4px transition-width-03 w-70pct" :style="indicatorFillStyle('good')"></div>
-              </template>
-            </UiMeterCard>
-          </div>
-        </section>
-
-        <!-- Network Activity Chart -->
-        <section class="bg-card border-1 border-radius-14px py-20px px-24px">
-          <div class="flex-align-center-justify-space-between mb-24px">
-            <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Activity</h2>
-            <div class="flex gap-8px">
-              <button class="bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'blocks' }" @click="activeChart = 'blocks'">Blocks</button>
-              <button class="bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'txs' }" @click="activeChart = 'txs'">Transactions</button>
-              <button class="bg-transparent color-text-secondary cursor-pointer fw-500 py-8px px-16px border-1 border-radius-8px text-14px transition-all-02 hover-border-accent hover-color-text-primary" :class="{ 'bg-indigo-a25 border-color-primary color-primary txt-weight-light': activeChart === 'tps' }" @click="activeChart = 'tps'">TPS</button>
-            </div>
-          </div>
-          <div class="p-24px bg-secondary border-radius-12px">
-            <div class="h-160px w-full relative">
-              <svg class="w-full h-full" v-if="activeChart === 'blocks'" viewBox="0 0 400 120" preserveAspectRatio="none">
-                <path :d="blockChartLinePath" stroke="var(--color-primary)" stroke-width="2" fill="none" />
-                <circle v-for="(point, i) in blockChartPoints" :key="i" :cx="point.x" :cy="point.y" r="3" fill="var(--color-primary)" />
-              </svg>
-              <svg class="w-full h-full" v-if="activeChart === 'txs'" viewBox="0 0 400 120" preserveAspectRatio="none">
-                <rect v-for="(point, i) in txChartPoints" :key="i" :x="point.x - 8" :y="point.y" width="16" :height="120 - point.y" fill="#6366f1" opacity="0.8" rx="2" />
-              </svg>
-              <svg class="w-full h-full" v-if="activeChart === 'tps'" viewBox="0 0 400 120" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="grad-tps" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#059669" stop-opacity="0.3" />
-                    <stop offset="100%" stop-color="#059669" stop-opacity="0" />
-                  </linearGradient>
-                </defs>
-                <path :d="tpsChartPath" fill="url(#grad-tps)" />
-                <path :d="tpsChartLinePath" stroke="#059669" stroke-width="2" fill="none" />
-              </svg>
-            </div>
-          </div>
-        </section>
       </div>
 
-      <!-- Right Column: Recent Blocks & Node Info -->
-      <div class="flex flex-column gap-0px flex-1-1-380px">
-        <!-- Recent Blocks -->
-        <section class="flex flex-column h-full bg-card border-1 border-radius-14px py-20px px-24px">
-          <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">Recent Blocks</h2>
-          <div class="flex flex-column gap-8px mt-16px flex-1">
-            <UiCard
-              class="hover-translate-x-4px flex-align-center-justify-space-between cursor-pointer min-h-64px"
-              bg-class="bg-secondary"
-              border-class="border-1"
-              radius="10px"
-              padding-class="py-12px px-16px"
-              :shadow="false"
-              hoverable
-              hover-class="transition-all-02 hover-bg-primary hover-border-accent hover-shadow-md"
-              v-for="block in recentBlocks"
-              :key="block.height"
-            >
-              <div class="flex-align-center gap-12px flex-1 min-w-0">
-                <div class="flex-align-justify-center flex-0-0-auto border-radius-circle size-36px text-13px txt-weight-medium color-white overflow-hidden border-2-white-a15 shadow-md bg-gradient-indigo-purple" :title="block.validator">
-                  <img class="w-full h-full object-fit-cover" v-if="block.validatorAvatar" :src="block.validatorAvatar" :alt="block.validator" />
-                  <span v-else class="block">{{ block.validator.substring(0, 2).toUpperCase() }}</span>
+      <!-- Stats Bar -->
+      <div class="gap-16px mb-32px grid grid-cols-auto-fit-200">
+        <UiStatTile label="Latest Block" :value="formatNumber(latestBlock)" />
+        <UiStatTile :label="`Txs (last ${txHistoryWindow} blocks)`" :value="formatNumber(txHistoryTotal)" />
+        <UiStatTile label="Validators" :value="String(validatorCount)" />
+        <UiStatTile label="Avg Block Time" :value="avgBlockTimeLabel" />
+      </div>
+
+      <!-- Loading State -->
+      <UiLoadingBlock v-if="isLoading" message="Loading blockchain data..." />
+
+      <template v-else>
+        <!-- ####### EXPLORER: OVERVIEW VIEW ####### -->
+        <div v-if="currentView === 'overview'" class="border-radius-12px bg-transparent overflow-visible">
+          <!-- Charts Section -->
+          <div class="mb-0px gap-12px grid grid-cols-2">
+            <UiChartCard :title="txHistoryTitle">
+              <template #header>
+                <div class="flex-align-center gap-8px">
+                  <span class="text-12px color-text-tertiary mr-4px">Total: {{ formatNumber(txHistoryTotal) }}</span>
+                  <UiFilterButton :active="txHistoryWindow === 5" @click="txHistoryWindow = 5">5B</UiFilterButton>
+                  <UiFilterButton :active="txHistoryWindow === 10" @click="txHistoryWindow = 10">10B</UiFilterButton>
+                  <UiFilterButton :active="txHistoryWindow === 15" @click="txHistoryWindow = 15">15B</UiFilterButton>
+                  <UiFilterButton :active="txHistoryWindow === 20" @click="txHistoryWindow = 20">20B</UiFilterButton>
                 </div>
-                <div class="flex flex-column gap-4px flex-1 min-w-0">
-                  <div class="flex-align-baseline gap-8px">
-                    <span class="color-text-secondary txt-weight-light text-uppercase text-10px letter-spacing-005em">Block</span>
-                    <span class="color-text-primary txt-weight-medium text-15px mono">#{{ formatNumber(block.height) }}</span>
-                  </div>
-                  <div class="flex-align-center gap-8px">
-                    <span class="color-text-secondary text-12px truncate line-height-12">{{ block.validator }}</span>
+              </template>
+              <canvas ref="txHistoryChart" class="w-full h-120px"></canvas>
+            </UiChartCard>
+
+            <UiChartCard title="Bonded / Supply">
+              <div class="relative m-0px mx-auto mb-12px w-140px h-140px">
+                <canvas ref="bondedSupplyChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
+                <div class="text-center absolute cursor-events-none top-half left-half translate-center">
+                  <div class="txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
+                  <div class="color-text-tertiary text-11px mt-0px">Bonded</div>
+                </div>
+              </div>
+              <div class="flex flex-column gap-6px">
+                <UiLegendItem dot-class="bg-gradient-legend-bonded" label="Bonded" :value="`${formatNumber(bondedTokens)} LMN`" />
+                <UiLegendItem dot-class="bg-legend-unbonded" label="Unbonded" :value="`${formatNumber(unbondedTokens)} LMN`" />
+                <UiLegendItem label="Total Supply" :value="`${formatNumber(totalSupply)} LMN`" />
+              </div>
+            </UiChartCard>
+
+            <UiChartCard title="Voting Power">
+              <div class="relative m-0px mx-auto mb-12px w-140px h-140px">
+                <canvas ref="votingPowerChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
+                <div class="text-center absolute cursor-events-none top-half left-half translate-center">
+                  <div class="txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
+                  <div class="color-text-tertiary text-11px mt-0px">Active</div>
+                </div>
+              </div>
+              <div class="flex flex-column gap-6px">
+                <UiLegendItem
+                  v-for="(vp, idx) in topValidatorsPower.slice(0, 5)"
+                  :key="idx"
+                  :dot-color="getVotingPowerColor(idx)"
+                  :label="vp.moniker"
+                  :value="`${vp.percentage}%`"
+                />
+                <UiLegendItem dot-class="bg-legend-others" label="Others" :value="`${othersPercentage}%`" />
+              </div>
+            </UiChartCard>
+
+            <UiChartCard title="Block Production">
+              <template #header>
+                <div class="flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
+                  <span class="animate-pulse-ring border-radius-circle w-8px h-8px bg-success"></span>
+                  <span>Live</span>
+                </div>
+              </template>
+              <div class="flex-align-justify-center flex-column gap-6px p-12px min-h-160px">
+                <div class="flex-align-justify-center size-64px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-10px overflow-hidden text-24px flex-shrink-0 border-2-primary-a30 min-w-24px">
+                  <img class="w-full h-full object-fit-cover border-radius-full" v-if="latestProposer.avatar" :src="latestProposer.avatar" :alt="latestProposer.moniker" />
+                  <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="mt-0px txt-weight-medium color-text-primary text-center text-16px">{{ latestProposer.moniker }}</div>
+                <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">Latest Block Proposer</div>
+                <div class="w-full mt-8px">
+                  <div class="gap-8px w-full grid grid-cols-1fr-1fr">
+                    <div class="flex flex-column text-center gap-2px">
+                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">Block</span>
+                      <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
+                    </div>
+                    <div class="flex flex-column text-center gap-2px">
+                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">Block Time</span>
+                      <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="flex-align-center flex-0-0-auto gap-16px">
-                <div class="flex flex-column flex-align-end gap-6px flex-justify-center">
-                  <div class="flex-align-center gap-8px">
-                    <span class="color-text-secondary txt-weight-light text-uppercase text-10px">TXS</span>
-                    <span class="flex-inline-align-justify-center color-text-secondary txt-weight-medium bg-primary border-1 border-radius-4px text-13px py-0px px-8px h-24px min-w-32px" :class="{ 'bg-fill-success border-color-success-a30 color-success': block.txs > 0 }">{{ block.txs }}</span>
+            </UiChartCard>
+          </div>
+
+          <!-- Network Health & node stats (merged from the old standalone Network Status view) -->
+          <!-- No "Validators" stat card here - already covered by the Voting
+               Power chart above and the Validator Participation meter below,
+               and the dedicated Validators tab covers the full list. -->
+          <div class="mb-0px gap-12px grid mt-12px grid-cols-auto-fit-200">
+            <UiStatCard label="Throughput" :detail="`Peak: ${networkMaxTps.toFixed(1)} tx/s`">
+              {{ networkTps.toFixed(1) }} <span class="color-text-secondary txt-weight-normal text-18px ml-4px">tx/s</span>
+            </UiStatCard>
+
+            <UiStatCard label="Blocks/Hour" detail="Estimated from recent block time">
+              {{ networkBlocksPerHour }}
+            </UiStatCard>
+
+            <UiStatCard label="24h Volume" detail="Estimated transaction count">
+              {{ formatNumber(networkTxVolume24h) }}
+            </UiStatCard>
+          </div>
+
+          <section class="bg-card border-1 border-radius-14px py-20px px-24px mt-12px">
+            <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Health</h2>
+            <div class="gap-12px grid grid-cols-2">
+              <UiMeterCard label="Chain Status" value="Synced">
+                <template #fill>
+                  <div class="h-full w-full border-radius-4px transition-width-03" :style="networkIndicatorFillStyle('excellent')"></div>
+                </template>
+              </UiMeterCard>
+
+              <UiMeterCard label="Validator Participation" :value="`${networkValidatorPercent.toFixed(0)}%`">
+                <template #fill>
+                  <div class="h-full border-radius-4px transition-width-03" :style="{ width: networkValidatorPercent + '%', ...networkIndicatorFillStyle(networkValidatorPercent > 80 ? 'excellent' : networkValidatorPercent > 60 ? 'good' : 'normal') }"></div>
+                </template>
+              </UiMeterCard>
+
+              <UiMeterCard label="Block Production" :value="networkBlockTimeStatus">
+                <template #fill>
+                  <div class="h-full border-radius-4px transition-width-03 w-85pct" :style="networkIndicatorFillStyle(networkBlockTimeStatus === 'fast' ? 'excellent' : networkBlockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
+                </template>
+              </UiMeterCard>
+
+              <UiMeterCard label="Peer Connections" :value="String(networkPeers)">
+                <template #fill>
+                  <div class="h-full border-radius-4px transition-width-03 w-70pct" :style="networkIndicatorFillStyle('good')"></div>
+                </template>
+              </UiMeterCard>
+            </div>
+          </section>
+
+          <!-- Recent Activity -->
+          <div class="mb-0px gap-12px grid mt-12px grid-cols-2">
+            <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
+              <div class="flex-align-center-justify-space-between mb-12px">
+                <h3 class="text-16px txt-weight-light color-text-primary">Latest Blocks</h3>
+                <UiButton variant="primary" @click="goToView('blocks')">View All →</UiButton>
+              </div>
+              <div class="flex flex-column gap-12px">
+                <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
+                  <div class="flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
+                    <LayoutGrid :size="16" />
                   </div>
-                  <div class="flex-align-center color-text-secondary gap-6px text-12px line-height-1">
-                    <Clock :size="12" class="opacity-40" />
-                    <span class="nowrap line-height-1">{{ formatTime(block.time) }}</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="txt-weight-light color-text-primary text-14px mb-4px">#{{ formatNumber(block.height) }}</div>
+                    <div class="flex-align-center text-12px color-text-tertiary gap-8px">
+                      <img v-if="block.proposerAvatar" :src="block.proposerAvatar" class="border-radius-circle object-fit-cover w-16px h-16px" :alt="block.proposer" />
+                      <span>{{ block.proposer }}</span>
+                    </div>
+                  </div>
+                  <div class="flex-align-end flex-column gap-4px">
+                    <div class="txt-weight-light color-text-primary text-14px">{{ block.txCount }} txs</div>
+                    <div class="text-12px color-text-tertiary">{{ formatTimeAgo(block.time) }}</div>
+                  </div>
+                </div>
+              </div>
+            </UiCard>
+
+            <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
+              <div class="flex-align-center-justify-space-between mb-12px">
+                <h3 class="text-16px txt-weight-light color-text-primary">Latest Transactions</h3>
+                <UiButton variant="primary" @click="goToView('transactions')">View All →</UiButton>
+              </div>
+              <div class="flex flex-column gap-12px">
+                <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
+                  <div class="flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
+                    <RotateCw :size="16" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="txt-weight-light color-text-primary text-14px mb-4px">{{ shortenHash(tx.hash) }}</div>
+                    <div class="flex-align-center text-12px color-text-tertiary gap-8px">
+                      <span class="color-primary txt-weight-light text-uppercase border-radius-4px text-10px py-0px px-8px bg-primary-a10">{{ tx.type }}</span>
+                    </div>
+                  </div>
+                  <div class="flex-align-end flex-column gap-4px">
+                    <div class="text-12px txt-weight-light border-radius-12px py-0px px-8px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
+                      {{ tx.success ? 'Success' : 'Failed' }}
+                    </div>
+                    <div class="text-12px color-text-tertiary">{{ formatTimeAgo(tx.time) }}</div>
                   </div>
                 </div>
               </div>
             </UiCard>
           </div>
-        </section>
-      </div>
-      </div>
+        </div>
+
+        <!-- ####### EXPLORER: BLOCKS VIEW ####### -->
+        <div v-else-if="currentView === 'blocks'" class="border-radius-12px bg-transparent overflow-visible">
+          <div class="flex-align-start flex-wrap-wrap gap-16px mb-16px flex-justify-space-between">
+            <h2 class="text-20px txt-weight-medium color-text-primary m-0px">Blocks</h2>
+            <div class="flex-align-center flex-wrap-wrap gap-8px">
+              <select v-model="blockFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
+                <option value="all">All Blocks</option>
+                <option value="recent">Recent (Last 20)</option>
+                <option value="with-txs">With Transactions</option>
+                <option value="empty">Empty Blocks</option>
+              </select>
+              <input
+                v-model="blockHeightFilter"
+                type="number"
+                placeholder="Filter by height..."
+                class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow min-w-150px placeholder-tertiary"
+              />
+            </div>
+          </div>
+
+          <div class="grid gap-12px grid-cols-auto-fit-280">
+            <UiCard
+              v-for="block in filteredBlocks"
+              :key="block.height"
+              padding="none"
+              :shadow="false"
+              border-class="border-1"
+              radius="8px"
+              padding-class="p-12px"
+              hoverable
+              hover-class="hover-bg-primary-a10 transition-bg-02"
+              class="cursor-pointer flex-align-center gap-12px"
+              @click="navigateToBlock(block.height)"
+            >
+              <div class="flex-align-justify-center size-32px color-primary border-radius-8px flex-shrink-0 bg-primary-a10">
+                <LayoutGrid :size="16" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="txt-weight-light color-text-primary text-14px mb-4px">#{{ formatNumber(block.height) }}</div>
+                <div class="flex-align-center text-12px color-text-tertiary gap-8px">
+                  <img v-if="block.proposerAvatar" :src="block.proposerAvatar" class="border-radius-circle object-fit-cover w-16px h-16px" :alt="block.proposer" />
+                  <span class="truncate">{{ block.proposer }}</span>
+                </div>
+              </div>
+              <div class="flex-align-end flex-column gap-4px flex-shrink-0">
+                <div class="txt-weight-light color-text-primary text-14px">{{ block.txCount }} txs</div>
+                <div class="text-12px color-text-tertiary">{{ formatTimeAgo(block.time) }}</div>
+              </div>
+            </UiCard>
+          </div>
+        </div>
+
+        <!-- ####### EXPLORER: TRANSACTIONS VIEW ####### -->
+        <div v-else-if="currentView === 'transactions'" class="border-radius-12px bg-transparent bg-card overflow-visible">
+          <div class="flex-align-start flex-wrap-wrap gap-16px border-bottom-1 flex-justify-space-between pt-24px pr-24px pb-16px pl-24px">
+            <h2 class="text-24px txt-weight-medium color-text-primary m-0px flex-1 min-w-200px">Transactions</h2>
+            <div class="flex-align-center flex-wrap-wrap gap-8px">
+              <select v-model="txTypeFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
+                <option value="all">All Types</option>
+                <option value="send">Send</option>
+                <option value="delegate">Delegate</option>
+                <option value="vote">Vote</option>
+                <option value="other">Other</option>
+              </select>
+              <select v-model="txStatusFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
+                <option value="all">All Status</option>
+                <option value="success">Success</option>
+                <option value="failed">Failed</option>
+              </select>
+              <input
+                v-model="txHashFilter"
+                type="text"
+                placeholder="Filter by hash..."
+                class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow min-w-150px placeholder-tertiary"
+              />
+            </div>
+          </div>
+
+          <div v-if="transactions.length === 0" class="flex-align-justify-center flex-column color-text-tertiary border-radius-12px bg-card border-1 py-64px px-32px">
+            <RotateCw :size="64" stroke-width="1.5" class="mb-16px opacity-55" />
+            <p>No recent transactions</p>
+          </div>
+
+          <div v-else class="w-full">
+            <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr">
+              <div>Transaction Hash</div>
+              <div>Type</div>
+              <div>Result</div>
+              <div>Height</div>
+              <div>Fee</div>
+              <div>Time</div>
+            </div>
+            
+            <div class="max-h-600px flex flex-column overflow-y-auto">
+              <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-recipe explorer-table-row-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr active-scale-998 reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
+                <div class="reveal-on-hover flex-align-center gap-8px text-14px">
+                  <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
+                    <Activity class="animate-icon-bounce color-text-tertiary flex-shrink-0" :size="14" />
+                    <code class="reveal-hash-code-target color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ shortenHash(tx.hash) }}</code>
+                    <Link class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" :size="14" />
+                  </div>
+                  <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash" class="size-24px">
+                    <Copy :size="14" />
+                  </UiButton>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <span class="text-12px txt-weight-light border-radius-4px py-4px px-12px bg-fill-blue color-accent-secondary">{{ tx.type }}</span>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <span class="flex-inline-align-center text-12px txt-weight-light gap-6px border-radius-4px py-4px px-12px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
+                    <CircleCheckBig class="w-14px h-14px" v-if="tx.success" :size="14" />
+                    {{ tx.success ? 'Success' : 'Failed' }}
+                  </span>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <span class="transition-color-02 hover-underline color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <span class="text-12px color-text-primary fw-500 mono">{{ tx.fee || '—' }}</span>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <span class="text-12px color-text-secondary">{{ formatTimeAgo(tx.time) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ####### EXPLORER: VALIDATORS VIEW ####### -->
+        <div v-else-if="currentView === 'validators'" class="border-radius-12px p-32px bg-transparent overflow-visible">
+          <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-sm backdrop-blur">
+            <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-120-160-100-110-120">
+              <div>#</div>
+              <div>VALIDATOR</div>
+              <div>VOTING POWER %</div>
+              <div>24H CHANGES</div>
+              <div>CUMULATIVE SHARE %</div>
+              <div>COMM. %</div>
+              <div>UPTIME %</div>
+              <div>ACTIONS</div>
+            </div>
+            
+            <div class="max-h-600px flex flex-column overflow-y-auto">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-recipe explorer-table-row-recipe grid-cols-50-220-200-120-160-100-110-120 active-scale-998 hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
+                <div class="flex-align-center text-14px">
+                  <span class="txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <div class="flex-align-center gap-12px">
+                    <div class="bg-gradient-indigo-purple flex-align-justify-center size-36px border-radius-circle txt-weight-medium color-white text-24px overflow-hidden flex-shrink-0 border-2">
+                      <img class="w-full h-full object-fit-cover" v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
+                      <span v-else>{{ validator.moniker.substring(0, 2).toUpperCase() }}</span>
+                    </div>
+                    <div class="flex flex-column gap-4px">
+                      <span class="txt-weight-light color-text-primary text-18px">{{ validator.moniker }}</span>
+                      <span class="transition-color-02 color-text-tertiary cursor-pointer mt-8px pt-12px text-11px border-top-1 mono hover-color-primary" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <div class="flex flex-column gap-4px w-full">
+                    <div class="txt-weight-medium color-text-primary text-15px mb-4px">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
+                    <div class="h-5px w-full bg-border border-radius-4px overflow-hidden mb-4px">
+                      <div class="bg-gradient-voting-power h-full border-radius-4px transition-width-03" :style="{ width: getVotingPowerPercentage(validator.tokens) + '%' }"></div>
+                    </div>
+                    <div class="color-text-tertiary fw-500 text-11px">{{ formatVotingPower(validator.tokens) }} LMN</div>
+                  </div>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <span class="txt-weight-light text-14px">—</span>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <div class="flex-align-justify-center relative size-64px">
+                    <svg class="block filter-none" width="66" height="66" viewBox="0 0 66 66">
+                      <circle cx="33" cy="33" r="27" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
+                      <circle
+                        cx="33" cy="33" r="27"
+                        fill="none"
+                        stroke="var(--color-primary)"
+                        stroke-width="4"
+                        :stroke-dasharray="getCumulativeDashArray(index)"
+                        transform="rotate(-90 33 33)"
+                        stroke-linecap="round"
+                      ></circle>
+                    </svg>
+                    <span class="flex-align-justify-center txt-weight-medium color-text-primary absolute inset-0 text-11px line-height-1 cursor-events-none">{{ getCumulativeProgress(index).toFixed(2) }}%</span>
+                  </div>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <span class="txt-weight-light color-text-secondary text-14px">{{ (parseFloat(validator.commission) * 100).toFixed(2) }}%</span>
+                </div>
+                <div class="flex-align-center text-14px">
+                  <span class="txt-weight-light color-text-secondary text-14px">{{ getUptimeLabel(validator.address) }}</span>
+                </div>
+                <div class="flex-align-center flex-align-justify-center text-14px">
+                  <UiButton
+                    variant="primary"
+                    size="sm"
+                    :disabled="!hasActiveProfile"
+                    @click="openStakeModal(validator, 'Delegate')"
+                  >
+                    <CirclePlus :size="14" />
+                    Manage
+                  </UiButton>
+                </div>
+              </div>
+            </div>
+          </UiCard>
+        </div>
+      </template>
       </template>
 
-      <NetworkParamsPanel v-else />
+      <NetworkParamsPanel v-else-if="currentView === 'params'" />
+
+      <!-- ####### GOVERNANCE VIEW (real proposals/voting, ported from the working reference app - see git history for the old fake DaoPage) ####### -->
+      <div v-else-if="currentView === 'governance'" class="border-radius-12px bg-transparent overflow-visible">
+        <div class="flex-align-start flex-wrap-wrap gap-16px mb-16px flex-justify-space-between">
+          <h2 class="text-20px txt-weight-medium color-text-primary m-0px">Governance</h2>
+          <UiButton variant="primary" @click="openCreateProposalModal">
+            <Plus :size="16" />
+            Create Proposal
+          </UiButton>
+        </div>
+
+        <UiLoadingBlock v-if="governanceLoading && !governanceProposals.length" message="Loading proposals..." />
+
+        <template v-else>
+          <template v-if="governanceVotingProposals.length">
+            <h3 class="text-16px txt-weight-light color-text-primary mb-12px">Active Votes</h3>
+            <div class="flex flex-column gap-12px mb-24px">
+              <UiCard v-for="proposal in governanceVotingProposals" :key="proposal.id" padding="lg" border-class="border-1-primary-a30" radius="12px" :shadow="false">
+                <div class="flex-align-center flex-justify-space-between mb-12px">
+                  <span class="color-text-secondary text-13px">#{{ proposal.id }}</span>
+                  <span class="border-radius-20px fw-500 text-12px py-4px px-12px" :class="governanceStatusClass(proposal.status)">
+                    {{ governanceStatusLabel(proposal.status) }}
+                  </span>
+                </div>
+                <h3 class="color-text-primary text-16px txt-weight-light m-0px mb-4px">{{ proposal.title }}</h3>
+                <p v-if="proposal.summary" class="color-text-secondary text-13px m-0px mb-16px">{{ proposal.summary.substring(0, 150) }}{{ proposal.summary.length > 150 ? '…' : '' }}</p>
+                <div class="flex-align-center flex-wrap-wrap gap-16px mb-16px text-12px">
+                  <span class="color-success">Yes {{ governanceTallyPercent(proposal.tally, 'yes').toFixed(1) }}%</span>
+                  <span class="color-error">No {{ governanceTallyPercent(proposal.tally, 'no').toFixed(1) }}%</span>
+                  <span class="color-warning">Veto {{ governanceTallyPercent(proposal.tally, 'noWithVeto').toFixed(1) }}%</span>
+                  <span class="color-text-tertiary">Abstain {{ governanceTallyPercent(proposal.tally, 'abstain').toFixed(1) }}%</span>
+                </div>
+                <UiButton variant="primary" @click="openVoteModal(proposal)">
+                  <Vote :size="16" />
+                  Vote
+                </UiButton>
+              </UiCard>
+            </div>
+          </template>
+
+          <h3 class="text-16px txt-weight-light color-text-primary mb-12px">All Proposals</h3>
+          <UiEmptyState v-if="!governanceProposals.length" description="No proposals found">
+            <FileText :size="48" />
+          </UiEmptyState>
+          <div v-else class="flex flex-column gap-12px">
+            <UiCard v-for="proposal in governanceProposals" :key="proposal.id" padding="lg" border-class="border-1" radius="12px" :shadow="false">
+              <div class="flex-align-center flex-justify-space-between mb-8px">
+                <span class="color-text-secondary text-13px">#{{ proposal.id }}</span>
+                <span class="border-radius-20px fw-500 text-12px py-4px px-12px" :class="governanceStatusClass(proposal.status)">
+                  {{ governanceStatusLabel(proposal.status) }}
+                </span>
+              </div>
+              <h3 class="color-text-primary text-16px txt-weight-light m-0px mb-4px">{{ proposal.title }}</h3>
+              <p v-if="proposal.summary" class="color-text-secondary text-13px m-0px">{{ proposal.summary.substring(0, 150) }}{{ proposal.summary.length > 150 ? '…' : '' }}</p>
+            </UiCard>
+          </div>
+        </template>
+      </div>
+    </main>
+
+    <!-- Copy Notification -->
+    <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-success z-9999 bottom-32px shadow-success">
+      <Check :size="16" />
+      <span>{{ copiedText }} copied!</span>
     </div>
+
+    <!-- ####### EXPLORER: STAKE MANAGEMENT MODAL ####### -->
+    <UiModal :model-value="showStakeModal" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="shadow-lg animate-modal-slide-in w-90pct max-w-420px" @update:model-value="closeStakeModal">
+          <div class="flex gap-16px mb-24px p-16px bg-secondary border-radius-8px">
+            <div class="flex flex-column flex-1 gap-4px">
+              <span class="text-12px color-text-secondary fw-500">Staked:</span>
+              <span class="color-text-primary txt-weight-medium text-14px">{{ stakedBalance }} LMN</span>
+            </div>
+            <div class="flex flex-column flex-1 gap-4px">
+              <span class="text-12px color-text-secondary fw-500">Balance:</span>
+              <span class="color-text-primary txt-weight-medium text-14px">{{ availableBalance }} LMN</span>
+            </div>
+          </div>
+
+          <div class="flex gap-8px mb-24px p-4px bg-secondary border-radius-8px">
+            <button 
+              v-for="action in stakeActions" 
+              :key="action"
+              class="color-text-primary-hover-not-disabled-not-active flex-1 txt-weight-light color-text-secondary cursor-pointer py-8px px-12px bg-transparent border-none border-radius-6px text-13px transition-all-02"
+              :class="{ 'active bg-accent color-white': currentStakeAction === action }"
+              @click="currentStakeAction = action as 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw'"
+            >
+              {{ action }}
+            </button>
+          </div>
+
+          <div class="flex flex-column gap-20px">
+            <!-- Withdraw Rewards - No amount needed -->
+            <div v-if="currentStakeAction === 'Withdraw'" class="p-0px pt-8px pb-8px">
+              <div class="flex-align-start gap-12px p-16px border-radius-10px bg-primary-a10 border-1-primary-a15">
+                <Info class="flex-shrink-0 color-primary mt-4px" :size="20" />
+                <div class="flex flex-column gap-4px">
+                  <strong class="text-15px txt-weight-light color-text-primary">Withdraw Staking Rewards</strong>
+                  <p class="m-0px text-13px color-text-secondary line-height-14">This will claim all pending rewards from this validator to your wallet.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Amount Input - Not for Withdraw -->
+            <div v-else class="flex flex-column gap-8px">
+              <label class="text-14px txt-weight-light color-text-primary">Amount to {{ currentStakeAction.toLowerCase() }}</label>
+              <div class="flex-align-center relative">
+                <UiInput bg-class="bg-secondary" font-size-class="txt-weight-light" padding-class="pt-12px pr-64px pb-12px pl-16px" :focus-ring="false" type="number"
+                  v-model="stakeAmount"
+                  :placeholder="`0.0`"
+                  step="0.000001"
+                  min="0" class="text-15px focus-outline-none focus-ring focus-shadow" />
+                <span class="txt-weight-light color-text-secondary absolute text-14px right-16px">LMN</span>
+              </div>
+              <div class="flex flex-column gap-8px p-0px pt-8px pb-8px">
+                <input 
+                  type="range" 
+                  v-model="stakePercentage" 
+                  min="0" 
+                  max="100" 
+                  class="slider-thumb-accent w-full outline-none border-radius-4px bg-border h-6px appearance-none"
+                />
+                <div class="flex-justify-space-between color-text-tertiary text-11px">
+                  <span>0%</span>
+                  <span>50%</span>
+                  <span>Max</span>
+                </div>
+              </div>
+              <div class="grid-cols-4-1fr gap-8px grid">
+                <UiButton variant="secondary" @click="setStakePercentage(25)" class="hover-bg-primary-a10">25%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(50)" class="hover-bg-primary-a10">50%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(75)" class="hover-bg-primary-a10">75%</UiButton>
+                <UiButton variant="secondary" @click="setStakePercentage(100)" class="hover-bg-primary-a10">Max</UiButton>
+              </div>
+            </div>
+
+            <div v-if="currentStakeAction === 'Redelegate'" class="flex flex-column gap-8px">
+              <label class="text-14px txt-weight-light color-text-primary">Select New Validator</label>
+              <select v-model="targetValidator" class="w-full color-text-primary cursor-pointer py-12px px-16px bg-secondary border-1 border-radius-8px text-14px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
+                <option value="">Choose validator...</option>
+                <option v-for="val in validators.filter(v => v.address !== selectedValidator?.address)" :key="val.address" :value="val.address">
+                  {{ val.moniker }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Transaction Status Popup -->
+            <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-lg min-w-400px max-w-90vw" :style="txStatusPopupStyle(txStatus)">
+              <div class="flex-align-center flex-column gap-24px text-center">
+                <!-- Processing -->
+                <UiResultState v-if="txStatus === 'processing'" title="Processing Transaction" :description="txMessage">
+                  <template #icon><UiSpinner size="lg" /></template>
+                </UiResultState>
+
+                <!-- Success -->
+                <UiResultState v-else-if="txStatus === 'success'" title="Transaction Successful!" :description="txMessage">
+                  <template #icon><CircleCheckBig class="animate-icon-bounce" :size="48" color="rgba(var(--color-success-rgb), 0.7)" /></template>
+                  <template #action>
+                    <div v-if="txHash" class="w-full mt-12px p-12px bg-secondary border-radius-8px border-1">
+                      <small class="block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">Transaction Hash:</small>
+                      <UiButton variant="none" @click="viewTransaction(txHash)" class="reveal-on-hover hover-translate-x-2px flex-align-center gap-8px cursor-pointer w-full">
+                        <code class="flex-1 mono text-12px color-primary break-all txt-weight-light">{{ txHash }}</code>
+                        <ExternalLink class="reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" :size="16" />
+                      </UiButton>
+                    </div>
+                    <button class="mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px hover-shadow-primary" @click="closeStakeModal">Close</button>
+                  </template>
+                </UiResultState>
+
+                <!-- Error -->
+                <UiResultState v-else-if="txStatus === 'error'" title="Transaction Failed" :description="txMessage">
+                  <template #icon><CircleAlert class="animate-icon-bounce" :size="48" color="var(--color-error)" /></template>
+                  <template #action>
+                    <UiButton variant="primary" class="mt-8px" @click="txStatus = 'idle'">Try Again</UiButton>
+                  </template>
+                </UiResultState>
+              </div>
+            </div>
+
+            <UiButton
+              variant="primary"
+              block
+              @click="() => confirmStakeAction()"
+              :disabled="!canConfirm || isProcessingTx"
+            >
+              <span v-if="!isProcessingTx">Confirm {{ currentStakeAction }}</span>
+              <span v-else>Processing...</span>
+            </UiButton>
+          </div>
+    </UiModal>
+
+    <!-- ####### GOVERNANCE: CREATE PROPOSAL MODAL ####### -->
+    <UiModal :model-value="showCreateProposalModal" title="Create Proposal" panel-class="w-full max-w-640px" @update:model-value="closeCreateProposalModal">
+      <p class="color-text-secondary mb-24px text-14px">Submit a text proposal for on-chain governance.</p>
+
+      <div class="mb-20px">
+        <label class="txt-weight-light color-text-primary block text-13px mb-8px">Title</label>
+        <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="proposalForm.title" placeholder="Enter proposal title..." class="focus-outline-none focus-ring focus-shadow bg-primary" />
+      </div>
+
+      <div class="mb-20px">
+        <label class="txt-weight-light color-text-primary block text-13px mb-8px">Summary</label>
+        <UiInput type="textarea" radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" v-model="proposalForm.summary" rows="6" placeholder="Describe your proposal in detail..." class="resize-vertical focus-outline-none focus-ring focus-shadow bg-primary"></UiInput>
+      </div>
+
+      <div class="mb-20px">
+        <label class="txt-weight-light color-text-primary block text-13px mb-8px">Deposit (LMN)</label>
+        <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="proposalForm.depositLmn" placeholder="10" class="focus-outline-none focus-ring focus-shadow bg-primary" />
+      </div>
+
+      <UiCard class="mb-24px" padding="md" radius="10px" border-class="border-1-primary-a30" :shadow="false">
+        <div class="flex-align-center gap-12px color-text-secondary text-13px">
+          <Info :size="16" class="flex-shrink-0 color-primary" />
+          <span>Minimum deposit to enter voting: {{ governanceMinDepositLmn }} LMN</span>
+        </div>
+      </UiCard>
+
+      <div class="mb-20px">
+        <div class="flex-align-center flex-justify-space-between mb-8px">
+          <label class="txt-weight-light color-text-primary text-13px">Actions (optional)</label>
+          <UiButton variant="secondary" type="button" @click="addActionDraft" class="hover-border-primary-a15">
+            <Plus :size="14" />
+            Add action
+          </UiButton>
+        </div>
+        <p class="color-text-secondary text-13px mb-12px">
+          A plain text proposal has no actions. Add one or more to make this proposal execute an on-chain change if it passes.
+        </p>
+
+        <div v-for="draft in actionDrafts" :key="draft.id" class="bg-secondary border-1-light border-radius-10px p-16px mb-12px">
+          <div class="flex-align-center gap-10px mb-12px">
+            <select v-model="draft.templateId" @change="resetActionDraftValues(draft)" class="flex-1 hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
+              <option v-for="tpl in GOVERNANCE_ACTION_TEMPLATES" :key="tpl.id" :value="tpl.id">{{ tpl.module }} — {{ tpl.label }}</option>
+            </select>
+            <UiButton variant="icon" icon-radius-class="border-radius-8px" class="hover-bg-error-a08 hover-color-error size-32px flex-shrink-0" title="Remove action" @click="removeActionDraft(draft.id)">
+              <X :size="16" />
+            </UiButton>
+          </div>
+
+          <p v-if="templateForDraft(draft)" class="color-text-secondary text-12px mb-12px">{{ templateForDraft(draft)?.summary }}</p>
+
+          <div v-for="field in templateForDraft(draft)?.fields || []" :key="field.key" class="mb-8px">
+            <label class="txt-weight-light color-text-secondary block text-12px mb-4px">{{ field.label }}</label>
+            <select v-if="field.type === 'select'" v-model="draft.values[field.key]" class="w-full hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
+              <option v-for="opt in field.options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+            </select>
+            <UiInput
+              v-else
+              :type="field.type === 'textarea' ? 'textarea' : field.type === 'number' ? 'number' : 'text'"
+              radius-class="border-radius-8px"
+              padding-class="p-10px"
+              :focus-ring="false"
+              v-model="draft.values[field.key]"
+              :placeholder="field.placeholder || ''"
+              :rows="field.type === 'textarea' ? 3 : undefined"
+              class="focus-outline-none focus-ring focus-shadow bg-card text-13px"
+            />
+            <p v-if="field.hint" class="color-text-tertiary text-11px mt-4px">{{ field.hint }}</p>
+          </div>
+        </div>
+      </div>
+
+      <UiButton variant="primary" @click="submitProposal" :disabled="!GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED || !canSubmitProposal() || isSubmittingProposal">
+        <Plus :size="18" />
+        {{ isSubmittingProposal ? 'Submitting…' : 'Submit Proposal' }}
+      </UiButton>
+      <p v-if="!GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" class="color-text-tertiary text-12px mt-8px">
+        Proposal submission is temporarily disabled while the action builders above are being verified on testnet.
+      </p>
+    </UiModal>
+
+    <!-- ####### GOVERNANCE: VOTE MODAL ####### -->
+    <UiModal :model-value="showVoteModal" title="Cast Your Vote" panel-class="w-full max-w-520px" @update:model-value="closeVoteModal">
+      <div class="flex-align-center flex-justify-space-between mb-24px border-radius-12px p-24px bg-gradient-primary">
+        <h4 class="m-0px txt-weight-light text-18px color-white">{{ selectedProposal?.title || 'Proposal' }}</h4>
+        <span class="border-radius-20px fw-500 text-12px py-4px px-12px color-text-primary bg-primary border-1">#{{ selectedProposal?.id }}</span>
+      </div>
+
+      <div class="flex flex-column gap-12px mb-24px">
+        <label class="reveal-on-hover block cursor-pointer" :class="{ selected: voteOption === 'VOTE_OPTION_YES' }">
+          <input type="radio" name="vote" value="VOTE_OPTION_YES" v-model="voteOption" class="hidden" />
+          <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteOption === 'VOTE_OPTION_YES' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+            <div class="flex-align-justify-center flex-0-0-auto bg-fill-success color-success size-40px border-radius-10px">
+              <ThumbsUp :size="20" />
+            </div>
+            <div>
+              <div class="color-text-primary txt-weight-light text-15px mb-4px">Yes</div>
+              <div class="color-text-secondary text-13px">Support this proposal</div>
+            </div>
+          </UiCard>
+        </label>
+
+        <label class="reveal-on-hover block cursor-pointer" :class="{ selected: voteOption === 'VOTE_OPTION_NO' }">
+          <input type="radio" name="vote" value="VOTE_OPTION_NO" v-model="voteOption" class="hidden" />
+          <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteOption === 'VOTE_OPTION_NO' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+            <div class="flex-align-justify-center flex-0-0-auto size-40px border-radius-10px color-error bg-fill-error">
+              <ThumbsDown :size="20" />
+            </div>
+            <div>
+              <div class="color-text-primary txt-weight-light text-15px mb-4px">No</div>
+              <div class="color-text-secondary text-13px">Oppose this proposal</div>
+            </div>
+          </UiCard>
+        </label>
+
+        <label class="reveal-on-hover block cursor-pointer" :class="{ selected: voteOption === 'VOTE_OPTION_NO_WITH_VETO' }">
+          <input type="radio" name="vote" value="VOTE_OPTION_NO_WITH_VETO" v-model="voteOption" class="hidden" />
+          <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteOption === 'VOTE_OPTION_NO_WITH_VETO' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+            <div class="flex-align-justify-center flex-0-0-auto size-40px border-radius-10px color-warning bg-warning-a15">
+              <CircleAlert :size="20" />
+            </div>
+            <div>
+              <div class="color-text-primary txt-weight-light text-15px mb-4px">No With Veto</div>
+              <div class="color-text-secondary text-13px">Oppose strongly, flag as spam/harmful</div>
+            </div>
+          </UiCard>
+        </label>
+
+        <label class="reveal-on-hover block cursor-pointer" :class="{ selected: voteOption === 'VOTE_OPTION_ABSTAIN' }">
+          <input type="radio" name="vote" value="VOTE_OPTION_ABSTAIN" v-model="voteOption" class="hidden" />
+          <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteOption === 'VOTE_OPTION_ABSTAIN' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
+            <div class="flex-align-justify-center flex-0-0-auto size-40px border-radius-10px color-text-tertiary bg-secondary">
+              <Circle :size="20" />
+            </div>
+            <div>
+              <div class="color-text-primary txt-weight-light text-15px mb-4px">Abstain</div>
+              <div class="color-text-secondary text-13px">No preference</div>
+            </div>
+          </UiCard>
+        </label>
+      </div>
+
+      <UiButton variant="primary" @click="castVote" :disabled="!voteOption || isVoting">
+        <Vote :size="18" />
+        {{ isVoting ? 'Casting…' : 'Cast Vote' }}
+      </UiButton>
+    </UiModal>
+
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import UiInput from '../../ui/UiInput.vue';
+import UiModal from '../../ui/UiModal.vue';
 import UiCard from '../../ui/UiCard.vue';
+import UiButton from '../../ui/UiButton.vue';
+import UiSpinner from '../../ui/UiSpinner.vue';
+import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import UiStatTile from '../../ui/UiStatTile.vue';
 import UiStatCard from '../../ui/UiStatCard.vue';
 import UiMeterCard from '../../ui/UiMeterCard.vue';
-import { computed, onBeforeUnmount, onMounted, ref, watch, inject } from 'vue';
-import { Network, SlidersHorizontal, ChartLine, RefreshCw, Clock } from 'lucide-vue-next';
-import { useInternalLumen } from '../../composables/useInternalLumen';
-
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
+import UiChartCard from '../../ui/UiChartCard.vue';
+import UiLegendItem from '../../ui/UiLegendItem.vue';
+import UiFilterButton from '../../ui/UiFilterButton.vue';
+import UiResultState from '../../ui/UiResultState.vue';
+import UiEmptyState from '../../ui/UiEmptyState.vue';
+import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch, inject } from 'vue';
+import { useTabLoadingSync } from '../useTabLoading';
+import BlockDetailPage from './BlockDetailPage.vue';
+import TransactionDetailPage from './TransactionDetailPage.vue';
+import AddressDetailPage from './AddressDetailPage.vue';
+import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
-import type { Block } from '../../types/networkPage';
+import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, Info, ExternalLink, CirclePlus, CircleAlert, CircleCheckBig, Activity, Network, SlidersHorizontal, Vote, FileText, Plus, ThumbsUp, ThumbsDown, Circle, X } from 'lucide-vue-next';
+import { GOVERNANCE_ACTION_TEMPLATES, findGovernanceActionTemplate } from './governanceActionTemplates';
+import type { GovernanceActionDraft } from '../../types/networkGovernance';
+import { useToast } from '../../composables/useToast';
+import { fromBase64, toBech32 } from '@cosmjs/encoding';
+import { useInternalLumen } from '../../composables/useInternalLumen';
+import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
+import { computeTxHash } from '../chainRpc';
+import type { Block, Transaction, Validator, TxHistoryWindow } from '../../types/explorerPage';
+import type { Block as NetworkBlock } from '../../types/networkPage';
+import type { GovernanceProposal, GovernanceVoteOption } from '../../types/networkGovernance';
 
-// Window interface
+const toast = useToast();
 const lumen = useInternalLumen();
-const activeView = ref<'status' | 'params'>('status');
+const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
+const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+const currentTabUrl = inject<any>('currentTabUrl', null);
+const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
-// RPC endpoints
+const activeProfile = computed(() => {
+  if (!activeProfileId.value) return null;
+  return profilesState.value.find((p) => p.id === activeProfileId.value) || null;
+});
+const hasActiveProfile = computed(() => !!activeProfile.value && activeProfile.value.role !== 'guest');
 
-
-// Network data
-const blockHeight = ref(0);
-const blockTime = ref(0);
-const validators = ref({ total: 0, active: 0, jailed: 0 });
-const tps = ref(0);
-const peers = ref(0);
-const uptime = ref('—');
-const connectionStatus = ref<'online' | 'syncing' | 'offline'>('offline');
-const refreshing = ref(false);
-
-// Node info (chain id / network label / SDK version) - fetched once, rarely changes.
-const chainId = ref('');
-const sdkVersion = ref('');
-const networkLabel = computed(() => {
-  const id = chainId.value.toLowerCase();
-  if (!id) return '—';
-  if (id.includes('test')) return 'Testnet';
-  if (id.includes('dev')) return 'Devnet';
-  return 'Mainnet';
+const isBlockDetailView = computed(() => {
+  const url = currentTabUrl?.value || window.location.href;
+  const hasBlock = /\/network\/block\/\d+/.test(url);
+  return hasBlock;
 });
 
-// Session uptime: how long this tab has been continuously connected (real, not a fabricated network-wide %).
-let sessionConnectedSince: number | null = null;
-function formatUptime(ms: number): string {
-  const totalSec = Math.floor(ms / 1000);
-  const days = Math.floor(totalSec / 86400);
-  const hours = Math.floor((totalSec % 86400) / 3600);
-  const minutes = Math.floor((totalSec % 3600) / 60);
-  if (days > 0) return `${days}d ${hours}h`;
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  if (minutes > 0) return `${minutes}m`;
-  return `${totalSec}s`;
+const isTransactionDetailView = computed(() => {
+  const url = currentTabUrl?.value || window.location.href;
+  const hasTx = /\/network\/tx\/[A-F0-9]+/i.test(url);
+  return hasTx;
+});
+
+const isAddressDetailView = computed(() => {
+  const url = currentTabUrl?.value || window.location.href;
+  const hasAddress = /\/network\/address\/[a-z0-9]+/i.test(url);
+  return hasAddress;
+});
+
+function navigateToBlock(height: number) {
+  const url = `lumen://network/block/${height}`;
+  if (openInNewTab) {
+    openInNewTab(url);
+  } else {
+    window.location.href = url;
+  }
 }
 
-// Chart data
-const activeChart = ref<'blocks' | 'txs' | 'tps'>('blocks');
-const blockTimeHistory = ref<number[]>([]);
-const txHistory = ref<number[]>([]);
-const maxTps = ref(0);
+function navigateToTransaction(hash: string) {
+  const url = `lumen://network/tx/${hash}`;
+  if (openInNewTab) {
+    openInNewTab(url);
+  } else {
+    window.location.href = url;
+  }
+}
 
-// Recent blocks
-const recentBlocks = ref<Block[]>([]);
+function navigateToAddress(address: string) {
+  const url = `lumen://network/address/${address}`;
+  if (openInNewTab) {
+    openInNewTab(url);
+  } else {
+    window.location.href = url;
+  }
+}
+
+// Each sidebar item is its own sub-page (lumen://network/blocks, /transactions,
+// /validators, /params - bare lumen://network is "overview"), same pattern as
+// isBlockDetailView/isTransactionDetailView/isAddressDetailView below: derive
+// the active view from the tab's real URL rather than local-only component
+// state, so back/forward, refresh, and bookmarking all work as expected.
+const currentView = computed<'overview' | 'blocks' | 'transactions' | 'validators' | 'params' | 'governance'>(() => {
+  const url = currentTabUrl?.value || window.location.href;
+  if (/\/network\/blocks(?:[/?#]|$)/i.test(url)) return 'blocks';
+  if (/\/network\/transactions(?:[/?#]|$)/i.test(url)) return 'transactions';
+  if (/\/network\/validators(?:[/?#]|$)/i.test(url)) return 'validators';
+  if (/\/network\/params(?:[/?#]|$)/i.test(url)) return 'params';
+  if (/\/network\/governance(?:[/?#]|$)/i.test(url)) return 'governance';
+  return 'overview';
+});
+
+function goToView(view: 'overview' | 'blocks' | 'transactions' | 'validators' | 'params' | 'governance') {
+  const url = view === 'overview' ? 'lumen://network' : `lumen://network/${view}`;
+  if (navigate) {
+    navigate(url, { push: true });
+    return;
+  }
+  openInNewTab?.(url);
+}
+const isExplorerBrowseView = computed(() =>
+  currentView.value === 'overview' ||
+  currentView.value === 'blocks' ||
+  currentView.value === 'transactions' ||
+  currentView.value === 'validators',
+);
+const searchQuery = ref('');
+const isLoading = ref(true);
+const autoRefresh = ref(true);
+
+useTabLoadingSync(isLoading);
+
+// Filter states
+const blockFilter = ref<'all' | 'recent' | 'with-txs' | 'empty'>('all');
+const blockHeightFilter = ref('');
+const txTypeFilter = ref<'all' | 'send' | 'delegate' | 'vote' | 'other'>('all');
+const txStatusFilter = ref<'all' | 'success' | 'failed'>('all');
+const txHashFilter = ref('');
+
+
+
+const latestBlock = ref(0);
+const validatorCount = ref(0);
+const avgBlockTime = ref<number | null>(null);
+
+const avgBlockTimeLabel = computed(() => {
+  const v = avgBlockTime.value;
+  if (v == null || !Number.isFinite(v) || v <= 0) return '—';
+  return `${v.toFixed(2)}s`;
+});
+
+const avgBlockTimeLabelShort = computed(() => {
+  const v = avgBlockTime.value;
+  if (v == null || !Number.isFinite(v) || v <= 0) return '—';
+  return `~${v.toFixed(1)}s`;
+});
+
+const blocks = ref<Block[]>([]);
+const transactions = ref<Transaction[]>([]);
+const validators = ref<Validator[]>([]);
 const avatarCache = ref<Record<string, string>>({});
 const proposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});
 
-function indicatorFillStyle(state: string): Record<string, string> {
-  if (state === "excellent") return { background: "var(--color-success)" };
-  if (state === "good") return { background: "var(--color-primary)" };
-  return { background: "var(--color-warning)" };
+// Stake modal state
+const showStakeModal = ref(false);
+const selectedValidator = ref<Validator | null>(null);
+const currentStakeAction = ref<'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw'>('Delegate');
+const stakeActions = ['Delegate', 'Undelegate', 'Redelegate', 'Withdraw'];
+const stakeAmount = ref('0.0');
+const stakePercentage = ref(0);
+const targetValidator = ref('');
+const stakedBalance = ref('0.000 LMN');
+const availableBalance = ref('0.000 LMN');
+const isProcessingTx = ref(false);
+const txMessage = ref('');
+const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
+
+function txStatusPopupStyle(status: string): Record<string, string> {
+  if (status === 'success') return { border: '2px solid rgba(var(--color-success-rgb), 0.5)' };
+  if (status === 'error') return { border: '2px solid var(--color-error)' };
+  return { border: '2px solid var(--color-primary)' };
 }
+const txHash = ref('');
 
-const validatorPercent = computed(() => {
-  if (!validators.value.total) return 0;
-  return (validators.value.active / validators.value.total) * 100;
+const bondedTokens = ref<number | null>(null);
+const unbondedTokens = ref<number | null>(null);
+const totalSupply = ref<number | null>(null);
+
+const bondedRatioPct = computed<number | null>(() => {
+  const bonded = bondedTokens.value;
+  const supply = totalSupply.value;
+  if (bonded == null || supply == null) return null;
+  if (!Number.isFinite(bonded) || !Number.isFinite(supply) || supply <= 0) return null;
+  const pct = (bonded / supply) * 100;
+  if (!Number.isFinite(pct) || pct < 0) return null;
+  return Math.min(100, pct);
 });
 
-const avgBlockTime = computed(() => {
-  const times = blockTimeHistory.value.filter(v => v > 0);
-  if (!times.length) return 5.0;
-  return times.reduce((a, b) => a + b, 0) / times.length;
+const bondedRatioLabel = computed(() => {
+  const pct = bondedRatioPct.value;
+  if (pct == null) return '—';
+  return `${pct.toFixed(1)}%`;
 });
 
-const blockTimeStatus = computed(() => {
-  const avg = avgBlockTime.value;
-  if (avg < 5) return 'fast';
-  if (avg <= 6) return 'normal';
-  return 'slow';
+const txHistoryWindow = ref<TxHistoryWindow>(10);
+
+const txHistoryPoints = computed(() => {
+  const windowSize = txHistoryWindow.value;
+  const slice = blocks.value.slice(0, windowSize);
+  // Oldest -> newest for a nicer left-to-right chart.
+  return slice.map((b) => Number(b?.txCount || 0) || 0).reverse();
 });
 
-const blocksPerHour = computed(() => {
-  if (blockTime.value <= 0) return 0;
-  return Math.floor(3600 / blockTime.value);
-});
+const txHistoryTotal = computed(() => txHistoryPoints.value.reduce((sum, n) => sum + n, 0));
 
-const txVolume24h = computed(() => {
-  const blocksIn24h = Math.floor(86400 / (blockTime.value || 6));
-  const avgTxPerBlock = txHistory.value.length 
-    ? txHistory.value.reduce((a, b) => a + b, 0) / txHistory.value.length 
-    : 5;
-  return Math.floor(blocksIn24h * avgTxPerBlock);
-});
+const txHistoryTitle = computed(() => `Txs per block (last ${txHistoryWindow.value} blocks)`);
+const topValidatorsPower = ref<Array<{ moniker: string; percentage: string }>>([]);
 
-// Chart computations
-function getChartPoints(data: number[], width = 400, height = 120): { x: number; y: number }[] {
-  if (!data.length) return [];
-  const max = Math.max(...data, 1);
-  const min = Math.min(...data, 0);
-  const range = max - min || 1;
-  const stepX = width / (data.length - 1 || 1);
+// Filtered data computed properties
+const filteredBlocks = computed(() => {
+  let result = [...blocks.value];
   
-  return data.map((val, i) => ({
-    x: i * stepX,
-    y: height - ((val - min) / range) * height
-  }));
-}
-
-function getLinePath(points: { x: number; y: number }[]): string {
-  if (points.length < 2) return '';
-  let path = `M ${points[0].x} ${points[0].y}`;
-  for (let i = 1; i < points.length; i++) {
-    path += ` L ${points[i].x} ${points[i].y}`;
+  // Apply block filter
+  if (blockFilter.value === 'recent') {
+    result = result.slice(0, 100);
+  } else if (blockFilter.value === 'with-txs') {
+    result = result.filter(b => b.txCount > 0);
+  } else if (blockFilter.value === 'empty') {
+    result = result.filter(b => b.txCount === 0);
   }
-  return path;
-}
-
-function getAreaPath(points: { x: number; y: number }[], height = 120): string {
-  if (points.length < 2) return '';
-  let path = `M ${points[0].x} ${height}`;
-  path += ` L ${points[0].x} ${points[0].y}`;
-  for (let i = 1; i < points.length; i++) {
-    path += ` L ${points[i].x} ${points[i].y}`;
-  }
-  path += ` L ${points[points.length - 1].x} ${height} Z`;
-  return path;
-}
-
-const blockChartPoints = computed(() => getChartPoints(blockTimeHistory.value));
-const blockChartLinePath = computed(() => getLinePath(blockChartPoints.value));
-const txChartPoints = computed(() => getChartPoints(txHistory.value));
-// Per-interval TPS, derived from the same tx-count/block-time history used for maxTps.
-const tpsHistory = computed(() =>
-  txHistory.value.map((tx, i) => {
-    const seconds = blockTimeHistory.value[i];
-    return seconds > 0 ? tx / seconds : 0;
-  })
-);
-const tpsChartPoints = computed(() => getChartPoints(tpsHistory.value));
-const tpsChartPath = computed(() => getAreaPath(tpsChartPoints.value));
-const tpsChartLinePath = computed(() => getLinePath(tpsChartPoints.value));
-
-// Helper functions
-function formatNumber(num: number): string {
-  return new Intl.NumberFormat().format(num);
-}
-
-function formatTime(time: string): string {
-  const date = new Date(time);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
   
-  if (diffSec < 60) return `${diffSec}s ago`;
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
-  return `${Math.floor(diffSec / 86400)}d ago`;
+  // Apply height filter
+  if (blockHeightFilter.value) {
+    const height = parseInt(blockHeightFilter.value);
+    if (!isNaN(height)) {
+      result = result.filter(b => b.height === height);
+    }
+  }
+  
+  return result;
+});
+
+const filteredTransactions = computed(() => {
+  let result = [...transactions.value];
+  
+  // Apply type filter
+  if (txTypeFilter.value !== 'all') {
+    result = result.filter(tx => {
+      const type = tx.type.toLowerCase();
+      if (txTypeFilter.value === 'send') return type.includes('send') || type.includes('transfer');
+      if (txTypeFilter.value === 'delegate') return type.includes('delegate');
+      if (txTypeFilter.value === 'vote') return type.includes('vote');
+      return !type.includes('send') && !type.includes('transfer') && !type.includes('delegate') && !type.includes('vote');
+    });
+  }
+  
+  // Apply status filter
+  if (txStatusFilter.value !== 'all') {
+    result = result.filter(tx => {
+      if (txStatusFilter.value === 'success') return tx.success;
+      if (txStatusFilter.value === 'failed') return !tx.success;
+      return true;
+    });
+  }
+  
+  // Apply hash filter
+  if (txHashFilter.value.trim()) {
+    const query = txHashFilter.value.toLowerCase().trim();
+    result = result.filter(tx => tx.hash.toLowerCase().includes(query));
+  }
+  
+  return result;
+});
+
+const othersPercentage = computed(() => {
+  const top5Total = topValidatorsPower.value.slice(0, 5).reduce((sum, vp) => sum + parseFloat(vp.percentage), 0);
+  return (100 - top5Total).toFixed(2);
+});
+const latestProposer = ref({ moniker: 'Unknown', avatar: '', blockHeight: 0 });
+const txHistoryChart = ref<HTMLCanvasElement | null>(null);
+const bondedSupplyChart = ref<HTMLCanvasElement | null>(null);
+const votingPowerChart = ref<HTMLCanvasElement | null>(null);
+const copiedText = ref('');
+const showCopyNotification = ref(false);
+
+const CUMULATIVE_RADIUS = 27;
+const CUMULATIVE_CIRCUMFERENCE = 2 * Math.PI * CUMULATIVE_RADIUS;
+
+function getCumulativeDashArray(index: number): string {
+  const pct = getCumulativeProgress(index);
+  const clamped = Math.max(0, Math.min(100, Number.isFinite(pct) ? pct : 0));
+  const filled = (clamped / 100) * CUMULATIVE_CIRCUMFERENCE;
+  return `${filled} ${CUMULATIVE_CIRCUMFERENCE}`;
 }
 
-// Watch for refresh signal from navbar
-watch(
-  () => currentTabRefresh?.value,
-  () => {
-    refreshData();
-  }
-);
+const validatorUptimePctByValoper = ref<Record<string, string>>({});
+const uptimeLoading = ref(false);
+let lastUptimeFetchAt = 0;
+const UPTIME_REFRESH_MS = 60_000;
+const UPTIME_RETRY_MS = 15_000;
 
-async function refreshData() {
-  refreshing.value = true;
+async function valconsAddressFromPubkeyBase64(pubKeyB64: string): Promise<string | null> {
+  const key = String(pubKeyB64 || '').trim();
+  if (!key) return null;
   try {
-    // Fetch network status first
-    await fetchNetworkStatus();
-    
-    // Fetch validators to populate proposerMap with monikers and avatars
-    await fetchValidators();
-    
-    // Then fetch blocks and stats (blocks need proposerMap to be ready)
-    await Promise.all([
-      fetchRecentBlocks(),
-      fetchNetStats()
-    ]);
+    const pub = fromBase64(key);
+    const digest = await crypto.subtle.digest('SHA-256', pub);
+    const hash = new Uint8Array(digest).slice(0, 20);
+    return toBech32('lmnvalcons', hash);
+  } catch {
+    return null;
+  }
+}
+
+function getUptimeLabel(valoper: string): string {
+  const key = String(valoper || '').trim();
+  if (!key) return '—';
+  const label = validatorUptimePctByValoper.value?.[key];
+  if (label) return label;
+  return uptimeLoading.value ? '…' : '—';
+}
+
+async function fetchValidatorUptime({ force = false } = {}) {
+  if (uptimeLoading.value) return;
+  if (!lumen?.net?.restGet) return;
+  if (!validators.value.length) return;
+
+  const now = Date.now();
+  const hasCached = Object.keys(validatorUptimePctByValoper.value || {}).length > 0;
+  const throttleMs = hasCached ? UPTIME_REFRESH_MS : UPTIME_RETRY_MS;
+  if (!force && lastUptimeFetchAt && now - lastUptimeFetchAt < throttleMs) return;
+  lastUptimeFetchAt = now;
+
+  uptimeLoading.value = true;
+  try {
+    const paramsRes = await lumen.net.restGet('/cosmos/slashing/v1beta1/params', { timeout: 15000 });
+    const windowRaw =
+      paramsRes?.json?.params?.signed_blocks_window ??
+      paramsRes?.json?.params?.signedBlocksWindow ??
+      null;
+    const window = safeBigInt(windowRaw);
+    if (!paramsRes?.ok || window <= 0n) return;
+
+    const valoperToCons = new Map<string, string>();
+    const needed = new Set<string>();
+
+    await Promise.all(
+      validators.value.map(async (v) => {
+        const pubKeyB64 = String(v.consensusPubkeyB64 || '').trim();
+        if (!pubKeyB64) return;
+        const cons = await valconsAddressFromPubkeyBase64(pubKeyB64);
+        if (!cons) return;
+        valoperToCons.set(v.address, cons);
+        needed.add(cons);
+      })
+    );
+
+    if (!needed.size) return;
+
+    const missedByCons = new Map<string, bigint>();
+    let nextKey: string | null = null;
+
+    for (let page = 0; page < 10 && needed.size; page++) {
+      let path = '/cosmos/slashing/v1beta1/signing_infos?pagination.limit=2000';
+      if (nextKey) path += `&pagination.key=${encodeURIComponent(nextKey)}`;
+
+      const infosRes = await lumen.net.restGet(path, { timeout: 15000 });
+      if (!infosRes?.ok) break;
+
+      const infos = Array.isArray(infosRes.json?.info)
+        ? infosRes.json.info
+        : Array.isArray(infosRes.json?.signing_infos)
+          ? infosRes.json.signing_infos
+          : Array.isArray(infosRes.json?.signingInfos)
+            ? infosRes.json.signingInfos
+            : [];
+
+      for (const info of infos) {
+        const addr = String(info?.address || '').trim();
+        if (!addr || !needed.has(addr)) continue;
+        const missedRaw = info?.missed_blocks_counter ?? info?.missedBlocksCounter ?? '0';
+        missedByCons.set(addr, safeBigInt(missedRaw));
+        needed.delete(addr);
+      }
+
+      const nk = infosRes.json?.pagination?.next_key ?? infosRes.json?.pagination?.nextKey ?? null;
+      nextKey = typeof nk === 'string' && nk ? nk : null;
+      if (!nextKey) break;
+    }
+
+    const out: Record<string, string> = {};
+    for (const [valoper, cons] of valoperToCons.entries()) {
+      const missed = missedByCons.get(cons);
+      if (missed == null) continue;
+      const m = missed > window ? window : missed;
+      const signed = window - m;
+      const bp = (signed * 10000n) / window;
+      out[valoper] = `${(Number(bp) / 100).toFixed(2)}%`;
+    }
+    validatorUptimePctByValoper.value = out;
   } finally {
-    refreshing.value = false;
+    uptimeLoading.value = false;
   }
 }
 
-// Fetch network status and height
-async function fetchNetworkStatus() {
+function recomputeAvgBlockTimeFromBlocks() {
+  const list = blocks.value;
+  if (!Array.isArray(list) || list.length < 2) {
+    avgBlockTime.value = null;
+    return;
+  }
+
+  const diffs: number[] = [];
+  for (let i = 0; i < list.length - 1; i++) {
+    const t0 = Date.parse(String(list[i]?.time || ''));
+    const t1 = Date.parse(String(list[i + 1]?.time || ''));
+    if (!Number.isFinite(t0) || !Number.isFinite(t1)) continue;
+    const diffSec = (t0 - t1) / 1000;
+    // Ignore bogus gaps.
+    if (diffSec > 0 && diffSec < 600) diffs.push(diffSec);
+  }
+
+  if (!diffs.length) {
+    avgBlockTime.value = null;
+    return;
+  }
+
+  avgBlockTime.value = diffs.reduce((a, b) => a + b, 0) / diffs.length;
+}
+
+function maybeDecodeBase64(input: any): string {
+  const raw = String(input || '');
+  if (!raw) return '';
+  // Tendermint RPC often base64-encodes event attributes. Keep a conservative heuristic to avoid mangling.
+  if (!/^[A-Za-z0-9+/=]+$/.test(raw) || raw.length < 4 || raw.length % 4 !== 0) return raw;
   try {
-    if (lumen?.rpc?.getHeight) {
-      const result = await lumen.rpc.getHeight();
-      if (result?.ok && result.height) {
-        blockHeight.value = result.height;
-        connectionStatus.value = 'online';
-      } else {
-        connectionStatus.value = 'offline';
+    const decoded = atob(raw);
+    if (!decoded) return raw;
+    // If decoded contains lots of control characters, treat as not base64.
+    let printable = 0;
+    for (let i = 0; i < decoded.length; i++) {
+      const c = decoded.charCodeAt(i);
+      if (c === 9 || c === 10 || c === 13 || (c >= 32 && c < 127)) printable += 1;
+    }
+    if (printable / decoded.length < 0.85) return raw;
+    return decoded;
+  } catch {
+    return raw;
+  }
+}
+
+function inferTxType(txResult: any): string {
+  try {
+    const events = Array.isArray(txResult?.events) ? txResult.events : [];
+    for (const ev of events) {
+      const attrs = Array.isArray(ev?.attributes) ? ev.attributes : [];
+      for (const a of attrs) {
+        const key = maybeDecodeBase64(a?.key).toLowerCase();
+        if (key !== 'action') continue;
+        const valRaw = String(maybeDecodeBase64(a?.value) || '').trim();
+        if (!valRaw) continue;
+        const s1 = valRaw.split('/').filter(Boolean).pop() || valRaw;
+        const s2 = s1.split('.').filter(Boolean).pop() || s1;
+        return s2 || 'Tx';
       }
     }
+  } catch {
+    // ignore
+  }
+  return 'Tx';
+}
+
+async function fetchBlocks() {
+  if (!lumen?.http?.get) return;
+  
+  try {
+    const heightRes = await lumen.rpc.getHeight();
+    if (heightRes?.ok && heightRes.height) {
+      latestBlock.value = heightRes.height;
+    }
+
+    const blockPromises = [];
+    const startHeight = latestBlock.value;
+    for (let i = 0; i < 20; i++) {
+      const height = startHeight - i;
+      if (height > 0) {
+        blockPromises.push(
+          lumen.net.rpcGet(`/block?height=${height}`)
+        );
+      }
+    }
+
+    const blockResults = await Promise.all(blockPromises);
+    
+    const newBlocks: Block[] = [];
+    for (const res of blockResults) {
+      if (res.ok && res.json?.result?.block) {
+        const block = res.json.result.block;
+        const blockId = res.json.result.block_id;
+        const proposerAddr = block.header.proposer_address;
+        const proposerInfo = proposerMap.value[proposerAddr];
+        
+        newBlocks.push({
+          height: parseInt(block.header.height),
+          hash: blockId.hash,
+          proposer: proposerInfo?.moniker || proposerAddr.substring(0, 8),
+          proposerAvatar: proposerInfo?.avatar,
+          txCount: block.data.txs?.length || 0,
+          time: block.header.time
+        });
+      }
+    }
+
+    blocks.value = newBlocks.sort((a, b) => b.height - a.height);
+    recomputeAvgBlockTimeFromBlocks();
+    
+    if (newBlocks.length > 0) {
+      const latestBlockData = newBlocks[0];
+      latestProposer.value = {
+        moniker: latestBlockData.proposer,
+        avatar: latestBlockData.proposerAvatar || '',
+        blockHeight: latestBlockData.height
+      };
+    }
+    
   } catch (e) {
-    console.error('Failed to fetch network status:', e);
-    connectionStatus.value = 'offline';
+    console.error('Failed to fetch blocks:', e);
   }
 }
 
-// Fetch Keybase avatars
-async function fetchKeybaseAvatars() {
-  const validatorsWithKeybase = Object.values(proposerMap.value)
-    .filter(v => v.keybaseId && !avatarCache.value[v.keybaseId]);
+async function fetchTransactions() {
+  if (!lumen?.http?.get) return;
   
-  if (validatorsWithKeybase.length === 0) return;
-  
-  for (const validator of validatorsWithKeybase) {
-    if (!validator.keybaseId) continue;
+  try {
+    const txList: Transaction[] = [];
     
-    try {
-      const response = await fetch(
-        `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${validator.keybaseId}`
-      );
-      const data = await response.json();
+    for (const block of blocks.value.slice(0, 10)) {
+      const blockRes = await lumen.net.rpcGet(`/block?height=${block.height}`);
       
-      if (data?.them?.[0]?.pictures?.primary?.url) {
-        const avatarUrl = data.them[0].pictures.primary.url;
-        avatarCache.value[validator.keybaseId] = avatarUrl;
+      if (blockRes.ok && blockRes.json?.result?.block?.data?.txs) {
+        const txs = blockRes.json.result.block.data.txs;
+        const blockResultsRes = await lumen.net.rpcGet(`/block_results?height=${block.height}`);
         
-        // Update proposerMap with avatar
-        for (const key in proposerMap.value) {
-          if (proposerMap.value[key].keybaseId === validator.keybaseId) {
-            proposerMap.value[key].avatar = avatarUrl;
-          }
+        for (let i = 0; i < txs.length; i++) {
+          const txData = txs[i];
+          const txHash = await computeTxHash(txData);
+          const txResults = blockResultsRes.json?.result?.txs_results;
+          const txResult = txResults?.[i];
+          
+          txList.push({
+            hash: txHash,
+            type: inferTxType(txResult),
+            height: block.height,
+            success: !txResult || txResult.code === 0,
+            time: block.time,
+          });
         }
       }
-    } catch {
-      console.warn(`Failed to fetch avatar for ${validator.moniker}`);
+      
+      if (txList.length >= 20) break;
     }
+    
+    transactions.value = txList.slice(0, 20);
+    
+  } catch (e) {
+    console.error('Failed to fetch transactions:', e);
   }
 }
 
-// Fetch validators count
+
 async function fetchValidators() {
+  if (!lumen?.http?.get) return;
+  
   try {
-    if (!lumen?.http?.get) return;
-    
-    // Fetch validator set from RPC
     const valSetRes = await lumen.net.rpcGet('/validators');
     if (valSetRes.ok && valSetRes.json?.result?.validators) {
       const valSet = valSetRes.json.result.validators;
@@ -485,79 +1400,977 @@ async function fetchValidators() {
       }
     }
     
-    // Fetch validators from REST API
     const res = await lumen.net.restGet(
-      `/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=200`
+      `/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`
     );
     
     if (res.ok && res.json?.validators) {
       const validatorsList = res.json.validators;
-      const active = validatorsList.filter((v: any) => !v.jailed).length;
-      const jailed = validatorsList.filter((v: any) => v.jailed).length;
       
-      validators.value = {
-        total: validatorsList.length,
-        active: active,
-        jailed: jailed
-      };
-      
-      // Build proposer map with validator info
       const valSet2Res = await lumen.net.rpcGet('/validators');
       const validatorSet = valSet2Res.ok && valSet2Res.json?.result?.validators 
         ? valSet2Res.json.result.validators 
         : [];
       
-      for (const v of validatorsList) {
-        const keybaseId = v.description?.identity || null;
+      validators.value = validatorsList
+        .sort((a: any, b: any) => {
+          const tokensA = BigInt(a.tokens || '0');
+          const tokensB = BigInt(b.tokens || '0');
+          return tokensB > tokensA ? 1 : tokensB < tokensA ? -1 : 0;
+        })
+        .map((v: any) => {
+          const keybaseId = v.description?.identity || null;
         const matchingVal = validatorSet.find((vs: any) => {
           return vs.pub_key?.value && v.consensus_pubkey?.key === vs.pub_key.value;
         });
         
         if (matchingVal) {
-          proposerMap.value[matchingVal.address] = {
+            proposerMap.value[matchingVal.address] = {
+              moniker: v.description?.moniker || 'Unknown',
+              keybaseId: keybaseId,
+              avatar: avatarCache.value[keybaseId] || undefined
+            };
+          }
+          
+          return {
+            address: v.operator_address,
             moniker: v.description?.moniker || 'Unknown',
+            tokens: v.tokens || '0',
+            commission: v.commission?.commission_rates?.rate || '0',
+            jailed: v.jailed || false,
+            avatar: avatarCache.value[keybaseId] || undefined,
             keybaseId: keybaseId,
-            avatar: avatarCache.value[keybaseId] || undefined
+            consensusPubkeyB64: String(v.consensus_pubkey?.key || '')
           };
-        }
-      }
+        });
       
-      // Fetch Keybase avatars
-      await fetchKeybaseAvatars();
+      validatorCount.value = validators.value.length;
+      
+      const totalVotingPower = validators.value.reduce((sum, v) => sum + BigInt(v.tokens), BigInt(0));
+      topValidatorsPower.value = validators.value.slice(0, 5).map(v => ({
+        moniker: v.moniker,
+        percentage: ((Number(BigInt(v.tokens) * BigInt(10000) / totalVotingPower) / 100).toFixed(2))
+      }));
+      
+      fetchKeybaseAvatars();
+      if (currentView.value === 'validators') {
+        void fetchValidatorUptime({ force: true });
+      }
     }
   } catch (e) {
     console.error('Failed to fetch validators:', e);
   }
 }
 
-// Fetch recent blocks
-async function fetchRecentBlocks() {
+async function fetchKeybaseAvatars() {
+  const validatorsWithKeybase = validators.value.filter(v => v.keybaseId && !avatarCache.value[v.keybaseId]);
+  
+  if (validatorsWithKeybase.length === 0) return;
+  
+  let hasUpdates = false;
+  
+  for (const validator of validatorsWithKeybase) {
+    if (!validator.keybaseId) continue;
+    
+    try {
+      const response = await fetch(
+        `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${validator.keybaseId}`
+      );
+      const data = await response.json();
+      
+      if (data?.them?.[0]?.pictures?.primary?.url) {
+        const avatarUrl = data.them[0].pictures.primary.url;
+        avatarCache.value[validator.keybaseId] = avatarUrl;
+        hasUpdates = true;
+        
+        const valIndex = validators.value.findIndex(v => v.keybaseId === validator.keybaseId);
+        if (valIndex !== -1) {
+          validators.value[valIndex].avatar = avatarUrl;
+        }
+        
+        for (const key in proposerMap.value) {
+          if (proposerMap.value[key].keybaseId === validator.keybaseId) {
+            proposerMap.value[key].avatar = avatarUrl;
+          }
+        }
+      }
+    } catch {
+      console.warn(`Failed to fetch avatar for ${validator.moniker}`);
+    }
+  }
+  
+  if (hasUpdates) {
+    await fetchBlocks();
+  }
+}
+
+const ULMN_PER_LMN = 1_000_000n;
+const SUPPLY_REFRESH_MS = 60_000;
+const SUPPLY_RETRY_MS = 15_000;
+let lastSupplyFetchAt = 0;
+
+function ulmnStringToLmnNumber(input: any): number | null {
+  const raw = String(input ?? '').trim();
+  if (!raw) return null;
   try {
-    if (!lumen?.http?.get || blockHeight.value === 0) return;
+    const ulmn = BigInt(raw);
+    const whole = ulmn / ULMN_PER_LMN;
+    const frac = ulmn % ULMN_PER_LMN;
+    return Number(whole) + Number(frac) / 1_000_000;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchSupplyStats({ force = false } = {}) {
+  if (!lumen?.net?.restGet) return;
+
+  const now = Date.now();
+  const hasAnyCached = bondedTokens.value != null || totalSupply.value != null;
+  const throttleMs = hasAnyCached ? SUPPLY_REFRESH_MS : SUPPLY_RETRY_MS;
+  if (!force && lastSupplyFetchAt && now - lastSupplyFetchAt < throttleMs) return;
+  lastSupplyFetchAt = now;
+
+  let bondedLmn: number | null = null;
+  try {
+    const poolRes = await lumen.net.restGet('/cosmos/staking/v1beta1/pool', { timeout: 15000 });
+    const pool = poolRes?.json?.pool || poolRes?.json?.Pool || null;
+    const bondedRaw = pool?.bonded_tokens ?? pool?.bondedTokens ?? null;
+    bondedLmn = ulmnStringToLmnNumber(bondedRaw);
+    if (bondedLmn != null && Number.isFinite(bondedLmn)) bondedTokens.value = bondedLmn;
+  } catch {
+    // ignore
+  }
+
+  let supplyLmn: number | null = null;
+  const supplyPaths = [
+    '/cosmos/bank/v1beta1/supply/by_denom?denom=ulmn',
+    '/cosmos/bank/v1beta1/supply/by_denom/ulmn',
+  ];
+
+  for (const p of supplyPaths) {
+    try {
+      const supplyRes = await lumen.net.restGet(p, { timeout: 15000 });
+      if (!supplyRes?.ok) continue;
+      const amount = supplyRes?.json?.amount || supplyRes?.json?.supply || null;
+      const supplyRaw = amount?.amount ?? amount?.Amount ?? null;
+      supplyLmn = ulmnStringToLmnNumber(supplyRaw);
+      if (supplyLmn != null && Number.isFinite(supplyLmn)) {
+        totalSupply.value = supplyLmn;
+        break;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const bonded = bondedTokens.value;
+  const supply = totalSupply.value;
+  if (bonded != null && supply != null && Number.isFinite(bonded) && Number.isFinite(supply)) {
+    unbondedTokens.value = Math.max(0, supply - bonded);
+  } else {
+    unbondedTokens.value = null;
+  }
+}
+
+async function fetchAllData() {
+  isLoading.value = true;
+  
+  try {
+    await fetchValidators();
+    await fetchBlocks();
+    await fetchSupplyStats({ force: true });
+    if (currentView.value === 'transactions' || currentView.value === 'overview') {
+      await fetchTransactions();
+    }
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+function performSearch() {
+  const query = searchQuery.value.trim();
+  if (!query) return;
+  
+  if (/^\d+$/.test(query)) {
+    const height = parseInt(query);
+    navigateToBlock(height);
+    toast.info(`Navigating to block ${height}...`);
+  }
+  else if (/^[A-Fa-f0-9]{64}$/.test(query)) {
+    navigateToTransaction(query.toUpperCase());
+    toast.info('Navigating to transaction...');
+  }
+  else if (/^lmn1[a-z0-9]{38,}$/.test(query)) {
+    navigateToAddress(query);
+    toast.info('Navigating to address...');
+  }
+  else {
+    toast.error('Invalid search query. Use block height, tx hash (64 hex), or address (lmn1...)');
+  }
+}
+
+function formatNumber(num: number | null | undefined): string {
+  if (num == null) return '—';
+  const n = Number(num);
+  if (!Number.isFinite(n)) return '—';
+  return new Intl.NumberFormat().format(n);
+}
+
+function formatTimeAgo(timestamp: string): string {
+  const diff = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
+  if (diff < 0) return 'just now';
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+function shortenHash(hash: string): string {
+  if (!hash) return '';
+  if (hash.length <= 24) return hash;
+  return `${hash.substring(0, 20)}...${hash.substring(hash.length - 10)}`;
+}
+
+function shortenAddress(address: string): string {
+  if (!address) return '';
+  if (address.length <= 20) return address;
+  return `${address.substring(0, 12)}...${address.substring(address.length - 8)}`;
+}
+
+function formatVotingPower(tokens: string): string {
+  if (!tokens) return '0';
+  const num = parseInt(tokens) / 1e6;
+  if (num >= 1e6) return `${(num / 1e6).toFixed(2)}M`;
+  if (num >= 1e3) return `${(num / 1e3).toFixed(2)}K`;
+  return num.toFixed(0);
+}
+
+function getVotingPowerColor(index: number): string {
+  const colors = [
+    'linear-gradient(135deg, rgba(236, 72, 153, 0.7), rgba(244, 114, 182, 0.6))',
+    'linear-gradient(135deg, rgba(139, 92, 246, 0.7), rgba(167, 139, 250, 0.6))',
+    'var(--gradient-brand)',
+    'linear-gradient(135deg, rgba(6, 182, 212, 0.7), rgba(34, 211, 238, 0.6))',
+    'linear-gradient(135deg, rgba(48, 209, 88, 0.7), rgba(52, 199, 89, 0.6))'
+  ];
+  return colors[index % colors.length];
+}
+
+function safeBigInt(input: any): bigint {
+  const raw = String(input ?? '').trim();
+  if (!raw) return 0n;
+  try {
+    return BigInt(raw);
+  } catch {
+    return 0n;
+  }
+}
+
+const totalVotingPowerUlmn = computed(() => validators.value.reduce((sum, v) => sum + safeBigInt(v.tokens), 0n));
+
+function getVotingPowerPercentage(tokens: string): string {
+  const total = totalVotingPowerUlmn.value;
+  if (total <= 0n) return '0.00';
+  const t = safeBigInt(tokens);
+  const bp = (t * 10000n) / total; // basis points
+  return (Number(bp) / 100).toFixed(2);
+}
+
+function getCumulativeProgress(index: number): number {
+  const total = totalVotingPowerUlmn.value;
+  if (total <= 0n) return 0;
+  let cum = 0n;
+  for (let i = 0; i <= index && i < validators.value.length; i++) {
+    cum += safeBigInt(validators.value[i]?.tokens);
+  }
+  const bp = (cum * 10000n) / total;
+  return Number(bp) / 100;
+}
+
+// Stake modal functions
+function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw' = 'Delegate') {
+  if (!hasActiveProfile.value) {
+    alert('Please create or select a wallet profile first');
+    return;
+  }
+
+  selectedValidator.value = validator;
+  currentStakeAction.value = action;
+  stakeAmount.value = '0.0';
+  stakePercentage.value = 0;
+  targetValidator.value = '';
+  showStakeModal.value = true;
+  
+  // Fetch actual balance from profile
+  fetchStakeBalances(validator.address);
+}
+
+async function fetchStakeBalances(validatorAddress: string) {
+  if (!activeProfile.value) {
+    return;
+  }
+
+  const profileAddress = activeProfile.value.address || activeProfile.value.walletAddress;
+
+  try {
+    const walletApi = useInternalLumen()?.wallet;
     
-    const blocks: Block[] = [];
+    if (!walletApi) {
+      console.error('Wallet API not available');
+      availableBalance.value = '0.000000';
+      stakedBalance.value = '0.000000';
+      return;
+    }
+
+    // Fetch available balance using same method as WalletPage
+    if (typeof walletApi.getBalance === 'function' && profileAddress) {
+      try {
+        const res = await walletApi.getBalance(profileAddress, { denom: 'ulmn' });
+
+        if (res && res.ok !== false) {
+          const amt = Number(res.balance?.amount ?? '0') || 0;
+          availableBalance.value = (amt / 1_000_000).toFixed(6);
+        } else {
+          console.error('Balance error:', res?.error);
+          availableBalance.value = '0.000000';
+        }
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+        availableBalance.value = '0.000000';
+      }
+    } else {
+      availableBalance.value = '0.000000';
+    }
+
+    // Fetch delegations
+    if (typeof walletApi.getDelegations === 'function' && profileAddress) {
+      try {
+        const delegations = await walletApi.getDelegations(profileAddress);
+
+        if (delegations && delegations.ok !== false && Array.isArray(delegations.delegations)) {
+          const delegation = delegations.delegations.find((d: any) =>
+            d.delegation?.validator_address === validatorAddress
+          );
+
+          if (delegation?.balance?.amount) {
+            const amt = Number(delegation.balance.amount) || 0;
+            stakedBalance.value = (amt / 1_000_000).toFixed(6);
+          } else {
+            stakedBalance.value = '0.000000';
+          }
+        } else {
+          stakedBalance.value = '0.000000';
+        }
+      } catch (error) {
+        console.error('Error fetching delegations:', error);
+        stakedBalance.value = '0.000000';
+      }
+    } else {
+      stakedBalance.value = '0.000000';
+    }
+    
+  } catch (error) {
+    console.error('Failed to fetch balances:', error);
+    availableBalance.value = '0.000000';
+    stakedBalance.value = '0.000000';
+  }
+}
+
+function closeStakeModal() {
+  showStakeModal.value = false;
+  selectedValidator.value = null;
+  txStatus.value = 'idle';
+  txMessage.value = '';
+  txHash.value = '';
+  isProcessingTx.value = false;
+}
+
+function viewTransaction(hash: string) {
+  if (!hash) return;
+  closeStakeModal();
+  navigateToTransaction(hash);
+}
+
+function setStakePercentage(percentage: number) {
+  stakePercentage.value = percentage;
+  const maxAmount = currentStakeAction.value === 'Delegate' ? parseFloat(availableBalance.value) : parseFloat(stakedBalance.value);
+  const amount = (maxAmount * percentage / 100).toFixed(6);
+  stakeAmount.value = amount;
+}
+
+const canConfirm = computed(() => {
+  // Withdraw doesn't require amount
+  if (currentStakeAction.value === 'Withdraw') {
+    return hasActiveProfile.value;
+  }
+  if (!stakeAmount.value || parseFloat(stakeAmount.value) <= 0) return false;
+  if (currentStakeAction.value === 'Redelegate' && !targetValidator.value) return false;
+  if (!hasActiveProfile.value) return false;
+  return true;
+});
+
+async function confirmStakeAction() {
+  if (!canConfirm.value || !activeProfile.value || !selectedValidator.value) return;
+  
+  const profileAddress = activeProfile.value.address || activeProfile.value.walletAddress;
+  const profileId = activeProfile.value.id;
+  
+  if (!profileAddress) {
+    txStatus.value = 'error';
+    txMessage.value = 'No wallet address found';
+    return;
+  }
+  
+  if (!profileId) {
+    txStatus.value = 'error';
+    txMessage.value = 'No profile ID found';
+    return;
+  }
+  
+  const amountInUlmn = Math.floor(parseFloat(stakeAmount.value) * 1_000_000).toString();
+  
+  // Start processing
+  isProcessingTx.value = true;
+  txStatus.value = 'processing';
+  txMessage.value = `Processing ${currentStakeAction.value.toLowerCase()}...`;
+  txHash.value = '';
+  
+  try {
+    const walletApi = useInternalLumen()?.wallet;
+    
+    if (!walletApi) {
+      throw new Error('Wallet API not available');
+    }
+    
+    let result;
+
+    const baseParams = {
+      profileId: profileId,
+      address: profileAddress,
+      validatorAddress: selectedValidator.value.address,
+      amount: { amount: amountInUlmn, denom: 'ulmn' },
+    };
+    
+    switch (currentStakeAction.value) {
+      case 'Delegate':
+        if (typeof walletApi.delegate === 'function') {
+          result = await walletApi.delegate(baseParams);
+        } else {
+          throw new Error('Delegate function not available');
+        }
+        break;
+        
+      case 'Undelegate':
+        if (typeof walletApi.undelegate === 'function') {
+          result = await walletApi.undelegate(baseParams);
+        } else {
+          throw new Error('Undelegate function not available');
+        }
+        break;
+        
+      case 'Redelegate':
+        if (typeof walletApi.redelegate === 'function' && targetValidator.value) {
+          result = await walletApi.redelegate({
+            profileId: profileId,
+            address: profileAddress,
+            validatorSrcAddress: selectedValidator.value.address,
+            validatorDstAddress: targetValidator.value,
+            amount: { amount: amountInUlmn, denom: 'ulmn' },
+          });
+        } else {
+          throw new Error('Redelegate function not available');
+        }
+        break;
+        
+      case 'Withdraw':
+        if (typeof walletApi.withdrawRewards === 'function') {
+          result = await walletApi.withdrawRewards({
+            profileId: profileId,
+            address: profileAddress,
+            validatorAddress: selectedValidator.value.address,
+          });
+        } else {
+          throw new Error('WithdrawRewards function not available');
+        }
+        break;
+    }
+    
+    // Handle password_required error
+    if (result?.ok === false && (result?.error === 'password_required' || result?.error === 'invalid_password')) {
+      try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
+      txStatus.value = 'idle';
+      txMessage.value = '';
+      return;
+    }
+    
+    if (result && result.ok !== false) {
+      txStatus.value = 'success';
+      txHash.value = result.txhash || result.txHash || '';
+      txMessage.value = `${currentStakeAction.value} successful!`;
+      
+      // Refresh validators in background
+      fetchValidators();
+    } else {
+      throw new Error(result?.error || 'Transaction failed');
+    }
+  } catch (error: any) {
+    console.error(`${currentStakeAction.value} failed:`, error);
+    txStatus.value = 'error';
+    const errorMsg = error?.message || error?.toString() || 'Unknown error';
+    txMessage.value = errorMsg;
+  } finally {
+    isProcessingTx.value = false;
+  }
+}
+
+watch(stakePercentage, (newVal) => {
+  setStakePercentage(newVal);
+});
+
+async function copyToClipboard(text: string, label: string = 'Text') {
+  const ok = await copyToClipboardShared(text);
+  if (ok) {
+    toast.success(`${label} copied to clipboard`);
+  } else {
+    toast.error('Failed to copy to clipboard');
+  }
+}
+
+function initializeCharts() {
+  if (currentView.value !== 'overview') return;
+  
+  setTimeout(() => {
+    if (txHistoryChart.value) {
+      const ctx = txHistoryChart.value.getContext('2d');
+      if (ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 120);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+        
+        ctx.clearRect(0, 0, txHistoryChart.value.width, txHistoryChart.value.height);
+        ctx.fillStyle = gradient;
+        ctx.strokeStyle = 'rgba(59, 130, 246, 1)';
+        ctx.lineWidth = 2;
+
+        const points = txHistoryPoints.value;
+        if (points.length >= 2) {
+          const maxPoint = Math.max(...points, 1);
+          ctx.beginPath();
+          points.forEach((point, i) => {
+            const x = (i / (points.length - 1)) * txHistoryChart.value!.width;
+            const y = 120 - (point / maxPoint) * 100;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+
+          ctx.lineTo(txHistoryChart.value.width, 120);
+          ctx.lineTo(0, 120);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+    }
+
+    if (bondedSupplyChart.value) {
+      const canvas = bondedSupplyChart.value;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        canvas.width = 140;
+        canvas.height = 140;
+
+        const centerX = 70;
+        const centerY = 70;
+        const radius = 58;
+        const innerRadius = 41;
+
+        const pct = bondedRatioPct.value;
+        const startAngle = -Math.PI / 2;
+
+        ctx.clearRect(0, 0, 140, 140);
+
+        if (pct == null) {
+          // Unknown ratio: render a neutral ring (avoid implying 0% bonded).
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+          ctx.arc(centerX, centerY, innerRadius, 0, 2 * Math.PI, true);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(148, 163, 184, 0.18)';
+          ctx.fill();
+        } else {
+          const bondedPercentage = pct / 100;
+          const bondedAngle = bondedPercentage * 2 * Math.PI;
+
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, startAngle, startAngle + bondedAngle, false);
+          ctx.lineTo(
+            centerX + Math.cos(startAngle + bondedAngle) * innerRadius,
+            centerY + Math.sin(startAngle + bondedAngle) * innerRadius
+          );
+          ctx.arc(centerX, centerY, innerRadius, startAngle + bondedAngle, startAngle, true);
+          ctx.closePath();
+
+          const gradient = ctx.createLinearGradient(0, 0, 140, 140);
+          gradient.addColorStop(0, '#ec4899');
+          gradient.addColorStop(1, '#8b5cf6');
+          ctx.fillStyle = gradient;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, startAngle + bondedAngle, startAngle + 2 * Math.PI, false);
+          ctx.lineTo(
+            centerX + Math.cos(startAngle) * innerRadius,
+            centerY + Math.sin(startAngle) * innerRadius
+          );
+          ctx.arc(centerX, centerY, innerRadius, startAngle + 2 * Math.PI, startAngle + bondedAngle, true);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(139, 92, 246, 0.2)';
+          ctx.fill();
+        }
+      }
+    }
+
+    if (votingPowerChart.value) {
+      const canvas = votingPowerChart.value;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        canvas.width = 140;
+        canvas.height = 140;
+
+        const centerX = 70;
+        const centerY = 70;
+        const radius = 58;
+        const innerRadius = 41;
+
+        ctx.clearRect(0, 0, 140, 140);
+        
+        let currentAngle = -Math.PI / 2;
+        const colors = [
+          'rgba(236, 72, 153, 0.8)', 
+          'rgba(139, 92, 246, 0.8)', 
+          'rgba(10, 132, 255, 0.8)', 
+          'rgba(6, 182, 212, 0.8)', 
+          'rgba(48, 209, 88, 0.8)'
+        ];
+        
+        topValidatorsPower.value.slice(0, 5).forEach((vp, idx) => {
+          const percentage = parseFloat(vp.percentage);
+          const sweepAngle = (percentage / 100) * 2 * Math.PI;
+          const endAngle = currentAngle + sweepAngle;
+          
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, currentAngle, endAngle, false);
+          ctx.lineTo(
+            centerX + Math.cos(endAngle) * innerRadius,
+            centerY + Math.sin(endAngle) * innerRadius
+          );
+          ctx.arc(centerX, centerY, innerRadius, endAngle, currentAngle, true);
+          ctx.closePath();
+          ctx.fillStyle = colors[idx];
+          ctx.fill();
+          
+          currentAngle = endAngle;
+        });
+        
+        const top5Total = topValidatorsPower.value.slice(0, 5).reduce((sum, vp) => sum + parseFloat(vp.percentage), 0);
+        const othersPercent = 100 - top5Total;
+        if (othersPercent > 0) {
+          const sweepAngle = (othersPercent / 100) * 2 * Math.PI;
+          const endAngle = currentAngle + sweepAngle;
+          
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, currentAngle, endAngle, false);
+          ctx.lineTo(
+            centerX + Math.cos(endAngle) * innerRadius,
+            centerY + Math.sin(endAngle) * innerRadius
+          );
+          ctx.arc(centerX, centerY, innerRadius, endAngle, currentAngle, true);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(148, 163, 184, 0.3)';
+          ctx.fill();
+        }
+      }
+    }
+  }, 100);
+}
+
+let refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+onMounted(() => {
+  fetchAllData();
+  initializeCharts();
+  
+  refreshInterval = setInterval(() => {
+    if (autoRefresh.value) {
+      if (currentView.value === 'blocks' || currentView.value === 'overview') {
+        fetchBlocks();
+      }
+      if (currentView.value === 'transactions' || currentView.value === 'overview') {
+        fetchTransactions();
+      }
+      if (currentView.value === 'overview') {
+        void fetchSupplyStats();
+        initializeCharts();
+      }
+    }
+  }, 6000);
+});
+
+onUnmounted(() => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+});
+
+watch(currentView, (v) => {
+  if (v === 'validators') {
+    void fetchValidatorUptime({ force: true });
+  }
+});
+
+watch(txHistoryWindow, () => {
+  if (currentView.value === 'overview') {
+    initializeCharts();
+  }
+});
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    fetchAllData();
+    if (currentView.value === 'overview') {
+      initializeCharts();
+    }
+  }
+);
+
+// ---------------------------------------------------------------------------
+// Network monitoring data (merged from the old standalone NetworkPage.vue).
+// Names are prefixed `network*` throughout to avoid colliding with the
+// explorer state above (e.g. explorer's own `validators`/`avatarCache`/
+// `proposerMap`/`fetchValidators`/`fetchKeybaseAvatars` fetch a differently
+// shaped validator list for staking/voting-power display, not the same data).
+// ---------------------------------------------------------------------------
+const networkBlockHeight = ref(0);
+const networkBlockTime = ref(0);
+const networkValidatorCounts = ref({ total: 0, active: 0, jailed: 0 });
+const networkTps = ref(0);
+const networkPeers = ref(0);
+const networkRefreshing = ref(false);
+
+const networkBlockTimeHistory = ref<number[]>([]);
+const networkTxHistory = ref<number[]>([]);
+const networkMaxTps = ref(0);
+
+const networkRecentBlocks = ref<NetworkBlock[]>([]);
+const networkAvatarCache = ref<Record<string, string>>({});
+const networkProposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});
+
+function networkIndicatorFillStyle(state: string): Record<string, string> {
+  if (state === "excellent") return { background: "var(--color-success)" };
+  if (state === "good") return { background: "var(--color-primary)" };
+  return { background: "var(--color-warning)" };
+}
+
+const networkValidatorPercent = computed(() => {
+  if (!networkValidatorCounts.value.total) return 0;
+  return (networkValidatorCounts.value.active / networkValidatorCounts.value.total) * 100;
+});
+
+const networkAvgBlockTime = computed(() => {
+  const times = networkBlockTimeHistory.value.filter(v => v > 0);
+  if (!times.length) return 5.0;
+  return times.reduce((a, b) => a + b, 0) / times.length;
+});
+
+const networkBlockTimeStatus = computed(() => {
+  const avg = networkAvgBlockTime.value;
+  if (avg < 5) return 'fast';
+  if (avg <= 6) return 'normal';
+  return 'slow';
+});
+
+const networkBlocksPerHour = computed(() => {
+  if (networkBlockTime.value <= 0) return 0;
+  return Math.floor(3600 / networkBlockTime.value);
+});
+
+const networkTxVolume24h = computed(() => {
+  const blocksIn24h = Math.floor(86400 / (networkBlockTime.value || 6));
+  const avgTxPerBlock = networkTxHistory.value.length
+    ? networkTxHistory.value.reduce((a, b) => a + b, 0) / networkTxHistory.value.length
+    : 5;
+  return Math.floor(blocksIn24h * avgTxPerBlock);
+});
+
+// Watch for refresh signal from navbar (shared with explorer's own watch above)
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    refreshNetworkData();
+  }
+);
+
+async function refreshNetworkData() {
+  networkRefreshing.value = true;
+  try {
+    // Fetch network status first
+    await fetchNetworkStatus();
+
+    // Fetch validators to populate networkProposerMap with monikers and avatars
+    await fetchNetworkValidatorCounts();
+
+    // Then fetch blocks and stats (blocks need networkProposerMap to be ready)
+    await Promise.all([
+      fetchNetworkRecentBlocks(),
+      fetchNetworkStats()
+    ]);
+  } finally {
+    networkRefreshing.value = false;
+  }
+}
+
+// Fetch network status and height
+async function fetchNetworkStatus() {
+  try {
+    if (lumen?.rpc?.getHeight) {
+      const result = await lumen.rpc.getHeight();
+      if (result?.ok && result.height) {
+        networkBlockHeight.value = result.height;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch network status:', e);
+  }
+}
+
+// Fetch Keybase avatars
+async function fetchNetworkKeybaseAvatars() {
+  const validatorsWithKeybase = Object.values(networkProposerMap.value)
+    .filter(v => v.keybaseId && !networkAvatarCache.value[v.keybaseId]);
+
+  if (validatorsWithKeybase.length === 0) return;
+
+  for (const validator of validatorsWithKeybase) {
+    if (!validator.keybaseId) continue;
+
+    try {
+      const response = await fetch(
+        `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${validator.keybaseId}`
+      );
+      const data = await response.json();
+
+      if (data?.them?.[0]?.pictures?.primary?.url) {
+        const avatarUrl = data.them[0].pictures.primary.url;
+        networkAvatarCache.value[validator.keybaseId] = avatarUrl;
+
+        // Update networkProposerMap with avatar
+        for (const key in networkProposerMap.value) {
+          if (networkProposerMap.value[key].keybaseId === validator.keybaseId) {
+            networkProposerMap.value[key].avatar = avatarUrl;
+          }
+        }
+      }
+    } catch {
+      console.warn(`Failed to fetch avatar for ${validator.moniker}`);
+    }
+  }
+}
+
+// Fetch validator counts (active/total/jailed) for the Metrics/Status panels
+async function fetchNetworkValidatorCounts() {
+  try {
+    if (!lumen?.http?.get) return;
+
+    // Fetch validator set from RPC
+    const valSetRes = await lumen.net.rpcGet('/validators');
+    if (valSetRes.ok && valSetRes.json?.result?.validators) {
+      const valSet = valSetRes.json.result.validators;
+
+      for (const val of valSet) {
+        networkProposerMap.value[val.address] = {
+          moniker: val.address.substring(0, 8),
+          keybaseId: undefined,
+          avatar: undefined
+        };
+      }
+    }
+
+    // Fetch validators from REST API
+    const res = await lumen.net.restGet(
+      `/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=200`
+    );
+
+    if (res.ok && res.json?.validators) {
+      const validatorsList = res.json.validators;
+      const active = validatorsList.filter((v: any) => !v.jailed).length;
+      const jailed = validatorsList.filter((v: any) => v.jailed).length;
+
+      networkValidatorCounts.value = {
+        total: validatorsList.length,
+        active: active,
+        jailed: jailed
+      };
+
+      // Build proposer map with validator info
+      const valSet2Res = await lumen.net.rpcGet('/validators');
+      const validatorSet = valSet2Res.ok && valSet2Res.json?.result?.validators
+        ? valSet2Res.json.result.validators
+        : [];
+
+      for (const v of validatorsList) {
+        const keybaseId = v.description?.identity || null;
+        const matchingVal = validatorSet.find((vs: any) => {
+          return vs.pub_key?.value && v.consensus_pubkey?.key === vs.pub_key.value;
+        });
+
+        if (matchingVal) {
+          networkProposerMap.value[matchingVal.address] = {
+            moniker: v.description?.moniker || 'Unknown',
+            keybaseId: keybaseId,
+            avatar: networkAvatarCache.value[keybaseId] || undefined
+          };
+        }
+      }
+
+      // Fetch Keybase avatars
+      await fetchNetworkKeybaseAvatars();
+    }
+  } catch (e) {
+    console.error('Failed to fetch validators:', e);
+  }
+}
+
+// Fetch recent blocks (for the Status view's "Recent Blocks" panel)
+async function fetchNetworkRecentBlocks() {
+  try {
+    if (!lumen?.http?.get || networkBlockHeight.value === 0) return;
+
+    const blocksList: NetworkBlock[] = [];
     const promises = [];
-    
+
     // Fetch last 6 blocks
     for (let i = 0; i < 6; i++) {
-      const height = blockHeight.value - i;
+      const height = networkBlockHeight.value - i;
       if (height > 0) {
         promises.push(
           lumen.net.rpcGet(`/block?height=${height}`)
         );
       }
     }
-    
+
     const results = await Promise.all(promises);
-    
+
     for (const res of results) {
       if (res.ok && res.json?.result?.block) {
         const block = res.json.result.block;
         const header = block.header;
         const proposerAddr = header.proposer_address || '';
-        const proposerInfo = proposerMap.value[proposerAddr];
-        
-        blocks.push({
+        const proposerInfo = networkProposerMap.value[proposerAddr];
+
+        blocksList.push({
           height: parseInt(header.height),
           time: header.time,
           txs: block.data.txs?.length || 0,
@@ -566,90 +2379,351 @@ async function fetchRecentBlocks() {
         });
       }
     }
-    
-    recentBlocks.value = blocks.sort((a, b) => b.height - a.height);
+
+    networkRecentBlocks.value = blocksList.sort((a, b) => b.height - a.height);
   } catch (e) {
     console.error('Failed to fetch recent blocks:', e);
   }
 }
 
 // Fetch network stats (block time, TPS, peers)
-async function fetchNetStats() {
+async function fetchNetworkStats() {
   try {
     if (!lumen?.http?.get) return;
-    
+
     // Fetch net_info for peer count
     const netInfoRes = await lumen.net.rpcGet('/net_info');
     if (netInfoRes.ok && netInfoRes.json?.result?.n_peers) {
-      peers.value = parseInt(netInfoRes.json.result.n_peers);
+      networkPeers.value = parseInt(netInfoRes.json.result.n_peers);
     }
-    
+
     // Calculate block time and TPS from recent blocks
-    if (recentBlocks.value.length >= 2) {
+    if (networkRecentBlocks.value.length >= 2) {
       const times: number[] = [];
       const txCounts: number[] = [];
-      
-      for (let i = 0; i < recentBlocks.value.length - 1; i++) {
-        const curr = new Date(recentBlocks.value[i].time).getTime();
-        const prev = new Date(recentBlocks.value[i + 1].time).getTime();
+
+      for (let i = 0; i < networkRecentBlocks.value.length - 1; i++) {
+        const curr = new Date(networkRecentBlocks.value[i].time).getTime();
+        const prev = new Date(networkRecentBlocks.value[i + 1].time).getTime();
         const diffSec = (curr - prev) / 1000;
-        
+
         if (diffSec > 0) {
           times.push(diffSec);
-          txCounts.push(recentBlocks.value[i].txs);
+          txCounts.push(networkRecentBlocks.value[i].txs);
         }
       }
-      
+
       if (times.length > 0) {
-        blockTime.value = times.reduce((a, b) => a + b, 0) / times.length;
-        blockTimeHistory.value = times.slice(0, 10);
-        
+        networkBlockTime.value = times.reduce((a, b) => a + b, 0) / times.length;
+        networkBlockTimeHistory.value = times.slice(0, 10);
+
         const totalTxs = txCounts.reduce((a, b) => a + b, 0);
         const totalTime = times.reduce((a, b) => a + b, 0);
-        tps.value = totalTime > 0 ? totalTxs / totalTime : 0;
-        
-        txHistory.value = txCounts.slice(0, 10);
-        maxTps.value = Math.max(...txCounts.map((tx, i) => times[i] > 0 ? tx / times[i] : 0), tps.value);
+        networkTps.value = totalTime > 0 ? totalTxs / totalTime : 0;
+
+        networkTxHistory.value = txCounts.slice(0, 10);
+        networkMaxTps.value = Math.max(...txCounts.map((tx, i) => times[i] > 0 ? tx / times[i] : 0), networkTps.value);
       }
-    }
-    
-    // Session uptime: time this tab has been continuously connected.
-    if (connectionStatus.value === 'online') {
-      if (sessionConnectedSince == null) sessionConnectedSince = Date.now();
-      uptime.value = formatUptime(Date.now() - sessionConnectedSince);
-    } else {
-      sessionConnectedSince = null;
-      uptime.value = '—';
     }
   } catch (e) {
     console.error('Failed to fetch network stats:', e);
   }
 }
 
-// Fetch chain id / SDK version (rarely changes, fetched once on mount).
-async function fetchNodeInfo() {
-  try {
-    if (!lumen?.http?.get) return;
-    const res = await lumen.net.restGet('/cosmos/base/tendermint/v1beta1/node_info');
-    if (res.ok && res.json) {
-      chainId.value = res.json.default_node_info?.network || '';
-      sdkVersion.value = res.json.application_version?.cosmos_sdk_version || '';
-    }
-  } catch (e) {
-    console.error('Failed to fetch node info:', e);
+onMounted(() => {
+  refreshNetworkData();
+  const networkInterval = setInterval(refreshNetworkData, 10000);
+  onBeforeUnmount(() => clearInterval(networkInterval));
+});
+
+// ---------------------------------------------------------------------------
+// Governance (real proposals/voting - was previously a separate, fake DaoPage.vue
+// whose "Voting" tab didn't do anything and whose vote/create-proposal forms
+// only had 3 of the 4 real Cosmos SDK gov vote options). The actual signing
+// backend (`wallet:govVote` / `wallet:govSubmitProposal` in
+// electron/ipc/wallet.cjs) was already real and working - it builds and signs
+// genuine `/cosmos.gov.v1.MsgVote` / `/cosmos.gov.v1.MsgSubmitProposal`
+// messages the same way delegate/undelegate/sendTokens do. What was fake was
+// only this page: it read proposals from the legacy `/cosmos/gov/v1beta1/...`
+// REST path (mismatched with the v1 messages actually being signed), had no
+// "no with veto" option, and mixed in a Members tab (redundant with the
+// Validators tab above) and a Treasury tab (not relevant here).
+// ---------------------------------------------------------------------------
+const activeGovernanceAddress = computed(() => activeProfile.value?.address || (activeProfile.value as any)?.walletAddress || '');
+
+const governanceProposals = ref<GovernanceProposal[]>([]);
+const governanceLoading = ref(false);
+const governanceMinDepositLmn = ref('10');
+
+const governanceVotingProposals = computed(() =>
+  governanceProposals.value.filter((p) => p.status === 'PROPOSAL_STATUS_VOTING_PERIOD'),
+);
+
+function governanceStatusLabel(status: string): string {
+  switch (status) {
+    case 'PROPOSAL_STATUS_DEPOSIT_PERIOD': return 'Deposit';
+    case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'Voting';
+    case 'PROPOSAL_STATUS_PASSED': return 'Passed';
+    case 'PROPOSAL_STATUS_REJECTED': return 'Rejected';
+    case 'PROPOSAL_STATUS_FAILED': return 'Failed';
+    default: return 'Unknown';
   }
 }
 
-// Fetch data
-async function fetchData() {
-  await refreshData();
+function governanceStatusClass(status: string): string {
+  switch (status) {
+    case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'color-accent-secondary bg-fill-blue';
+    case 'PROPOSAL_STATUS_PASSED': return 'color-success bg-fill-success';
+    case 'PROPOSAL_STATUS_REJECTED':
+    case 'PROPOSAL_STATUS_FAILED': return 'color-error bg-fill-error';
+    case 'PROPOSAL_STATUS_DEPOSIT_PERIOD': return 'color-warning bg-warning-a15';
+    default: return 'color-text-tertiary bg-transparent';
+  }
+}
+
+function governanceTallyPercent(tally: { yes: string; no: string; noWithVeto: string; abstain: string }, key: 'yes' | 'no' | 'noWithVeto' | 'abstain'): number {
+  const yes = Number(tally.yes) || 0;
+  const no = Number(tally.no) || 0;
+  const veto = Number(tally.noWithVeto) || 0;
+  const abstain = Number(tally.abstain) || 0;
+  const total = yes + no + veto + abstain;
+  if (!total) return 0;
+  return ((Number(tally[key]) || 0) / total) * 100;
+}
+
+function mapGovernanceTally(raw: any): { yes: string; no: string; noWithVeto: string; abstain: string } {
+  return {
+    yes: raw?.yes_count ?? raw?.yes ?? '0',
+    no: raw?.no_count ?? raw?.no ?? '0',
+    noWithVeto: raw?.no_with_veto_count ?? raw?.no_with_veto ?? '0',
+    abstain: raw?.abstain_count ?? raw?.abstain ?? '0',
+  };
+}
+
+async function fetchGovernanceLiveTally(proposal: GovernanceProposal) {
+  if (!lumen?.net?.restGet) return;
+  try {
+    const res = await lumen.net.restGet(`/cosmos/gov/v1/proposals/${proposal.id}/tally`);
+    if (res.ok && res.json?.tally) {
+      proposal.tally = mapGovernanceTally(res.json.tally);
+    }
+  } catch (e) {
+    console.error('Failed to fetch live tally:', e);
+  }
+}
+
+async function fetchGovernanceProposals() {
+  if (!lumen?.net?.restGet) return;
+  governanceLoading.value = true;
+  try {
+    const res = await lumen.net.restGet('/cosmos/gov/v1/proposals?pagination.limit=200&pagination.reverse=true');
+    if (res.ok && Array.isArray(res.json?.proposals)) {
+      governanceProposals.value = res.json.proposals.map((p: any): GovernanceProposal => ({
+        id: Number(p.id ?? p.proposal_id ?? 0),
+        status: p.status || 'PROPOSAL_STATUS_UNSPECIFIED',
+        title: p.title || `Proposal #${p.id ?? p.proposal_id ?? ''}`,
+        summary: p.summary || '',
+        submitTime: p.submit_time || '',
+        votingStart: p.voting_start_time || '',
+        votingEnd: p.voting_end_time || '',
+        depositEnd: p.deposit_end_time || '',
+        totalDeposit: p.total_deposit?.[0]?.amount || '0',
+        proposer: p.proposer || '',
+        tally: mapGovernanceTally(p.final_tally_result),
+      }));
+      // final_tally_result is zeroed while a proposal is still being voted on -
+      // fetch the live, in-progress tally for those specifically.
+      await Promise.all(governanceVotingProposals.value.map((p) => fetchGovernanceLiveTally(p)));
+    }
+  } catch (e) {
+    console.error('Failed to fetch proposals:', e);
+  } finally {
+    governanceLoading.value = false;
+  }
+}
+
+async function fetchGovernanceMinDeposit() {
+  if (!lumen?.net?.restGet) return;
+  try {
+    const res = await lumen.net.restGet('/cosmos/gov/v1/params/deposit');
+    const minDeposit = res.ok && res.json?.deposit_params?.min_deposit?.[0];
+    if (minDeposit?.denom === 'ulmn' && minDeposit?.amount) {
+      const lmn = Number(minDeposit.amount) / 1e6;
+      if (Number.isFinite(lmn)) governanceMinDepositLmn.value = String(lmn);
+    }
+  } catch (e) {
+    console.error('Failed to fetch gov params:', e);
+  }
+}
+
+async function handleGovernanceSigningError(result: { ok?: boolean; error?: string }): Promise<boolean> {
+  if (result?.ok === false && (result.error === 'password_required' || result.error === 'invalid_password')) {
+    try {
+      await lumen?.security?.lockSession?.();
+    } catch {
+      // ignore - the security gate will re-prompt regardless
+    }
+    return true;
+  }
+  return false;
+}
+
+// Create-proposal modal
+// Flip to true once the 16 action builders in electron/ipc/wallet.cjs have
+// been exercised against a running testnet - keeps the UI/form fully
+// browsable (and reviewable) in the meantime without letting anyone actually
+// broadcast an unverified governance message.
+const GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED = false;
+const showCreateProposalModal = ref(false);
+const isSubmittingProposal = ref(false);
+const proposalForm = ref({ title: '', summary: '', depositLmn: '10' });
+const actionDrafts = ref<GovernanceActionDraft[]>([]);
+
+function templateForDraft(draft: GovernanceActionDraft) {
+  return findGovernanceActionTemplate(draft.templateId);
+}
+
+function resetActionDraftValues(draft: GovernanceActionDraft) {
+  draft.values = {};
+}
+
+function addActionDraft() {
+  const first = GOVERNANCE_ACTION_TEMPLATES[0];
+  actionDrafts.value.push({
+    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    templateId: first.id,
+    values: {}
+  });
+}
+
+function removeActionDraft(id: string) {
+  actionDrafts.value = actionDrafts.value.filter((d) => d.id !== id);
+}
+
+function openCreateProposalModal() {
+  proposalForm.value = { title: '', summary: '', depositLmn: governanceMinDepositLmn.value };
+  actionDrafts.value = [];
+  showCreateProposalModal.value = true;
+}
+
+function closeCreateProposalModal() {
+  showCreateProposalModal.value = false;
+}
+
+function canSubmitProposal(): boolean {
+  return (
+    proposalForm.value.title.trim().length > 0 &&
+    proposalForm.value.summary.trim().length > 0 &&
+    !Number.isNaN(Number(proposalForm.value.depositLmn)) &&
+    Number(proposalForm.value.depositLmn) >= 0
+  );
+}
+
+async function submitProposal() {
+  if (!canSubmitProposal() || isSubmittingProposal.value) return;
+
+  const profileId = activeProfileId.value;
+  const address = activeGovernanceAddress.value;
+  if (!profileId || !address) {
+    toast.error('Select a profile first.');
+    return;
+  }
+
+  const walletApi = lumen?.wallet;
+  if (!walletApi?.govSubmitProposal) {
+    toast.error('Governance submission is not available.');
+    return;
+  }
+
+  isSubmittingProposal.value = true;
+  try {
+    const result = await walletApi.govSubmitProposal({
+      profileId,
+      address,
+      title: proposalForm.value.title.trim(),
+      summary: proposalForm.value.summary.trim(),
+      depositLmn: proposalForm.value.depositLmn || '0',
+      actions: actionDrafts.value.map((d) => ({ templateId: d.templateId, values: d.values })),
+    });
+
+    if (await handleGovernanceSigningError(result)) return;
+    if (!toast.fromResult(result, 'Proposal submitted on-chain.')) return;
+
+    closeCreateProposalModal();
+    await fetchGovernanceProposals();
+  } catch (err: any) {
+    toast.error(err?.message || 'Failed to submit proposal.');
+  } finally {
+    isSubmittingProposal.value = false;
+  }
+}
+
+// Vote modal
+const showVoteModal = ref(false);
+const selectedProposal = ref<GovernanceProposal | null>(null);
+const voteOption = ref<GovernanceVoteOption | ''>('');
+const isVoting = ref(false);
+
+function openVoteModal(proposal: GovernanceProposal) {
+  selectedProposal.value = proposal;
+  voteOption.value = '';
+  showVoteModal.value = true;
+}
+
+function closeVoteModal() {
+  showVoteModal.value = false;
+  selectedProposal.value = null;
+  voteOption.value = '';
+}
+
+async function castVote() {
+  if (!voteOption.value || !selectedProposal.value || isVoting.value) return;
+
+  const profileId = activeProfileId.value;
+  const address = activeGovernanceAddress.value;
+  if (!profileId || !address) {
+    toast.error('Select a profile first.');
+    return;
+  }
+
+  const walletApi = lumen?.wallet;
+  if (!walletApi?.govVote) {
+    toast.error('Governance voting is not available.');
+    return;
+  }
+
+  isVoting.value = true;
+  try {
+    const result = await walletApi.govVote({
+      profileId,
+      address,
+      proposalId: selectedProposal.value.id,
+      option: voteOption.value,
+    });
+
+    if (await handleGovernanceSigningError(result)) return;
+    if (!toast.fromResult(result, 'Vote broadcasted.')) return;
+
+    closeVoteModal();
+    await fetchGovernanceProposals();
+  } catch (err: any) {
+    toast.error(err?.message || 'Failed to cast vote.');
+  } finally {
+    isVoting.value = false;
+  }
 }
 
 onMounted(() => {
-  fetchData();
-  void fetchNodeInfo();
-  const interval = setInterval(fetchData, 10000);
-  onBeforeUnmount(() => clearInterval(interval));
+  fetchGovernanceProposals();
+  void fetchGovernanceMinDeposit();
+  const governanceInterval = setInterval(fetchGovernanceProposals, 30000);
+  onBeforeUnmount(() => clearInterval(governanceInterval));
 });
-</script>
 
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    fetchGovernanceProposals();
+  },
+);
+</script>

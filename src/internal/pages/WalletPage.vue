@@ -2174,7 +2174,7 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
 }
 
 function openTransactionTab(txHash: string) {
-  const explorerUrl = `lumen://explorer/tx/${txHash}`;
+  const explorerUrl = `lumen://network/tx/${txHash}`;
   if (openInNewTab) {
     openInNewTab(explorerUrl);
     return;

@@ -9,9 +9,7 @@ import GatewaysPage from './pages/GatewaysPage.vue';
 import MyGatewaysPage from './pages/MyGatewaysPage.vue';
 import HelpPage from './pages/HelpPage.vue';
 import NetworkPage from './pages/NetworkPage.vue';
-import ExplorerPage from './pages/ExplorerPage.vue';
 import BlockDetailPage from './pages/BlockDetailPage.vue';
-import DaoPage from './pages/DaoPage.vue';
 import ReleasePage from './pages/ReleasePage.vue';
 import WalletPage from './pages/WalletPage.vue';
 import DomainPage from './pages/DomainPage.vue';
@@ -41,12 +39,10 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   network: { component: NetworkPage, title: 'Network' },
   gateways: { component: GatewaysPage, title: 'Gateways' },
   'my-gateways': { component: MyGatewaysPage, title: 'My Gateways' },
-  explorer: { component: ExplorerPage, title: 'Explorer' },
   block: { component: BlockDetailPage, title: 'Block Details' },
   transaction: { component: TransactionDetailPage, title: 'Transaction Details' },
   tx: { component: TransactionDetailPage, title: 'Transaction Details' },
   address: { component: AddressDetailPage, title: 'Address Details' },
-  dao: { component: DaoPage, title: 'DAO' },
   release: { component: ReleasePage, title: 'Release' },
   help: { component: HelpPage, title: 'Help' }
 };
@@ -89,11 +85,9 @@ export const ALL_COMPONENTS = [
   MyGatewaysPage,
   HelpPage,
   NetworkPage,
-  ExplorerPage,
   BlockDetailPage,
   TransactionDetailPage,
   AddressDetailPage,
-  DaoPage,
   ReleasePage,
   WalletPage,
   DomainPage,
@@ -130,8 +124,8 @@ export function getInternalTitle(rawUrl: string): string {
     if (routeInfo?.name) return routeInfo.name;
   }
   // Block/tx/address detail views are usually reached as embedded sub-views of
-  // ExplorerPage (lumen://explorer/block/<h>, /tx/<hash>, /address/<addr> -
-  // host is "explorer", not "block"/"tx"/"address"), so these must match on
+  // NetworkPage (lumen://network/block/<h>, /tx/<hash>, /address/<addr> -
+  // host is "network", not "block"/"tx"/"address"), so these must match on
   // the URL's PATH rather than on `key` (the host).
   const blockMatch = asString.match(/\/block\/(\d+)/i);
   if (blockMatch) return `Block details ${blockMatch[1]}`;
