@@ -94,6 +94,10 @@ Bibi.preset({
 
 // "src" is relative path from this preset file to the JavaScript file of the extension.
 // "id" must be defined in each extension file.
+// Nothing needs to be declared here for the zip extractor / sanitizer: Bibi
+// auto-detects and loads whichever extractor it needs (see `x.loadExtensions`
+// in bibi.js) whenever `accept-local-file`/`accept-blob-converted-data` is
+// enabled below - which it is by default.
 "extensions": [
     // { "src": "../extensions/FOLDER-NAME-IF-EXISTS/FILE-NAME.js" }, // <THIS LINE IS AN EXAMPLE>
 ""],
@@ -141,21 +145,41 @@ Bibi.preset({
 // But on the other hand, it may also allow XSS of malicious EPUB in some cases.
 
 /* !!!! BE CAREFUL !!!! */ "trustworthy-origins" : (() => { // origins you trust other than where this Bibi is installed. (blank is recommended).
+	const origins = [];
+
 	// Lumen patch: allow opening remote IPFS gateway URLs by trusting the origin of `book`/`zine`
 	// only when the path contains "/ipfs/" or "/ipns/".
 	try {
 		const current = new URL(window.location.href);
 		const book = current.searchParams.get("book") || current.searchParams.get("zine");
-		if(!book) return [];
-		const bookUrl = new URL(book, current.href);
-		const origin = String(bookUrl.origin || "").replace(/\/$/, "");
-		if(!/^https?:\/\/[^\/]+$/.test(origin)) return [];
-		const path = String(bookUrl.pathname || "");
-		if(!/(^|\/)(ipfs|ipns)\//i.test(path)) return [];
-		return [origin];
+		if(book){
+			const bookUrl = new URL(book, current.href);
+			const origin = String(bookUrl.origin || "").replace(/\/$/, "");
+			const path = String(bookUrl.pathname || "");
+			if(/^https?:\/\/[^\/]+$/.test(origin) && /(^|\/)(ipfs|ipns)\//i.test(path)) origins.push(origin);
+		}
 	} catch {
-		return [];
+		// ignore
 	}
+
+	// Lumen patch: when Bibi is embedded in a `srcdoc` iframe (no navigable
+	// URL of its own - see IpfsPage.vue's EPUB reader), `window.location`
+	// doesn't reliably reflect where Bibi's own files (bibi.js, its
+	// extensions, etc.) are actually hosted from, which makes bibi.js's own
+	// same-origin trust check (`U.Origin`, derived from `window.location`)
+	// unreliable and silently breaks extension loading (`X.load` in bibi.js
+	// rejects every extension as untrusted, logged but never surfaced, until
+	// Bibi crashes much later trying to use one). `document.baseURI` instead
+	// reflects the `<base href>` Lumen injects, which is where every one of
+	// Bibi's own files (including its extensions) is actually resolved from -
+	// trust that origin directly.
+	try {
+		origins.push(new URL(document.baseURI).origin);
+	} catch {
+		// ignore
+	}
+
+	return origins;
 })(),
 // If you add origins to it, Bibi is made to open not only EPUBs in the same origin as Bibi itself is installed but also EPUBs in remote origins.
 // It is useful for some cases like that you want to set directory on the other storaging server as "bookshelf".

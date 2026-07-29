@@ -3,6 +3,12 @@
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
     <UiLoadingState v-if="loading" message="Loading transaction data..." />
 
+    <div v-else-if="pending" class="flex flex-column flex-align-justify-center gap-16px min-h-300px text-center">
+      <Clock :size="32" class="color-warning" />
+      <p class="color-text-primary text-16px txt-weight-medium m-0px">Confirming transaction…</p>
+      <p class="color-text-secondary text-14px max-w-420px m-0px">Your transaction was broadcast successfully and is waiting to be indexed. This usually takes just a few moments — check back shortly to see the details.</p>
+    </div>
+
     <UiErrorState v-else-if="error" :message="error" />
 
     <div v-else-if="transaction" class="flex flex-column gap-24px">
@@ -84,12 +90,14 @@ import UiLoadingState from '../../ui/UiLoadingState.vue';
 import UiCopyField from '../../ui/UiCopyField.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
+import { Clock } from 'lucide-vue-next';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 
 const loading = ref(true);
 const error = ref('');
+const pending = ref(false);
 const transaction = ref<any>(null);
 
 useTabLoadingSync(loading);
@@ -140,14 +148,20 @@ async function loadTransactionData() {
   try {
     loading.value = true;
     error.value = '';
+    pending.value = false;
 
     const upperHash = txHash.value.toUpperCase();
-    
+
     const response = await lumen.net.rpcGet(`/tx?hash=0x${upperHash}`);
-    
+
     if (!response.ok) {
       if (response.json && response.json.error) {
         const rpcError = response.json.error;
+        if (rpcError.data && rpcError.data.includes('transaction indexing is disabled')) {
+          pending.value = true;
+          loading.value = false;
+          return;
+        }
         if (rpcError.data && rpcError.data.includes('not found')) {
           throw new Error(`Transaction not found: ${txHash.value}\n\nThis transaction may not exist on the blockchain or hasn't been indexed yet.`);
         }
@@ -158,14 +172,19 @@ async function loadTransactionData() {
     }
 
     const data = response.json;
-    
+
     if (data.error) {
+      if (data.error.data && data.error.data.includes('transaction indexing is disabled')) {
+        pending.value = true;
+        loading.value = false;
+        return;
+      }
       if (data.error.data && data.error.data.includes('not found')) {
         throw new Error(`Transaction not found: ${txHash.value}\n\nThis transaction may not exist on the blockchain or hasn't been indexed yet.`);
       }
       throw new Error(`RPC Error: ${data.error.message || 'Unknown error'}`);
     }
-    
+
     if (!data.result) {
       throw new Error('Transaction not found');
     }

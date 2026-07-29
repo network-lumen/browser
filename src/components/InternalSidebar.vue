@@ -49,7 +49,7 @@
 
     <div v-if="showVersion || $slots.footer" class="flex flex-column pt-12px gap-6px border-top-05-border-light">
       <slot name="footer" />
-      <div v-if="showVersion" class="color-text-tertiary text-center text-11px p-8px">
+      <div v-if="showVersion" class="color-text-tertiary text-center text-10px py-2px px-8px">
         Lumen v{{ appVersion }}
       </div>
     </div>

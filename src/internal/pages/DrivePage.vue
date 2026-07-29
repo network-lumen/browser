@@ -1341,9 +1341,21 @@ const stats = ref<IpfsStats | null>(null);
 const hosting = ref<HostingState>({ kind: "local", gatewayId: "" });
 
 // Search and Pagination
+const ITEMS_PER_PAGE_KEY = "lumen:drive:itemsPerPage:v1";
+const ALLOWED_ITEMS_PER_PAGE = [10, 20, 50, 100];
+
+function loadItemsPerPage(): number {
+  const stored = Number(localStorage.getItem(ITEMS_PER_PAGE_KEY));
+  return ALLOWED_ITEMS_PER_PAGE.includes(stored) ? stored : 20;
+}
+
 const searchQuery = ref("");
 const currentPage = ref(1);
-const itemsPerPage = ref(20);
+const itemsPerPage = ref(loadItemsPerPage());
+
+watch(itemsPerPage, (next) => {
+  localStorage.setItem(ITEMS_PER_PAGE_KEY, String(next));
+});
 
 const uploading = ref(false);
 

@@ -183,12 +183,21 @@
             class="h-75vh w-full border-radius-12px border-1 bg-primary"
           ></iframe>
 
-          <iframe
-            v-else-if="viewKind === 'epub'"
-            :src="epubReaderUrl"
-            class="h-75vh w-full border-radius-12px border-1 bg-primary"
-            allow="fullscreen"
-          ></iframe>
+          <template v-else-if="viewKind === 'epub'">
+            <UiCard v-if="epubReaderLoading" padding="none" :shadow="false" class="flex-align-center gap-12px p-16px">
+              <UiSpinner size="md" />
+              <span>Preparing EPUB reader…</span>
+            </UiCard>
+            <div v-else-if="epubReaderError" class="p-16px border-radius-16px color-error bg-fill-error border-05-error-a35">
+              {{ epubReaderError }}
+            </div>
+            <iframe
+              v-else-if="epubReaderSrcDoc"
+              :srcdoc="epubReaderSrcDoc"
+              class="h-75vh w-full border-radius-12px border-1 bg-primary"
+              allow="fullscreen"
+            ></iframe>
+          </template>
 
           <pre v-else-if="viewKind === 'docx'" class="w-full text-14px color-text-primary overflow-auto pre-wrap max-h-75vh">{{
             docxContent
@@ -583,14 +592,83 @@ const epubBookUrl = computed(() => {
   return `${b}/${rootProto.value}/${rootCid.value}${p}${suf}`;
 });
 
-const epubReaderUrl = computed(() => {
+// Bibi refuses to load a book "via URL" whenever ITS OWN page is loaded over
+// file:// (it checks `location.protocol` and treats that as "local mode" -
+// see public/lib/bibi/resources/scripts/bibi.js's `U.Local` / `initializeBook`).
+// That's exactly what happens in the packaged app (the whole renderer is
+// served via file://), so pointing the iframe at `index.html?book=<url>`
+// throws "Bibi can't open books via URL on local mode" for any local IPFS
+// content. Bibi also supports embedding the book's bytes directly as Base64
+// in its `#bibi-book-data` element (see `N.initialize` in bibi.js) - that
+// path never checks `U.Local` at all, so we fetch the EPUB ourselves and
+// build a self-contained HTML document for the iframe's `srcdoc` instead of
+// just linking to Bibi's static index.html.
+//
+// The <base href> below is also what makes Bibi's own extension loader work
+// correctly in this srcdoc-embedded context: see the "Lumen patch" comment
+// on `trustworthy-origins` in public/lib/bibi/presets/default.js for why
+// that was needed (bibi.js's own same-origin trust check for extensions is
+// derived from `window.location`, which doesn't reliably reflect where
+// Bibi's files are actually hosted from when there's no real navigable URL -
+// `document.baseURI` does, since it reflects this exact <base> tag).
+const epubReaderSrcDoc = ref("");
+const epubReaderLoading = ref(false);
+const epubReaderError = ref("");
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const CHUNK = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+  }
+  return btoa(binary);
+}
+
+async function buildEpubReaderSrcDoc() {
   const book = String(epubBookUrl.value || "").trim();
-  if (!book) return "";
   const bibi = String(bibiOrigin.value || "").replace(/\/+$/, "");
-  if (!bibi) return "";
-  return `${bibi}/index.html?book=${encodeURIComponent(
-    book,
-  )}#autostart=1&ui=full&reader=view`;
+  epubReaderSrcDoc.value = "";
+  epubReaderError.value = "";
+  if (!book || !bibi) return;
+
+  epubReaderLoading.value = true;
+  try {
+    const [bookRes, tplRes] = await Promise.all([
+      fetch(book),
+      fetch(`${bibi}/index.html`),
+    ]);
+    if (!bookRes.ok) throw new Error(`Failed to fetch EPUB (status ${bookRes.status})`);
+    if (!tplRes.ok) throw new Error(`Failed to load EPUB reader (status ${tplRes.status})`);
+
+    const base64 = arrayBufferToBase64(await bookRes.arrayBuffer());
+    const tpl = await tplRes.text();
+
+    const doc = new DOMParser().parseFromString(tpl, "text/html");
+    const baseEl = doc.createElement("base");
+    baseEl.href = `${bibi}/`;
+    doc.head.insertBefore(baseEl, doc.head.firstChild);
+
+    const bookDataEl = doc.getElementById("bibi-book-data");
+    if (!bookDataEl) throw new Error("EPUB reader template is missing its book-data element");
+    bookDataEl.textContent = base64;
+    bookDataEl.setAttribute("data-bibi-book-mimetype", "application/epub+zip");
+
+    epubReaderSrcDoc.value = `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
+  } catch (e: any) {
+    epubReaderError.value = String(e?.message || e || "Failed to open EPUB");
+  } finally {
+    epubReaderLoading.value = false;
+  }
+}
+
+watch([viewKind, epubBookUrl, bibiOrigin], ([kind]) => {
+  if (kind === "epub") {
+    buildEpubReaderSrcDoc();
+  } else {
+    epubReaderSrcDoc.value = "";
+    epubReaderError.value = "";
+  }
 });
 
 function decodeSafe(seg: string): string {

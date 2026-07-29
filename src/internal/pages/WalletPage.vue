@@ -315,11 +315,6 @@
         <UiChartHeader v-if="activities.length > 0" title="Recent Transactions">
           <div class="flex-align-center flex-wrap-wrap gap-12px">
             <div class="flex-align-center gap-8px">
-              <select v-model="txFilterType" class="hover-border-accent focus-border-primary color-text-primary cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card text-14px transition-all-02 focus-outline-none focus-ring focus-shadow">
-                <option value="all">All Types</option>
-                <option value="send">Send</option>
-                <option value="receive">Receive</option>
-              </select>
               <select v-model="txFilterStatus" class="hover-border-accent focus-border-primary color-text-primary cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card text-14px transition-all-02 focus-outline-none focus-ring focus-shadow">
                 <option value="all">All Status</option>
                 <option value="success">Success</option>
@@ -1015,7 +1010,6 @@ const txMetaByHash = ref<
 >({});
 
 // Transaction Filters
-const txFilterType = ref<'all' | 'send' | 'receive'>('all');
 const txFilterStatus = ref<'all' | 'success' | 'pending' | 'failed'>('all');
 const txSearchQuery = ref('');
 
@@ -1422,11 +1416,6 @@ const enhancedActivities = computed(() => {
       to: toAddr || undefined
     };
   });
-
-  // Apply type filter
-  if (txFilterType.value !== 'all') {
-    filtered = filtered.filter(tx => tx.type === txFilterType.value);
-  }
 
   // Apply status filter
   if (txFilterStatus.value !== 'all') {
