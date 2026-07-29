@@ -7,6 +7,9 @@ export type FavouriteEntry = {
   updatedAt: number;
 };
 
+export type FavMap = Record<string, FavouriteEntry[]>;
+export type LegacyFavMap = Record<string, string[]>;
+
 export type FavouriteKind = "internal" | "search" | "web" | "file" | "other";
 
 export type FavouriteMeta = {

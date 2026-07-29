@@ -938,6 +938,18 @@ import SubscriptionsView from '../../components/SubscriptionsView.vue';
 import { parseWalletConnectUri } from '../services/walletconnect';
 import { getRecurringPaymentsService } from '../services/recurringPayments';
 import { useToast } from '../../composables/useToast';
+import type {
+  SendTargetMode,
+  IbcChannelOption,
+  KnownIbcChainMeta,
+  AssetTransferTarget,
+  AssetRow,
+  DexQuickLink,
+  DexMarketPreview,
+  DexListingConfig,
+  DexStatus,
+  DexRow
+} from '../../types/walletPage';
 
 const currentView = ref<'overview' | 'assets' | 'dex' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
@@ -1006,110 +1018,6 @@ const txMetaByHash = ref<
 const txFilterType = ref<'all' | 'send' | 'receive'>('all');
 const txFilterStatus = ref<'all' | 'success' | 'pending' | 'failed'>('all');
 const txSearchQuery = ref('');
-
-type SendTargetMode = 'lumen' | 'ibc';
-type IbcChannelOption = {
-  channelId: string;
-  portId: string;
-  counterpartyChannelId: string;
-  counterpartyPortId: string;
-  connectionId: string;
-  state: string;
-  chainId: string;
-  prefixHints: string[];
-  label: string;
-};
-
-type KnownIbcChainMeta = {
-  label: string;
-  addressPrefix: string;
-  restEndpoint: string;
-  rpcEndpoint: string;
-  nativeDenom: string;
-  feeDenom: string;
-  minGasPrice: number;
-  iconText: string;
-  chainRegistryName?: string;
-};
-
-type AssetTransferTarget = {
-  key: string;
-  chainId: string;
-  chainLabel: string;
-  addressPrefix: string;
-  defaultRecipient: string;
-  sourceChannel: string;
-  sourcePort: string;
-  routeLabel: string;
-};
-
-type AssetRow = {
-  id: string;
-  chainId: string;
-  chainLabel: string;
-  ownerAddress: string;
-  denom: string;
-  microAmount: string;
-  displayAmount: string;
-  displayName: string;
-  displaySymbol: string;
-  iconText: string;
-  iconClass: string;
-  iconUrl: string;
-  addressLabel: string;
-  traceLabel: string;
-  routeLabel: string;
-  error: string;
-  sendEnabled: boolean;
-  sendButtonLabel: string;
-  transferTargets: AssetTransferTarget[];
-  transferEnabled: boolean;
-  transferButtonLabel: string;
-  rpcEndpoint: string;
-  restEndpoint: string;
-  feeDenom: string;
-};
-
-type DexQuickLink = {
-  label: string;
-  url: string;
-};
-
-type DexMarketPreview = {
-  pair: string;
-  lastPrice: string;
-  quoteVolume: string;
-};
-
-type DexListingConfig = {
-  key: string;
-  name: string;
-  chainId: string;
-  chainLabel: string;
-  restEndpoint: string;
-  baseUrl: string;
-  openUrl?: string;
-  logoUrl: string;
-  logoTheme?: 'default' | 'dark';
-  iconText: string;
-  description: string;
-  fallbackLinks: DexQuickLink[];
-};
-
-type DexStatus = 'idle' | 'loading' | 'online' | 'degraded' | 'error';
-
-type DexRow = DexListingConfig & {
-  status: DexStatus;
-  siteTitle: string;
-  tradingPairsCount: number | null;
-  liquidityPoolsCount: number | null;
-  featuredMarketPair: string;
-  featuredPoolPair: string;
-  quickLinks: DexQuickLink[];
-  marketPreview: DexMarketPreview | null;
-  error: string;
-  lastCheckedAt: string;
-};
 
 const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
   'beezee-1': {

@@ -856,6 +856,7 @@ import {
   parseSecuritySessionTimeoutMs,
   stringifySecuritySessionTimeoutMs,
 } from '../services/securitySessionTimeout';
+import type { BootstrapPathState } from '../../types/settingsPage';
 
 const toast = useToast();
 const appVersion = String((pkg as any)?.version || '0.0.0');
@@ -938,17 +939,6 @@ const renameProfileTarget = computed(
 const avatarProfileTarget = computed(
   () => profiles.value.find((p) => p.id === avatarProfileId.value) || null,
 );
-
-type BootstrapPathState = {
-  bootstrapConfigPath: string;
-  defaultUserDataPath: string;
-  customUserDataPath: string;
-  usingCustomUserDataPath: boolean;
-  effectiveUserDataPath: string;
-  activeUserDataPath: string;
-  activeLogsPath: string;
-  restartRequired: boolean;
-};
 
 const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');

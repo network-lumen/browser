@@ -3,26 +3,7 @@ import pkg from '../../../package.json';
 import { addToast } from '../../stores/toastStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard } from '../../composables/useClipboard';
-
-type LatestPayload = {
-  version: string;
-  channel: string;
-  platform: string;
-  kind: string;
-  release: any;
-  blocked?: boolean;
-  blockedReason?: string | null;
-  blockedMessage?: string | null;
-  artifact: {
-    platform: string;
-    kind: string;
-    size?: number | null;
-    sha256Hex?: string | null;
-    urls?: string[];
-    cid?: string | null;
-  };
-  downloadUrl: string | null;
-};
+import type { LatestPayload, SemverParts } from '../../types/releaseUpdates';
 
 const REMIND_INTERVAL_MS = 10 * 60 * 1000;
 const STORAGE_SNOOZE_UNTIL = 'lumen:release:snoozeUntil';
@@ -33,8 +14,6 @@ const busy = ref(false);
 const updateProgress = ref<any | null>(null);
 const initialized = ref(false);
 let lastBlockedToastKey = '';
-
-type SemverParts = { major: number; minor: number; patch: number; pre: string[] };
 
 function parseSemver(input: string): SemverParts | null {
   const s = String(input || '').trim();

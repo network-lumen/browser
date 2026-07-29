@@ -18,19 +18,7 @@ import {
   getInternalTitle,
 } from "../internal/routes";
 import { isBrowserUrl, normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
-
-type TabHistoryEntry = { url: string; title?: string };
-type Tab = {
-  id: string;
-  url?: string;
-  draftUrl?: string;
-  title?: string;
-  history?: TabHistoryEntry[];
-  history_position?: number;
-  loading?: boolean;
-  refreshTick?: number;
-  favicon?: string | null;
-};
+import type { Tab, TabHistoryEntry } from "../types/tab";
 
 const props = defineProps<{
   tab: Tab;

@@ -454,19 +454,10 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
 import { loadStableLinkRecords } from '../services/contentResolver';
+import type { DomainRow, RawDomainRow, SettingsRecord } from '../../types/domainPage';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
-
-type DomainRow = {
-  name: string;
-  expireAtSeconds: number | null;
-};
-
-type RawDomainRow = {
-  name: string;
-  id: string;
-};
 
 const profiles = profilesState;
 const activeProfile = computed(
@@ -524,7 +515,6 @@ const registerForm = ref({
 
 const showSettingsModal = ref(false);
 const selectedDomain = ref<DomainRow | null>(null);
-type SettingsRecord = { key: string; value: string };
 const settingsRecords = ref<SettingsRecord[]>([]);
 const settingsPqcParams = ref<any | null>(null);
 const settingsWalletBalanceLMN = ref<number | null>(null);

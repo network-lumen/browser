@@ -16,8 +16,7 @@ import { appSettingsState } from "../internal/services/appSettings";
 import { getSecuritySessionTimeoutIdleText } from "../internal/services/securitySessionTimeout";
 import PasswordPromptModal from "./PasswordPromptModal.vue";
 import { useInternalLumen } from '../composables/useInternalLumen';
-
-type LockReason = "startup" | "idle";
+import type { LockReason } from '../types/securityGate';
 
 const passwordEnabled = ref(false);
 const hasPassword = ref(false);

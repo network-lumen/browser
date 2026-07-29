@@ -310,50 +310,7 @@ import { addToast } from '../../stores/toastStore';
 import { getActiveProfile } from '../profilesStore';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-
-type ReleaseParams = {
-  allowedPublishers: string[];
-  channels: string[];
-  maxArtifacts: number;
-  maxUrlsPerArt: number;
-  maxSigsPerArt: number;
-  maxNotesLen: number;
-  maxPendingTtl: string;
-  publishFeeUlmn: string;
-};
-
-type ArtifactRecord = {
-  platform: string;
-  kind: string;
-  sha256Hex: string;
-  size: number;
-  cid?: string;
-  urls: string[];
-};
-
-type ReleaseRecord = {
-  id: number;
-  version: string;
-  channel: string;
-  notes: string;
-  publisher: string;
-  createdAt: number;
-  yanked: boolean;
-  status: string;
-  artifacts: ArtifactRecord[];
-  supersedes: number[];
-  emergencyOk: boolean;
-};
-
-type ArtifactDraft = {
-  id: string;
-  platform: string;
-  kind: string;
-  cid: string;
-  sha256Hex: string;
-  size: string;
-  urlsText: string;
-};
+import type { ReleaseParams, ArtifactRecord, ReleaseRecord, ArtifactDraft, DaoKind } from '../../types/releasePage';
 
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
@@ -370,8 +327,6 @@ const channelFilter = ref<'all' | string>('all');
 
 const publishModalOpen = ref(false);
 const submitting = ref(false);
-
-type DaoKind = 'validate' | 'reject';
 
 const daoModalOpen = ref(false);
 const submittingDao = ref(false);

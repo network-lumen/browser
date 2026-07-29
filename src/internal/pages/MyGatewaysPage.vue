@@ -316,17 +316,7 @@ import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
-
-interface Gateway {
-  id: string;
-  name: string;
-  url: string;
-  apiKey: string;
-  createdAt: number;
-  updatedAt: number;
-  status: 'active' | 'inactive' | 'error';
-  owner: string;
-}
+import type { Gateway } from '../../types/myGatewaysPage';
 
 const gateways = ref<Gateway[]>([]);
 const loading = ref(false);

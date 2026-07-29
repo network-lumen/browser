@@ -38,14 +38,7 @@ import { X } from "lucide-vue-next";
 import { isBrowserUrl, isExtensionUrl } from "../internal/navigationUrl";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import UiExtensionStatus from '../ui/UiExtensionStatus.vue';
-
-type InstalledExtension = {
-  id: string;
-  runtimeId: string;
-  name: string;
-  enabled: boolean;
-  launchUrl: string;
-};
+import type { InstalledExtension } from '../types/extension';
 
 const props = defineProps<{
   extensionId: string;

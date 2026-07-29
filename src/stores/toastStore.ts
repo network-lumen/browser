@@ -1,6 +1,8 @@
 import { ref, readonly, type Ref } from 'vue';
 import type { Toast, ToastType } from '../types/toast';
 
+export type { Toast, ToastType };
+
 // Global shared toast state - singleton pattern
 const toasts = ref<Toast[]>([]);
 let toastCounter = 0;

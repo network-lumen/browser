@@ -9,3 +9,10 @@ export interface Toast {
   dismissible?: boolean;
   copyable?: boolean;
 }
+
+export interface ToastOptions {
+  title?: string;
+  duration?: number;
+  dismissible?: boolean;
+  copyable?: boolean;
+}

@@ -1,6 +1,6 @@
 import { getLocalGatewayBase } from './appSettings';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import type { DomainTarget, ResolverRecord } from '../../types/domain';
+import type { DomainTarget, ResolverRecord, GatewayCache } from '../../types/domain';
 
 export type { DomainTarget, ResolverRecord };
 
@@ -8,7 +8,6 @@ export function localIpfsGatewayBase(): string {
   return getLocalGatewayBase();
 }
 
-type GatewayCache = { ts: number; bases: string[] } | null;
 let gatewayCache: GatewayCache = null;
 
 export function normalizePath(p: string): string {

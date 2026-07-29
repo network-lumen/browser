@@ -1318,30 +1318,18 @@ import {
 import JSZip from "jszip";
 import { useToast } from "../../composables/useToast";
 import type { DriveFile } from "../../types/upload";
-
-type HlsQueueItemStatus =
-  | "queued"
-  | "converting"
-  | "paused"
-  | "done"
-  | "failed"
-  | "cancelled";
-
-interface HlsQueueItem {
-  id: string;
-  file: DriveFile;
-  status: HlsQueueItemStatus;
-  error?: string;
-}
-
-interface IpfsStats {
-  repoSize: number;
-  storageMax: number;
-  numObjects: number;
-}
-
-type HostingKind = "local" | "gateway";
-type HostingState = { kind: HostingKind; gatewayId: string };
+import type {
+  HlsQueueItemStatus,
+  HlsQueueItem,
+  IpfsStats,
+  HostingKind,
+  HostingState,
+  PlanView,
+  SubscriptionView,
+  GatewayView,
+  DriveBackupSnapshotV1,
+  DriveBackupSnapshot,
+} from "../../types/drivePage";
 
 const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);
@@ -1516,36 +1504,6 @@ const gatewayDetailsPinned = ref<string[]>([]);
 const gatewayDetailsPinnedError = ref("");
 const optimisticGatewayPinned = ref<Record<string, Record<string, number>>>({});
 const OPTIMISTIC_GATEWAY_PIN_TTL_MS = 2 * 60 * 1000;
-
-// Gateway plans (DrivePanel-style "Plans" entry)
-type PlanView = {
-  id: string;
-  planId: string;
-  gatewayId: string;
-  gatewayName: string;
-  gatewayEndpoint?: string;
-  priceUlmn: number;
-  storageGbPerMonth?: number;
-  networkGbPerMonth?: number;
-  monthsTotal: number;
-  description?: string;
-};
-
-type SubscriptionView = {
-  id: string;
-  gatewayId: string;
-  status: string;
-  metadata?: Record<string, any>;
-};
-
-type GatewayView = {
-  id: string;
-  endpoint: string;
-  operator: string;
-  regions: string[];
-  active: boolean;
-  score?: number;
-};
 
 const showPlansModal = ref(false);
 const plans = ref<PlanView[]>([]);
@@ -3632,42 +3590,6 @@ function saveLocalNames() {
     // ignore
   }
 }
-
-type DriveBackupSnapshotV1 = {
-  type: "lumen.driveBackup.snapshot";
-  version: 1;
-  createdAt: number;
-  seq: number;
-  walletAddress: string;
-  drive: {
-    files: DriveFile[];
-    localNames: Record<string, string>;
-  };
-  favourites: string[];
-};
-
-type DriveBackupSnapshotV2 = {
-  type: "lumen.driveBackup.snapshot";
-  version: 2;
-  createdAt: number;
-  seq: number;
-  walletAddress: string;
-  drive: {
-    files: DriveFile[];
-    localNames: Record<string, string>;
-  };
-  favourites: string[];
-  shortcutEntries: {
-    id?: string;
-    url: string;
-    title?: string;
-    pinned?: boolean;
-    createdAt?: number;
-    updatedAt?: number;
-  }[];
-};
-
-type DriveBackupSnapshot = DriveBackupSnapshotV1 | DriveBackupSnapshotV2;
 
 const DRIVE_BACKUP_SEQ_KEY_PREFIX = "lumen:driveBackup:seq:v1";
 const DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastExportAt:v1";

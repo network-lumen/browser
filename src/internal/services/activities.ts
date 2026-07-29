@@ -1,11 +1,7 @@
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import type { Activity, ActivityType } from '../../types/activities';
+import type { Activity, ActivityType, ListActivitiesParams, CacheEntry } from '../../types/activities';
 
 export type { Activity, ActivityType };
-
-type ListActivitiesParams = { walletId: string; limit?: number; offset?: number };
-
-type CacheEntry = { data: Activity[]; expiresAt: number };
 
 const ACTIVITIES_TTL_MS = 30_000;
 const activitiesCache = new Map<string, CacheEntry>();

@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
-import type { Profile } from '../types/profile';
+import type { Profile, ManualProfileSourceResult, ManualPqcSourceResult } from '../types/profile';
 
 export type { Profile };
 

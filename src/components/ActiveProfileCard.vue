@@ -15,13 +15,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ProfileAvatar from './ProfileAvatar.vue';
-
-type ProfileLike = {
-  id?: string;
-  name?: string;
-  colorIndex?: number;
-  role?: 'guest' | 'user';
-};
+import type { ProfileLike } from '../types/profile';
 
 const props = withDefaults(defineProps<{
   profile: ProfileLike | null;

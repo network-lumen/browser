@@ -9,7 +9,17 @@ export type Profile = {
   favourites?: Record<string, string>;
 };
 
-type ManualProfileSourceResult = {
+// Loose display-only view of a Profile, used where only a partial/possibly
+// not-yet-loaded profile is available (e.g. avatar/card widgets).
+export type ProfileLike = {
+  id?: string;
+  name?: string;
+  colorIndex?: number;
+  role?: 'guest' | 'user';
+  avatarDataUrl?: string;
+};
+
+export type ManualProfileSourceResult = {
   ok: boolean;
   name?: string;
   mnemonic?: string;
@@ -21,7 +31,7 @@ type ManualProfileSourceResult = {
   error?: string;
 };
 
-type ManualPqcSourceResult = {
+export type ManualPqcSourceResult = {
   ok: boolean;
   pqcPublicKey?: string;
   pqcPrivateKey?: string;

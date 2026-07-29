@@ -61,13 +61,9 @@ import UiModal from '../ui/UiModal.vue';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { BrowserMultiFormatReader } from '@zxing/library';
 import { AlertCircle, CheckCircle, RefreshCw, QrCode, Check } from 'lucide-vue-next';
+import type { QrScannerProps } from '../types/qrScanner';
 
-interface Props {
-  title?: string;
-  acceptedTypes?: ('address' | 'payment' | 'walletconnect')[];
-}
-
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<QrScannerProps>(), {
   title: 'Scan QR Code',
   acceptedTypes: () => ['address', 'payment', 'walletconnect']
 });

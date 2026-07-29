@@ -14,14 +14,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { User } from 'lucide-vue-next';
-
-type ProfileLike = {
-  id?: string;
-  name?: string;
-  colorIndex?: number;
-  role?: 'guest' | 'user';
-  avatarDataUrl?: string;
-};
+import type { ProfileLike } from '../types/profile';
 
 const props = withDefaults(defineProps<{
   profile?: ProfileLike | null;

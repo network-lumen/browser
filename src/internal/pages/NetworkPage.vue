@@ -232,6 +232,7 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
+import type { Block } from '../../types/networkPage';
 
 // Window interface
 const lumen = useInternalLumen();
@@ -281,14 +282,6 @@ const txHistory = ref<number[]>([]);
 const maxTps = ref(0);
 
 // Recent blocks
-interface Block {
-  height: number;
-  time: string;
-  txs: number;
-  validator: string;
-  validatorAvatar?: string;
-}
-
 const recentBlocks = ref<Block[]>([]);
 const avatarCache = ref<Record<string, string>>({});
 const proposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});

@@ -12,9 +12,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-
-type Variant = 'ghost' | 'primary' | 'secondary' | 'danger' | 'icon' | 'cta' | 'tag' | 'none';
-type Size = 'xs' | 'sm' | 'md';
+import type { Variant, Size } from '../types/uiButton';
 
 const props = withDefaults(defineProps<{
   variant?: Variant;

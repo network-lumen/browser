@@ -27,3 +27,7 @@ export interface Activity {
   sender?: string;
   recipient?: string;
 }
+
+export type ListActivitiesParams = { walletId: string; limit?: number; offset?: number };
+
+export type CacheEntry = { data: Activity[]; expiresAt: number };

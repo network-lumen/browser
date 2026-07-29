@@ -123,18 +123,7 @@ import { useInternalLumen } from '../composables/useInternalLumen';
     resolveDomainTarget,
     resolveIpnsToCid,
   } from '../internal/services/contentResolver';
-
-
-type TabHistoryEntry = { url: string; title?: string };
-  type Tab = {
-    id: string;
-    url?: string;
-    draftUrl?: string;
-    history: TabHistoryEntry[];
-    history_position: number;
-    loading?: boolean;
-    favicon?: string | null;
-  };
+import type { Tab } from '../types/tab';
 
 const tabs = ref<Tab[]>([]);
 const activeId = ref<string>('');
