@@ -15,6 +15,13 @@
             <UiTag variant="success">free</UiTag>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
+
+        <UiSidebarNavSection title="Help">
+          <UiSidebarNavItem reveal @click="openInNewTab?.('lumen://help/publish')">
+            <Rocket class="reveal-target flex-shrink-0 opacity-85" :size="16" />
+            <span>Publish my site</span>
+          </UiSidebarNavItem>
+        </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
@@ -98,9 +105,9 @@
       </UiCard>
 
       <UiCard v-else border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
-        <UiLoadingBlock v-if="rawDomainsLoading" message="Loading stable links..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
+        <UiLoadingBlock v-if="rawDomainsLoading" message="Loading ugly domains..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
         <UiErrorState v-else-if="rawDomainsError" :message="rawDomainsError" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
-        <UiEmptyState v-else-if="!rawDomains.length" title="Generate a stable link" description="Stable links are cryptographic names backed by IPNS.">
+        <UiEmptyState v-else-if="!rawDomains.length" title="Generate an ugly domain" description="Ugly domains are cryptographic names backed by IPNS.">
           <template #actions>
             <UiButton variant="primary" type="button" @click="createStableLink" class="outline-none">
               <Plus :size="16" />
@@ -117,7 +124,7 @@
                   type="text"
                   :value="stableLinkDisplayName(d.name)"
                   :disabled="renamingStableLinkName === d.name"
-                  title="Local stable link label"
+                  title="Local ugly domain label"
                   @keydown.enter.prevent="renameStableLinkFromEvent(d, $event)"
                   @blur="renameStableLinkFromEvent(d, $event)"
                 />
@@ -131,19 +138,19 @@
             </div>
             <div class="flex-align-center gap-6px">
               <UiButton variant="icon" type="button"
-                title="Open stable link"
+                title="Open ugly domain"
                 :disabled="!d.id"
                 @click="openRawDomain(d)">
                 <ExternalLink :size="16" />
               </UiButton>
               <UiButton variant="icon" type="button"
-                title="Copy stable link URL"
+                title="Copy ugly domain URL"
                 :disabled="!d.id"
                 @click="copyRawDomainUrl(d)">
                 <Copy :size="16" />
               </UiButton>
               <UiButton variant="icon" type="button"
-                title="Edit records"
+                title="Edit record"
                 :disabled="!d.name"
                 @click="openStableSettingsModal(d)">
                 <Settings :size="16" />
@@ -155,7 +162,7 @@
                 <Download :size="16" />
               </UiButton>
               <UiButton variant="danger" type="button"
-                title="Delete stable link"
+                title="Delete ugly domain"
                 :disabled="!d.name"
                 @click="deleteStableLink(d)">
                 <Trash2 :size="16" />
@@ -165,15 +172,15 @@
         </ul>
       </UiCard>
 
-      <UiModal :model-value="!!stableLinkModalMode" :title="stableLinkModalMode === 'import' ? 'Import stable link' : 'Generate stable link'" panel-class="max-w-500px" @update:model-value="closeStableLinkModal">
+      <UiModal :model-value="!!stableLinkModalMode" :title="stableLinkModalMode === 'import' ? 'Import ugly domain' : 'Generate ugly domain'" panel-class="max-w-500px" @update:model-value="closeStableLinkModal">
             <form class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px" @submit.prevent="confirmStableLinkModal">
               <p class="text-14px color-text-tertiary m-0px mb-12px">
                 {{ stableLinkModalMode === 'import'
-                  ? 'Choose a local private key file and attach it to this stable link name.'
-                  : 'Create a new IPNS-backed stable link with a local private key.' }}
+                  ? 'Choose a local private key file and attach it to this ugly domain name.'
+                  : 'Create a new IPNS-backed ugly domain with a local private key.' }}
               </p>
               <div class="mb-16px">
-                <label class="color-text-secondary block mb-4px text-13px">Stable link name</label>
+                <label class="color-text-secondary block mb-4px text-13px">Ugly domain name</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" v-model="stableLinkNameDraft"
                   autocomplete="off"
                   placeholder="my-link"
@@ -196,7 +203,7 @@
             </form>
       </UiModal>
 
-      <UiModal :model-value="showStableSettingsModal" title="Stable link record" panel-class="max-w-500px" @update:model-value="closeStableSettingsModal">
+      <UiModal :model-value="showStableSettingsModal" title="Ugly domain record" panel-class="max-w-500px" @update:model-value="closeStableSettingsModal">
             <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
               <div class="mb-16px">
                 <label class="color-text-secondary block mb-4px text-13px">Record (cid)</label>
@@ -220,7 +227,7 @@
                 <UiButton variant="primary" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading" class="outline-none">
                   <span v-if="!stableSettingsSaving" class="flex-inline-align-center gap-8px">
                     <Check :size="16" />
-                    Save records
+                    Save record
                   </span>
                   <UiSpinner v-else size="sm" />
                 </UiButton>
@@ -424,7 +431,8 @@ import {
   X,
   Send,
   Trash2,
-  HelpCircle
+  HelpCircle,
+  Rocket
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
@@ -601,13 +609,13 @@ async function loadRawDomains() {
   try {
     const api = useInternalLumen();
     if (!api?.ipfsKeyList) {
-      rawDomainsError.value = 'Stable link bridge not available.';
+      rawDomainsError.value = 'Ugly domain bridge not available.';
       rawDomains.value = [];
       return;
     }
     const res = await api.ipfsKeyList();
     if (!res?.ok) {
-      rawDomainsError.value = String(res?.error || 'Failed to load stable links.');
+      rawDomainsError.value = String(res?.error || 'Failed to load ugly domains.');
       rawDomains.value = [];
       return;
     }
@@ -623,7 +631,7 @@ async function loadRawDomains() {
       })
       .filter((key: RawDomainRow) => key.name && key.name !== 'self');
   } catch (e: any) {
-    rawDomainsError.value = String(e?.message || e || 'Failed to load stable links.');
+    rawDomainsError.value = String(e?.message || e || 'Failed to load ugly domains.');
     rawDomains.value = [];
   } finally {
     rawDomainsLoading.value = false;
@@ -684,11 +692,11 @@ async function confirmStableLinkModal() {
   if (!keyName) return;
   const api = useInternalLumen();
   if (mode === 'generate' && !api?.ipfsKeyGen) {
-    showToast('Stable link bridge not available.', 'error');
+    showToast('Ugly domain bridge not available.', 'error');
     return;
   }
   if (mode === 'import' && !api?.ipfsKeyImport) {
-    showToast('Stable link import is not available.', 'error');
+    showToast('Ugly domain import is not available.', 'error');
     return;
   }
 
@@ -700,14 +708,14 @@ async function confirmStableLinkModal() {
     if (res?.canceled) return;
     if (!res?.ok) {
       showToast(
-        String(res?.error || (mode === 'import' ? 'Failed to import stable link.' : 'Failed to generate stable link.')),
+        String(res?.error || (mode === 'import' ? 'Failed to import ugly domain.' : 'Failed to generate ugly domain.')),
         'error'
       );
       return;
     }
-    showToast(mode === 'import' ? 'Stable link imported.' : 'Stable link generated.', 'success');
+    showToast(mode === 'import' ? 'Ugly domain imported.' : 'Ugly domain generated.', 'success');
     if (mode === 'generate') {
-      showToast('Export this stable link private key so you can import it again later.', 'warning');
+      showToast('Export this ugly domain private key so you can import it again later.', 'warning');
     }
     stableLinkModalMode.value = null;
     stableLinkNameDraft.value = '';
@@ -723,17 +731,17 @@ async function renameStableLink(d: RawDomainRow, nextLabelRaw: string) {
   if (!currentName || !nextName || currentName === nextName) return;
   const api = useInternalLumen();
   if (!api?.ipfsKeyRename) {
-    showToast('Stable link rename is not available.', 'error');
+    showToast('Ugly domain rename is not available.', 'error');
     return;
   }
   renamingStableLinkName.value = currentName;
   try {
     const res = await api.ipfsKeyRename(currentName, nextName);
     if (!res?.ok) {
-      showToast(String(res?.error || 'Failed to rename stable link.'), 'error');
+      showToast(String(res?.error || 'Failed to rename ugly domain.'), 'error');
       return;
     }
-    showToast('Stable link label updated.', 'success');
+    showToast('Ugly domain label updated.', 'success');
     await loadRawDomains();
   } finally {
     renamingStableLinkName.value = '';
@@ -783,45 +791,45 @@ async function copyRawDomainUrl(d: RawDomainRow) {
   if (!url) return;
   const ok = await copyTextToClipboard(url);
   if (ok) {
-    showToast('Stable link URL copied.', 'success');
+    showToast('Ugly domain URL copied.', 'success');
   } else {
-    showToast('Failed to copy stable link URL.', 'error');
+    showToast('Failed to copy ugly domain URL.', 'error');
   }
 }
 
 async function exportStableLink(d: RawDomainRow) {
   const api = useInternalLumen();
   if (!api?.ipfsKeyExport) {
-    showToast('Stable link export is not available.', 'error');
+    showToast('Ugly domain export is not available.', 'error');
     return;
   }
   const res = await api.ipfsKeyExport(d.name);
   if (res?.canceled) return;
   if (!res?.ok) {
-    showToast(String(res?.error || 'Failed to export stable link.'), 'error');
+    showToast(String(res?.error || 'Failed to export ugly domain.'), 'error');
     return;
   }
-  showToast('Stable link private key exported.', 'success');
+  showToast('Ugly domain private key exported.', 'success');
 }
 
 async function deleteStableLink(d: RawDomainRow) {
   const api = useInternalLumen();
   if (!api?.ipfsKeyRm) {
-    showToast('Stable link delete is not available.', 'error');
+    showToast('Ugly domain delete is not available.', 'error');
     return;
   }
   const confirmed = window.confirm(
-    `Delete stable link "${d.name}"?\n\nExport it first if you need to restore this IPNS name later.`
+    `Delete ugly domain "${d.name}"?\n\nExport it first if you need to restore this IPNS name later.`
   );
   if (!confirmed) return;
   rawDomainsLoading.value = true;
   try {
     const res = await api.ipfsKeyRm(d.name);
     if (!res?.ok) {
-      showToast(String(res?.error || 'Failed to delete stable link.'), 'error');
+      showToast(String(res?.error || 'Failed to delete ugly domain.'), 'error');
       return;
     }
-    showToast('Stable link deleted.', 'success');
+    showToast('Ugly domain deleted.', 'success');
     await loadRawDomains();
   } finally {
     rawDomainsLoading.value = false;
@@ -839,7 +847,7 @@ async function openStableSettingsModal(d: RawDomainRow) {
     stableSettingsCidValue.value = String(cidRecord?.value || '').trim();
   } catch (e) {
     console.error('[domains] load stable link record error', e);
-    showToast('Failed to load stable link record.', 'error');
+    showToast('Failed to load ugly domain record.', 'error');
   } finally {
     stableSettingsLoading.value = false;
   }
@@ -857,7 +865,7 @@ async function saveStableSettings() {
   if (stableSettingsSaving.value) return;
   const stable = selectedStableLink.value;
   if (!stable?.name) {
-    showToast('Select a stable link first.', 'error');
+    showToast('Select an ugly domain first.', 'error');
     return;
   }
   const cidValue = stableSettingsCidValue.value.trim();
@@ -869,7 +877,7 @@ async function saveStableSettings() {
 
   const api = useInternalLumen();
   if (!api?.ipfsAdd || !api?.ipfsPublishToIPNS) {
-    showToast('Stable link publish bridge not available.', 'error');
+    showToast('Ugly domain publish bridge not available.', 'error');
     return;
   }
 
@@ -884,15 +892,15 @@ async function saveStableSettings() {
     const bodyBytes = Array.from(new TextEncoder().encode(body));
     const add = await api.ipfsAdd(bodyBytes, `${stableLinkDisplayName(stable.name) || 'stable-link'}.lumen-records.json`);
     if (!add?.ok || !add.cid) {
-      showToast(String(add?.error || 'Failed to publish stable link records.'), 'error');
+      showToast(String(add?.error || 'Failed to publish ugly domain record.'), 'error');
       return;
     }
     const published = await api.ipfsPublishToIPNS(add.cid, stable.name);
     if (!published?.ok) {
-      showToast(String(published?.error || 'Failed to update stable link.'), 'error');
+      showToast(String(published?.error || 'Failed to update ugly domain.'), 'error');
       return;
     }
-    showToast('Stable link record saved.', 'success');
+    showToast('Ugly domain record saved.', 'success');
     showStableSettingsModal.value = false;
     selectedStableLink.value = null;
     stableSettingsCidValue.value = '';
