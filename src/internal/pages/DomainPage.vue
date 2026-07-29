@@ -11,7 +11,7 @@
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="activeNameTab === 'stable'" @click="activeNameTab = 'stable'">
             <KeyRound :size="16" />
-            <span>Ugly domain</span>
+            <span>Ugly domains</span>
             <UiTag variant="success">free</UiTag>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
@@ -196,40 +196,20 @@
             </form>
       </UiModal>
 
-      <UiModal :model-value="showStableSettingsModal" title="Stable link records" panel-class="max-w-500px" @update:model-value="closeStableSettingsModal">
+      <UiModal :model-value="showStableSettingsModal" title="Stable link record" panel-class="max-w-500px" @update:model-value="closeStableSettingsModal">
             <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
               <div class="mb-16px">
-                <label class="color-text-secondary block mb-4px text-13px">Records (key / value)</label>
+                <label class="color-text-secondary block mb-4px text-13px">Record (cid)</label>
                 <div v-if="stableSettingsLoading" class="color-text-tertiary text-13px mb-8px">
-                  Loading records...
+                  Loading record...
                 </div>
-                <div v-else-if="!stableSettingsRecords.length" class="color-text-tertiary text-13px mb-8px">
-                  No records yet. Add a target like <span class="mono">cid</span>, <span class="mono">ipfs</span>, or <span class="mono">ipns</span>.
-                </div>
-                <div v-else class="flex flex-column gap-6px mb-8px">
-                  <div
-                    class="flex-align-center gap-6px"
-                    v-for="(r, idx) in stableSettingsRecords"
-                    :key="idx"
-                  >
-                    <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                      v-model="r.key"
-                      placeholder="cid | ipns | site | ..."
-                      :disabled="stableSettingsSaving" class="flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                    <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                      v-model="r.value"
-                      placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
-                      :disabled="stableSettingsSaving" class="flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                    <UiButton variant="danger" type="button"
-                      @click="removeStableSettingsRecord(idx)"
-                      title="Remove row"
-                      :disabled="stableSettingsSaving">
-                      <X :size="14" />
-                    </UiButton>
-                  </div>
-                </div>
-                <UiButton variant="secondary" type="button" @click="addStableSettingsRecord" :disabled="stableSettingsSaving" class="outline-none">
+                <UiInput v-else bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
+                  v-model="stableSettingsCidValue"
+                  placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
+                  :disabled="stableSettingsSaving" class="w-full focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                <UiButton variant="secondary" type="button" disabled class="outline-none mt-8px disabled-fade-50" title="Multiple records are only available for Lumen domains, not ugly domains.">
                   Add record
+                  <HelpCircle :size="14" />
                 </UiButton>
               </div>
 
@@ -443,7 +423,8 @@ import {
   Settings,
   X,
   Send,
-  Trash2
+  Trash2,
+  HelpCircle
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
@@ -472,7 +453,7 @@ const rawDomainsLoading = ref(false);
 const rawDomainsError = ref('');
 
 const pageTitle = computed(() =>
-  activeNameTab.value === 'stable' ? 'Ugly domain' : 'Lumen Domains'
+  activeNameTab.value === 'stable' ? 'Ugly domains' : 'Lumen Domains'
 );
 
 useTabLoadingSync(loading);
@@ -512,7 +493,14 @@ const settingsWalletBalanceLMN = ref<number | null>(null);
 const savingSettings = ref(false);
 const showStableSettingsModal = ref(false);
 const selectedStableLink = ref<RawDomainRow | null>(null);
-const stableSettingsRecords = ref<SettingsRecord[]>([]);
+// Ugly domains (IPNS-backed stable links) resolve through the same
+// preferred-key lookup as Lumen domains (pickRecordTarget in
+// contentResolver.ts, checked in order cid/ipfs/ipns/root/site/website), but
+// unlike a real Lumen domain an ugly domain has no other way to be reached
+// (no subdomain/record-key routing) - so only the "cid" key is ever
+// actually usable when typed into the address bar. Anything else the user
+// added just sat there unused, so this is locked to a single cid field.
+const stableSettingsCidValue = ref('');
 const stableSettingsLoading = ref(false);
 const stableSettingsSaving = ref(false);
 
@@ -842,18 +830,16 @@ async function deleteStableLink(d: RawDomainRow) {
 
 async function openStableSettingsModal(d: RawDomainRow) {
   selectedStableLink.value = d;
-  stableSettingsRecords.value = [];
+  stableSettingsCidValue.value = '';
   showStableSettingsModal.value = true;
   stableSettingsLoading.value = true;
   try {
     const records = d.id ? await loadStableLinkRecords(d.id) : [];
-    stableSettingsRecords.value = records.map((record) => ({
-      key: String(record.key || '').trim(),
-      value: String(record.value || '').trim(),
-    }));
+    const cidRecord = records.find((record) => String(record.key || '').trim().toLowerCase() === 'cid');
+    stableSettingsCidValue.value = String(cidRecord?.value || '').trim();
   } catch (e) {
-    console.error('[domains] load stable link records error', e);
-    showToast('Failed to load stable link records.', 'error');
+    console.error('[domains] load stable link record error', e);
+    showToast('Failed to load stable link record.', 'error');
   } finally {
     stableSettingsLoading.value = false;
   }
@@ -863,19 +849,8 @@ function closeStableSettingsModal() {
   if (stableSettingsSaving.value) return;
   showStableSettingsModal.value = false;
   selectedStableLink.value = null;
-  stableSettingsRecords.value = [];
+  stableSettingsCidValue.value = '';
   stableSettingsLoading.value = false;
-}
-
-function addStableSettingsRecord() {
-  stableSettingsRecords.value = [...stableSettingsRecords.value, { key: '', value: '' }];
-}
-
-function removeStableSettingsRecord(index: number) {
-  if (index < 0 || index >= stableSettingsRecords.value.length) return;
-  const next = stableSettingsRecords.value.slice();
-  next.splice(index, 1);
-  stableSettingsRecords.value = next;
 }
 
 async function saveStableSettings() {
@@ -885,21 +860,12 @@ async function saveStableSettings() {
     showToast('Select a stable link first.', 'error');
     return;
   }
-  const records = stableSettingsRecords.value
-    .map((r) => ({
-      key: String(r.key || '').trim(),
-      value: String(r.value || '').trim(),
-    }))
-    .filter((r) => r.key || r.value);
-
-  if (!records.length) {
-    showToast('Add at least one record before saving.', 'error');
+  const cidValue = stableSettingsCidValue.value.trim();
+  if (!cidValue) {
+    showToast('Add a CID or lumen:// link before saving.', 'error');
     return;
   }
-  if (records.some((r) => !r.key || !r.value)) {
-    showToast('Each stable link record needs both a key and a value.', 'error');
-    return;
-  }
+  const records = [{ key: 'cid', value: cidValue }];
 
   const api = useInternalLumen();
   if (!api?.ipfsAdd || !api?.ipfsPublishToIPNS) {
@@ -926,10 +892,10 @@ async function saveStableSettings() {
       showToast(String(published?.error || 'Failed to update stable link.'), 'error');
       return;
     }
-    showToast('Stable link records saved.', 'success');
+    showToast('Stable link record saved.', 'success');
     showStableSettingsModal.value = false;
     selectedStableLink.value = null;
-    stableSettingsRecords.value = [];
+    stableSettingsCidValue.value = '';
     await loadRawDomains();
   } finally {
     stableSettingsSaving.value = false;
