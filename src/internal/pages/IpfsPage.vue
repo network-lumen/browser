@@ -128,7 +128,7 @@
         <div
           v-else
           class="flex-align-justify-center border-radius-12px p-16px border-1 bg-secondary relative min-h-360px"
-          :class="{ 'border-none border-radius-0 bg-transparent min-h-0': isBareHtmlView, 'block min-w-0': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
+          :class="{ 'border-none border-radius-0 bg-transparent min-h-0 h-full flex-1': isBareHtmlView, 'block min-w-0': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
         >
           <img
             v-if="viewKind === 'image'"
@@ -162,8 +162,8 @@
              v-else-if="viewKind === 'html'"
              ref="siteWebview"
              :src="contentUrl"
-             class="h-75vh w-full border-radius-12px border-1 bg-primary"
-             :class="{ 'border-none-radius-0-override': isBareHtmlView }"
+             class="w-full"
+             :class="isBareHtmlView ? 'h-full border-none border-radius-0 bg-transparent' : 'h-75vh border-radius-12px border-1 bg-primary'"
              partition="persist:lumen"
              allowpopups
              :webpreferences="webprefs"
@@ -414,6 +414,13 @@ const relPath = ref("");
 const wantsDir = ref(false);
 const suffix = ref("");
 const stableDisplayUrl = ref("");
+// The ipns/<name> identity the user actually navigated to, kept separate
+// from rootProto/rootCid (the resolved identity actually used to fetch
+// content) so the address bar can stay on the stable ipns link even after
+// resolving through a stable-link JSON record or a plain ipns->ipfs
+// directory lookup - see toStableUrlIfSameRoot().
+const stableRootProto = ref<"ipfs" | "ipns">("ipns");
+const stableRootCid = ref("");
 const resolvedGatewayBase = ref("");
 const saving = ref(false);
 const saved = ref(false);
@@ -1531,10 +1538,21 @@ function buildStableDisplayUrl(parsed: ReturnType<typeof parseIpfsUrl>): string 
   return `lumen://ipns/${parsed.cid}${path}${parsed.suffix || ""}`;
 }
 
-function isResolvedStableTargetUrl(input: string): boolean {
-  if (!stableDisplayUrl.value) return false;
+// When viewing via a stable ipns/<name> address, the webview may internally
+// navigate to (or be gateway-redirected to) the resolved ipfs/<cid>
+// equivalent of the same content - both when it's the initial resolved root
+// and when the user clicks a same-site relative link. Either way, the
+// address bar must keep showing ipns/<name> (with whatever path the webview
+// actually navigated to) rather than leaking the transient resolved CID.
+function toStableUrlIfSameRoot(input: string): string | null {
+  if (!stableDisplayUrl.value) return null;
   const parsed = parseIpfsUrl(input);
-  return !!parsed.cid && parsed.proto === rootProto.value && parsed.cid === rootCid.value;
+  if (!parsed.cid) return null;
+  const matchesStableRoot = parsed.proto === stableRootProto.value && parsed.cid === stableRootCid.value;
+  const matchesResolvedRoot = parsed.proto === rootProto.value && parsed.cid === rootCid.value;
+  if (!matchesStableRoot && !matchesResolvedRoot) return null;
+  const rel = parsed.rel ? `/${encodePath(parsed.rel)}` : (parsed.dir ? "/" : "");
+  return `lumen://${stableRootProto.value}/${stableRootCid.value}${rel}${parsed.suffix || ""}`;
 }
 
 function toLumenFromWebHref(raw: string): string | null {
@@ -1587,10 +1605,10 @@ function syncNavFromWebview(rawUrl: string, opts: { push?: boolean } = {}) {
   if (!navigate) return;
   const next = toLumenFromWebHref(rawUrl);
   if (!next) return;
-  if (isResolvedStableTargetUrl(next)) return;
+  const finalNext = toStableUrlIfSameRoot(next) || next;
   const cur = String(currentTabUrl?.value || "").trim();
-  if (cur && cur === next) return;
-  navigate(next, { push: opts.push ?? true });
+  if (cur && cur === finalNext) return;
+  navigate(finalNext, { push: opts.push ?? true });
 }
 
 function onWebviewWillNavigate(ev: any) {
@@ -1684,31 +1702,6 @@ function isHtmlLikePath(pathValue: string): boolean {
   return p.endsWith(".html") || p.endsWith(".htm") || p.endsWith(".xhtml");
 }
 
-async function precheckHtmlDocument(url: string): Promise<boolean> {
-  const target = String(url || "").trim();
-  if (!target) return false;
-  try {
-    const httpHead = useInternalLumen()?.httpHead;
-    let status = 0;
-    let ct = "";
-
-      const res = await httpHead(target, { timeout: 8000 }).catch(() => null);
-      status = Number(res?.status || 0);
-      const headers =
-        res && res.headers && typeof res.headers === "object" ? res.headers : {};
-      const headerKey = Object.keys(headers).find(
-        (k) => String(k || "").toLowerCase() === "content-type",
-      );
-      ct = headerKey ? String(headers[headerKey] || "") : "";
-
-    if (status !== 200 && status !== 206) return false;
-    const lower = String(ct || "").toLowerCase();
-    return lower.includes("text/html") || lower.includes("application/xhtml+xml");
-  } catch {
-    return false;
-  }
-}
-
 async function load() {
   const url = String(currentTabUrl?.value || window.location.href || "");
   const parsed = parseIpfsUrl(url);
@@ -1716,9 +1709,17 @@ async function load() {
   stableDisplayUrl.value = "";
 
   if (parsed.proto === "ipns" && parsed.cid) {
+    // Keep the ipns/<name> address as what the user sees/shares, regardless
+    // of whether it resolves through a stable-link JSON record (below) or
+    // turns out to just be a plain ipns-published site - in both cases the
+    // whole point of an ipns link is that it stays stable even though the
+    // content it resolves to can change.
+    stableDisplayUrl.value = buildStableDisplayUrl(visibleParsed);
+    stableRootProto.value = "ipns";
+    stableRootCid.value = parsed.cid;
+
     const target = await resolveStableLinkTarget(parsed.cid).catch(() => null);
     if (target) {
-      stableDisplayUrl.value = buildStableDisplayUrl(visibleParsed);
       const path = joinStableLinkTargetPath(target.basePath, parsed.rel);
       parsed.proto = target.proto;
       parsed.cid = target.id;
@@ -1834,7 +1835,13 @@ async function load() {
           null;
 
         if (idx) {
-          const next = `lumen://${rootProto.value}/${rootCid.value}/${encodePath(idx.relPath)}${suffix.value || ""}`;
+          // Prefer the stable ipns/<name> address over the resolved
+          // ipfs/<cid> identity, so this convenience redirect never turns a
+          // shareable stable link into a transient CID-based one.
+          const useStable = !!stableDisplayUrl.value;
+          const nextProto = useStable ? stableRootProto.value : rootProto.value;
+          const nextCid = useStable ? stableRootCid.value : rootCid.value;
+          const next = `lumen://${nextProto}/${nextCid}/${encodePath(idx.relPath)}${suffix.value || ""}`;
           const cur = String(currentTabUrl?.value || "").trim();
           if (cur !== next) {
             navigate(next, { push: false });
@@ -1916,13 +1923,6 @@ async function load() {
       }
 
       if (viewKind.value === "html") {
-        // If this is a real HTML file, render it full-bleed (like domain sites) instead
-        // of inside the framed IPFS viewer.
-        if (!wantsDir.value && relPath.value && isHtmlLikePath(relPath.value)) {
-          const ok = await precheckHtmlDocument(contentUrl.value);
-          if (ok) isBareHtmlView.value = true;
-        }
-
         const gateways = await loadWhitelistedGatewayBases().catch(() => []);
         const got = await useInternalLumen()
           ?.ipfsGet?.(target, { gateways })
@@ -1931,6 +1931,15 @@ async function load() {
           const bytes = new Uint8Array(got.data);
           if (bytes.byteLength > 2_000_000) {
             viewKind.value = "unknown";
+          } else if (!wantsDir.value && relPath.value && isHtmlLikePath(relPath.value)) {
+            // Render full-bleed (like domain sites) instead of inside the framed
+            // IPFS viewer. The extension already confirms this is meant to be an
+            // HTML document, and the fetch above already confirms it's actually
+            // reachable - no need for a separate network precheck (a second,
+            // independent request that could fail on its own and silently leave
+            // the page stuck in the boxed/bordered viewer even though the real
+            // content loaded fine).
+            isBareHtmlView.value = true;
           }
         } else {
           viewKind.value = "unknown";
