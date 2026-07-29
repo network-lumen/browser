@@ -868,6 +868,55 @@ async function waitForPqcLinkCommit(address, timeoutMs = 15_000) {
   return false;
 }
 
+async function ensurePqcLinkedBeforeSigning(bridgeMod, client, profileId, address) {
+  // The SDK caches the PQC keystore (links/keys) in-memory on first use.
+  // If we mutate pqc_keys via a separate keystore instance, the client would keep using stale links.
+  // Clear the cache before repairing local PQC state so subsequent sign attempts see fresh data.
+  try {
+    if (client && typeof client === 'object') {
+      client.pqcStore = undefined;
+    }
+  } catch {}
+
+  const pqcLocal = await ensureLocalPqcKey(bridgeMod, client, profileId, address);
+  try {
+    if (pqcLocal && pqcLocal.store && client && typeof client === 'object') {
+      client.pqcStore = pqcLocal.store;
+    }
+  } catch {}
+
+  // Fire the "export your PQC key" notice as soon as we know brand-new
+  // Dilithium key material now sits on disk - BEFORE attempting the
+  // on-chain link below, and independent of whether that link submits,
+  // broadcasts, or confirms in time. Losing this local file with no
+  // backup is unrecoverable, so the user must be warned even if the
+  // link itself later throws (e.g. insufficient balance, RPC hiccup) -
+  // gating the notice on full on-chain confirmation (as before) meant a
+  // slow/failed link silently dropped the warning entirely.
+  if (pqcLocal && pqcLocal.createdNew) {
+    broadcastPqcLinked({
+      profileId: String(profileId || '').trim(),
+      address: String(address || '').trim()
+    });
+  }
+
+  if (pqcLocal && pqcLocal.record) {
+    const didLink = await ensureOnChainPqcLink(bridgeMod, client, address, pqcLocal.record);
+    if (didLink && !pqcLocal.createdNew) {
+      // An already-existing local key just got linked on-chain for the
+      // first time - also worth a reminder in case it was never
+      // exported after being created.
+      broadcastPqcLinked({
+        profileId: String(profileId || '').trim(),
+        address: String(address || '').trim()
+      });
+    }
+    if (didLink) {
+      await waitForPqcLinkCommit(address).catch(() => false);
+    }
+  }
+}
+
 async function signAndBroadcastWithPqcAutoLink({
   bridgeMod,
   client,
@@ -903,6 +952,28 @@ async function signAndBroadcastWithPqcAutoLink({
     return res;
   };
 
+  // Preflight: check on-chain whether this address already has a PQC key
+  // linked BEFORE ever touching the real message, instead of signing it
+  // blindly, catching the resulting "no PQC key linked" error, linking, and
+  // retrying the SAME broadcast call. That reactive approach reused a
+  // signing client whose internal PQC store/param/sequence caching
+  // (@lumen-chain/sdk's LumenSigningClient) isn't designed to be safely
+  // "hot swapped" mid-flight, and in practice could let the real message
+  // get broadcast with a stale signing context right after the link tx -
+  // link and real message ended up as two separate, correctly-ordered
+  // transactions, but the send was the fragile one riding on leftover state
+  // from the link. Checking first and linking to completion before ever
+  // building the real message avoids that whole class of ordering bugs.
+  try {
+    const onChain = await fetchOnChainPqcStatus(client, address);
+    if (!onChain.linked) {
+      await ensurePqcLinkedBeforeSigning(bridgeMod, client, profileId, address);
+    }
+  } catch (linkErr) {
+    const linkMsg = String(linkErr && linkErr.message ? linkErr.message : linkErr);
+    throw new Error(sanitizePqcErrorMessage(linkMsg));
+  }
+
   try {
     return await broadcastOnce();
   } catch (e) {
@@ -911,53 +982,13 @@ async function signAndBroadcastWithPqcAutoLink({
       throw e;
     }
 
+    // Fallback safety net for cases outside the preflight's ability to
+    // detect (e.g. a wallet restored from a bare mnemonic import, where the
+    // address is already linked on-chain but no matching local PQC key
+    // exists yet) - give linking one more shot, then give up with a clear
+    // error rather than looping on an unrecoverable local/on-chain mismatch.
     try {
-      // The SDK caches the PQC keystore (links/keys) in-memory on first use.
-      // If we mutate pqc_keys via a separate keystore instance, the client would keep using stale links.
-      // Clear the cache before repairing local PQC state so subsequent sign attempts see fresh data.
-      try {
-        if (client && typeof client === 'object') {
-          client.pqcStore = undefined;
-        }
-      } catch {}
-
-      const pqcLocal = await ensureLocalPqcKey(bridgeMod, client, profileId, address);
-      try {
-        if (pqcLocal && pqcLocal.store && client && typeof client === 'object') {
-          client.pqcStore = pqcLocal.store;
-        }
-      } catch {}
-
-      // Fire the "export your PQC key" notice as soon as we know brand-new
-      // Dilithium key material now sits on disk - BEFORE attempting the
-      // on-chain link below, and independent of whether that link submits,
-      // broadcasts, or confirms in time. Losing this local file with no
-      // backup is unrecoverable, so the user must be warned even if the
-      // link itself later throws (e.g. insufficient balance, RPC hiccup) -
-      // gating the notice on full on-chain confirmation (as before) meant a
-      // slow/failed link silently dropped the warning entirely.
-      if (pqcLocal && pqcLocal.createdNew) {
-        broadcastPqcLinked({
-          profileId: String(profileId || '').trim(),
-          address: String(address || '').trim()
-        });
-      }
-
-      if (pqcLocal && pqcLocal.record) {
-        const didLink = await ensureOnChainPqcLink(bridgeMod, client, address, pqcLocal.record);
-        if (didLink && !pqcLocal.createdNew) {
-          // An already-existing local key just got linked on-chain for the
-          // first time - also worth a reminder in case it was never
-          // exported after being created.
-          broadcastPqcLinked({
-            profileId: String(profileId || '').trim(),
-            address: String(address || '').trim()
-          });
-        }
-        if (didLink) {
-          await waitForPqcLinkCommit(address).catch(() => false);
-        }
-      }
+      await ensurePqcLinkedBeforeSigning(bridgeMod, client, profileId, address);
     } catch (linkErr) {
       const linkMsg = String(linkErr && linkErr.message ? linkErr.message : linkErr);
       throw new Error(sanitizePqcErrorMessage(linkMsg));
@@ -967,16 +998,7 @@ async function signAndBroadcastWithPqcAutoLink({
       return await broadcastOnce();
     } catch (e2) {
       const msg2 = String(e2 && e2.message ? e2.message : e2);
-      if (isPqcRelatedErrorText(msg2)) {
-        await waitForPqcLinkCommit(address, 20_000).catch(() => false);
-        try {
-          return await broadcastOnce();
-        } catch (e3) {
-          const msg3 = String(e3 && e3.message ? e3.message : e3);
-          throw new Error(sanitizePqcErrorMessage(msg3));
-        }
-      }
-      throw e2;
+      throw new Error(sanitizePqcErrorMessage(msg2));
     }
   }
 }
