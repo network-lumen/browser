@@ -128,7 +128,7 @@
         <div
           v-else
           class="flex-align-justify-center border-radius-12px p-16px border-1 bg-secondary relative min-h-360px"
-          :class="{ 'border-none border-radius-0 bg-transparent min-h-0 h-full flex-1': isBareHtmlView, 'block min-w-0': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
+          :class="{ 'border-none border-radius-0 bg-transparent min-h-0 h-full flex-1 p-0px': isBareHtmlView, 'block min-w-0': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
         >
           <img
             v-if="viewKind === 'image'"
