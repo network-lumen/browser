@@ -409,6 +409,7 @@
                 <Plus v-else-if="isDnsRegisterTx(tx)" :size="14" />
                 <TrendingUp v-else-if="isWithdrawRewardsTx(tx)" :size="14" />
                 <Upload v-else-if="isPublishReleaseTx(tx)" :size="14" />
+                <ShieldCheck v-else-if="isPqcLinkTx(tx)" :size="14" />
                 <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
                 <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
                 <ArrowLeftRight v-else :size="14" />
@@ -922,7 +923,8 @@ import {
   Upload,
   QrCode,
   Calendar,
-  RefreshCw
+  RefreshCw,
+  ShieldCheck
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache } from '../services/activities';
@@ -1713,12 +1715,18 @@ function isPublishReleaseTx(tx: Activity): boolean {
   );
 }
 
+function isPqcLinkTx(tx: Activity): boolean {
+  const action = String(tx.action ?? '').trim();
+  return action === '/lumen.pqc.v1.MsgLinkAccountPQC' || action === 'lumen.pqc.v1.MsgLinkAccountPQC';
+}
+
 function getActivityLabel(tx: Activity): string {
   if (isDnsUpdateTx(tx)) return 'Dns update';
   if (isDnsTransferTx(tx)) return 'Dns transfer';
   if (isDnsRegisterTx(tx)) return 'Dns register';
   if (isWithdrawRewardsTx(tx)) return 'Withdraw rewards';
   if (isPublishReleaseTx(tx)) return 'Publish release';
+  if (isPqcLinkTx(tx)) return 'PQC link';
   if (tx.type === 'send') return 'Send';
   if (tx.type === 'receive') return 'Receive';
   return 'Unknown';
@@ -1730,6 +1738,7 @@ function getActivityBadgeStyle(tx: Activity): Record<string, string> {
   if (isDnsRegisterTx(tx)) return { background: 'rgba(var(--color-warning-rgb), 0.1)', color: 'var(--color-warning)' };
   if (isWithdrawRewardsTx(tx)) return { background: 'rgba(var(--color-yellow-rgb), 0.1)', color: 'var(--color-yellow)' };
   if (isPublishReleaseTx(tx)) return { background: 'rgba(var(--color-indigo-rgb), 0.1)', color: 'var(--color-indigo)' };
+  if (isPqcLinkTx(tx)) return { background: 'rgba(var(--color-pink-rgb), 0.1)', color: 'var(--color-pink)' };
   if (tx.type === 'send') return { background: 'rgba(var(--color-error-rgb), 0.1)', color: 'var(--color-error)' };
   if (tx.type === 'receive') return { background: 'rgba(var(--color-success-rgb), 0.1)', color: 'var(--color-success)' };
   return {};
