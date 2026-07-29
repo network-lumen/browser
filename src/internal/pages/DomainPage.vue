@@ -12,7 +12,7 @@
           <UiSidebarNavItem :active="activeNameTab === 'stable'" @click="activeNameTab = 'stable'">
             <KeyRound :size="16" />
             <span>Ugly domain</span>
-            <UiTag variant="accent">free</UiTag>
+            <UiTag variant="success">free</UiTag>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -20,7 +20,7 @@
 
     <!-- Main Content -->
     <main class="flex-1 min-w-0 bg-secondary overflow-y-auto py-32px px-40px">
-      <UiPageHeader :title="pageTitle" title-size="24px" :subtitle="pageDescription">
+      <UiPageHeader :title="pageTitle" title-size="24px">
         <template #actions>
           <template v-if="activeNameTab === 'lumen'">
             <UiButton variant="primary" type="button" @click="openRegisterModal" class="outline-none">
@@ -198,12 +198,6 @@
 
       <UiModal :model-value="showStableSettingsModal" title="Stable link records" panel-class="max-w-500px" @update:model-value="closeStableSettingsModal">
             <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <p class="text-14px color-text-tertiary m-0px mb-12px">Publish resolver records for this stable link.</p>
-              <div class="border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
-                <div class="txt-weight-light text-15px">{{ selectedStableLink ? stableLinkDisplayName(selectedStableLink.name) : 'stable-link' }}</div>
-                <div class="mono text-13px mt-4px">{{ selectedStableLink?.id || 'IPNS id unavailable' }}</div>
-              </div>
-
               <div class="mb-16px">
                 <label class="color-text-secondary block mb-4px text-13px">Records (key / value)</label>
                 <div v-if="stableSettingsLoading" class="color-text-tertiary text-13px mb-8px">
@@ -478,12 +472,7 @@ const rawDomainsLoading = ref(false);
 const rawDomainsError = ref('');
 
 const pageTitle = computed(() =>
-  activeNameTab.value === 'stable' ? 'Ugly domain (free)' : 'Lumen Domains'
-);
-const pageDescription = computed(() =>
-  activeNameTab.value === 'stable'
-    ? 'Cryptographic links powered by IPNS.'
-    : 'Human-readable domains secured by the Lumen chain.'
+  activeNameTab.value === 'stable' ? 'Ugly domain' : 'Lumen Domains'
 );
 
 useTabLoadingSync(loading);

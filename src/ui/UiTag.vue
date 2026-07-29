@@ -4,13 +4,14 @@
 
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
-  variant?: 'neutral' | 'accent';
+  variant?: 'neutral' | 'accent' | 'success';
 }>(), {
   variant: 'neutral',
 });
 
-const variantClass: Record<'neutral' | 'accent', string> = {
+const variantClass: Record<'neutral' | 'accent' | 'success', string> = {
   neutral: 'color-text-secondary bg-secondary',
   accent: 'color-accent-secondary bg-primary-a10 border-color-primary-a15 txt-weight-medium',
+  success: 'color-white bg-success border-color-success txt-weight-medium',
 };
 </script>
