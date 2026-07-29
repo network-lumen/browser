@@ -3087,6 +3087,15 @@ async function ipfsGet(cidOrPath, options = {}) {
     // ============================================================================
     // Private Gateway Support
     // ============================================================================
+    // Whether to skip the DAO/whitelisted/public gateway fallback stages below
+    // (stage1 extraBases + stage2 publicBases) after a private-gateway miss.
+    // This must NOT skip the user's own local Kubo daemon (kubo_cat/
+    // local_gateway) - "Fallback to DAO Gateways" in SettingsPage.vue is
+    // explicitly about third-party DAO-registered gateways ("Use DAO gateways
+    // if private gateways fail"), not the local node. Returning early here
+    // used to also block the local daemon, so turning that setting off broke
+    // ALL local-first IPFS/IPNS browsing, not just third-party fallback.
+    let skipExternalGatewayFallback = false;
     // Try private gateways first if configured
     try {
       const { fetchFromPrivateGateways } = require('./gateway-client.cjs');
@@ -3133,10 +3142,11 @@ async function ipfsGet(cidOrPath, options = {}) {
           // Continue to fallback gateways
         }
         
-        // If fallback is disabled, return error
+        // DAO/public gateway fallback disabled - still fall through to try
+        // the local daemon below, just skip the external gateway stages.
         if (!privateConfig.fallbackToDAO) {
-          console.warn('[electron][ipfs] private gateways failed and fallback disabled');
-          return { ok: false, error: 'Private gateways failed and fallback disabled' };
+          console.warn('[electron][ipfs] private gateways failed, DAO/public gateway fallback disabled - trying local daemon only');
+          skipExternalGatewayFallback = true;
         }
       }
     } catch (privateGatewayErr) {
@@ -3208,17 +3218,23 @@ async function ipfsGet(cidOrPath, options = {}) {
     const stage1 = [];
     stage1.push(makeTask('kubo_cat', (signal) => fetchBytesFromKuboCat(arg, { signal, maxBytes })));
     stage1.push(makeTask('local_gateway', (signal) => fetchBytesFromUrl(localGatewayUrl, { signal, maxBytes })));
-    for (const base of extraBases) {
-      const url = buildGatewayUrl(base, arg);
-      stage1.push(makeTask(`gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal, maxBytes })));
+    if (!skipExternalGatewayFallback) {
+      for (const base of extraBases) {
+        const url = buildGatewayUrl(base, arg);
+        stage1.push(makeTask(`gateway:${base}`, (signal) => fetchBytesFromUrl(url, { signal, maxBytes })));
+      }
     }
 
-    console.log('[electron][ipfs] getting file:', arg, 'sources:', stage1.length + publicBases.length);
+    console.log('[electron][ipfs] getting file:', arg, 'sources:', stage1.length + (skipExternalGatewayFallback ? 0 : publicBases.length));
     let winner;
     try {
       try {
         winner = await raceTasks(stage1);
       } catch (_stage1Err) {
+        // DAO/public gateway fallback explicitly disabled - the local daemon
+        // already had its shot in stage1 above, don't also leak this request
+        // to third-party public gateways.
+        if (skipExternalGatewayFallback) throw _stage1Err;
         // Last-resort fallbacks: public gateways are slower and less private, so only use them
         // once local/Kubo/whitelisted sources have all failed.
         const stage2 = [];
@@ -3434,7 +3450,15 @@ async function ipfsLs(cidOrPath) {
     const url = new URL(`${ipfsApiBase()}/api/v0/ls`);
     url.searchParams.set('arg', arg);
     url.searchParams.set('resolve-type', 'true');
-    const res = await fetch(url.toString(), { method: 'POST' });
+    // An /ipns/<name> arg makes kubo resolve the name (DHT walk) before it can
+    // list anything, same unbounded-hang risk as ipfsResolveIPNS above - bound
+    // it so an unreachable IPNS record fails cleanly instead of leaving
+    // IpfsPage.vue's load() spinning forever.
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 25000);
+    const res = await fetch(url.toString(), { method: 'POST', signal: controller.signal }).finally(() => {
+      try { clearTimeout(t); } catch {}
+    });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
       throw new Error(text || `http_${res.status}`);
@@ -3543,13 +3567,27 @@ async function ipfsPublishToIPNS(cid, key = 'self', options = {}) {
   }
 }
 
-async function ipfsResolveIPNS(name) {
+async function ipfsResolveIPNS(name, options = {}) {
   try {
     console.log('[electron][ipfs] resolving IPNS:', name);
     const url = new URL(`${ipfsApiBase()}/api/v0/name/resolve`);
     url.searchParams.set('arg', String(name ?? ''));
     url.searchParams.set('nocache', 'true');
-    const res = await fetch(url.toString(), { method: 'POST' });
+    // Kubo's `name/resolve` falls back to a full DHT walk whenever the name
+    // isn't cached/pubsub-reachable, which can hang far longer than a user
+    // will wait - unlike ipfsPublishToIPNS just above, this call had no
+    // timeout at all, so any lumen://ipns/<name> that couldn't resolve
+    // quickly would leave IpfsPage.vue's load() awaiting this fetch forever
+    // (an indefinite spinner, not a clean error).
+    const timeoutMs =
+      typeof options?.timeoutMs === 'number' && Number.isFinite(options.timeoutMs) && options.timeoutMs > 0
+        ? Math.floor(options.timeoutMs)
+        : 20000;
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), timeoutMs);
+    const res = await fetch(url.toString(), { method: 'POST', signal: controller.signal }).finally(() => {
+      try { clearTimeout(t); } catch {}
+    });
 
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
@@ -3562,7 +3600,8 @@ async function ipfsResolveIPNS(name) {
     return { ok: true, path: json.Path };
   } catch (e) {
     console.error('[electron][ipfs] IPNS resolve error:', e);
-    return { ok: false, error: String(e?.message || e) };
+    const aborted = e?.name === 'AbortError';
+    return { ok: false, error: aborted ? 'ipns_resolve_timeout' : String(e?.message || e) };
   }
 }
 
