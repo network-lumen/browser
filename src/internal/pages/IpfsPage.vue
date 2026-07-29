@@ -2264,14 +2264,6 @@ function onMediaError() {
   if (!isHlsManifest.value) viewKind.value = "unknown";
 }
 
-// Watch for refresh signal from navbar
-watch(
-  () => currentTabRefresh?.value,
-  () => {
-    load();
-  }
-);
-
 onMounted(() => {
   pageActive.value = true;
   startUrlWatch();

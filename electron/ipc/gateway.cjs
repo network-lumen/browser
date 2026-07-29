@@ -3744,4 +3744,7 @@ module.exports = {
   fetchGatewaysFromRest,
   resolveGatewayBaseFromEndpoint,
   getRestBaseUrl,
+  loadProfilesFile,
+  loadMnemonic,
+  getWalletAddressForProfile,
 };
