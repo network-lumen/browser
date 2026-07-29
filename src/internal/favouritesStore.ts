@@ -1,15 +1,9 @@
 import { computed, ref } from "vue";
 import { activeProfileId } from "./profilesStore";
 import { canonicalizeLumenUrl, isLumenUrl } from "./navigationUrl";
+import type { FavouriteEntry } from "../types/favourites";
 
-export type FavouriteEntry = {
-  id: string;
-  url: string;
-  title?: string;
-  pinned: boolean;
-  createdAt: number;
-  updatedAt: number;
-};
+export type { FavouriteEntry };
 
 type FavMap = Record<string, FavouriteEntry[]>;
 type LegacyFavMap = Record<string, string[]>;

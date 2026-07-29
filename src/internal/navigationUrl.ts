@@ -5,6 +5,10 @@ const EXTENSION_URL_RE = /^\s*chrome-extension:\/\//i;
 const WINDOWS_DRIVE_PATH_RE = /^[a-zA-Z]:[\\/]/;
 const WINDOWS_UNC_PATH_RE = /^\\\\[^\\]+\\[^\\]+/;
 
+import type { ExtensionTabRoute } from "../types/navigation";
+
+export type { ExtensionTabRoute };
+
 function safeDecode(segment: string): string {
   try {
     return decodeURIComponent(segment);
@@ -12,15 +16,6 @@ function safeDecode(segment: string): string {
     return segment;
   }
 }
-
-export type ExtensionTabRoute = {
-  extensionId: string;
-  targetUrl: string;
-  name: string;
-  sourceTabId: string;
-  sourceUrl: string;
-  sourceTitle: string;
-};
 
 function encodePathSegment(segment: string): string {
   if (!segment) return segment;

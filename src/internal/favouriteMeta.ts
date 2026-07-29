@@ -5,16 +5,9 @@ import {
   isHttpUrl,
   isLumenUrl,
 } from "./navigationUrl";
+import type { FavouriteKind, FavouriteMeta } from "../types/favourites";
 
-export type FavouriteKind = "internal" | "search" | "web" | "file" | "other";
-
-export type FavouriteMeta = {
-  url: string;
-  title: string;
-  subtitle: string;
-  monogram: string;
-  kind: FavouriteKind;
-};
+export type { FavouriteKind, FavouriteMeta };
 
 function normalizePreferredTitle(rawTitle?: string): string {
   return String(rawTitle || "").trim();

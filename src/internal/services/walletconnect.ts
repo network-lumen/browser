@@ -13,28 +13,9 @@
  * requires installing @walletconnect/core and related packages.
  */
 
-export interface WalletConnectSession {
-  topic: string;
-  peerMetadata: {
-    name: string;
-    description: string;
-    url: string;
-    icons: string[];
-  };
-  namespaces: any;
-  expiry: number;
-}
+import type { WalletConnectSession, WalletConnectConfig } from '../../types/walletconnect';
 
-export interface WalletConnectConfig {
-  projectId: string;
-  relayUrl?: string;
-  metadata: {
-    name: string;
-    description: string;
-    url: string;
-    icons: string[];
-  };
-}
+export type { WalletConnectSession, WalletConnectConfig };
 
 export class WalletConnectService {
   private config: WalletConnectConfig;

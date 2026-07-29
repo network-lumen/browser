@@ -1,36 +1,14 @@
 import { activeProfileId } from "../profilesStore";
 import { checkIpfsStatus } from "./ipfs";
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import type { UploadActivity, UploadPathResult, DriveFile } from "../../types/upload";
+
 const api: any = useInternalLumen();
 const uploadActivities: UploadActivity = {};
 const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
 const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
 let localNames: Record<string, string> = {};
 const uploadControllers: Record<string, AbortController> = {};
-
-type UploadActivity = {
-    [key: string]: {
-        uploadingFile: string;
-        uploadingPercent: number | null;
-        uploadingCanceling: number; // 0 = not canceling, 1 = canceling, 2 = cancelled
-        uploadId?: string;
-    } | undefined;
-}
-
-type UploadPathResult =
-  | {
-      ok: true;
-      cid: string;
-      rootName: string;
-      rootPath: string;
-      totalBytes: number;
-    }
-  | {
-      ok: false;
-      error: string;
-      rootName: string;
-      rootPath: string;
-    };
 
 let files = [] as DriveFile[];
 
@@ -67,17 +45,6 @@ function loadLocalNames() {
     const storedParsed = stored ? JSON.parse(stored) : null;
     const storedNames = storedParsed && typeof storedParsed === "object" ? (storedParsed as Record<string, string>) : {};
     localNames = storedNames;
-}
-
-interface DriveFile {
-  cid: string;
-  name: string;
-  size: number;
-  uploadedAt?: number;
-  type?: "file" | "dir";
-  rootCid?: string;
-  relPath?: string;
-  sourceTarget?: string;
 }
 
 async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir"): Promise<UploadPathResult> {

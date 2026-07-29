@@ -1,6 +1,7 @@
 import { ref } from 'vue';
+import type { Theme } from '../types/theme';
 
-export type Theme = 'light' | 'dark' | 'system';
+export type { Theme };
 
 const STORAGE_KEY = 'lumen-theme';
 

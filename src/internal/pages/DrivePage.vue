@@ -1317,17 +1317,7 @@ import {
 } from "../favouritesStore";
 import JSZip from "jszip";
 import { useToast } from "../../composables/useToast";
-
-interface DriveFile {
-  cid: string;
-  name: string;
-  size: number;
-  uploadedAt?: number;
-  type?: "file" | "dir";
-  rootCid?: string;
-  relPath?: string;
-  sourceTarget?: string;
-}
+import type { DriveFile } from "../../types/upload";
 
 type HlsQueueItemStatus =
   | "queued"
