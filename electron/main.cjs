@@ -1868,20 +1868,19 @@ ipcMain.handle('lumenSite:siteDataPublish', async (evt, input) => {
   const profileId = activeProfileIdForSiteData();
   if (!profileId) return { ok: false, error: 'no_active_profile' };
 
-  const title = safeString(input && input.title ? input.title : '', 256);
   const schema = safeString(input && input.schema ? input.schema : '', 128);
   const datas = input && typeof input.datas === 'object' && input.datas !== null && !Array.isArray(input.datas) ? input.datas : null;
   if (!schema || !datas) return { ok: false, error: 'missing_schema_or_datas' };
   if (!siteData.datasSizeOk(datas)) return { ok: false, error: 'datas_too_large' };
 
-  const meta = { href: ctx.href, title };
+  const meta = { href: ctx.href, title: '' };
   const lock = tryBeginSiteAction(ctx.siteKey);
   if (!lock.ok) return lock;
 
   return enqueueUi(async () => {
     try {
       if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
-      const perm = await ensureLumenSitePermission(ctx.siteKey, meta, 'SiteData', { title, mode: 'publish' });
+      const perm = await ensureLumenSitePermission(ctx.siteKey, meta, 'SiteData', { mode: 'publish' });
       if (!perm || perm.ok === false) return perm || { ok: false, error: 'user_denied' };
       if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
 
@@ -1918,7 +1917,7 @@ ipcMain.handle('lumenSite:siteDataPublish', async (evt, input) => {
         invalidateIpnsCache(keyName);
       } catch {}
 
-      siteData.upsertSiteDataRecord(ctx.siteKey, profileId, { keyName, ipnsName, schema, datas, title });
+      siteData.upsertSiteDataRecord(ctx.siteKey, profileId, { keyName, ipnsName, schema, datas });
       markSiteModalCooldown(ctx.siteKey);
       return { ok: true, keyName, ipnsName };
     } finally {
