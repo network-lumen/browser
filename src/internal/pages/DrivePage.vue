@@ -890,7 +890,7 @@
           <div class="reveal-on-hover hover-bg-primary-a10 flex-align-center gap-12px border-radius-10px py-10px px-12px">
             <UiButton variant="none" type="button" @click="toggleSiteDataExpanded(record)" class="flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left p-0px">
               <div class="text-14px fw-500 color-text-primary truncate mono">{{ siteDataSiteLabel(record) }}</div>
-              <div class="text-12px color-text-tertiary truncate">{{ record.schema || "—" }} · {{ record.updatedAt ? formatDate(record.updatedAt) : "—" }}</div>
+              <div class="text-12px color-text-tertiary truncate">{{ record.updatedAt ? formatDate(record.updatedAt) : "—" }}</div>
             </UiButton>
             <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Delete this site's data"
               :disabled="removingSiteDataId === siteDataRowId(record)"

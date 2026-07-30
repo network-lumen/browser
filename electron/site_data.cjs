@@ -6,7 +6,7 @@
 // in their own file, and surfaced in the Drive page's "Sites data" section
 // instead of mixed into the raw ipfs key list.
 //
-// `datas`/`schema` are cached here in full (not just the IPNS pointer), so
+// `datas` is cached here in full (not just the IPNS pointer), so
 // `siteDataGet()` (the hot path, called on every page load by a site trying
 // to auto-login) never has to touch the network - it's a local read. The
 // actual `ipfsAdd`+`ipfsPublishToIPNS` round trip only happens on publish,
@@ -53,7 +53,7 @@ function getSiteDataRecord(siteKey, profileId) {
   return data.records[recordId(siteKey, profileId)] || null;
 }
 
-function upsertSiteDataRecord(siteKey, profileId, { keyName, ipnsName, schema, datas }) {
+function upsertSiteDataRecord(siteKey, profileId, { keyName, ipnsName, datas }) {
   const data = load();
   const id = recordId(siteKey, profileId);
   const now = Date.now();
@@ -63,7 +63,6 @@ function upsertSiteDataRecord(siteKey, profileId, { keyName, ipnsName, schema, d
     profileId,
     keyName,
     ipnsName,
-    schema: schema ?? existing?.schema ?? '',
     datas: datas ?? existing?.datas ?? {},
     createdAt: existing?.createdAt || now,
     updatedAt: now
