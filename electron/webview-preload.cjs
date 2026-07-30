@@ -2131,7 +2131,7 @@ const lumen = {
      * IPNS key for this (site, active profile) pair on first call.
      * @param {object} input - `{schema, datas}` - `schema` is a site-chosen version/shape tag, `datas` is the site's own JSON payload (capped in size).
      * @returns {Promise<{ok:boolean,data?:{keyName:string,ipnsName:string},error?:string}>}
-     * @error {site_data_publish_failed} Missing schema/datas, the payload was too large, or the publish failed.
+     * @error {site_data_publish_failed} Missing schema/datas, the payload was too large or too deeply/broadly structured, called more than once per 2s, or the publish itself failed.
      */
     publish: wrapLumenApiCall(siteDataPublish, 'site_data_publish_failed'),
   },

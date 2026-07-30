@@ -17,8 +17,13 @@ const { userDataPath, readJson, writeJson } = require('./utils/fs.cjs');
 const FILE = () => userDataPath('site_data_records.json');
 const VERSION = 1;
 const MAX_DATAS_BYTES = 512 * 1024;
+const MAX_DEPTH = 4;
+const MAX_ARRAY_LENGTH = 500;
+const MAX_STRING_LENGTH = 10_000;
+const PUBLISH_RATE_LIMIT_MS = 2000;
 
 let cached = null;
+const lastPublishAt = new Map(); // in-memory only, not persisted - resets on app restart, which is fine for a rate limit
 
 function recordId(siteKey, profileId) {
   return `${String(siteKey || '')}|${String(profileId || '')}`;
@@ -92,6 +97,43 @@ function datasSizeOk(datas) {
   }
 }
 
+/**
+ * Structural bounds on `datas` - kept generic (any JSON shape a site wants:
+ * objects, arrays, whatever), just capped so nothing pathological (unbounded
+ * nesting, a single absurd string, a huge array) sneaks past the total-size
+ * check by front-loading one field.
+ */
+function datasStructureOk(value, depth = 0) {
+  if (depth > MAX_DEPTH) return false;
+  if (value === null || value === undefined) return true;
+  if (typeof value === 'string') return value.length <= MAX_STRING_LENGTH;
+  if (typeof value === 'number' || typeof value === 'boolean') return true;
+  if (Array.isArray(value)) {
+    return value.length <= MAX_ARRAY_LENGTH && value.every((item) => datasStructureOk(item, depth + 1));
+  }
+  if (typeof value === 'object') {
+    return Object.values(value).every((item) => datasStructureOk(item, depth + 1));
+  }
+  return false;
+}
+
+/** Combined size + structure check, with the specific rejection reason for the caller to surface. */
+function validateDatas(datas) {
+  if (!datasSizeOk(datas)) return { ok: false, error: 'datas_too_large' };
+  if (!datasStructureOk(datas)) return { ok: false, error: 'datas_structure_invalid' };
+  return { ok: true };
+}
+
+/** At most one publish per (site, profile) every PUBLISH_RATE_LIMIT_MS - closes the gap where, once "always allow" is granted, nothing else throttles repeated siteData.publish() calls. */
+function canPublishNow(siteKey, profileId) {
+  const last = lastPublishAt.get(recordId(siteKey, profileId)) || 0;
+  return Date.now() - last >= PUBLISH_RATE_LIMIT_MS;
+}
+
+function markPublished(siteKey, profileId) {
+  lastPublishAt.set(recordId(siteKey, profileId), Date.now());
+}
+
 module.exports = {
   siteDataKeyName,
   getSiteDataRecord,
@@ -99,5 +141,9 @@ module.exports = {
   deleteSiteDataRecord,
   listSiteDataRecords,
   datasSizeOk,
-  MAX_DATAS_BYTES
+  validateDatas,
+  canPublishNow,
+  markPublished,
+  MAX_DATAS_BYTES,
+  PUBLISH_RATE_LIMIT_MS
 };

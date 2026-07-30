@@ -900,8 +900,20 @@
           </div>
           <div v-if="expandedSiteDataId === siteDataRowId(record)" class="border-radius-10px mt-4px py-10px px-12px bg-secondary">
             <UiDetailRow variant="modal" label="Profile" :value="record.profileId || '—'" />
-            <div class="text-11px color-text-tertiary mt-8px mb-4px">Stored data</div>
-            <pre class="text-11px color-text-secondary mono overflow-auto max-h-280px m-0px p-8px border-radius-8px bg-card">{{ siteDataJson(record) }}</pre>
+            <div class="flex-align-center-justify-space-between mt-8px mb-4px">
+              <span class="text-11px color-text-tertiary">Stored data</span>
+              <UiButton variant="none" type="button" @click="toggleSiteDataRaw(record)" class="bg-transparent border-none cursor-pointer color-primary text-11px fw-500 p-0px">
+                {{ rawSiteDataId === siteDataRowId(record) ? "Table view" : "View raw JSON" }}
+              </UiButton>
+            </div>
+            <pre v-if="rawSiteDataId === siteDataRowId(record)" class="text-11px color-text-secondary mono overflow-auto max-h-280px m-0px p-8px border-radius-8px bg-card">{{ siteDataJson(record) }}</pre>
+            <div v-else class="border-radius-8px overflow-hidden border-default">
+              <div v-for="field in siteDataFields(record)" :key="field.key" class="grid-cols-70-1fr grid gap-8px py-6px px-8px last-border-bottom-none border-bottom-1">
+                <span class="text-11px color-text-tertiary mono truncate">{{ field.key }}</span>
+                <span class="text-11px color-text-primary overflow-wrap-anywhere">{{ field.value }}</span>
+              </div>
+              <div v-if="!siteDataFields(record).length" class="text-11px color-text-tertiary py-8px px-8px">Empty.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1603,6 +1615,7 @@ const siteDataLoading = ref(false);
 const showSiteDataModal = ref(false);
 const removingSiteDataId = ref("");
 const expandedSiteDataId = ref("");
+const rawSiteDataId = ref("");
 
 function siteDataRowId(record: any): string {
   return `${record?.siteKey || ""}|${record?.profileId || ""}`;
@@ -1627,6 +1640,28 @@ function siteDataSiteLabel(record: any): string {
 function toggleSiteDataExpanded(record: any) {
   const id = siteDataRowId(record);
   expandedSiteDataId.value = expandedSiteDataId.value === id ? "" : id;
+}
+
+function toggleSiteDataRaw(record: any) {
+  const id = siteDataRowId(record);
+  rawSiteDataId.value = rawSiteDataId.value === id ? "" : id;
+}
+
+/** Top-level datas fields as a flat, scannable table - datas is arbitrary site-defined JSON, so nested arrays/objects are summarized (count) rather than dumped inline; "View raw JSON" still shows everything for anyone who wants the full picture. */
+function siteDataFields(record: any): { key: string; value: string }[] {
+  const datas = record?.datas && typeof record.datas === "object" && !Array.isArray(record.datas) ? record.datas : {};
+  return Object.entries(datas).map(([key, value]) => ({ key, value: formatSiteDataFieldValue(value) }));
+}
+
+function formatSiteDataFieldValue(value: any): string {
+  if (value === null || value === undefined) return "—";
+  if (Array.isArray(value)) return `${value.length} item${value.length === 1 ? "" : "s"}`;
+  if (typeof value === "object") {
+    const count = Object.keys(value).length;
+    return `${count} field${count === 1 ? "" : "s"}`;
+  }
+  const str = String(value);
+  return str.length > 140 ? `${str.slice(0, 140)}…` : str;
 }
 
 function siteDataJson(record: any): string {

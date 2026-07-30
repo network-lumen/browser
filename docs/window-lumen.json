@@ -1,7 +1,7 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-07-30T19:02:04.231Z",
+  "generatedAt": "2026-07-30T19:15:30.822Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
   "appVersion": "0.9.7",
   "groups": [
@@ -296,7 +296,7 @@
       "errors": [
         {
           "code": "site_data_publish_failed",
-          "description": "Missing schema/datas, the payload was too large, or the publish failed."
+          "description": "Missing schema/datas, the payload was too large or too deeply/broadly structured, called more than once per 2s, or the publish itself failed."
         }
       ]
     },
