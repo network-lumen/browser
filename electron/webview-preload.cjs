@@ -1574,6 +1574,21 @@ async function resolveUrl(urlOrPath) {
   return raw;
 }
 
+/**
+ * The registered Lumen domain this page is being viewed through (e.g.
+ * `social.lumen.lmn`), or `''` if viewed via a raw ipfs/ipns address. Only
+ * the main process knows this - the page's own `window.location` always
+ * shows the resolved ipfs/ipns gateway URL, never the pretty domain.
+ */
+async function getSiteDomain() {
+  ensureLumenSite();
+  try {
+    return await ipcRenderer.invoke('lumenSite:getSiteDomain');
+  } catch {
+    return '';
+  }
+}
+
 /** Send LMN from the active wallet via the host's confirmation UI. */
 async function sendToken(rawTx) {
   ensureLumenSite();
@@ -2057,6 +2072,16 @@ const lumen = {
    * @error {resolve_url_failed} The local gateway could not be reached.
    */
   resolveUrl: wrapLumenApiCall(resolveUrl, 'resolve_url_failed'),
+
+  /**
+   * The registered Lumen domain this page is viewed through (e.g.
+   * `social.lumen.lmn`), or `''` if viewed via a raw ipfs/ipns address -
+   * useful for building a shareable link that uses the pretty domain
+   * instead of the underlying CID/IPNS key when one is registered.
+   * @returns {Promise<{ok:boolean,data?:string,error?:string}>}
+   * @error {get_site_domain_failed} The host could not be reached.
+   */
+  getSiteDomain: wrapLumenApiCall(getSiteDomain, 'get_site_domain_failed'),
 
   /**
    * Toggle fullscreen for the browser window hosting this site.

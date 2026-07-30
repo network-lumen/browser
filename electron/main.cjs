@@ -1502,6 +1502,17 @@ ipcMain.handle('lumenSite:getLocalGatewayBase', async () => {
   return safeString(s && s.localGatewayBase ? s.localGatewayBase : '', 1024);
 });
 
+// A registered Lumen domain (e.g. lumen://social.lumen.lmn) is main-process-only
+// metadata (siteDomainByWebContentsId, set via site:registerDomainTarget) - the
+// <webview> itself still navigates to the resolved ipfs/ipns gateway URL under
+// the hood, so a site's own window.location can NEVER reveal its pretty domain.
+// This is the one place that can answer "what's my own shareable address".
+ipcMain.handle('lumenSite:getSiteDomain', async (evt) => {
+  const ctx = senderSiteContext(evt);
+  if (!ctx.ok) return '';
+  return ctx.siteKey.startsWith('domain:') ? ctx.siteKey.slice('domain:'.length) : '';
+});
+
 ipcMain.handle('lumenSite:setFullscreen', async (evt, input) => {
   const ctx = senderSiteContext(evt);
   if (!ctx.ok) return { ok: false, error: ctx.error };
