@@ -370,8 +370,14 @@ function senderSiteContext(evt) {
  * load, which a real domain lookup would otherwise never show the user.
  * Only worth the extra latency for permission-gated site actions, not the
  * high-frequency ones (ipfsGet, etc).
+ *
+ * maxWaitMs must stay comfortably above SitePage.vue's own worst-case
+ * registration budget (registerDomainTargetWithRetry: 40 attempts * 50ms =
+ * 2000ms) - anything shorter can legitimately time out a hair before the
+ * registration lands and silently fall back to the raw address, which is
+ * exactly the bug this function exists to avoid.
  */
-async function senderSiteContextAwaitingDomain(evt, maxWaitMs = 1500) {
+async function senderSiteContextAwaitingDomain(evt, maxWaitMs = 3000) {
   const ctx = senderSiteContext(evt);
   if (!ctx.ok || ctx.siteKey.startsWith('domain:')) return ctx;
   const sender = evt && evt.sender ? evt.sender : null;
