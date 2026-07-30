@@ -144,7 +144,7 @@ const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } =
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
 const { registerNetworkIpc } = require('./ipc/network.cjs');
 const { registerReleaseIpc } = require('./ipc/release.cjs');
-const { registerProfilesIpc } = require('./ipc/profiles.cjs');
+const { registerProfilesIpc, loadProfilesFile } = require('./ipc/profiles.cjs');
 const { registerWalletIpc } = require('./ipc/wallet.cjs');
 const { registerGatewayIpc } = require('./ipc/gateway.cjs');
 const { registerHandlers: registerAddressBookIpc } = require('./ipc/addressbook.cjs');
@@ -157,6 +157,7 @@ const { registerTroubleshootingIpc } = require('./ipc/troubleshooting.cjs');
 const { registerExtensionsIpc } = require('./ipc/extensions.cjs');
 const { extensionManager } = require('./extensions/manager.cjs');
 const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./lumen_site_permissions.cjs');
+const siteData = require('./site_data.cjs');
 const { startReleaseWatcher, stopReleaseWatcher } = require('./services/release_watcher.cjs');
 const { recordLaunchStart, markGracefulExit } = require('./services/startup_health.cjs');
 
@@ -1774,6 +1775,144 @@ function ensureUiSender(evt) {
   if (!evt || evt.sender !== ui) return { ok: false, error: 'not_ui' };
   return { ok: true };
 }
+
+/**
+ * Active wallet profile id, read directly (no IPC round trip needed - this
+ * runs in the main process already). Site-data records are scoped per
+ * (site, profile) so switching profiles naturally gets a separate record,
+ * same as switching accounts on a real site would.
+ */
+function activeProfileIdForSiteData() {
+  try {
+    const { profiles, activeId } = loadProfilesFile();
+    const userProfiles = profiles.filter((p) => p && p.role !== 'guest');
+    const active = userProfiles.find((p) => p.id === activeId) || userProfiles[0] || null;
+    return active ? String(active.id || '').trim() : '';
+  } catch {
+    return '';
+  }
+}
+
+// Site-facing: a site's own durable data record, one dedicated IPNS key per
+// (site, active profile), auto-created on first publish. Deliberately
+// separate from the user's own "ugly domains" (see site_data.cjs header) -
+// tracked in its own file, never mixed into ipfsKeyList()-backed UI.
+ipcMain.handle('lumenSite:siteDataGet', async (evt) => {
+  const ctx = senderSiteContext(evt);
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+  const profileId = activeProfileIdForSiteData();
+  if (!profileId) return { ok: false, error: 'no_active_profile' };
+
+  const meta = { href: ctx.href, title: '' };
+  const lock = tryBeginSiteAction(ctx.siteKey);
+  if (!lock.ok) return lock;
+
+  return enqueueUi(async () => {
+    try {
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+      const perm = await ensureLumenSitePermission(ctx.siteKey, meta, 'SiteData', { mode: 'get' });
+      if (!perm || perm.ok === false) return perm || { ok: false, error: 'user_denied' };
+
+      const record = siteData.getSiteDataRecord(ctx.siteKey, profileId);
+      if (!record) return { ok: true, exists: false };
+      return { ok: true, exists: true, schema: record.schema, datas: record.datas, updatedAt: record.updatedAt, ipnsName: record.ipnsName };
+    } finally {
+      endSiteAction(lock.key);
+    }
+  });
+});
+
+ipcMain.handle('lumenSite:siteDataPublish', async (evt, input) => {
+  const ctx = senderSiteContext(evt);
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+  const profileId = activeProfileIdForSiteData();
+  if (!profileId) return { ok: false, error: 'no_active_profile' };
+
+  const title = safeString(input && input.title ? input.title : '', 256);
+  const schema = safeString(input && input.schema ? input.schema : '', 128);
+  const datas = input && typeof input.datas === 'object' && input.datas !== null && !Array.isArray(input.datas) ? input.datas : null;
+  if (!schema || !datas) return { ok: false, error: 'missing_schema_or_datas' };
+  if (!siteData.datasSizeOk(datas)) return { ok: false, error: 'datas_too_large' };
+
+  const meta = { href: ctx.href, title };
+  const lock = tryBeginSiteAction(ctx.siteKey);
+  if (!lock.ok) return lock;
+
+  return enqueueUi(async () => {
+    try {
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+      const perm = await ensureLumenSitePermission(ctx.siteKey, meta, 'SiteData', { title, mode: 'publish' });
+      if (!perm || perm.ok === false) return perm || { ok: false, error: 'user_denied' };
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+
+      const existing = siteData.getSiteDataRecord(ctx.siteKey, profileId);
+      const keyName = existing?.keyName || siteData.siteDataKeyName(ctx.siteKey, profileId);
+
+      if (!existing) {
+        const created = await ipfsKeyGen(keyName);
+        if (!created?.ok) return { ok: false, error: created?.error || 'ipns_key_create_failed' };
+      }
+
+      const body = JSON.stringify({
+        lumenSiteDataVersion: 1,
+        type: 'lumen.site-data.record',
+        schema,
+        origin: ctx.siteKey,
+        updatedAt: new Date().toISOString(),
+        datas,
+      }, null, 2);
+      const added = await ipfsAdd(Buffer.from(body, 'utf8'), 'site-data.json');
+      if (!added?.ok || !added.cid) return { ok: false, error: added?.error || 'ipfs_add_failed' };
+      const published = await ipfsPublishToIPNS(added.cid, keyName, { timeoutMs: 60000 });
+      if (!published?.ok) return { ok: false, error: published?.error || 'ipns_publish_failed' };
+
+      let ipnsName = existing?.ipnsName || '';
+      if (!ipnsName) {
+        const keys = await ipfsKeyList().catch(() => null);
+        const list = Array.isArray(keys?.keys) ? keys.keys : [];
+        const key = list.find((item) => String(item?.Name || item?.name || '') === keyName);
+        ipnsName = String(key?.Id || key?.id || published.name || '').trim();
+      }
+      try {
+        invalidateIpnsCache(ipnsName);
+        invalidateIpnsCache(keyName);
+      } catch {}
+
+      siteData.upsertSiteDataRecord(ctx.siteKey, profileId, { keyName, ipnsName, schema, datas, title });
+      markSiteModalCooldown(ctx.siteKey);
+      return { ok: true, keyName, ipnsName };
+    } finally {
+      endSiteAction(lock.key);
+    }
+  });
+});
+
+// Internal/trusted only (main app window, e.g. Drive's "Sites data" section) -
+// no site permission gate, just the same ensureUiSender check other
+// UI-only channels use, since this isn't reachable from any <webview>.
+ipcMain.handle('siteData:list', async (evt) => {
+  const okUi = ensureUiSender(evt);
+  if (!okUi.ok) return okUi;
+  return { ok: true, records: siteData.listSiteDataRecords() };
+});
+
+ipcMain.handle('siteData:delete', async (evt, siteKey, profileId) => {
+  const okUi = ensureUiSender(evt);
+  if (!okUi.ok) return okUi;
+  const key = safeString(siteKey, 256);
+  const profile = safeString(profileId, 256);
+  if (!key || !profile) return { ok: false, error: 'missing_site_or_profile' };
+  const removed = siteData.deleteSiteDataRecord(key, profile);
+  if (!removed) return { ok: false, error: 'not_found' };
+  if (removed.keyName) {
+    await ipfsKeyRm(removed.keyName).catch(() => null);
+    try {
+      invalidateIpnsCache(removed.ipnsName);
+      invalidateIpnsCache(removed.keyName);
+    } catch {}
+  }
+  return { ok: true };
+});
 
 ipcMain.handle('domainSite:sendToken', async (evt, input) => {
   const okUi = ensureUiSender(evt);

@@ -315,6 +315,46 @@ describe('window.lumen preload API', () => {
     });
   });
 
+  describe('siteData.get', () => {
+    it('invokes lumenSite:siteDataGet with no payload', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('lumenSite:siteDataGet', { value: { ok: true, exists: true, schema: 'lumen.social.v1', datas: { name: 'Ben' } } });
+      const result = await lumen.siteData.get();
+      expect(result).toEqual({ ok: true, exists: true, schema: 'lumen.social.v1', datas: { name: 'Ben' } });
+      expect(lastInvokeCall()).toEqual(['lumenSite:siteDataGet']);
+    });
+
+    it('reports exists:false when no record has been published yet', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('lumenSite:siteDataGet', { value: { ok: true, exists: false } });
+      const result = await lumen.siteData.get();
+      expect(result).toEqual({ ok: true, exists: false });
+    });
+  });
+
+  describe('siteData.publish', () => {
+    it('sends title/schema/datas to the host', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('lumenSite:siteDataPublish', { value: { ok: true, keyName: 'sitedata:abc', ipnsName: 'k51...' } });
+      const result = await lumen.siteData.publish({ title: 'My Site', schema: 'lumen.social.v1', datas: { name: 'Ben' } });
+      expect(result).toEqual({ ok: true, keyName: 'sitedata:abc', ipnsName: 'k51...' });
+      expect(lastInvokeCall()).toEqual([
+        'lumenSite:siteDataPublish',
+        { title: 'My Site', schema: 'lumen.social.v1', datas: { name: 'Ben' } }
+      ]);
+    });
+
+    it('falls back to document.title and an empty datas object when nothing is given', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('lumenSite:siteDataPublish', { value: { ok: true } });
+      await lumen.siteData.publish({ schema: 'x' });
+      expect(lastInvokeCall()).toEqual([
+        'lumenSite:siteDataPublish',
+        { title: 'Lumen Test', schema: 'x', datas: {} }
+      ]);
+    });
+  });
+
   // -- profiles --------------------------------------------------------------
 
   describe('profiles.getActive', () => {
@@ -591,6 +631,8 @@ describe('window.lumen preload API', () => {
       ['stableLinks.chooseForLive', (l) => l.stableLinks.chooseForLive({})],
       ['stableLinks.selectForLiveSetup', (l) => l.stableLinks.selectForLiveSetup({})],
       ['stableLinks.publishForLive', (l) => l.stableLinks.publishForLive({})],
+      ['siteData.get', (l) => l.siteData.get()],
+      ['siteData.publish', (l) => l.siteData.publish({ schema: 'x', datas: {} })],
       ['profiles.getActive', (l) => l.profiles.getActive()],
       ['pubsub.publish', (l) => l.pubsub.publish('t', 'x')],
       ['pubsub.subscribe', (l) => l.pubsub.subscribe('t', {})],

@@ -1,7 +1,7 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-07-28T19:04:33.550Z",
+  "generatedAt": "2026-07-30T17:22:38.674Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
   "appVersion": "0.9.7",
   "groups": [
@@ -25,6 +25,14 @@
         "stableLinks.chooseForLive",
         "stableLinks.selectForLiveSetup",
         "stableLinks.publishForLive"
+      ]
+    },
+    {
+      "id": "siteData",
+      "label": "siteData",
+      "paths": [
+        "siteData.get",
+        "siteData.publish"
       ]
     },
     {
@@ -224,6 +232,51 @@
         {
           "code": "stable_link_publish_failed",
           "description": "The IPNS publish failed."
+        }
+      ]
+    },
+    {
+      "path": "siteData.get",
+      "namespace": "siteData",
+      "member": "get",
+      "implementation": "siteDataGet",
+      "fallbackError": "site_data_get_failed",
+      "description": "Read this site's own durable data record, if one already exists for the currently active profile. Local read, no network round trip.",
+      "params": [],
+      "returns": {
+        "type": "Promise<{ok:boolean,data?:{exists:boolean,schema?:string,datas?:object,updatedAt?:number,ipnsName?:string},error?:string}>",
+        "description": ""
+      },
+      "errors": [
+        {
+          "code": "site_data_get_failed",
+          "description": "No active profile, or the permission prompt was denied."
+        }
+      ]
+    },
+    {
+      "path": "siteData.publish",
+      "namespace": "siteData",
+      "member": "publish",
+      "implementation": "siteDataPublish",
+      "fallbackError": "site_data_publish_failed",
+      "description": "Create or update this site's own data record. Auto-creates a dedicated IPNS key for this (site, active profile) pair on first call.",
+      "params": [
+        {
+          "name": "input",
+          "type": "object",
+          "optional": false,
+          "description": "`{title?, schema, datas}` - `schema` is a site-chosen version/shape tag, `datas` is the site's own JSON payload."
+        }
+      ],
+      "returns": {
+        "type": "Promise<{ok:boolean,data?:{keyName:string,ipnsName:string},error?:string}>",
+        "description": ""
+      },
+      "errors": [
+        {
+          "code": "site_data_publish_failed",
+          "description": "Missing schema/datas, the payload was too large, or the publish failed."
         }
       ]
     },

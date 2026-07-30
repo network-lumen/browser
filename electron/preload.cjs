@@ -226,6 +226,10 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsKeyExport: (name) => ipcRenderer.invoke('ipfs:keyExport', name),
   ipfsKeyRm: (name) => ipcRenderer.invoke('ipfs:keyRm', name),
   ipfsSwarmPeers: () => ipcRenderer.invoke('ipfs:swarmPeers'),
+  siteData: {
+    list: () => ipcRenderer.invoke('siteData:list'),
+    delete: (siteKey, profileId) => ipcRenderer.invoke('siteData:delete', siteKey, profileId),
+  },
   driveConvertToHls: (payload) => ipcRenderer.invoke('drive:convertToHls', payload || {}),
   driveDownloadHlsArchive: (payload) => ipcRenderer.invoke('drive:downloadHlsArchive', payload || {}),
   driveCancelHlsConvert: () => ipcRenderer.invoke('drive:cancelHlsConvert'),
