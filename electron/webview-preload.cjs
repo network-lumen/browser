@@ -1706,7 +1706,6 @@ async function siteDataPublish(input) {
   const payload = input && typeof input === 'object' ? input : {};
   try {
     return await ipcRenderer.invoke('lumenSite:siteDataPublish', {
-      title: webview_utils.safeString(payload.title || document?.title || '', 256),
       schema: webview_utils.safeString(payload.schema || '', 128),
       datas: payload.datas && typeof payload.datas === 'object' ? payload.datas : {},
     });
@@ -2130,7 +2129,7 @@ const lumen = {
     /**
      * Create or update this site's own data record. Auto-creates a dedicated
      * IPNS key for this (site, active profile) pair on first call.
-     * @param {object} input - `{title?, schema, datas}` - `schema` is a site-chosen version/shape tag, `datas` is the site's own JSON payload.
+     * @param {object} input - `{schema, datas}` - `schema` is a site-chosen version/shape tag, `datas` is the site's own JSON payload (capped in size).
      * @returns {Promise<{ok:boolean,data?:{keyName:string,ipnsName:string},error?:string}>}
      * @error {site_data_publish_failed} Missing schema/datas, the payload was too large, or the publish failed.
      */

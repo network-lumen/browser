@@ -899,7 +899,6 @@
             </UiButton>
           </div>
           <div v-if="expandedSiteDataId === siteDataRowId(record)" class="border-radius-10px mt-4px py-10px px-12px bg-secondary">
-            <UiDetailRow v-if="record.title" variant="modal" label="Title" :value="record.title" />
             <UiDetailRow variant="modal" label="Profile" :value="record.profileId || '—'" />
             <div class="text-11px color-text-tertiary mt-8px mb-4px">Stored data</div>
             <pre class="text-11px color-text-secondary mono overflow-auto max-h-280px m-0px p-8px border-radius-8px bg-card">{{ siteDataJson(record) }}</pre>

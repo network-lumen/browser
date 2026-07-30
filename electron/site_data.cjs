@@ -48,7 +48,7 @@ function getSiteDataRecord(siteKey, profileId) {
   return data.records[recordId(siteKey, profileId)] || null;
 }
 
-function upsertSiteDataRecord(siteKey, profileId, { keyName, ipnsName, schema, datas, title }) {
+function upsertSiteDataRecord(siteKey, profileId, { keyName, ipnsName, schema, datas }) {
   const data = load();
   const id = recordId(siteKey, profileId);
   const now = Date.now();
@@ -60,7 +60,6 @@ function upsertSiteDataRecord(siteKey, profileId, { keyName, ipnsName, schema, d
     ipnsName,
     schema: schema ?? existing?.schema ?? '',
     datas: datas ?? existing?.datas ?? {},
-    title: title || existing?.title || '',
     createdAt: existing?.createdAt || now,
     updatedAt: now
   };

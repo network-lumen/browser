@@ -1,7 +1,7 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-07-30T17:40:07.251Z",
+  "generatedAt": "2026-07-30T19:02:04.231Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
   "appVersion": "0.9.7",
   "groups": [
@@ -286,7 +286,7 @@
           "name": "input",
           "type": "object",
           "optional": false,
-          "description": "`{title?, schema, datas}` - `schema` is a site-chosen version/shape tag, `datas` is the site's own JSON payload."
+          "description": "`{schema, datas}` - `schema` is a site-chosen version/shape tag, `datas` is the site's own JSON payload (capped in size)."
         }
       ],
       "returns": {

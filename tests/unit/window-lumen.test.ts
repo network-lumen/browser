@@ -350,24 +350,24 @@ describe('window.lumen preload API', () => {
   });
 
   describe('siteData.publish', () => {
-    it('sends title/schema/datas to the host', async () => {
+    it('sends schema/datas to the host', async () => {
       const lumen = await loadLumen();
       queueInvoke('lumenSite:siteDataPublish', { value: { ok: true, keyName: 'sitedata:abc', ipnsName: 'k51...' } });
-      const result = await lumen.siteData.publish({ title: 'My Site', schema: 'lumen.social.v1', datas: { name: 'Ben' } });
+      const result = await lumen.siteData.publish({ schema: 'lumen.social.v1', datas: { name: 'Ben' } });
       expect(result).toEqual({ ok: true, keyName: 'sitedata:abc', ipnsName: 'k51...' });
       expect(lastInvokeCall()).toEqual([
         'lumenSite:siteDataPublish',
-        { title: 'My Site', schema: 'lumen.social.v1', datas: { name: 'Ben' } }
+        { schema: 'lumen.social.v1', datas: { name: 'Ben' } }
       ]);
     });
 
-    it('falls back to document.title and an empty datas object when nothing is given', async () => {
+    it('falls back to an empty datas object when nothing is given', async () => {
       const lumen = await loadLumen();
       queueInvoke('lumenSite:siteDataPublish', { value: { ok: true } });
       await lumen.siteData.publish({ schema: 'x' });
       expect(lastInvokeCall()).toEqual([
         'lumenSite:siteDataPublish',
-        { title: 'Lumen Test', schema: 'x', datas: {} }
+        { schema: 'x', datas: {} }
       ]);
     });
   });
