@@ -359,6 +359,35 @@ function senderSiteContext(evt) {
   return { ok: true, sender, href, siteKey };
 }
 
+/**
+ * Same as senderSiteContext(), but tolerant of the brief window right after
+ * a webview starts loading where the guest page's own script can already be
+ * running (and calling window.lumen) before SitePage.vue's
+ * registerDomainTargetWithRetry() has landed its site:registerDomainTarget
+ * IPC call - without this, a site loaded through a registered Lumen domain
+ * would briefly report/show its raw resolved ipfs/ipns address instead (e.g.
+ * in the permission modal's "Site" field) if it calls a gated API eagerly on
+ * load, which a real domain lookup would otherwise never show the user.
+ * Only worth the extra latency for permission-gated site actions, not the
+ * high-frequency ones (ipfsGet, etc).
+ */
+async function senderSiteContextAwaitingDomain(evt, maxWaitMs = 1500) {
+  const ctx = senderSiteContext(evt);
+  if (!ctx.ok || ctx.siteKey.startsWith('domain:')) return ctx;
+  const sender = evt && evt.sender ? evt.sender : null;
+  if (!sender) return ctx;
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    if (sender.isDestroyed()) return ctx;
+    if (siteDomainByWebContentsId.has(sender.id)) {
+      const retried = senderSiteContext(evt);
+      return retried.ok ? retried : ctx;
+    }
+    await sleep(50);
+  }
+  return ctx;
+}
+
 function isSenderSiteContextStillValid(ctx) {
   try {
     const sender = ctx && ctx.sender ? ctx.sender : null;
@@ -1508,7 +1537,7 @@ ipcMain.handle('lumenSite:getLocalGatewayBase', async () => {
 // the hood, so a site's own window.location can NEVER reveal its pretty domain.
 // This is the one place that can answer "what's my own shareable address".
 ipcMain.handle('lumenSite:getSiteDomain', async (evt) => {
-  const ctx = senderSiteContext(evt);
+  const ctx = await senderSiteContextAwaitingDomain(evt);
   if (!ctx.ok) return '';
   return ctx.siteKey.startsWith('domain:') ? ctx.siteKey.slice('domain:'.length) : '';
 });
@@ -1809,7 +1838,7 @@ function activeProfileIdForSiteData() {
 // separate from the user's own "ugly domains" (see site_data.cjs header) -
 // tracked in its own file, never mixed into ipfsKeyList()-backed UI.
 ipcMain.handle('lumenSite:siteDataGet', async (evt) => {
-  const ctx = senderSiteContext(evt);
+  const ctx = await senderSiteContextAwaitingDomain(evt);
   if (!ctx.ok) return { ok: false, error: ctx.error };
   const profileId = activeProfileIdForSiteData();
   if (!profileId) return { ok: false, error: 'no_active_profile' };
@@ -1834,7 +1863,7 @@ ipcMain.handle('lumenSite:siteDataGet', async (evt) => {
 });
 
 ipcMain.handle('lumenSite:siteDataPublish', async (evt, input) => {
-  const ctx = senderSiteContext(evt);
+  const ctx = await senderSiteContextAwaitingDomain(evt);
   if (!ctx.ok) return { ok: false, error: ctx.error };
   const profileId = activeProfileIdForSiteData();
   if (!profileId) return { ok: false, error: 'no_active_profile' };
