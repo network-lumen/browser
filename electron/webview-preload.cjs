@@ -1687,9 +1687,9 @@ async function publishStableLinkForLive(input) {
  * Read the site's own durable data record - a JSON blob published under an
  * IPNS key the browser dedicates to this (site, active profile) pair,
  * auto-created the first time `siteData.publish()` is ever called. This is
- * a local read (no network round trip): the main process caches `schema`/
- * `datas` alongside the IPNS pointer specifically so a site can check "do I
- * already know this visitor" on every load without waiting on IPFS.
+ * a local read (no network round trip): the main process caches `datas`
+ * alongside the IPNS pointer specifically so a site can check "do I already
+ * know this visitor" on every load without waiting on IPFS.
  */
 async function siteDataGet() {
   ensureLumenSite();
@@ -1700,14 +1700,12 @@ async function siteDataGet() {
   }
 }
 
-/** Create or update the site's own data record. Auto-creates its dedicated IPNS key on first call. */
-async function siteDataPublish(input) {
+/** Create or update the site's own data record (any JSON object it wants). Auto-creates its dedicated IPNS key on first call. */
+async function siteDataPublish(datas) {
   ensureLumenSite();
-  const payload = input && typeof input === 'object' ? input : {};
   try {
     return await ipcRenderer.invoke('lumenSite:siteDataPublish', {
-      schema: webview_utils.safeString(payload.schema || '', 128),
-      datas: payload.datas && typeof payload.datas === 'object' ? payload.datas : {},
+      datas: datas && typeof datas === 'object' ? datas : {},
     });
   } catch (e) {
     return { ok: false, error: webview_utils.safeString(e?.message || e || 'site_data_publish_failed', 512) };
@@ -2121,17 +2119,18 @@ const lumen = {
     /**
      * Read this site's own durable data record, if one already exists for
      * the currently active profile. Local read, no network round trip.
-     * @returns {Promise<{ok:boolean,data?:{exists:boolean,schema?:string,datas?:object,updatedAt?:number,ipnsName?:string},error?:string}>}
+     * @returns {Promise<{ok:boolean,data?:{exists:boolean,datas?:object,updatedAt?:number,ipnsName?:string},error?:string}>}
      * @error {site_data_get_failed} No active profile, or the permission prompt was denied.
      */
     get: wrapLumenApiCall(siteDataGet, 'site_data_get_failed'),
 
     /**
-     * Create or update this site's own data record. Auto-creates a dedicated
-     * IPNS key for this (site, active profile) pair on first call.
-     * @param {object} input - `{schema, datas}` - `schema` is a site-chosen version/shape tag, `datas` is the site's own JSON payload (capped in size).
+     * Create or update this site's own data record with `datas` (any JSON
+     * object the site wants, capped in size/shape - see docs). Auto-creates
+     * a dedicated IPNS key for this (site, active profile) pair on first call.
+     * @param {object} datas - The site's own JSON payload. If it wants to tag its own shape/version, that's just another field it puts in here.
      * @returns {Promise<{ok:boolean,data?:{keyName:string,ipnsName:string},error?:string}>}
-     * @error {site_data_publish_failed} Missing schema/datas, the payload was too large or too deeply/broadly structured, called more than once per 2s, or the publish itself failed.
+     * @error {site_data_publish_failed} Missing/invalid datas, too large or too deeply/broadly structured, called more than once per 2s, or the publish itself failed.
      */
     publish: wrapLumenApiCall(siteDataPublish, 'site_data_publish_failed'),
   },

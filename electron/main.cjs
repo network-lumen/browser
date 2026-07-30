@@ -1855,7 +1855,7 @@ ipcMain.handle('lumenSite:siteDataGet', async (evt) => {
 
       const record = siteData.getSiteDataRecord(ctx.siteKey, profileId);
       if (!record) return { ok: true, exists: false };
-      return { ok: true, exists: true, schema: record.schema, datas: record.datas, updatedAt: record.updatedAt, ipnsName: record.ipnsName };
+      return { ok: true, exists: true, datas: record.datas, updatedAt: record.updatedAt, ipnsName: record.ipnsName };
     } finally {
       endSiteAction(lock.key);
     }
@@ -1868,9 +1868,8 @@ ipcMain.handle('lumenSite:siteDataPublish', async (evt, input) => {
   const profileId = activeProfileIdForSiteData();
   if (!profileId) return { ok: false, error: 'no_active_profile' };
 
-  const schema = safeString(input && input.schema ? input.schema : '', 128);
   const datas = input && typeof input.datas === 'object' && input.datas !== null && !Array.isArray(input.datas) ? input.datas : null;
-  if (!schema || !datas) return { ok: false, error: 'missing_schema_or_datas' };
+  if (!datas) return { ok: false, error: 'missing_datas' };
   const validation = siteData.validateDatas(datas);
   if (!validation.ok) return validation;
   if (!siteData.canPublishNow(ctx.siteKey, profileId)) return { ok: false, error: 'rate_limited' };
@@ -1897,7 +1896,6 @@ ipcMain.handle('lumenSite:siteDataPublish', async (evt, input) => {
       const body = JSON.stringify({
         lumenSiteDataVersion: 1,
         type: 'lumen.site-data.record',
-        schema,
         origin: ctx.siteKey,
         updatedAt: new Date().toISOString(),
         datas,
@@ -1919,7 +1917,7 @@ ipcMain.handle('lumenSite:siteDataPublish', async (evt, input) => {
         invalidateIpnsCache(keyName);
       } catch {}
 
-      siteData.upsertSiteDataRecord(ctx.siteKey, profileId, { keyName, ipnsName, schema, datas });
+      siteData.upsertSiteDataRecord(ctx.siteKey, profileId, { keyName, ipnsName, datas });
       siteData.markPublished(ctx.siteKey, profileId);
       markSiteModalCooldown(ctx.siteKey);
       return { ok: true, keyName, ipnsName };

@@ -1,7 +1,7 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-07-30T19:15:30.822Z",
+  "generatedAt": "2026-07-30T19:23:25.454Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
   "appVersion": "0.9.7",
   "groups": [
@@ -264,7 +264,7 @@
       "description": "Read this site's own durable data record, if one already exists for the currently active profile. Local read, no network round trip.",
       "params": [],
       "returns": {
-        "type": "Promise<{ok:boolean,data?:{exists:boolean,schema?:string,datas?:object,updatedAt?:number,ipnsName?:string},error?:string}>",
+        "type": "Promise<{ok:boolean,data?:{exists:boolean,datas?:object,updatedAt?:number,ipnsName?:string},error?:string}>",
         "description": ""
       },
       "errors": [
@@ -280,13 +280,13 @@
       "member": "publish",
       "implementation": "siteDataPublish",
       "fallbackError": "site_data_publish_failed",
-      "description": "Create or update this site's own data record. Auto-creates a dedicated IPNS key for this (site, active profile) pair on first call.",
+      "description": "Create or update this site's own data record with `datas` (any JSON object the site wants, capped in size/shape - see docs). Auto-creates a dedicated IPNS key for this (site, active profile) pair on first call.",
       "params": [
         {
-          "name": "input",
+          "name": "datas",
           "type": "object",
           "optional": false,
-          "description": "`{schema, datas}` - `schema` is a site-chosen version/shape tag, `datas` is the site's own JSON payload (capped in size)."
+          "description": "The site's own JSON payload. If it wants to tag its own shape/version, that's just another field it puts in here."
         }
       ],
       "returns": {
@@ -296,7 +296,7 @@
       "errors": [
         {
           "code": "site_data_publish_failed",
-          "description": "Missing schema/datas, the payload was too large or too deeply/broadly structured, called more than once per 2s, or the publish itself failed."
+          "description": "Missing/invalid datas, too large or too deeply/broadly structured, called more than once per 2s, or the publish itself failed."
         }
       ]
     },

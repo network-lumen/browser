@@ -335,9 +335,9 @@ describe('window.lumen preload API', () => {
   describe('siteData.get', () => {
     it('invokes lumenSite:siteDataGet with no payload', async () => {
       const lumen = await loadLumen();
-      queueInvoke('lumenSite:siteDataGet', { value: { ok: true, exists: true, schema: 'lumen.social.v1', datas: { name: 'Ben' } } });
+      queueInvoke('lumenSite:siteDataGet', { value: { ok: true, exists: true, datas: { name: 'Ben' } } });
       const result = await lumen.siteData.get();
-      expect(result).toEqual({ ok: true, exists: true, schema: 'lumen.social.v1', datas: { name: 'Ben' } });
+      expect(result).toEqual({ ok: true, exists: true, datas: { name: 'Ben' } });
       expect(lastInvokeCall()).toEqual(['lumenSite:siteDataGet']);
     });
 
@@ -350,24 +350,24 @@ describe('window.lumen preload API', () => {
   });
 
   describe('siteData.publish', () => {
-    it('sends schema/datas to the host', async () => {
+    it('sends datas to the host', async () => {
       const lumen = await loadLumen();
       queueInvoke('lumenSite:siteDataPublish', { value: { ok: true, keyName: 'sitedata:abc', ipnsName: 'k51...' } });
-      const result = await lumen.siteData.publish({ schema: 'lumen.social.v1', datas: { name: 'Ben' } });
+      const result = await lumen.siteData.publish({ name: 'Ben' });
       expect(result).toEqual({ ok: true, keyName: 'sitedata:abc', ipnsName: 'k51...' });
       expect(lastInvokeCall()).toEqual([
         'lumenSite:siteDataPublish',
-        { schema: 'lumen.social.v1', datas: { name: 'Ben' } }
+        { datas: { name: 'Ben' } }
       ]);
     });
 
     it('falls back to an empty datas object when nothing is given', async () => {
       const lumen = await loadLumen();
       queueInvoke('lumenSite:siteDataPublish', { value: { ok: true } });
-      await lumen.siteData.publish({ schema: 'x' });
+      await lumen.siteData.publish();
       expect(lastInvokeCall()).toEqual([
         'lumenSite:siteDataPublish',
-        { schema: 'x', datas: {} }
+        { datas: {} }
       ]);
     });
   });
@@ -650,7 +650,7 @@ describe('window.lumen preload API', () => {
       ['stableLinks.selectForLiveSetup', (l) => l.stableLinks.selectForLiveSetup({})],
       ['stableLinks.publishForLive', (l) => l.stableLinks.publishForLive({})],
       ['siteData.get', (l) => l.siteData.get()],
-      ['siteData.publish', (l) => l.siteData.publish({ schema: 'x', datas: {} })],
+      ['siteData.publish', (l) => l.siteData.publish({ name: 'x' })],
       ['profiles.getActive', (l) => l.profiles.getActive()],
       ['pubsub.publish', (l) => l.pubsub.publish('t', 'x')],
       ['pubsub.subscribe', (l) => l.pubsub.subscribe('t', {})],
