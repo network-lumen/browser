@@ -329,12 +329,14 @@ ipcMain.on('site:registerDomainTarget', (_evt, targetWebContentsId, host) => {
   const id = Number(targetWebContentsId);
   const h = safeString(host, 256).toLowerCase();
   if (!Number.isFinite(id)) return;
+  console.log(`[electron][site-domain] register: webContentsId=${id} host=${h || '(empty, deleting)'}`);
   if (h) siteDomainByWebContentsId.set(id, h);
   else siteDomainByWebContentsId.delete(id);
 });
 
 ipcMain.on('site:unregisterDomainTarget', (_evt, targetWebContentsId) => {
   const id = Number(targetWebContentsId);
+  console.log(`[electron][site-domain] unregister: webContentsId=${id} hadEntry=${siteDomainByWebContentsId.has(id)}`);
   if (Number.isFinite(id)) siteDomainByWebContentsId.delete(id);
 });
 
@@ -383,14 +385,17 @@ async function senderSiteContextAwaitingDomain(evt, maxWaitMs = 3000) {
   const sender = evt && evt.sender ? evt.sender : null;
   if (!sender) return ctx;
   const start = Date.now();
+  console.log(`[electron][siteData-domain-wait] waiting: webContentsId=${sender.id} initialSiteKey=${ctx.siteKey} knownDomainIds=[${[...siteDomainByWebContentsId.keys()].join(',')}]`);
   while (Date.now() - start < maxWaitMs) {
     if (sender.isDestroyed()) return ctx;
     if (siteDomainByWebContentsId.has(sender.id)) {
       const retried = senderSiteContext(evt);
+      console.log(`[electron][siteData-domain-wait] resolved after ${Date.now() - start}ms: webContentsId=${sender.id} siteKey=${retried.ok ? retried.siteKey : '(context lost)'}`);
       return retried.ok ? retried : ctx;
     }
     await sleep(50);
   }
+  console.log(`[electron][siteData-domain-wait] TIMED OUT after ${maxWaitMs}ms: webContentsId=${sender.id} still siteKey=${ctx.siteKey} knownDomainIds=[${[...siteDomainByWebContentsId.keys()].join(',')}]`);
   return ctx;
 }
 
