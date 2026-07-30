@@ -175,6 +175,23 @@ describe('window.lumen preload API', () => {
     });
   });
 
+  describe('getSiteDomain', () => {
+    it('invokes lumenSite:getSiteDomain with no payload and data-wraps the result', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('lumenSite:getSiteDomain', { value: 'social.lumen.lmn' });
+      const result = await lumen.getSiteDomain();
+      expect(result).toEqual({ ok: true, data: 'social.lumen.lmn' });
+      expect(lastInvokeCall()).toEqual(['lumenSite:getSiteDomain']);
+    });
+
+    it('resolves to an empty string when not viewed through a registered domain', async () => {
+      const lumen = await loadLumen();
+      queueInvoke('lumenSite:getSiteDomain', { value: '' });
+      const result = await lumen.getSiteDomain();
+      expect(result).toEqual({ ok: true, data: '' });
+    });
+  });
+
   describe('setWindowFullscreen', () => {
     it('requests fullscreen on', async () => {
       const lumen = await loadLumen();
@@ -623,6 +640,7 @@ describe('window.lumen preload API', () => {
     const cases: [string, (lumen: any) => Promise<any>][] = [
       ['Pin', (l) => l.Pin('bafy')],
       ['resolveUrl', (l) => l.resolveUrl('/ipfs/x')],
+      ['getSiteDomain', (l) => l.getSiteDomain()],
       ['setWindowFullscreen', (l) => l.setWindowFullscreen(true)],
       ['ipfsAdd', (l) => l.ipfsAdd('x')],
       ['ipfsGet', (l) => l.ipfsGet('x')],

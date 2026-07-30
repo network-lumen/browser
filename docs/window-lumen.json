@@ -1,7 +1,7 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-07-30T17:22:38.674Z",
+  "generatedAt": "2026-07-30T17:40:07.251Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
   "appVersion": "0.9.7",
   "groups": [
@@ -11,6 +11,7 @@
       "paths": [
         "Pin",
         "resolveUrl",
+        "getSiteDomain",
         "setWindowFullscreen",
         "ipfsAdd",
         "ipfsGet",
@@ -128,6 +129,25 @@
         {
           "code": "resolve_url_failed",
           "description": "The local gateway could not be reached."
+        }
+      ]
+    },
+    {
+      "path": "getSiteDomain",
+      "namespace": null,
+      "member": "getSiteDomain",
+      "implementation": "getSiteDomain",
+      "fallbackError": "get_site_domain_failed",
+      "description": "The registered Lumen domain this page is viewed through (e.g. `social.lumen.lmn`), or `''` if viewed via a raw ipfs/ipns address - useful for building a shareable link that uses the pretty domain instead of the underlying CID/IPNS key when one is registered.",
+      "params": [],
+      "returns": {
+        "type": "Promise<{ok:boolean,data?:string,error?:string}>",
+        "description": ""
+      },
+      "errors": [
+        {
+          "code": "get_site_domain_failed",
+          "description": "The host could not be reached."
         }
       ]
     },
