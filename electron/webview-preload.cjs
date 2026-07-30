@@ -1668,6 +1668,38 @@ async function publishStableLinkForLive(input) {
   }
 }
 
+/**
+ * Read the site's own durable data record - a JSON blob published under an
+ * IPNS key the browser dedicates to this (site, active profile) pair,
+ * auto-created the first time `siteData.publish()` is ever called. This is
+ * a local read (no network round trip): the main process caches `schema`/
+ * `datas` alongside the IPNS pointer specifically so a site can check "do I
+ * already know this visitor" on every load without waiting on IPFS.
+ */
+async function siteDataGet() {
+  ensureLumenSite();
+  try {
+    return await ipcRenderer.invoke('lumenSite:siteDataGet');
+  } catch (e) {
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'site_data_get_failed', 512) };
+  }
+}
+
+/** Create or update the site's own data record. Auto-creates its dedicated IPNS key on first call. */
+async function siteDataPublish(input) {
+  ensureLumenSite();
+  const payload = input && typeof input === 'object' ? input : {};
+  try {
+    return await ipcRenderer.invoke('lumenSite:siteDataPublish', {
+      title: webview_utils.safeString(payload.title || document?.title || '', 256),
+      schema: webview_utils.safeString(payload.schema || '', 128),
+      datas: payload.datas && typeof payload.datas === 'object' ? payload.datas : {},
+    });
+  } catch (e) {
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'site_data_publish_failed', 512) };
+  }
+}
+
 /** Toggle fullscreen for the browser window hosting this site. */
 async function setWindowFullscreen(active) {
   ensureLumenSite();
@@ -2059,6 +2091,25 @@ const lumen = {
      * @error {stable_link_publish_failed} The IPNS publish failed.
      */
     publishForLive: wrapLumenApiCall(publishStableLinkForLive, 'stable_link_publish_failed'),
+  },
+
+  siteData: {
+    /**
+     * Read this site's own durable data record, if one already exists for
+     * the currently active profile. Local read, no network round trip.
+     * @returns {Promise<{ok:boolean,data?:{exists:boolean,schema?:string,datas?:object,updatedAt?:number,ipnsName?:string},error?:string}>}
+     * @error {site_data_get_failed} No active profile, or the permission prompt was denied.
+     */
+    get: wrapLumenApiCall(siteDataGet, 'site_data_get_failed'),
+
+    /**
+     * Create or update this site's own data record. Auto-creates a dedicated
+     * IPNS key for this (site, active profile) pair on first call.
+     * @param {object} input - `{title?, schema, datas}` - `schema` is a site-chosen version/shape tag, `datas` is the site's own JSON payload.
+     * @returns {Promise<{ok:boolean,data?:{keyName:string,ipnsName:string},error?:string}>}
+     * @error {site_data_publish_failed} Missing schema/datas, the payload was too large, or the publish failed.
+     */
+    publish: wrapLumenApiCall(siteDataPublish, 'site_data_publish_failed'),
   },
 
   profiles: {

@@ -72,6 +72,18 @@
           </UiButton>
         </div>
       </div>
+
+      <div class="flex flex-column gap-6px mt-16px">
+        <div class="h-1px bg-border m-0px mb-12px"></div>
+        <UiButton variant="none" type="button"
+          @click="openSiteDataModal" class="flex-align-center-justify-space-between gap-8px bg-transparent border-none cursor-pointer text-left py-4px px-0px hover-color-primary">
+          <span class="flex-align-center gap-8px color-text-secondary text-uppercase text-11px letter-spacing-005em">
+            <Globe :size="14" />
+            <span>Sites data</span>
+          </span>
+          <UiTag v-if="siteDataRecords.length" variant="neutral">{{ siteDataRecords.length }}</UiTag>
+        </UiButton>
+      </div>
     </InternalSidebar>
 
     <!-- ####### lumen://drive FILE BROWSER ####### -->
@@ -866,6 +878,32 @@
             </template>
     </UiModal>
 
+    <!-- ####### lumen://drive SITES DATA MODAL ####### -->
+    <UiModal :model-value="showSiteDataModal" title="Sites data" panel-class="w-full max-w-560px" @update:model-value="closeSiteDataModal">
+      <p class="text-13px color-text-tertiary m-0px mb-16px">
+        Data a site created for itself, one dedicated key per site - separate from the ugly domains you create yourself in Domains. Deleting one makes that site see you as a brand new visitor next time.
+      </p>
+      <UiLoadingBlock v-if="siteDataLoading" wrapper-class="flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-140px" spinner-class="" />
+      <UiEmptyState v-else-if="!siteDataRecords.length" title="No sites data yet" description="Sites that create a data record for themselves will show up here." />
+      <div v-else class="flex flex-column gap-4px">
+        <div
+          v-for="record in siteDataRecords"
+          :key="siteDataRowId(record)"
+          class="reveal-on-hover hover-bg-primary-a10 flex-align-center gap-12px border-radius-10px py-10px px-12px"
+        >
+          <div class="flex-1 min-w-0">
+            <div class="text-14px fw-500 color-text-primary truncate">{{ siteDataLabel(record) }}</div>
+            <div class="text-12px color-text-tertiary truncate">{{ record.schema || "—" }} · {{ record.updatedAt ? formatDate(record.updatedAt) : "—" }}</div>
+          </div>
+          <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Delete this site's data"
+            :disabled="removingSiteDataId === siteDataRowId(record)"
+            @click="removeSiteDataRecord(record)" class="reveal-actions-target active-scale-98 hover-bg-error bg-error-a08 color-error">
+            <Trash2 :size="14" />
+          </UiButton>
+        </div>
+      </div>
+    </UiModal>
+
     <!-- ####### lumen://drive PLANS MODAL ####### -->
     <UiModal :model-value="showPlansModal" title="Cloud plans" panel-class="drivepage-plans-modal w-full max-w-860px" @update:model-value="closePlansModal">
           <div class="p-24px">
@@ -1256,6 +1294,7 @@ const currentTabId = inject<any>("currentTabId", null);
 const lumen_api: any = useInternalLumen();
 const gateway_lumen_api = lumen_api?.gateway;
 const profiles_lumen_api = lumen_api?.profiles;
+const siteData_lumen_api = lumen_api?.siteData;
 
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>(
   "navigate",
@@ -1267,6 +1306,7 @@ import {
   Search,
   Download,
   Database,
+  Globe,
   Plus,
   Upload,
   Clapperboard,
@@ -1552,6 +1592,58 @@ const pendingDriveBackupImport = ref<{ filename: string; encrypted: any } | null
 const driveBackupImportPassword = ref("");
 const driveBackupImportShowPassword = ref(false);
 const pendingDriveBackupRestore = ref<{ source: string; snapshot: any } | null>(null);
+
+// Sites data - site-managed data records (one IPNS key per site+profile),
+// deliberately kept separate from the user's own hand-created ugly domains.
+const siteDataRecords = ref<any[]>([]);
+const siteDataLoading = ref(false);
+const showSiteDataModal = ref(false);
+const removingSiteDataId = ref("");
+
+function siteDataRowId(record: any): string {
+  return `${record?.siteKey || ""}|${record?.profileId || ""}`;
+}
+
+function siteDataLabel(record: any): string {
+  return String(record?.title || record?.siteKey || "Unknown site").trim();
+}
+
+async function loadSiteDataRecords() {
+  if (!siteData_lumen_api?.list) return;
+  siteDataLoading.value = true;
+  try {
+    const res = await siteData_lumen_api.list();
+    siteDataRecords.value = res?.ok && Array.isArray(res.records) ? res.records : [];
+  } catch {
+    siteDataRecords.value = [];
+  } finally {
+    siteDataLoading.value = false;
+  }
+}
+
+function openSiteDataModal() {
+  showSiteDataModal.value = true;
+  void loadSiteDataRecords();
+}
+
+function closeSiteDataModal() {
+  showSiteDataModal.value = false;
+}
+
+async function removeSiteDataRecord(record: any) {
+  if (!siteData_lumen_api?.delete) return;
+  const label = siteDataLabel(record);
+  const confirmed = window.confirm(`Delete this site's data ("${label}")?\n\nThe site will see you as a brand new visitor next time.`);
+  if (!confirmed) return;
+  const rowId = siteDataRowId(record);
+  removingSiteDataId.value = rowId;
+  try {
+    await siteData_lumen_api.delete(record?.siteKey, record?.profileId);
+    siteDataRecords.value = siteDataRecords.value.filter((r) => siteDataRowId(r) !== rowId);
+  } finally {
+    removingSiteDataId.value = "";
+  }
+}
 
 // Subscription details
 const showGatewayDetails = ref(false);
@@ -2559,6 +2651,7 @@ onMounted(async () => {
   loadDriveBackupMeta();
   loadStats();
   void loadPinnedFiles();
+  void loadSiteDataRecords();
 
   void refreshGatewayOverview();
   startSubscribedGatewayHealthPolling();

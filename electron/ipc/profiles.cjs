@@ -1612,5 +1612,6 @@ ipcMain.handle('profiles:getFavourites', async () => {
 }
 
 module.exports = {
-  registerProfilesIpc
+  registerProfilesIpc,
+  loadProfilesFile
 };
