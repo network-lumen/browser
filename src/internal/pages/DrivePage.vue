@@ -886,20 +886,24 @@
       <UiLoadingBlock v-if="siteDataLoading" wrapper-class="flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-140px" spinner-class="" />
       <UiEmptyState v-else-if="!siteDataRecords.length" title="No sites data yet" description="Sites that create a data record for themselves will show up here." />
       <div v-else class="flex flex-column gap-4px">
-        <div
-          v-for="record in siteDataRecords"
-          :key="siteDataRowId(record)"
-          class="reveal-on-hover hover-bg-primary-a10 flex-align-center gap-12px border-radius-10px py-10px px-12px"
-        >
-          <div class="flex-1 min-w-0">
-            <div class="text-14px fw-500 color-text-primary truncate">{{ siteDataLabel(record) }}</div>
-            <div class="text-12px color-text-tertiary truncate">{{ record.schema || "—" }} · {{ record.updatedAt ? formatDate(record.updatedAt) : "—" }}</div>
+        <div v-for="record in siteDataRecords" :key="siteDataRowId(record)" class="border-radius-10px">
+          <div class="reveal-on-hover hover-bg-primary-a10 flex-align-center gap-12px border-radius-10px py-10px px-12px">
+            <UiButton variant="none" type="button" @click="toggleSiteDataExpanded(record)" class="flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left p-0px">
+              <div class="text-14px fw-500 color-text-primary truncate mono">{{ siteDataSiteLabel(record) }}</div>
+              <div class="text-12px color-text-tertiary truncate">{{ record.schema || "—" }} · {{ record.updatedAt ? formatDate(record.updatedAt) : "—" }}</div>
+            </UiButton>
+            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Delete this site's data"
+              :disabled="removingSiteDataId === siteDataRowId(record)"
+              @click="removeSiteDataRecord(record)" class="reveal-actions-target active-scale-98 hover-bg-error bg-error-a08 color-error">
+              <Trash2 :size="14" />
+            </UiButton>
           </div>
-          <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Delete this site's data"
-            :disabled="removingSiteDataId === siteDataRowId(record)"
-            @click="removeSiteDataRecord(record)" class="reveal-actions-target active-scale-98 hover-bg-error bg-error-a08 color-error">
-            <Trash2 :size="14" />
-          </UiButton>
+          <div v-if="expandedSiteDataId === siteDataRowId(record)" class="border-radius-10px mt-4px py-10px px-12px bg-secondary">
+            <UiDetailRow v-if="record.title" variant="modal" label="Title" :value="record.title" />
+            <UiDetailRow variant="modal" label="Profile" :value="record.profileId || '—'" />
+            <div class="text-11px color-text-tertiary mt-8px mb-4px">Stored data</div>
+            <pre class="text-11px color-text-secondary mono overflow-auto max-h-280px m-0px p-8px border-radius-8px bg-card">{{ siteDataJson(record) }}</pre>
+          </div>
         </div>
       </div>
     </UiModal>
@@ -1599,13 +1603,39 @@ const siteDataRecords = ref<any[]>([]);
 const siteDataLoading = ref(false);
 const showSiteDataModal = ref(false);
 const removingSiteDataId = ref("");
+const expandedSiteDataId = ref("");
 
 function siteDataRowId(record: any): string {
   return `${record?.siteKey || ""}|${record?.profileId || ""}`;
 }
 
-function siteDataLabel(record: any): string {
-  return String(record?.title || record?.siteKey || "Unknown site").trim();
+function shortSiteDataId(id: string): string {
+  const s = String(id || "");
+  return s.length > 18 ? `${s.slice(0, 8)}...${s.slice(-6)}` : s;
+}
+
+// The site (not the arbitrary title text a site chose for the record) is
+// what actually identifies which entry is which - two different sites can
+// easily both call their record "My profile", so lead with siteKey/domain.
+function siteDataSiteLabel(record: any): string {
+  const key = String(record?.siteKey || "").trim();
+  if (key.startsWith("domain:")) return key.slice("domain:".length);
+  if (key.startsWith("ipfs:")) return `ipfs:${shortSiteDataId(key.slice("ipfs:".length))}`;
+  if (key.startsWith("ipns:")) return `ipns:${shortSiteDataId(key.slice("ipns:".length))}`;
+  return key || "Unknown site";
+}
+
+function toggleSiteDataExpanded(record: any) {
+  const id = siteDataRowId(record);
+  expandedSiteDataId.value = expandedSiteDataId.value === id ? "" : id;
+}
+
+function siteDataJson(record: any): string {
+  try {
+    return JSON.stringify(record?.datas ?? {}, null, 2);
+  } catch {
+    return "";
+  }
 }
 
 async function loadSiteDataRecords() {
@@ -1632,7 +1662,7 @@ function closeSiteDataModal() {
 
 async function removeSiteDataRecord(record: any) {
   if (!siteData_lumen_api?.delete) return;
-  const label = siteDataLabel(record);
+  const label = siteDataSiteLabel(record);
   const confirmed = window.confirm(`Delete this site's data ("${label}")?\n\nThe site will see you as a brand new visitor next time.`);
   if (!confirmed) return;
   const rowId = siteDataRowId(record);
