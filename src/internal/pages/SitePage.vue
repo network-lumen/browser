@@ -206,14 +206,25 @@ function unregisterDevtoolsTarget() {
 // between different .lmn domains in the same tab (KeepAlive cache key is 'site' for
 // all of them), so the host needs updating even though the webContents id doesn't.
 let registeredDomainHost: string | null = null;
+let registeredDomainWebContentsId: number | null = null;
 
 function registerDomainTargetOnce(): number | null {
   const id = getWebviewWebContentsId();
   const host = active.value?.host || "";
-  if (id != null && host && host !== registeredDomainHost) {
+  // Re-send whenever EITHER the host or the webContents id differs from what
+  // we last successfully registered - comparing the host alone is not
+  // enough: on a refresh the resolved host is typically unchanged, but the
+  // underlying webview's webContents id can still come back different, and
+  // the previous id-agnostic check would then wrongly assume "already
+  // registered" and skip re-sending, leaving the new id's registration
+  // permanently missing in the main process (site:registerDomainTarget is
+  // never re-sent, so senderSiteContext falls back to the raw resolved
+  // ipfs/ipns address for that webContents for the rest of its lifetime).
+  if (id != null && host && (host !== registeredDomainHost || id !== registeredDomainWebContentsId)) {
     try {
       useInternalLumen()?.site?.registerDomainTarget(id, host);
       registeredDomainHost = host;
+      registeredDomainWebContentsId = id;
     } catch {
       // ignore
     }
@@ -234,12 +245,13 @@ function registerDomainTargetWithRetry(attempts = 40) {
 function unregisterDomainTarget() {
   if (registeredDomainHost == null) return;
   try {
-    const id = getWebviewWebContentsId();
+    const id = registeredDomainWebContentsId ?? getWebviewWebContentsId();
     if (id != null) useInternalLumen()?.site?.unregisterDomainTarget(id);
   } catch {
     // ignore
   }
   registeredDomainHost = null;
+  registeredDomainWebContentsId = null;
 }
 
 function onDomReady() {
