@@ -1855,21 +1855,26 @@ ipcMain.handle('lumenSite:siteDataGet', async (evt) => {
   if (!profileId) return { ok: false, error: 'no_active_profile' };
 
   const meta = { href: ctx.href, title: '' };
-  const lock = tryBeginSiteAction(ctx.siteKey);
-  if (!lock.ok) return lock;
 
+  // Deliberately NOT gated behind tryBeginSiteAction/endSiteAction: unlike
+  // publish (a real IPFS add + IPNS publish worth serializing against
+  // itself), get() is a synchronous local read once permission is granted -
+  // modal-stacking is already prevented by enqueueUi below. Sharing the
+  // per-site busy lock with publish caused a real bug: a site's own
+  // publish() from just before a page refresh keeps that lock held in the
+  // main process until its ipfsAdd/ipfsPublishToIPNS round trip finishes
+  // (page reloads don't cancel in-flight main-process work) - the freshly
+  // reloaded page's very next get() call would hit "busy", be treated as
+  // "no profile exists", and show the registration screen despite the data
+  // being sitting right there.
+  if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
   return enqueueUi(async () => {
-    try {
-      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
-      const perm = await ensureLumenSitePermission(ctx.siteKey, meta, 'SiteData', { mode: 'get' });
-      if (!perm || perm.ok === false) return perm || { ok: false, error: 'user_denied' };
+    const perm = await ensureLumenSitePermission(ctx.siteKey, meta, 'SiteData', { mode: 'get' });
+    if (!perm || perm.ok === false) return perm || { ok: false, error: 'user_denied' };
 
-      const record = siteData.getSiteDataRecord(ctx.siteKey, profileId);
-      if (!record) return { ok: true, exists: false };
-      return { ok: true, exists: true, datas: record.datas, updatedAt: record.updatedAt, ipnsName: record.ipnsName };
-    } finally {
-      endSiteAction(lock.key);
-    }
+    const record = siteData.getSiteDataRecord(ctx.siteKey, profileId);
+    if (!record) return { ok: true, exists: false };
+    return { ok: true, exists: true, datas: record.datas, updatedAt: record.updatedAt, ipnsName: record.ipnsName };
   });
 });
 
