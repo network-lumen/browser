@@ -313,6 +313,7 @@ import type { DriveSavedFile } from "../../types/driveSavedFile";
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
  const currentTabRefresh = inject<any>("currentTabRefresh", null);
+ const currentTabIsActive = inject<any>("currentTabIsActive", null);
  const openInNewTab = inject<((url: string) => void) | null>(
    "openInNewTab",
    null,
@@ -395,9 +396,31 @@ function registerFindTargetWithRetry(attempts = 40) {
   }, 50);
 }
 
+/**
+ * Electron's <webview> guest content never automatically receives OS-level
+ * keyboard focus just because it becomes visible (CSS display toggle on a
+ * background/KeepAlive'd tab, or a brand new tab finishing its first load) -
+ * only an explicit `.focus()` call on the element does that. Without it, a
+ * page can look focused (cursor blinking in an input) while keystrokes never
+ * actually reach the guest page at all, intermittently, depending on
+ * whatever click happened to also transfer focus by chance. Only ever fires
+ * for the tab that's actually the visible/selected one - a background tab
+ * mounting or finishing a load in the background must never steal focus.
+ */
+function focusWebviewIfActive() {
+  if (!currentTabIsActive?.value) return;
+  if (viewKind.value !== "html") return;
+  try {
+    siteWebview.value?.focus?.();
+  } catch {
+    // ignore
+  }
+}
+
 function onWebviewDomReady() {
   webviewLoading.value = false;
   void nextTick(() => registerFindTargetWithRetry());
+  focusWebviewIfActive();
 }
 
 function onWebviewDidStartLoading() {
@@ -2277,6 +2300,7 @@ onMounted(() => {
   pageActive.value = true;
   startUrlWatch();
   void nextTick(() => registerFindTargetWithRetry());
+  void nextTick(focusWebviewIfActive);
   try {
     const api: any = useInternalLumen();
     if (api?.ipfsOnPinProgress) {
@@ -2294,6 +2318,7 @@ onActivated(() => {
   pageActive.value = true;
   startUrlWatch();
   void nextTick(() => registerFindTargetWithRetry());
+  void nextTick(focusWebviewIfActive);
 });
 onDeactivated(() => {
   pageActive.value = false;
