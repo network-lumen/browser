@@ -1905,8 +1905,22 @@ ipcMain.handle('lumenSite:siteDataPublish', async (evt, input) => {
       const keyName = existing?.keyName || siteData.siteDataKeyName(ctx.siteKey, profileId);
 
       if (!existing) {
-        const created = await ipfsKeyGen(keyName);
-        if (!created?.ok) return { ok: false, error: created?.error || 'ipns_key_create_failed' };
+        // keyName is a deterministic hash of (siteKey, profileId) - the same
+        // pair always resolves to the same name, so a prior key can outlive
+        // its tracking record (e.g. Drive's "Sites data" delete removes the
+        // record and best-effort ipfsKeyRm()s the key, but doesn't roll back
+        // the record deletion if that rm fails - see siteData:delete).
+        // Blindly ipfsKeyGen()-ing here would then 500 with "already
+        // exists" and permanently block this site from ever publishing
+        // again. Checking first makes this self-healing: if the key is
+        // already there, just reuse it instead of erroring.
+        const keys = await ipfsKeyList().catch(() => null);
+        const keyList = Array.isArray(keys?.keys) ? keys.keys : [];
+        const alreadyExists = keyList.some((item) => String(item?.Name || item?.name || '') === keyName);
+        if (!alreadyExists) {
+          const created = await ipfsKeyGen(keyName);
+          if (!created?.ok) return { ok: false, error: created?.error || 'ipns_key_create_failed' };
+        }
       }
 
       const body = JSON.stringify({
@@ -1961,7 +1975,15 @@ ipcMain.handle('siteData:delete', async (evt, siteKey, profileId) => {
   const removed = siteData.deleteSiteDataRecord(key, profile);
   if (!removed) return { ok: false, error: 'not_found' };
   if (removed.keyName) {
-    await ipfsKeyRm(removed.keyName).catch(() => null);
+    // Best-effort: the tracking record is already gone either way (nothing
+    // sane to roll back to), but a failed rm here used to be swallowed
+    // completely - leaving an orphaned Kubo key behind that a future
+    // publish for this same (site, profile) would collide with (see the
+    // ipfsKeyList() check added in lumenSite:siteDataPublish, which is what
+    // actually makes that collision harmless now). Logging it at least
+    // makes the failure visible instead of silent.
+    const rm = await ipfsKeyRm(removed.keyName).catch((e) => ({ ok: false, error: String(e?.message || e) }));
+    if (!rm?.ok) console.warn('[electron][site-data] delete: failed to remove underlying Kubo key', removed.keyName, rm?.error);
     try {
       invalidateIpnsCache(removed.ipnsName);
       invalidateIpnsCache(removed.keyName);
