@@ -408,6 +408,29 @@ async function cleanupExpired() {
   }
 }
 
+/**
+ * A plain substring check for "/ipfs/" or "/ipns/" only catches path-style
+ * gateway URLs (http://127.0.0.1:8088/ipfs/<cid>/...). It silently misses
+ * subdomain-style ones (http://<cid>.ipfs.localhost:8088/...) - the id and
+ * protocol sit in the HOSTNAME there ("....ipfs.localhost", dots not
+ * slashes), which never contains the literal substring "/ipfs/". That form
+ * is exactly what contentResolver.ts's buildCandidateUrl() deliberately
+ * prefers for local CIDv1 targets (to fix absolute-path SPA builds) - so
+ * without this, sites loaded that way were never being auto-pinned at all,
+ * silently defeating the 72h cache for what is probably the most common
+ * local-serving path.
+ */
+function looksLikeIpfsOrIpnsUrl(rawUrl) {
+  const url = String(rawUrl || '');
+  if (url.includes('/ipfs/') || url.includes('/ipns/')) return true;
+  try {
+    const hostname = new URL(url).hostname || '';
+    return /^[a-z0-9]+\.(ipfs|ipns)\./i.test(hostname);
+  } catch {
+    return false;
+  }
+}
+
 function observeSession(sess) {
   if (!sess || !sess.webRequest) return;
 
@@ -419,7 +442,7 @@ function observeSession(sess) {
   sess.webRequest.onHeadersReceived(filter, (details, callback) => {
     try {
       const url = String(details?.url || '');
-      if (!url.includes('/ipfs/') && !url.includes('/ipns/')) return callback({});
+      if (!looksLikeIpfsOrIpnsUrl(url)) return callback({});
       reqMeta.set(Number(details.id), { responseHeaders: details.responseHeaders || null });
     } catch {}
     callback({});
@@ -428,7 +451,7 @@ function observeSession(sess) {
   sess.webRequest.onCompleted(filter, async (details) => {
     try {
       const url = String(details?.url || '');
-      if (!url.includes('/ipfs/') && !url.includes('/ipns/')) return;
+      if (!looksLikeIpfsOrIpnsUrl(url)) return;
 
       const status = Number(details?.statusCode ?? 0);
       if (![200, 206, 304].includes(status)) return;
