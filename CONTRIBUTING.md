@@ -35,7 +35,38 @@ add one.
   same concept (e.g. a new field on settings belongs in the existing `src/types/settings.ts`, not
   a new file) - extend it there instead of splintering a concept across two files.
 - Two types with the *same name* but genuinely different shapes in different files are not the
-  same concept - keep them separate, don't force a merge just because the names collide.
+  same concept - keep them separate, don't force a merge just because the names collide. For
+  example `Variant` in `src/types/uiButton.ts` (`'ghost' | 'primary' | ...`) and `Variant` in
+  `src/types/uiDetailRow.ts` (`'grid' | 'flex' | ...`) share no value at all. Merging them into
+  one "generic" file would force both to be renamed and would suggest a kinship that isn't there.
+  The same goes for `Size`: `UiButton` allows `'xs' | 'sm' | 'md'`, `UiSpinner` allows
+  `'sm' | 'md' | 'lg'`. A shared union would have to be their superset, and
+  `<UiToggle size="lg">` would silently stop being a compile error.
+
+### What this rule does *not* cover: anonymous unions inside props
+
+An inline literal union written directly in a `defineProps<{ ... }>()` is **fine and stays where
+it is**:
+
+```ts
+defineProps<{
+  variant?: 'neutral' | 'warning' | 'info' | 'error' | 'success';
+}>();
+```
+
+It declares no named type, so ESLint doesn't flag it and there is nothing to drift out of sync -
+there is only one copy, right next to the prop it describes.
+
+Give the union a name in `src/types/` as soon as it is referenced **anywhere other than that one
+prop** - the moment it needs a name, it needs a home. In practice that means:
+
+- it backs a lookup map, e.g. `const sizeClass: Record<Size, string>` in `UiButton.vue`;
+- it is imported by another file;
+- it drives state rather than styling, e.g. `OnboardingStep` in
+  `src/types/walletOnboardingModal.ts`, which is the state machine of the onboarding modal.
+
+So `src/types/uiButton.ts` and `src/types/uiCard.ts` earn their place (their unions key `Record`
+maps), while a one-line `variant?:` union on a small presentational component does not need one.
 
 **Why this exists**: colocating types with implementation is how the same shape quietly drifts
 into several slightly-different copies over time - this happened for real in this codebase (a
