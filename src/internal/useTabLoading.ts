@@ -23,24 +23,16 @@ export function useTabLoadingSync(source: MaybeRefOrGetter<boolean>) {
   }
 
   const readLoading = () => !!toValue(source);
+  const clearLoading = () => applyLoading(false);
 
-  watch(
-    () => readLoading(),
-    (next) => {
-      applyLoading(next);
-    },
-    { immediate: true },
-  );
+  // `readLoading` is already a getter and `applyLoading` already takes the new
+  // value first, so both can be passed straight through.
+  watch(readLoading, applyLoading, { immediate: true });
 
-  onActivated(() => {
-    applyLoading(readLoading());
-  });
+  // Re-reads on activation: the source may have changed while the tab was
+  // cached by <KeepAlive>, so this cannot be point-free like the two below.
+  onActivated(() => applyLoading(readLoading()));
 
-  onDeactivated(() => {
-    applyLoading(false);
-  });
-
-  onBeforeUnmount(() => {
-    applyLoading(false);
-  });
+  onDeactivated(clearLoading);
+  onBeforeUnmount(clearLoading);
 }
