@@ -21,7 +21,7 @@ export type { DateInput };
 const DATE_LOCALE = 'en-US';
 
 /** Micro-denominated chain amounts: 1 LMN = 1_000_000 ulmn. */
-export const MICRO_UNIT = 1_000_000;
+const MICRO_UNIT = 1_000_000;
 
 const EM_DASH = '—';
 

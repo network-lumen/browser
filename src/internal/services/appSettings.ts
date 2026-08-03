@@ -8,11 +8,11 @@ import type { IpfsConnectivityMode, AppSettings } from "../../types/settings";
 
 export type { IpfsConnectivityMode, AppSettings };
 
-export const BYTES_PER_GIB = 1024 * 1024 * 1024;
+const BYTES_PER_GIB = 1024 * 1024 * 1024;
 export const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;
 const MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = Math.floor(Number.MAX_SAFE_INTEGER / BYTES_PER_GIB);
 
-export const DEFAULT_APP_SETTINGS: AppSettings = Object.freeze({
+const DEFAULT_APP_SETTINGS: AppSettings = Object.freeze({
   localGatewayBase: "http://127.0.0.1:8080",
   ipfsApiBase: "http://127.0.0.1:5001",
   ipfsConnectivityMode: "normal",

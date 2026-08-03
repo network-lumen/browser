@@ -58,7 +58,11 @@ import { isBrowserUrl } from "../navigationUrl";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { safeString } from '../services/coerce';
-import { retryWebviewRegistration } from '../services/webviewRegistration';
+import {
+  getWebviewWebContentsId,
+  registerWebviewFindTarget,
+  retryWebviewRegistration
+} from '../services/webviewRegistration';
 import {
   installExtensionFromChromeWebStore,
   isChromeWebStoreUrl,
@@ -377,18 +381,12 @@ function loadUrl(target: string) {
   }
 }
 
-function registerFindTargetOnce() {
-  const tabId = safeString(currentTabId?.value, 256);
-  if (!tabId || typeof registerFindTarget !== "function") return null;
-  const w: any = webviewRef.value;
-  if (!w || typeof w.getWebContentsId !== "function") return null;
-  try {
-    const id = w.getWebContentsId();
-    registerFindTarget(tabId, typeof id === "number" && Number.isFinite(id) ? id : null);
-    return id;
-  } catch {
-    return null;
-  }
+function registerFindTargetOnce(): number | null {
+  return registerWebviewFindTarget(
+    registerFindTarget,
+    currentTabId?.value,
+    getWebviewWebContentsId(webviewRef.value)
+  );
 }
 
 function registerFindTargetWithRetry() {

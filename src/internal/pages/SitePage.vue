@@ -95,7 +95,11 @@ import {
 import type { ActiveState } from "../../types/sitePage";
 import { safeString } from "../services/coerce";
 import { installExtensionFromChromeWebStore } from "../services/extensions";
-import { retryWebviewRegistration } from "../services/webviewRegistration";
+import {
+  getWebviewWebContentsId,
+  registerWebviewFindTarget,
+  retryWebviewRegistration
+} from "../services/webviewRegistration";
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabId = inject<any>("currentTabId", null);
@@ -129,28 +133,12 @@ useTabLoadingSync(computed(() => loading.value || webviewLoading.value));
 const webprefs =
   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
 
-function getWebviewWebContentsId(): number | null {
-  const w: any = siteWebview.value;
-  if (!w || typeof w.getWebContentsId !== "function") return null;
-  try {
-    const id = w.getWebContentsId();
-    return typeof id === "number" && Number.isFinite(id) ? id : null;
-  } catch {
-    return null;
-  }
+function currentWebContentsId(): number | null {
+  return getWebviewWebContentsId(siteWebview.value);
 }
 
 function registerFindTargetOnce(): number | null {
-  const tabId = String(currentTabId?.value || "").trim();
-  if (!tabId) return null;
-  if (typeof registerFindTarget !== "function") return null;
-  const id = getWebviewWebContentsId();
-  try {
-    registerFindTarget(tabId, id);
-  } catch {
-    // ignore
-  }
-  return id;
+  return registerWebviewFindTarget(registerFindTarget, currentTabId?.value, currentWebContentsId());
 }
 
 function registerFindTargetWithRetry() {
@@ -166,7 +154,7 @@ function registerFindTargetWithRetry() {
 let registeredDevtoolsTargetId: number | null = null;
 
 function registerDevtoolsTargetOnce(): number | null {
-  const id = getWebviewWebContentsId();
+  const id = currentWebContentsId();
   if (id != null && id !== registeredDevtoolsTargetId) {
     try {
       useInternalLumen()?.devtools?.registerSiteTarget(id);
@@ -206,7 +194,7 @@ let registeredDomainHost: string | null = null;
 let registeredDomainWebContentsId: number | null = null;
 
 function registerDomainTargetOnce(): number | null {
-  const id = getWebviewWebContentsId();
+  const id = currentWebContentsId();
   const host = active.value?.host || "";
   // Re-send whenever EITHER the host or the webContents id differs from what
   // we last successfully registered - comparing the host alone is not
@@ -242,7 +230,7 @@ function registerDomainTargetWithRetry(attempts = 40) {
 function unregisterDomainTarget() {
   if (registeredDomainHost == null) return;
   try {
-    const id = registeredDomainWebContentsId ?? getWebviewWebContentsId();
+    const id = registeredDomainWebContentsId ?? currentWebContentsId();
     if (id != null) useInternalLumen()?.site?.unregisterDomainTarget(id);
   } catch {
     // ignore

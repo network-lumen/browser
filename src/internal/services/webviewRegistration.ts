@@ -3,6 +3,42 @@ const RETRY_DELAY_MS = 50;
 const DEFAULT_ATTEMPTS = 40;
 
 /**
+ * Reads a `<webview>`'s web contents id, or `null` while its guest has not
+ * attached yet (or if the element is gone). Never throws.
+ */
+export function getWebviewWebContentsId(webview: any): number | null {
+  if (!webview || typeof webview.getWebContentsId !== 'function') return null;
+  try {
+    const id = webview.getWebContentsId();
+    return typeof id === 'number' && Number.isFinite(id) ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Points the find bar at a tab's webview. Returns the id that was registered,
+ * so callers can tell "registered" from "not ready yet".
+ *
+ * Registering `null` is meaningful: it clears the tab's target rather than
+ * leaving the previous page's one in place.
+ */
+export function registerWebviewFindTarget(
+  register: ((tabId: string, webContentsId: number | null) => void) | null | undefined,
+  rawTabId: unknown,
+  webContentsId: number | null
+): number | null {
+  const tabId = String(rawTabId || '').trim();
+  if (!tabId || typeof register !== 'function') return null;
+  try {
+    register(tabId, webContentsId);
+  } catch {
+    // The provider is injected; a missing/failing one must not break the page.
+  }
+  return webContentsId;
+}
+
+/**
  * Retries a registration that needs a `<webview>`'s web contents id.
  *
  * An Electron `<webview>` only exposes `getWebContentsId()` once its guest has
