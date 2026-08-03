@@ -137,7 +137,7 @@ try {
 const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsCidToBase32, ipfsAdd, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, startManagedPinJob, pauseManagedPinJob, resumeManagedPinJob, cancelManagedPinJob, waitForManagedPinJob, getPinJob, listPinJobs, addPinJobListener, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsKeyRename, ipfsKeyImportFromPath, ipfsKeyExportToPath, ipfsKeyRm, ipfsSwarmPeers, ipfsPropagateCidToPublicGateways } = require('./ipfs.cjs');
 const { startIpfsCache, invalidateIpnsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
-const { getSettings, setSettings, loadGateways, saveGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
+const { getSettings, setSettings, loadGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
 const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateway-server.cjs');
 const { registerHttpIpc, registerExtensionNetworkRequestGuard } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
@@ -1251,10 +1251,6 @@ ipcMain.handle('clipboard:writeText', async (_evt, text) => {
   }
 });
 
-ipcMain.handle('ipfs:swarmPeers', async () => {
-  return ipfsSwarmPeers();
-});
-
 ipcMain.handle('settings:getAll', async () => {
   return { ok: true, settings: getSettings() };
 });
@@ -1302,15 +1298,6 @@ ipcMain.handle('settings:loadGateways', async () => {
   } catch (e) {
     console.error('[electron][ipc] settings:loadGateways error:', e);
     return [];
-  }
-});
-
-ipcMain.handle('settings:saveGateways', async (_evt, gateways) => {
-  try {
-    return saveGateways(gateways);
-  } catch (e) {
-    console.error('[electron][ipc] settings:saveGateways error:', e);
-    return { ok: false, error: String(e.message) };
   }
 });
 
@@ -1414,16 +1401,6 @@ ipcMain.handle('gatewayServer:saveMetadata', async (_evt, address, metadata) => 
     return { ok: true, metadata: saved };
   } catch (e) {
     console.error('[electron][ipc] gatewayServer:saveMetadata error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
-ipcMain.handle('gatewayServer:getMetadata', async (_evt, address) => {
-  try {
-    const metadata = getUserMetadata(address);
-    return { ok: true, metadata };
-  } catch (e) {
-    console.error('[electron][ipc] gatewayServer:getMetadata error:', e);
     return { ok: false, error: String(e.message) };
   }
 });
