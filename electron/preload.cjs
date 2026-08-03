@@ -141,19 +141,11 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsAdd: (data, filename) => ipcRenderer.invoke('ipfs:add', data, filename),
   ipfsPropagateCidToPublicGateways: (payload) =>
     ipcRenderer.invoke('ipfs:propagateCidToPublicGateways', payload || {}),
-  ipfsAddWithProgress: (data, filename) =>
-    ipcRenderer.invoke('ipfs:addWithProgress', data, filename),
   ipfsAddPath: (filePath, filename) =>
     ipcRenderer.invoke('ipfs:addPath', filePath, filename),
   ipfsAddPathWithProgress: (filePath, filename) =>
     ipcRenderer.invoke('ipfs:addPathWithProgress', filePath, filename),
   ipfsAddDirectory: (payload) => ipcRenderer.invoke('ipfs:addDirectory', payload || {}),
-  ipfsAddDirectoryWithProgress: (payload) =>
-    ipcRenderer.invoke('ipfs:addDirectoryWithProgress', payload || {}),
-  ipfsAddDirectoryPaths: (payload) =>
-    ipcRenderer.invoke('ipfs:addDirectoryPaths', payload || {}),
-  ipfsAddDirectoryPathsWithProgress: (payload) =>
-    ipcRenderer.invoke('ipfs:addDirectoryPathsWithProgress', payload || {}),
   ipfsAddDirectoryFromPath: (payload) =>
     ipcRenderer.invoke('ipfs:addDirectoryFromPath', payload || {}),
   ipfsAddDirectoryFromPathWithProgress: (payload) =>
