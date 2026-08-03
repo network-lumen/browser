@@ -164,6 +164,7 @@ import UiCheckbox from '../ui/UiCheckbox.vue';
 import UiInput from '../ui/UiInput.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import type { RecurringPaymentModalProps } from '../types/recurringPaymentModal';
+import { formatDate as formatDateValue, formatDecimal } from '../internal/services/format';
 
 const props = defineProps<RecurringPaymentModalProps>();
 
@@ -359,19 +360,11 @@ const isFormValid = computed(() => {
 });
 
 function formatAmount(amount: string | number): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(num)) return '0.000000';
-  return num.toFixed(6).replace(/\.?0+$/, '');
+  return formatDecimal(amount, { decimals: 6, empty: '0.000000' });
 }
 
 function formatDate(dateStr: string): string {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
+  return formatDateValue(dateStr, { empty: '', intl: { month: 'long' } });
 }
 
 function handleSubmit() {

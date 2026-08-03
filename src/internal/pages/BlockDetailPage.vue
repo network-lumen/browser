@@ -82,6 +82,7 @@ import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { computeTxHash } from '../chainRpc';
+import { formatNumber } from '../services/format';
 
 const loading = ref(true);
 const error = ref('');
@@ -147,10 +148,6 @@ function handleImageError() {
 
 function calculateBlockSize(block: any): string {
   return ((block.txBytesTotal || 0) / 1024).toFixed(2);
-}
-
-function formatNumber(num: number): string {
-  return num.toLocaleString();
 }
 
 function navigateToTransaction(hash: string) {

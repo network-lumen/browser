@@ -833,6 +833,7 @@ import {
   X
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
+import { STORAGE_KEYS, readString, writeString } from '../services/storage';
 import { useToast } from '../../composables/useToast';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
 import { useHistory } from '../historyStore';
@@ -890,8 +891,8 @@ function clearProfileHistory() {
 
 const currentView = ref<'appearance' | 'content' | 'network' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'troubleshooting' | 'privatecloud' | 'about'>('appearance');
 const { theme, setTheme, initTheme } = useTheme();
-const fontSize = ref(localStorage.getItem('lumen-font-size') || 'medium');
-const brightness = ref(parseInt(localStorage.getItem('lumen-brightness') || '100'));
+const fontSize = ref(readString(STORAGE_KEYS.fontSize) || 'medium');
+const brightness = ref(parseInt(readString(STORAGE_KEYS.brightness) || '100'));
 const { historyEntries, historyEnabled, clearHistory, setHistoryEnabled } = useHistory();
 const exportingBackup = ref(false);
 const profiles = profilesState;
@@ -1286,12 +1287,12 @@ watch(
 initTheme();
 
 watch(fontSize, (newSize) => {
-  localStorage.setItem('lumen-font-size', newSize);
+  writeString(STORAGE_KEYS.fontSize, newSize);
   document.documentElement.setAttribute('data-font-size', newSize);
 });
 
 watch(brightness, (newBrightness) => {
-  localStorage.setItem('lumen-brightness', newBrightness.toString());
+  writeString(STORAGE_KEYS.brightness, newBrightness.toString());
   document.documentElement.style.setProperty('--screen-brightness', `${newBrightness}%`);
   document.body.style.filter = `brightness(${newBrightness}%)`;
 });

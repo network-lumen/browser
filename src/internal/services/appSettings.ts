@@ -51,7 +51,7 @@ function normalizeIpfsConnectivityMode(
   return fallback;
 }
 
-export function normalizeLocalDriveMaxUploadSizeGb(
+function normalizeLocalDriveMaxUploadSizeGb(
   input: unknown,
   fallback = DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
 ): number {
@@ -131,20 +131,5 @@ export async function setAppSettings(partial: Partial<AppSettings>): Promise<{ o
 
 export function getLocalGatewayBase(): string {
   return String(appSettingsState.value.localGatewayBase || DEFAULT_APP_SETTINGS.localGatewayBase).replace(/\/+$/, "");
-}
-
-export function getIpfsApiBase(): string {
-  return String(appSettingsState.value.ipfsApiBase || DEFAULT_APP_SETTINGS.ipfsApiBase).replace(/\/+$/, "");
-}
-
-export function getLocalDriveMaxUploadSizeGb(): number {
-  return normalizeLocalDriveMaxUploadSizeGb(
-    appSettingsState.value.localDriveMaxUploadSizeGb,
-    DEFAULT_APP_SETTINGS.localDriveMaxUploadSizeGb,
-  );
-}
-
-export function getLocalDriveMaxUploadSizeBytes(): number {
-  return getLocalDriveMaxUploadSizeGb() * BYTES_PER_GIB;
 }
 

@@ -11,13 +11,14 @@ import type {
   PaymentHistory,
   PaymentReminder,
 } from '../../types/recurringPayments';
+import { STORAGE_KEYS, readJson, writeJson } from './storage';
 
 export type { PaymentFrequency, PaymentStatus, RecurringPayment, PaymentHistory, PaymentReminder };
 
 class RecurringPaymentsService {
-  private storageKey = 'lumen_recurring_payments';
-  private historyKey = 'lumen_payment_history';
-  private remindersKey = 'lumen_payment_reminders';
+  private storageKey = STORAGE_KEYS.recurringPayments;
+  private historyKey = STORAGE_KEYS.paymentHistory;
+  private remindersKey = STORAGE_KEYS.paymentReminders;
   private checkInterval: number | null = null;
 
   constructor() {
@@ -29,9 +30,7 @@ class RecurringPaymentsService {
    */
   getRecurringPayments(): RecurringPayment[] {
     try {
-      const data = localStorage.getItem(this.storageKey);
-      if (!data) return [];
-      const payments = JSON.parse(data);
+      const payments = readJson<any[]>(this.storageKey, []);
       return payments.map((p: any) => ({
         ...p,
         startDate: new Date(p.startDate),
@@ -181,10 +180,7 @@ class RecurringPaymentsService {
    */
   getPaymentHistory(recurringPaymentId?: string): PaymentHistory[] {
     try {
-      const data = localStorage.getItem(this.historyKey);
-      if (!data) return [];
-      
-      let history = JSON.parse(data).map((h: any) => ({
+      let history = readJson<any[]>(this.historyKey, []).map((h: any) => ({
         ...h,
         executedAt: new Date(h.executedAt),
       }));
@@ -214,11 +210,7 @@ class RecurringPaymentsService {
     const allHistory = this.getPaymentHistory();
     allHistory.push(newHistory);
     
-    try {
-      localStorage.setItem(this.historyKey, JSON.stringify(allHistory));
-    } catch (e) {
-      console.error('Failed to save payment history:', e);
-    }
+    if (!writeJson(this.historyKey, allHistory)) console.error('Failed to save payment history');
 
     return newHistory;
   }
@@ -228,10 +220,7 @@ class RecurringPaymentsService {
    */
   getReminders(): PaymentReminder[] {
     try {
-      const data = localStorage.getItem(this.remindersKey);
-      if (!data) return [];
-      
-      return JSON.parse(data)
+      return readJson<any[]>(this.remindersKey, [])
         .map((r: any) => ({
           ...r,
           scheduledDate: new Date(r.scheduledDate),
@@ -398,9 +387,7 @@ class RecurringPaymentsService {
 
   private getAllReminders(): PaymentReminder[] {
     try {
-      const data = localStorage.getItem(this.remindersKey);
-      if (!data) return [];
-      return JSON.parse(data).map((r: any) => ({
+      return readJson<any[]>(this.remindersKey, []).map((r: any) => ({
         ...r,
         scheduledDate: new Date(r.scheduledDate),
         reminderDate: new Date(r.reminderDate),
@@ -412,19 +399,11 @@ class RecurringPaymentsService {
   }
 
   private saveRecurringPayments(payments: RecurringPayment[]): void {
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(payments));
-    } catch (e) {
-      console.error('Failed to save recurring payments:', e);
-    }
+    if (!writeJson(this.storageKey, payments)) console.error('Failed to save recurring payments');
   }
 
   private saveReminders(reminders: PaymentReminder[]): void {
-    try {
-      localStorage.setItem(this.remindersKey, JSON.stringify(reminders));
-    } catch (e) {
-      console.error('Failed to save reminders:', e);
-    }
+    if (!writeJson(this.remindersKey, reminders)) console.error('Failed to save reminders');
   }
 
   private deleteRemindersByPaymentId(paymentId: string): void {

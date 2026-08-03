@@ -39,6 +39,13 @@ import { isBrowserUrl, isExtensionUrl } from "../internal/navigationUrl";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import UiExtensionStatus from '../ui/UiExtensionStatus.vue';
 import type { InstalledExtension } from '../types/extension';
+import { safeString } from '../internal/services/coerce';
+import {
+  fetchInstalledExtensions,
+  getRuntimeIdFromExtensionUrl,
+  normalizeInstalledExtension,
+  upsertExtension
+} from '../internal/services/extensions';
 
 const props = defineProps<{
   extensionId: string;
@@ -83,41 +90,13 @@ const webviewMountUrl = computed(
   () => normalizeDocumentBase(resolvedExtensionUrl.value) || String(resolvedExtensionUrl.value || "").trim(),
 );
 
-function safeString(value: unknown): string {
-  return String(value || "").trim();
-}
-
-function normalizeInstalledExtension(entry: any): InstalledExtension | null {
-  const id = safeString(entry?.id);
-  if (!id) return null;
-  return {
-    id,
-    runtimeId: safeString(entry?.runtimeId),
-    name: safeString(entry?.name || "Extension") || "Extension",
-    enabled: !!entry?.enabled,
-    launchUrl: safeString(entry?.launchUrl),
-  };
-}
-
 function upsertInstalledExtension(entry: InstalledExtension | null) {
-  if (!entry) return;
-  const next = installedExtensions.value.filter((item) => item.id !== entry.id);
-  next.push(entry);
-  installedExtensions.value = next;
+  installedExtensions.value = upsertExtension(installedExtensions.value, entry);
 }
 
 async function refreshInstalledExtensions() {
-  try {
-    const api = useInternalLumen()?.extensions;
-    if (!api || typeof api.listExtensions !== "function") return;
-    const result = await api.listExtensions();
-    if (!result || result.ok === false) return;
-    installedExtensions.value = (Array.isArray(result.extensions) ? result.extensions : [])
-      .map((entry: any) => normalizeInstalledExtension(entry))
-      .filter(Boolean) as InstalledExtension[];
-  } catch {
-    // ignore
-  }
+  const entries = await fetchInstalledExtensions();
+  if (entries) installedExtensions.value = entries;
 }
 
 async function ensureGuestPreloadUrl() {
@@ -139,14 +118,6 @@ async function ensureGuestPreloadUrl() {
   }
 
   return extensionGuestPreloadUrl.value;
-}
-
-function getRuntimeIdFromExtensionUrl(rawUrl: string): string {
-  try {
-    return safeString(new URL(safeString(rawUrl)).hostname);
-  } catch {
-    return "";
-  }
 }
 
 function currentRuntimeId(): string {

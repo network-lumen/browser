@@ -7,21 +7,16 @@ import type {
   PersistedCacheV1,
   Pending,
 } from "../../../types/searchSafety";
+import { clamp01 } from "../../services/coerce";
+import { STORAGE_KEYS, readString, writeJson } from "../../services/storage";
 
 export type { ThumbSafetyScores, ThumbSafetyBlockedCategory, ThumbSafetySettings };
 
-const LS_KEY = "lumen-search-thumb-safety-v1.2";
+const LS_KEY = STORAGE_KEYS.thumbSafetyCache;
 const MAX_HASHES = 1200;
 const MAX_URLS = 1600;
 const MAX_HIDDEN_HASHES = 2500;
 const MAX_HIDDEN_URLS = 2500;
-
-function clamp01(x: number): number {
-  if (!Number.isFinite(x)) return 0;
-  if (x < 0) return 0;
-  if (x > 1) return 1;
-  return x;
-}
 
 function normalizeTag(t: any): string {
   return String(t || "").trim().toLowerCase();
@@ -49,23 +44,6 @@ export function isGreyZoneByTags(tagsRaw: string[] | null | undefined): boolean 
   const indoor = tagHasAny(tags, ["indoor", "bedroom", "bathroom", "shower", "toilet", "kitchen", "living"]);
 
   return human || face || portrait || indoor;
-}
-export function shouldBlurImmediatelyByTags(tagsRaw: string[] | null | undefined): boolean {
-  if (!tagsRaw || tagsRaw.length === 0) return false;
-
-  const tags = Array.isArray(tagsRaw) ? tagsRaw : [];
-
-  return tagHasAny(tags, [
-    "nsfw",
-    "sexual",
-    "explicit",
-    "porn",
-    "adult",
-    "nude",
-    "gore",
-    "blood",
-    "violence",
-  ]);
 }
 
 export function shouldSkipAnalysisAndRenderClear(tags: string[] | null | undefined): boolean {
@@ -97,7 +75,7 @@ function safeJsonParse(raw: string): any {
 
 function loadPersisted(): PersistedCacheV1 {
   try {
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = readString(LS_KEY);
     const parsed = raw ? safeJsonParse(raw) : null;
     if (!parsed || parsed.v !== 1) throw new Error("bad_cache");
     return {
@@ -131,7 +109,7 @@ function prunePersisted(cache: PersistedCacheV1): void {
   const urlKeys = Object.keys(cache.urls);
   if (urlKeys.length > MAX_URLS) {
     for (let i = 0; i < urlKeys.length - MAX_URLS; i++) {
-      delete cache.urls[urlKeys[i]!]!;
+      delete cache.urls[urlKeys[i]!];
     }
   }
 
@@ -164,7 +142,7 @@ function savePersisted(cache: PersistedCacheV1): void {
   try {
     cache.at = Date.now();
     prunePersisted(cache);
-    localStorage.setItem(LS_KEY, JSON.stringify(cache));
+    writeJson(LS_KEY, cache);
   } catch {
     // ignore
   }

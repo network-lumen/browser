@@ -111,6 +111,7 @@ import { Clock, Activity } from 'lucide-vue-next';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { formatMicroAmount, truncateMiddle } from '../services/format';
 
 const loading = ref(true);
 const error = ref('');
@@ -145,19 +146,15 @@ function navigateToBlock(height: number) {
 }
 
 function formatAmount(amount: string | number): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(num)) return '0';
-  return (num / 1000000).toFixed(6);
+  return formatMicroAmount(amount, { decimals: 6, trimTrailingZeros: false, empty: '0' });
 }
 
 function shortenAddress(addr: string): string {
-  if (!addr || addr.length < 16) return addr;
-  return `${addr.slice(0, 10)}...${addr.slice(-8)}`;
+  return truncateMiddle(addr, { start: 10, end: 8 });
 }
 
 function shortenHash(hash: string): string {
-  if (!hash || hash.length < 16) return hash;
-  return `${hash.slice(0, 8)}...${hash.slice(-8)}`;
+  return truncateMiddle(hash, { start: 8, end: 8 });
 }
 
 function getValidatorColor(validator: string): string {

@@ -157,6 +157,7 @@ import { inject, computed, ref } from 'vue';
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../routes';
 import { profilesState } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
+import { STORAGE_KEYS, readJson, writeJson } from '../services/storage';
 import {
   Home, Cloud, Wallet, Globe, Settings,
   ArrowUpRight, Network, FileText,
@@ -165,21 +166,18 @@ import {
 } from 'lucide-vue-next';
 
 // My Space section cards, customizable via drag-and-drop
-const MY_SPACE_CARDS_KEY = 'my_space_cards_order';
-const savedMySpaceCards = localStorage.getItem(MY_SPACE_CARDS_KEY);
+const MY_SPACE_CARDS_KEY = STORAGE_KEYS.homeMySpaceCards;
 const DEFAULT_MY_SPACE_CARDS = ['drive', 'domain', 'wallet', 'settings'];
-const mySpaceCards = ref<string[]>(savedMySpaceCards ? JSON.parse(savedMySpaceCards) : DEFAULT_MY_SPACE_CARDS.slice());
+const mySpaceCards = ref<string[]>(readJson<string[]>(MY_SPACE_CARDS_KEY, DEFAULT_MY_SPACE_CARDS.slice()));
 
 // Lumen section cards, customizable via drag-and-drop
-const LUMEN_CARDS_KEY = 'lumen_cards_order';
-const savedLumenCards = localStorage.getItem(LUMEN_CARDS_KEY);
+const LUMEN_CARDS_KEY = STORAGE_KEYS.homeLumenCards;
 const DEFAULT_LUMEN_CARDS = ['network', 'search', 'help'];
-const lumenCards = ref<string[]>(savedLumenCards ? JSON.parse(savedLumenCards) : DEFAULT_LUMEN_CARDS.slice());
+const lumenCards = ref<string[]>(readJson<string[]>(LUMEN_CARDS_KEY, DEFAULT_LUMEN_CARDS.slice()));
 
 // Custom order for All Pages, persisted to localStorage
-const ORDER_KEY = 'lumen_all_pages_order';
-const savedOrder = localStorage.getItem(ORDER_KEY);
-const customOrder = ref<string[]>(savedOrder ? JSON.parse(savedOrder) : []);
+const ORDER_KEY = STORAGE_KEYS.homeAllPagesOrder;
+const customOrder = ref<string[]>(readJson<string[]>(ORDER_KEY, []));
 
 const allRoutes = computed(() => {
   const routes = INTERNAL_ROUTE_KEYS.filter(
@@ -312,10 +310,10 @@ function onMySpaceDrop(e: DragEvent) {
     // Ensure a card lives in only one section.
     if (lumenCards.value.includes(draggedItem.value)) {
       lumenCards.value = lumenCards.value.filter((k) => k !== draggedItem.value);
-      localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+      writeJson(LUMEN_CARDS_KEY, lumenCards.value);
     }
     mySpaceCards.value.push(draggedItem.value);
-    localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+    writeJson(MY_SPACE_CARDS_KEY, mySpaceCards.value);
   }
   
   draggedItem.value = null;
@@ -327,7 +325,7 @@ function onMySpaceDrop(e: DragEvent) {
 
 function removeMySpaceCard(key: string) {
   mySpaceCards.value = mySpaceCards.value.filter(k => k !== key);
-  localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+  writeJson(MY_SPACE_CARDS_KEY, mySpaceCards.value);
 }
 
 // Lumen drag handlers
@@ -374,18 +372,18 @@ function onCardDrop(e: DragEvent, dropKey: string, section: 'myspace' | 'lumen')
       newCards.splice(draggedIndex, 1);
       newCards.splice(dropIndex, 0, draggedItem.value);
       mySpaceCards.value = newCards;
-      localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(newCards));
+      writeJson(MY_SPACE_CARDS_KEY, newCards);
     } else if (draggedIndex === -1) {
       // Add from sidebar/other section to My Space.
       const newCards = [...mySpaceCards.value];
       // Ensure a card lives in only one section.
       if (lumenCards.value.includes(draggedItem.value)) {
         lumenCards.value = lumenCards.value.filter(k => k !== draggedItem.value);
-        localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+        writeJson(LUMEN_CARDS_KEY, lumenCards.value);
       }
       newCards.splice(dropIndex, 0, draggedItem.value);
       mySpaceCards.value = newCards;
-      localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(newCards));
+      writeJson(MY_SPACE_CARDS_KEY, newCards);
     }
   } else if (section === 'lumen') {
     const draggedIndex = lumenCards.value.indexOf(draggedItem.value);
@@ -397,18 +395,18 @@ function onCardDrop(e: DragEvent, dropKey: string, section: 'myspace' | 'lumen')
       newCards.splice(draggedIndex, 1);
       newCards.splice(dropIndex, 0, draggedItem.value);
       lumenCards.value = newCards;
-      localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(newCards));
+      writeJson(LUMEN_CARDS_KEY, newCards);
     } else if (draggedIndex === -1) {
       // Add from sidebar/other section to Lumen.
       const newCards = [...lumenCards.value];
       // Ensure a card lives in only one section.
       if (mySpaceCards.value.includes(draggedItem.value)) {
         mySpaceCards.value = mySpaceCards.value.filter(k => k !== draggedItem.value);
-        localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+        writeJson(MY_SPACE_CARDS_KEY, mySpaceCards.value);
       }
       newCards.splice(dropIndex, 0, draggedItem.value);
       lumenCards.value = newCards;
-      localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(newCards));
+      writeJson(LUMEN_CARDS_KEY, newCards);
     }
   }
 
@@ -430,10 +428,10 @@ function onLumenDrop(e: DragEvent) {
     // Ensure a card lives in only one section.
     if (mySpaceCards.value.includes(draggedItem.value)) {
       mySpaceCards.value = mySpaceCards.value.filter(k => k !== draggedItem.value);
-      localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+      writeJson(MY_SPACE_CARDS_KEY, mySpaceCards.value);
     }
     lumenCards.value.push(draggedItem.value);
-    localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+    writeJson(LUMEN_CARDS_KEY, lumenCards.value);
   }
   
   draggedItem.value = null;
@@ -445,24 +443,24 @@ function onLumenDrop(e: DragEvent) {
 
 function removeLumenCard(key: string) {
   lumenCards.value = lumenCards.value.filter(k => k !== key);
-  localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+  writeJson(LUMEN_CARDS_KEY, lumenCards.value);
 }
 
 function restoreMySpaceDefaults() {
   mySpaceCards.value = DEFAULT_MY_SPACE_CARDS.slice();
-  localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+  writeJson(MY_SPACE_CARDS_KEY, mySpaceCards.value);
   // Ensure uniqueness.
   lumenCards.value = lumenCards.value.filter((k) => !mySpaceCards.value.includes(k));
-  localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+  writeJson(LUMEN_CARDS_KEY, lumenCards.value);
   showAllPages.value = true;
 }
 
 function restoreLumenDefaults() {
   lumenCards.value = DEFAULT_LUMEN_CARDS.slice();
-  localStorage.setItem(LUMEN_CARDS_KEY, JSON.stringify(lumenCards.value));
+  writeJson(LUMEN_CARDS_KEY, lumenCards.value);
   // Ensure uniqueness.
   mySpaceCards.value = mySpaceCards.value.filter((k) => !lumenCards.value.includes(k));
-  localStorage.setItem(MY_SPACE_CARDS_KEY, JSON.stringify(mySpaceCards.value));
+  writeJson(MY_SPACE_CARDS_KEY, mySpaceCards.value);
   showAllPages.value = true;
 }
 
@@ -496,7 +494,7 @@ function onItemDrop(e: DragEvent, dropKey: string) {
   currentRoutes.splice(dropIndex, 0, draggedItem.value);
 
   customOrder.value = currentRoutes;
-  localStorage.setItem(ORDER_KEY, JSON.stringify(currentRoutes));
+  writeJson(ORDER_KEY, currentRoutes);
 
   draggedItem.value = null;
   dragOverItem.value = null;

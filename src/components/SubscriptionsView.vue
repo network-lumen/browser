@@ -220,6 +220,7 @@ import {
 import RecurringPaymentModal from './RecurringPaymentModal.vue';
 import QrScanner from './QrScanner.vue';
 import { getRecurringPaymentsService, type RecurringPayment, type PaymentHistory } from '../internal/services/recurringPayments';
+import { formatDate, formatDateTime, formatDecimal, truncateMiddle } from '../internal/services/format';
 
 const emit = defineEmits<{
   (e: 'execute-payment', paymentId: string): void;
@@ -393,30 +394,11 @@ function paymentStatusStyle(status: string): Record<string, string> {
 }
 
 function formatAmount(amount: number): string {
-  return amount.toFixed(6).replace(/\.?0+$/, '');
+  return formatDecimal(amount, { decimals: 6 });
 }
 
 function formatAddress(address: string): string {
-  if (address.length <= 16) return address;
-  return `${address.slice(0, 8)}...${address.slice(-6)}`;
-}
-
-function formatDate(date: Date): string {
-  return date.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric',
-    year: 'numeric'
-  });
-}
-
-function formatDateTime(date: Date): string {
-  return date.toLocaleString('en-US', { 
-    month: 'short', 
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  return truncateMiddle(address, { start: 8, end: 6 });
 }
 
 function formatRelativeDate(date: Date): string {

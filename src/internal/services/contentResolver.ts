@@ -1,4 +1,5 @@
 import { getLocalGatewayBase } from './appSettings';
+import { bytesToText } from './coerce';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import type { DomainTarget, ResolverRecord, GatewayCache } from '../../types/domain';
 
@@ -26,7 +27,7 @@ export function isCidLike(v: string): boolean {
   return false;
 }
 
-export function parseRecordTarget(value: any): DomainTarget | null {
+function parseRecordTarget(value: any): DomainTarget | null {
   const v = String(value ?? '').trim();
   if (!v) return null;
   const lower = v.toLowerCase();
@@ -73,7 +74,7 @@ export function parseRecordTarget(value: any): DomainTarget | null {
   return null;
 }
 
-export function parseIpnsRecordTarget(value: any): DomainTarget | null {
+function parseIpnsRecordTarget(value: any): DomainTarget | null {
   const parsed = parseRecordTarget(value);
   if (parsed) return parsed;
   const id = String(value ?? '').trim().replace(/^\/+/, '');
@@ -81,7 +82,7 @@ export function parseIpnsRecordTarget(value: any): DomainTarget | null {
   return { proto: 'ipns', id };
 }
 
-export function normalizeResolverRecords(input: any): ResolverRecord[] {
+function normalizeResolverRecords(input: any): ResolverRecord[] {
   const rawRecords = Array.isArray(input)
     ? input
     : Array.isArray(input?.records)
@@ -109,21 +110,6 @@ export function pickRecordTarget(records: ResolverRecord[]): DomainTarget | null
     if (parsed) return parsed;
   }
   return null;
-}
-
-function bytesToText(data: any): string {
-  if (typeof data === 'string') return data;
-  try {
-    const bytes = data instanceof Uint8Array
-      ? data
-      : Array.isArray(data)
-        ? new Uint8Array(data)
-        : null;
-    if (!bytes) return '';
-    return new TextDecoder().decode(bytes);
-  } catch {
-    return '';
-  }
 }
 
 export async function loadStableLinkRecords(name: string): Promise<ResolverRecord[]> {

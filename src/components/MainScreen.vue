@@ -124,6 +124,11 @@ import { useInternalLumen } from '../composables/useInternalLumen';
     resolveIpnsToCid,
   } from '../internal/services/contentResolver';
 import type { Tab } from '../types/tab';
+import { STORAGE_KEYS, readString, writeString } from '../internal/services/storage';
+import {
+  getRuntimeIdFromExtensionUrl,
+  listInstalledExtensions as listExtensionsFromHost
+} from '../internal/services/extensions';
 
 const tabs = ref<Tab[]>([]);
 const activeId = ref<string>('');
@@ -132,7 +137,7 @@ const lastHistoryKeyByTabId = new Map<string, string>();
 let historySyncSeq = 0;
 
 const showOnboarding = ref(false);
-const ONBOARDING_KEY_PREFIX = 'lumen_wallet_onboarding_completed_';
+const ONBOARDING_KEY_PREFIX = STORAGE_KEYS.walletOnboardingCompletedPrefix;
 let onboardingSkippedUntilRestart = false;
 
 const hdr = ref<HTMLElement | null>(null);
@@ -370,28 +375,15 @@ watch(
   { immediate: true },
 );
 
-function getRuntimeIdFromExtensionUrl(rawUrl: string): string {
-  try {
-    return String(new URL(String(rawUrl || '').trim()).hostname || '').trim();
-  } catch {
-    return '';
-  }
-}
-
 async function listInstalledExtensions(force = false): Promise<any[]> {
   const now = Date.now();
   if (!force && installedExtensionsCache.length && now - installedExtensionsCacheAt < 5000) {
     return installedExtensionsCache;
   }
-  try {
-    const api: any = useInternalLumen()?.extensions;
-    if (!api || typeof api.listExtensions !== 'function') return installedExtensionsCache;
-    const result = await api.listExtensions();
-    if (!result || result.ok === false) return installedExtensionsCache;
-    installedExtensionsCache = Array.isArray(result.extensions) ? result.extensions : [];
+  const entries = await listExtensionsFromHost();
+  if (entries) {
+    installedExtensionsCache = entries;
     installedExtensionsCacheAt = now;
-  } catch {
-    // ignore
   }
   return installedExtensionsCache;
 }
@@ -965,7 +957,7 @@ async function checkOnboardingStatus() {
 
     // Check if onboarding was already completed for this profile
     const storageKey = ONBOARDING_KEY_PREFIX + profileId;
-    const completed = localStorage.getItem(storageKey);
+    const completed = readString(storageKey);
     if (completed === 'true') {
       return;
     }
@@ -998,7 +990,7 @@ async function checkOnboardingStatus() {
     }
 
     if (hasPassword && walletReady) {
-      localStorage.setItem(storageKey, 'true');
+      writeString(storageKey, 'true');
       return;
     }
 
@@ -1013,7 +1005,7 @@ function handleOnboardingComplete() {
   const profileId = activeProfileId.value;
   if (profileId) {
     const storageKey = ONBOARDING_KEY_PREFIX + profileId;
-    localStorage.setItem(storageKey, 'true');
+    writeString(storageKey, 'true');
   }
   showOnboarding.value = false;
 }

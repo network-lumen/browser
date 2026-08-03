@@ -20,6 +20,7 @@ import AddressDetailPage from './pages/AddressDetailPage.vue';
 import ExtensionsPage from './pages/ExtensionsPage.vue';
 import ExtensionPage from './pages/ExtensionPage.vue';
 import { getFileUrlTitle, isBrowserUrl, isFileUrl, parseExtensionTabUrl } from './navigationUrl';
+import { truncateMiddle } from './services/format';
 import type { InternalRoute } from '../types/routes';
 
 const INTERNAL_ROUTES: Record<string, InternalRoute> = {
@@ -57,9 +58,7 @@ function isLikelyDomainHost(host: string): boolean {
 }
 
 function shortenHash(hash: string): string {
-  const h = String(hash || '').trim();
-  if (h.length <= 14) return h;
-  return `${h.slice(0, 6)}...${h.slice(-6)}`;
+  return truncateMiddle(hash, { start: 6, end: 6 });
 }
 
 function parseInternalKey(rawUrl: string): string {

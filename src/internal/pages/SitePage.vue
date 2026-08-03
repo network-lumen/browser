@@ -93,6 +93,9 @@ import {
   resolveDomainTarget,
 } from "../services/contentResolver";
 import type { ActiveState } from "../../types/sitePage";
+import { safeString } from "../services/coerce";
+import { installExtensionFromChromeWebStore } from "../services/extensions";
+import { retryWebviewRegistration } from "../services/webviewRegistration";
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabId = inject<any>("currentTabId", null);
@@ -150,14 +153,11 @@ function registerFindTargetOnce(): number | null {
   return id;
 }
 
-function registerFindTargetWithRetry(attempts = 40) {
-  const id = registerFindTargetOnce();
-  if (id != null) return;
-  if (attempts <= 0) return;
-  if (!resolvedHttpUrl.value || isHlsPath.value) return;
-  window.setTimeout(() => {
-    registerFindTargetWithRetry(attempts - 1);
-  }, 50);
+function registerFindTargetWithRetry() {
+  retryWebviewRegistration(
+    registerFindTargetOnce,
+    () => !!resolvedHttpUrl.value && !isHlsPath.value
+  );
 }
 
 // Lets F12 toggle devtools for this personal-site webview even in packaged builds
@@ -178,14 +178,11 @@ function registerDevtoolsTargetOnce(): number | null {
   return id;
 }
 
-function registerDevtoolsTargetWithRetry(attempts = 40) {
-  const id = registerDevtoolsTargetOnce();
-  if (id != null) return;
-  if (attempts <= 0) return;
-  if (!resolvedHttpUrl.value || isHlsPath.value) return;
-  window.setTimeout(() => {
-    registerDevtoolsTargetWithRetry(attempts - 1);
-  }, 50);
+function registerDevtoolsTargetWithRetry() {
+  retryWebviewRegistration(
+    registerDevtoolsTargetOnce,
+    () => !!resolvedHttpUrl.value && !isHlsPath.value
+  );
 }
 
 function unregisterDevtoolsTarget() {
@@ -402,12 +399,6 @@ function chooseCandidatePaths(p: string): string[] {
   if (path === "/") return ["/index.html", "/"];
   if (/\/$/.test(path)) return [`${path}index.html`, path];
   return [path];
-}
-
-function safeString(v: any, maxLen = 4096): string {
-  const s = String(v ?? "").trim();
-  if (!s) return "";
-  return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
 
 async function resolveAndLoad(opts: { force?: boolean } = {}) {
@@ -678,16 +669,7 @@ function onIpcMessage(ev: any) {
 }
 
 async function installChromeWebStoreExtension(input: string) {
-  try {
-    const api = useInternalLumen()?.extensions;
-    if (!api || typeof api.installFromChromeWebStore !== "function") return;
-    const result = await api.installFromChromeWebStore(input);
-    if (!result || result.ok === false) {
-      console.warn("[site-webview][extensions] install from store failed:", result?.error || "unknown_error");
-    }
-  } catch (error: any) {
-    console.warn("[site-webview][extensions] install from store failed:", error?.message || error || "unknown_error");
-  }
+  await installExtensionFromChromeWebStore(input, "site-webview");
 }
 
 watch(

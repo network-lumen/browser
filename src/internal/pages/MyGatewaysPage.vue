@@ -315,6 +315,7 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { formatDate, truncateMiddle } from '../services/format';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 import type { Gateway } from '../../types/myGatewaysPage';
 
@@ -505,14 +506,6 @@ async function deleteGateway() {
   }
 }
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-}
-
 function gatewayStatusBadgeClass(status: Gateway['status']): string {
   if (status === 'active') return 'bg-fill-success color-success';
   if (status === 'error') return 'bg-fill-error color-error';
@@ -683,9 +676,7 @@ function getUserDisplayName(address: string): string {
 }
 
 function formatAddress(address: string): string {
-  if (!address) return '';
-  if (address.length <= 16) return address;
-  return `${address.slice(0, 10)}...${address.slice(-6)}`;
+  return truncateMiddle(address, { start: 10, end: 6 });
 }
 
 function openWhitelistModal() {

@@ -250,6 +250,13 @@ import UiPinProgressCard from '../ui/UiPinProgressCard.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, Link, Plus, Save, Send, Shield } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
+import { bytesToText } from '../internal/services/coerce';
+import {
+  driveFilesKey,
+  driveLocalNamesKey,
+  nextDriveBackupSeq
+} from '../internal/services/driveStorage';
+import { readJson, writeJson } from '../internal/services/storage';
 import type { UiReq, StableLinkItem } from '../types/lumenSiteModalHost';
 import type { DriveSavedFile } from '../types/driveSavedFile';
 
@@ -441,36 +448,6 @@ const pinProgressUnit = ref("");
 const pinWaitJobId = ref("");
 let unsubPinProgress: null | (() => void) = null;
 
-const DRIVE_FILES_KEY_PREFIX = "lumen:drive:files:v1";
-const DRIVE_LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
-const DRIVE_BACKUP_SEQ_KEY_PREFIX = "lumen:driveBackup:seq:v1";
-
-function driveFilesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_FILES_KEY_PREFIX}:${pid}` : `${DRIVE_FILES_KEY_PREFIX}:guest`;
-}
-
-function driveLocalNamesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_LOCAL_NAMES_KEY_PREFIX}:${pid}` : `${DRIVE_LOCAL_NAMES_KEY_PREFIX}:guest`;
-}
-
-function driveBackupSeqKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:guest`;
-}
-
-function nextDriveBackupSeq(profileId: string): number {
-  const key = driveBackupSeqKey(profileId);
-  const current = Number.parseInt(String(localStorage.getItem(key) || "0"), 10);
-  const base = Number.isFinite(current) && current >= 0 ? current : 0;
-  const next = base + 1;
-  try {
-    localStorage.setItem(key, String(next));
-  } catch {}
-  return next;
-}
-
 function extractCid(cidOrUrl: string): string {
   const raw = String(cidOrUrl || "").trim();
   if (!raw) return "";
@@ -621,9 +598,8 @@ async function waitForPinCompletion(jobId: string) {
       const key = pinnedCid || extractCid(pinTarget.value);
       const name = String(saveNameDraft.value || "").trim();
       const pid = String(activeProfileId.value || "").trim() || "default";
-      try {
-        const stored = localStorage.getItem(driveFilesStorageKey(pid));
-        const parsed = stored ? JSON.parse(stored) : [];
+      {
+        const parsed = readJson<unknown>(driveFilesKey(pid), []);
         const base = Array.isArray(parsed) ? (parsed as any[]) : [];
         const filtered = base.filter((f) => String(f?.cid || "").trim() !== key);
         const next: DriveSavedFile = {
@@ -632,21 +608,12 @@ async function waitForPinCompletion(jobId: string) {
           size: 0,
           uploadedAt: Date.now(),
         };
-        localStorage.setItem(
-          driveFilesStorageKey(pid),
-          JSON.stringify([next, ...filtered].slice(0, 500)),
-        );
-      } catch {
-        // ignore
+        writeJson(driveFilesKey(pid), [next, ...filtered].slice(0, 500));
       }
-      try {
-        const stored = localStorage.getItem(driveLocalNamesStorageKey(pid));
-        const parsed = stored ? JSON.parse(stored) : {};
+      {
+        const parsed = readJson<unknown>(driveLocalNamesKey(pid), {});
         const base = parsed && typeof parsed === "object" ? parsed : {};
-        const next = { ...base, [key]: name };
-        localStorage.setItem(driveLocalNamesStorageKey(pid), JSON.stringify(next));
-      } catch {
-        // ignore
+        writeJson(driveLocalNamesKey(pid), { ...base, [key]: name });
       }
       try {
         nextDriveBackupSeq(pid);
@@ -826,20 +793,6 @@ async function loadStableLinksForModal() {
     if (!stableLinks.value.length) stableLinkMode.value = "create";
   } finally {
     stableLinkLoading.value = false;
-  }
-}
-
-function bytesToText(data: any): string {
-  if (typeof data === "string") return data;
-  try {
-    const bytes = data instanceof Uint8Array
-      ? data
-      : Array.isArray(data)
-        ? new Uint8Array(data)
-        : null;
-    return bytes ? new TextDecoder().decode(bytes) : "";
-  } catch {
-    return "";
   }
 }
 

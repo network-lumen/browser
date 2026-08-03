@@ -242,6 +242,8 @@ import { useHistory } from "../historyStore";
 import { profilesState } from "../profilesStore";
 import { normalizeAddressInput } from "../navigationUrl";
 import type { ShortcutModalMode } from "../../types/newTabPage";
+import { STORAGE_KEYS, readString, writeString } from "../services/storage";
+null
 
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);
 const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null);
@@ -288,7 +290,7 @@ const builtinHosts = [
   "newtab",
 ];
 
-const ONBOARDING_KEY = "lumen:onboarding:discover:v1";
+const ONBOARDING_KEY = STORAGE_KEYS.newTabOnboarding;
 const showOnboarding = ref(false);
 const commandInput = ref("");
 
@@ -394,7 +396,7 @@ function submitShortcutModal() {
 
 function markOnboardingDone() {
   try {
-    localStorage.setItem(ONBOARDING_KEY, "1");
+    writeString(ONBOARDING_KEY, "1");
   } catch {
     // ignore
   }
@@ -476,7 +478,7 @@ function formatPreviewTime(timestamp: number) {
 
 onMounted(() => {
   try {
-    const seen = localStorage.getItem(ONBOARDING_KEY) === "1";
+    const seen = readString(ONBOARDING_KEY) === "1";
     showOnboarding.value = !seen;
   } catch {
     showOnboarding.value = true;

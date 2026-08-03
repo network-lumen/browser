@@ -4,9 +4,10 @@ import { addToast } from '../../stores/toastStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard } from '../../composables/useClipboard';
 import type { LatestPayload, SemverParts } from '../../types/releaseUpdates';
+import { STORAGE_KEYS, readString, writeString } from './storage';
 
 const REMIND_INTERVAL_MS = 10 * 60 * 1000;
-const STORAGE_SNOOZE_UNTIL = 'lumen:release:snoozeUntil';
+const STORAGE_SNOOZE_UNTIL = STORAGE_KEYS.releaseSnoozeUntil;
 
 const latest = ref<LatestPayload | null>(null);
 const shouldPrompt = ref(false);
@@ -73,7 +74,7 @@ function getCurrentVersion(): string {
 
 function readSnoozeUntil(): number {
   try {
-    const raw = localStorage.getItem(STORAGE_SNOOZE_UNTIL);
+    const raw = readString(STORAGE_SNOOZE_UNTIL);
     const n = raw ? Number(raw) : 0;
     return Number.isFinite(n) ? n : 0;
   } catch {
@@ -83,7 +84,7 @@ function readSnoozeUntil(): number {
 
 function writeSnoozeUntil(ts: number) {
   try {
-    localStorage.setItem(STORAGE_SNOOZE_UNTIL, String(ts || 0));
+    writeString(STORAGE_SNOOZE_UNTIL, String(ts || 0));
   } catch {}
 }
 

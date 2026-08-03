@@ -2,11 +2,10 @@ import { computed, ref } from "vue";
 import { activeProfileId } from "./profilesStore";
 import { canonicalizeLumenUrl, isLumenUrl } from "./navigationUrl";
 import type { FavouriteEntry, FavMap, LegacyFavMap } from "../types/favourites";
+import { STORAGE_KEYS, readJson, writeJson } from "./services/storage";
 
 export type { FavouriteEntry };
 
-const LEGACY_KEY = "lumen:favourites:v1";
-const KEY = "lumen:favourites:v2";
 
 function now() {
   return Date.now();
@@ -81,25 +80,17 @@ function normalizeState(raw: unknown): FavMap {
 }
 
 function loadInitialState(): FavMap {
-  try {
-    const nextRaw = localStorage.getItem(KEY);
-    if (nextRaw) return normalizeState(JSON.parse(nextRaw));
-  } catch {
-    // ignore
-  }
-  try {
-    const legacyRaw = localStorage.getItem(LEGACY_KEY);
-    if (legacyRaw) return normalizeState(JSON.parse(legacyRaw) as LegacyFavMap);
-  } catch {
-    // ignore
-  }
+  const next = readJson<unknown>(STORAGE_KEYS.favourites, null);
+  if (next) return normalizeState(next);
+  const legacy = readJson<LegacyFavMap | null>(STORAGE_KEYS.favouritesLegacy, null);
+  if (legacy) return normalizeState(legacy);
   return {};
 }
 
 const data = ref<FavMap>(loadInitialState());
 
 function save() {
-  localStorage.setItem(KEY, JSON.stringify(data.value));
+  writeJson(STORAGE_KEYS.favourites, data.value);
 }
 
 function profileKey(profileId: string): string {

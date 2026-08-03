@@ -129,6 +129,7 @@ import {
 import InternalSidebar from "../../components/InternalSidebar.vue";
 import { avatarToneStyle, describeFavouriteUrl } from "../favouriteMeta";
 import { useHistory } from "../historyStore";
+import { formatTimeOfDay } from "../services/format";
 
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);
 const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null);
@@ -244,10 +245,7 @@ function groupLabel(timestamp: number) {
 }
 
 function formatTime(timestamp: number) {
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(timestamp));
+  return formatTimeOfDay(timestamp);
 }
 </script>
 

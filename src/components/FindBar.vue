@@ -51,6 +51,7 @@ import { ChevronDown, ChevronUp, X } from "lucide-vue-next";
 import UiButton from "../ui/UiButton.vue";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import type { FindActionPayload, FindResultPayload } from '../types/findBar';
+import { safeNumber } from '../internal/services/coerce';
 
 const open = ref(false);
 const query = ref("");
@@ -64,11 +65,6 @@ const activeMatchOrdinal = ref(0);
 let unsubAction: null | (() => void) = null;
 let unsubResult: null | (() => void) = null;
 let debounceTimer: number | null = null;
-
-function safeNumber(v: any): number | null {
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : null;
-}
 
 const activeTargetWebContentsId = computed<number | null>(() => {
   return safeNumber(injectedActiveTarget?.value);

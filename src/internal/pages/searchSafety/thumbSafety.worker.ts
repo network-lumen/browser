@@ -3,15 +3,9 @@ import type {
   ThumbSafetyResultMsg,
   ThumbSafetyErrorMsg,
 } from "../../../types/searchSafety";
+import { clamp01 } from "../../services/coerce";
 
 const SIZE = 224;
-
-function clamp01(x: number): number {
-  if (!Number.isFinite(x)) return 0;
-  if (x < 0) return 0;
-  if (x > 1) return 1;
-  return x;
-}
 
 function sigmoid(x: number): number {
   if (x > 20) return 1;
@@ -26,7 +20,11 @@ function bytesToHex(buf: ArrayBuffer): string {
   return out;
 }
 
-async function sha256Hex(bytes: Uint8Array): Promise<string> {
+// The buffer type is spelled out because `ImageData.data.buffer` is typed as
+// `ArrayBufferLike` (it could in theory be a SharedArrayBuffer, which
+// `crypto.subtle.digest` does not accept). Callers copy into a plain
+// ArrayBuffer-backed view instead of asserting the type away.
+async function sha256Hex(bytes: Uint8Array<ArrayBuffer>): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   return bytesToHex(digest);
 }
@@ -125,7 +123,7 @@ self.onmessage = async (ev: MessageEvent<ThumbSafetyAnalyzeMsg>) => {
 
   try {
     const img = getImageData224(bitmap);
-    const bytes = new Uint8Array(img.data.buffer.slice(0));
+    const bytes = new Uint8Array(img.data);
     const hash = await sha256Hex(bytes);
     const scores = computeScores(img);
 

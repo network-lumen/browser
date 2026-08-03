@@ -57,6 +57,13 @@ import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated
 import { isBrowserUrl } from "../navigationUrl";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { safeString } from '../services/coerce';
+import { retryWebviewRegistration } from '../services/webviewRegistration';
+import {
+  installExtensionFromChromeWebStore,
+  isChromeWebStoreUrl,
+  listInstalledExtensions
+} from '../services/extensions';
 
 const DEFAULT_STORE_URL = "https://chromewebstore.google.com/category/extensions";
 const STORE_SEARCH_BASE_URL = "https://chromewebstore.google.com/search/";
@@ -104,22 +111,6 @@ function buildChromeLikeUserAgent() {
 }
 
 const storeUserAgent = buildChromeLikeUserAgent();
-
-function safeString(value: unknown, maxLen = 4096) {
-  const text = String(value ?? "").trim();
-  if (!text) return "";
-  return text.length > maxLen ? text.slice(0, maxLen) : text;
-}
-
-function isChromeWebStoreUrl(raw: string): boolean {
-  try {
-    const url = new URL(String(raw || "").trim());
-    const host = String(url.hostname || "").trim().toLowerCase();
-    return host === "chromewebstore.google.com" || host.endsWith(".chromewebstore.google.com");
-  } catch {
-    return false;
-  }
-}
 
 function isChromeCrxDownloadUrl(raw: string): boolean {
   const value = safeString(raw, 8192).toLowerCase();
@@ -400,11 +391,8 @@ function registerFindTargetOnce() {
   }
 }
 
-function registerFindTargetWithRetry(attempts = 40) {
-  const id = registerFindTargetOnce();
-  if (id != null) return;
-  if (attempts <= 0) return;
-  window.setTimeout(() => registerFindTargetWithRetry(attempts - 1), 50);
+function registerFindTargetWithRetry() {
+  retryWebviewRegistration(registerFindTargetOnce);
 }
 
 function onDomReady() {
@@ -417,22 +405,16 @@ function onPageTitleUpdated(ev: any) {
 }
 
 async function refreshInstalledExtensions() {
-  try {
-    const api = useInternalLumen()?.extensions;
-    if (!api || typeof api.listExtensions !== "function") return;
-    const result = await api.listExtensions();
-    if (!result || result.ok === false) return;
-    installedExtensions.value = (Array.isArray(result.extensions) ? result.extensions : [])
-      .map((entry: any) => ({
-        id: safeString(entry?.id, 128).toLowerCase(),
-        version: normalizeVersion(entry?.version),
-        enabled: !!entry?.enabled,
-        loaded: !!entry?.loaded,
-      }))
-      .filter((entry: any) => !!entry.id);
-  } catch {
-    // ignore
-  }
+  const entries = await listInstalledExtensions();
+  if (!entries) return;
+  installedExtensions.value = entries
+    .map((entry: any) => ({
+      id: safeString(entry?.id, 128).toLowerCase(),
+      version: normalizeVersion(entry?.version),
+      enabled: !!entry?.enabled,
+      loaded: !!entry?.loaded,
+    }))
+    .filter((entry: any) => !!entry.id);
 }
 
 async function installChromeWebStoreExtension(input: string) {
@@ -443,24 +425,19 @@ async function installChromeWebStoreExtension(input: string) {
     return;
   }
 
+  installInFlight.value = true;
+  statusError.value = false;
+  statusMessage.value = "";
   try {
-    const api = useInternalLumen()?.extensions;
-    if (!api || typeof api.installFromChromeWebStore !== "function") return;
-    installInFlight.value = true;
-    statusError.value = false;
-    statusMessage.value = "";
-    const result = await api.installFromChromeWebStore(id);
-    if (!result || result.ok === false) {
-      statusError.value = true;
-      statusMessage.value = result?.error || "Lumen installation failed.";
+    const result = await installExtensionFromChromeWebStore(id, "extensions");
+    if (result.ok) {
+      await refreshInstalledExtensions();
       return;
     }
-    statusError.value = false;
-    statusMessage.value = "";
-    await refreshInstalledExtensions();
-  } catch (error: any) {
+    // No extension bridge at all: stay silent rather than surfacing an internal code.
+    if (result.error === "extensions_unavailable") return;
     statusError.value = true;
-    statusMessage.value = error?.message || String(error || "Lumen installation failed.");
+    statusMessage.value = result.error || "Lumen installation failed.";
   } finally {
     installInFlight.value = false;
   }
