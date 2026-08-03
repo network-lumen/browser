@@ -118,7 +118,6 @@ contextBridge.exposeInMainWorld('lumen', {
     ipcRenderer.invoke('bootstrapPath:resetCustomUserDataPath'),
   // Gateway management
   settingsLoadGateways: () => ipcRenderer.invoke('settings:loadGateways'),
-  settingsSaveGateways: (gateways) => ipcRenderer.invoke('settings:saveGateways', gateways),
   settingsAddGateway: (gateway) => ipcRenderer.invoke('settings:addGateway', gateway),
   settingsUpdateGateway: (id, updates) => ipcRenderer.invoke('settings:updateGateway', id, updates),
   settingsDeleteGateway: (id) => ipcRenderer.invoke('settings:deleteGateway', id),
@@ -132,7 +131,6 @@ contextBridge.exposeInMainWorld('lumen', {
   gatewayServerGetApiKey: () => ipcRenderer.invoke('gatewayServer:getApiKey'),
   // Gateway metadata
   gatewayServerSaveMetadata: (address, metadata) => ipcRenderer.invoke('gatewayServer:saveMetadata', address, metadata),
-  gatewayServerGetMetadata: (address) => ipcRenderer.invoke('gatewayServer:getMetadata', address),
   gatewayServerGetAllMetadata: () => ipcRenderer.invoke('gatewayServer:getAllMetadata'),
   gatewayServerDeleteMetadata: (address) => ipcRenderer.invoke('gatewayServer:deleteMetadata', address),
   dialogOpenFiles: (options) => ipcRenderer.invoke('dialog:openFiles', options || {}),
@@ -217,7 +215,6 @@ contextBridge.exposeInMainWorld('lumen', {
   ipfsKeyImport: (name) => ipcRenderer.invoke('ipfs:keyImport', name),
   ipfsKeyExport: (name) => ipcRenderer.invoke('ipfs:keyExport', name),
   ipfsKeyRm: (name) => ipcRenderer.invoke('ipfs:keyRm', name),
-  ipfsSwarmPeers: () => ipcRenderer.invoke('ipfs:swarmPeers'),
   siteData: {
     list: () => ipcRenderer.invoke('siteData:list'),
     delete: (siteKey, profileId) => ipcRenderer.invoke('siteData:delete', siteKey, profileId),
