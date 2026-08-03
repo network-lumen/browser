@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
+// Test config lives in vitest.config.ts, not here - see the comment in that
+// file for why the two cannot share one config under vitest 1.x + Vite 6.
 export default defineConfig({
   base: './',
   plugins: [
@@ -20,15 +22,5 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    include: ['tests/unit/**/*.test.{ts,tsx,js,jsx}'],
-    setupFiles: ['tests/unit/vitest.setup.ts'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text']
-    }
   }
 });
