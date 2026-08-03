@@ -134,7 +134,7 @@ try {
   }
 } catch {}
 
-const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsCidToBase32, ipfsAdd, ipfsAddWithProgress, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryWithProgress, ipfsAddDirectoryPaths, ipfsAddDirectoryPathsWithProgress, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, startManagedPinJob, pauseManagedPinJob, resumeManagedPinJob, cancelManagedPinJob, waitForManagedPinJob, getPinJob, listPinJobs, addPinJobListener, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsKeyRename, ipfsKeyImportFromPath, ipfsKeyExportToPath, ipfsKeyRm, ipfsSwarmPeers, ipfsPropagateCidToPublicGateways } = require('./ipfs.cjs');
+const { startIpfsDaemon, checkIpfsStatus, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsCidToBase32, ipfsAdd, ipfsAddPath, ipfsAddPathWithProgress, ipfsAddDirectory, ipfsAddDirectoryFromPath, ipfsAddDirectoryFromPathWithProgress, ipfsGet, ipfsLs, ipfsPinList, ipfsPinAdd, startManagedPinJob, pauseManagedPinJob, resumeManagedPinJob, cancelManagedPinJob, waitForManagedPinJob, getPinJob, listPinJobs, addPinJobListener, ipfsUnpin, ipfsStats, ipfsPublishToIPNS, ipfsResolveIPNS, ipfsKeyList, ipfsKeyGen, ipfsKeyRename, ipfsKeyImportFromPath, ipfsKeyExportToPath, ipfsKeyRm, ipfsSwarmPeers, ipfsPropagateCidToPublicGateways } = require('./ipfs.cjs');
 const { startIpfsCache, invalidateIpnsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, saveGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
@@ -990,34 +990,6 @@ ipcMain.handle('ipfs:propagateCidToPublicGateways', async (evt, input) => {
   }
 });
 
-ipcMain.handle('ipfs:addWithProgress', async (evt, data, filename) => {
-  const wcId = String(evt?.sender?.id || '');
-  if (wcId && ACTIVE_IPFS_ADDS.has(wcId)) return { ok: false, error: 'add_in_progress' };
-
-  const controller = new AbortController();
-  const abort = () => {
-    try { controller.abort(); } catch {}
-  };
-  if (wcId) ACTIVE_IPFS_ADDS.set(wcId, { abort });
-
-  const safeName = safeString(filename, 256);
-  const sendProgress = (payload) => {
-    try {
-      evt?.sender?.send?.('ipfs:addProgress', {
-        ...payload,
-        rootPath: payload?.rootPath || '',
-        rootName: rootName || '',
-      });
-    } catch {}
-  };
-
-  try {
-    return await ipfsAddWithProgress(data, filename, { signal: controller.signal, onProgress: sendProgress });
-  } finally {
-    if (wcId) ACTIVE_IPFS_ADDS.delete(wcId);
-  }
-});
-
 ipcMain.handle('ipfs:addPath', async (_evt, filePath, filename) => {
   console.log('[electron][ipc] ipfs:addPath requested:', filename);
   return ipfsAddPath(filePath, filename);
@@ -1058,67 +1030,6 @@ ipcMain.handle('ipfs:addPathWithProgress', async (evt, payload, filename) => {
 ipcMain.handle('ipfs:addDirectory', async (_evt, payload) => {
   console.log('[electron][ipc] ipfs:addDirectory requested');
   return ipfsAddDirectory(payload);
-});
-
-ipcMain.handle('ipfs:addDirectoryWithProgress', async (evt, payload) => {
-  const wcId = String(evt?.sender?.id || '');
-  if (wcId && ACTIVE_IPFS_ADDS.has(wcId)) return { ok: false, error: 'add_in_progress' };
-
-  const controller = new AbortController();
-  const abort = () => {
-    try { controller.abort(); } catch {}
-  };
-  if (wcId) ACTIVE_IPFS_ADDS.set(wcId, { abort });
-
-  const rootName = safeString(payload?.rootName ?? '', 256);
-  const sendProgress = (payload2) => {
-    try {
-      evt?.sender?.send?.('ipfs:addProgress', {
-        ...payload2,
-        rootPath: payload?.rootPath || '',
-        rootName: rootName || '',
-      });
-    } catch {}
-  };
-
-  try {
-    return await ipfsAddDirectoryWithProgress(payload, { signal: controller.signal, onProgress: sendProgress });
-  } finally {
-    if (wcId) ACTIVE_IPFS_ADDS.delete(wcId);
-  }
-});
-
-ipcMain.handle('ipfs:addDirectoryPaths', async (_evt, payload) => {
-  console.log('[electron][ipc] ipfs:addDirectoryPaths requested');
-  return ipfsAddDirectoryPaths(payload);
-});
-
-ipcMain.handle('ipfs:addDirectoryPathsWithProgress', async (evt, payload) => {
-  const wcId = String(evt?.sender?.id || '');
-  if (wcId && ACTIVE_IPFS_ADDS.has(wcId)) return { ok: false, error: 'add_in_progress' };
-
-  const controller = new AbortController();
-  const abort = () => {
-    try { controller.abort(); } catch {}
-  };
-  if (wcId) ACTIVE_IPFS_ADDS.set(wcId, { abort });
-
-  const rootName = safeString(payload?.rootName ?? '', 256);
-  const sendProgress = (payload2) => {
-    try {
-      evt?.sender?.send?.('ipfs:addProgress', {
-        ...payload2,
-        rootPath: payload?.rootPath || '',
-        rootName: rootName || '',
-      });
-    } catch {}
-  };
-
-  try {
-    return await ipfsAddDirectoryPathsWithProgress(payload, { signal: controller.signal, onProgress: sendProgress });
-  } finally {
-    if (wcId) ACTIVE_IPFS_ADDS.delete(wcId);
-  }
 });
 
 ipcMain.handle('ipfs:addDirectoryFromPath', async (_evt, payload) => {
