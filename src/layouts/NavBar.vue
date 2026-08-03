@@ -56,7 +56,6 @@
         @click="$emit('goto', 'lumen://drive')" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <Cloud :size="16" />
       </UiButton>
-      <ActivityCenterButton />
     </div>
 
     <div class="appregion-no-drag relative ml-n8px">
@@ -558,7 +557,6 @@ import {
   pickManualPqcSource
 } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';
-import ActivityCenterButton from '../components/ActivityCenterButton.vue';
 import { buildExtensionTabUrl, normalizeAddressInput } from '../internal/navigationUrl';
 import type { Tab } from '../types/tab';
 import type { NavBarExtensionSummary, NavBarImportMode } from '../types/navBar';

@@ -1,5 +1,16 @@
+<!--
+  ####### NavBar ACTIVITY CENTER (uploads / pins / propagation) #######
+
+  ⚠️ NOT MOUNTED ON PURPOSE. Finished and working, but deliberately kept out
+  of the navbar for now (decision of 2026-08-03) until we want to ship it.
+
+  So it will show up as an orphan in any dead-code sweep: nothing imports it,
+  and `initActivityCenter()` therefore never runs, leaving the whole service
+  dormant. Do NOT delete it on that basis. To ship it, import this component
+  in src/layouts/NavBar.vue and drop <ActivityCenterButton /> into the
+  "Quick Actions" block next to the Drive button.
+-->
 <template>
-  <!-- ####### NavBar ACTIVITY CENTER (uploads / pins / propagation) ####### -->
   <div class="appregion-no-drag relative">
     <UiButton
       variant="icon"
