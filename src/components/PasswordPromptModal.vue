@@ -14,7 +14,7 @@
               type="password"
               v-model="password"
               placeholder="Enter password"
-              :disabled="loading || busy"
+              :disabled="loading"
               @keyup.enter="handleSubmit"
               @keyup.escape="handleCancel" class="focus-border-primary border-default disabled-fade-50 transition-colors-015 placeholder-tertiary" />
 
@@ -24,16 +24,12 @@
     <template #footer>
       <UiButton variant="secondary" v-if="cancelable !== false"
         @click="handleCancel"
-        :disabled="loading || busy" class="disabled-fade-50">
+        :disabled="loading" class="disabled-fade-50">
         Cancel
       </UiButton>
       <UiButton variant="primary" @click="handleSubmit"
-        :disabled="loading || busy || !password" class="disabled-fade-50">
+        :disabled="loading || !password" class="disabled-fade-50">
         <span v-if="loading">Verifying...</span>
-        <span v-else-if="busy" class="flex-inline-align-center gap-8px">
-          <UiSpinnerRing ring-class="w-14px h-14px border-2-white-a45" />
-          Working...
-        </span>
         <span v-else>Confirm</span>
       </UiButton>
     </template>
@@ -44,7 +40,6 @@
 import UiInput from '../ui/UiInput.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
-import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiBanner from '../ui/UiBanner.vue';
 import { ref, watch, nextTick } from 'vue';
@@ -54,7 +49,6 @@ import { useInternalLumen } from '../composables/useInternalLumen';
 const props = defineProps<{
   visible: boolean;
   message?: string;
-  busy?: boolean;
   cancelable?: boolean;
 }>();
 
@@ -80,7 +74,7 @@ watch(() => props.visible, async (isVisible) => {
 });
 
 async function handleSubmit() {
-  if (!password.value || loading.value || props.busy) return;
+  if (!password.value || loading.value) return;
   
   error.value = '';
   loading.value = true;
@@ -107,7 +101,7 @@ async function handleSubmit() {
 
 function handleCancel() {
   if (props.cancelable === false) return;
-  if (loading.value || props.busy) return;
+  if (loading.value) return;
   password.value = '';
   error.value = '';
   emit('cancel');
