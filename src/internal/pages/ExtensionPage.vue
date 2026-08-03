@@ -50,6 +50,10 @@ import {
 import { useTabLoadingSync } from "../useTabLoading";
 import type { InstalledExtension } from "../../types/extension";
 import {
+  getWebviewWebContentsId,
+  registerWebviewFindTarget
+} from "../services/webviewRegistration";
+import {
   fetchInstalledExtensions,
   findExtensionByRuntimeId as findExtensionInList,
   getRuntimeIdFromExtensionUrl,
@@ -260,18 +264,11 @@ function ensureLoaded(url: string) {
 }
 
 function reportFindTargetOnce(): number | null {
-  const tabId = String(currentTabId?.value || "").trim();
-  if (!tabId || typeof registerFindTarget !== "function") return null;
-  const w: any = webviewRef.value;
-  if (!w || typeof w.getWebContentsId !== "function") return null;
-  try {
-    const id = w.getWebContentsId();
-    const nextId = typeof id === "number" && Number.isFinite(id) ? id : null;
-    registerFindTarget(tabId, nextId);
-    return nextId;
-  } catch {
-    return null;
-  }
+  return registerWebviewFindTarget(
+    registerFindTarget,
+    currentTabId?.value,
+    getWebviewWebContentsId(webviewRef.value)
+  );
 }
 
 function reportFindTarget(attempts = 40) {

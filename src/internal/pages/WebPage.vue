@@ -51,6 +51,10 @@ import {
   isChromeWebStoreUrl,
   listInstalledExtensions
 } from '../services/extensions';
+import {
+  getWebviewWebContentsId,
+  registerWebviewFindTarget
+} from '../services/webviewRegistration';
 
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
@@ -323,28 +327,12 @@ function syncNavFromWebview(rawUrl: string) {
    void navigateToResolvedTarget(href, true);
  }
 
- function getWebviewWebContentsId(): number | null {
-   const w: any = webviewRef.value;
-   if (!w || typeof w.getWebContentsId !== "function") return null;
-   try {
-     const id = w.getWebContentsId();
-     return typeof id === "number" && Number.isFinite(id) ? id : null;
-   } catch {
-     return null;
-   }
+ function currentWebContentsId(): number | null {
+   return getWebviewWebContentsId(webviewRef.value);
  }
 
  function reportFindTargetOnce(): number | null {
-   const tabId = String(currentTabId?.value || "").trim();
-   if (!tabId) return null;
-   if (typeof registerFindTarget !== "function") return null;
-   const id = getWebviewWebContentsId();
-   try {
-     registerFindTarget(tabId, id);
-   } catch {
-     // ignore
-   }
-   return id;
+   return registerWebviewFindTarget(registerFindTarget, currentTabId?.value, currentWebContentsId());
  }
 
  function reportFindTarget(attempts = 40) {

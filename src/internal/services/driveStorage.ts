@@ -27,7 +27,7 @@ export function driveHlsQueueKey(profileId: string): string {
 }
 
 /** Monotonic counter bumped on every local Drive mutation, used by backup export. */
-export function driveBackupSeqKey(profileId: string): string {
+function driveBackupSeqKey(profileId: string): string {
   return profileScopedKey(STORAGE_KEYS.driveBackupSeq, profileId);
 }
 

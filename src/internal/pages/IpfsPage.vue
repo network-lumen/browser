@@ -311,7 +311,11 @@ import { formatBytes } from "../services/format";
 import { installExtensionFromChromeWebStore } from "../services/extensions";
 import { driveFilesKey, driveLocalNamesKey, nextDriveBackupSeq } from "../services/driveStorage";
 import { readJson, writeJson } from "../services/storage";
-import { retryWebviewRegistration } from "../services/webviewRegistration";
+import {
+  getWebviewWebContentsId,
+  registerWebviewFindTarget,
+  retryWebviewRegistration
+} from "../services/webviewRegistration";
 import type { Entry, MarkdownTarget, MarkdownResolvedLink } from "../../types/ipfsPage";
 import type { DriveSavedFile } from "../../types/driveSavedFile";
 
@@ -366,29 +370,13 @@ const IGNORABLE_HLS_WARNING_DETAILS = new Set([
 
 useTabLoadingSync(computed(() => loading.value || webviewLoading.value));
 
- function getWebviewWebContentsId(): number | null {
-   const w: any = siteWebview.value;
-   if (!w || typeof w.getWebContentsId !== "function") return null;
-   try {
-     const id = w.getWebContentsId();
-     return typeof id === "number" && Number.isFinite(id) ? id : null;
-   } catch {
-     return null;
-   }
+ function currentWebContentsId(): number | null {
+   return getWebviewWebContentsId(siteWebview.value);
  }
 
  function registerFindTargetOnce(): number | null {
-   const tabId = String(currentTabId?.value || "").trim();
-   if (!tabId) return null;
-   if (typeof registerFindTarget !== "function") return null;
-
-   const id = viewKind.value === "html" ? getWebviewWebContentsId() : null;
-   try {
-     registerFindTarget(tabId, id);
-   } catch {
-     // ignore
-   }
-   return id;
+   const id = viewKind.value === "html" ? currentWebContentsId() : null;
+   return registerWebviewFindTarget(registerFindTarget, currentTabId?.value, id);
  }
 
 function registerFindTargetWithRetry() {
