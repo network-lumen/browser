@@ -20,10 +20,8 @@ const props = withDefaults(defineProps<{
   profile?: ProfileLike | null;
   size?: number;
   title?: string;
-  guestIcon?: boolean;
 }>(), {
-  size: 36,
-  guestIcon: true
+  size: 36
 });
 
 const isGuest = computed(() => props.profile?.role === 'guest');
@@ -70,7 +68,7 @@ const avatarStyle = computed(() => {
 
 const iconSize = computed(() => Math.max(14, Math.round((Number(props.size) || 36) * 0.55)));
 
-const showGuestIcon = computed(() => props.guestIcon && isGuest.value && !imageSrc.value);
+const showGuestIcon = computed(() => isGuest.value && !imageSrc.value);
 
 const titleText = computed(() => props.title || baseText.value || 'Profile');
 </script>

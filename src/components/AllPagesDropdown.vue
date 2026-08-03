@@ -1,7 +1,7 @@
 <template>
   <div class="mt-16px pt-12px border-top-light">
     <UiSidebarNavItem spaceBetween @click="open = !open">
-      <span class="txt-weight-light">{{ label }}</span>
+      <span class="txt-weight-light">All pages</span>
       <component :is="open ? ChevronUp : ChevronDown" :size="16" />
     </UiSidebarNavItem>
 
@@ -64,16 +64,12 @@ const DEFAULT_ORDER = [
 
 const props = withDefaults(defineProps<{
   activeKey?: string;
-  label?: string;
   exclude?: string[];
-  defaultOpen?: boolean;
 }>(), {
-  label: 'All pages',
-  exclude: () => [],
-  defaultOpen: false
+  exclude: () => []
 });
 
-const open = ref(!!props.defaultOpen);
+const open = ref(false);
 
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);

@@ -31,7 +31,6 @@
 .border-2-primary-a30 { border: 2px solid var(--primary-a30); }
 .border-2-primary { border: 2px solid var(--color-primary); }
 .border-2-transparent { border: 2px solid transparent; }
-.border-2-white-a45 { border: 2px solid rgba(255, 255, 255, 0.45); }
 .border-2-white-a50 { border: 2px solid rgba(255, 255, 255, 0.5); }
 .border-3-primary { border: 3px solid var(--color-primary); }
 .border-3-fill-secondary { border: 3px solid var(--fill-secondary); }

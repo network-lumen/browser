@@ -6,7 +6,7 @@
   >
     <ProfileAvatar :profile="profile" :size="dense ? 32 : 36" />
     <div class="flex flex-column gap-2px min-w-0">
-      <span v-if="showLabel" class="text-10px color-text-tertiary text-uppercase letter-spacing-005em fw-500">{{ label }}</span>
+      <span class="text-10px color-text-tertiary text-uppercase letter-spacing-005em fw-500">{{ label }}</span>
       <span class="text-13px txt-weight-light color-text-primary truncate">{{ displayName }}</span>
     </div>
   </div>
@@ -21,11 +21,9 @@ const props = withDefaults(defineProps<{
   profile: ProfileLike | null;
   label?: string;
   dense?: boolean;
-  showLabel?: boolean;
 }>(), {
   label: 'Active Profile',
-  dense: false,
-  showLabel: true
+  dense: false
 });
 
 const displayName = computed(() => {

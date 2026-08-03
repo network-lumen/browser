@@ -80,11 +80,6 @@ import {
 import UiSpinner from '../../ui/UiSpinner.vue';
 import type { ParamSection } from '../../types/networkParamsPanel';
 
-const props = defineProps<{
-  restBase?: string;
-}>();
-
-const restBase = computed(() => String(props.restBase || '').trim());
 
 const lumen = useInternalLumen();
 
@@ -234,15 +229,13 @@ function statusLabel(s: ParamSection): string {
 }
 
 async function loadSection(s: ParamSection) {
-  if (!lumen?.net?.restGet && (!restBase.value || !lumen?.http?.get)) {
+  if (!lumen?.net?.restGet) {
     throw new Error('Network client unavailable');
   }
   s.loading = true;
   s.error = '';
   try {
-    const res = restBase.value
-      ? await lumen.http.get(`${restBase.value}${s.path}`)
-      : await lumen.net.restGet(s.path);
+    const res = await lumen.net.restGet(s.path);
     if (!res?.ok) {
       const msg = res?.error || `Request failed (${s.path})`;
       throw new Error(msg);

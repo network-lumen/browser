@@ -13,11 +13,7 @@
     <div class="flex-1 min-h-0 overflow-y-auto pr-4px overflow-x-hidden">
       <slot />
 
-      <AllPagesDropdown
-        v-if="showAllPages"
-        :activeKey="activeKey"
-        :exclude="allPagesExclude"
-      />
+      <AllPagesDropdown v-if="showAllPages" :activeKey="activeKey" />
 
       <div v-if="renderedFavouriteEntries.length" class="mt-16px pt-12px border-top-05-border-light">
         <div class="flex-align-center-justify-space-between gap-8px mb-8px py-0px px-8px">
@@ -47,9 +43,9 @@
       </div>
     </div>
 
-    <div v-if="showVersion || $slots.footer" class="flex flex-column pt-12px gap-6px border-top-05-border-light">
+    <div class="flex flex-column pt-12px gap-6px border-top-05-border-light">
       <slot name="footer" />
-      <div v-if="showVersion" class="color-text-tertiary text-center text-10px py-2px px-8px">
+      <div class="color-text-tertiary text-center text-10px py-2px px-8px">
         Lumen v{{ appVersion }}
       </div>
     </div>
@@ -78,13 +74,9 @@ withDefaults(defineProps<{
   icon: any;
   activeKey?: string;
   showAllPages?: boolean;
-  allPagesExclude?: string[];
-  showVersion?: boolean;
 }>(), {
   activeKey: undefined,
-  showAllPages: true,
-  allPagesExclude: () => [],
-  showVersion: true
+  showAllPages: true
 });
 
 const appVersion = String((pkg as any)?.version || '0.0.0');
