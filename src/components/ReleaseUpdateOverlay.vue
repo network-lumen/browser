@@ -26,6 +26,7 @@ import UiButton from '../ui/UiButton.vue';
 import UiProgressBar from '../ui/UiProgressBar.vue';
 import { computed } from 'vue';
 import { useReleaseUpdates } from '../internal/services/releaseUpdates';
+import { formatBytes as formatBytesValue } from '../internal/services/format';
 
 const { latest, busy, updateProgress, clearUpdateProgress } = useReleaseUpdates();
 
@@ -58,15 +59,7 @@ const percent = computed(() => {
 });
 
 function formatBytes(n: number) {
-  if (!Number.isFinite(n) || n <= 0) return '';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let v = n;
-  let i = 0;
-  while (v >= 1024 && i < units.length - 1) {
-    v /= 1024;
-    i += 1;
-  }
-  return `${v.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+  return formatBytesValue(n, { empty: '' });
 }
 
 const bytesLabel = computed(() => {

@@ -42,6 +42,7 @@ import {
 } from "../internal/routes";
 import { normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
 import type { Tab, TabHistoryEntry, RegisterFindTargetFn } from "../types/tab";
+import { safeNumber } from "../internal/services/coerce";
 
 const props = defineProps<{
   tabActive: string;
@@ -59,11 +60,6 @@ const activeTab = computed<Tab | undefined>(() =>
 const activeTabIsExtension = computed(() => !!parseExtensionTabUrl(currentUrl()));
 
 const findTargets = reactive<Record<string, number | null>>({});
-
-function safeNumber(v: any): number | null {
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : null;
-}
 
 provide("findRegisterTarget", ((tabId: string, targetIdMaybe: number | null) => {
   const id = String(tabId || "").trim();

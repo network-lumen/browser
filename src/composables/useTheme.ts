@@ -1,9 +1,8 @@
 import { ref } from 'vue';
 import type { Theme } from '../types/theme';
+import { STORAGE_KEYS, readString, writeString } from '../internal/services/storage';
 
 export type { Theme };
-
-const STORAGE_KEY = 'lumen-theme';
 
 const theme = ref<Theme>('light');
 const effectiveTheme = ref<'light' | 'dark'>('light');
@@ -37,13 +36,13 @@ function updateEffectiveTheme() {
 
 function setTheme(newTheme: Theme) {
   theme.value = newTheme;
-  localStorage.setItem(STORAGE_KEY, newTheme);
+  writeString(STORAGE_KEYS.theme, newTheme);
   updateEffectiveTheme();
 }
 
 function initTheme() {
   // Load saved theme or default to 'light'
-  const saved = localStorage.getItem(STORAGE_KEY) as Theme | null;
+  const saved = readString(STORAGE_KEYS.theme) as Theme | null;
   if (saved && ['light', 'dark', 'system'].includes(saved)) {
     theme.value = saved;
   }

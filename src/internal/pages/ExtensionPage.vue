@@ -49,6 +49,13 @@ import {
 } from "../navigationUrl";
 import { useTabLoadingSync } from "../useTabLoading";
 import type { InstalledExtension } from "../../types/extension";
+import {
+  fetchInstalledExtensions,
+  findExtensionByRuntimeId as findExtensionInList,
+  getRuntimeIdFromExtensionUrl,
+  normalizeInstalledExtension,
+  upsertExtension
+} from "../services/extensions";
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabId = inject<any>("currentTabId", null);
@@ -87,37 +94,13 @@ const webviewMountUrl = computed(
   () => normalizeDocumentBase(resolvedExtensionUrl.value) || String(resolvedExtensionUrl.value || "").trim(),
 );
 
-function normalizeInstalledExtension(entry: any): InstalledExtension | null {
-  const id = String(entry?.id || "").trim();
-  if (!id) return null;
-  return {
-    id,
-    runtimeId: String(entry?.runtimeId || "").trim(),
-    name: String(entry?.name || "Extension").trim() || "Extension",
-    enabled: !!entry?.enabled,
-    launchUrl: String(entry?.launchUrl || "").trim(),
-  };
-}
-
 function upsertInstalledExtension(entry: InstalledExtension | null) {
-  if (!entry) return;
-  const next = installedExtensions.value.filter((item) => item.id !== entry.id);
-  next.push(entry);
-  installedExtensions.value = next;
+  installedExtensions.value = upsertExtension(installedExtensions.value, entry);
 }
 
 async function refreshInstalledExtensions() {
-  try {
-    const api = useInternalLumen()?.extensions;
-    if (!api || typeof api.listExtensions !== "function") return;
-    const result = await api.listExtensions();
-    if (!result || result.ok === false) return;
-    installedExtensions.value = (Array.isArray(result.extensions) ? result.extensions : [])
-      .map((entry: any) => normalizeInstalledExtension(entry))
-      .filter(Boolean) as InstalledExtension[];
-  } catch {
-    // ignore
-  }
+  const entries = await fetchInstalledExtensions();
+  if (entries) installedExtensions.value = entries;
 }
 
 async function ensureGuestPreloadUrl() {
@@ -141,22 +124,8 @@ async function ensureGuestPreloadUrl() {
   return extensionGuestPreloadUrl.value;
 }
 
-function getRuntimeIdFromExtensionUrl(rawUrl: string): string {
-  try {
-    const url = new URL(String(rawUrl || "").trim());
-    return String(url.hostname || "").trim();
-  } catch {
-    return "";
-  }
-}
-
 function findExtensionByRuntimeId(runtimeId: string): InstalledExtension | null {
-  const target = String(runtimeId || "").trim();
-  if (!target) return null;
-  return (
-    installedExtensions.value.find((entry) => String(entry.runtimeId || "").trim() === target) ||
-    null
-  );
+  return findExtensionInList(installedExtensions.value, runtimeId);
 }
 
 function resolveExtensionRouteTarget(rawUrl: string): string {

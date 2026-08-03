@@ -307,6 +307,11 @@ import {
   resolveStableLinkTarget,
 } from "../services/contentResolver";
 import { activeProfileId } from "../profilesStore";
+import { formatBytes } from "../services/format";
+import { installExtensionFromChromeWebStore } from "../services/extensions";
+import { driveFilesKey, driveLocalNamesKey, nextDriveBackupSeq } from "../services/driveStorage";
+import { readJson, writeJson } from "../services/storage";
+import { retryWebviewRegistration } from "../services/webviewRegistration";
 import type { Entry, MarkdownTarget, MarkdownResolvedLink } from "../../types/ipfsPage";
 import type { DriveSavedFile } from "../../types/driveSavedFile";
 
@@ -386,14 +391,8 @@ useTabLoadingSync(computed(() => loading.value || webviewLoading.value));
    return id;
  }
 
-function registerFindTargetWithRetry(attempts = 40) {
-  const id = registerFindTargetOnce();
-  if (id != null) return;
-  if (attempts <= 0) return;
-  if (viewKind.value !== "html") return;
-  window.setTimeout(() => {
-    registerFindTargetWithRetry(attempts - 1);
-  }, 50);
+function registerFindTargetWithRetry() {
+  retryWebviewRegistration(registerFindTargetOnce, () => viewKind.value === "html");
 }
 
 /**
@@ -541,36 +540,6 @@ function applySavePinJobSnapshot(job: any) {
   saving.value = ["queued", "running", "retry_waiting"].includes(
     String(job.status || "").trim().toLowerCase(),
   );
-}
-
-const DRIVE_FILES_KEY_PREFIX = "lumen:drive:files:v1";
-const DRIVE_LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
-const DRIVE_BACKUP_SEQ_KEY_PREFIX = "lumen:driveBackup:seq:v1";
-
-function driveFilesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_FILES_KEY_PREFIX}:${pid}` : `${DRIVE_FILES_KEY_PREFIX}:guest`;
-}
-
-function driveLocalNamesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_LOCAL_NAMES_KEY_PREFIX}:${pid}` : `${DRIVE_LOCAL_NAMES_KEY_PREFIX}:guest`;
-}
-
-function driveBackupSeqKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:guest`;
-}
-
-function nextDriveBackupSeq(profileId: string): number {
-  const key = driveBackupSeqKey(profileId);
-  const current = Number.parseInt(String(localStorage.getItem(key) || "0"), 10);
-  const base = Number.isFinite(current) && current >= 0 ? current : 0;
-  const next = base + 1;
-  try {
-    localStorage.setItem(key, String(next));
-  } catch {}
-  return next;
 }
 
 function activeDriveProfileId(): string {
@@ -1708,16 +1677,7 @@ function onWebviewIpcMessage(ev: any) {
 }
 
 async function installChromeWebStoreExtension(input: string) {
-  try {
-    const api = useInternalLumen()?.extensions;
-    if (!api || typeof api.installFromChromeWebStore !== "function") return;
-    const result = await api.installFromChromeWebStore(input);
-    if (!result || result.ok === false) {
-      console.warn("[ipfs-webview][extensions] install from store failed:", result?.error || "unknown_error");
-    }
-  } catch (error: any) {
-    console.warn("[ipfs-webview][extensions] install from store failed:", error?.message || error || "unknown_error");
-  }
+  await installExtensionFromChromeWebStore(input, "ipfs-webview");
 }
 
 function isHtmlLikePath(pathValue: string): boolean {
@@ -2030,10 +1990,9 @@ function upsertDriveSavedFile(cid: string, name: string) {
   if (!key || !nextName) return;
 
   const pid = activeDriveProfileId();
-  const storageKey = driveFilesStorageKey(pid);
-  try {
-    const stored = localStorage.getItem(storageKey);
-    const parsed = stored ? JSON.parse(stored) : [];
+  const storageKey = driveFilesKey(pid);
+  {
+    const parsed = readJson<unknown>(storageKey, []);
     const base = Array.isArray(parsed) ? (parsed as any[]) : [];
     const filtered = base.filter((f) => String(f?.cid || "").trim() !== key);
     const next: DriveSavedFile = {
@@ -2042,11 +2001,8 @@ function upsertDriveSavedFile(cid: string, name: string) {
       size: 0,
       uploadedAt: Date.now(),
     };
-    const out = [next, ...filtered].slice(0, 500);
-    localStorage.setItem(storageKey, JSON.stringify(out));
+    writeJson(storageKey, [next, ...filtered].slice(0, 500));
     nextDriveBackupSeq(pid);
-  } catch {
-    // ignore
   }
 }
 
@@ -2055,16 +2011,12 @@ function setDriveSavedName(cid: string, name: string) {
   const nextName = String(name || "").trim();
   if (!key || !nextName) return;
   const pid = activeDriveProfileId();
-  const storageKey = driveLocalNamesStorageKey(pid);
-  try {
-    const stored = localStorage.getItem(storageKey);
-    const parsed = stored ? JSON.parse(stored) : {};
+  const storageKey = driveLocalNamesKey(pid);
+  {
+    const parsed = readJson<unknown>(storageKey, {});
     const base = parsed && typeof parsed === "object" ? parsed : {};
-    const next = { ...base, [key]: nextName };
-    localStorage.setItem(storageKey, JSON.stringify(next));
+    writeJson(storageKey, { ...base, [key]: nextName });
     nextDriveBackupSeq(pid);
-  } catch {
-    // ignore
   }
 }
 
@@ -2243,12 +2195,7 @@ async function refreshSavedState() {
 }
 
 function formatSize(bytes: number): string {
-  if (!bytes) return "-";
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  if (bytes < 1024 * 1024 * 1024)
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+  return formatBytes(bytes, { empty: "-" });
 }
 
 async function download() {

@@ -42,7 +42,7 @@ export function isBrowserUrl(raw: string): boolean {
   return isHttpUrl(raw) || isFileUrl(raw) || isExtensionUrl(raw);
 }
 
-export function normalizeWindowsPathToFileUrl(raw: string): string | null {
+function normalizeWindowsPathToFileUrl(raw: string): string | null {
   const value = String(raw || "").trim();
   if (!value) return null;
 

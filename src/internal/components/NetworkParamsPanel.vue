@@ -71,6 +71,7 @@ import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { useToast } from '../../composables/useToast';
+import { copyToClipboard } from '../../composables/useClipboard';
 import {
   ChevronDown,
   ChevronRight,
@@ -265,25 +266,9 @@ async function refreshAll() {
   await Promise.all(sections.value.map((s) => loadSection(s)));
 }
 
-async function copyText(text: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch {
-    const el = document.createElement('textarea');
-    el.value = text;
-    el.style.position = 'fixed';
-    el.style.left = '-9999px';
-    document.body.appendChild(el);
-    el.focus();
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-  }
-}
-
 async function copySection(s: ParamSection) {
   if (!s.data) return;
-  await copyText(pretty(s.data));
+  await copyToClipboard(pretty(s.data));
   showToast(`Copied ${s.title}`);
 }
 
@@ -294,7 +279,7 @@ const allJson = computed(() => {
 });
 
 async function copyAll() {
-  await copyText(pretty(allJson.value));
+  await copyToClipboard(pretty(allJson.value));
   showToast('Copied all params');
 }
 

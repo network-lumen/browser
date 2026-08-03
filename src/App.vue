@@ -23,6 +23,7 @@ import { useTheme } from './composables/useTheme';
 import { FATAL_ERROR_MAP, checkLumenAPIReferences } from './internal/common/fatal_errors';
 import { useInternalLumen } from './composables/useInternalLumen';
 import type { Stage } from './types/app';
+import { STORAGE_KEYS, readString } from './internal/services/storage';
 
 // Initialize theme
 const { initTheme } = useTheme();
@@ -37,7 +38,7 @@ const fatalError = ref<Error | null>(null);
 
 
 // Initialize font size
-const savedFontSize = localStorage.getItem('lumen-font-size') || 'medium';
+const savedFontSize = readString(STORAGE_KEYS.fontSize) || 'medium';
 document.documentElement.setAttribute('data-font-size', savedFontSize);
 
 const params = new URLSearchParams(window.location.search);

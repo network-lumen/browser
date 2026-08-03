@@ -71,7 +71,7 @@ function getSecuritySessionTimeoutOption(value: SecuritySessionTimeoutMs) {
   );
 }
 
-export function getSecuritySessionTimeoutDurationText(value: SecuritySessionTimeoutMs): string {
+function getSecuritySessionTimeoutDurationText(value: SecuritySessionTimeoutMs): string {
   return getSecuritySessionTimeoutOption(value).durationText;
 }
 

@@ -120,29 +120,6 @@ export async function clearProfileAvatar(
   }
 }
 
-export async function exportProfile(id: string): Promise<string | null> {
-  try {
-    const api = getApi();
-    if (!api) return null;
-    return await api.export(id);
-  } catch {
-    return null;
-  }
-}
-
-export async function importProfile(json: string): Promise<Profile | null> {
-  try {
-    const api = getApi();
-    if (!api) return null;
-    const imported = await api.import(json);
-    if (!imported) return null;
-    await initProfiles();
-    return imported;
-  } catch {
-    return null;
-  }
-}
-
 export async function deleteProfile(id: string): Promise<{ ok: boolean; error?: string }> {
   try {
     const api = getApi();
@@ -187,17 +164,6 @@ export async function exportProfilesBackup(ids: string[]): Promise<{
     return res;
   } catch {
     return { ok: false, error: 'backup_failed' };
-  }
-}
-
-export async function importProfileFromBackup(): Promise<Profile | null> {
-  try {
-    const res = await importProfilesFromBackup();
-    if (!res.ok) return null;
-    const id = res.selectedId || activeProfileId.value || profilesState.value[0]?.id || '';
-    return profilesState.value.find((p) => p.id === id) || null;
-  } catch {
-    return null;
   }
 }
 
@@ -286,17 +252,6 @@ export async function getFavourites(): Promise<Record<string, string>> {
     return (await api.getFavourites()) || {};
   } catch {
     return {};
-  }
-}
-
-export async function addFavourite(domain: string, cid: string): Promise<boolean> {
-  try {
-    const api = getApi();
-    if (!api || !api.setFavourite) return false;
-    const res = await api.setFavourite(domain, cid);
-    return !!res?.ok;
-  } catch {
-    return false;
   }
 }
 

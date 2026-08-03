@@ -2,11 +2,11 @@ import { activeProfileId } from "../profilesStore";
 import { checkIpfsStatus } from "./ipfs";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import type { UploadActivity, UploadPathResult, DriveFile } from "../../types/upload";
+import { driveFilesKey, driveLocalNamesKey } from "../services/driveStorage";
+import { readJson, writeJson } from "../services/storage";
 
 const api: any = useInternalLumen();
 const uploadActivities: UploadActivity = {};
-const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
-const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
 let localNames: Record<string, string> = {};
 const uploadControllers: Record<string, AbortController> = {};
 
@@ -14,9 +14,7 @@ let files = [] as DriveFile[];
 
 function loadFiles() {
     const pid = String(activeProfileId.value || "").trim();
-    const key = `${STORAGE_KEY_PREFIX}:${pid}`;
-    const stored = localStorage.getItem(key);
-    files = stored ? JSON.parse(stored) : [];
+    files = readJson<DriveFile[]>(driveFilesKey(pid), []);
 }
 
 api.ipfsOnAddProgress((p: any) => {
@@ -40,11 +38,8 @@ api.ipfsOnAddProgress((p: any) => {
 function loadLocalNames() {
     localNames = {};
     const pid = String(activeProfileId.value || "").trim();
-    if (!pid) return;
-    const stored = localStorage.getItem(`${LOCAL_NAMES_KEY_PREFIX}:${pid}`);
-    const storedParsed = stored ? JSON.parse(stored) : null;
-    const storedNames = storedParsed && typeof storedParsed === "object" ? (storedParsed as Record<string, string>) : {};
-    localNames = storedNames;
+    const storedParsed = readJson<unknown>(driveLocalNamesKey(pid), null);
+    localNames = storedParsed && typeof storedParsed === "object" ? (storedParsed as Record<string, string>) : {};
 }
 
 async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir"): Promise<UploadPathResult> {
@@ -89,8 +84,7 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         const pid = String(activeProfileId.value || "").trim();
         if (!pid) 
           throw new Error("No active profile found");
-        const key = `${LOCAL_NAMES_KEY_PREFIX}:${pid}`;
-        localStorage.setItem(key, JSON.stringify(localNames));
+        writeJson(driveLocalNamesKey(pid), localNames);
 
         loadFiles();
         const filtered = files.filter(
@@ -104,7 +98,7 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
             type: fileType,
         };
         files = [dirFile, ...filtered];
-        localStorage.setItem(`${STORAGE_KEY_PREFIX}:${pid}`, JSON.stringify(files));
+        writeJson(driveFilesKey(pid), files);
         return { ok: true, cid, rootName: name, rootPath, totalBytes };
     } catch (err: any) {
         console.error(err);

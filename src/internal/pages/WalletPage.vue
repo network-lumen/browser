@@ -934,6 +934,8 @@ import QrScanner from '../../components/QrScanner.vue';
 import SubscriptionsView from '../../components/SubscriptionsView.vue';
 import { parseWalletConnectUri } from '../services/walletconnect';
 import { getRecurringPaymentsService } from '../services/recurringPayments';
+import { formatDenom as formatDenomValue, truncateMiddle } from '../services/format';
+import { STORAGE_KEYS, readString, writeJson } from '../services/storage';
 import { useToast } from '../../composables/useToast';
 import type {
   SendTargetMode,
@@ -1116,7 +1118,7 @@ const dexLastLoadedAt = ref(0);
 const DEX_REFRESH_TTL_MS = 60_000;
 const denomTraceCache = new Map<string, { baseDenom: string; path: string } | null>();
 const chainRegistryCache = new Map<string, Promise<{ chain: any | null; assets: any[] }>>();
-const CHAIN_REGISTRY_CACHE_STORAGE_KEY = 'lumen_chain_registry_cache_v2';
+const CHAIN_REGISTRY_CACHE_STORAGE_KEY = STORAGE_KEYS.chainRegistryCache;
 const CHAIN_REGISTRY_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 // QR Scanner
@@ -2207,24 +2209,11 @@ function formatLmnAmount(value: number): string {
 }
 
 function formatDenom(denom: string): string {
-  // Convert micro denoms to display format
-  // ulmn -> LMN, ulumen -> LUMEN, etc.
-  if (!denom) return '';
-  const lower = denom.toLowerCase();
-  if (lower === 'ulmn') return 'LMN';
-  if (lower === 'ulumen') return 'LUMEN';
-  if (lower.startsWith('u')) {
-    // Generic micro denom: utoken -> TOKEN
-    return denom.slice(1).toUpperCase();
-  }
-  return denom.toUpperCase();
+  return formatDenomValue(denom, { uppercaseFallback: true });
 }
 
 function shortenAddress(value: string, start = 10, end = 8): string {
-  const raw = String(value || '').trim();
-  if (!raw) return '-';
-  if (raw.length <= start + end + 1) return raw;
-  return `${raw.slice(0, start)}…${raw.slice(-end)}`;
+  return truncateMiddle(value, { start, end, separator: '…', empty: '-' });
 }
 
 function trimTrailingSlash(value: string): string {
@@ -2779,7 +2768,7 @@ async function fetchAbsoluteJson(url: string, timeout = 15000): Promise<any> {
 
 function readChainRegistryStorageCache(): Record<string, { updatedAt: number; chain: any | null; assets: any[] }> {
   try {
-    const raw = localStorage.getItem(CHAIN_REGISTRY_CACHE_STORAGE_KEY);
+    const raw = readString(CHAIN_REGISTRY_CACHE_STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return {};
@@ -2793,7 +2782,7 @@ function writeChainRegistryStorageCache(
   next: Record<string, { updatedAt: number; chain: any | null; assets: any[] }>
 ) {
   try {
-    localStorage.setItem(CHAIN_REGISTRY_CACHE_STORAGE_KEY, JSON.stringify(next));
+    writeJson(CHAIN_REGISTRY_CACHE_STORAGE_KEY, next);
   } catch {
     // Ignore storage quota or serialization errors.
   }

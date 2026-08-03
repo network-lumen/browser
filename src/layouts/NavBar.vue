@@ -550,6 +550,7 @@ import {
   createProfile,
   deleteProfile,
   initProfiles,
+  exportProfileBackup,
   importProfilesFromBackup,
   importProfileManually,
   pickManualProfileSource,
@@ -1006,26 +1007,24 @@ async function confirmExportProfile() {
     // encryptOutput is true when user explicitly wants to encrypt the backup file
     const encryptOutput = exportEncrypted.value;
 
-    const api = useInternalLumen()?.profiles;
-    if (!api || typeof api.exportBackup !== 'function') {
-      exportError.value = 'Export API not available';
-      return;
-    }
+    const res = await exportProfileBackup(id, password, encryptOutput);
 
-    const res = await api.exportBackup(id, password, encryptOutput);
-
-    if (!res || res.ok === false) {
+    if (!res.ok) {
       // Handle specific error messages
-      if (res?.error === 'invalid_password') {
+      if (res.error === 'invalid_password') {
         exportError.value = 'Incorrect password. Please try again.';
         return;
       }
-      if (res?.error === 'password_required_for_export') {
+      if (res.error === 'password_required_for_export') {
         exportError.value = 'Password is required to decrypt wallet data.';
         exportRequiresPassword.value = true;
         return;
       }
-      exportError.value = res?.error || 'Backup export failed.';
+      if (res.error === 'backup_api_unavailable') {
+        exportError.value = 'Export API not available';
+        return;
+      }
+      exportError.value = res.error || 'Backup export failed.';
       return;
     }
     

@@ -44,6 +44,13 @@
  import { buildExtensionTabUrl, isBrowserUrl, isExtensionUrl } from "../navigationUrl";
  import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import {
+  findExtensionByRuntimeId as findExtensionInList,
+  getRuntimeIdFromExtensionUrl,
+  installExtensionFromChromeWebStore,
+  isChromeWebStoreUrl,
+  listInstalledExtensions
+} from '../services/extensions';
 
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
@@ -74,46 +81,15 @@ function isAllowedNewTabUrl(raw: string): boolean {
   return isBrowserUrl(s) || /^lumen:\/\//i.test(s);
 }
 
-function isChromeWebStoreUrl(raw: string): boolean {
-  try {
-    const url = new URL(String(raw || '').trim());
-    const host = String(url.hostname || '').trim().toLowerCase();
-    return host === 'chromewebstore.google.com' || host.endsWith('.chromewebstore.google.com');
-  } catch {
-    return false;
-  }
-}
-
 const isChromeWebStorePage = computed(() => isChromeWebStoreUrl(currentBrowserUrl.value));
 
 async function refreshInstalledExtensions() {
-  try {
-    const api = useInternalLumen()?.extensions;
-    if (!api || typeof api.listExtensions !== "function") return;
-    const result = await api.listExtensions();
-    if (!result || result.ok === false) return;
-    installedExtensions.value = Array.isArray(result.extensions) ? result.extensions : [];
-  } catch {
-    // ignore
-  }
-}
-
-function getRuntimeIdFromExtensionUrl(rawUrl: string): string {
-  try {
-    return String(new URL(String(rawUrl || "").trim()).hostname || "").trim();
-  } catch {
-    return "";
-  }
+  const entries = await listInstalledExtensions();
+  if (entries) installedExtensions.value = entries;
 }
 
 function findExtensionByRuntimeId(runtimeId: string): any | null {
-  const target = String(runtimeId || "").trim();
-  if (!target) return null;
-  return (
-    installedExtensions.value.find(
-      (entry: any) => String(entry?.runtimeId || "").trim() === target,
-    ) || null
-  );
+  return findExtensionInList(installedExtensions.value, runtimeId);
 }
 
 async function resolveAppTargetUrl(rawUrl: string): Promise<string> {
@@ -211,16 +187,7 @@ function onIpcMessage(ev: any) {
 }
 
 async function installChromeWebStoreExtension(input: string) {
-  try {
-    const api = useInternalLumen()?.extensions;
-    if (!api || typeof api.installFromChromeWebStore !== "function") return;
-    const result = await api.installFromChromeWebStore(input);
-    if (!result || result.ok === false) {
-      console.warn("[webview][extensions] install from store failed:", result?.error || "unknown_error");
-    }
-  } catch (error: any) {
-    console.warn("[webview][extensions] install from store failed:", error?.message || error || "unknown_error");
-  }
+  await installExtensionFromChromeWebStore(input, "webview");
 }
 
 const currentBrowserUrl = computed(() => {

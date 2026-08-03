@@ -9,11 +9,10 @@ import {
   isLumenUrl,
 } from "./navigationUrl";
 import type { HistoryEntry, HistorySettings, HistoryMap, HistorySettingsMap } from "../types/history";
+import { STORAGE_KEYS, readJson, writeJson } from "./services/storage";
 
 export type { HistoryEntry, HistorySettings };
 
-const HISTORY_KEY = "lumen:history:v1";
-const SETTINGS_KEY = "lumen:history:settings:v1";
 const MAX_HISTORY_ENTRIES = 500;
 const MERGE_WINDOW_MS = 90_000;
 const CID_V0_RE = /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/;
@@ -233,32 +232,24 @@ function normalizeSettingsState(raw: unknown): HistorySettingsMap {
 }
 
 function loadHistoryState(): HistoryMap {
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    return raw ? normalizeHistoryState(JSON.parse(raw)) : {};
-  } catch {
-    return {};
-  }
+  const raw = readJson<unknown>(STORAGE_KEYS.history, null);
+  return raw ? normalizeHistoryState(raw) : {};
 }
 
 function loadSettingsState(): HistorySettingsMap {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    return raw ? normalizeSettingsState(JSON.parse(raw)) : {};
-  } catch {
-    return {};
-  }
+  const raw = readJson<unknown>(STORAGE_KEYS.historySettings, null);
+  return raw ? normalizeSettingsState(raw) : {};
 }
 
 const historyData = ref<HistoryMap>(loadHistoryState());
 const settingsData = ref<HistorySettingsMap>(loadSettingsState());
 
 function saveHistory() {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(historyData.value));
+  writeJson(STORAGE_KEYS.history, historyData.value);
 }
 
 function saveSettings() {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settingsData.value));
+  writeJson(STORAGE_KEYS.historySettings, settingsData.value);
 }
 
 function enqueueMutation<T>(task: () => Promise<T> | T): Promise<T> {
@@ -426,23 +417,6 @@ queueMicrotask(() => {
     void ensurePreferredCidUrls(profileId);
   }
 });
-
-export function getHistoryEntriesForProfile(profileId: string): HistoryEntry[] {
-  return listEntries(profileId).map((entry) => ({ ...entry }));
-}
-
-export function setHistoryEntriesForProfile(profileId: string, entries: HistoryEntry[]) {
-  setEntries(profileId, entries);
-  void ensurePreferredCidUrls(profileKey(profileId));
-}
-
-export function getHistorySettingsForProfile(profileId: string): HistorySettings {
-  return { ...getSettings(profileId) };
-}
-
-export function setHistorySettingsForProfile(profileId: string, settings: Partial<HistorySettings>) {
-  setSettings(profileId, settings);
-}
 
 export async function normalizeHistoryUrlForComparison(rawUrl: string): Promise<string> {
   return normalizePreferredHistoryUrl(rawUrl);

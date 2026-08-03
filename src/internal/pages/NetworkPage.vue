@@ -838,6 +838,7 @@ import BlockDetailPage from './BlockDetailPage.vue';
 import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
+import { formatNumber, truncateMiddle } from '../services/format';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, Info, ExternalLink, CirclePlus, CircleAlert, CircleCheckBig, Activity, Network, SlidersHorizontal, Vote, FileText, Plus, ThumbsUp, ThumbsDown, Circle, X } from 'lucide-vue-next';
@@ -1610,13 +1611,6 @@ function performSearch() {
   }
 }
 
-function formatNumber(num: number | null | undefined): string {
-  if (num == null) return '—';
-  const n = Number(num);
-  if (!Number.isFinite(n)) return '—';
-  return new Intl.NumberFormat().format(n);
-}
-
 function formatTimeAgo(timestamp: string): string {
   const diff = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
   if (diff < 0) return 'just now';
@@ -1627,15 +1621,11 @@ function formatTimeAgo(timestamp: string): string {
 }
 
 function shortenHash(hash: string): string {
-  if (!hash) return '';
-  if (hash.length <= 24) return hash;
-  return `${hash.substring(0, 20)}...${hash.substring(hash.length - 10)}`;
+  return truncateMiddle(hash, { start: 20, end: 10 });
 }
 
 function shortenAddress(address: string): string {
-  if (!address) return '';
-  if (address.length <= 20) return address;
-  return `${address.substring(0, 12)}...${address.substring(address.length - 8)}`;
+  return truncateMiddle(address, { start: 12, end: 8 });
 }
 
 function formatVotingPower(tokens: string): string {

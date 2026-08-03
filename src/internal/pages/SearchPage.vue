@@ -475,6 +475,7 @@ import {
 } from "lucide-vue-next";
 import { localIpfsGatewayBase } from "../services/contentResolver";
 import { appSettingsState } from "../services/appSettings";
+import { clamp01 } from "../services/coerce";
 import { useToast } from "../../composables/useToast";
 import {
   getThumbSafetyService,
@@ -3167,14 +3168,6 @@ function isExactDomainMatch(query: string, domain: string): boolean {
   if (q + ".lmn" === d) return true;
   if (d.endsWith(".lmn") && d.slice(0, -".lmn".length) === q) return true;
   return false;
-}
-
-function clamp01(value: any): number {
-  const v = Number(value);
-  if (!Number.isFinite(v)) return 0;
-  if (v <= 0) return 0;
-  if (v >= 1) return 1;
-  return v;
 }
 
 function mergeBadges(a: string[] = [], b: string[] = [], limit = 20): string[] {

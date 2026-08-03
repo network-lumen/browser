@@ -94,6 +94,7 @@ import { Clock } from 'lucide-vue-next';
 import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { formatDateTime, formatDenom, formatNumber as formatNumberValue } from '../services/format';
 
 const loading = ref(true);
 const error = ref('');
@@ -122,20 +123,11 @@ function navigateToBlock(height: number) {
 }
 
 function formatNumber(num: number | string): string {
-  if (!num) return '0';
-  return Number(num).toLocaleString();
+  return formatNumberValue(num, { empty: '0' });
 }
 
 function formatTime(timestamp: string): string {
-  const date = new Date(timestamp);
-  return date.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
+  return formatDateTime(timestamp, { intl: { second: '2-digit' } });
 }
 
 async function loadTransactionData() {
@@ -215,14 +207,6 @@ async function loadTransactionData() {
   }
 }
 
-function formatDenom(denom: string): string {
-  if (!denom) return '';
-  const lower = String(denom).toLowerCase();
-  if (lower === 'ulmn') return 'LMN';
-  if (lower === 'ulumen') return 'LUMEN';
-  if (lower.startsWith('u')) return lower.slice(1).toUpperCase();
-  return denom;
-}
 
 function formatFeeAmount(coins: any): string {
   if (!Array.isArray(coins) || !coins.length) return '0 LMN';

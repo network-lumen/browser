@@ -310,6 +310,8 @@ import { addToast } from '../../stores/toastStore';
 import { getActiveProfile } from '../profilesStore';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { formatBytes as formatBytesValue, formatDateTime } from '../services/format';
+import { safeString } from '../services/coerce';
 import type { ReleaseParams, ArtifactRecord, ReleaseRecord, ArtifactDraft, DaoKind } from '../../types/releasePage';
 
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
@@ -377,12 +379,6 @@ function parseSupersedes(value: string) {
     .map((n) => Number(n))
     .filter((n) => Number.isFinite(n) && n > 0)
     .map((n) => Math.trunc(n));
-}
-
-function safeString(v: any, maxLen = 4096) {
-  const s = String(v ?? '').trim();
-  if (!s) return '';
-  return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
 
 function normalizeStatus(value: any): string {
@@ -960,23 +956,11 @@ function artifactSummary(r: ReleaseRecord) {
 }
 
 function formatDate(value: number) {
-  if (!value) return '-';
-  const ms = value < 1e12 ? value * 1000 : value;
-  const d = new Date(ms);
-  if (Number.isNaN(d.getTime())) return '-';
-  return d.toLocaleString();
+  return formatDateTime(value, { empty: '-' });
 }
 
 function formatBytes(bytes: number) {
-  if (!Number.isFinite(bytes) || bytes <= 0) return '-';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let idx = 0;
-  let v = bytes;
-  while (v >= 1024 && idx < units.length - 1) {
-    v /= 1024;
-    idx += 1;
-  }
-  return `${v.toFixed(idx === 0 ? 0 : 2)} ${units[idx]}`;
+  return formatBytesValue(bytes, { decimals: 2, empty: '-' });
 }
 
 function shortAddr(addr?: string) {

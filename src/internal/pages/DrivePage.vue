@@ -1364,6 +1364,18 @@ import {
   loadWhitelistedGatewayBases,
 } from "../services/contentResolver";
 import { profilesState, activeProfileId } from "../profilesStore";
+import { formatBytes, formatDateTime } from "../services/format";
+import { copyToClipboard } from "../../composables/useClipboard";
+import { STORAGE_KEYS, readJson, readString, removeKey, writeJson, writeString } from "../services/storage";
+import {
+  bumpDriveBackupSeq,
+  driveBackupLastExportAtKey,
+  driveBackupLastImportAtKey,
+  driveFilesKey,
+  driveLocalNamesKey,
+  nextDriveBackupSeq,
+  readDriveBackupSeq
+} from "../services/driveStorage";
 import {
   useFavourites,
   setFavouritesForProfile,
@@ -1396,11 +1408,11 @@ const stats = ref<IpfsStats | null>(null);
 const hosting = ref<HostingState>({ kind: "local", gatewayId: "" });
 
 // Search and Pagination
-const ITEMS_PER_PAGE_KEY = "lumen:drive:itemsPerPage:v1";
+const ITEMS_PER_PAGE_KEY = STORAGE_KEYS.driveItemsPerPage;
 const ALLOWED_ITEMS_PER_PAGE = [10, 20, 50, 100];
 
 function loadItemsPerPage(): number {
-  const stored = Number(localStorage.getItem(ITEMS_PER_PAGE_KEY));
+  const stored = Number(readString(ITEMS_PER_PAGE_KEY));
   return ALLOWED_ITEMS_PER_PAGE.includes(stored) ? stored : 20;
 }
 
@@ -1409,7 +1421,7 @@ const currentPage = ref(1);
 const itemsPerPage = ref(loadItemsPerPage());
 
 watch(itemsPerPage, (next) => {
-  localStorage.setItem(ITEMS_PER_PAGE_KEY, String(next));
+  writeString(ITEMS_PER_PAGE_KEY, String(next));
 });
 
 const uploading = ref(false);
@@ -1531,25 +1543,6 @@ const activeProfileDisplay = computed(
 
 const { favourites } = useFavourites();
 
-const LEGACY_LOCAL_NAMES_KEY = "lumen_drive_saved_names";
-const STORAGE_KEY_PREFIX = "lumen:drive:files:v1";
-const LOCAL_NAMES_KEY_PREFIX = "lumen:drive:names:v1";
-const HLS_QUEUE_KEY_PREFIX = "lumen:drive:hlsQueue:v1";
-
-function filesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${STORAGE_KEY_PREFIX}:${pid}` : `${STORAGE_KEY_PREFIX}:guest`;
-}
-
-function localNamesStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${LOCAL_NAMES_KEY_PREFIX}:${pid}` : `${LOCAL_NAMES_KEY_PREFIX}:guest`;
-}
-
-function hlsQueueStorageKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${HLS_QUEUE_KEY_PREFIX}:${pid}` : `${HLS_QUEUE_KEY_PREFIX}:guest`;
-}
 const localNames = ref<Record<string, string>>({});
 const renameDraft = ref("");
 const imagePreviewUrls = ref<Record<string, string>>({});
@@ -3687,45 +3680,29 @@ function removeOptimisticGatewayPinnedCid(cid: string) {
 function loadFiles() {
   files.value = [];
   const pid = String(activeProfileId.value || "").trim();
-  const key = filesStorageKey(pid);
-  if (!key) return;
-  try {
-    const stored = localStorage.getItem(key);
-    const storedParsed = stored ? JSON.parse(stored) : null;
-    const storedFiles = Array.isArray(storedParsed) ? (storedParsed as DriveFile[]) : [];
-    files.value = storedFiles;
-  } catch {
-    files.value = [];
-  }
+  const storedParsed = readJson<unknown>(driveFilesKey(pid), null);
+  files.value = Array.isArray(storedParsed) ? (storedParsed as DriveFile[]) : [];
 }
 
 function saveFiles() {
-  try {
-    const pid = String(activeProfileId.value || "").trim();
-    const key = filesStorageKey(pid);
-    if (!key) return;
-    localStorage.setItem(key, JSON.stringify(files.value));
-    nextDriveBackupSeq(pid);
-  } catch {
-    // ignore
-  }
+  const pid = String(activeProfileId.value || "").trim();
+  writeJson(driveFilesKey(pid), files.value);
+  nextDriveBackupSeq(pid);
 }
 
 function loadLocalNames() {
   localNames.value = {};
   const pid = String(activeProfileId.value || "").trim();
-  const key = localNamesStorageKey(pid);
-  if (!key) return;
+  const key = driveLocalNamesKey(pid);
   try {
-    const stored = localStorage.getItem(key);
-    const storedParsed = stored ? JSON.parse(stored) : null;
+    const storedParsed = readJson<unknown>(key, null);
     const storedNames =
       storedParsed && typeof storedParsed === "object"
         ? (storedParsed as Record<string, string>)
         : {};
 
     // One-shot migrate legacy global key to per-profile storage, then delete legacy.
-    const legacy = localStorage.getItem(LEGACY_LOCAL_NAMES_KEY);
+    const legacy = readString(STORAGE_KEYS.driveLocalNamesLegacy);
     if (legacy) {
       const legacyParsed = JSON.parse(legacy);
       const legacyNames =
@@ -3735,11 +3712,9 @@ function loadLocalNames() {
 
       // Prefer the current per-profile names over legacy for conflicts.
       localNames.value = { ...legacyNames, ...storedNames };
-        try {
-          localStorage.setItem(key, JSON.stringify(localNames.value));
-          localStorage.removeItem(LEGACY_LOCAL_NAMES_KEY);
-        } catch {}
-        return;
+      writeJson(key, localNames.value);
+      removeKey(STORAGE_KEYS.driveLocalNamesLegacy);
+      return;
     }
 
     localNames.value = storedNames;
@@ -3749,34 +3724,9 @@ function loadLocalNames() {
 }
 
 function saveLocalNames() {
-  try {
-    const pid = String(activeProfileId.value || "").trim();
-    const key = localNamesStorageKey(pid);
-    if (!key) return;
-    localStorage.setItem(key, JSON.stringify(localNames.value));
-    nextDriveBackupSeq(pid);
-  } catch {
-    // ignore
-  }
-}
-
-const DRIVE_BACKUP_SEQ_KEY_PREFIX = "lumen:driveBackup:seq:v1";
-const DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastExportAt:v1";
-const DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX = "lumen:driveBackup:lastImportAt:v1";
-
-function driveBackupSeqKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_SEQ_KEY_PREFIX}:guest`;
-}
-
-function driveBackupLastExportAtKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_LAST_EXPORT_AT_KEY_PREFIX}:guest`;
-}
-
-function driveBackupLastImportAtKey(profileId: string): string {
-  const pid = String(profileId || "").trim();
-  return pid ? `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:${pid}` : `${DRIVE_BACKUP_LAST_IMPORT_AT_KEY_PREFIX}:guest`;
+  const pid = String(activeProfileId.value || "").trim();
+  writeJson(driveLocalNamesKey(pid), localNames.value);
+  nextDriveBackupSeq(pid);
 }
 
 function activeWalletAddress(): string {
@@ -3785,37 +3735,10 @@ function activeWalletAddress(): string {
   return String(addr || "").trim();
 }
 
-function nextDriveBackupSeq(profileId: string): number {
-  const key = driveBackupSeqKey(profileId);
-  if (!key) return 0;
-  const current = Number.parseInt(String(localStorage.getItem(key) || "0"), 10);
-  const base = Number.isFinite(current) && current >= 0 ? current : 0;
-  const next = base + 1;
-  try {
-    localStorage.setItem(key, String(next));
-  } catch {}
-  return next;
-}
-
-function bumpDriveBackupSeq(profileId: string, nextSeq: number) {
-  const key = driveBackupSeqKey(profileId);
-  if (!key) return;
-  const current = Number.parseInt(String(localStorage.getItem(key) || "0"), 10);
-  const base = Number.isFinite(current) && current >= 0 ? current : 0;
-  const next = Number.isFinite(nextSeq) && nextSeq > base ? Math.floor(nextSeq) : base;
-  try {
-    localStorage.setItem(key, String(next));
-  } catch {}
-}
-
 function getCurrentDriveBackupSeq(profileId: string): number {
   const pid = String(profileId || "").trim();
   if (!pid) return 0;
-  const key = driveBackupSeqKey(pid);
-  if (!key) return 0;
-  const raw = localStorage.getItem(key);
-  const v = raw ? Number.parseInt(raw, 10) : NaN;
-  return Number.isFinite(v) && v > 0 ? v : 0;
+  return readDriveBackupSeq(pid);
 }
 
 function loadDriveBackupMeta() {
@@ -3832,8 +3755,8 @@ function loadDriveBackupMeta() {
     driveBackupLastImportAt.value = null;
     return;
   }
-  const exportAtRaw = localStorage.getItem(exportKey);
-  const importAtRaw = localStorage.getItem(importKey);
+  const exportAtRaw = readString(exportKey);
+  const importAtRaw = readString(importKey);
   const exportAt = exportAtRaw ? Number.parseInt(exportAtRaw, 10) : NaN;
   const importAt = importAtRaw ? Number.parseInt(importAtRaw, 10) : NaN;
   driveBackupLastExportAt.value = Number.isFinite(exportAt) ? exportAt : null;
@@ -3844,10 +3767,7 @@ function setDriveBackupMeta(kind: "export" | "import", ts: number) {
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) return;
   const key = kind === "export" ? driveBackupLastExportAtKey(pid) : driveBackupLastImportAtKey(pid);
-  if (!key) return;
-  try {
-    localStorage.setItem(key, String(ts));
-  } catch {}
+  writeString(key, String(ts));
   if (kind === "export") driveBackupLastExportAt.value = ts;
   else driveBackupLastImportAt.value = ts;
 }
@@ -4345,11 +4265,10 @@ function persistHlsQueue(
   items: HlsQueueItem[] = hlsQueue.value,
   profileId: string = hlsQueueProfileId.value,
 ) {
-  try {
-    const key = hlsQueueStorageKey(profileId);
-    if (!key) return;
+  {
+    const key = driveHlsQueueKey(profileId);
     if (!items.length) {
-      localStorage.removeItem(key);
+      removeKey(key);
       return;
     }
     const payload = items.map((item) => ({
@@ -4358,9 +4277,7 @@ function persistHlsQueue(
       status: item.status,
       error: item.status === "failed" || item.status === "cancelled" ? item.error : undefined,
     }));
-    localStorage.setItem(key, JSON.stringify(payload));
-  } catch {
-    // ignore
+    writeJson(key, payload);
   }
 }
 
@@ -4369,15 +4286,9 @@ function loadHlsQueue(profileId: string = String(activeProfileId.value || "").tr
   hlsQueuePauseRequested.value = false;
   convertingPauseRequested.value = false;
 
-  const key = hlsQueueStorageKey(hlsQueueProfileId.value);
-  if (!key) {
-    hlsQueue.value = [];
-    return;
-  }
+  const parsed = readJson<unknown>(driveHlsQueueKey(hlsQueueProfileId.value), null);
 
   try {
-    const stored = localStorage.getItem(key);
-    const parsed = stored ? JSON.parse(stored) : null;
     const items = Array.isArray(parsed) ? parsed : [];
     const restored: HlsQueueItem[] = [];
 
@@ -4972,17 +4883,9 @@ function lumenLinkFor(file: DriveFile): string {
   return `lumen://ipfs/${encoded}${isDir ? "/" : ""}`;
 }
 
-async function copyText(text: string) {
-  try {
-    lumen_api.clipboardWriteText(text);
-  } catch(err) {
-    console.error(err)
-  }
-}
-
 async function copyLumenLinkFor(file: DriveFile) {
   const url = lumenLinkFor(file);
-  await copyText(url);
+  await copyToClipboard(url);
   showToast("Link copied!", "success");
 }
 
@@ -5855,22 +5758,11 @@ function getFileIcon(file: DriveFile | null | undefined) {
 }
 
 function formatSize(bytes: number): string {
-  if (!bytes) return "—";
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  if (bytes < 1024 * 1024 * 1024)
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+  return formatBytes(bytes);
 }
 
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatDateTime(ts);
 }
 
 function showToast(msg: string, type: "success" | "error" = "success") {
