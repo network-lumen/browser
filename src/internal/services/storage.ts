@@ -48,7 +48,9 @@ export const STORAGE_KEYS = {
 
   // Misc
   thumbSafetyCache: 'lumen-search-thumb-safety-v1.2',
-  releaseSnoozeUntil: 'lumen:release:snoozeUntil'
+  releaseSnoozeUntil: 'lumen:release:snoozeUntil',
+  /** Finished activity entries kept so the panel survives a restart. */
+  activityHistory: 'lumen:activity:history:v1'
 } as const;
 
 /** Profile-less sessions get their own bucket rather than an empty suffix. */
