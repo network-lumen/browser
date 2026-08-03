@@ -42,9 +42,5 @@ export function removeToast(id: string) {
   }
 }
 
-export function clearToasts() {
-  toasts.value = [];
-}
-
 // Export readonly ref for components to consume
 export const toastList = readonly(toasts) as Ref<readonly Toast[]>;

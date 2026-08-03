@@ -1,4 +1,4 @@
-import { toastList, addToast, removeToast, clearToasts, type ToastType, type Toast } from '../stores/toastStore';
+import { addToast, type ToastType, type Toast } from '../stores/toastStore';
 import type { ToastOptions } from '../types/toast';
 
 export { type ToastType, type Toast };
@@ -27,13 +27,10 @@ export function useToast() {
   };
 
   return {
-    toasts: toastList,
     success,
     error,
     warning,
     info,
     fromResult,
-    removeToast,
-    clearToasts,
   };
 }
