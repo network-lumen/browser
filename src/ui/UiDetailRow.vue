@@ -14,7 +14,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Variant } from '../types/uiDetailRow';
 
 const props = withDefaults(defineProps<{
   label: string;
@@ -28,7 +27,7 @@ const props = withDefaults(defineProps<{
    * modal: DrivePage's info-modal rows (Local/Gateway details, backup
    * summaries) - bordered divider between rows, 14px/15px text.
    */
-  variant?: Variant;
+  variant?: 'grid' | 'flex' | 'compact' | 'baseline' | 'modal';
   /** Override for the value's color/weight/font class. */
   valueClass?: string;
   /** Extra classes appended to the label (e.g. flex-shrink-0 when the value wraps). */
