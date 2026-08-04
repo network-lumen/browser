@@ -166,6 +166,16 @@ function isChromeWebStoreUrl(href = currentHref()) {
 function isIpfsGatewayUrl(href) {
   try {
     const u = new URL(String(href || ''));
+
+    // A domain site is served by the app's own lumen:// handler, which only
+    // ever answers for a domain SitePage registered (see site_protocol.cjs).
+    // Being at such an address is therefore itself the proof that this is a
+    // Lumen site; the identity behind it is settled host-side by
+    // senderSiteContext, which never trusts anything the page says.
+    if (String(u.protocol || '').toLowerCase() === 'lumen:') {
+      return !!String(u.hostname || '').trim();
+    }
+
     const p = String(u.pathname || '/');
     if (p === '/ipfs' || p.startsWith('/ipfs/') || p === '/ipns' || p.startsWith('/ipns/')) return true;
 
@@ -178,13 +188,13 @@ function isIpfsGatewayUrl(href) {
 }
 
 /**
- * Throws if the current page is not an `/ipfs/*` or `/ipns/*` page. Every
- * `window.lumen` action function calls this first — it is the boundary that
- * keeps the API off arbitrary pages.
+ * Throws unless the current page is IPFS-served content or a domain site on
+ * the `lumen://` scheme. Every `window.lumen` action function calls this
+ * first — it is the boundary that keeps the API off arbitrary pages.
  */
 function ensureLumenSite() {
   if (!isIpfsGatewayUrl(currentHref())) {
-    throw new Error('window.lumen is only available on /ipfs/* or /ipns/* pages.');
+    throw new Error('window.lumen is only available on lumen:// sites and /ipfs/* or /ipns/* pages.');
   }
 }
 

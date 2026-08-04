@@ -635,7 +635,8 @@ describe('window.lumen preload API', () => {
   // -- security boundary ---------------------------------------------------
 
   describe('site gating (ensureLumenSite)', () => {
-    const NOT_AVAILABLE = 'window.lumen is only available on /ipfs/* or /ipns/* pages.';
+    const NOT_AVAILABLE =
+      'window.lumen is only available on lumen:// sites and /ipfs/* or /ipns/* pages.';
 
     const cases: [string, (lumen: any) => Promise<any>][] = [
       ['Pin', (l) => l.Pin('bafy')],
@@ -660,6 +661,25 @@ describe('window.lumen preload API', () => {
       ['dns.getDomainPrice', (l) => l.dns.getDomainPrice('monsite.lmn')],
       ['dns.getDomainInfos', (l) => l.dns.getDomainInfos('monsite.lmn')]
     ];
+
+    it('keeps the API available on a lumen:// domain site', async () => {
+      const lumen = await loadLumen();
+      // Domain sites are served by the app's own lumen:// handler, which only
+      // answers for registered domains - so being here is the proof. This
+      // regressed once already: the API was gated to gateway URLs only, and
+      // every call on a domain site silently returned the gating error.
+      (globalThis.window as any).location.href = 'lumen://monsite.lmn/';
+      queueInvoke('lumenSite:getSiteDomain', { value: 'monsite.lmn' });
+      const result = await lumen.getSiteDomain();
+      expect(result).not.toEqual({ ok: false, error: NOT_AVAILABLE });
+    });
+
+    it('still refuses a lumen: url with no host', async () => {
+      const lumen = await loadLumen();
+      (globalThis.window as any).location.href = 'lumen://';
+      const result = await lumen.getSiteDomain();
+      expect(result).toEqual({ ok: false, error: NOT_AVAILABLE });
+    });
 
     it.each(cases)('%s rejects with the site-gating error off /ipfs//ipns pages', async (_name, call) => {
       const lumen = await loadLumen();
