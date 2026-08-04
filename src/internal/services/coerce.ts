@@ -31,6 +31,19 @@ export function clamp01(value: unknown): number {
   return n;
 }
 
+/**
+ * Hex-encodes raw bytes, two lowercase digits per byte.
+ *
+ * Used for digests, so the two call sites disagreed on case: Tendermint tx
+ * hashes are uppercase, the thumbnail cache keys are lowercase.
+ */
+export function bytesToHex(data: ArrayBuffer | Uint8Array, uppercase = false): string {
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  let out = '';
+  for (let i = 0; i < bytes.length; i += 1) out += bytes[i]!.toString(16).padStart(2, '0');
+  return uppercase ? out.toUpperCase() : out;
+}
+
 /** UTF-8 decodes a `Uint8Array`/byte array; passes strings through unchanged. */
 export function bytesToText(data: unknown): string {
   if (typeof data === 'string') return data;

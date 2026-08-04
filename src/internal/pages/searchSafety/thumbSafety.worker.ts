@@ -3,7 +3,7 @@ import type {
   ThumbSafetyResultMsg,
   ThumbSafetyErrorMsg,
 } from "../../../types/searchSafety";
-import { clamp01 } from "../../services/coerce";
+import { bytesToHex, clamp01 } from "../../services/coerce";
 
 const SIZE = 224;
 
@@ -11,13 +11,6 @@ function sigmoid(x: number): number {
   if (x > 20) return 1;
   if (x < -20) return 0;
   return 1 / (1 + Math.exp(-x));
-}
-
-function bytesToHex(buf: ArrayBuffer): string {
-  const b = new Uint8Array(buf);
-  let out = "";
-  for (let i = 0; i < b.length; i++) out += b[i]!.toString(16).padStart(2, "0");
-  return out;
 }
 
 // The buffer type is spelled out because `ImageData.data.buffer` is typed as
