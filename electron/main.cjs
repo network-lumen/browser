@@ -139,6 +139,7 @@ const { startIpfsCache, invalidateIpnsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
 const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateway-server.cjs');
+const { startSiteHostServer, registerSiteHost, getSiteHostStatus } = require('./site_host_server.cjs');
 const { registerHttpIpc, registerExtensionNetworkRequestGuard } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
@@ -323,6 +324,25 @@ function deriveSiteKeyFromHref(href) {
 // content has no route to this channel) registers its own webContents id -> host here so
 // senderSiteContext can report the domain identity instead.
 const siteDomainByWebContentsId = new Map();
+
+/**
+ * Points a Lumen domain at the ipfs/ipns target currently behind it, so the
+ * local site-host server can serve it under a stable <domain>.localhost origin.
+ * Resolution stays in SitePage - this only records the outcome.
+ */
+ipcMain.handle('siteHost:register', async (_evt, host, target) => {
+  try {
+    return registerSiteHost(safeString(host, 256), {
+      proto: safeString(target?.proto, 16),
+      id: safeString(target?.id, 512),
+      basePath: safeString(target?.basePath, 1024)
+    });
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+});
+
+ipcMain.handle('siteHost:status', async () => getSiteHostStatus());
 
 ipcMain.on('site:registerDomainTarget', (_evt, targetWebContentsId, host) => {
   const id = Number(targetWebContentsId);
@@ -2172,6 +2192,8 @@ app.whenReady().then(async () => {
 
   console.log('[electron] app ready, booting IPFS and main window');
   startIpfsDaemon();
+  // Stable per-domain origins for site storage - see site_host_server.cjs.
+  void startSiteHostServer();
   startIpfsSeedBootstrapper();
   void prefetchPublicIpfsGateways().catch(() => {});
 

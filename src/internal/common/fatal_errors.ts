@@ -52,7 +52,7 @@ const REQUIRED_NAMESPACES: Record<string, string[]> = {
     'openActive', 'registerSiteTarget', 'unregisterSiteTarget'
   ],
   site: [
-    'registerDomainTarget', 'unregisterDomainTarget'
+    'registerDomainTarget', 'unregisterDomainTarget', 'registerHost', 'hostStatus'
   ],
   siteData: [
     'list', 'delete'
