@@ -27,6 +27,11 @@ export interface RecurringPayment {
   updatedAt: Date;
 }
 
+/** Outcome of a user-confirmed reminder payment. */
+export type ReminderPaymentResult =
+  | { ok: true; txHash?: string }
+  | { ok: false; error: string; locked?: boolean };
+
 export interface PaymentHistory {
   id: string;
   recurringPaymentId: string;
