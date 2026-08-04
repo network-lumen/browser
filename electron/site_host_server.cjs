@@ -23,11 +23,13 @@
 // senderSiteContext. This server only ever consults that registry, so there is
 // one resolution path in the app, not two.
 const http = require('node:http');
-const { getSettings } = require('./settings.cjs');
+const { getSettings, setSettings } = require('./settings.cjs');
 
-/** First port tried; the next few are used if it is busy. */
-const BASE_PORT = 8091;
-const PORT_ATTEMPTS = 8;
+/** Used only until a port has been pinned in settings. */
+const DEFAULT_PORT = 8091;
+/** A port can be held for a moment by an instance that is still shutting down. */
+const BIND_RETRIES = 4;
+const BIND_RETRY_DELAY_MS = 300;
 /** Loopback only. Binding 0.0.0.0 would expose an IPFS proxy to the LAN. */
 const BIND_HOST = '127.0.0.1';
 
@@ -36,6 +38,27 @@ const registry = new Map();
 
 let server = null;
 let activePort = 0;
+
+/** The pinned port, or the default until one has been recorded. */
+function pinnedPort() {
+  try {
+    const value = Number(getSettings()?.siteHostPort);
+    if (Number.isInteger(value) && value >= 1024 && value <= 65535) return value;
+  } catch {
+    // fall through
+  }
+  return DEFAULT_PORT;
+}
+
+/** Records the port so it survives a change of the built-in default. */
+function rememberPort(port) {
+  try {
+    if (Number(getSettings()?.siteHostPort) === port) return;
+    setSettings({ siteHostPort: port });
+  } catch {
+    // A settings write failure only means we retry the same default next boot.
+  }
+}
 
 function gatewayBase() {
   try {
@@ -180,21 +203,39 @@ function listenOn(port) {
   });
 }
 
-/** Idempotent. Returns the port it settled on, or 0 if every candidate was busy. */
+/**
+ * Idempotent. Binds the pinned port and only that port.
+ *
+ * The port is part of the origin a domain site is served from, so moving to a
+ * different one would look to the browser like a different site and hand it an
+ * empty IndexedDB. Falling back to a neighbouring port would therefore quietly
+ * orphan exactly the data this server exists to protect. If the port cannot be
+ * taken, we serve nothing: SitePage keeps using the gateway URL for this run,
+ * and whatever the site stored stays where it is, readable again as soon as the
+ * port is free.
+ */
 async function startSiteHostServer() {
   if (server) return activePort;
-  for (let i = 0; i < PORT_ATTEMPTS; i += 1) {
-    const port = BASE_PORT + i;
-    // eslint-disable-next-line no-await-in-loop -- ports are tried in order on purpose
+
+  const port = pinnedPort();
+  for (let attempt = 0; attempt < BIND_RETRIES; attempt += 1) {
+    // eslint-disable-next-line no-await-in-loop -- retries are sequential by nature
     const started = await listenOn(port);
     if (started) {
       server = started;
       activePort = port;
+      rememberPort(port);
       console.log(`[electron][site-host] listening on http://${BIND_HOST}:${port} (*.localhost)`);
       return port;
     }
+    // eslint-disable-next-line no-await-in-loop -- deliberate backoff between attempts
+    await new Promise((resolve) => setTimeout(resolve, BIND_RETRY_DELAY_MS));
   }
-  console.warn('[electron][site-host] could not bind any port; domain sites keep the CID origin');
+
+  console.warn(
+    `[electron][site-host] port ${port} is busy; domain sites fall back to the CID origin this run ` +
+      '(their stored data is not lost, just unreachable until the port frees up)'
+  );
   return 0;
 }
 
