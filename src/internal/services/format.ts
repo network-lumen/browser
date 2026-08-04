@@ -164,7 +164,7 @@ export function formatBytes(
 
 /**
  * Elides the middle of a long identifier (address, hash, CID), e.g.
- * `lumen1abc...x9f2`. Values already short enough to gain nothing are returned
+ * `lmn1abc...x9f2`. Values already short enough to gain nothing are returned
  * untouched.
  */
 export function truncateMiddle(value: string, options: TruncateMiddleOptions = {}): string {

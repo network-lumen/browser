@@ -371,7 +371,7 @@
                 <label class="color-text-secondary block mb-4px text-13px">New Owner Address</label>
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                   v-model="transferForm.newOwner"
-                  placeholder="lumen1..." class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                  placeholder="lmn1..." class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
                 <p class="text-12px color-text-tertiary mt-8px">Enter the Lumen address of the new owner</p>
               </div>
 

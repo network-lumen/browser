@@ -42,7 +42,7 @@
               <input
                 v-model="form.recipient"
                 type="text"
-                placeholder="lumen1..."
+                placeholder="lmn1..."
                 class="flex-1 bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary"
               />
               <UiButton variant="primary" @click="$emit('scan-address')"
