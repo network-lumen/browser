@@ -93,6 +93,9 @@ contextBridge.exposeInMainWorld('lumen', {
      *  prompts triggered from inside it (Pin/Send/etc.) report the domain instead of the
      *  resolved ipfs:/ipns: gateway URL the webview actually navigated to. */
     registerDomainTarget: (targetWebContentsId, host) => ipcRenderer.send('site:registerDomainTarget', targetWebContentsId, host),
+    /** Registers the domain -> ipfs/ipns mapping the local site-host server serves from. */
+    registerHost: (host, target) => ipcRenderer.invoke('siteHost:register', host, target),
+    hostStatus: () => ipcRenderer.invoke('siteHost:status'),
     unregisterDomainTarget: (targetWebContentsId) => ipcRenderer.send('site:unregisterDomainTarget', targetWebContentsId)
   },
   settingsGetAll: () => ipcRenderer.invoke('settings:getAll'),
