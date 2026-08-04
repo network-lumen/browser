@@ -160,7 +160,7 @@ function detectQRType(data: string): string {
   }
   
   // Address detection (simple heuristic - adjust based on your address format)
-  if (/^[a-zA-Z0-9]{32,}$/.test(data) || data.startsWith('lumen1') || data.startsWith('cosmos1')) {
+  if (/^[a-zA-Z0-9]{32,}$/.test(data) || data.startsWith('lmn1') || data.startsWith('cosmos1')) {
     return 'Wallet Address';
   }
   

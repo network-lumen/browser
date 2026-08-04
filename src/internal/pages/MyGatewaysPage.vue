@@ -254,7 +254,7 @@
       <UiModal :model-value="showWhitelistModal" :title="editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist'" panel-class="max-w-500px w-90pct" @update:model-value="closeWhitelistModal">
               <UiFormField class="mb-20px" label="Wallet Address" label-class="block fw-500 color-text-secondary text-14px">
                 <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.address"
-                  placeholder="lumen1..."
+                  placeholder="lmn1..."
                   :disabled="!!editingWhitelistEntry" class="focus-outline-none focus-ring-blue" />
               </UiFormField>
 
