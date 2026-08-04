@@ -932,7 +932,7 @@ import QRCode from 'qrcode';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import QrScanner from '../../components/QrScanner.vue';
 import SubscriptionsView from '../../components/SubscriptionsView.vue';
-import { getRecurringPaymentsService } from '../services/recurringPayments';
+import { payReminder } from '../services/paymentReminders';
 import { formatDenom as formatDenomValue, truncateMiddle } from '../services/format';
 import { STORAGE_KEYS, readString, writeJson } from '../services/storage';
 import { useToast } from '../../composables/useToast';
@@ -1126,7 +1126,6 @@ const qrScannerTitle = ref('Scan QR Code');
 
 // Recurring Payments
 const subscriptionsRef = ref<any>(null);
-const recurringPaymentsService = getRecurringPaymentsService();
 const pendingPostTxRefreshTimers = ref<number[]>([]);
 
 const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
@@ -2069,59 +2068,13 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
 
 // Recurring Payments
 async function executeRecurringPayment(paymentId: string) {
-  const payment = recurringPaymentsService.getRecurringPayment(paymentId);
-  if (!payment) {
-    showToast('Payment not found', 'error');
-    return;
-  }
-
-  const walletApi = useInternalLumen()?.wallet;
-  if (!walletApi || typeof walletApi.sendTokens !== 'function') {
-    showToast('Wallet bridge not available', 'error');
-    return;
-  }
-
-  const activeId = activeProfileId.value;
-  if (!activeId) {
-    showToast('No active profile selected', 'error');
-    return;
-  }
-
-  if (!address.value) {
-    showToast('No sender address available', 'error');
-    return;
-  }
-
-  const sendParams: any = {
-    profileId: activeId,
-    from: address.value,
-    to: payment.recipient,
-    amount: payment.amount,
-    denom: 'ulmn',
-    memo: `Recurring: ${payment.name}`
-  };
-
-  try {
-    const res = await walletApi.sendTokens(sendParams);
-
-    if (!res || res.ok === false) {
-      const err = String(res?.error || 'Transaction failed');
-      if (err === 'password_required' || err === 'invalid_password') {
-        try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
-        showToast('Wallet locked. Unlock to continue.', 'warning');
-        return;
-      }
-      showToast(`Failed to execute recurring payment: ${err}`, 'error');
-      return;
-    }
-
-    const result = { success: true, txHash: res.txhash };
-    showToast('Recurring payment executed successfully', 'success');
+  const result = await payReminder(paymentId);
+  if (result.ok) {
+    showToast(`Reminder paid`, 'success');
     schedulePostTransactionRefresh({ includeSubscriptions: true });
-    await recurringPaymentsService.executePayment(paymentId, async () => result);
-  } catch (e: any) {
-    showToast(`Failed to execute recurring payment: ${e?.message || 'Unexpected error'}`, 'error');
+    return;
   }
+  showToast(result.error, result.locked ? 'warning' : 'error');
 }
 
 function validateAmountInput(event: Event) {

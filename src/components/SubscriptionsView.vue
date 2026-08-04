@@ -112,6 +112,11 @@
           </div>
 
           <div class="flex gap-8px pt-16px border-top-1">
+            <UiButton variant="primary" v-if="payment.status === 'active' && isDue(payment)"
+              @click="payNow(payment)"
+              title="Send this payment now">
+              <span>Pay now</span>
+            </UiButton>
             <UiButton variant="secondary" @click="viewHistory(payment)"
               title="View History">
               <History :size="16" />
@@ -346,6 +351,18 @@ function viewHistory(payment: RecurringPayment) {
 function dismissReminder(id: string) {
   service.dismissReminder(id);
   loadData();
+}
+
+/** A reminder whose date has passed can be sent from here. */
+function isDue(payment: RecurringPayment): boolean {
+  return new Date(payment.nextPaymentDate).getTime() <= Date.now();
+}
+
+function payNow(payment: RecurringPayment) {
+  const amount = formatAmount(payment.amount);
+  const recipient = formatAddress(payment.recipient);
+  if (!window.confirm(`Send ${amount} LMN to ${recipient} for "${payment.name}"?`)) return;
+  emit('execute-payment', payment.id);
 }
 
 function closeModal() {
