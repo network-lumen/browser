@@ -200,7 +200,6 @@ addPinJobListener((payload) => {
 
 const LUMEN_SESSION_PARTITION = 'persist:lumen';
 const LUMEN_SESSION_PRELOAD_ID = 'lumen-extension-preload';
-const LUMEN_SESSION_SW_PRELOAD_ID = 'lumen-extension-service-worker-preload';
 
 function describeSessionPartition(ses) {
   try {
@@ -246,7 +245,7 @@ function registerLumenSessionPreload() {
   try {
     if (typeof ses.unregisterPreloadScript === 'function') {
       for (const script of listSessionPreloadScripts(ses)) {
-        if (script.id === LUMEN_SESSION_PRELOAD_ID || script.id === LUMEN_SESSION_SW_PRELOAD_ID) {
+        if (script.id === LUMEN_SESSION_PRELOAD_ID) {
           try {
             ses.unregisterPreloadScript(script.id);
           } catch {}

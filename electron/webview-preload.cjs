@@ -2268,10 +2268,14 @@ const lumen = {
 // fills in gaps with the local shim below.
 //
 // NOTE: an equivalent shim also exists in `extension-preload.cjs` (top-level
-// extension pages) and `extension-service-worker-preload.cjs` (MV3 service
-// workers) — those two contexts can't share this module verbatim because
-// they don't run inside a webview guest, but any behavioral fix made here
-// (e.g. to `runtime.sendMessage` retry logic) should be mirrored there too.
+// extension pages), which can't share this module verbatim because it does
+// not run inside a webview guest — any behavioral fix made here (e.g. to
+// `runtime.sendMessage` retry logic) should be mirrored there too.
+//
+// MV3 service workers are handled differently: extensions/manager.cjs rewrites
+// the extension manifest so background.service_worker points at a shim it
+// generates in buildExtensionBackgroundShimSource() and writes into the
+// extension folder, which then imports the original worker.
 // ============================================================================
 
 function createMinimalBrowserApi() {
