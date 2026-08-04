@@ -139,7 +139,15 @@ const { startIpfsCache, invalidateIpnsCache } = require('./ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
 const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateway-server.cjs');
-const { startSiteHostServer, registerSiteHost, getSiteHostStatus } = require('./site_host_server.cjs');
+const {
+  registerSiteSchemePrivileges,
+  installSiteProtocol,
+  registerSiteHost,
+  getSiteHostStatus
+} = require('./site_protocol.cjs');
+
+// Has to happen before app 'ready', which is why it sits at module scope.
+registerSiteSchemePrivileges();
 const { registerHttpIpc, registerExtensionNetworkRequestGuard } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
 const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
@@ -2192,8 +2200,8 @@ app.whenReady().then(async () => {
 
   console.log('[electron] app ready, booting IPFS and main window');
   startIpfsDaemon();
-  // Stable per-domain origins for site storage - see site_host_server.cjs.
-  void startSiteHostServer();
+  // Stable per-domain origins for site storage - see site_protocol.cjs.
+  installSiteProtocol(session.fromPartition(LUMEN_SESSION_PARTITION));
   startIpfsSeedBootstrapper();
   void prefetchPublicIpfsGateways().catch(() => {});
 

@@ -436,12 +436,11 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
 
     if (!resolvedUrl) throw new Error("No source could serve this content.");
 
-    // Prefer the local site-host origin (<domain>.localhost:<port>) over the
-    // gateway URL: the gateway host carries the CID, so the site would lose all
-    // of its browser storage on every republish. Registering is what keeps that
-    // origin pointing at the current target. If the server did not start, fall
-    // back to the gateway URL - the page still works, it just gets the old,
-    // CID-scoped storage.
+    // Prefer the lumen://<domain> origin over the gateway URL: the gateway host
+    // carries the CID, so the site would lose all of its browser storage on
+    // every republish. Registering is what keeps that origin pointing at the
+    // current target. If registration fails, fall back to the gateway URL - the
+    // page still works, it just gets the old, CID-scoped storage.
     try {
       const registered = await useInternalLumen()?.site?.registerHost?.(host, target);
       if (registered?.ok && registered.origin) {
