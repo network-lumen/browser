@@ -4,7 +4,7 @@
     <div v-if="activeReminders.length > 0" class="border-radius-12px p-20px mb-24px bg-warning-a15">
       <h3 class="flex-align-center gap-8px color-text-primary text-16px m-0px mb-16px">
         <Bell :size="18" />
-        <span>Upcoming Payments</span>
+        <span>Due soon</span>
       </h3>
       <div class="flex flex-column gap-12px">
         <div
@@ -42,7 +42,7 @@
     <!-- Payments List -->
     <UiCard radius="12px" border-class="border-1" padding="lg" :shadow="false">
       <div class="flex-align-center-justify-space-between mb-24px">
-        <h3 class="color-text-primary m-0px text-18px">Your Recurring Payments</h3>
+        <h3 class="color-text-primary m-0px text-18px">Your reminders</h3>
         <div class="flex gap-12px">
           <select v-model="filterStatus" class="bg-primary color-text-primary cursor-pointer text-14px border-1 border-radius-6px py-8px px-12px">
             <option value="all">All Status</option>
@@ -62,12 +62,12 @@
       </div>
 
       <!-- Empty State -->
-      <UiEmptyState v-if="filteredPayments.length === 0" title="No Recurring Payments" description="Schedule automatic payments for subscriptions, bills, and more">
+      <UiEmptyState v-if="filteredPayments.length === 0" title="No payment reminders" description="Keep track of subscriptions, bills and regular transfers. Lumen reminds you when one is due - it does not send it for you.">
         <Calendar :size="48" />
         <template #actions>
           <UiButton variant="primary" @click="showCreateModal = true" class="outline-none">
             <Plus :size="16" />
-            <span>Create Your First Payment</span>
+            <span>Create your first reminder</span>
           </UiButton>
         </template>
       </UiEmptyState>
@@ -106,16 +106,9 @@
           </div>
 
           <div class="mb-16px">
-            <UiDetailRow variant="compact" label="Next Payment:" :value="formatDate(payment.nextPaymentDate)" />
+            <UiDetailRow variant="compact" label="Next due:" :value="formatDate(payment.nextPaymentDate)" />
             <UiDetailRow variant="compact" label="Recipient:" :value="formatAddress(payment.recipient)" value-class="color-text-primary mono text-12px fw-500" />
-            <UiDetailRow variant="compact" label="Success Rate:">
-              <span class="color-text-primary fw-500">
-                {{ payment.totalPayments > 0
-                  ? Math.round((payment.successfulPayments / payment.totalPayments) * 100)
-                  : 0 }}%
-                ({{ payment.successfulPayments }}/{{ payment.totalPayments }})
-              </span>
-            </UiDetailRow>
+            <UiDetailRow variant="compact" label="Sent so far:" :value="String(payment.successfulPayments)" />
           </div>
 
           <div class="flex gap-8px pt-16px border-top-1">
@@ -300,7 +293,7 @@ function savePayment(data: any) {
         ...data,
         nextPaymentDate,
       });
-      emit('toast', 'Payment updated successfully', 'success');
+      emit('toast', 'Reminder updated', 'success');
     } else {
       const nextPaymentDate = service.calculateNextPaymentDate(
         data.startDate,
@@ -312,7 +305,7 @@ function savePayment(data: any) {
         lastPaymentDate: undefined,
         status: 'active',
       });
-      emit('toast', 'Payment scheduled successfully', 'success');
+      emit('toast', 'Reminder saved', 'success');
     }
     loadData();
     closeModal();
@@ -328,20 +321,20 @@ function editPayment(payment: RecurringPayment) {
 function pausePayment(id: string) {
   service.pauseRecurringPayment(id);
   loadData();
-  emit('toast', 'Payment paused', 'success');
+  emit('toast', 'Reminder paused', 'success');
 }
 
 function resumePayment(id: string) {
   service.resumeRecurringPayment(id);
   loadData();
-  emit('toast', 'Payment resumed', 'success');
+  emit('toast', 'Reminder resumed', 'success');
 }
 
 function confirmDelete(payment: RecurringPayment) {
   if (confirm(`Are you sure you want to delete "${payment.name}"?`)) {
     service.deleteRecurringPayment(payment.id);
     loadData();
-    emit('toast', 'Payment deleted', 'success');
+    emit('toast', 'Reminder deleted', 'success');
   }
 }
 

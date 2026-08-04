@@ -3,7 +3,7 @@
     <template #header>
       <h2 class="flex-align-center m-0px color-text-primary text-20px txt-weight-light gap-12px">
         <Calendar :size="24" />
-        <span>{{ isEditing ? 'Edit Recurring Payment' : 'Schedule Recurring Payment' }}</span>
+        <span>{{ isEditing ? 'Edit reminder' : 'New payment reminder' }}</span>
       </h2>
     </template>
         <!-- Basic Information -->

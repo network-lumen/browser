@@ -1415,16 +1415,6 @@ ipcMain.handle('gatewayServer:getAllMetadata', async () => {
   }
 });
 
-ipcMain.handle('gatewayServer:deleteMetadata', async (_evt, address) => {
-  try {
-    const deleted = deleteUserMetadata(address);
-    return { ok: true, deleted };
-  } catch (e) {
-    console.error('[electron][ipc] gatewayServer:deleteMetadata error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
 ipcMain.handle('lumenSite:getLocalGatewayBase', async () => {
   const s = getSettings();
   return safeString(s && s.localGatewayBase ? s.localGatewayBase : '', 1024);
