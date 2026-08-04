@@ -36,7 +36,7 @@ function isExtensionTabUrl(rawUrl: string): boolean {
 
 function currentUrl(): string {
   const tab = tabState.value;
-  const fallback = tab?.url || "lumen://home";
+  const fallback = tab?.url || "lumen://newtab";
   const history = Array.isArray(tab?.history) ? tab.history : [];
   const rawPos =
     typeof tab?.history_position === "number"
@@ -144,7 +144,7 @@ function navigateInternal(url: string, opts: { push?: boolean } = {}) {
 }
 
 function componentForTab(t: Tab) {
-  const url = t.url || "lumen://home";
+  const url = t.url || "lumen://newtab";
   return resolveInternalComponent(url);
 }
 

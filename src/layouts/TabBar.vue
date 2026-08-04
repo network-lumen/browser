@@ -91,14 +91,14 @@ watch(
 
 function currentUrl(): string {
   const t = activeTab.value;
-  if (!t) return "lumen://home";
+  if (!t) return "lumen://newtab";
 
   // 🔥 PRIORITAS: draft dulu
   if (t.draftUrl !== undefined) {
     return t.draftUrl;
   }
 
-  const fallback = t.url || "lumen://home";
+  const fallback = t.url || "lumen://newtab";
   const history = Array.isArray(t.history) ? t.history : [];
 
   const rawPos =
@@ -152,7 +152,7 @@ function navigateInternal(url: string, opts: { push?: boolean } = {}) {
 function onGotoFromNavbar(url: string) {
   const target = normalizeTabUrl(url);
   const tab = activeTab.value;
-  const current = tab?.url ? normalizeTabUrl(tab.url) : "lumen://home";
+  const current = tab?.url ? normalizeTabUrl(tab.url) : "lumen://newtab";
 
   // If the user targets the same route as the current one, do not push history.
   if (current === target) {
@@ -170,7 +170,7 @@ function onRefresh() {
   const history = tab.history || [];
   const pos = tab.history_position ?? history.length - 1;
   const entry = history[pos] || history[history.length - 1];
-  const target = entry?.url || tab.url || "lumen://home";
+  const target = entry?.url || tab.url || "lumen://newtab";
   navigateInternal(target, { push: false });
 }
 
