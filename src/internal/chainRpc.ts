@@ -1,3 +1,5 @@
+import { bytesToHex } from './services/coerce';
+
 /** SHA-256 hash (uppercase hex) of a raw base64-encoded Tendermint tx, matching the on-chain tx hash format. */
 export async function computeTxHash(txDataBase64: string): Promise<string> {
   try {
@@ -8,8 +10,7 @@ export async function computeTxHash(txDataBase64: string): Promise<string> {
     }
 
     const hashBuffer = await crypto.subtle.digest('SHA-256', bytes);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    return bytesToHex(hashBuffer, true);
   } catch (e) {
     console.error('Failed to hash tx:', e);
     return '0000000000000000000000000000000000000000000000000000000000000000';
