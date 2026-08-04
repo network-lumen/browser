@@ -3299,6 +3299,17 @@ function handleLumenLinkClick(ev) {
     const href = webview_utils.safeString((typeof a.getAttribute === 'function' ? a.getAttribute('href') : '') || a.href || '', 4096);
     if (!webview_utils.isLumenUrl(href)) return;
 
+    // A domain site is itself served from lumen://<domain>, so its own absolute
+    // links are lumen URLs too. Those must navigate the page normally - handing
+    // them to the host would bounce every in-site click through app routing and
+    // push a history entry for it.
+    try {
+      const origin = String(location.origin || '');
+      if (origin && origin !== 'null' && href.toLowerCase().startsWith(origin.toLowerCase() + '/')) return;
+    } catch {
+      // no location to compare against; fall through and let the host decide
+    }
+
     const target = webview_utils.safeString((typeof a.getAttribute === 'function' ? a.getAttribute('target') : '') || a.target || '', 64).toLowerCase();
     const openInNewTab = target === '_blank';
 
