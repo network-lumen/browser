@@ -16,6 +16,10 @@ const VALID_SECURITY_SESSION_TIMEOUTS = new Set([
 
 const DEFAULT_SETTINGS = Object.freeze({
   localGatewayBase: 'http://127.0.0.1:8088',
+  // Port of the local site-host server. Pinned once and reused forever: it is
+  // part of the origin domain sites are served from, so changing it resets
+  // their stored data.
+  siteHostPort: 8091,
   ipfsApiBase: 'http://127.0.0.1:5001',
   ipfsConnectivityMode: 'normal',
   localDriveMaxUploadSizeGb: DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
@@ -131,6 +135,7 @@ function getSettings() {
   const disk = loadSettingsFromDisk();
   const settings = {
     localGatewayBase: normalizeBaseUrl(disk.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase),
+    siteHostPort: normalizeSiteHostPort(disk.siteHostPort),
     ipfsApiBase: normalizeBaseUrl(disk.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase),
     ipfsConnectivityMode: normalizeIpfsConnectivityMode(
       Object.prototype.hasOwnProperty.call(disk, 'ipfsConnectivityMode')
@@ -174,6 +179,13 @@ function broadcastSettingsChanged(settings) {
   }
 }
 
+/** A usable TCP port, or the default. Anything else would silently orphan site storage. */
+function normalizeSiteHostPort(value) {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 1024 || n > 65535) return DEFAULT_SETTINGS.siteHostPort;
+  return n;
+}
+
 function setSettings(partial) {
   const current = getSettings();
   const p = partial && typeof partial === 'object' ? partial : {};
@@ -183,6 +195,11 @@ function setSettings(partial) {
     const r = tryNormalizeBaseUrl(p.localGatewayBase);
     if (!r.ok) return { ok: false, error: 'invalid_localGatewayBase' };
     next.localGatewayBase = r.value;
+  }
+  if (Object.prototype.hasOwnProperty.call(p, 'siteHostPort')) {
+    const port = Number(p.siteHostPort);
+    if (!Number.isInteger(port) || port < 1024 || port > 65535) return { ok: false, error: 'invalid_siteHostPort' };
+    next.siteHostPort = port;
   }
   if (Object.prototype.hasOwnProperty.call(p, 'ipfsApiBase')) {
     const r = tryNormalizeBaseUrl(p.ipfsApiBase);
