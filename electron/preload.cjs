@@ -132,7 +132,6 @@ contextBridge.exposeInMainWorld('lumen', {
   // Gateway metadata
   gatewayServerSaveMetadata: (address, metadata) => ipcRenderer.invoke('gatewayServer:saveMetadata', address, metadata),
   gatewayServerGetAllMetadata: () => ipcRenderer.invoke('gatewayServer:getAllMetadata'),
-  gatewayServerDeleteMetadata: (address) => ipcRenderer.invoke('gatewayServer:deleteMetadata', address),
   dialogOpenFiles: (options) => ipcRenderer.invoke('dialog:openFiles', options || {}),
   dialogOpenFolder: (options) => ipcRenderer.invoke('dialog:openFolder', options || {}),
   ipfsStatus: () => ipcRenderer.invoke('ipfs:status'),

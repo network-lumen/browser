@@ -23,7 +23,7 @@
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'recurring'" @click="currentView = 'recurring'">
             <Calendar :size="18" />
-            <span>Recurring</span>
+            <span>Reminders</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'addressbook'" @click="currentView = 'addressbook'">
             <Users :size="18" />
@@ -932,7 +932,6 @@ import QRCode from 'qrcode';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import QrScanner from '../../components/QrScanner.vue';
 import SubscriptionsView from '../../components/SubscriptionsView.vue';
-import { parseWalletConnectUri } from '../services/walletconnect';
 import { getRecurringPaymentsService } from '../services/recurringPayments';
 import { formatDenom as formatDenomValue, truncateMiddle } from '../services/format';
 import { STORAGE_KEYS, readString, writeJson } from '../services/storage';
@@ -1753,7 +1752,7 @@ function getViewTitle(): string {
     dex: 'DEX',
     transactions: 'Transactions',
     addressbook: 'Address Book',
-    recurring: 'Recurring Payments'
+    recurring: 'Payment Reminders'
   };
   return titles[currentView.value] || 'Wallet';
 }
@@ -2011,9 +2010,9 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
   
   const { type, content, raw } = data;
   
-  // Handle WalletConnect
+  // WalletConnect is not supported: say so rather than pretending to pair.
   if (type === 'walletconnect' || raw.startsWith('wc:')) {
-    handleWalletConnectUri(raw);
+    showToast('WalletConnect is not supported yet', 'warning');
     return;
   }
   
@@ -2058,35 +2057,15 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
     return;
   }
   
-  // Handle URL (maybe for WalletConnect or other integrations)
+  // A plain URL in a QR code has no wallet action attached to it.
   if (type === 'url') {
-    showToast('URL scanned. Feature integration coming soon.', 'success');
+    showToast('This QR code holds a link, not a wallet action', 'warning');
     return;
   }
   
   showToast('QR code scanned', 'success');
 }
 
-async function handleWalletConnectUri(uri: string) {
-  try {
-    const parsedUri = parseWalletConnectUri(uri);
-    if (!parsedUri) {
-      showToast('Invalid WalletConnect URI', 'error');
-      return;
-    }
-
-    showToast(`WalletConnect v${parsedUri.version} detected`, 'success');
-    
-    // TODO: Show WalletConnect connection dialog
-    // const wcService = getWalletConnectService();
-    // await wcService.connect(uri);
-    
-    showToast('WalletConnect integration coming soon!', 'success');
-  } catch (error: any) {
-    console.error('WalletConnect error:', error);
-    showToast(error.message || 'Failed to connect via WalletConnect', 'error');
-  }
-}
 
 // Recurring Payments
 async function executeRecurringPayment(paymentId: string) {

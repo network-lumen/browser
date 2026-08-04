@@ -22,7 +22,7 @@ const REQUIRED_FUNCTIONS: string[] = [
   'settingsLoadGateways', 'settingsAddGateway', 'settingsUpdateGateway',
   'settingsDeleteGateway', 'settingsLoadPrivateCloudConfig', 'settingsSavePrivateCloudConfig',
   'gatewayServerStart', 'gatewayServerStop', 'gatewayServerStatus', 'gatewayServerGetApiKey',
-  'gatewayServerSaveMetadata', 'gatewayServerGetAllMetadata', 'gatewayServerDeleteMetadata',
+  'gatewayServerSaveMetadata', 'gatewayServerGetAllMetadata',
   'dialogOpenFiles', 'dialogOpenFolder', 'ipfsStatus', 'ipfsAdd',
   'ipfsPropagateCidToPublicGateways', 'ipfsAddPath', 'ipfsAddPathWithProgress',
   'ipfsAddDirectory', 'ipfsAddDirectoryFromPath', 'ipfsAddDirectoryFromPathWithProgress',
