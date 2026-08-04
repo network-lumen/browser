@@ -1,7 +1,7 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-08-02T11:39:09.599Z",
+  "generatedAt": "2026-08-04T23:37:24.687Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
   "appVersion": "0.9.8",
   "groups": [
@@ -33,7 +33,9 @@
       "label": "siteData",
       "paths": [
         "siteData.get",
-        "siteData.publish"
+        "siteData.publish",
+        "siteData.exportKey",
+        "siteData.importKey"
       ]
     },
     {
@@ -297,6 +299,44 @@
         {
           "code": "site_data_publish_failed",
           "description": "Missing/invalid datas, too large or too deeply/broadly structured, called more than once per 2s, or the publish itself failed."
+        }
+      ]
+    },
+    {
+      "path": "siteData.exportKey",
+      "namespace": "siteData",
+      "member": "exportKey",
+      "implementation": "siteDataKeyExport",
+      "fallbackError": "site_data_key_export_failed",
+      "description": "Let the user save this site identity's private key to a file. The key is never returned to the page - the browser writes the file itself and this resolves to a bare success flag. Always prompts, and a stored \"always allow\" for this site never covers it.",
+      "params": [],
+      "returns": {
+        "type": "Promise<{ok:boolean,error?:string}>",
+        "description": ""
+      },
+      "errors": [
+        {
+          "code": "site_data_key_export_failed",
+          "description": "No record for this site yet, the prompt was cancelled, or the export itself failed."
+        }
+      ]
+    },
+    {
+      "path": "siteData.importKey",
+      "namespace": "siteData",
+      "member": "importKey",
+      "implementation": "siteDataKeyImport",
+      "fallbackError": "site_data_key_import_failed",
+      "description": "Let the user restore a site identity from a key file, picked in a native dialog so the page can neither see nor choose the key. The record is repointed with an empty `datas` - resolve the returned `ipnsName` to rebuild the site's own state. The replaced key is kept, so this is recoverable.",
+      "params": [],
+      "returns": {
+        "type": "Promise<{ok:boolean,data?:{ipnsName:string},error?:string}>",
+        "description": ""
+      },
+      "errors": [
+        {
+          "code": "site_data_key_import_failed",
+          "description": "The prompt or file picker was cancelled, or the key could not be imported."
         }
       ]
     },

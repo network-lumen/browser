@@ -1722,6 +1722,39 @@ async function siteDataPublish(datas) {
   }
 }
 
+/**
+ * Ask the browser to let the user save this site identity's private key to a
+ * file. The key itself is never returned here - the browser owns the whole
+ * exchange and this resolves to nothing but a success flag, so a page cannot
+ * read, copy or forward the secret it just asked about. Always shows its own
+ * confirmation, and is never covered by a stored "always allow".
+ */
+async function siteDataKeyExport() {
+  ensureLumenSite();
+  try {
+    return await ipcRenderer.invoke('lumenSite:siteDataKeyExport');
+  } catch (e) {
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'site_data_key_export_failed', 512) };
+  }
+}
+
+/**
+ * Ask the browser to let the user restore a site identity from a key file.
+ * The file is picked in a native dialog, so the calling page can neither see
+ * the key nor choose which one is used. On success this site's record points
+ * at the restored identity with an EMPTY `datas`: the browser cannot rebuild
+ * a payload whose shape belongs to the site, so the site should resolve its
+ * own state from the returned `ipnsName` and publish again.
+ */
+async function siteDataKeyImport() {
+  ensureLumenSite();
+  try {
+    return await ipcRenderer.invoke('lumenSite:siteDataKeyImport');
+  } catch (e) {
+    return { ok: false, error: webview_utils.safeString(e?.message || e || 'site_data_key_import_failed', 512) };
+  }
+}
+
 /** Toggle fullscreen for the browser window hosting this site. */
 async function setWindowFullscreen(active) {
   ensureLumenSite();
@@ -2143,6 +2176,23 @@ const lumen = {
      * @error {site_data_publish_failed} Missing/invalid datas, too large or too deeply/broadly structured, called more than once per 2s, or the publish itself failed.
      */
     publish: wrapLumenApiCall(siteDataPublish, 'site_data_publish_failed'),
+
+    /**
+     * Let the user save this site identity's private key to a file. The key is
+     * never returned to the page - the browser writes the file itself and this
+     * resolves to a bare success flag. Always prompts, and a stored "always
+     * allow" for this site never covers it.
+     * @returns {Promise<{ok:boolean,error?:string}>}
+     * @error {site_data_key_export_failed} No record for this site yet, the prompt was cancelled, or the export itself failed.
+     */
+    exportKey: wrapLumenApiCall(siteDataKeyExport, 'site_data_key_export_failed'),
+
+    /**
+     * Let the user restore a site identity from a key file, picked in a native dialog so the page can neither see nor choose the key. The record is repointed with an empty `datas` - resolve the returned `ipnsName` to rebuild the site's own state. The replaced key is kept, so this is recoverable.
+     * @returns {Promise<{ok:boolean,data?:{ipnsName:string},error?:string}>}
+     * @error {site_data_key_import_failed} The prompt or file picker was cancelled, or the key could not be imported.
+     */
+    importKey: wrapLumenApiCall(siteDataKeyImport, 'site_data_key_import_failed'),
   },
 
   profiles: {
