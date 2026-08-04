@@ -85,7 +85,7 @@ export function canonicalizeLumenUrl(raw: string): string {
 
 export function normalizeTabUrl(raw: string): string {
   const value = String(raw || "").trim();
-  if (!value) return "lumen://home";
+  if (!value) return "lumen://newtab";
 
   const fileUrl = normalizeWindowsPathToFileUrl(value);
   if (fileUrl) return fileUrl;
@@ -99,7 +99,7 @@ export function normalizeAddressInput(
   builtinHosts: Iterable<string> = [],
 ): string {
   const value = String(raw || "").trim();
-  if (!value) return "lumen://home";
+  if (!value) return "lumen://newtab";
 
   const fileUrl = normalizeWindowsPathToFileUrl(value);
   if (fileUrl) return fileUrl;
