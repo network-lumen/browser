@@ -1,4 +1,5 @@
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { safeNumber } from './coerce';
 import type { Activity, ActivityType, ListActivitiesParams, CacheEntry } from '../../types/activities';
 
 export type { Activity, ActivityType };
@@ -10,97 +11,104 @@ export function clearActivitiesCache() {
   activitiesCache.clear();
 }
 
-function toActivityType(t: any): ActivityType {
-  const s = String(t ?? '').toLowerCase();
-  const known: ActivityType[] = [
-    'send',
-    'receive',
-    'register_domain',
-    'update_domain',
-    'renew_domain',
-    'bid',
-    'settle',
-    'stake',
-    'unstake',
-    'reward',
-    'unknown'
-  ];
-  const mapped =
-    s === 'transfer'
-      ? 'send'
-      : s === 'recv'
-        ? 'receive'
-        : s === 'register' || s === 'register-name'
-          ? 'register_domain'
-          : s === 'update' || s === 'update-name'
-            ? 'update_domain'
-            : s === 'renew' || s === 'renew-name'
-              ? 'renew_domain'
-              : (known as string[]).includes(s)
-                ? (s as ActivityType)
-                : 'unknown';
-  return mapped as ActivityType;
+const KNOWN_TYPES: readonly string[] = [
+  'send',
+  'receive',
+  'register_domain',
+  'update_domain',
+  'renew_domain',
+  'bid',
+  'settle',
+  'stake',
+  'unstake',
+  'reward',
+  'unknown'
+];
+
+/** Spellings the indexer uses for a type we already have a name for. */
+const TYPE_ALIASES: Record<string, ActivityType> = {
+  transfer: 'send',
+  recv: 'receive',
+  register: 'register_domain',
+  'register-name': 'register_domain',
+  update: 'update_domain',
+  'update-name': 'update_domain',
+  renew: 'renew_domain',
+  'renew-name': 'renew_domain'
+};
+
+function toActivityType(raw: unknown): ActivityType {
+  const value = String(raw ?? '').toLowerCase();
+  const alias = TYPE_ALIASES[value];
+  if (alias) return alias;
+  return KNOWN_TYPES.includes(value) ? (value as ActivityType) : 'unknown';
 }
 
-function normalizeFromIndexer(item: any): Activity {
-  const txhash =
-    item?.txhash ?? item?.txHash ?? item?.hash ?? item?.tx_id ?? item?.txId ?? '';
-  const timestamp: string =
-    item?.timestamp ?? item?.time ?? item?.datetime ?? item?.date ?? '';
-  const type = toActivityType(item?.type ?? item?.action ?? item?.event);
-  const action: string = item?.action ?? item?.msgType ?? item?.msg_type ?? '';
-  const dnsName: string = item?.dnsName ?? item?.dns_name ?? item?.name ?? '';
-  const id =
-    item?.id ??
-    txhash ??
-    `${type}-${timestamp}-${item?.height ?? 0}`;
-  const rawAmounts =
+/** The indexer sends amounts under four different shapes depending on the tx. */
+function readAmounts(item: any): { denom: string; amount: string }[] | undefined {
+  const raw =
     item?.amounts ??
     item?.amounts_list ??
     item?.amountsList ??
-    (item?.amount && item?.denom
-      ? [{ amount: String(item.amount), denom: String(item.denom) }]
-      : undefined) ??
+    (item?.amount && item?.denom ? [{ amount: item.amount, denom: item.denom }] : undefined) ??
     (Array.isArray(item?.amount) ? item.amount : undefined);
-  const from = item?.from ?? item?.sender ?? item?.src ?? item?.address_from ?? item?.from_address;
-  const to = item?.to ?? item?.recipient ?? item?.dst ?? item?.address_to ?? item?.to_address;
-  const memo = item?.memo ?? item?.note ?? item?.message;
 
-  const height =
-    typeof item?.height === 'number'
-      ? item.height
-      : typeof item?.height === 'string'
-        ? Number.parseInt(item.height, 10)
-        : undefined;
+  if (!Array.isArray(raw)) return undefined;
+  return raw
+    .map((entry: any) => ({
+      denom: String(entry?.denom ?? ''),
+      amount: String(entry?.amount ?? '')
+    }))
+    .filter((entry) => entry.denom || entry.amount);
+}
 
-  const amounts = Array.isArray(rawAmounts)
-    ? rawAmounts
-        .map((a) => ({
-          denom: String(a?.denom ?? ''),
-          amount: String(a?.amount ?? '')
-        }))
-        .filter((a) => a.denom || a.amount)
-    : undefined;
+/** `undefined` rather than `null`, to match the optional field on `Activity`. */
+function readHeight(value: unknown): number | undefined {
+  return safeNumber(value) ?? undefined;
+}
 
-  const code = typeof item?.code === 'number' ? item.code : undefined;
-  const sender = from;
-  const recipient = to;
+/** Returns the first of `keys` that holds a non-empty value. */
+function pick(item: any, keys: string[]): string {
+  for (const key of keys) {
+    const value = item?.[key];
+    if (value !== undefined && value !== null && value !== '') return String(value);
+  }
+  return '';
+}
+
+/** Optional string field: absent stays absent instead of becoming `''`. */
+function optional(value: string): string | undefined {
+  return value || undefined;
+}
+
+function normalizeFromIndexer(item: any): Activity {
+  const txhash = pick(item, ['txhash', 'txHash', 'hash', 'tx_id', 'txId']);
+  const timestamp = pick(item, ['timestamp', 'time', 'datetime', 'date']);
+  const type = toActivityType(item?.type ?? item?.action ?? item?.event);
+  const action = pick(item, ['action', 'msgType', 'msg_type']);
+  const dnsName = pick(item, ['dnsName', 'dns_name', 'name']);
+  const from = pick(item, ['from', 'sender', 'src', 'address_from', 'from_address']);
+  const to = pick(item, ['to', 'recipient', 'dst', 'address_to', 'to_address']);
+  const memo = pick(item, ['memo', 'note', 'message']);
+
+  const id = pick(item, ['id']) || txhash || `${type}-${timestamp}-${item?.height ?? 0}`;
 
   return {
-    id: String(id),
-    txhash: String(txhash || id),
+    id,
+    txhash: txhash || id,
     type,
-    action: action ? String(action) : undefined,
-    dnsName: dnsName ? String(dnsName) : undefined,
-    timestamp: String(timestamp || ''),
-    height: Number.isFinite(height as number) ? (height as number) : undefined,
-    code,
-    amounts,
-    from: from ? String(from) : undefined,
-    to: to ? String(to) : undefined,
-    sender: sender ? String(sender) : undefined,
-    recipient: recipient ? String(recipient) : undefined,
-    memo: memo ? String(memo) : undefined
+    action: optional(action),
+    dnsName: optional(dnsName),
+    timestamp,
+    height: readHeight(item?.height),
+    code: typeof item?.code === 'number' ? item.code : undefined,
+    amounts: readAmounts(item),
+    from: optional(from),
+    to: optional(to),
+    // `sender`/`recipient` are aliases the UI reads under either name.
+    sender: optional(from),
+    recipient: optional(to),
+    memo: optional(memo)
   };
 }
 
