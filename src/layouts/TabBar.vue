@@ -42,7 +42,8 @@ import {
 } from "../internal/routes";
 import { normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
 import type { Tab, TabHistoryEntry, RegisterFindTargetFn } from "../types/tab";
-import { safeNumber } from "../internal/services/coerce";
+import { clamp, safeNumber } from "../internal/services/coerce";
+
 
 const props = defineProps<{
   tabActive: string;
@@ -106,7 +107,7 @@ function currentUrl(): string {
       : history.length - 1;
 
   const max = Math.max(history.length - 1, 0);
-  const pos = Math.min(Math.max(rawPos, 0), max);
+  const pos = clamp(rawPos, 0, max);
   const entry = history[pos] || history[history.length - 1];
 
   const url = typeof entry?.url === "string" ? entry.url.trim() : "";

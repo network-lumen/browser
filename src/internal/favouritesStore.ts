@@ -3,6 +3,7 @@ import { activeProfileId } from "./profilesStore";
 import { canonicalizeLumenUrl, isLumenUrl } from "./navigationUrl";
 import type { FavouriteEntry, FavMap, LegacyFavMap } from "../types/favourites";
 import { STORAGE_KEYS, readJson, writeJson } from "./services/storage";
+import { clamp } from "./services/coerce";
 
 export type { FavouriteEntry };
 
@@ -272,7 +273,7 @@ function moveById(profileId: string, id: string, toIndex: number) {
   const safeIndex = Number.isFinite(Number(toIndex)) ? Math.floor(Number(toIndex)) : 0;
   if (entry.pinned) {
     const maxPinnedIndex = entries.filter((item) => item.pinned).length;
-    const clampedIndex = Math.max(0, Math.min(safeIndex, maxPinnedIndex));
+    const clampedIndex = clamp(safeIndex, 0, maxPinnedIndex);
     entries.splice(clampedIndex, 0, entry);
   } else {
     const firstUnpinnedIndex = entries.filter((item) => item.pinned).length;

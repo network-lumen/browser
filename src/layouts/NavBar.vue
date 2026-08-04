@@ -560,6 +560,7 @@ import { useFavourites } from '../internal/favouritesStore';
 import { buildExtensionTabUrl, normalizeAddressInput } from '../internal/navigationUrl';
 import type { Tab } from '../types/tab';
 import type { NavBarExtensionSummary, NavBarImportMode } from '../types/navBar';
+import { clamp } from '../internal/services/coerce';
 
 const props = defineProps<{
   tabActive: string;
@@ -662,7 +663,7 @@ const currentHistoryTitle = computed(() => {
   const tab = activeTab.value;
   if (!tab || !Array.isArray(tab.history) || !tab.history.length) return "";
   const position = Number.isFinite(Number(tab.history_position))
-    ? Math.max(0, Math.min(tab.history.length - 1, Number(tab.history_position)))
+    ? clamp(tab.history_position, 0, tab.history.length - 1)
     : tab.history.length - 1;
   return String(tab.history[position]?.title || "").trim();
 });

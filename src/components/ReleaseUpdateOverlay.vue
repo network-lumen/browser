@@ -27,6 +27,7 @@ import UiProgressBar from '../ui/UiProgressBar.vue';
 import { computed } from 'vue';
 import { useReleaseUpdates } from '../internal/services/releaseUpdates';
 import { formatBytes as formatBytesValue } from '../internal/services/format';
+import { clampPercent } from '../internal/services/coerce';
 
 const { latest, busy, updateProgress, clearUpdateProgress } = useReleaseUpdates();
 
@@ -55,7 +56,7 @@ const percent = computed(() => {
   const s = stage.value.toLowerCase();
   if (s === 'installing' || s === 'launching_installer') return 100;
   if (!percentKnown.value) return 35;
-  return Math.max(0, Math.min(100, Math.round((receivedBytes.value / totalBytes.value) * 100)));
+  return clampPercent(Math.round((receivedBytes.value / totalBytes.value) * 100));
 });
 
 function formatBytes(n: number) {

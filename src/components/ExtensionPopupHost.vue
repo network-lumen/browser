@@ -44,6 +44,7 @@ import {
   fetchInstalledExtensions,
   getRuntimeIdFromExtensionUrl,
   normalizeInstalledExtension,
+  toSyntheticTabId,
   upsertExtension
 } from '../internal/services/extensions';
 
@@ -234,17 +235,6 @@ function ensureLoaded(url: string) {
   const current = safeString(typeof w?.getURL === "function" ? w.getURL() : w?.src);
   if (current === target) return;
   queueGuestLoad(target);
-}
-
-function toSyntheticTabId(raw: string): number {
-  const text = safeString(raw);
-  const numeric = Number(text);
-  if (Number.isFinite(numeric) && numeric > 1) return Math.trunc(numeric);
-  let hash = 0;
-  for (let i = 0; i < text.length; i += 1) {
-    hash = ((hash * 31) + text.charCodeAt(i)) >>> 0;
-  }
-  return 1000 + (hash % 900000);
 }
 
 function getExtensionHostTabContext() {

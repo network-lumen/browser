@@ -22,13 +22,29 @@ export function safeNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/**
+ * Restricts a value to `[min, max]`. Anything unparseable becomes `min`, so
+ * callers never have to test for NaN separately.
+ */
+export function clamp(value: unknown, min: number, max: number): number {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return min;
+  if (n <= min) return min;
+  if (n >= max) return max;
+  return n;
+}
+
 /** Number forced into the `0..1` range; anything unparseable becomes `0`. */
 export function clamp01(value: unknown): number {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return 0;
-  if (n <= 0) return 0;
-  if (n >= 1) return 1;
-  return n;
+  return clamp(value, 0, 1);
+}
+
+/**
+ * Percentage forced into `0..100`. Does not round — call sites that want whole
+ * percents round first, so the rounding stays visible where it matters.
+ */
+export function clampPercent(value: unknown): number {
+  return clamp(value, 0, 100);
 }
 
 /**

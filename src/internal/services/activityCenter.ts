@@ -2,6 +2,7 @@ import { computed, ref } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { uploadActivities } from '../common/upload';
 import { STORAGE_KEYS, readJson, writeJson } from './storage';
+import { clampPercent } from './coerce';
 import type {
   ActivityItem,
   ActivityStatus,
@@ -43,10 +44,11 @@ function isFinal(status: ActivityStatus): boolean {
   return status === 'completed' || status === 'failed' || status === 'cancelled';
 }
 
-function clampPercent(value: unknown): number | null {
+/** `null` means "no ratio available", which renders an indeterminate bar. */
+function percentOrNull(value: unknown): number | null {
   const n = Number(value);
   if (!Number.isFinite(n)) return null;
-  return Math.max(0, Math.min(100, n));
+  return clampPercent(n);
 }
 
 // --- history -----------------------------------------------------------------
@@ -92,7 +94,7 @@ function readUploads(): void {
       status,
       title: String(activity.uploadingFile || 'Upload'),
       detail: cancelling === 1 ? 'Cancelling…' : 'Uploading to your local node',
-      percent: clampPercent(activity.uploadingPercent),
+      percent: percentOrNull(activity.uploadingPercent),
       startedAt: now,
       updatedAt: now,
       finishedAt: status === 'cancelled' ? now : 0,
@@ -128,7 +130,7 @@ function toPinItem(job: RawPinJob): ActivityItem | null {
     status,
     title: String(job?.name || job?.target || 'Pinned content'),
     detail,
-    percent: clampPercent(job?.progressPercent),
+    percent: percentOrNull(job?.progressPercent),
     startedAt: Number(job?.createdAt || 0) || Date.now(),
     updatedAt: Number(job?.updatedAt || 0) || Date.now(),
     finishedAt: Number(job?.completedAt || 0) || 0,
@@ -170,7 +172,7 @@ function toPropagationItem(payload: RawPropagationProgress): ActivityItem | null
     detail: total
       ? `${Number(payload?.succeeded || 0)}/${total} public gateways`
       : 'Contacting public gateways…',
-    percent: total > 0 ? clampPercent((completed / total) * 100) : null,
+    percent: total > 0 ? percentOrNull((completed / total) * 100) : null,
     startedAt: now,
     updatedAt: now,
     finishedAt: done ? now : 0,

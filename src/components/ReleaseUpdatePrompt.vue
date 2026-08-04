@@ -67,6 +67,7 @@ import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { formatReleaseSize, useReleaseUpdates } from '../internal/services/releaseUpdates';
+import { clampPercent } from '../internal/services/coerce';
 import { addToast } from '../stores/toastStore';
 import { copyToClipboard } from '../composables/useClipboard';
 
@@ -100,7 +101,7 @@ const busyLabel = computed(() => {
     const r = Number(p?.receivedBytes || 0);
     const t = Number(p?.totalBytes || 0);
     if (t > 0) {
-      const pct = Math.max(0, Math.min(100, Math.round((r / t) * 100)));
+      const pct = clampPercent(Math.round((r / t) * 100));
       return `Downloading… ${pct}%`;
     }
     return 'Downloading…';
