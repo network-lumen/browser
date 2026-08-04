@@ -1366,6 +1366,7 @@ import {
 import { profilesState, activeProfileId } from "../profilesStore";
 import { formatBytes, formatDateTime } from "../services/format";
 import { copyToClipboard } from "../../composables/useClipboard";
+import { clampPercent } from "../services/coerce";
 import { STORAGE_KEYS, readJson, readString, removeKey, writeJson, writeString } from "../services/storage";
 import {
   bumpDriveBackupSeq,
@@ -2767,7 +2768,7 @@ onMounted(async () => {
         const pct = payload?.percent;
         archiveDownloadPercent.value =
           typeof pct === "number" && Number.isFinite(pct)
-            ? Math.max(0, Math.min(100, Math.round(pct)))
+            ? clampPercent(Math.round(pct))
             : null;
 
         const bytesProcessed = payload?.bytesProcessed;

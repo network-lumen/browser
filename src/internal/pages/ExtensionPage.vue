@@ -58,6 +58,7 @@ import {
   findExtensionByRuntimeId as findExtensionInList,
   getRuntimeIdFromExtensionUrl,
   normalizeInstalledExtension,
+  toSyntheticTabId,
   upsertExtension
 } from "../services/extensions";
 
@@ -276,17 +277,6 @@ function reportFindTarget(attempts = 40) {
   if (id != null) return;
   if (attempts <= 0 || !resolvedExtensionUrl.value) return;
   window.setTimeout(() => reportFindTarget(attempts - 1), 50);
-}
-
-function toSyntheticTabId(raw: string): number {
-  const text = String(raw || "").trim();
-  const numeric = Number(text);
-  if (Number.isFinite(numeric) && numeric > 1) return Math.trunc(numeric);
-  let hash = 0;
-  for (let i = 0; i < text.length; i += 1) {
-    hash = ((hash * 31) + text.charCodeAt(i)) >>> 0;
-  }
-  return 1000 + (hash % 900000);
 }
 
 function getExtensionHostTabContext() {

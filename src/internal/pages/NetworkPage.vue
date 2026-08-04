@@ -839,6 +839,7 @@ import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { formatNumber, truncateMiddle } from '../services/format';
+import { clampPercent } from '../services/coerce';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, Info, ExternalLink, CirclePlus, CircleAlert, CircleCheckBig, Activity, Network, SlidersHorizontal, Vote, FileText, Plus, ThumbsUp, ThumbsDown, Circle, X } from 'lucide-vue-next';
@@ -1104,7 +1105,7 @@ const CUMULATIVE_CIRCUMFERENCE = 2 * Math.PI * CUMULATIVE_RADIUS;
 
 function getCumulativeDashArray(index: number): string {
   const pct = getCumulativeProgress(index);
-  const clamped = Math.max(0, Math.min(100, Number.isFinite(pct) ? pct : 0));
+  const clamped = clampPercent(pct);
   const filled = (clamped / 100) * CUMULATIVE_CIRCUMFERENCE;
   return `${filled} ${CUMULATIVE_CIRCUMFERENCE}`;
 }

@@ -81,6 +81,22 @@ export function findExtensionByRuntimeId(
   return list.find((entry) => safeString(entry.runtimeId) === target) ?? null;
 }
 
+/**
+ * Turns a Lumen tab id into the numeric tab id the `chrome.tabs` shim has to
+ * report. Numeric ids pass through; anything else is hashed into a stable
+ * number well above the range Electron itself hands out.
+ */
+export function toSyntheticTabId(raw: string): number {
+  const text = safeString(raw);
+  const numeric = Number(text);
+  if (Number.isFinite(numeric) && numeric > 1) return Math.trunc(numeric);
+  let hash = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    hash = ((hash * 31) + text.charCodeAt(i)) >>> 0;
+  }
+  return 1000 + (hash % 900000);
+}
+
 /** `chrome-extension://<runtimeId>/popup.html` -> `<runtimeId>`. */
 export function getRuntimeIdFromExtensionUrl(rawUrl: string): string {
   try {

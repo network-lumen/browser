@@ -19,6 +19,7 @@ import {
 } from "../internal/routes";
 import { isBrowserUrl, normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
 import type { Tab, TabHistoryEntry } from "../types/tab";
+import { clamp } from "../internal/services/coerce";
 
 const props = defineProps<{
   tab: Tab;
@@ -42,7 +43,7 @@ function currentUrl(): string {
       ? tab.history_position
       : history.length - 1;
   const max = Math.max(history.length - 1, 0);
-  const pos = Math.min(Math.max(rawPos, 0), max);
+  const pos = clamp(rawPos, 0, max);
   const entry = history[pos] || history[history.length - 1];
   const url = typeof entry?.url === "string" ? entry.url.trim() : "";
   return url || fallback;

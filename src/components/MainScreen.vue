@@ -124,6 +124,7 @@ import { useInternalLumen } from '../composables/useInternalLumen';
     resolveIpnsToCid,
   } from '../internal/services/contentResolver';
 import type { Tab } from '../types/tab';
+import { clamp } from '../internal/services/coerce';
 import { STORAGE_KEYS, readString, writeString } from '../internal/services/storage';
 import {
   getRuntimeIdFromExtensionUrl,
@@ -305,14 +306,14 @@ watch(
 
 function currentTitle(t: Tab): string {
   const h = t.history || [];
-  const idx = Math.min(Math.max(t.history_position ?? 0, 0), Math.max(h.length - 1, 0));
+  const idx = clamp(t.history_position ?? 0, 0, Math.max(h.length - 1, 0));
   return h[idx]?.title ?? 'New tab';
 }
 
 function currentUrlForTab(t: Tab | null | undefined): string {
   if (!t) return '';
   const h = Array.isArray(t.history) ? t.history : [];
-  const idx = Math.min(Math.max(t.history_position ?? 0, 0), Math.max(h.length - 1, 0));
+  const idx = clamp(t.history_position ?? 0, 0, Math.max(h.length - 1, 0));
   return String(h[idx]?.url || t.url || '').trim();
 }
 

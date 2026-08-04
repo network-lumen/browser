@@ -3,12 +3,14 @@
     <div
       class="h-full bg-gradient-primary border-radius-inherit transition-width-02"
       :class="{ 'progress-fill-indeterminate': indeterminate }"
-      :style="{ width: percent == null ? '100%' : `${Math.max(0, Math.min(100, percent))}%` }"
+      :style="{ width: percent == null ? '100%' : `${clampPercent(percent)}%` }"
     ></div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { clampPercent } from '../internal/services/coerce';
+
 withDefaults(defineProps<{
   /** null renders a full (or indeterminate, see below) bar - "we don't know the % yet". */
   percent?: number | null;
