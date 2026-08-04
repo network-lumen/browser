@@ -236,6 +236,73 @@
       </UiButton>
     </template>
   </UiModal>
+
+  <UiModal :model-value="!!(current && modalType === 'siteDataKeyExport')" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="closeKeyExport">
+    <template #header>
+      <UiModalHeader title="Export this site identity" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+        <template #icon><KeyRound :size="18" /></template>
+      </UiModalHeader>
+    </template>
+    <UiBanner variant="info" v-if="siteLabel">
+      <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
+    </UiBanner>
+    <UiBanner variant="warning" class="mt-12px">
+      <span class="overflow-wrap-anywhere">
+        This downloads the <strong>private key</strong> of your identity on this site — the key to the vault.
+        Anyone who holds that file <strong>is you</strong> on this site, permanently: an identity key cannot be
+        revoked or reissued. Keep it like a password, and never send it to anyone.
+      </span>
+    </UiBanner>
+    <UiDetailRow v-if="keyFlowIpnsName" label="Identity" :flex="true" class="mt-12px">
+      <span class="mono text-12px overflow-wrap-anywhere">{{ keyFlowIpnsName }}</span>
+    </UiDetailRow>
+    <p class="text-12px color-text-secondary mt-8px">
+      You choose where the file is saved. The page never receives the key itself.
+    </p>
+    <template #footer>
+      <UiButton variant="secondary" type="button" @click="closeKeyExport">Cancel</UiButton>
+      <UiButton variant="primary" type="button" @click="confirmKeyExport">
+        <KeyRound :size="16" />
+        <span>Choose a location and export</span>
+      </UiButton>
+    </template>
+  </UiModal>
+
+  <UiModal :model-value="!!(current && modalType === 'siteDataKeyImport')" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="closeKeyImport">
+    <template #header>
+      <UiModalHeader title="Restore an identity on this site" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+        <template #icon><KeyRound :size="18" /></template>
+      </UiModalHeader>
+    </template>
+    <UiBanner variant="info" v-if="siteLabel">
+      <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
+    </UiBanner>
+    <UiBanner variant="warning" class="mt-12px" v-if="keyFlowHasExisting">
+      <span class="overflow-wrap-anywhere">
+        This site already has an identity. Importing a key file <strong>replaces it</strong>: from now on this
+        site publishes as the imported identity, and the current one stops being used here.
+      </span>
+    </UiBanner>
+    <UiDetailRow v-if="keyFlowIpnsName" label="Current identity" :flex="true" class="mt-12px">
+      <span class="mono text-12px overflow-wrap-anywhere">{{ keyFlowIpnsName }}</span>
+    </UiDetailRow>
+    <label v-if="keyFlowHasExisting" class="flex flex-inline-align-center gap-8px mt-12px cursor-pointer">
+      <input type="checkbox" v-model="keyImportBackupFirst" />
+      <span class="text-13px color-text-primary">
+        Save the identity I'm about to replace to my computer first, so I can restore it later
+      </span>
+    </label>
+    <p class="text-12px color-text-secondary mt-8px">
+      You pick the key file yourself — the page cannot choose it or read it.
+    </p>
+    <template #footer>
+      <UiButton variant="secondary" type="button" @click="closeKeyImport">Cancel</UiButton>
+      <UiButton variant="primary" type="button" @click="confirmKeyImport">
+        <KeyRound :size="16" />
+        <span>{{ keyImportBackupFirst && keyFlowHasExisting ? 'Save current, then choose a key' : 'Choose a key file' }}</span>
+      </UiButton>
+    </template>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
@@ -248,7 +315,7 @@ import UiDetailRow from '../ui/UiDetailRow.vue';
 import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
 import UiPinProgressCard from '../ui/UiPinProgressCard.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { ChevronDown, Link, Plus, Save, Send, Shield } from "lucide-vue-next";
+import { ChevronDown, KeyRound, Link, Plus, Save, Send, Shield } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import { bytesToText } from '../internal/services/coerce';
 import {
@@ -291,6 +358,27 @@ function respond(payload: any) {
   } finally {
     queue.value.shift();
   }
+}
+
+// Identity key export/import. Both modals are pure consent: they carry no key
+// material and do no work themselves - the main process owns the file dialogs
+// and the keystore, and only ever hears back whether the user agreed.
+const keyImportBackupFirst = ref(true);
+
+const keyFlowIpnsName = computed(() => String(current.value?.data?.ipnsName || ""));
+const keyFlowHasExisting = computed(() => !!current.value?.data?.hasExisting);
+
+function closeKeyExport() {
+  respond({ ok: false, error: "user_cancelled" });
+}
+function confirmKeyExport() {
+  respond({ ok: true, confirm: true });
+}
+function closeKeyImport() {
+  respond({ ok: false, error: "user_cancelled" });
+}
+function confirmKeyImport() {
+  respond({ ok: true, confirm: true, backupFirst: keyImportBackupFirst.value && keyFlowHasExisting.value });
 }
 
 function denyPermission() {
@@ -1030,6 +1118,12 @@ watch(
     }
     if (modalType.value === "stableLinkSetup") {
       resetStableLinkSetupState();
+      return;
+    }
+    if (modalType.value === "siteDataKeyImport") {
+      // Back to ticked for every request: unticking is a per-import decision,
+      // and the safe default should never be inherited from a previous one.
+      keyImportBackupFirst.value = true;
       return;
     }
   },

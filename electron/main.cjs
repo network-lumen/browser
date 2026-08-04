@@ -1862,6 +1862,153 @@ ipcMain.handle('lumenSite:siteDataPublish', async (evt, input) => {
   });
 });
 
+/**
+ * Writes a site identity's private key to a file the user picks. Shared by
+ * the export flow and by the import flow's "save the one I'm replacing"
+ * option, so both produce the same kind of file and either can restore the
+ * other. Never returns the key material to its caller - only whether the
+ * write happened - so no path leads from here back to a page.
+ */
+async function saveSiteIdentityKeyToDisk(keyName, siteKey) {
+  const label = safeString(siteKey, 128).replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'site';
+  const win = getMainWindow();
+  const options = {
+    title: 'Save site identity key',
+    defaultPath: `lumen-identity-${label}.pem`,
+    filters: [
+      { name: 'PEM private key', extensions: ['pem'] },
+      { name: 'All files', extensions: ['*'] },
+    ],
+  };
+  const selected = win ? await dialog.showSaveDialog(win, options) : await dialog.showSaveDialog(options);
+  if (selected.canceled || !selected.filePath) return { ok: false, canceled: true, error: 'user_cancelled' };
+  const exported = await ipfsKeyExportToPath(keyName, selected.filePath);
+  if (!exported?.ok) return { ok: false, error: exported?.error || 'key_export_failed' };
+  return { ok: true };
+}
+
+// Exporting hands over the private key behind a site identity - the one
+// secret here that cannot be revoked, rotated or reissued. Two rules follow
+// from that, and both are deliberate departures from the usual site-action
+// shape:
+//
+//  1. The key material NEVER goes back to the page. The site gets {ok}; the
+//     browser writes the file itself. A page that received the key could post
+//     it anywhere, and no modal wording undoes that.
+//  2. No ensureLumenSitePermission() - that helper short-circuits on a stored
+//     "always allow", and an identity export must never be auto-approved by a
+//     decision the user made about something else. The dedicated modal IS the
+//     consent, every single time.
+//
+// Import is the mirror image: the file is chosen through the native picker,
+// so a site can never supply key material of its own choosing (which would
+// let it hand you an identity whose secret it already knows).
+ipcMain.handle('lumenSite:siteDataKeyExport', async (evt) => {
+  const ctx = await senderSiteContextAwaitingDomain(evt);
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+  const profileId = activeProfileIdForSiteData();
+  if (!profileId) return { ok: false, error: 'no_active_profile' };
+
+  const record = siteData.getSiteDataRecord(ctx.siteKey, profileId);
+  if (!record?.keyName) return { ok: false, error: 'no_site_data' };
+
+  const meta = { href: ctx.href, title: '' };
+  const lock = tryBeginSiteAction(ctx.siteKey);
+  if (!lock.ok) return lock;
+
+  return enqueueUi(async () => {
+    try {
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+      const res = await requestUi('siteDataKeyExport', {
+        siteKey: ctx.siteKey,
+        meta,
+        ipnsName: record.ipnsName || ''
+      }, { timeoutMs: UI_INTERACTIVE_TIMEOUT_MS });
+      if (!res || res.ok === false || !res.confirm) return { ok: false, error: 'user_cancelled' };
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+
+      const saved = await saveSiteIdentityKeyToDisk(record.keyName, ctx.siteKey);
+      if (!saved.ok) return saved;
+      markSiteModalCooldown(ctx.siteKey);
+      return { ok: true };
+    } finally {
+      endSiteAction(lock.key);
+    }
+  });
+});
+
+ipcMain.handle('lumenSite:siteDataKeyImport', async (evt) => {
+  const ctx = await senderSiteContextAwaitingDomain(evt);
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+  const profileId = activeProfileIdForSiteData();
+  if (!profileId) return { ok: false, error: 'no_active_profile' };
+
+  const meta = { href: ctx.href, title: '' };
+  const lock = tryBeginSiteAction(ctx.siteKey);
+  if (!lock.ok) return lock;
+
+  return enqueueUi(async () => {
+    try {
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+      const existing = siteData.getSiteDataRecord(ctx.siteKey, profileId);
+      const res = await requestUi('siteDataKeyImport', {
+        siteKey: ctx.siteKey,
+        meta,
+        hasExisting: !!existing?.keyName,
+        ipnsName: existing?.ipnsName || ''
+      }, { timeoutMs: UI_INTERACTIVE_TIMEOUT_MS });
+      if (!res || res.ok === false || !res.confirm) return { ok: false, error: 'user_cancelled' };
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+
+      // The user ticked "save the identity I'm replacing first". Backing out
+      // of that save aborts the whole import rather than quietly continuing:
+      // they asked for the safety net, so proceeding without it is precisely
+      // the outcome they were guarding against.
+      if (res.backupFirst && existing?.keyName) {
+        const backed = await saveSiteIdentityKeyToDisk(existing.keyName, ctx.siteKey);
+        if (!backed.ok) return backed.canceled ? { ok: false, error: 'user_cancelled' } : backed;
+        if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+      }
+
+      const win = getMainWindow();
+      const options = {
+        title: 'Import a site identity key',
+        properties: ['openFile'],
+        filters: [
+          { name: 'Private key files', extensions: ['key', 'pem', 'txt'] },
+          { name: 'All files', extensions: ['*'] },
+        ],
+      };
+      const selected = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options);
+      if (selected.canceled || !selected.filePaths?.length) return { ok: false, error: 'user_cancelled' };
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+
+      const keyName = siteData.importedSiteDataKeyName(ctx.siteKey, profileId);
+      const imported = await ipfsKeyImportFromPath(keyName, selected.filePaths[0]);
+      if (!imported?.ok) return { ok: false, error: imported?.error || 'key_import_failed' };
+
+      const ipnsName = String(imported.id || '').trim();
+      if (!ipnsName) return { ok: false, error: 'key_import_no_ipns_name' };
+      try {
+        invalidateIpnsCache(ipnsName);
+        invalidateIpnsCache(keyName);
+      } catch {}
+
+      // `datas` is reset, not carried over: it is this site's own cached JSON
+      // about the PREVIOUS identity (for lumen-social, the head commit of a
+      // chain that has nothing to do with the imported one). The browser
+      // cannot rebuild it - the shape belongs to the site - so it hands back
+      // an empty record plus the new ipnsName and lets the site resolve its
+      // own state from what that name points at.
+      siteData.upsertSiteDataRecord(ctx.siteKey, profileId, { keyName, ipnsName, datas: {} });
+      markSiteModalCooldown(ctx.siteKey);
+      return { ok: true, ipnsName };
+    } finally {
+      endSiteAction(lock.key);
+    }
+  });
+});
+
 // Internal/trusted only (main app window, e.g. Drive's "Sites data" section) -
 // no site permission gate, just the same ensureUiSender check other
 // UI-only channels use, since this isn't reachable from any <webview>.

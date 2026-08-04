@@ -35,6 +35,21 @@ function siteDataKeyName(siteKey, profileId) {
   return `sitedata:${hash}`;
 }
 
+/**
+ * Key name for a key the user imported for this (site, profile) pair.
+ *
+ * Deliberately NOT the deterministic name above, and deliberately unique per
+ * import: Kubo key names have to be unique, so the key being replaced keeps
+ * the deterministic name and stays in the keystore. An IPNS identity cannot
+ * be revoked or reissued - removing the outgoing key would make a mis-click
+ * permanent - so an import only ever moves the record's pointer. Recovering
+ * the previous identity is then just a matter of pointing back at a key that
+ * is still there.
+ */
+function importedSiteDataKeyName(siteKey, profileId) {
+  return `${siteDataKeyName(siteKey, profileId)}-i${crypto.randomBytes(4).toString('hex')}`;
+}
+
 function load() {
   if (cached) return cached;
   const fallback = { version: VERSION, records: {} };
@@ -135,6 +150,7 @@ function markPublished(siteKey, profileId) {
 
 module.exports = {
   siteDataKeyName,
+  importedSiteDataKeyName,
   getSiteDataRecord,
   upsertSiteDataRecord,
   deleteSiteDataRecord,

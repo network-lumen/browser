@@ -659,8 +659,29 @@ describe('window.lumen preload API', () => {
       ['wallet.signArbitrary', (l) => l.wallet.signArbitrary({ payload: 'x' })],
       ['wallet.verifyArbitrary', (l) => l.wallet.verifyArbitrary({ payload: 'x' })],
       ['dns.getDomainPrice', (l) => l.dns.getDomainPrice('monsite.lmn')],
-      ['dns.getDomainInfos', (l) => l.dns.getDomainInfos('monsite.lmn')]
+      ['dns.getDomainInfos', (l) => l.dns.getDomainInfos('monsite.lmn')],
+      ['siteData.exportKey', (l) => l.siteData.exportKey()],
+      ['siteData.importKey', (l) => l.siteData.importKey()]
     ];
+
+    // The list above is hand-written, so nothing stopped a newly added method
+    // from silently skipping the gating check below - which is exactly what
+    // happened when siteData.exportKey/importKey were added. Deriving the
+    // expected set from the real API makes that omission a failure instead.
+    it('covers every window.lumen method — the gating list cannot go stale', async () => {
+      const lumen = await loadLumen();
+      const actual = new Set<string>();
+      const walk = (obj: any, prefix: string) => {
+        for (const key of Object.keys(obj)) {
+          const value = obj[key];
+          const entryPath = prefix ? `${prefix}.${key}` : key;
+          if (typeof value === 'function') actual.add(entryPath);
+          else if (value && typeof value === 'object') walk(value, entryPath);
+        }
+      };
+      walk(lumen, '');
+      expect(cases.map(([name]) => name).sort()).toEqual([...actual].sort());
+    });
 
     it('keeps the API available on a lumen:// domain site', async () => {
       const lumen = await loadLumen();
