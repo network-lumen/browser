@@ -37,11 +37,9 @@ import NavBar from "./NavBar.vue";
 import TabPane from "./TabPane.vue";
 import FindBar from "../components/FindBar.vue";
 import { useInternalLumen } from '../composables/useInternalLumen';
-import {
-  getInternalTitle,
-} from "../internal/routes";
 import { normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
-import type { Tab, TabHistoryEntry, RegisterFindTargetFn } from "../types/tab";
+import type { Tab, RegisterFindTargetFn } from "../types/tab";
+import { navigateTabToInternalUrl } from '../internal/services/tabHistory';
 import { clamp, safeNumber } from "../internal/services/coerce";
 
 
@@ -116,37 +114,7 @@ function currentUrl(): string {
 }
 
 function navigateInternal(url: string, opts: { push?: boolean } = {}) {
-  const push = opts.push ?? true;
-  const tab = activeTab.value;
-  if (!tab) return;
-
-  const u = normalizeTabUrl(url);
-
-  if (!Array.isArray(tab.history)) tab.history = [];
-
-  const currentPos = tab.history_position ?? tab.history.length - 1;
-  const title = getInternalTitle(u);
-
-  if (!push && tab.history.length) {
-    const pos = currentPos >= 0 ? currentPos : tab.history.length - 1;
-    const entry = tab.history[pos];
-    if (entry) {
-      entry.url = u;
-      entry.title = title;
-      tab.history_position = pos;
-    }
-  } else {
-    if (currentPos >= 0 && currentPos < tab.history.length - 1) {
-      tab.history = tab.history.slice(0, currentPos + 1);
-    }
-    const entry: TabHistoryEntry = { url: u, title };
-    tab.history.push(entry);
-    tab.history_position = tab.history.length - 1;
-  }
-
-  tab.url = u;
-  tab.title = title;
-  tab.draftUrl = u;
+  navigateTabToInternalUrl(activeTab.value, url, opts);
 }
 
 function onGotoFromNavbar(url: string) {

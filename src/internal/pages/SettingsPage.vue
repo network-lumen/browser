@@ -864,11 +864,11 @@ import {
 } from '../services/securitySessionTimeout';
 import type { BootstrapPathState } from '../../types/settingsPage';
 
+import { useTabNavigation } from '../../composables/useTabNavigation';
 const toast = useToast();
 const appVersion = String((pkg as any)?.version || '0.0.0');
 
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+const { navigate, openInNewTab } = useTabNavigation();
 
 function openInNewTabSafe(url: string) {
   if (openInNewTab) {

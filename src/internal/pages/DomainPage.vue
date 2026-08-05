@@ -443,9 +443,10 @@ import type { DomainRow, RawDomainRow, SettingsRecord } from '../../types/domain
 
 import { errorMessage } from '../services/coerce';
 import { sanitizeStableLinkLabel, stableLinkDisplayName, stableLinkKeyNameFromLabel } from '../services/stableLinks';
+import { useTabNavigation } from '../../composables/useTabNavigation';
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
-const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
+const { openInNewTab } = useTabNavigation();
 const profiles = profilesState;
 const activeProfile = computed(
   () => profiles.value.find((p) => p.id === activeProfileId.value) || null

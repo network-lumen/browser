@@ -115,6 +115,7 @@ import { formatMicroAmount, truncateMiddle } from '../services/format';
 import { explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
 
 import { errorMessage } from '../services/coerce';
+import { useTabNavigation } from '../../composables/useTabNavigation';
 const loading = ref(true);
 const error = ref('');
 const notFound = ref(false);
@@ -127,8 +128,8 @@ const lumen = useInternalLumen();
 const currentTabUrl = inject<any>('currentTabUrl', null);
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
+const { openInNewTab } = useTabNavigation();
 const accountAddress = computed(() => {
   if (!currentTabUrl || !currentTabUrl.value) return null;
   const match = currentTabUrl.value.match(/\/network\/address\/([a-z0-9]+)/i);

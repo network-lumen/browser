@@ -314,7 +314,8 @@ import { formatBytes as formatBytesValue, formatDateTime } from '../services/for
 import { safeString, errorMessage } from '../services/coerce';
 import type { ReleaseParams, ArtifactRecord, ReleaseRecord, ArtifactDraft, DaoKind } from '../../types/releasePage';
 
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+import { useTabNavigation } from '../../composables/useTabNavigation';
+const { navigate } = useTabNavigation();
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
 const loading = ref(true);

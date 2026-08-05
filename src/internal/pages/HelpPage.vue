@@ -224,6 +224,7 @@ import {
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import type { HelpView } from '../../types/helpPage';
 
+import { useTabNavigation } from '../../composables/useTabNavigation';
 // Single source of truth for the window.lumen reference: this embeds the
 // actual generated docs/window-lumen.html (mirrored into public/docs/ by
 // `npm run doc:window.lumen`) in an <iframe>, instead of re-deriving a
@@ -250,12 +251,8 @@ const currentTabUrl = inject<ComputedRef<string>>(
   'currentTabUrl',
   computed(() => 'lumen://help'),
 );
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>(
-  'navigate',
-  null,
-);
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
+const { navigate, openInNewTab } = useTabNavigation();
 const currentView = ref<HelpView>('discover');
 
 function normalizeViewFromUrl(rawUrl: string): HelpView {

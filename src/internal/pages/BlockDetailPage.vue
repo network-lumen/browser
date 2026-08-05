@@ -86,6 +86,7 @@ import { formatNumber } from '../services/format';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
 import { explorerTransactionUrl } from '../services/explorerLinks';
 
+import { useTabNavigation } from '../../composables/useTabNavigation';
 const loading = ref(true);
 const error = ref('');
 const block = ref<any>(null);
@@ -100,8 +101,8 @@ const avatarCache = ref<Record<string, string>>({});
 const currentTabUrl = inject<any>('currentTabUrl', null);
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
+const { openInNewTab } = useTabNavigation();
 const blockHeight = computed(() => {
   const url = currentTabUrl?.value || window.location.href;
   let match = url.match(/network\/block\/(\d+)/);

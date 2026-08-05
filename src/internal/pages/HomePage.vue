@@ -152,7 +152,7 @@
 <script setup lang="ts">
 import UiButton from '../../ui/UiButton.vue';
 import UiWarningBox from '../../ui/UiWarningBox.vue';
-import { inject, computed, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../routes';
 import { profilesState } from '../profilesStore';
@@ -165,6 +165,7 @@ import {
   HelpCircle, Layers, ChevronDown, ChevronUp, X
 } from 'lucide-vue-next';
 
+import { useTabNavigation } from '../../composables/useTabNavigation';
 // My Space section cards, customizable via drag-and-drop
 const MY_SPACE_CARDS_KEY = STORAGE_KEYS.homeMySpaceCards;
 const DEFAULT_MY_SPACE_CARDS = ['drive', 'domain', 'wallet', 'settings'];
@@ -524,11 +525,10 @@ function onItemClick(key: string, e: MouseEvent) {
 
 const profiles = profilesState;
 const hasProfiles = computed(() => profiles.value.length > 0);
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
-const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
 function openRoute(key: string) {
-  const url = `lumen://${key}`;
+  const { navigate, openInNewTab } = useTabNavigation();
+const url = `lumen://${key}`;
   if (navigate) {
     navigate(url, { push: true });
     return;
