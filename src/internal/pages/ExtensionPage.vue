@@ -32,7 +32,6 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
 import UiExtensionStatus from '../../ui/UiExtensionStatus.vue';
 import {
   computed,
-  inject,
   nextTick,
   onActivated,
   onBeforeUnmount,
@@ -65,10 +64,7 @@ import {
 import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
 const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
 const { navigate, openInNewTab } = useTabNavigation();
-const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
-  "findRegisterTarget",
-  null,
-);
+const { registerFindTarget } = useTabNavigation();
 
 const webprefs =
   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";

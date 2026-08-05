@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
- import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
+ import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
  import { buildExtensionTabUrl, isBrowserUrl, isExtensionUrl } from "../navigationUrl";
  import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -59,11 +59,8 @@ import {
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
  const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
  const { navigate, openInNewTab, openExtensionPopup } = useTabNavigation();
- const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
-   "findRegisterTarget",
-   null,
- );
- const setTabFavicon = inject<((icon: string | null) => void) | null>("setTabFavicon", null);
+ const { registerFindTarget } = useTabNavigation();
+ const { setTabFavicon } = useTabNavigation();
 
 const webviewRef = ref<any>(null);
 const pageActive = ref(false);

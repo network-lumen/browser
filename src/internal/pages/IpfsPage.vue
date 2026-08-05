@@ -284,7 +284,6 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
  import {
   computed,
-  inject,
   nextTick,
   onActivated,
   onBeforeUnmount,
@@ -323,12 +322,9 @@ import { errorMessage, safeDecodeUriComponent } from "../services/coerce";
 import { readPinJobSnapshot } from "../services/pinJobs";
 import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
  const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
- const currentTabIsActive = inject<any>("currentTabIsActive", null);
+ const { currentTabIsActive } = useTabState();
  const { navigate, openInNewTab } = useTabNavigation();
- const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
-   "findRegisterTarget",
-   null,
- );
+ const { registerFindTarget } = useTabNavigation();
 
 const loading = ref(false);
 const error = ref("");
