@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import UiSidebarNavItem from '../ui/UiSidebarNavItem.vue';
-import { computed, inject, ref } from 'vue';
+import { computed,  ref } from 'vue';
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
 import {
   ChevronDown,
@@ -38,6 +38,7 @@ import {
   History
 } from 'lucide-vue-next';
 
+import { useTabNavigation } from '../composables/useTabNavigation';
 const DEFAULT_EXCLUDE = new Set([
   'ipfs',
   'gateways',
@@ -71,8 +72,7 @@ const props = withDefaults(defineProps<{
 
 const open = ref(false);
 
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+const { navigate, openInNewTab } = useTabNavigation();
 
 function openUrl(url: string) {
   if (openInNewTab) {

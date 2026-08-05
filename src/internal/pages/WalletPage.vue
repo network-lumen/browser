@@ -896,7 +896,6 @@ import { copyToClipboard as copyToClipboardShared, copyToClipboardWithToast } fr
 import { explorerTransactionUrl } from '../services/explorerLinks';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 import {
   Wallet,
   LayoutDashboard,
@@ -951,6 +950,8 @@ import type {
 } from '../../types/walletPage';
 
 import { errorMessage } from '../services/coerce';
+import { useTabNavigation } from '../../composables/useTabNavigation';
+const { openInNewTab } = useTabNavigation();
 const currentView = ref<'overview' | 'assets' | 'dex' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
 const showBalance = ref(true);

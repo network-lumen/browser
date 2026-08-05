@@ -501,18 +501,13 @@ import type {
   GatewaySiteSearchResult,
 } from "../../types/searchPage";
 
+import { useTabNavigation } from "../../composables/useTabNavigation";
 const toast = useToast();
 
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
-const navigate = inject<
-  ((url: string, opts?: { push?: boolean }) => void) | null
->("navigate", null);
-const openInNewTab = inject<((url: string) => void) | null>(
-  "openInNewTab",
-  null,
-);
 
+const { navigate, openInNewTab } = useTabNavigation();
 const q = ref("");
 const selectedType = ref<SearchType>("site");
 const touched = ref(false);

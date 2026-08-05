@@ -856,10 +856,10 @@ import type { Block, Transaction, Validator, TxHistoryWindow } from '../../types
 import type { Block as NetworkBlock } from '../../types/networkPage';
 import type { GovernanceProposal, GovernanceVoteOption } from '../../types/networkGovernance';
 
+import { useTabNavigation } from '../../composables/useTabNavigation';
 const toast = useToast();
 const lumen = useInternalLumen();
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
+const { navigate, openInNewTab } = useTabNavigation();
 const currentTabUrl = inject<any>('currentTabUrl', null);
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 

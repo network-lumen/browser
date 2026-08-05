@@ -533,7 +533,7 @@ import UiInput from '../ui/UiInput.vue';
 import UiCard from '../ui/UiCard.vue';
 import UiModal from '../ui/UiModal.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
-import { computed, inject, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { computed,  onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star, ChevronDown, Puzzle, ExternalLink } from 'lucide-vue-next';
 import ActiveProfileCard from '../components/ActiveProfileCard.vue';
 import ProfileAvatar from '../components/ProfileAvatar.vue';
@@ -562,6 +562,7 @@ import type { Tab } from '../types/tab';
 import type { NavBarExtensionSummary, NavBarImportMode } from '../types/navBar';
 import { clamp, errorMessage } from '../internal/services/coerce';
 
+import { useTabNavigation } from '../composables/useTabNavigation';
 const props = defineProps<{
   tabActive: string;
   tabs: Tab[];
@@ -591,9 +592,8 @@ const showProfileMenu = ref(false);
 const creatingProfile = ref(false);
 const newProfileName = ref('');
 const profileMessage = ref('');
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
-const openExtensionPopup = inject<((input: any) => void) | null>('openExtensionPopup', null);
 
+const { openInNewTab, openExtensionPopup } = useTabNavigation();
 const showExtensionsMenu = ref(false);
 const extensions = ref<NavBarExtensionSummary[]>([]);
 const extensionsBusy = ref(false);

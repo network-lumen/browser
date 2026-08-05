@@ -15,10 +15,10 @@ import { computed, nextTick, provide, reactive, ref, watch } from "vue";
 import {
   INTERNAL_ROUTE_KEYS,
   resolveInternalComponent,
-  getInternalTitle,
 } from "../internal/routes";
-import { isBrowserUrl, normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
-import type { Tab, TabHistoryEntry } from "../types/tab";
+import { isBrowserUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
+import type { Tab } from "../types/tab";
+import { navigateTabToInternalUrl } from '../internal/services/tabHistory';
 import { clamp } from "../internal/services/coerce";
 
 const props = defineProps<{
@@ -110,37 +110,7 @@ function cacheKeyForUrl(rawUrl: string): string {
 }
 
 function navigateInternal(url: string, opts: { push?: boolean } = {}) {
-  const push = opts.push ?? true;
-  const tab = tabState.value;
-  if (!tab) return;
-
-  const u = normalizeTabUrl(url);
-
-  if (!Array.isArray(tab.history)) tab.history = [];
-
-  const currentPos = tab.history_position ?? tab.history.length - 1;
-  const title = getInternalTitle(u);
-
-  if (!push && tab.history.length) {
-    const pos = currentPos >= 0 ? currentPos : tab.history.length - 1;
-    const entry = tab.history[pos];
-    if (entry) {
-      entry.url = u;
-      entry.title = title;
-      tab.history_position = pos;
-    }
-  } else {
-    if (currentPos >= 0 && currentPos < tab.history.length - 1) {
-      tab.history = tab.history.slice(0, currentPos + 1);
-    }
-    const entry: TabHistoryEntry = { url: u, title };
-    tab.history.push(entry);
-    tab.history_position = tab.history.length - 1;
-  }
-
-  tab.url = u;
-  tab.title = title;
-  tab.draftUrl = u;
+  navigateTabToInternalUrl(tabState.value, url, opts);
 }
 
 function componentForTab(t: Tab) {

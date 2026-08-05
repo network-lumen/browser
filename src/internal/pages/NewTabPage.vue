@@ -220,7 +220,7 @@ import UiCard from '../../ui/UiCard.vue';
 import UiMenuItem from '../../ui/UiMenuItem.vue';
 import UiFormField from '../../ui/UiFormField.vue';
 import UiTitleSubtitle from '../../ui/UiTitleSubtitle.vue';
-import { computed, inject, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { computed,  onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import UiCheckbox from "../../ui/UiCheckbox.vue";
 import UiModal from "../../ui/UiModal.vue";
 import {
@@ -243,12 +243,12 @@ import { profilesState } from "../profilesStore";
 import { normalizeAddressInput } from "../navigationUrl";
 import type { ShortcutModalMode } from "../../types/newTabPage";
 import { STORAGE_KEYS, readString, writeString } from "../services/storage";
+import { useTabNavigation } from "../../composables/useTabNavigation";
 null
 
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);
-const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null);
 
-  const {
+  const { navigate, openInNewTab } = useTabNavigation();
+const {
     favouriteEntries,
     removeFavouriteById,
     setFavouritePinned,

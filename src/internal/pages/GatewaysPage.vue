@@ -222,6 +222,7 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import type { GatewayParamsView, GatewayRecord, GatewayEditState } from '../../types/gatewaysPage';
 
 import { errorMessage } from '../services/coerce';
+import { useTabNavigation } from '../../composables/useTabNavigation';
 const profiles = profilesState;
 const activeProfile = computed(
   () => profiles.value.find((p) => p.id === activeProfileId.value) || null
@@ -242,8 +243,8 @@ const gatewaysError = ref('');
 
 // Private gateways state
 const privateGateways = ref<any[]>([]);
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
 
+const { navigate } = useTabNavigation();
 const showCreateModal = ref(false);
 
 const registerForm = reactive({

@@ -320,17 +320,12 @@ import type { Entry, MarkdownTarget, MarkdownResolvedLink } from "../../types/ip
 import type { DriveSavedFile } from "../../types/driveSavedFile";
 
 import { errorMessage } from "../services/coerce";
+import { useTabNavigation } from "../../composables/useTabNavigation";
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
  const currentTabRefresh = inject<any>("currentTabRefresh", null);
  const currentTabIsActive = inject<any>("currentTabIsActive", null);
- const openInNewTab = inject<((url: string) => void) | null>(
-   "openInNewTab",
-   null,
- );
- const navigate = inject<
-   ((url: string, opts?: { push?: boolean }) => void) | null
- >("navigate", null);
+ const { navigate, openInNewTab } = useTabNavigation();
  const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
    "findRegisterTarget",
    null,

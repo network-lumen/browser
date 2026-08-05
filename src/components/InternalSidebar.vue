@@ -57,7 +57,7 @@ import UiButton from '../ui/UiButton.vue';
 import UiTitleSubtitle from '../ui/UiTitleSubtitle.vue';
 import UiCountPill from '../ui/UiCountPill.vue';
 import UiNoticeCard from '../ui/UiNoticeCard.vue';
- import { computed, inject } from 'vue';
+ import { computed } from 'vue';
  import { X } from 'lucide-vue-next';
  import { profilesState, activeProfileId } from '../internal/profilesStore';
  import { useFavourites } from '../internal/favouritesStore';
@@ -67,6 +67,7 @@ import ActiveProfileCard from './ActiveProfileCard.vue';
 import AllPagesDropdown from './AllPagesDropdown.vue';
 import pkg from '../../package.json';
 
+import { useTabNavigation } from '../composables/useTabNavigation';
 const { favouriteEntries, removeFavouriteById } = useFavourites();
 
 withDefaults(defineProps<{
@@ -86,9 +87,8 @@ const appVersion = String((pkg as any)?.version || '0.0.0');
    profiles.value.find((p) => p.id === activeProfileId.value) || null
  );
 
- const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
- const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
 
+ const { navigate, openInNewTab } = useTabNavigation();
  const renderedFavouriteEntries = computed(() =>
    favouriteEntries.value.map((entry) => ({
      ...entry,

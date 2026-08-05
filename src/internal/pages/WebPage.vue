@@ -56,12 +56,11 @@ import {
   registerWebviewFindTarget
 } from '../services/webviewRegistration';
 
+import { useTabNavigation } from '../../composables/useTabNavigation';
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
  const currentTabRefresh = inject<any>("currentTabRefresh", null);
- const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);
- const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null);
- const openExtensionPopup = inject<((input: any) => void) | null>("openExtensionPopup", null);
+ const { navigate, openInNewTab, openExtensionPopup } = useTabNavigation();
  const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
    "findRegisterTarget",
    null,

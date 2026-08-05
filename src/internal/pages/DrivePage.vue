@@ -1311,10 +1311,6 @@ const gateway_lumen_api = lumen_api?.gateway;
 const profiles_lumen_api = lumen_api?.profiles;
 const siteData_lumen_api = lumen_api?.siteData;
 
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>(
-  "navigate",
-  null,
-);
 
 import {
   Cloud,
@@ -1400,6 +1396,8 @@ import type {
   DriveBackupSnapshot,
 } from "../../types/drivePage";
 
+import { useTabNavigation } from "../../composables/useTabNavigation";
+const { navigate, openInNewTab } = useTabNavigation();
 const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);
 const localPinnedLoading = ref(false);
@@ -1529,10 +1527,6 @@ const archiveDownloadStatusText = computed(() => {
   return label;
 });
 
-const openInNewTab = inject<((url: string) => void) | null>(
-  "openInNewTab",
-  null,
-);
 
 const profiles = profilesState;
 const activeProfile = computed(

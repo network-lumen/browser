@@ -69,6 +69,7 @@ import {
   listInstalledExtensions
 } from '../services/extensions';
 
+import { useTabNavigation } from '../../composables/useTabNavigation';
 const DEFAULT_STORE_URL = "https://chromewebstore.google.com/category/extensions";
 const STORE_SEARCH_BASE_URL = "https://chromewebstore.google.com/search/";
 const CRX_DOWNLOAD_MARKER = "clients2.google.com/service/update2/crx";
@@ -78,8 +79,7 @@ const FALLBACK_STORE_USER_AGENT =
 const currentTabUrl = inject<any>("currentTabUrl", null);
 const currentTabId = inject<any>("currentTabId", null);
 const currentTabRefresh = inject<any>("currentTabRefresh", null);
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);
-const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null);
+const { navigate, openInNewTab } = useTabNavigation();
 const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
   "findRegisterTarget",
   null,

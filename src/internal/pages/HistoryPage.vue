@@ -117,7 +117,7 @@ import UiButton from '../../ui/UiButton.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiTitleSubtitle from '../../ui/UiTitleSubtitle.vue';
 import UiCountPill from '../../ui/UiCountPill.vue';
-import { computed, inject, ref } from "vue";
+import { computed,  ref } from "vue";
 import {
   ArrowUpRight,
   History as HistoryIcon,
@@ -131,9 +131,9 @@ import { avatarToneStyle, describeFavouriteUrl } from "../favouriteMeta";
 import { useHistory } from "../historyStore";
 import { formatTimeOfDay } from "../services/format";
 
-const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>("navigate", null);
-const openInNewTab = inject<((url: string) => void) | null>("openInNewTab", null);
 
+import { useTabNavigation } from "../../composables/useTabNavigation";
+const { navigate, openInNewTab } = useTabNavigation();
 const query = ref("");
 
 const {

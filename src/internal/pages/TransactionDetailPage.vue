@@ -98,6 +98,7 @@ import { formatDateTime, formatDenom, formatNumber as formatNumberValue } from '
 import { explorerBlockUrl } from '../services/explorerLinks';
 
 import { errorMessage } from '../services/coerce';
+import { useTabNavigation } from '../../composables/useTabNavigation';
 const loading = ref(true);
 const error = ref('');
 const pending = ref(false);
@@ -110,8 +111,8 @@ const lumen = useInternalLumen();
 const currentTabUrl = inject<any>('currentTabUrl', null);
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 
-const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
 
+const { openInNewTab } = useTabNavigation();
 const txHash = computed(() => {
   if (!currentTabUrl || !currentTabUrl.value) return null;
   const match = currentTabUrl.value.match(/\/network\/tx\/([A-F0-9]+)/i);
