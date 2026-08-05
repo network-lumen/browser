@@ -43,3 +43,22 @@ export type ArtifactDraft = {
 };
 
 export type DaoKind = 'validate' | 'reject';
+
+/** The fields of the publish-release form. */
+export type ReleaseDraft = {
+  version: string;
+  channel: string;
+  notes: string;
+  supersedes: string;
+  emergencyOk: boolean;
+  artifacts: ArtifactDraft[];
+};
+
+/** The fields of the "send to DAO" form. `reason` only applies to a rejection. */
+export type DaoProposalForm = {
+  kind: DaoKind;
+  title: string;
+  summary: string;
+  depositLmn: string;
+  reason: string;
+};
