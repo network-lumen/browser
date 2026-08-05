@@ -319,11 +319,9 @@ import {
 import type { Entry, MarkdownTarget, MarkdownResolvedLink } from "../../types/ipfsPage";
 import type { DriveSavedFile } from "../../types/driveSavedFile";
 
-import { errorMessage } from "../services/coerce";
-import { useTabNavigation } from "../../composables/useTabNavigation";
- const currentTabUrl = inject<any>("currentTabUrl", null);
- const currentTabId = inject<any>("currentTabId", null);
- const currentTabRefresh = inject<any>("currentTabRefresh", null);
+import { errorMessage, safeDecodeUriComponent } from "../services/coerce";
+import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
+ const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
  const currentTabIsActive = inject<any>("currentTabIsActive", null);
  const { navigate, openInNewTab } = useTabNavigation();
  const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
@@ -654,13 +652,6 @@ watch([viewKind, epubBookUrl, bibiOrigin], ([kind]) => {
   }
 });
 
-function decodeSafe(seg: string): string {
-  try {
-    return decodeURIComponent(seg);
-  } catch {
-    return seg;
-  }
-}
 
 function encodePath(p: string): string {
   const cleaned = String(p || "").replace(/^\/+/, "");
@@ -696,7 +687,7 @@ function parseIpfsUrl(raw: string): {
   const hasTrailingSlash = /\/$/.test(split.path);
   const cleaned = split.path.replace(/^\/+/, "").replace(/\/+$/, "");
 
-  const segs = cleaned.split("/").filter(Boolean).map(decodeSafe);
+  const segs = cleaned.split("/").filter(Boolean).map(safeDecodeUriComponent);
   const cid = segs[0] || "";
   const rel = segs.slice(1).join("/");
   return { proto, cid, rel, dir: hasTrailingSlash, suffix: split.suffix };
@@ -751,7 +742,7 @@ function decodePathSegments(pathname: string): string {
   return String(pathname || "")
     .split("/")
     .filter(Boolean)
-    .map((seg) => decodeSafe(seg))
+    .map((seg) => safeDecodeUriComponent(seg))
     .join("/");
 }
 
@@ -793,7 +784,7 @@ function parseExplicitMarkdownTarget(raw: string): MarkdownTarget | null {
     .replace(/\/+$/, "")
     .split("/")
     .filter(Boolean)
-    .map((seg) => decodeSafe(seg));
+    .map((seg) => safeDecodeUriComponent(seg));
   const id = String(segs[0] || "").trim();
   if (!id) return null;
 

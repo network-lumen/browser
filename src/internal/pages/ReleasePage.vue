@@ -296,7 +296,7 @@
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
-import { computed, inject, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { Plus, RefreshCw, Rocket } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
@@ -314,9 +314,9 @@ import { formatBytes as formatBytesValue, formatDateTime } from '../services/for
 import { safeString, errorMessage } from '../services/coerce';
 import type { ReleaseParams, ArtifactRecord, ReleaseRecord, ArtifactDraft, DaoKind } from '../../types/releasePage';
 
-import { useTabNavigation } from '../../composables/useTabNavigation';
+import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const { navigate } = useTabNavigation();
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
+const { currentTabRefresh } = useTabState();
 
 const loading = ref(true);
 const params = ref<ReleaseParams | null>(null);

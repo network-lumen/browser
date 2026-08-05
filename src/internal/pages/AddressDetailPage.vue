@@ -108,14 +108,14 @@ import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
 import UiIconBadge from '../../ui/UiIconBadge.vue';
 import { Clock, Activity } from 'lucide-vue-next';
-import { ref, onMounted, computed, inject, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatMicroAmount, truncateMiddle } from '../services/format';
 import { explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
 
 import { errorMessage } from '../services/coerce';
-import { useTabNavigation } from '../../composables/useTabNavigation';
+import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const loading = ref(true);
 const error = ref('');
 const notFound = ref(false);
@@ -125,8 +125,7 @@ useTabLoadingSync(loading);
 
 const lumen = useInternalLumen();
 
-const currentTabUrl = inject<any>('currentTabUrl', null);
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
+const { currentTabUrl, currentTabRefresh } = useTabState();
 
 
 const { openInNewTab } = useTabNavigation();

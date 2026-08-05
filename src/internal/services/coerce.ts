@@ -40,6 +40,22 @@ export function errorMessage(error: unknown, fallback = ''): string {
   return fallback;
 }
 
+/**
+ * `decodeURIComponent` that returns its input instead of throwing.
+ *
+ * A lone `%` or a truncated escape is a URIError, and URLs reaching this app
+ * come from users typing, from pages navigating and from IPNS records - none
+ * of which owe us well-formed percent-encoding. Three files had written this
+ * out identically.
+ */
+export function safeDecodeUriComponent(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 /** Finite number, or `null` when the input can't be read as one. */
 export function safeNumber(value: unknown): number | null {
   const n = typeof value === 'number' ? value : Number(value);

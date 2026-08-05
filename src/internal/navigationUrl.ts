@@ -1,3 +1,5 @@
+import { safeDecodeUriComponent } from './services/coerce';
+
 const LUMEN_URL_RE = /^\s*lumen:\/\//i;
 const HTTP_URL_RE = /^\s*https?:\/\//i;
 const FILE_URL_RE = /^\s*file:\/\//i;
@@ -9,17 +11,10 @@ import type { ExtensionTabRoute } from "../types/navigation";
 
 export type { ExtensionTabRoute };
 
-function safeDecode(segment: string): string {
-  try {
-    return decodeURIComponent(segment);
-  } catch {
-    return segment;
-  }
-}
 
 function encodePathSegment(segment: string): string {
   if (!segment) return segment;
-  return encodeURIComponent(safeDecode(segment));
+  return encodeURIComponent(safeDecodeUriComponent(segment));
 }
 
 export function isLumenUrl(raw: string): boolean {
@@ -123,7 +118,7 @@ export function getFileUrlTitle(raw: string): string {
 
   try {
     const url = new URL(value);
-    let pathname = safeDecode(String(url.pathname || ""));
+    let pathname = safeDecodeUriComponent(String(url.pathname || ""));
     if (/^\/[a-zA-Z]:\//.test(pathname)) pathname = pathname.slice(1);
     const trimmed = pathname.replace(/\/+$/, "");
     if (!trimmed) return url.host || "Local file";
@@ -145,7 +140,7 @@ export function parseExtensionTabUrl(raw: string): ExtensionTabRoute | null {
       .replace(/^\/+/, "")
       .split("/")
       .filter(Boolean);
-    const extensionId = safeDecode(segments[0] || "").trim();
+    const extensionId = safeDecodeUriComponent(segments[0] || "").trim();
     if (!extensionId) return null;
     return {
       extensionId,
