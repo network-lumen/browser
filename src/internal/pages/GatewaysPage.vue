@@ -146,52 +146,15 @@
             </UiCard>
           </div>
 
-          <UiModal :model-value="showCreateModal" panel-class="w-min-760px-full" :closable="!registerState.busy" @update:model-value="closeCreateModal">
-            <template #header>
-              <div>
-                <h2 class="color-text-primary text-16px">Create gateway</h2>
-                <p class="color-text-secondary m-0px mt-4px">Register a new gateway for the active profile.</p>
-              </div>
-            </template>
-                <div class="grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
-                  <UiFormField label="Endpoint" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                    <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.endpoint" placeholder="gateway.city" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                  </UiFormField>
-                  <UiFormField label="Regions" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                    <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.regions"
-                      placeholder="us-east, eu-west" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                  </UiFormField>
-                  <UiFormField label="Payout address" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                    <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.payout" placeholder="lmn1..." class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                  </UiFormField>
-                  <UiFormField class="grid-col-full" label="Metadata (JSON object)" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                    <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.metadata"
-                      rows="7"
-                      placeholder='{\n  "name": "My gateway"\n}' class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary"></UiInput>
-                  </UiFormField>
-                  <UiFormField label="Memo" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                    <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="registerForm.memo" placeholder="Optional memo" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                  </UiFormField>
-
-                  <div v-if="registerState.error" class="mt-12px p-12px border-1-error-a25 bg-error-a08">
-                    {{ registerState.error }}
-                  </div>
-                  <div v-if="registerState.txhash" class="mono mt-12px p-12px bg-success-a08 border-1-success-a25">
-                    tx: {{ registerState.txhash }}
-                  </div>
-                </div>
-            <template #footer>
-              <UiButton variant="secondary" type="button" @click="closeCreateModal" :disabled="registerState.busy">
-                Cancel
-              </UiButton>
-              <UiButton variant="primary" type="button"
-                @click="registerGateway"
-                :disabled="registerState.busy || !canRegister">
-                <span v-if="!registerState.busy">Create</span>
-                <span v-else>Submitting…</span>
-              </UiButton>
-            </template>
-          </UiModal>
+          <GatewayRegisterDialog
+            :model-value="showCreateModal"
+            :active-address="activeAddress"
+            :busy="registerState.busy"
+            :error="registerState.error"
+            :txhash="registerState.txhash"
+            @update:model-value="closeCreateModal"
+            @submit="registerGateway"
+          />
 
         </div>
       </div>
@@ -204,7 +167,7 @@ import UiInput from '../../ui/UiInput.vue';
 import UiFormField from '../../ui/UiFormField.vue';
 import UiCheckbox from '../../ui/UiCheckbox.vue';
 import UiButton from '../../ui/UiButton.vue';
-import UiModal from '../../ui/UiModal.vue';
+import GatewayRegisterDialog from '../../dialogs/GatewayRegisterDialog.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
@@ -219,7 +182,7 @@ import { useToast } from '../../composables/useToast';
 
 const { currentTabRefresh } = useTabState();
 import InternalSidebar from '../../components/InternalSidebar.vue';
-import type { GatewayParamsView, GatewayRecord, GatewayEditState } from '../../types/gatewaysPage';
+import type { GatewayParamsView, GatewayRecord, GatewayEditState , GatewayRegisterForm } from '../../types/gatewaysPage';
 
 import { errorMessage } from '../services/coerce';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
@@ -247,13 +210,6 @@ const privateGateways = ref<any[]>([]);
 const { navigate } = useTabNavigation();
 const showCreateModal = ref(false);
 
-const registerForm = reactive({
-  endpoint: '',
-  regions: '',
-  payout: '',
-  metadata: '',
-  memo: ''
-});
 
 const registerState = reactive({
   busy: false,
@@ -276,36 +232,21 @@ const editMap = reactive<Record<string, GatewayEditState>>({});
 const registerFeeLabel = computed(() => formatUlmnToLmn(gatewayParams.value?.registerFeeUlmn));
 const updateFeeLabel = computed(() => formatUlmnToLmn(gatewayParams.value?.actionFeeUlmn));
 
-watch(activeAddress, (addr) => {
-  if (!registerForm.payout) registerForm.payout = addr || '';
+watch(activeAddress, () => {
   syncEditMap();
 });
 
 function openCreateModal() {
   if (!hasProfile.value) return;
-  resetRegister();
+  registerState.error = '';
+  registerState.txhash = '';
   showCreateModal.value = true;
 }
 
 function closeCreateModal() {
   if (registerState.busy) return;
   showCreateModal.value = false;
-  resetRegister();
 }
-
-function resetRegister() {
-  registerForm.endpoint = '';
-  registerForm.regions = '';
-  registerForm.metadata = '';
-  registerForm.memo = '';
-  registerState.error = '';
-  registerState.txhash = '';
-  registerForm.payout = activeAddress.value || '';
-}
-
-const canRegister = computed(() => {
-  return !!registerForm.endpoint.trim() && !!registerForm.payout.trim();
-});
 
 function getGwApi(): any {
   const api: any = useInternalLumen();
@@ -525,9 +466,9 @@ function isDirty(id: string): boolean {
   );
 }
 
-async function registerGateway() {
-  if (!hasProfile.value || registerState.busy || !canRegister.value) return;
-  const extras = parseExtras(registerForm.metadata);
+async function registerGateway(form: GatewayRegisterForm) {
+  if (!hasProfile.value || registerState.busy) return;
+  const extras = parseExtras(form.metadata);
   if (!extras.ok) {
     registerState.error = extras.error || 'Invalid metadata.';
     notify(registerState.error, 'error');
@@ -544,11 +485,11 @@ async function registerGateway() {
     }
     const result: any = await gwApi.registerGateway({
       profileId: activeProfileId.value,
-      payout: registerForm.payout.trim(),
-      endpoint: registerForm.endpoint.trim(),
-      regions: parseRegions(registerForm.regions),
+      payout: form.payout.trim(),
+      endpoint: form.endpoint.trim(),
+      regions: parseRegions(form.regions),
       metadata: extras.value ?? undefined,
-      memo: registerForm.memo || undefined
+      memo: form.memo || undefined
     });
     if (!result || result.ok === false) {
       const message = normalizeError(result?.error || errorMessage(result, 'Registration failed.'));
@@ -559,10 +500,7 @@ async function registerGateway() {
     registerState.txhash = String(result.txhash || '');
     notify('Gateway registration submitted', 'success');
     await loadGateways();
-    registerForm.endpoint = '';
-    registerForm.regions = '';
-    registerForm.metadata = '';
-    registerForm.memo = '';
+    showCreateModal.value = false;
   } catch (e) {
     const msg = normalizeError(errorMessage(e));
     registerState.error = msg;
@@ -673,10 +611,10 @@ watch(
   () => {
     for (const key of Object.keys(editMap)) delete editMap[key];
     showCreateModal.value = false;
-    resetRegister();
+    registerState.error = '';
+    registerState.txhash = '';
     refreshManage();
   }
 );
 </script>
-
 
