@@ -172,242 +172,25 @@
         </ul>
       </UiCard>
 
-      <UiModal :model-value="!!stableLinkModalMode" :title="stableLinkModalMode === 'import' ? 'Import ugly domain' : 'Generate ugly domain'" panel-class="max-w-500px" @update:model-value="closeStableLinkModal">
-            <form class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px" @submit.prevent="confirmStableLinkModal">
-              <p class="text-14px color-text-tertiary m-0px mb-12px">
-                {{ stableLinkModalMode === 'import'
-                  ? 'Choose a local private key file and attach it to this ugly domain name.'
-                  : 'Create a new IPNS-backed ugly domain with a local private key.' }}
-              </p>
-              <div class="mb-16px">
-                <label class="color-text-secondary block mb-4px text-13px">Ugly domain name</label>
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" v-model="stableLinkNameDraft"
-                  autocomplete="off"
-                  placeholder="my-link"
-                  :disabled="stableLinkSaving"
-                  autofocus class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-              </div>
-              <div class="flex flex-justify-end gap-8px">
-                <UiButton variant="secondary" type="button" :disabled="stableLinkSaving" @click="closeStableLinkModal" class="outline-none">
-                  Cancel
-                </UiButton>
-                <UiButton variant="primary" type="submit"
-                  :disabled="stableLinkSaving || !stableLinkNameDraft.trim()" class="outline-none">
-                  <span v-if="!stableLinkSaving" class="flex-inline-align-center gap-8px">
-                    <component :is="stableLinkModalMode === 'import' ? Upload : Plus" :size="16" />
-                    {{ stableLinkModalMode === 'import' ? 'Import' : 'Generate' }}
-                  </span>
-                  <UiSpinner v-else size="sm" />
-                </UiButton>
-              </div>
-            </form>
-      </UiModal>
+      <UglyDomainNameDialog :model-value="!!stableLinkModalMode" :mode="stableLinkModalMode" :name="stableLinkNameDraft" :saving="stableLinkSaving" @update:model-value="closeStableLinkModal" @update:name="stableLinkNameDraft = $event" @submit="confirmStableLinkModal" />
 
-      <UiModal :model-value="showStableSettingsModal" title="Ugly domain record" panel-class="max-w-500px" @update:model-value="closeStableSettingsModal">
-            <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <div class="mb-16px">
-                <label class="color-text-secondary block mb-4px text-13px">Record (cid)</label>
-                <div v-if="stableSettingsLoading" class="color-text-tertiary text-13px mb-8px">
-                  Loading record...
-                </div>
-                <UiInput v-else bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                  v-model="stableSettingsCidValue"
-                  placeholder="lumen://ipfs/CID or lumen://ipns/NAME"
-                  :disabled="stableSettingsSaving" class="w-full focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                <UiButton variant="secondary" type="button" disabled class="outline-none mt-8px disabled-fade-50" title="Multiple records are only available for Lumen domains, not ugly domains.">
-                  Add record
-                  <HelpCircle :size="14" />
-                </UiButton>
-              </div>
-
-              <div class="flex flex-justify-end gap-8px">
-                <UiButton variant="secondary" type="button" @click="closeStableSettingsModal" :disabled="stableSettingsSaving" class="outline-none">
-                  Cancel
-                </UiButton>
-                <UiButton variant="primary" type="button" @click="saveStableSettings" :disabled="stableSettingsSaving || stableSettingsLoading" class="outline-none">
-                  <span v-if="!stableSettingsSaving" class="flex-inline-align-center gap-8px">
-                    <Check :size="16" />
-                    Save record
-                  </span>
-                  <UiSpinner v-else size="sm" />
-                </UiButton>
-              </div>
-            </div>
-      </UiModal>
+      <UglyDomainRecordDialog :model-value="showStableSettingsModal" :cid="stableSettingsCidValue" :loading="stableSettingsLoading" :saving="stableSettingsSaving" @update:model-value="closeStableSettingsModal" @update:cid="stableSettingsCidValue = $event" @submit="saveStableSettings" />
 
       <!-- Register Domain Modal -->
-      <UiModal :model-value="showRegisterModal" title="Register domain" panel-class="max-w-500px" @update:model-value="closeRegisterModal">
-            <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <div class="mb-16px">
-                <label class="color-text-secondary block mb-4px text-13px">Domain</label>
-                <div class="flex-align-center gap-6px">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                    v-model="registerForm.domainName"
-                    placeholder="myname"
-                    @input="sanitizeDomainInput"
-                    @blur="refreshAvailability" class="flex-12 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                  <span class="txt-weight-light color-text-tertiary text-14px">.</span>
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                    v-model="registerForm.ext"
-                    placeholder="lmn"
-                    @blur="refreshAvailability" class="flex-08 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                </div>
-                <div
-                  v-if="registerForm.domainName"
-                  class="mt-8px border-radius-8px text-13px py-8px px-10px"
-                  :class="domainAvailable ? 'color-success bg-fill-success' : 'color-error bg-fill-error'"
-                >
-                  <span>{{ domainAvailable ? 'Available' : 'Already taken' }}</span>
-                </div>
-              </div>
-
-              <div class="mb-16px flex-align-center-justify-space-between">
-                <label class="color-text-secondary text-13px">Registration period</label>
-                <span class="color-text-primary text-13px txt-weight-medium">1 year</span>
-              </div>
-
-              <UiCard bg-class="bg-secondary" border-class="border-1" radius="10px" padding-class="py-8px px-12px" class="m-0px mt-8px mb-16px" :shadow="false">
-                <div class="mt-4px flex-align-center flex-justify-space-between color-text-primary text-13px px-0px pt-6px border-top-1 txt-weight-light">
-                  <span>Total (1 year)</span>
-                  <span class="txt-weight-light">{{ dnsTotalFeeLabel }}</span>
-                </div>
-              </UiCard>
-
-              <UiButton variant="primary" type="button"
-                @click="confirmRegister"
-                :disabled="!canRegister || registering" class="outline-none">
-                <span v-if="!registering" class="flex-inline-align-center gap-8px">
-                  <Plus :size="16" />
-                  Register domain
-                </span>
-                <UiSpinner v-else size="sm" />
-              </UiButton>
-            </div>
-      </UiModal>
+      <RegisterDomainDialog :model-value="showRegisterModal" :form="registerForm" :can-submit="canRegister" :busy="registering" :sanitize-domain-input="sanitizeDomainInput" :refresh-availability="refreshAvailability" :domain-available="domainAvailable" :dns-total-fee-label="dnsTotalFeeLabel" @update:model-value="closeRegisterModal" @submit="confirmRegister" />
 
       <!-- Settings Modal -->
-      <UiModal :model-value="showSettingsModal" title="Domain settings" panel-class="max-w-500px" @update:model-value="closeSettingsModal">
-            <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <div class="border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
-                <div class="txt-weight-light text-15px">{{ selectedDomain?.name || 'mydomain.lmn' }}</div>
-                <div class="text-13px mt-4px">
-                  {{ selectedDomain ? expiryText(selectedDomain) : 'Expires: unknown' }}
-                </div>
-              </div>
-
-              <div class="mb-16px">
-                <label class="color-text-secondary block mb-4px text-13px">Records (key / value)</label>
-                <div v-if="!settingsRecords.length" class="color-text-tertiary text-13px mb-8px">
-                  No records yet. Add a new row below.
-                </div>
-                <div v-else class="flex flex-column gap-6px mb-8px">
-                  <div
-                    class="flex-align-center gap-6px"
-                    v-for="(r, idx) in settingsRecords"
-                    :key="idx"
-                  >
-                    <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                      v-model="r.key"
-                      placeholder="cid | ipns | txt | ..." class="flex-09 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                    <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                      v-model="r.value"
-                      placeholder="Value" class="flex-16 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                    <UiButton variant="danger" type="button"
-                      @click="removeSettingsRecord(idx)"
-                      title="Remove row">
-                      <X :size="14" />
-                    </UiButton>
-                  </div>
-                </div>
-                <UiButton variant="secondary" type="button" @click="addSettingsRecord" class="outline-none">
-                  Add record
-                </UiButton>
-              </div>
-
-              <UiCard bg-class="bg-secondary" border-class="border-1" radius="10px" padding-class="py-8px px-12px" class="m-0px mt-8px mb-16px" :shadow="false">
-                <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
-                  <span>Cost</span>
-                  <span class="txt-weight-light">{{ settingsCostLabel }}</span>
-                </div>
-                <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
-                  <span>Balance</span>
-                  <span class="txt-weight-light">{{ settingsWalletBalanceLabel }}</span>
-                </div>
-                <p class="text-12px color-text-tertiary mt-8px" v-if="settingsInsufficientBalance">
-                  You need at least {{ settingsCostLabel }} available to keep your PQC link active.
-                </p>
-              </UiCard>
-
-              <div class="flex flex-justify-end gap-8px">
-                <UiButton variant="secondary" type="button" @click="closeSettingsModal()" class="outline-none">
-                  Cancel
-                </UiButton>
-                <UiButton variant="primary" type="button"
-                  @click="saveSettings"
-                  :disabled="!canSaveSettings || savingSettings" class="outline-none">
-                  <span v-if="!savingSettings" class="flex-inline-align-center gap-8px">
-                    <Settings :size="16" />
-                    Save changes
-                  </span>
-                  <UiSpinner v-else size="sm" />
-                </UiButton>
-              </div>
-            </div>
-      </UiModal>
+      <DomainSettingsDialog :model-value="showSettingsModal" :records="settingsRecords" :domain="selectedDomain" :expiry-label="selectedDomain ? expiryText(selectedDomain) : ''" :cost-label="settingsCostLabel" :wallet-balance-label="settingsWalletBalanceLabel" :can-submit="canSaveSettings" :busy="savingSettings" :insufficient-balance="settingsInsufficientBalance" @update:model-value="closeSettingsModal" @submit="saveSettings" @add-record="addSettingsRecord" @remove-record="removeSettingsRecord" />
 
       <!-- Transfer Modal -->
-      <UiModal :model-value="showTransferModal" title="Transfer domain" panel-class="max-w-500px" @update:model-value="closeTransferModal">
-            <div class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px">
-              <p class="text-14px color-text-tertiary m-0px mb-12px">Transfer ownership of this domain to another address.</p>
-              
-              <div class="border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
-                <div class="txt-weight-light text-15px">{{ transferDomain?.name || 'mydomain.lmn' }}</div>
-                <div class="text-13px mt-4px">
-                  {{ transferDomain ? expiryText(transferDomain) : 'Expires: unknown' }}
-                </div>
-              </div>
-
-              <div class="mb-16px">
-                <label class="color-text-secondary block mb-4px text-13px">New Owner Address</label>
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
-                  v-model="transferForm.newOwner"
-                  placeholder="lmn1..." class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
-                <p class="text-12px color-text-tertiary mt-8px">Enter the Lumen address of the new owner</p>
-              </div>
-
-              <div class="flex border-radius-10px gap-12px p-14px bg-fill-error border-1-error-a30 m-0px mt-16px mb-16px">
-                <div class="text-20px flex-shrink-0">⚠️</div>
-                <div class="color-text-primary text-13px">
-                  <strong class="color-error txt-weight-light">Warning:</strong> This action cannot be undone. Once transferred, you will lose control of this domain.
-                </div>
-              </div>
-
-              <div class="flex flex-justify-end gap-8px">
-                <UiButton variant="secondary" type="button" @click="closeTransferModal" class="outline-none">
-                  Cancel
-                </UiButton>
-                <UiButton variant="danger" type="button"
-                  @click="confirmTransfer"
-                  :disabled="!canTransfer || transferring" class="outline-none">
-                  <span v-if="!transferring" class="flex-inline-align-center gap-8px">
-                    <Send :size="16" />
-                    Transfer domain
-                  </span>
-                  <UiSpinner v-else size="sm" />
-                </UiButton>
-              </div>
-            </div>
-      </UiModal>
+      <TransferDomainDialog :model-value="showTransferModal" :new-owner="transferForm.newOwner" :domain="transferDomain" :expiry-label="transferDomain ? expiryText(transferDomain) : ''" :can-submit="canTransfer" :busy="transferring" @update:model-value="closeTransferModal" @update:new-owner="transferForm.newOwner = $event" @submit="confirmTransfer" />
     </main>
 
   </div>
 </template>
 
 <script setup lang="ts">
-import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
-import UiModal from '../../ui/UiModal.vue';
-import UiSpinner from '../../ui/UiSpinner.vue';
 import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
@@ -428,10 +211,8 @@ import {
   Copy,
   Check,
   Settings,
-  X,
   Send,
   Trash2,
-  HelpCircle,
   Rocket
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
@@ -439,10 +220,15 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
 import { loadStableLinkRecords } from '../services/contentResolver';
-import type { DomainRow, RawDomainRow, SettingsRecord } from '../../types/domainPage';
+import type { DomainRow, RawDomainRow, SettingsRecord , DomainRegisterForm } from '../../types/domainPage';
 
 import { errorMessage } from '../services/coerce';
 import { sanitizeStableLinkLabel, stableLinkDisplayName, stableLinkKeyNameFromLabel } from '../services/stableLinks';
+import UglyDomainNameDialog from '../../dialogs/UglyDomainNameDialog.vue';
+import UglyDomainRecordDialog from '../../dialogs/UglyDomainRecordDialog.vue';
+import RegisterDomainDialog from '../../dialogs/RegisterDomainDialog.vue';
+import DomainSettingsDialog from '../../dialogs/DomainSettingsDialog.vue';
+import TransferDomainDialog from '../../dialogs/TransferDomainDialog.vue';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const { currentTabRefresh } = useTabState();
 
@@ -477,7 +263,7 @@ const domainAvailable = ref(true);
 const registering = ref(false);
 const registerPriceUlmn = ref<number | null>(null);
 
-const registerForm = ref({
+const registerForm = ref<DomainRegisterForm>({
   domainName: '',
   years: '1',
   ext: 'lmn'
