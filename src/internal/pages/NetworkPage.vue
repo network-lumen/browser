@@ -853,7 +853,7 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboardWithToast } from '../../composables/useClipboard';
 import { computeTxHash } from '../chainRpc';
 import type { Block, Transaction, Validator, TxHistoryWindow } from '../../types/explorerPage';
-import type { Block as NetworkBlock } from '../../types/networkPage';
+import type { Block as NetworkBlock, ProposerInfo } from '../../types/networkPage';
 import type { GovernanceProposal, GovernanceVoteOption } from '../../types/networkGovernance';
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
@@ -977,7 +977,7 @@ const blocks = ref<Block[]>([]);
 const transactions = ref<Transaction[]>([]);
 const validators = ref<Validator[]>([]);
 const avatarCache = ref<Record<string, string>>({});
-const proposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});
+const proposerMap = ref<Record<string, ProposerInfo>>({});
 
 // Stake modal state
 const showStakeModal = ref(false);
@@ -2147,7 +2147,7 @@ const networkMaxTps = ref(0);
 
 const networkRecentBlocks = ref<NetworkBlock[]>([]);
 const networkAvatarCache = ref<Record<string, string>>({});
-const networkProposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});
+const networkProposerMap = ref<Record<string, ProposerInfo>>({});
 
 function networkIndicatorFillStyle(state: string): Record<string, string> {
   if (state === "excellent") return { background: "var(--color-success)" };

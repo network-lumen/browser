@@ -80,7 +80,7 @@
 <script setup lang="ts">
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
-import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
 import { FileQuestion, Tag } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import UiEmptyState from "../../ui/UiEmptyState.vue";
@@ -104,10 +104,7 @@ import {
 import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
 const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
 const { navigate, openInNewTab } = useTabNavigation();
-const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
-  "findRegisterTarget",
-  null,
-);
+const { registerFindTarget } = useTabNavigation();
 
 const loading = ref(false);
 const error = ref(false);

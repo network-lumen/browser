@@ -5,3 +5,16 @@ export interface Block {
   validator: string;
   validatorAvatar?: string;
 }
+
+/**
+ * A block proposer as the explorer displays it: the validator moniker, plus
+ * the avatar looked up on Keybase.
+ *
+ * NetworkPage and BlockDetailPage both keep a map of these and had each
+ * written the shape inline - twice in one of them.
+ */
+export type ProposerInfo = {
+  moniker: string;
+  avatar?: string;
+  keybaseId?: string;
+};

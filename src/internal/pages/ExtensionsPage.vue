@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
 import { isBrowserUrl } from "../navigationUrl";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -78,10 +78,7 @@ const FALLBACK_STORE_USER_AGENT =
 
 const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
 const { navigate, openInNewTab } = useTabNavigation();
-const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
-  "findRegisterTarget",
-  null,
-);
+const { registerFindTarget } = useTabNavigation();
 
 const webviewRef = ref<any>(null);
 const pageActive = ref(false);

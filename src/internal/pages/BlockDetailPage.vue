@@ -84,6 +84,7 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
 import { computeTxHash } from '../chainRpc';
 import { formatNumber } from '../services/format';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
+import type { ProposerInfo } from '../../types/networkPage';
 import { explorerTransactionUrl } from '../services/explorerLinks';
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
@@ -95,7 +96,7 @@ useTabLoadingSync(loading);
 
 const lumen = useInternalLumen();
 
-const proposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});
+const proposerMap = ref<Record<string, ProposerInfo>>({});
 const avatarCache = ref<Record<string, string>>({});
 
 const { currentTabUrl, currentTabRefresh } = useTabState();
