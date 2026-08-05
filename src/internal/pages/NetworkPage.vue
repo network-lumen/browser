@@ -840,6 +840,8 @@ import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { formatNumber, truncateMiddle } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
+import { fetchKeybaseAvatarUrl } from '../services/keybase';
+import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, Info, ExternalLink, CirclePlus, CircleAlert, CircleCheckBig, Activity, Network, SlidersHorizontal, Vote, FileText, Plus, ThumbsUp, ThumbsDown, Circle, X } from 'lucide-vue-next';
@@ -848,7 +850,7 @@ import type { GovernanceActionDraft } from '../../types/networkGovernance';
 import { useToast } from '../../composables/useToast';
 import { fromBase64, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
+import { copyToClipboardWithToast } from '../../composables/useClipboard';
 import { computeTxHash } from '../chainRpc';
 import type { Block, Transaction, Validator, TxHistoryWindow } from '../../types/explorerPage';
 import type { Block as NetworkBlock } from '../../types/networkPage';
@@ -886,7 +888,7 @@ const isAddressDetailView = computed(() => {
 });
 
 function navigateToBlock(height: number) {
-  const url = `lumen://network/block/${height}`;
+  const url = explorerBlockUrl(height);
   if (openInNewTab) {
     openInNewTab(url);
   } else {
@@ -895,7 +897,7 @@ function navigateToBlock(height: number) {
 }
 
 function navigateToTransaction(hash: string) {
-  const url = `lumen://network/tx/${hash}`;
+  const url = explorerTransactionUrl(hash);
   if (openInNewTab) {
     openInNewTab(url);
   } else {
@@ -904,7 +906,7 @@ function navigateToTransaction(hash: string) {
 }
 
 function navigateToAddress(address: string) {
-  const url = `lumen://network/address/${address}`;
+  const url = explorerAddressUrl(address);
   if (openInNewTab) {
     openInNewTab(url);
   } else {
@@ -1477,30 +1479,21 @@ async function fetchKeybaseAvatars() {
   for (const validator of validatorsWithKeybase) {
     if (!validator.keybaseId) continue;
     
-    try {
-      const response = await fetch(
-        `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${validator.keybaseId}`
-      );
-      const data = await response.json();
-      
-      if (data?.them?.[0]?.pictures?.primary?.url) {
-        const avatarUrl = data.them[0].pictures.primary.url;
-        avatarCache.value[validator.keybaseId] = avatarUrl;
-        hasUpdates = true;
-        
-        const valIndex = validators.value.findIndex(v => v.keybaseId === validator.keybaseId);
-        if (valIndex !== -1) {
-          validators.value[valIndex].avatar = avatarUrl;
-        }
-        
-        for (const key in proposerMap.value) {
-          if (proposerMap.value[key].keybaseId === validator.keybaseId) {
-            proposerMap.value[key].avatar = avatarUrl;
-          }
-        }
+    const avatarUrl = await fetchKeybaseAvatarUrl(validator.keybaseId);
+    if (!avatarUrl) continue;
+
+    avatarCache.value[validator.keybaseId] = avatarUrl;
+    hasUpdates = true;
+
+    const valIndex = validators.value.findIndex(v => v.keybaseId === validator.keybaseId);
+    if (valIndex !== -1) {
+      validators.value[valIndex].avatar = avatarUrl;
+    }
+
+    for (const key in proposerMap.value) {
+      if (proposerMap.value[key].keybaseId === validator.keybaseId) {
+        proposerMap.value[key].avatar = avatarUrl;
       }
-    } catch {
-      console.warn(`Failed to fetch avatar for ${validator.moniker}`);
     }
   }
   
@@ -1923,12 +1916,7 @@ watch(stakePercentage, (newVal) => {
 });
 
 async function copyToClipboard(text: string, label: string = 'Text') {
-  const ok = await copyToClipboardShared(text);
-  if (ok) {
-    toast.success(`${label} copied to clipboard`);
-  } else {
-    toast.error('Failed to copy to clipboard');
-  }
+  await copyToClipboardWithToast(text, `${label} copied to clipboard`);
 }
 
 function initializeCharts() {

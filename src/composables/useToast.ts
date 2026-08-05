@@ -17,6 +17,15 @@ export function useToast() {
   const info = (message: string, options?: ToastOptions) => 
     addToast('info', message, options);
 
+  /**
+   * Same thing as the four above, chosen by argument instead of by method
+   * name. Five pages had each grown their own copy of this dispatch, differing
+   * only in which of the four types they bothered to handle - so a caller that
+   * passed 'warning' to the wrong one silently got a success toast.
+   */
+  const show = (message: string, type: ToastType = 'success', options?: ToastOptions) =>
+    addToast(type, message, options);
+
   // Convenience method for API responses
   const fromResult = (result: { ok?: boolean; error?: string; message?: string }, successMsg?: string) => {
     if (result.ok) {
@@ -32,6 +41,7 @@ export function useToast() {
     error,
     warning,
     info,
+    show,
     fromResult,
   };
 }

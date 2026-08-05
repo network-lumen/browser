@@ -83,6 +83,8 @@ import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { computeTxHash } from '../chainRpc';
 import { formatNumber } from '../services/format';
+import { fetchKeybaseAvatarUrl } from '../services/keybase';
+import { explorerTransactionUrl } from '../services/explorerLinks';
 
 const loading = ref(true);
 const error = ref('');
@@ -152,9 +154,9 @@ function calculateBlockSize(block: any): string {
 
 function navigateToTransaction(hash: string) {
   if (openInNewTab) {
-    openInNewTab(`lumen://network/tx/${hash}`);
+    openInNewTab(explorerTransactionUrl(hash));
   } else {
-    window.location.href = `lumen://network/tx/${hash}`;
+    window.location.href = explorerTransactionUrl(hash);
   }
 }
 
@@ -289,25 +291,15 @@ async function fetchKeybaseAvatars() {
   
   for (const validator of validatorsWithKeybase) {
     if (!validator.keybaseId) continue;
-    
-    try {
-      const response = await fetch(
-        `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${validator.keybaseId}`
-      );
-      const data = await response.json();
-      
-      if (data?.them?.[0]?.pictures?.primary?.url) {
-        const avatarUrl = data.them[0].pictures.primary.url;
-        avatarCache.value[validator.keybaseId] = avatarUrl;
-        
-        for (const key in proposerMap.value) {
-          if (proposerMap.value[key].keybaseId === validator.keybaseId) {
-            proposerMap.value[key].avatar = avatarUrl;
-          }
-        }
+
+    const avatarUrl = await fetchKeybaseAvatarUrl(validator.keybaseId);
+    if (!avatarUrl) continue;
+
+    avatarCache.value[validator.keybaseId] = avatarUrl;
+    for (const key in proposerMap.value) {
+      if (proposerMap.value[key].keybaseId === validator.keybaseId) {
+        proposerMap.value[key].avatar = avatarUrl;
       }
-    } catch {
-      console.warn(`Failed to fetch avatar for ${validator.moniker}`);
     }
   }
 }

@@ -5766,10 +5766,7 @@ function formatDate(ts: number): string {
   return formatDateTime(ts);
 }
 
-function showToast(msg: string, type: "success" | "error" = "success") {
-  if (type === "error") toastApi.error(msg);
-  else toastApi.success(msg);
-}
+const showToast = toastApi.show;
 
 function compactError(err: string, maxLen = 120) {
   const clean = String(err || "")

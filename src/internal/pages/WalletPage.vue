@@ -892,7 +892,8 @@ import UiFormGroup from '../../ui/UiFormGroup.vue';
 import UiBanner from '../../ui/UiBanner.vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
+import { copyToClipboard as copyToClipboardShared, copyToClipboardWithToast } from '../../composables/useClipboard';
+import { explorerTransactionUrl } from '../services/explorerLinks';
 
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<((url: string) => void) | null>('openInNewTab', null);
@@ -2104,24 +2105,13 @@ function validateAmountInput(event: Event) {
 }
 
 async function copyToClipboard(text: string, message: string = 'Copied to clipboard!') {
-  const ok = await copyToClipboardShared(text);
-  showToast(ok ? message : 'Failed to copy', ok ? 'success' : 'error');
+  await copyToClipboardWithToast(text, message);
 }
 
-function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'success') {
-  if (type === 'error') {
-    toast.error(message);
-  } else if (type === 'warning') {
-    toast.warning(message);
-  } else if (type === 'info') {
-    toast.info(message);
-  } else {
-    toast.success(message);
-  }
-}
+const showToast = toast.show;
 
 function openTransactionTab(txHash: string) {
-  const explorerUrl = `lumen://network/tx/${txHash}`;
+  const explorerUrl = explorerTransactionUrl(txHash);
   if (openInNewTab) {
     openInNewTab(explorerUrl);
     return;
