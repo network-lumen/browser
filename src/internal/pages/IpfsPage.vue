@@ -225,61 +225,36 @@
       </template>
     </main>
 
-    <UiModal :model-value="showSaveModal" title="Save to Drive" panel-class="w-min-520px-92vw" @update:model-value="closeSaveModal">
-          <div class="flex flex-column gap-8px">
-            <label class="text-14px txt-weight-light color-text-primary" for="save-name">Name</label>
-            <UiInput radius-class="border-radius-12px" :focus-ring="false" id="save-name"
-              v-model="saveNameDraft"
-              :placeholder="saveNamePlaceholder"
-              :disabled="savePreparing || saving"
-              @keydown.enter.prevent="confirmSaveToDrive" class="focus-shadow" />
-
-            <div v-if="saveModalError" class="text-14px color-error mt-4px">
-              {{ saveModalError }}
-            </div>
-
-            <UiPinProgressCard
-              v-if="savePinJobId"
-              :status="savePinStatusLabel"
-              :counter="savePinProgressCounter"
-              :percent="savePinProgressPercent"
-              :indeterminate="savePinProgressPercent == null && savePinIsRunning"
-              :text="savePinProgressText || (savePinIsRunning ? 'Saving content from the network…' : 'Waiting for action.')"
-              card-class="border-radius-12px mt-16px py-12px px-16px border-1-primary-a15"
-              text-class="text-13px"
-            />
-          </div>
-
-          <template #footer>
-            <UiButton variant="secondary" type="button" @click="closeSaveModal" :disabled="savePinIsRunning" class="disabled-fade-50">
-              Cancel
-            </UiButton>
-            <UiButton variant="secondary" v-if="savePinCanPause" type="button" @click="pauseSavePinJob" class="disabled-fade-50">
-              Pause
-            </UiButton>
-            <UiButton variant="secondary" v-if="savePinCanResume" type="button" @click="resumeSavePinJob" class="disabled-fade-50">
-              Resume
-            </UiButton>
-            <UiButton variant="danger" v-if="savePinCanStop" type="button" @click="cancelSavePinJob" class="disabled-fade-50">
-              Stop
-            </UiButton>
-            <UiButton variant="primary" type="button"
-              :disabled="savePreparing || savePinIsRunning"
-              @click="confirmSaveToDrive" class="disabled-fade-50">
-              {{ savePinJobId ? (savePinCanResume ? "Resume save" : (savePinIsRunning ? "Saving..." : "Save")) : (saving ? "Saving..." : "Save") }}
-            </UiButton>
-          </template>
-    </UiModal>
+    <SaveToDriveDialog
+      :model-value="showSaveModal"
+      :name="saveNameDraft"
+      :placeholder="saveNamePlaceholder"
+      :error="saveModalError"
+      :preparing="savePreparing"
+      :saving="saving"
+      :job-id="savePinJobId"
+      :status-label="savePinStatusLabel"
+      :counter="savePinProgressCounter"
+      :percent="savePinProgressPercent"
+      :progress-text="savePinProgressText"
+      :is-running="savePinIsRunning"
+      :can-pause="savePinCanPause"
+      :can-resume="savePinCanResume"
+      :can-stop="savePinCanStop"
+      @update:model-value="closeSaveModal"
+      @update:name="saveNameDraft = $event"
+      @confirm="confirmSaveToDrive"
+      @pause="pauseSavePinJob"
+      @resume="resumeSavePinJob"
+      @stop="cancelSavePinJob"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import UiInput from '../../ui/UiInput.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
-import UiModal from '../../ui/UiModal.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
-import UiPinProgressCard from '../../ui/UiPinProgressCard.vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
  import {
@@ -320,6 +295,7 @@ import type { DriveSavedFile } from "../../types/driveSavedFile";
 
 import { errorMessage, safeDecodeUriComponent } from "../services/coerce";
 import { readPinJobSnapshot } from "../services/pinJobs";
+import SaveToDriveDialog from '../../dialogs/SaveToDriveDialog.vue';
 import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
  const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
  const { currentTabIsActive } = useTabState();

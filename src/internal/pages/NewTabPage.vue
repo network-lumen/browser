@@ -1,69 +1,9 @@
 <template>
   <!-- ####### lumen://newtab NEW TAB ####### -->
   <div class="internal-page relative block overflow-y-auto overflow-x-hidden pt-24px pr-16px pb-32px pl-16px">
-    <UiModal :model-value="showOnboarding" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-544px-full" :closable="false" @update:model-value="dismissOnboarding">
-      <div class="flex-align-start gap-16px mb-16px">
-        <div class="flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-16px size-48px" aria-hidden="true">
-          <Hexagon :size="22" />
-        </div>
-        <div>
-          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Welcome</div>
-          <h2 id="lumen-onboarding-title" class="color-text-primary">Learn what Lumen is</h2>
-          <p id="lumen-onboarding-desc" class="color-text-secondary mt-8px line-height-15">
-            Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
-          </p>
-        </div>
-      </div>
+    <NewTabOnboardingDialog :model-value="showOnboarding" @dismiss="dismissOnboarding" @learn="learnLumen" />
 
-      <template #footer>
-        <UiButton variant="secondary" type="button" @click="dismissOnboarding" class="outline-none">
-          Skip
-        </UiButton>
-        <UiButton variant="primary" type="button" @click="learnLumen" class="outline-none">
-          Learn Lumen
-        </UiButton>
-      </template>
-    </UiModal>
-
-    <UiModal :model-value="showShortcutModal" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-512px-full" @update:model-value="closeShortcutModal">
-      <template #header>
-        <div>
-          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcut</div>
-          <h2 id="shortcut-modal-title" class="color-text-primary">
-            {{ shortcutModalMode === "create" ? "Add shortcut" : "Edit shortcut" }}
-          </h2>
-        </div>
-      </template>
-          <div class="flex flex-column gap-12px">
-            <UiFormField label="Name" label-class="color-text-secondary text-14px txt-weight-light">
-              <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.title"
-                placeholder="Optional custom title"
-                maxlength="60"
-                @keydown.enter.prevent="submitShortcutModal" class="border-1-light focus-ring" />
-            </UiFormField>
-
-            <UiFormField label="URL or Lumen page" label-class="color-text-secondary text-14px txt-weight-light">
-              <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="shortcutDraft.url"
-                placeholder="lumen://home or example.lmn"
-                @keydown.enter.prevent="submitShortcutModal" class="border-1-light focus-ring" />
-            </UiFormField>
-
-            <UiCheckbox v-model="shortcutDraft.pinned">Mark this shortcut as favourite</UiCheckbox>
-
-            <div v-if="shortcutError" class="color-error txt-weight-light text-14px">
-              {{ shortcutError }}
-            </div>
-          </div>
-
-      <template #footer>
-        <UiButton variant="secondary" type="button" @click="closeShortcutModal" class="outline-none">
-          Cancel
-        </UiButton>
-        <UiButton variant="primary" type="button" @click="submitShortcutModal" class="outline-none">
-          {{ shortcutModalMode === "create" ? "Add shortcut" : "Save changes" }}
-        </UiButton>
-      </template>
-    </UiModal>
+    <ShortcutEditorDialog :model-value="showShortcutModal" :mode="shortcutModalMode" :draft="shortcutDraft" :error="shortcutError" @update:model-value="closeShortcutModal" @submit="submitShortcutModal" />
 
     <div class="absolute inset-0 overflow-hidden cursor-events-none" aria-hidden="true">
       <div class="h-448px-blur-36px top-n14rem-left-n10rem border-radius-full absolute opacity-55 bg-primary-a15 w-448px"></div>
@@ -214,20 +154,15 @@
 </template>
 
 <script setup lang="ts">
-import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiMenuItem from '../../ui/UiMenuItem.vue';
-import UiFormField from '../../ui/UiFormField.vue';
 import UiTitleSubtitle from '../../ui/UiTitleSubtitle.vue';
 import { computed,  onBeforeUnmount, onMounted, reactive, ref } from "vue";
-import UiCheckbox from "../../ui/UiCheckbox.vue";
-import UiModal from "../../ui/UiModal.vue";
 import {
   ArrowUpRight,
   Flame,
-  Globe,
-  Hexagon,
+  Globe, 
   History,
   MoreHorizontal,
   Pencil,
@@ -241,7 +176,9 @@ import { FavouriteEntry, useFavourites } from "../favouritesStore";
 import { useHistory } from "../historyStore";
 import { profilesState } from "../profilesStore";
 import { normalizeAddressInput } from "../navigationUrl";
-import type { ShortcutModalMode } from "../../types/newTabPage";
+import type { ShortcutDraft, ShortcutModalMode } from "../../types/newTabPage";
+import ShortcutEditorDialog from "../../dialogs/ShortcutEditorDialog.vue";
+import NewTabOnboardingDialog from "../../dialogs/NewTabOnboardingDialog.vue";
 import { STORAGE_KEYS, readString, writeString } from "../services/storage";
 import { useTabNavigation } from "../../composables/useTabNavigation";
 null
@@ -312,7 +249,7 @@ function onShortcutMenuGlobalClick(e: MouseEvent) {
   if (el.closest('.newtab-shortcut-menu-trigger') || el.closest('.newtab-shortcut-menu')) return;
   openShortcutMenuId.value = "";
 }
-const shortcutDraft = reactive({
+const shortcutDraft = reactive<ShortcutDraft>({
   title: "",
   url: "",
   pinned: false,
