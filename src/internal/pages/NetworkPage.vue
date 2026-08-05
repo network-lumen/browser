@@ -540,287 +540,21 @@
     </div>
 
     <!-- ####### EXPLORER: STAKE MANAGEMENT MODAL ####### -->
-    <UiModal :model-value="showStakeModal" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="shadow-lg animate-modal-slide-in w-90pct max-w-420px" @update:model-value="closeStakeModal">
-          <div class="flex gap-16px mb-24px p-16px bg-secondary border-radius-8px">
-            <div class="flex flex-column flex-1 gap-4px">
-              <span class="text-12px color-text-secondary fw-500">Staked:</span>
-              <span class="color-text-primary txt-weight-medium text-14px">{{ stakedBalance }} LMN</span>
-            </div>
-            <div class="flex flex-column flex-1 gap-4px">
-              <span class="text-12px color-text-secondary fw-500">Balance:</span>
-              <span class="color-text-primary txt-weight-medium text-14px">{{ availableBalance }} LMN</span>
-            </div>
-          </div>
-
-          <div class="flex gap-8px mb-24px p-4px bg-secondary border-radius-8px">
-            <button 
-              v-for="action in stakeActions" 
-              :key="action"
-              class="color-text-primary-hover-not-disabled-not-active flex-1 txt-weight-light color-text-secondary cursor-pointer py-8px px-12px bg-transparent border-none border-radius-6px text-13px transition-all-02"
-              :class="{ 'active bg-accent color-white': currentStakeAction === action }"
-              @click="currentStakeAction = action as 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw'"
-            >
-              {{ action }}
-            </button>
-          </div>
-
-          <div class="flex flex-column gap-20px">
-            <!-- Withdraw Rewards - No amount needed -->
-            <div v-if="currentStakeAction === 'Withdraw'" class="p-0px pt-8px pb-8px">
-              <div class="flex-align-start gap-12px p-16px border-radius-10px bg-primary-a10 border-1-primary-a15">
-                <Info class="flex-shrink-0 color-primary mt-4px" :size="20" />
-                <div class="flex flex-column gap-4px">
-                  <strong class="text-15px txt-weight-light color-text-primary">Withdraw Staking Rewards</strong>
-                  <p class="m-0px text-13px color-text-secondary line-height-14">This will claim all pending rewards from this validator to your wallet.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Amount Input - Not for Withdraw -->
-            <div v-else class="flex flex-column gap-8px">
-              <label class="text-14px txt-weight-light color-text-primary">Amount to {{ currentStakeAction.toLowerCase() }}</label>
-              <div class="flex-align-center relative">
-                <UiInput bg-class="bg-secondary" font-size-class="txt-weight-light" padding-class="pt-12px pr-64px pb-12px pl-16px" :focus-ring="false" type="number"
-                  v-model="stakeAmount"
-                  :placeholder="`0.0`"
-                  step="0.000001"
-                  min="0" class="text-15px focus-outline-none focus-ring focus-shadow" />
-                <span class="txt-weight-light color-text-secondary absolute text-14px right-16px">LMN</span>
-              </div>
-              <div class="flex flex-column gap-8px p-0px pt-8px pb-8px">
-                <input 
-                  type="range" 
-                  v-model="stakePercentage" 
-                  min="0" 
-                  max="100" 
-                  class="slider-thumb-accent w-full outline-none border-radius-4px bg-border h-6px appearance-none"
-                />
-                <div class="flex-justify-space-between color-text-tertiary text-11px">
-                  <span>0%</span>
-                  <span>50%</span>
-                  <span>Max</span>
-                </div>
-              </div>
-              <div class="grid-cols-4-1fr gap-8px grid">
-                <UiButton variant="secondary" @click="setStakePercentage(25)" class="hover-bg-primary-a10">25%</UiButton>
-                <UiButton variant="secondary" @click="setStakePercentage(50)" class="hover-bg-primary-a10">50%</UiButton>
-                <UiButton variant="secondary" @click="setStakePercentage(75)" class="hover-bg-primary-a10">75%</UiButton>
-                <UiButton variant="secondary" @click="setStakePercentage(100)" class="hover-bg-primary-a10">Max</UiButton>
-              </div>
-            </div>
-
-            <div v-if="currentStakeAction === 'Redelegate'" class="flex flex-column gap-8px">
-              <label class="text-14px txt-weight-light color-text-primary">Select New Validator</label>
-              <select v-model="targetValidator" class="w-full color-text-primary cursor-pointer py-12px px-16px bg-secondary border-1 border-radius-8px text-14px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
-                <option value="">Choose validator...</option>
-                <option v-for="val in validators.filter(v => v.address !== selectedValidator?.address)" :key="val.address" :value="val.address">
-                  {{ val.moniker }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Transaction Status Popup -->
-            <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-lg min-w-400px max-w-90vw" :style="txStatusPopupStyle(txStatus)">
-              <div class="flex-align-center flex-column gap-24px text-center">
-                <!-- Processing -->
-                <UiResultState v-if="txStatus === 'processing'" title="Processing Transaction" :description="txMessage">
-                  <template #icon><UiSpinner size="lg" /></template>
-                </UiResultState>
-
-                <!-- Success -->
-                <UiResultState v-else-if="txStatus === 'success'" title="Transaction Successful!" :description="txMessage">
-                  <template #icon><CircleCheckBig class="animate-icon-bounce" :size="48" color="rgba(var(--color-success-rgb), 0.7)" /></template>
-                  <template #action>
-                    <div v-if="txHash" class="w-full mt-12px p-12px bg-secondary border-radius-8px border-1">
-                      <small class="block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">Transaction Hash:</small>
-                      <UiButton variant="none" @click="viewTransaction(txHash)" class="reveal-on-hover hover-translate-x-2px flex-align-center gap-8px cursor-pointer w-full">
-                        <code class="flex-1 mono text-12px color-primary break-all txt-weight-light">{{ txHash }}</code>
-                        <ExternalLink class="reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" :size="16" />
-                      </UiButton>
-                    </div>
-                    <button class="mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px hover-shadow-primary" @click="closeStakeModal">Close</button>
-                  </template>
-                </UiResultState>
-
-                <!-- Error -->
-                <UiResultState v-else-if="txStatus === 'error'" title="Transaction Failed" :description="txMessage">
-                  <template #icon><CircleAlert class="animate-icon-bounce" :size="48" color="var(--color-error)" /></template>
-                  <template #action>
-                    <UiButton variant="primary" class="mt-8px" @click="txStatus = 'idle'">Try Again</UiButton>
-                  </template>
-                </UiResultState>
-              </div>
-            </div>
-
-            <UiButton
-              variant="primary"
-              block
-              @click="() => confirmStakeAction()"
-              :disabled="!canConfirm || isProcessingTx"
-            >
-              <span v-if="!isProcessingTx">Confirm {{ currentStakeAction }}</span>
-              <span v-else>Processing...</span>
-            </UiButton>
-          </div>
-    </UiModal>
+    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :popup-style-for="txStatusPopupStyle" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :tx-status="txStatus" :tx-message="txMessage" :tx-hash="txHash" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @reset="txStatus = 'idle'" @set-percentage="setStakePercentage" @view-transaction="viewTransaction(txHash)" />
 
     <!-- ####### GOVERNANCE: CREATE PROPOSAL MODAL ####### -->
-    <UiModal :model-value="showCreateProposalModal" title="Create Proposal" panel-class="w-full max-w-640px" @update:model-value="closeCreateProposalModal">
-      <p class="color-text-secondary mb-24px text-14px">Submit a text proposal for on-chain governance.</p>
-
-      <div class="mb-20px">
-        <label class="txt-weight-light color-text-primary block text-13px mb-8px">Title</label>
-        <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="proposalForm.title" placeholder="Enter proposal title..." class="focus-outline-none focus-ring focus-shadow bg-primary" />
-      </div>
-
-      <div class="mb-20px">
-        <label class="txt-weight-light color-text-primary block text-13px mb-8px">Summary</label>
-        <UiInput type="textarea" radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" v-model="proposalForm.summary" rows="6" placeholder="Describe your proposal in detail..." class="resize-vertical focus-outline-none focus-ring focus-shadow bg-primary"></UiInput>
-      </div>
-
-      <div class="mb-20px">
-        <label class="txt-weight-light color-text-primary block text-13px mb-8px">Deposit (LMN)</label>
-        <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="proposalForm.depositLmn" placeholder="10" class="focus-outline-none focus-ring focus-shadow bg-primary" />
-      </div>
-
-      <UiCard class="mb-24px" padding="md" radius="10px" border-class="border-1-primary-a30" :shadow="false">
-        <div class="flex-align-center gap-12px color-text-secondary text-13px">
-          <Info :size="16" class="flex-shrink-0 color-primary" />
-          <span>Minimum deposit to enter voting: {{ governanceMinDepositLmn }} LMN</span>
-        </div>
-      </UiCard>
-
-      <div class="mb-20px">
-        <div class="flex-align-center flex-justify-space-between mb-8px">
-          <label class="txt-weight-light color-text-primary text-13px">Actions (optional)</label>
-          <UiButton variant="secondary" type="button" @click="addActionDraft" class="hover-border-primary-a15">
-            <Plus :size="14" />
-            Add action
-          </UiButton>
-        </div>
-        <p class="color-text-secondary text-13px mb-12px">
-          A plain text proposal has no actions. Add one or more to make this proposal execute an on-chain change if it passes.
-        </p>
-
-        <div v-for="draft in actionDrafts" :key="draft.id" class="bg-secondary border-1-light border-radius-10px p-16px mb-12px">
-          <div class="flex-align-center gap-10px mb-12px">
-            <select v-model="draft.templateId" @change="resetActionDraftValues(draft)" class="flex-1 hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
-              <option v-for="tpl in GOVERNANCE_ACTION_TEMPLATES" :key="tpl.id" :value="tpl.id">{{ tpl.module }} — {{ tpl.label }}</option>
-            </select>
-            <UiButton variant="icon" icon-radius-class="border-radius-8px" class="hover-bg-error-a08 hover-color-error size-32px flex-shrink-0" title="Remove action" @click="removeActionDraft(draft.id)">
-              <X :size="16" />
-            </UiButton>
-          </div>
-
-          <p v-if="templateForDraft(draft)" class="color-text-secondary text-12px mb-12px">{{ templateForDraft(draft)?.summary }}</p>
-
-          <div v-for="field in templateForDraft(draft)?.fields || []" :key="field.key" class="mb-8px">
-            <label class="txt-weight-light color-text-secondary block text-12px mb-4px">{{ field.label }}</label>
-            <select v-if="field.type === 'select'" v-model="draft.values[field.key]" class="w-full hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
-              <option v-for="opt in field.options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-            </select>
-            <UiInput
-              v-else
-              :type="field.type === 'textarea' ? 'textarea' : field.type === 'number' ? 'number' : 'text'"
-              radius-class="border-radius-8px"
-              padding-class="p-10px"
-              :focus-ring="false"
-              v-model="draft.values[field.key]"
-              :placeholder="field.placeholder || ''"
-              :rows="field.type === 'textarea' ? 3 : undefined"
-              class="focus-outline-none focus-ring focus-shadow bg-card text-13px"
-            />
-            <p v-if="field.hint" class="color-text-tertiary text-11px mt-4px">{{ field.hint }}</p>
-          </div>
-        </div>
-      </div>
-
-      <UiButton variant="primary" @click="submitProposal" :disabled="!GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED || !canSubmitProposal() || isSubmittingProposal">
-        <Plus :size="18" />
-        {{ isSubmittingProposal ? 'Submitting…' : 'Submit Proposal' }}
-      </UiButton>
-      <p v-if="!GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" class="color-text-tertiary text-12px mt-8px">
-        Proposal submission is temporarily disabled while the action builders above are being verified on testnet.
-      </p>
-    </UiModal>
+    <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :template-for-draft="templateForDraft" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :reset-action-draft-values="resetActionDraftValues" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" />
 
     <!-- ####### GOVERNANCE: VOTE MODAL ####### -->
-    <UiModal :model-value="showVoteModal" title="Cast Your Vote" panel-class="w-full max-w-520px" @update:model-value="closeVoteModal">
-      <div class="flex-align-center flex-justify-space-between mb-24px border-radius-12px p-24px bg-gradient-primary">
-        <h4 class="m-0px txt-weight-light text-18px color-white">{{ selectedProposal?.title || 'Proposal' }}</h4>
-        <span class="border-radius-20px fw-500 text-12px py-4px px-12px color-text-primary bg-primary border-1">#{{ selectedProposal?.id }}</span>
-      </div>
-
-      <div class="flex flex-column gap-12px mb-24px">
-        <label class="reveal-on-hover block cursor-pointer" :class="{ selected: voteOption === 'VOTE_OPTION_YES' }">
-          <input type="radio" name="vote" value="VOTE_OPTION_YES" v-model="voteOption" class="hidden" />
-          <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteOption === 'VOTE_OPTION_YES' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
-            <div class="flex-align-justify-center flex-0-0-auto bg-fill-success color-success size-40px border-radius-10px">
-              <ThumbsUp :size="20" />
-            </div>
-            <div>
-              <div class="color-text-primary txt-weight-light text-15px mb-4px">Yes</div>
-              <div class="color-text-secondary text-13px">Support this proposal</div>
-            </div>
-          </UiCard>
-        </label>
-
-        <label class="reveal-on-hover block cursor-pointer" :class="{ selected: voteOption === 'VOTE_OPTION_NO' }">
-          <input type="radio" name="vote" value="VOTE_OPTION_NO" v-model="voteOption" class="hidden" />
-          <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteOption === 'VOTE_OPTION_NO' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
-            <div class="flex-align-justify-center flex-0-0-auto size-40px border-radius-10px color-error bg-fill-error">
-              <ThumbsDown :size="20" />
-            </div>
-            <div>
-              <div class="color-text-primary txt-weight-light text-15px mb-4px">No</div>
-              <div class="color-text-secondary text-13px">Oppose this proposal</div>
-            </div>
-          </UiCard>
-        </label>
-
-        <label class="reveal-on-hover block cursor-pointer" :class="{ selected: voteOption === 'VOTE_OPTION_NO_WITH_VETO' }">
-          <input type="radio" name="vote" value="VOTE_OPTION_NO_WITH_VETO" v-model="voteOption" class="hidden" />
-          <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteOption === 'VOTE_OPTION_NO_WITH_VETO' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
-            <div class="flex-align-justify-center flex-0-0-auto size-40px border-radius-10px color-warning bg-warning-a15">
-              <CircleAlert :size="20" />
-            </div>
-            <div>
-              <div class="color-text-primary txt-weight-light text-15px mb-4px">No With Veto</div>
-              <div class="color-text-secondary text-13px">Oppose strongly, flag as spam/harmful</div>
-            </div>
-          </UiCard>
-        </label>
-
-        <label class="reveal-on-hover block cursor-pointer" :class="{ selected: voteOption === 'VOTE_OPTION_ABSTAIN' }">
-          <input type="radio" name="vote" value="VOTE_OPTION_ABSTAIN" v-model="voteOption" class="hidden" />
-          <UiCard class="reveal-border-bg-target flex-align-center gap-16px transition-all-02" :class="{ 'border-color-primary bg-card': voteOption === 'VOTE_OPTION_ABSTAIN' }" padding="md" radius="10px" border-class="border-2" :shadow="false">
-            <div class="flex-align-justify-center flex-0-0-auto size-40px border-radius-10px color-text-tertiary bg-secondary">
-              <Circle :size="20" />
-            </div>
-            <div>
-              <div class="color-text-primary txt-weight-light text-15px mb-4px">Abstain</div>
-              <div class="color-text-secondary text-13px">No preference</div>
-            </div>
-          </UiCard>
-        </label>
-      </div>
-
-      <UiButton variant="primary" @click="castVote" :disabled="!voteOption || isVoting">
-        <Vote :size="18" />
-        {{ isVoting ? 'Casting…' : 'Cast Vote' }}
-      </UiButton>
-    </UiModal>
+    <CastVoteDialog :model-value="showVoteModal" v-model:option="voteOption" :is-voting="isVoting" :selected-proposal="selectedProposal" @update:model-value="closeVoteModal" @submit="castVote" />
 
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import UiInput from '../../ui/UiInput.vue';
-import UiModal from '../../ui/UiModal.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
-import UiSpinner from '../../ui/UiSpinner.vue';
 import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
@@ -830,7 +564,6 @@ import UiMeterCard from '../../ui/UiMeterCard.vue';
 import UiChartCard from '../../ui/UiChartCard.vue';
 import UiLegendItem from '../../ui/UiLegendItem.vue';
 import UiFilterButton from '../../ui/UiFilterButton.vue';
-import UiResultState from '../../ui/UiResultState.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
@@ -841,10 +574,13 @@ import { profilesState, activeProfileId } from '../profilesStore';
 import { formatNumber, truncateMiddle } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
+import CastVoteDialog from '../../dialogs/CastVoteDialog.vue';
+import CreateProposalDialog from '../../dialogs/CreateProposalDialog.vue';
+import ManageStakeDialog from '../../dialogs/ManageStakeDialog.vue';
 import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl, openExplorerUrl } from '../services/explorerLinks';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
-import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, Info, ExternalLink, CirclePlus, CircleAlert, CircleCheckBig, Activity, Network, SlidersHorizontal, Vote, FileText, Plus, ThumbsUp, ThumbsDown, Circle, X } from 'lucide-vue-next';
+import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus, CircleCheckBig, Activity, Network, SlidersHorizontal, FileText } from 'lucide-vue-next';
 import { GOVERNANCE_ACTION_TEMPLATES, findGovernanceActionTemplate } from './governanceActionTemplates';
 import type { GovernanceActionDraft } from '../../types/networkGovernance';
 import { useToast } from '../../composables/useToast';
@@ -853,7 +589,7 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboardWithToast } from '../../composables/useClipboard';
 import { computeTxHash } from '../chainRpc';
 import type { Block, Transaction, Validator, TxHistoryWindow } from '../../types/explorerPage';
-import type { Block as NetworkBlock, ProposerInfo } from '../../types/networkPage';
+import type { Block as NetworkBlock, ProposalForm, ProposerInfo, StakeAction } from '../../types/networkPage';
 import type { GovernanceProposal, GovernanceVoteOption } from '../../types/networkGovernance';
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
@@ -967,8 +703,8 @@ const proposerMap = ref<Record<string, ProposerInfo>>({});
 // Stake modal state
 const showStakeModal = ref(false);
 const selectedValidator = ref<Validator | null>(null);
-const currentStakeAction = ref<'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw'>('Delegate');
-const stakeActions = ['Delegate', 'Undelegate', 'Redelegate', 'Withdraw'];
+const currentStakeAction = ref<StakeAction>('Delegate');
+const stakeActions: StakeAction[] = ['Delegate', 'Undelegate', 'Redelegate', 'Withdraw'];
 const stakeAmount = ref('0.0');
 const stakePercentage = ref(0);
 const targetValidator = ref('');
@@ -2542,7 +2278,7 @@ async function handleGovernanceSigningError(result: { ok?: boolean; error?: stri
 const GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED = false;
 const showCreateProposalModal = ref(false);
 const isSubmittingProposal = ref(false);
-const proposalForm = ref({ title: '', summary: '', depositLmn: '10' });
+const proposalForm = ref<ProposalForm>({ title: '', summary: '', depositLmn: '10' });
 const actionDrafts = ref<GovernanceActionDraft[]>([]);
 
 function templateForDraft(draft: GovernanceActionDraft) {
