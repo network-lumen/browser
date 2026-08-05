@@ -1,6 +1,7 @@
 import { addToast, type ToastType, type Toast } from '../stores/toastStore';
 import type { ToastOptions } from '../types/toast';
 
+import { errorMessage } from '../internal/services/coerce';
 export { type ToastType, type Toast };
 
 export function useToast() {
@@ -19,9 +20,9 @@ export function useToast() {
   // Convenience method for API responses
   const fromResult = (result: { ok?: boolean; error?: string; message?: string }, successMsg?: string) => {
     if (result.ok) {
-      success(successMsg || result.message || 'Operation completed successfully');
+      success(successMsg || errorMessage(result, 'Operation completed successfully'));
     } else {
-      error(result.error || result.message || 'Operation failed');
+      error(result.error || errorMessage(result, 'Operation failed'));
     }
     return result.ok;
   };

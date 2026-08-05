@@ -441,6 +441,7 @@ import { useTabLoadingSync } from '../useTabLoading';
 import { loadStableLinkRecords } from '../services/contentResolver';
 import type { DomainRow, RawDomainRow, SettingsRecord } from '../../types/domainPage';
 
+import { errorMessage } from '../services/coerce';
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
@@ -630,8 +631,8 @@ async function loadRawDomains() {
         };
       })
       .filter((key: RawDomainRow) => key.name && key.name !== 'self');
-  } catch (e: any) {
-    rawDomainsError.value = String(e?.message || e || 'Failed to load ugly domains.');
+  } catch (e) {
+    rawDomainsError.value = errorMessage(e, 'Failed to load ugly domains.');
     rawDomains.value = [];
   } finally {
     rawDomainsLoading.value = false;

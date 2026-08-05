@@ -949,6 +949,7 @@ import type {
   DexRow
 } from '../../types/walletPage';
 
+import { errorMessage } from '../services/coerce';
 const currentView = ref<'overview' | 'assets' | 'dex' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);
 const showBalance = ref(true);
@@ -1368,11 +1369,11 @@ async function loadIbcChannels(force = false) {
     }
 
     autoSelectIbcChannel(true);
-  } catch (error: any) {
+  } catch (error) {
     ibcChannels.value = [];
     ibcChannelsLoaded.value = false;
     ibcForm.value.sourceChannel = '';
-    ibcChannelsError.value = error?.message || 'Failed to load IBC channels.';
+    ibcChannelsError.value = errorMessage(error, 'Failed to load IBC channels.');
   } finally {
     ibcChannelsLoading.value = false;
   }
@@ -1782,8 +1783,8 @@ async function refreshActivities() {
     const list = await fetchActivities({ walletId: address.value, limit: 20, offset: 0 });
     activities.value = list;
     void hydrateTxMeta(list);
-  } catch (e: any) {
-    activitiesError.value = String(e?.message || e || 'Failed to load activities');
+  } catch (e) {
+    activitiesError.value = errorMessage(e, 'Failed to load activities');
     activities.value = [];
   } finally {
     activitiesLoading.value = false;
@@ -2500,13 +2501,13 @@ async function refreshDexListings() {
     } else if (nextRows.some((row) => row.status === 'degraded')) {
       dexError.value = 'Some DEX details are partial right now, but the listings remain usable.';
     }
-  } catch (error: any) {
+  } catch (error) {
     dexRows.value = dexRows.value.map((row) => ({
       ...row,
       status: 'error',
-      error: String(error?.message || error || 'Failed to load DEX snapshot')
+      error: errorMessage(error, 'Failed to load DEX snapshot')
     }));
-    dexError.value = String(error?.message || error || 'Failed to load DEX snapshot');
+    dexError.value = errorMessage(error, 'Failed to load DEX snapshot');
   } finally {
     dexLoading.value = false;
   }
@@ -3231,7 +3232,7 @@ async function confirmSendPreview() {
       
       // Handle indexing disabled error
       if (err === 'indexing_disabled') {
-        showToast(res?.message || 'Transaction may have been sent but node indexing is disabled. Check your balance in a moment.', 'warning');
+        showToast(errorMessage(res, 'Transaction may have been sent but node indexing is disabled. Check your balance in a moment.'), 'warning');
         closeSendModal();
         schedulePostTransactionRefresh();
         return;
@@ -3244,8 +3245,8 @@ async function confirmSendPreview() {
     showToast(`${successLabel} successful! TxHash: ${res.txhash || 'N/A'}`, 'success');
     closeSendModal();
     schedulePostTransactionRefresh();
-  } catch (e: any) {
-    showToast(e?.message || 'Unexpected error while sending transaction', 'error');
+  } catch (e) {
+    showToast(errorMessage(e, 'Unexpected error while sending transaction'), 'error');
   } finally {
     sendingTransaction.value = false;
   }
@@ -3427,8 +3428,8 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
               })
             )
           );
-        } catch (error: any) {
-          remoteErrors.push(`${entry.meta.label}: ${String(error?.message || error || 'Failed to load balances')}`);
+        } catch (error) {
+          remoteErrors.push(`${entry.meta.label}: ${errorMessage(error, 'Failed to load balances')}`);
           return [
             await createAssetRow({
               chainId: entry.channel.chainId || entry.channel.channelId,
@@ -3445,7 +3446,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
               restEndpoint: entry.meta.restEndpoint,
               rpcEndpoint: entry.meta.rpcEndpoint,
               feeDenom: entry.meta.feeDenom,
-              error: String(error?.message || error || 'Failed to load balances')
+              error: errorMessage(error, 'Failed to load balances')
             })
           ];
         }
@@ -3472,14 +3473,14 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
     if (remoteErrors.length) {
       assetsError.value = remoteErrors.join(' | ');
     }
-  } catch (error: any) {
+  } catch (error) {
     if (requestId !== assetRefreshRequestId) {
       return;
     }
     if (!hadRows) {
       assetRows.value = [];
     }
-    assetsError.value = String(error?.message || error || 'Failed to load assets.');
+    assetsError.value = errorMessage(error, 'Failed to load assets.');
   } finally {
     if (!silent && requestId === assetRefreshRequestId) {
       assetsLoading.value = false;
@@ -3619,7 +3620,7 @@ async function confirmAssetTransfer() {
       }
       if (err === 'indexing_disabled') {
         showToast(
-          res?.message || 'Transfer may have been broadcast but node indexing is disabled. Check balances shortly.',
+          errorMessage(res, 'Transfer may have been broadcast but node indexing is disabled. Check balances shortly.'),
           'warning'
         );
         closeAssetTransferModal();
@@ -3633,8 +3634,8 @@ async function confirmAssetTransfer() {
     showToast(`Asset transfer submitted. TxHash: ${res.txhash || 'N/A'}`, 'success');
     closeAssetTransferModal();
     schedulePostTransactionRefresh();
-  } catch (error: any) {
-    showToast(error?.message || 'Unexpected error while transferring asset', 'error');
+  } catch (error) {
+    showToast(errorMessage(error, 'Unexpected error while transferring asset'), 'error');
   } finally {
     assetTransferSending.value = false;
   }
@@ -3770,8 +3771,8 @@ async function saveContact() {
         showToast(result.error || 'Failed to add contact', 'error');
       }
     }
-  } catch (err: any) {
-    showToast(err?.message || 'Failed to save contact', 'error');
+  } catch (err) {
+    showToast(errorMessage(err, 'Failed to save contact'), 'error');
   } finally {
     savingContact.value = false;
   }
@@ -3793,8 +3794,8 @@ async function confirmDeleteContact() {
     } else {
       showToast(result.error || 'Failed to delete contact', 'error');
     }
-  } catch (err: any) {
-    showToast(err?.message || 'Failed to delete contact', 'error');
+  } catch (err) {
+    showToast(errorMessage(err, 'Failed to delete contact'), 'error');
   } finally {
     showDeleteConfirmModal.value = false;
     contactToDelete.value = null;

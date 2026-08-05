@@ -6,6 +6,7 @@ import { copyToClipboard } from '../../composables/useClipboard';
 import type { LatestPayload, SemverParts } from '../../types/releaseUpdates';
 import { STORAGE_KEYS, readString, writeString } from './storage';
 
+import { errorMessage } from './coerce';
 const REMIND_INTERVAL_MS = 10 * 60 * 1000;
 const STORAGE_SNOOZE_UNTIL = STORAGE_KEYS.releaseSnoozeUntil;
 
@@ -245,8 +246,8 @@ async function updateNow() {
       updateProgress.value = null;
       await openExternalAndSnooze(url);
     }
-  } catch (e: any) {
-    updateProgress.value = { stage: 'error', error: String(e?.message || e || 'Update failed') };
+  } catch (e) {
+    updateProgress.value = { stage: 'error', error: errorMessage(e, 'Update failed') };
   } finally {
     busy.value = false;
   }

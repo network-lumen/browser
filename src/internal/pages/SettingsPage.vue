@@ -835,7 +835,7 @@ import {
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
 import { STORAGE_KEYS, readString, writeString } from '../services/storage';
-import { clamp } from '../services/coerce';
+import { clamp, errorMessage } from '../services/coerce';
 import { useToast } from '../../composables/useToast';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
 import { useHistory } from '../historyStore';
@@ -1148,9 +1148,9 @@ async function setSecurityPassword() {
       securityError.value = result?.error || 'Failed to set password.';
       toast.error(result?.error || 'Failed to set password');
     }
-  } catch (e: any) {
-    securityError.value = e?.message || 'Failed to set password.';
-    toast.error(e?.message || 'Failed to set password');
+  } catch (e) {
+    securityError.value = errorMessage(e, 'Failed to set password.');
+    toast.error(errorMessage(e, 'Failed to set password'));
   } finally {
     securityLoading.value = false;
   }
@@ -1199,9 +1199,9 @@ async function changeSecurityPassword() {
       securityError.value = setResult?.error || 'Failed to set new password.';
       toast.error(setResult?.error || 'Failed to set new password');
     }
-  } catch (e: any) {
-    securityError.value = e?.message || 'Failed to change password.';
-    toast.error(e?.message || 'Failed to change password');
+  } catch (e) {
+    securityError.value = errorMessage(e, 'Failed to change password.');
+    toast.error(errorMessage(e, 'Failed to change password'));
   } finally {
     securityLoading.value = false;
   }
@@ -1225,9 +1225,9 @@ async function removeSecurityPassword() {
       securityError.value = result?.error || 'Failed to remove password.';
       toast.error(result?.error || 'Failed to remove password');
     }
-  } catch (e: any) {
-    securityError.value = e?.message || 'Failed to remove password.';
-    toast.error(e?.message || 'Failed to remove password');
+  } catch (e) {
+    securityError.value = errorMessage(e, 'Failed to remove password.');
+    toast.error(errorMessage(e, 'Failed to remove password'));
   } finally {
     securityLoading.value = false;
   }
@@ -1380,8 +1380,8 @@ async function loadBootstrapPathState() {
       return;
     }
     applyBootstrapPathState(result.state);
-  } catch (e: any) {
-    lumenDataFolderError.value = e?.message || 'Failed to load Lumen data folder.';
+  } catch (e) {
+    lumenDataFolderError.value = errorMessage(e, 'Failed to load Lumen data folder.');
   } finally {
     lumenDataFolderLoading.value = false;
   }
@@ -1463,8 +1463,8 @@ async function browseLumenDataFolder() {
       return;
     }
     lumenDataFolderDraft.value = String(result.paths[0] || '').trim();
-  } catch (e: any) {
-    lumenDataFolderError.value = e?.message || 'Failed to open folder picker.';
+  } catch (e) {
+    lumenDataFolderError.value = errorMessage(e, 'Failed to open folder picker.');
   }
 }
 
@@ -1503,8 +1503,8 @@ async function saveLumenDataFolder() {
     } else {
       toast.success('Lumen data folder updated.');
     }
-  } catch (e: any) {
-    lumenDataFolderError.value = e?.message || 'Failed to save Lumen data folder.';
+  } catch (e) {
+    lumenDataFolderError.value = errorMessage(e, 'Failed to save Lumen data folder.');
   } finally {
     lumenDataFolderSaving.value = false;
   }
@@ -1536,8 +1536,8 @@ async function copyDebugReport() {
       return;
     }
     toast.error(result?.error || 'Failed to copy debug report');
-  } catch (e: any) {
-    toast.error(e?.message || 'Failed to copy debug report');
+  } catch (e) {
+    toast.error(errorMessage(e, 'Failed to copy debug report'));
   } finally {
     troubleshootingAction.value = '';
   }
@@ -1560,8 +1560,8 @@ async function openLogsFolderAction() {
       return;
     }
     toast.error(result?.error || 'Failed to open logs folder');
-  } catch (e: any) {
-    toast.error(e?.message || 'Failed to open logs folder');
+  } catch (e) {
+    toast.error(errorMessage(e, 'Failed to open logs folder'));
   } finally {
     troubleshootingAction.value = '';
   }

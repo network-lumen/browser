@@ -4,6 +4,7 @@ import { activeProfileId, getActiveProfile } from '../profilesStore';
 import { getRecurringPaymentsService } from './recurringPayments';
 import type { RecurringPayment, ReminderPaymentResult } from '../../types/recurringPayments';
 
+import { errorMessage } from './coerce';
 export type { ReminderPaymentResult };
 
 /**
@@ -111,8 +112,8 @@ export async function payReminder(paymentId: string): Promise<ReminderPaymentRes
 
     refreshDuePayments();
     return { ok: true, txHash: res.txhash };
-  } catch (e: any) {
-    return { ok: false, error: String(e?.message || 'Unexpected error') };
+  } catch (e) {
+    return { ok: false, error: errorMessage(e, 'Unexpected error') };
   } finally {
     paying.value = null;
   }

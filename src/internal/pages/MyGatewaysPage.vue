@@ -319,6 +319,7 @@ import { formatDate, truncateMiddle } from '../services/format';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 import type { Gateway } from '../../types/myGatewaysPage';
 
+import { errorMessage } from '../services/coerce';
 const gateways = ref<Gateway[]>([]);
 const loading = ref(false);
 const error = ref('');
@@ -380,8 +381,8 @@ async function loadGateways() {
   try {
     const result = await useInternalLumen()?.settingsLoadGateways();
     gateways.value = result || [];
-  } catch (e: any) {
-    error.value = e.message || 'Failed to load gateways';
+  } catch (e) {
+    error.value = errorMessage(e, 'Failed to load gateways');
   } finally {
     loading.value = false;
   }
@@ -465,8 +466,8 @@ async function saveGateway() {
 
     await loadGateways();
     closeModal();
-  } catch (e: any) {
-    modalError.value = e.message || 'Failed to save gateway';
+  } catch (e) {
+    modalError.value = errorMessage(e, 'Failed to save gateway');
   } finally {
     saving.value = false;
   }
@@ -499,8 +500,8 @@ async function deleteGateway() {
     toast.success('Gateway deleted successfully');
     await loadGateways();
     closeDeleteConfirm();
-  } catch (e: any) {
-    toast.error(e.message || 'Failed to delete gateway');
+  } catch (e) {
+    toast.error(errorMessage(e, 'Failed to delete gateway'));
   } finally {
     deleting.value = false;
   }
@@ -541,8 +542,8 @@ async function viewApiKey() {
     } else {
       toast.error('No API key found. Please start the server first.');
     }
-  } catch (e: any) {
-    toast.error(e.message || 'Failed to get API key');
+  } catch (e) {
+    toast.error(errorMessage(e, 'Failed to get API key'));
   }
 }
 
@@ -614,8 +615,8 @@ async function toggleEmbeddedServer() {
         toast.error(result.error || 'Failed to start embedded server');
       }
     }
-  } catch (e: any) {
-    toast.error(e.message || 'Failed to toggle embedded server');
+  } catch (e) {
+    toast.error(errorMessage(e, 'Failed to toggle embedded server'));
   } finally {
     serverLoading.value = false;
   }
@@ -649,7 +650,7 @@ async function loadWhitelist() {
     } else {
       console.error('Failed to load whitelist:', response.statusText);
     }
-  } catch (e: any) {
+  } catch (e) {
     console.error('Error loading whitelist:', e);
   } finally {
     whitelistLoading.value = false;
@@ -662,7 +663,7 @@ async function loadAllUserMetadata() {
     if (result.ok && result.metadata) {
       userMetadata.value = result.metadata;
     }
-  } catch (e: any) {
+  } catch (e) {
     console.error('Error loading user metadata:', e);
   }
 }
@@ -774,8 +775,8 @@ async function saveWhitelistEntry() {
 
     await loadWhitelist();
     closeWhitelistModal();
-  } catch (e: any) {
-    whitelistModalError.value = e.message || 'Failed to save user';
+  } catch (e) {
+    whitelistModalError.value = errorMessage(e, 'Failed to save user');
   } finally {
     whitelistSaving.value = false;
   }
@@ -823,8 +824,8 @@ async function removeFromWhitelist() {
     toast.success('User removed from whitelist');
     await loadWhitelist();
     closeWhitelistDeleteConfirm();
-  } catch (e: any) {
-    toast.error(e.message || 'Failed to remove user');
+  } catch (e) {
+    toast.error(errorMessage(e, 'Failed to remove user'));
   } finally {
     whitelistDeleting.value = false;
   }

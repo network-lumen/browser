@@ -1,5 +1,5 @@
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { safeString } from './coerce';
+import { errorMessage, safeString } from './coerce';
 import type { ExtensionInstallResult, InstalledExtension } from '../../types/extension';
 
 export type { InstalledExtension };
@@ -136,8 +136,8 @@ export async function installExtensionFromChromeWebStore(
       return { ok: false, error };
     }
     return { ok: true };
-  } catch (error: any) {
-    const message = safeString(error?.message) || safeString(error) || 'unknown_error';
+  } catch (error) {
+    const message = errorMessage(error, 'unknown_error');
     console.warn(`[${logContext}][extensions] install from store failed:`, message);
     return { ok: false, error: message };
   }

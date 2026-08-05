@@ -560,7 +560,7 @@ import { useFavourites } from '../internal/favouritesStore';
 import { buildExtensionTabUrl, normalizeAddressInput } from '../internal/navigationUrl';
 import type { Tab } from '../types/tab';
 import type { NavBarExtensionSummary, NavBarImportMode } from '../types/navBar';
-import { clamp } from '../internal/services/coerce';
+import { clamp, errorMessage } from '../internal/services/coerce';
 
 const props = defineProps<{
   tabActive: string;
@@ -843,8 +843,8 @@ async function runExtensionAction(action: () => Promise<any>, successMessage = '
     if (result?.extension || result?.extensions) {
       await refreshExtensions();
     }
-  } catch (error: any) {
-    extensionsMessage.value = String(error?.message || '').trim();
+  } catch (error) {
+    extensionsMessage.value = errorMessage(error, '').trim();
   } finally {
     extensionsBusy.value = false;
   }
@@ -1033,8 +1033,8 @@ async function confirmExportProfile() {
     profileMessage.value = res.path
       ? `Backup ${exportEncrypted.value ? '(encrypted) ' : ''}created at: ${res.path}`
       : 'Backup folder created for this profile.';
-  } catch (e: any) {
-    exportError.value = e?.message || 'Backup export failed.';
+  } catch (e) {
+    exportError.value = errorMessage(e, 'Backup export failed.');
   }
 }
 
@@ -1266,8 +1266,8 @@ async function confirmImportEncrypted() {
     } else {
       importError.value = res?.error || 'Import failed.';
     }
-  } catch (e: any) {
-    importError.value = e?.message || 'Import failed.';
+  } catch (e) {
+    importError.value = errorMessage(e, 'Import failed.');
   }
 }
 
@@ -1286,8 +1286,8 @@ async function confirmCreateProfile() {
       profileMessage.value = 'Failed to create profile. (No profile returned)';
       console.error('[NavBar] Failed to create profile: createProfile returned null or undefined');
     }
-  } catch (e: any) {
-    profileMessage.value = 'Error creating profile: ' + (e?.message || e || 'Unknown error');
+  } catch (e) {
+    profileMessage.value = 'Error creating profile: ' + errorMessage(e, 'Unknown error');
     console.error('[NavBar] Error creating profile:', e);
   }
 }

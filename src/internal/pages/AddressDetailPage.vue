@@ -113,6 +113,7 @@ import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatMicroAmount, truncateMiddle } from '../services/format';
 
+import { errorMessage } from '../services/coerce';
 const loading = ref(true);
 const error = ref('');
 const notFound = ref(false);
@@ -232,8 +233,8 @@ async function loadAddressData() {
     };
 
     loading.value = false;
-  } catch (err: any) {
-    error.value = err.message || 'Failed to load address data';
+  } catch (err) {
+    error.value = errorMessage(err, 'Failed to load address data');
     loading.value = false;
     console.error('Error loading address:', err);
   }

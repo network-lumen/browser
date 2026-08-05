@@ -57,7 +57,7 @@ import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated
 import { isBrowserUrl } from "../navigationUrl";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { safeString } from '../services/coerce';
+import { errorMessage, safeString } from '../services/coerce';
 import {
   getWebviewWebContentsId,
   registerWebviewFindTarget,
@@ -457,9 +457,9 @@ async function removeCurrentExtension() {
       return;
     }
     await refreshInstalledExtensions();
-  } catch (error: any) {
+  } catch (error) {
     statusError.value = true;
-    statusMessage.value = error?.message || String(error || "Extension removal failed.");
+    statusMessage.value = errorMessage(error, "Extension removal failed.");
   } finally {
     installInFlight.value = false;
   }

@@ -311,7 +311,7 @@ import { getActiveProfile } from '../profilesStore';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatBytes as formatBytesValue, formatDateTime } from '../services/format';
-import { safeString } from '../services/coerce';
+import { safeString, errorMessage } from '../services/coerce';
 import type { ReleaseParams, ArtifactRecord, ReleaseRecord, ArtifactDraft, DaoKind } from '../../types/releasePage';
 
 const navigate = inject<((url: string, opts?: { push?: boolean }) => void) | null>('navigate', null);
@@ -467,8 +467,8 @@ async function refreshAll() {
   loading.value = true;
   try {
     await Promise.all([fetchParams(), fetchReleases()]);
-  } catch (e: any) {
-    addToast('error', String(e?.message || e || 'Unable to fetch releases'));
+  } catch (e) {
+    addToast('error', errorMessage(e, 'Unable to fetch releases'));
   } finally {
     loading.value = false;
   }
@@ -607,8 +607,8 @@ async function submitDaoProposal() {
     addToast('success', `Proposal broadcasted${res?.txhash ? ` (${res.txhash})` : ''}`);
     daoModalOpen.value = false;
     await fetchReleases();
-  } catch (e: any) {
-    addToast('error', String(e?.message || e || 'Broadcast failed'));
+  } catch (e) {
+    addToast('error', errorMessage(e, 'Broadcast failed'));
   } finally {
     submittingDao.value = false;
   }
@@ -828,8 +828,8 @@ async function importFromGithubRelease() {
     next.sort(sortArtifactsByPlatform);
     draft.artifacts.splice(0, draft.artifacts.length, ...next);
     addToast('success', `Imported ${next.length} artifact(s) from ${owner}/${repo}@${tagName}.`);
-  } catch (e: any) {
-    addToast('error', String(e?.message || e || 'Import failed'));
+  } catch (e) {
+    addToast('error', errorMessage(e, 'Import failed'));
   } finally {
     importingGithub.value = false;
   }
@@ -883,8 +883,8 @@ async function submitRelease() {
   let payload: any;
   try {
     payload = buildReleasePayload();
-  } catch (e: any) {
-    addToast('error', String(e?.message || e));
+  } catch (e) {
+    addToast('error', errorMessage(e));
     return;
   }
 
@@ -901,8 +901,8 @@ async function submitRelease() {
     addToast('success', 'Release broadcasted');
     closePublishModal();
     await fetchReleases();
-  } catch (e: any) {
-    addToast('error', String(e?.message || e || 'Publish failed'));
+  } catch (e) {
+    addToast('error', errorMessage(e, 'Publish failed'));
   } finally {
     submitting.value = false;
   }
@@ -931,8 +931,8 @@ async function applyTestMode() {
       allowUnvalidatedStable: !!testMode.allowUnvalidatedStable
     });
     if (res && res.ok === false) addToast('error', String(res.error || 'Unable to apply test options'));
-  } catch (e: any) {
-    addToast('error', String(e?.message || e || 'Unable to apply test options'));
+  } catch (e) {
+    addToast('error', errorMessage(e, 'Unable to apply test options'));
   }
 }
 
@@ -942,8 +942,8 @@ async function pollNow() {
     if (typeof api !== 'function') return;
     await api();
     addToast('success', 'Release watcher refreshed');
-  } catch (e: any) {
-    addToast('error', String(e?.message || e || 'Unable to refresh'));
+  } catch (e) {
+    addToast('error', errorMessage(e, 'Unable to refresh'));
   }
 }
 

@@ -3,7 +3,7 @@ import type {
   ThumbSafetyResultMsg,
   ThumbSafetyErrorMsg,
 } from "../../../types/searchSafety";
-import { bytesToHex, clamp01 } from "../../services/coerce";
+import { bytesToHex, clamp01, errorMessage } from '../../services/coerce';
 
 const SIZE = 224;
 
@@ -129,11 +129,11 @@ self.onmessage = async (ev: MessageEvent<ThumbSafetyAnalyzeMsg>) => {
       disturbing: scores.disturbing,
     };
     (self as any).postMessage(out);
-  } catch (e: any) {
+  } catch (e) {
     const out: ThumbSafetyErrorMsg = {
       type: "error",
       url,
-      error: String(e?.message || e || "analyze_failed"),
+      error: errorMessage(e, "analyze_failed"),
     };
     (self as any).postMessage(out);
   } finally {

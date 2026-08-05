@@ -81,6 +81,7 @@ import UiSpinner from '../../ui/UiSpinner.vue';
 import type { ParamSection } from '../../types/networkParamsPanel';
 
 
+import { errorMessage } from '../services/coerce';
 const lumen = useInternalLumen();
 
 function extractGovParams(json: any, kind: 'deposit' | 'voting' | 'tallying') {
@@ -242,9 +243,9 @@ async function loadSection(s: ParamSection) {
     }
     const raw = res.json ?? null;
     s.data = s.extract ? s.extract(raw) : raw;
-  } catch (err: any) {
+  } catch (err) {
     s.data = null;
-    s.error = String(err?.message || err || 'Unknown error');
+    s.error = errorMessage(err, 'Unknown error');
   } finally {
     s.loading = false;
   }

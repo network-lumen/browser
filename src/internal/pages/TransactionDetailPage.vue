@@ -96,6 +96,7 @@ import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatDateTime, formatDenom, formatNumber as formatNumberValue } from '../services/format';
 
+import { errorMessage } from '../services/coerce';
 const loading = ref(true);
 const error = ref('');
 const pending = ref(false);
@@ -161,7 +162,7 @@ async function loadTransactionData() {
         if (rpcError.data && rpcError.data.includes('not found')) {
           throw new Error(`Transaction not found: ${txHash.value}\n\nThis transaction may not exist on the blockchain or hasn't been indexed yet.`);
         }
-        throw new Error(`RPC Error: ${rpcError.message || 'Unknown error'}`);
+        throw new Error(`RPC Error: ${errorMessage(rpcError, 'Unknown error')}`);
       }
       const errorDetails = response.json ? JSON.stringify(response.json, null, 2) : response.statusText || 'Unknown error';
       throw new Error(`Failed to fetch transaction (Status ${response.status}): ${errorDetails}`);
@@ -178,7 +179,7 @@ async function loadTransactionData() {
       if (data.error.data && data.error.data.includes('not found')) {
         throw new Error(`Transaction not found: ${txHash.value}\n\nThis transaction may not exist on the blockchain or hasn't been indexed yet.`);
       }
-      throw new Error(`RPC Error: ${data.error.message || 'Unknown error'}`);
+      throw new Error(`RPC Error: ${data.errorMessage(error, 'Unknown error')}`);
     }
 
     if (!data.result) {
@@ -204,8 +205,8 @@ async function loadTransactionData() {
     };
 
     loading.value = false;
-  } catch (err: any) {
-    error.value = err.message || 'Failed to load transaction data';
+  } catch (err) {
+    error.value = errorMessage(err, 'Failed to load transaction data');
     loading.value = false;
     console.error('Error loading transaction:', err);
   }
