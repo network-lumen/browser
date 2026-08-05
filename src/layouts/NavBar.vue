@@ -496,20 +496,20 @@
   </UiModal>
 
   <!-- Delete Profile Confirm Modal -->
-  <UiModal :model-value="showDeleteProfileModal" title="Delete profile?" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelDeleteProfileModal">
+  <ConfirmDialog
+    :model-value="showDeleteProfileModal"
+    title="Delete profile?"
+    panel-class="min-w-360px max-w-90vw"
+    button-class="flex-1"
+    confirm-label="Delete"
+    @update:model-value="cancelDeleteProfileModal"
+    @confirm="confirmDeleteProfile"
+  >
     <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
       You are about to permanently delete <strong>{{ pendingDeleteProfileName }}</strong>.
       This cannot be recovered.
     </p>
-    <template #footer>
-      <UiButton variant="secondary" class="flex-1" @click="cancelDeleteProfileModal">
-        Cancel
-      </UiButton>
-      <UiButton variant="danger" class="flex-1" @click="confirmDeleteProfile">
-        Delete
-      </UiButton>
-    </template>
-  </UiModal>
+  </ConfirmDialog>
 
   <!-- PQC Link Notice -->
   <UiModal :model-value="showPqcLinkedModal" title="Post-quantum security enabled" panel-class="min-w-360px max-w-90vw" @update:model-value="dismissPqcLinkedModal">
@@ -532,6 +532,7 @@
 import UiInput from '../ui/UiInput.vue';
 import UiCard from '../ui/UiCard.vue';
 import UiModal from '../ui/UiModal.vue';
+import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import { computed,  onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star, ChevronDown, Puzzle, ExternalLink } from 'lucide-vue-next';

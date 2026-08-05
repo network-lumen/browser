@@ -237,18 +237,18 @@
       </UiModal>
 
       <!-- Delete Confirmation Modal -->
-      <UiModal :model-value="showDeleteConfirm" title="Delete Gateway" panel-class="max-w-400px w-90pct" @update:model-value="closeDeleteConfirm">
-              <p>Are you sure you want to delete <strong>{{ deletingGateway?.name }}</strong>?</p>
-              <p class="color-warning mt-8px text-14px">This action cannot be undone.</p>
-        <template #footer>
-          <UiButton variant="secondary" @click="closeDeleteConfirm" :disabled="deleting">
-            Cancel
-          </UiButton>
-          <UiButton variant="danger" @click="deleteGateway" :disabled="deleting">
-            {{ deleting ? 'Deleting...' : 'Delete' }}
-          </UiButton>
-        </template>
-      </UiModal>
+      <ConfirmDialog
+        :model-value="showDeleteConfirm"
+        title="Delete Gateway"
+        consequence="This action cannot be undone."
+        confirm-label="Delete"
+        busy-label="Deleting..."
+        :busy="deleting"
+        @update:model-value="closeDeleteConfirm"
+        @confirm="deleteGateway"
+      >
+        <p>Are you sure you want to delete <strong>{{ deletingGateway?.name }}</strong>?</p>
+      </ConfirmDialog>
 
       <!-- Whitelist Add/Edit Modal -->
       <UiModal :model-value="showWhitelistModal" :title="editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist'" panel-class="max-w-500px w-90pct" @update:model-value="closeWhitelistModal">
@@ -283,18 +283,18 @@
       </UiModal>
 
       <!-- Whitelist Remove Confirmation Modal -->
-      <UiModal :model-value="showWhitelistDeleteConfirm" title="Remove User" panel-class="max-w-400px w-90pct" @update:model-value="closeWhitelistDeleteConfirm">
-              <p>Remove <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> from whitelist?</p>
-              <p class="color-warning mt-8px text-14px">They will no longer be able to access your gateway.</p>
-        <template #footer>
-          <UiButton variant="secondary" @click="closeWhitelistDeleteConfirm" :disabled="whitelistDeleting">
-            Cancel
-          </UiButton>
-          <UiButton variant="danger" @click="removeFromWhitelist" :disabled="whitelistDeleting">
-            {{ whitelistDeleting ? 'Removing...' : 'Remove' }}
-          </UiButton>
-        </template>
-      </UiModal>
+      <ConfirmDialog
+        :model-value="showWhitelistDeleteConfirm"
+        title="Remove User"
+        consequence="They will no longer be able to access your gateway."
+        confirm-label="Remove"
+        busy-label="Removing..."
+        :busy="whitelistDeleting"
+        @update:model-value="closeWhitelistDeleteConfirm"
+        @confirm="removeFromWhitelist"
+      >
+        <p>Remove <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> from whitelist?</p>
+      </ConfirmDialog>
     </main>
   </div>
 </template>
@@ -303,6 +303,7 @@
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
+import ConfirmDialog from '../../dialogs/ConfirmDialog.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
