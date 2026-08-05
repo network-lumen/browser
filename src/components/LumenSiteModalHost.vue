@@ -318,6 +318,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, KeyRound, Link, Plus, Save, Send, Shield } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import { bytesToText, errorMessage } from '../internal/services/coerce';
+import { readPinJobSnapshot } from '../internal/services/pinJobs';
 import { sanitizeStableLinkLabel, stableLinkDisplayName, stableLinkKeyNameFromLabel } from '../internal/services/stableLinks';
 import {
   driveFilesKey,
@@ -640,26 +641,16 @@ function clearPinJobState() {
 }
 
 function applyPinJobSnapshot(job: any) {
-  if (!job || typeof job !== "object") return;
-  pinJobId.value = String(job.id || "").trim();
-  pinJobStatus.value = String(job.status || "").trim();
-  pinProgressText.value = String(job.progressText || "").trim();
-  pinProgressCurrent.value =
-    job.progressCurrent == null || !Number.isFinite(Number(job.progressCurrent))
-      ? null
-      : Number(job.progressCurrent);
-  pinProgressTotal.value =
-    job.progressTotal == null || !Number.isFinite(Number(job.progressTotal))
-      ? null
-      : Number(job.progressTotal);
-  pinProgressPercent.value =
-    job.progressPercent == null || !Number.isFinite(Number(job.progressPercent))
-      ? null
-      : Number(job.progressPercent);
-  pinProgressUnit.value = String(job.progressUnit || "").trim();
-  pinning.value = ["queued", "running", "retry_waiting"].includes(
-    String(job.status || "").trim().toLowerCase(),
-  );
+  const snapshot = readPinJobSnapshot(job);
+  if (!snapshot) return;
+  pinJobId.value = snapshot.id;
+  pinJobStatus.value = snapshot.status;
+  pinProgressText.value = snapshot.progressText;
+  pinProgressCurrent.value = snapshot.progressCurrent;
+  pinProgressTotal.value = snapshot.progressTotal;
+  pinProgressPercent.value = snapshot.progressPercent;
+  pinProgressUnit.value = snapshot.progressUnit;
+  pinning.value = snapshot.active;
 }
 
 function resetPinState() {

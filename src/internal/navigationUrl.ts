@@ -25,6 +25,29 @@ export function isHttpUrl(raw: string): boolean {
   return HTTP_URL_RE.test(String(raw || ""));
 }
 
+/**
+ * An http(s) URL reduced to the base a gateway or endpoint is addressed by:
+ * query and fragment dropped, trailing slashes removed. Returns `null` for
+ * anything unparseable or on another scheme, so a caller can use the result as
+ * both the validation and the value.
+ *
+ * SearchPage and SettingsPage had each written this out to validate a gateway
+ * address the user typed.
+ */
+export function normalizeHttpBaseUrl(input: string): string | null {
+  const raw = String(input || "").trim();
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    url.hash = "";
+    url.search = "";
+    return url.toString().replace(/\/+$/, "");
+  } catch {
+    return null;
+  }
+}
+
 export function isFileUrl(raw: string): boolean {
   return FILE_URL_RE.test(String(raw || ""));
 }

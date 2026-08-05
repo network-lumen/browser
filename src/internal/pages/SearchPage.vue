@@ -476,6 +476,7 @@ import {
 import { localIpfsGatewayBase } from "../services/contentResolver";
 import { appSettingsState } from "../services/appSettings";
 import { clamp01, errorMessage } from '../services/coerce';
+import { normalizeHttpBaseUrl } from '../navigationUrl';
 import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
 import { useToast } from "../../composables/useToast";
 import {
@@ -578,8 +579,8 @@ async function mapWithConcurrency<T, R>(
 
 function gatewayHealthKey(g: GatewayView): string {
   const base =
-    normalizeBaseUrlLike(String(g?.baseUrl || "")) ||
-    normalizeBaseUrlLike(String(g?.endpoint || ""));
+    normalizeHttpBaseUrl(String(g?.baseUrl || "")) ||
+    normalizeHttpBaseUrl(String(g?.endpoint || ""));
   const key = String(base || g?.endpoint || "")
     .trim()
     .toLowerCase();
@@ -609,7 +610,7 @@ async function filterAliveGatewaysForPqSearch(
         .checkAlive({ endpoint: g.endpoint, baseUrl: g.baseUrl, timeoutMs: 2500 })
         .catch(() => null);
       const ok = !!res?.ok;
-      const baseUrl = normalizeBaseUrlLike(String(res?.baseUrl || "")) || undefined;
+      const baseUrl = normalizeHttpBaseUrl(String(res?.baseUrl || "")) || undefined;
 
       gatewayHealthCache.set(key, { at: now, ok, baseUrl });
       if (baseUrl) gatewayHealthCache.set(baseUrl.toLowerCase(), { at: now, ok, baseUrl });
@@ -669,26 +670,12 @@ function originFromUrl(input: string): string | null {
   }
 }
 
-function normalizeBaseUrlLike(input: string): string | null {
-  const raw = String(input || "").trim();
-  if (!raw) return null;
-  try {
-    const u = new URL(raw);
-    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
-    u.hash = "";
-    u.search = "";
-    return u.toString().replace(/\/+$/, "");
-  } catch {
-    return null;
-  }
-}
-
 function imageThumbUrlForGateway(gateway: GatewayView, cid: string, pathSuffix = ""): string {
   const cleanCid = String(cid || "").trim();
   const localBase = localIpfsGatewayBase().replace(/\/+$/, "");
   const suffix = safeEncodedPathSuffix(pathSuffix);
 
-  const directBase = normalizeBaseUrlLike(gateway?.baseUrl || "");
+  const directBase = normalizeHttpBaseUrl(gateway?.baseUrl || "");
   if (directBase) return `${directBase}/ipfs/${cleanCid}${suffix}`;
 
   const endpoint = String(gateway?.endpoint || "").trim();
@@ -701,7 +688,7 @@ function imageThumbUrlForGateway(gateway: GatewayView, cid: string, pathSuffix =
     }
     const path = String(u.pathname || "");
     // If the endpoint includes a path (e.g. `/api`), use origin as a best-effort guess.
-    const base = path && path !== "/" ? originFromUrl(endpoint) : normalizeBaseUrlLike(endpoint);
+    const base = path && path !== "/" ? originFromUrl(endpoint) : normalizeHttpBaseUrl(endpoint);
     return `${String(base || localBase).replace(/\/+$/, "")}/ipfs/${cleanCid}${suffix}`;
   } catch {
     return `${localBase}/ipfs/${cleanCid}${suffix}`;
@@ -2012,7 +1999,7 @@ function withSearchRouteAnchor(cursor: SearchRouteCursor | null, anchorId: strin
 function normalizeGatewayRouteKey(input: string): string {
   const raw = String(input || "").trim();
   if (!raw) return "";
-  const base = normalizeBaseUrlLike(raw);
+  const base = normalizeHttpBaseUrl(raw);
   return String(base || raw).trim().toLowerCase();
 }
 
@@ -2855,7 +2842,7 @@ async function loadGatewaysForSearch(
     items.push({
       id,
       endpoint,
-      baseUrl: normalizeBaseUrlLike(baseUrlHint) || undefined,
+      baseUrl: normalizeHttpBaseUrl(baseUrlHint) || undefined,
       regions,
     });
     seen.add(id);
@@ -2876,7 +2863,7 @@ async function loadGatewaysForSearch(
           const u = new URL(endpoint);
           const path = String(u.pathname || "");
           if (!path || path === "/") {
-            g.baseUrl = normalizeBaseUrlLike(endpoint) || undefined;
+            g.baseUrl = normalizeHttpBaseUrl(endpoint) || undefined;
             return;
           }
         } catch {
@@ -2886,7 +2873,7 @@ async function loadGatewaysForSearch(
         const res = await gwApi.getBaseUrl(profileId, endpoint).catch(() => null);
         if (!res || res.ok === false) return;
         const base = String(res?.baseUrl ?? res?.base_url ?? "").trim();
-        const normalized = normalizeBaseUrlLike(base);
+        const normalized = normalizeHttpBaseUrl(base);
         if (normalized) g.baseUrl = normalized;
       }),
     ).catch(() => {});

@@ -320,6 +320,7 @@ import type { Entry, MarkdownTarget, MarkdownResolvedLink } from "../../types/ip
 import type { DriveSavedFile } from "../../types/driveSavedFile";
 
 import { errorMessage, safeDecodeUriComponent } from "../services/coerce";
+import { readPinJobSnapshot } from "../services/pinJobs";
 import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
  const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
  const currentTabIsActive = inject<any>("currentTabIsActive", null);
@@ -502,26 +503,16 @@ function clearSavePinJobState() {
 }
 
 function applySavePinJobSnapshot(job: any) {
-  if (!job || typeof job !== "object") return;
-  savePinJobId.value = String(job.id || "").trim();
-  savePinJobStatus.value = String(job.status || "").trim();
-  savePinProgressText.value = String(job.progressText || "").trim();
-  savePinProgressCurrent.value =
-    job.progressCurrent == null || !Number.isFinite(Number(job.progressCurrent))
-      ? null
-      : Number(job.progressCurrent);
-  savePinProgressTotal.value =
-    job.progressTotal == null || !Number.isFinite(Number(job.progressTotal))
-      ? null
-      : Number(job.progressTotal);
-  savePinProgressPercent.value =
-    job.progressPercent == null || !Number.isFinite(Number(job.progressPercent))
-      ? null
-      : Number(job.progressPercent);
-  savePinProgressUnit.value = String(job.progressUnit || "").trim();
-  saving.value = ["queued", "running", "retry_waiting"].includes(
-    String(job.status || "").trim().toLowerCase(),
-  );
+  const snapshot = readPinJobSnapshot(job);
+  if (!snapshot) return;
+  savePinJobId.value = snapshot.id;
+  savePinJobStatus.value = snapshot.status;
+  savePinProgressText.value = snapshot.progressText;
+  savePinProgressCurrent.value = snapshot.progressCurrent;
+  savePinProgressTotal.value = snapshot.progressTotal;
+  savePinProgressPercent.value = snapshot.progressPercent;
+  savePinProgressUnit.value = snapshot.progressUnit;
+  saving.value = snapshot.active;
 }
 
 function activeDriveProfileId(): string {
