@@ -1518,6 +1518,9 @@ async function hydrateTxMeta(list: Activity[]) {
     let idx = 0;
 
     async function worker() {
+      // Re-checked here: the guard above narrows `net` for the enclosing flow,
+      // but not inside this hoisted declaration.
+      if (!net) return;
       while (idx < queue.length) {
         const hash = queue[idx++];
         try {
@@ -3694,7 +3697,7 @@ async function copyAddressWithToast() {
 async function loadContacts() {
   contactsLoading.value = true;
   try {
-    const result = await useInternalLumen().addressBook.list();
+    const result = await useInternalLumen()?.addressBook.list();
     if (result.ok) {
       contacts.value = result.contacts || [];
     }
@@ -3745,7 +3748,7 @@ async function saveContact() {
     };
 
     if (editingContact.value) {
-      const result = await useInternalLumen().addressBook.update(
+      const result = await useInternalLumen()?.addressBook.update(
         editingContact.value.id,
         plainContact
       );
@@ -3758,7 +3761,7 @@ async function saveContact() {
       }
     } else {
       // Add new contact
-      const result = await useInternalLumen().addressBook.add(plainContact);
+      const result = await useInternalLumen()?.addressBook.add(plainContact);
       if (result.ok) {
         showToast('Contact added!', 'success');
         await loadContacts();
@@ -3783,7 +3786,7 @@ async function confirmDeleteContact() {
   if (!contactToDelete.value) return;
   
   try {
-    const result = await useInternalLumen().addressBook.delete(contactToDelete.value.id);
+    const result = await useInternalLumen()?.addressBook.delete(contactToDelete.value.id);
     if (result.ok) {
       showToast('Contact deleted', 'success');
       await loadContacts();

@@ -1,3 +1,5 @@
+import type { LumenBridge } from '../types/lumenBridge';
+
 /**
  * Single access point for `window.lumen` as exposed by `electron/preload.cjs`
  * — the trusted API available only in the main app window (wallet, profiles,
@@ -17,6 +19,6 @@
  * src/internal/common/fatal_errors.ts, which fails fast on startup for a
  * missing/renamed API) — callers should keep using `?.` after calling this.
  */
-export function useInternalLumen(): any {
+export function useInternalLumen(): LumenBridge | undefined {
   return (window as any).lumen;
 }

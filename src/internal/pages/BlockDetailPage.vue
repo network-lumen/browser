@@ -230,6 +230,7 @@ async function loadBlockData() {
 }
 
 async function buildProposerMap() {
+  if (!lumen) return;
   try {
     const valSetRes = await lumen.net.rpcGet('/validators');
     if (!valSetRes.ok || !valSetRes.json?.result?.validators) return;

@@ -404,7 +404,7 @@ function refreshManage() {
 
 async function loadPrivateGateways() {
   try {
-    const result = await useInternalLumen().settingsLoadGateways();
+    const result = await useInternalLumen()?.settingsLoadGateways();
     privateGateways.value = result || [];
   } catch (e) {
     console.error('Failed to load private gateways:', e);

@@ -1117,18 +1117,17 @@ async function sniffViewKindFromHead(
 
   try {
     const httpHead = useInternalLumen()?.httpHead;
-    let ct = "";
+    if (!httpHead) return "unknown";
 
     // Prefer the Electron http bridge to avoid CORS issues with local gateways.
-      const res = await httpHead(target, { timeout: 8000 }).catch(() => null);
-      const headers =
-        res && res.headers && typeof res.headers === "object" ? res.headers : {};
-      const headerKey = Object.keys(headers).find(
-        (k) => String(k || "").toLowerCase() === "content-type",
-      );
-      ct = headerKey ? String(headers[headerKey] || "") : "";
+    const res = await httpHead(target, { timeout: 8000 }).catch(() => null);
+    const headers =
+      res && res.headers && typeof res.headers === "object" ? res.headers : {};
+    const headerKey = Object.keys(headers).find(
+      (k) => String(k || "").toLowerCase() === "content-type",
+    );
 
-    ct = String(ct || "").toLowerCase();
+    const ct = String(headerKey ? headers[headerKey] || "" : "").toLowerCase();
     if (!ct) return "unknown";
     if (ct.startsWith("image/")) return "image";
     if (ct.startsWith("video/")) return "video";

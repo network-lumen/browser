@@ -691,11 +691,17 @@ async function confirmStableLinkModal() {
   const keyName = stableLinkKeyNameFromLabel(label);
   if (!keyName) return;
   const api = useInternalLumen();
-  if (mode === 'generate' && !api?.ipfsKeyGen) {
+  // Checked before the two mode-specific guards below: those only cover one
+  // mode each, so neither on its own establishes that the bridge is there.
+  if (!api) {
     showToast('Ugly domain bridge not available.', 'error');
     return;
   }
-  if (mode === 'import' && !api?.ipfsKeyImport) {
+  if (mode === 'generate' && !api.ipfsKeyGen) {
+    showToast('Ugly domain bridge not available.', 'error');
+    return;
+  }
+  if (mode === 'import' && !api.ipfsKeyImport) {
     showToast('Ugly domain import is not available.', 'error');
     return;
   }
