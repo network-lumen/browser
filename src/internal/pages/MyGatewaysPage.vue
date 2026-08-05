@@ -202,39 +202,7 @@
       </div>
 
       <!-- Create/Edit Modal -->
-      <UiModal :model-value="showModal" :title="editingGateway ? 'Edit External Gateway' : 'Add External Gateway'" panel-class="max-w-500px w-90pct" @update:model-value="closeModal">
-              <p class="color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-primary-a20">
-                Add an external private gateway (e.g., your VPS or company server). 
-                For local embedded server, use the "Start Embedded Server" button instead.
-              </p>
-              
-              <UiFormField class="mb-20px" label="Gateway Name" label-class="block fw-500 color-text-secondary text-14px">
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.name"
-                  placeholder="My Private Gateway" class="focus-outline-none focus-ring-blue" />
-              </UiFormField>
-
-              <UiFormField class="mb-20px" label="Gateway URL" label-class="block fw-500 color-text-secondary text-14px">
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.url"
-                  placeholder="https://gateway.example.com" class="focus-outline-none focus-ring-blue" />
-              </UiFormField>
-
-              <UiFormField class="mb-20px" label="API Key" label-class="block fw-500 color-text-secondary text-14px">
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.apiKey"
-                  placeholder="Your gateway API key" class="focus-outline-none focus-ring-blue" />
-              </UiFormField>
-
-              <div v-if="modalError" class="color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
-                {{ modalError }}
-              </div>
-        <template #footer>
-          <UiButton variant="secondary" @click="closeModal" :disabled="saving">
-            Cancel
-          </UiButton>
-          <UiButton variant="primary" @click="saveGateway" :disabled="saving || !isFormValid" class="disabled-fade-50">
-            {{ saving ? 'Saving...' : (editingGateway ? 'Update' : 'Create') }}
-          </UiButton>
-        </template>
-      </UiModal>
+      <ExternalGatewayDialog :model-value="showModal" :editing="!!editingGateway" :form="form" :error="modalError" :saving="saving" :valid="isFormValid" @update:model-value="closeModal" @submit="saveGateway" />
 
       <!-- Delete Confirmation Modal -->
       <ConfirmDialog
@@ -251,36 +219,7 @@
       </ConfirmDialog>
 
       <!-- Whitelist Add/Edit Modal -->
-      <UiModal :model-value="showWhitelistModal" :title="editingWhitelistEntry ? 'Edit User' : 'Add User to Whitelist'" panel-class="max-w-500px w-90pct" @update:model-value="closeWhitelistModal">
-              <UiFormField class="mb-20px" label="Wallet Address" label-class="block fw-500 color-text-secondary text-14px">
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.address"
-                  placeholder="lmn1..."
-                  :disabled="!!editingWhitelistEntry" class="focus-outline-none focus-ring-blue" />
-              </UiFormField>
-
-              <UiFormField class="mb-20px" label="Display Name (Optional)" label-class="block fw-500 color-text-secondary text-14px">
-                <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.displayName"
-                  placeholder="John Doe" class="focus-outline-none focus-ring-blue" />
-              </UiFormField>
-
-              <UiFormField class="mb-20px" label="Notes (Optional)" label-class="block fw-500 color-text-secondary text-14px">
-                <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="whitelistForm.notes"
-                  rows="3"
-                  placeholder="Additional notes about this user..." class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring-blue"></UiInput>
-              </UiFormField>
-
-              <div v-if="whitelistModalError" class="color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
-                {{ whitelistModalError }}
-              </div>
-        <template #footer>
-          <UiButton variant="secondary" @click="closeWhitelistModal" :disabled="whitelistSaving">
-            Cancel
-          </UiButton>
-          <UiButton variant="primary" @click="saveWhitelistEntry" :disabled="whitelistSaving || !whitelistForm.address.trim()" class="disabled-fade-50">
-            {{ whitelistSaving ? 'Saving...' : (editingWhitelistEntry ? 'Update' : 'Add') }}
-          </UiButton>
-        </template>
-      </UiModal>
+      <WhitelistEntryDialog :model-value="showWhitelistModal" :editing="!!editingWhitelistEntry" :form="whitelistForm" :error="whitelistModalError" :saving="whitelistSaving" @update:model-value="closeWhitelistModal" @submit="saveWhitelistEntry" />
 
       <!-- Whitelist Remove Confirmation Modal -->
       <ConfirmDialog
@@ -300,16 +239,15 @@
 </template>
 
 <script setup lang="ts">
-import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
-import UiModal from '../../ui/UiModal.vue';
 import ConfirmDialog from '../../dialogs/ConfirmDialog.vue';
+import ExternalGatewayDialog from '../../dialogs/ExternalGatewayDialog.vue';
+import WhitelistEntryDialog from '../../dialogs/WhitelistEntryDialog.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
-import UiFormField from '../../ui/UiFormField.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import { Server, List, Plus, Edit2, Trash2, AlertCircle, Key, Play, Pause } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
@@ -318,7 +256,7 @@ import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatDate, truncateMiddle } from '../services/format';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
-import type { Gateway } from '../../types/myGatewaysPage';
+import type { ExternalGatewayForm, Gateway, WhitelistEntryForm } from '../../types/myGatewaysPage';
 
 import { errorMessage } from '../services/coerce';
 const gateways = ref<Gateway[]>([]);
@@ -358,13 +296,13 @@ const whitelistDeleting = ref(false);
 const whitelistModalError = ref('');
 const userMetadata = ref<Record<string, any>>({});
 
-const whitelistForm = ref({
+const whitelistForm = ref<WhitelistEntryForm>({
   address: '',
   displayName: '',
   notes: ''
 });
 
-const form = ref({
+const form = ref<ExternalGatewayForm>({
   name: '',
   url: '',
   apiKey: ''
@@ -373,7 +311,9 @@ const form = ref({
 const toast = useToast();
 
 const isFormValid = computed(() => {
-  return form.value.name.trim() && form.value.url.trim() && form.value.apiKey.trim();
+  // `&&` over trimmed strings yields the last string, not a boolean - harmless
+  // while this only fed a `:disabled`, wrong the moment it is a typed prop.
+  return !!(form.value.name.trim() && form.value.url.trim() && form.value.apiKey.trim());
 });
 
 async function loadGateways() {
