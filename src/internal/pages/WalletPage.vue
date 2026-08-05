@@ -853,23 +853,24 @@
     />
 
     <!-- ####### lumen://wallet DELETE CONFIRMATION MODAL ####### -->
-    <UiModal v-model="showDeleteConfirmModal" title="Delete Contact">
+    <ConfirmDialog
+      v-model="showDeleteConfirmModal"
+      title="Delete Contact"
+      panel-class=""
+      @update:model-value="cancelDeleteContact"
+      @confirm="confirmDeleteContact"
+    >
       <p class="color-text-primary text-15px mb-8px line-height-15">
         Are you sure you want to delete <strong>{{ contactToDelete?.name }}</strong>?
       </p>
       <p class="color-text-tertiary text-14px">
         This action cannot be undone.
       </p>
-      <template #footer>
-        <UiButton variant="secondary" @click="cancelDeleteContact">
-          Cancel
-        </UiButton>
-        <UiButton variant="danger" @click="confirmDeleteContact">
-          <Trash2 :size="18" />
-          <span>Delete</span>
-        </UiButton>
+      <template #confirm>
+        <Trash2 :size="18" />
+        <span>Delete</span>
       </template>
-    </UiModal>
+    </ConfirmDialog>
   </div>
 </template>
 
@@ -877,6 +878,7 @@
 import UiInput from '../../ui/UiInput.vue';
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import UiModal from '../../ui/UiModal.vue';
+import ConfirmDialog from '../../dialogs/ConfirmDialog.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
