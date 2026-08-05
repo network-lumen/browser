@@ -805,10 +805,10 @@ import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiHintText from '../../ui/UiHintText.vue';
-import { ref, watch, computed, inject, onMounted } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
+const { currentTabRefresh } = useTabState();
 import {
   Settings,
   Palette,
@@ -864,7 +864,7 @@ import {
 } from '../services/securitySessionTimeout';
 import type { BootstrapPathState } from '../../types/settingsPage';
 
-import { useTabNavigation } from '../../composables/useTabNavigation';
+import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const toast = useToast();
 const appVersion = String((pkg as any)?.version || '0.0.0');
 

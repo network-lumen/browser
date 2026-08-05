@@ -875,7 +875,7 @@
 
 <script setup lang="ts">
 import UiInput from '../../ui/UiInput.vue';
-import { computed, ref, watch, onMounted, onBeforeUnmount, inject } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import UiModal from '../../ui/UiModal.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
@@ -895,7 +895,7 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared, copyToClipboardWithToast } from '../../composables/useClipboard';
 import { explorerTransactionUrl } from '../services/explorerLinks';
 
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
+const { currentTabRefresh } = useTabState();
 import {
   Wallet,
   LayoutDashboard,
@@ -950,7 +950,7 @@ import type {
 } from '../../types/walletPage';
 
 import { errorMessage } from '../services/coerce';
-import { useTabNavigation } from '../../composables/useTabNavigation';
+import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const { openInNewTab } = useTabNavigation();
 const currentView = ref<'overview' | 'assets' | 'dex' | 'transactions' | 'addressbook' | 'recurring'>('overview');
 const isConnected = ref(false);

@@ -832,7 +832,7 @@ import UiLegendItem from '../../ui/UiLegendItem.vue';
 import UiFilterButton from '../../ui/UiFilterButton.vue';
 import UiResultState from '../../ui/UiResultState.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
-import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch, inject } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import BlockDetailPage from './BlockDetailPage.vue';
 import TransactionDetailPage from './TransactionDetailPage.vue';
@@ -856,12 +856,11 @@ import type { Block, Transaction, Validator, TxHistoryWindow } from '../../types
 import type { Block as NetworkBlock } from '../../types/networkPage';
 import type { GovernanceProposal, GovernanceVoteOption } from '../../types/networkGovernance';
 
-import { useTabNavigation } from '../../composables/useTabNavigation';
+import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const toast = useToast();
 const lumen = useInternalLumen();
 const { navigate, openInNewTab } = useTabNavigation();
-const currentTabUrl = inject<any>('currentTabUrl', null);
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
+const { currentTabUrl, currentTabRefresh } = useTabState();
 
 const activeProfile = computed(() => {
   if (!activeProfileId.value) return null;

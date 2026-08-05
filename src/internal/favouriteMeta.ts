@@ -6,6 +6,7 @@ import {
   isLumenUrl,
 } from "./navigationUrl";
 import type { FavouriteKind, FavouriteMeta } from "../types/favourites";
+import { safeDecodeUriComponent } from "./services/coerce";
 
 export type { FavouriteKind, FavouriteMeta };
 
@@ -35,13 +36,6 @@ const INTERNAL_TITLES: Record<string, string> = {
   help: "Help",
 };
 
-function safeDecode(value: string): string {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
-}
 
 function stripWww(hostname: string): string {
   return String(hostname || "").replace(/^www\./i, "");
@@ -100,7 +94,7 @@ function describeLumenUrl(rawUrl: string, preferredTitle?: string): FavouriteMet
 
     const title = chosenTitle || getInternalFavouriteTitle(host);
     const path = String(parsed.pathname || "").replace(/^\/+/, "").trim();
-    const subtitle = path ? `lumen://${host}/${safeDecode(path)}` : `lumen://${host || "home"}`;
+    const subtitle = path ? `lumen://${host}/${safeDecodeUriComponent(path)}` : `lumen://${host || "home"}`;
     return {
       url,
       title,
@@ -125,7 +119,7 @@ function describeHttpUrl(rawUrl: string, preferredTitle?: string): FavouriteMeta
   try {
     const parsed = new URL(rawUrl);
     const host = stripWww(parsed.hostname || rawUrl);
-    const pathname = safeDecode(String(parsed.pathname || ""))
+    const pathname = safeDecodeUriComponent(String(parsed.pathname || ""))
       .replace(/\/+$/, "")
       .trim();
     const segments = pathname.split("/").filter(Boolean);

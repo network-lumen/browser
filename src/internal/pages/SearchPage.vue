@@ -448,7 +448,7 @@ import UiButton from '../../ui/UiButton.vue';
 import UiModal from '../../ui/UiModal.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiTitledCard from '../../ui/UiTitledCard.vue';
-import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useTabLoadingSync } from "../useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
@@ -501,11 +501,10 @@ import type {
   GatewaySiteSearchResult,
 } from "../../types/searchPage";
 
-import { useTabNavigation } from "../../composables/useTabNavigation";
+import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
 const toast = useToast();
 
-const currentTabUrl = inject<any>("currentTabUrl", null);
-const currentTabRefresh = inject<any>("currentTabRefresh", null);
+const { currentTabUrl, currentTabRefresh } = useTabState();
 
 const { navigate, openInNewTab } = useTabNavigation();
 const q = ref("");

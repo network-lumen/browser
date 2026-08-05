@@ -1297,14 +1297,11 @@ import {
   onActivated,
   onDeactivated,
   watch,
-  inject,
   toRaw,
   markRaw,
 } from "vue";
 
-const currentTabRefresh = inject<any>("currentTabRefresh", null);
-const currentTabUrl = inject<any>("currentTabUrl", null);
-const currentTabId = inject<any>("currentTabId", null);
+const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
   
 const lumen_api: any = useInternalLumen();
 const gateway_lumen_api = lumen_api?.gateway;
@@ -1396,7 +1393,7 @@ import type {
   DriveBackupSnapshot,
 } from "../../types/drivePage";
 
-import { useTabNavigation } from "../../composables/useTabNavigation";
+import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
 const { navigate, openInNewTab } = useTabNavigation();
 const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);

@@ -3,7 +3,8 @@ import type {
   OpenExtensionPopup,
   TabNavigate,
   TabNavigation,
-  TabOpenInNewTab
+  TabOpenInNewTab,
+  TabState
 } from '../types/tabNavigation';
 
 /**
@@ -20,10 +21,16 @@ import type {
  * Must be called from `setup()`, like any `inject`.
  */
 
-/** The provide/inject keys. `MainScreen` provides all three under these names. */
+/**
+ * The provide/inject keys of the whole tab contract. `TabPane` provides the
+ * state and `navigate`; `MainScreen` provides the two openers.
+ */
 const NAVIGATE_KEY = 'navigate';
 const OPEN_IN_NEW_TAB_KEY = 'openInNewTab';
 const OPEN_EXTENSION_POPUP_KEY = 'openExtensionPopup';
+const CURRENT_TAB_URL_KEY = 'currentTabUrl';
+const CURRENT_TAB_ID_KEY = 'currentTabId';
+const CURRENT_TAB_REFRESH_KEY = 'currentTabRefresh';
 
 /**
  * All three at once. Each is `null` when nothing provided it - which is the
@@ -35,5 +42,22 @@ export function useTabNavigation(): TabNavigation {
     navigate: inject<TabNavigate | null>(NAVIGATE_KEY, null),
     openInNewTab: inject<TabOpenInNewTab | null>(OPEN_IN_NEW_TAB_KEY, null),
     openExtensionPopup: inject<OpenExtensionPopup | null>(OPEN_EXTENSION_POPUP_KEY, null)
+  };
+}
+
+/**
+ * What the surrounding tab currently is: its address, its id, and a counter
+ * that increments whenever the user asks for a refresh.
+ *
+ * Injected by hand in seventeen files before this, every one of them as
+ * `inject<any>(...)` - so `currentTabUrl.value` was `any` and nothing checked
+ * what came out of it. The keys are the same names the properties have, which
+ * keeps the migration to a single declaration line per file.
+ */
+export function useTabState(): TabState {
+  return {
+    currentTabUrl: inject<TabState['currentTabUrl']>(CURRENT_TAB_URL_KEY, null),
+    currentTabId: inject<TabState['currentTabId']>(CURRENT_TAB_ID_KEY, null),
+    currentTabRefresh: inject<TabState['currentTabRefresh']>(CURRENT_TAB_REFRESH_KEY, null)
   };
 }

@@ -211,18 +211,18 @@ import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
-import { ref, computed, onMounted, watch, inject, reactive } from 'vue';
+import { ref, computed, onMounted, watch, reactive } from 'vue';
 import { Server, List } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { useToast } from '../../composables/useToast';
 
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
+const { currentTabRefresh } = useTabState();
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import type { GatewayParamsView, GatewayRecord, GatewayEditState } from '../../types/gatewaysPage';
 
 import { errorMessage } from '../services/coerce';
-import { useTabNavigation } from '../../composables/useTabNavigation';
+import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const profiles = profilesState;
 const activeProfile = computed(
   () => profiles.value.find((p) => p.id === activeProfileId.value) || null

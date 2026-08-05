@@ -62,10 +62,8 @@ import {
   upsertExtension
 } from "../services/extensions";
 
-import { useTabNavigation } from "../../composables/useTabNavigation";
-const currentTabUrl = inject<any>("currentTabUrl", null);
-const currentTabId = inject<any>("currentTabId", null);
-const currentTabRefresh = inject<any>("currentTabRefresh", null);
+import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
+const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
 const { navigate, openInNewTab } = useTabNavigation();
 const registerFindTarget = inject<((tabId: string, targetWebContentsId: number | null) => void) | null>(
   "findRegisterTarget",

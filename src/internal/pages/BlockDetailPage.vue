@@ -78,7 +78,7 @@ import UiCopyField from '../../ui/UiCopyField.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
 import UiCardHeader from '../../ui/UiCardHeader.vue';
 import { Activity } from 'lucide-vue-next';
-import { ref, onMounted, computed, inject, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { computeTxHash } from '../chainRpc';
@@ -86,7 +86,7 @@ import { formatNumber } from '../services/format';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
 import { explorerTransactionUrl } from '../services/explorerLinks';
 
-import { useTabNavigation } from '../../composables/useTabNavigation';
+import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const loading = ref(true);
 const error = ref('');
 const block = ref<any>(null);
@@ -98,8 +98,7 @@ const lumen = useInternalLumen();
 const proposerMap = ref<Record<string, { moniker: string; avatar?: string; keybaseId?: string }>>({});
 const avatarCache = ref<Record<string, string>>({});
 
-const currentTabUrl = inject<any>('currentTabUrl', null);
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
+const { currentTabUrl, currentTabRefresh } = useTabState();
 
 
 const { openInNewTab } = useTabNavigation();

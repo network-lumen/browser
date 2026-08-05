@@ -416,7 +416,7 @@ import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiTag from '../../ui/UiTag.vue';
-import { computed, inject, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   Globe,
@@ -443,8 +443,8 @@ import type { DomainRow, RawDomainRow, SettingsRecord } from '../../types/domain
 
 import { errorMessage } from '../services/coerce';
 import { sanitizeStableLinkLabel, stableLinkDisplayName, stableLinkKeyNameFromLabel } from '../services/stableLinks';
-import { useTabNavigation } from '../../composables/useTabNavigation';
-const currentTabRefresh = inject<any>('currentTabRefresh', null);
+import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
+const { currentTabRefresh } = useTabState();
 
 const { openInNewTab } = useTabNavigation();
 const profiles = profilesState;
