@@ -317,7 +317,7 @@ import UiPinProgressCard from '../ui/UiPinProgressCard.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, KeyRound, Link, Plus, Save, Send, Shield } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
-import { bytesToText } from '../internal/services/coerce';
+import { bytesToText, errorMessage } from '../internal/services/coerce';
 import {
   driveFilesKey,
   driveLocalNamesKey,
@@ -509,8 +509,8 @@ async function submitSend() {
       memo: sendMemo.value
     });
     respond(res ?? { ok: false, error: "send_failed" });
-  } catch (e: any) {
-    sendError.value = String(e?.message || e || "send_failed");
+  } catch (e) {
+    sendError.value = errorMessage(e, "send_failed");
   } finally {
     sending.value = false;
   }
@@ -726,8 +726,8 @@ async function waitForPinCompletion(jobId: string) {
 
     pinError.value = String(res?.error || "save_failed");
     pinning.value = false;
-  } catch (e: any) {
-    pinError.value = String(e?.message || e || "save_failed");
+  } catch (e) {
+    pinError.value = errorMessage(e, "save_failed");
     pinning.value = false;
   } finally {
     if (pinWaitJobId.value === id) pinWaitJobId.value = "";
@@ -759,8 +759,8 @@ async function submitPin() {
     }
     applyPinJobSnapshot(res.job);
     void waitForPinCompletion(String(res.job.id || ""));
-  } catch (e: any) {
-    pinError.value = String(e?.message || e || "save_failed");
+  } catch (e) {
+    pinError.value = errorMessage(e, "save_failed");
     pinning.value = false;
   }
 }
@@ -1053,8 +1053,8 @@ async function submitStableLink() {
     const url = ipnsName ? `lumen://ipns/${ipnsName}/` : "";
     if (url && api?.clipboardWriteText) await api.clipboardWriteText(url).catch(() => null);
     respond({ ok: true, url, keyName, ipnsName, copied: !!url });
-  } catch (e: any) {
-    stableLinkError.value = String(e?.message || e || "stable_link_failed");
+  } catch (e) {
+    stableLinkError.value = errorMessage(e, "stable_link_failed");
   } finally {
     stableLinkSaving.value = false;
   }
@@ -1086,8 +1086,8 @@ async function submitStableLinkSetup() {
       records,
       imagePreviews,
     });
-  } catch (e: any) {
-    stableLinkSetupError.value = String(e?.message || e || "stable_link_setup_failed");
+  } catch (e) {
+    stableLinkSetupError.value = errorMessage(e, "stable_link_setup_failed");
   } finally {
     stableLinkSetupLoading.value = false;
   }

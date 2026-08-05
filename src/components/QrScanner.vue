@@ -126,10 +126,13 @@ async function initializeScanner() {
         }
       });
     }
-  } catch (err: any) {
-    if (err.name === 'NotAllowedError') {
+  } catch (err) {
+    // getUserMedia reports which permission or device problem occurred through
+    // the error's name, so it is read here rather than the message.
+    const name = err instanceof Error ? err.name : '';
+    if (name === 'NotAllowedError') {
       error.value = 'Camera permission denied';
-    } else if (err.name === 'NotFoundError') {
+    } else if (name === 'NotFoundError') {
       error.value = 'No camera found on this device';
     } else {
       error.value = 'Failed to access camera';

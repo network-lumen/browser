@@ -839,7 +839,7 @@ import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { formatNumber, truncateMiddle } from '../services/format';
-import { clampPercent } from '../services/coerce';
+import { clampPercent, errorMessage } from '../services/coerce';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, Info, ExternalLink, CirclePlus, CircleAlert, CircleCheckBig, Activity, Network, SlidersHorizontal, Vote, FileText, Plus, ThumbsUp, ThumbsDown, Circle, X } from 'lucide-vue-next';
@@ -1908,10 +1908,10 @@ async function confirmStakeAction() {
     } else {
       throw new Error(result?.error || 'Transaction failed');
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error(`${currentStakeAction.value} failed:`, error);
     txStatus.value = 'error';
-    const errorMsg = error?.message || error?.toString() || 'Unknown error';
+    const errorMsg = errorMessage(error, 'Unknown error');
     txMessage.value = errorMsg;
   } finally {
     isProcessingTx.value = false;
@@ -2645,8 +2645,8 @@ async function submitProposal() {
 
     closeCreateProposalModal();
     await fetchGovernanceProposals();
-  } catch (err: any) {
-    toast.error(err?.message || 'Failed to submit proposal.');
+  } catch (err) {
+    toast.error(errorMessage(err, 'Failed to submit proposal.'));
   } finally {
     isSubmittingProposal.value = false;
   }
@@ -2700,8 +2700,8 @@ async function castVote() {
 
     closeVoteModal();
     await fetchGovernanceProposals();
-  } catch (err: any) {
-    toast.error(err?.message || 'Failed to cast vote.');
+  } catch (err) {
+    toast.error(errorMessage(err, 'Failed to cast vote.'));
   } finally {
     isVoting.value = false;
   }

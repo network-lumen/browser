@@ -6,6 +6,7 @@ import {
 } from "./securitySessionTimeout";
 import type { IpfsConnectivityMode, AppSettings } from "../../types/settings";
 
+import { errorMessage } from "./coerce";
 export type { IpfsConnectivityMode, AppSettings };
 
 const BYTES_PER_GIB = 1024 * 1024 * 1024;
@@ -121,7 +122,7 @@ export async function setAppSettings(partial: Partial<AppSettings>): Promise<{ o
     return { ok: false, error: "settings_unavailable" };
   }
   const normalized = mergeSettings(partial);
-  const res = await lum.settingsSet(normalized).catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+  const res = await lum.settingsSet(normalized).catch((e: any) => ({ ok: false, error: errorMessage(e) }));
   if (res?.ok && res?.settings) {
     appSettingsState.value = mergeSettings(res.settings);
     return { ok: true, settings: appSettingsState.value };

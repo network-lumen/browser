@@ -24,6 +24,7 @@ import { FATAL_ERROR_MAP, checkLumenAPIReferences } from './internal/common/fata
 import { useInternalLumen } from './composables/useInternalLumen';
 import type { Stage } from './types/app';
 import { STORAGE_KEYS, readString } from './internal/services/storage';
+import { errorMessage } from './internal/services/coerce';
 
 // Initialize theme
 const { initTheme } = useTheme();
@@ -80,8 +81,8 @@ function onGlobalKeydown(event: KeyboardEvent) {
 
 onMounted(async () => {
   try { await checkLumenAPIReferences() }
-  catch (err: any) {
-      const code = err.message;
+  catch (err) {
+      const code = errorMessage(err);
     if(code) {
       fatalError.value = new Error(
         FATAL_ERROR_MAP[code] ?

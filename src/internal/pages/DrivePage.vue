@@ -1366,7 +1366,7 @@ import {
 import { profilesState, activeProfileId } from "../profilesStore";
 import { formatBytes, formatDateTime } from "../services/format";
 import { copyToClipboard } from "../../composables/useClipboard";
-import { clampPercent } from "../services/coerce";
+import { clampPercent, errorMessage } from '../services/coerce';
 import { STORAGE_KEYS, readJson, readString, removeKey, writeJson, writeString } from "../services/storage";
 import {
   bumpDriveBackupSeq,
@@ -3057,11 +3057,11 @@ async function refreshGatewayDetailsData(gatewayId: string) {
     const [usageRes, pinnedRes] = await Promise.all([
       gateway_lumen_api.getWalletUsage(profileId, hint).catch((e: any) => ({
         ok: false,
-        error: String(e?.message || e),
+        error: errorMessage(e),
       })),
       gateway_lumen_api.getWalletPinnedCids(profileId, hint, 1).catch((e: any) => ({
         ok: false,
-        error: String(e?.message || e),
+        error: errorMessage(e),
       })),
     ]);
     if (
@@ -3105,9 +3105,9 @@ async function refreshGatewayDetailsData(gatewayId: string) {
         : [];
       gatewayDetailsPinned.value = Array.from(new Set(cids));
     }
-  } catch (e: any) {
+  } catch (e) {
     if (seq !== gatewayDetailsLoadSeq) return;
-    gatewayDetailsUsageError.value = String(e?.message || "Usage fetch failed");
+    gatewayDetailsUsageError.value = errorMessage(e, "Usage fetch failed");
   } finally {
     if (seq === gatewayDetailsLoadSeq) gatewayDetailsLoading.value = false;
   }
@@ -3292,8 +3292,8 @@ async function openPlansModal() {
       status: String(s?.status ?? "").toLowerCase(),
       metadata: typeof s?.metadata === "object" ? s.metadata : undefined,
     }));
-  } catch (e: any) {
-    plansError.value = String(e?.message || "Unable to load plans.");
+  } catch (e) {
+    plansError.value = errorMessage(e, "Unable to load plans.");
   } finally {
     plansLoading.value = false;
   }
@@ -3485,7 +3485,7 @@ async function confirmSubscribe() {
         networkGbPerMonth: plan.networkGbPerMonth,
         months: subscribeMonths.value,
       })
-      .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+      .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
 
     if (!res || res.ok === false) {
       subscribeError.value = normalizeSubscribeError(res?.error);
@@ -3497,8 +3497,8 @@ async function confirmSubscribe() {
     subscribeError.value = "";
     subscribeBalance.value = null;
     void openPlansModal();
-  } catch (e: any) {
-    subscribeError.value = normalizeSubscribeError(e?.message || e);
+  } catch (e) {
+    subscribeError.value = normalizeSubscribeError(errorMessage(e));
   } finally {
     subscribeBusy.value = false;
   }
@@ -3637,11 +3637,11 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
     }
 
     gatewayPinnedNames.value = nextNames;
-  } catch (e: any) {
+  } catch (e) {
     if (seq !== gatewayPinnedSeq) return;
     gatewayPinned.value = [];
     gatewayPinnedNames.value = {};
-    const msg = String(e?.message || "Pinned CIDs fetch failed");
+    const msg = errorMessage(e, "Pinned CIDs fetch failed");
     gatewayPinnedError.value =
       msg === "Error: kyber_pubkey_http_unavailable" ? "" : msg;
   } finally {
@@ -4052,8 +4052,8 @@ async function confirmDriveBackupExport() {
     setDriveBackupMeta("export", Date.now());
     showToast("Drive snapshot exported", "success");
     shouldClose = true;
-  } catch (e: any) {
-    driveBackupError.value = String(e?.message || e || "export_failed");
+  } catch (e) {
+    driveBackupError.value = errorMessage(e, "export_failed");
   } finally {
     driveBackupBusy.value = false;
     if (shouldClose) closeDriveBackupExportModal();
@@ -4156,8 +4156,8 @@ async function decryptDriveBackupImport() {
     pendingDriveBackupRestore.value = { source: pending.filename, snapshot: res.snapshot };
     driveBackupImportPassword.value = "";
     driveBackupImportShowPassword.value = false;
-  } catch (e: any) {
-    driveBackupError.value = String(e?.message || e || "decrypt_failed");
+  } catch (e) {
+    driveBackupError.value = errorMessage(e, "decrypt_failed");
   } finally {
     driveBackupBusy.value = false;
   }
@@ -4382,7 +4382,7 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
       planId,
       displayName,
     })
-    .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+    .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
 
   if (!res || res.ok === false) {
     const err = String(res?.error || "Gateway pin failed");
@@ -4499,9 +4499,9 @@ async function performHlsConversion(
     }
 
     return { ok: true, newName };
-  } catch (e: any) {
+  } catch (e) {
     console.error("HLS conversion error:", e);
-    const err = String(e?.message || "HLS conversion error");
+    const err = errorMessage(e, "HLS conversion error");
     const cancelled = err.toLowerCase().includes("cancel");
     if (!opts.silentErrorToast) {
       if (cancelled) showToast("Conversion cancelled.", "success");
@@ -4694,8 +4694,8 @@ function convertSelectedToHls() {
 async function cancelUpload(key: any) {
   try {
     uploadCancelUpload(key);
-  } catch (e: any) {
-    showToast(String(e?.message || "Cancel failed"), "error");
+  } catch (e) {
+    showToast(errorMessage(e, "Cancel failed"), "error");
   }
 }
 
@@ -4710,8 +4710,8 @@ async function cancelHlsConversion() {
       convertingCanceling.value = false;
       convertingStage.value = "transcoding";
     }
-  } catch (e: any) {
-    showToast(String(e?.message || "Cancel failed"), "error");
+  } catch (e) {
+    showToast(errorMessage(e, "Cancel failed"), "error");
     convertingCanceling.value = false;
     convertingStage.value = "transcoding";
   }
@@ -4760,7 +4760,7 @@ async function pauseHlsQueue(options: { silent?: boolean } = {}) {
     }
     await waitForHlsConversionToSettle();
     if (!options.silent) showToast("HLS queue paused.", "success");
-  } catch (e: any) {
+  } catch (e) {
     const previous = new Map(queueSnapshot.map((item) => [item.id, item]));
     hlsQueue.value = hlsQueue.value.map((item) => {
       const prior = previous.get(item.id);
@@ -4770,7 +4770,7 @@ async function pauseHlsQueue(options: { silent?: boolean } = {}) {
     convertingPauseRequested.value = false;
     convertingStage.value = "transcoding";
     if (!options.silent) {
-      showToast(String(e?.message || "Pause failed"), "error");
+      showToast(errorMessage(e, "Pause failed"), "error");
     }
   }
 }
@@ -4806,8 +4806,8 @@ async function cancelHlsArchiveDownload() {
       archiveDownloadCanceling.value = false;
       archiveDownloadStage.value = prevStage;
     }
-  } catch (e: any) {
-    showToast(String(e?.message || "Cancel failed"), "error");
+  } catch (e) {
+    showToast(errorMessage(e, "Cancel failed"), "error");
     archiveDownloadCanceling.value = false;
     archiveDownloadStage.value = prevStage;
   }
@@ -5037,10 +5037,10 @@ async function loadBrowseEntries() {
       });
     if (seq !== browseLoadSeq) return;
     browseEntries.value = mapped;
-  } catch (e: any) {
+  } catch (e) {
     if (seq !== browseLoadSeq) return;
     browseEntries.value = [];
-    browseError.value = String(e?.message || "Failed to list folder");
+    browseError.value = errorMessage(e, "Failed to list folder");
   } finally {
     if (seq === browseLoadSeq) browseLoading.value = false;
   }
@@ -5406,7 +5406,7 @@ async function saveSelectedName() {
           displayName: nextNorm,
           baseUrl: activeGatewayHint.value,
         })
-        .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+        .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
 
       if (!res || res.ok === false) {
         const code = String(res?.error || "rename_failed");
@@ -5437,8 +5437,8 @@ async function saveSelectedName() {
 
       selectedFile.value = { ...f, name: getSavedName(cid) };
       return;
-    } catch (e: any) {
-      showToast(String(e?.message || "rename_failed"), "error");
+    } catch (e) {
+      showToast(errorMessage(e, "rename_failed"), "error");
       return;
     }
   }
@@ -5553,7 +5553,7 @@ async function removeFile(file: DriveFile) {
 
       const res = await gateway_lumen_api
         .unpinCid({ profileId, cid, baseUrl: activeGatewayHint.value })
-        .catch((e: any) => ({ ok: false, error: String(e?.message || e) }));
+        .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
       if (!res || res.ok === false) {
         showToast(String(res?.error || "Gateway unpin failed"), "error");
         return;
@@ -5568,8 +5568,8 @@ async function removeFile(file: DriveFile) {
       }
       showToast("Removed", "success");
       return;
-    } catch (e: any) {
-      showToast(String(e?.message || "Gateway unpin failed"), "error");
+    } catch (e) {
+      showToast(errorMessage(e, "Gateway unpin failed"), "error");
       return;
     }
   }

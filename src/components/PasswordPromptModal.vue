@@ -46,6 +46,7 @@ import { ref, watch, nextTick } from 'vue';
 import { LockKeyhole } from 'lucide-vue-next';
 import { useInternalLumen } from '../composables/useInternalLumen';
 
+import { errorMessage } from '../internal/services/coerce';
 const props = defineProps<{
   visible: boolean;
   message?: string;
@@ -92,8 +93,8 @@ async function handleSubmit() {
       await nextTick();
       passwordInput.value?.focus();
     }
-  } catch (e: any) {
-    error.value = e?.message || 'Failed to verify password.';
+  } catch (e) {
+    error.value = errorMessage(e, 'Failed to verify password.');
   } finally {
     loading.value = false;
   }

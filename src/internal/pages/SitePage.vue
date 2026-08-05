@@ -356,7 +356,7 @@ async function ensureHlsPlaying(url: string) {
     }
     const reason = String(data?.reason || "");
     const type = String(data?.type || "");
-    const errMsg = String(data?.error?.message || "");
+    const errMsg = String(data?.errorMessage(error, ""));
     const respText = String(data?.response?.text || "");
     const msg = details || type || "hls_error";
     const extraBits = [reason, errMsg, respText].map((s) => String(s || "").trim()).filter(Boolean);
@@ -453,8 +453,11 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
 
     resolvedHttpUrl.value = resolvedUrl;
     active.value = { host, target };
-  } catch (e: any) {
-    if (e?.code === "domain_not_registered") {
+  } catch (e) {
+    // The resolver tags this one case with a `code` so an unregistered domain
+    // gets its own screen instead of the generic failure.
+    const code = e && typeof e === "object" ? (e as { code?: unknown }).code : undefined;
+    if (code === "domain_not_registered") {
       domainNotFound.value = true;
     } else {
       error.value = true;

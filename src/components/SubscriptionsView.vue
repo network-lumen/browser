@@ -220,6 +220,7 @@ import QrScanner from './QrScanner.vue';
 import { getRecurringPaymentsService, type RecurringPayment, type PaymentHistory } from '../internal/services/recurringPayments';
 import { formatDate, formatDateTime, formatDecimal, truncateMiddle } from '../internal/services/format';
 
+import { errorMessage } from '../internal/services/coerce';
 const emit = defineEmits<{
   (e: 'execute-payment', paymentId: string): void;
   (e: 'toast', message: string, type: 'success' | 'error'): void;
@@ -314,8 +315,8 @@ function savePayment(data: any) {
     }
     loadData();
     closeModal();
-  } catch (e: any) {
-    emit('toast', e.message || 'Failed to save payment', 'error');
+  } catch (e) {
+    emit('toast', errorMessage(e, 'Failed to save payment'), 'error');
   }
 }
 

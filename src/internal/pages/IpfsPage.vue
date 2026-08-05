@@ -319,6 +319,7 @@ import {
 import type { Entry, MarkdownTarget, MarkdownResolvedLink } from "../../types/ipfsPage";
 import type { DriveSavedFile } from "../../types/driveSavedFile";
 
+import { errorMessage } from "../services/coerce";
  const currentTabUrl = inject<any>("currentTabUrl", null);
  const currentTabId = inject<any>("currentTabId", null);
  const currentTabRefresh = inject<any>("currentTabRefresh", null);
@@ -642,8 +643,8 @@ async function buildEpubReaderSrcDoc() {
     bookDataEl.setAttribute("data-bibi-book-mimetype", "application/epub+zip");
 
     epubReaderSrcDoc.value = `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
-  } catch (e: any) {
-    epubReaderError.value = String(e?.message || e || "Failed to open EPUB");
+  } catch (e) {
+    epubReaderError.value = errorMessage(e, "Failed to open EPUB");
   } finally {
     epubReaderLoading.value = false;
   }
@@ -1460,7 +1461,7 @@ async function ensureHlsPlaying(url: string) {
     }
     const reason = String(data?.reason || "");
     const type = String(data?.type || "");
-    const errMsg = String(data?.error?.message || "");
+    const errMsg = String(data?.errorMessage(error, ""));
     const respText = String(data?.response?.text || "");
     const msg = details || type || "hls_error";
     const extraBits = [reason, errMsg, respText].map((s) => String(s || "").trim()).filter(Boolean);
@@ -1919,8 +1920,8 @@ async function load() {
         }
       }
     }
-  } catch (e: any) {
-    error.value = String(e?.message || e);
+  } catch (e) {
+    error.value = errorMessage(e);
   } finally {
     loading.value = false;
     void refreshSavedState();
@@ -2059,8 +2060,8 @@ async function openSaveModal() {
   try {
     const cid = await resolveSaveTargetCid();
     saveTargetCid.value = cid;
-  } catch (e: any) {
-    saveModalError.value = String(e?.message || e || "Unable to prepare save.");
+  } catch (e) {
+    saveModalError.value = errorMessage(e, "Unable to prepare save.");
   } finally {
     savePreparing.value = false;
   }
@@ -2102,8 +2103,8 @@ async function waitForSavePinCompletion(jobId: string, cid: string, name: string
     error.value = String(res?.error || "save_failed");
     saveModalError.value = error.value;
     saving.value = false;
-  } catch (e: any) {
-    error.value = String(e?.message || e);
+  } catch (e) {
+    error.value = errorMessage(e);
     saveModalError.value = error.value;
     saving.value = false;
   } finally {
@@ -2129,8 +2130,8 @@ async function confirmSaveToDrive() {
     }
     applySavePinJobSnapshot(started.job);
     void waitForSavePinCompletion(String(started.job.id || ""), cid, name);
-  } catch (e: any) {
-    error.value = String(e?.message || e);
+  } catch (e) {
+    error.value = errorMessage(e);
     saveModalError.value = error.value;
     saving.value = false;
   }

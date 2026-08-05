@@ -221,6 +221,7 @@ const currentTabRefresh = inject<any>('currentTabRefresh', null);
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import type { GatewayParamsView, GatewayRecord, GatewayEditState } from '../../types/gatewaysPage';
 
+import { errorMessage } from '../services/coerce';
 const profiles = profilesState;
 const activeProfile = computed(
   () => profiles.value.find((p) => p.id === activeProfileId.value) || null
@@ -382,15 +383,15 @@ async function loadGateways() {
       .catch(() => null);
     if (!res || res.ok === false) {
       gateways.value = [];
-      gatewaysError.value = normalizeError(res?.error || res?.message || 'Unable to load gateways.');
+      gatewaysError.value = normalizeError(res?.error || errorMessage(res, 'Unable to load gateways.'));
       return;
     }
     const list = Array.isArray(res?.gateways) ? res.gateways : [];
     gateways.value = list.map(normalizeGateway).filter((g: GatewayRecord) => !!g.id);
     syncEditMap();
-  } catch (e: any) {
+  } catch (e) {
     gateways.value = [];
-    gatewaysError.value = String(e?.message || 'Unable to load gateways.');
+    gatewaysError.value = errorMessage(e, 'Unable to load gateways.');
   } finally {
     gatewaysLoading.value = false;
   }
@@ -503,8 +504,8 @@ function parseExtras(text: string): { ok: boolean; value?: Record<string, any>; 
       return { ok: false, error: 'Metadata must be a JSON object.' };
     }
     return { ok: true, value: parsed as Record<string, any> };
-  } catch (e: any) {
-    const raw = e && e.message ? String(e.message) : '';
+  } catch (e) {
+    const raw = errorMessage(e);
     const msg = raw.replace(/\s+/g, ' ').trim();
     return { ok: false, error: msg ? `Metadata JSON is invalid: ${msg}` : 'Metadata JSON is invalid.' };
   }
@@ -551,9 +552,9 @@ async function registerGateway() {
       memo: registerForm.memo || undefined
     });
     if (!result || result.ok === false) {
-      const errorMessage = normalizeError(result?.error || result?.message || 'Registration failed.');
-      registerState.error = errorMessage;
-      notify(errorMessage, 'error');
+      const message = normalizeError(result?.error || errorMessage(result, 'Registration failed.'));
+      registerState.error = message;
+      notify(message, 'error');
       return;
     }
     registerState.txhash = String(result.txhash || '');
@@ -563,8 +564,8 @@ async function registerGateway() {
     registerForm.regions = '';
     registerForm.metadata = '';
     registerForm.memo = '';
-  } catch (e: any) {
-    const msg = normalizeError(e?.message || e);
+  } catch (e) {
+    const msg = normalizeError(errorMessage(e));
     registerState.error = msg;
     notify(msg, 'error');
   } finally {
@@ -608,16 +609,16 @@ async function updateGateway(id: string) {
     };
     const result: any = await gwApi.updateGateway(payload);
     if (!result || result.ok === false) {
-      const errorMessage = normalizeError(result?.error || result?.message || 'Update failed.');
-      state.error = errorMessage;
-      notify(errorMessage, 'error');
+      const message = normalizeError(result?.error || errorMessage(result, 'Update failed.'));
+      state.error = message;
+      notify(message, 'error');
       return;
     }
     state.txhash = String(result.txhash || '');
     notify('Gateway update submitted', 'success');
     await loadGateways();
-  } catch (e: any) {
-    const msg = normalizeError(e?.message || e);
+  } catch (e) {
+    const msg = normalizeError(errorMessage(e));
     state.error = msg;
     notify(msg, 'error');
   } finally {
@@ -635,7 +636,7 @@ function formatUlmnToLmn(value?: string | number | bigint | null): string {
 }
 
 function normalizeError(value: any): string {
-  const raw = typeof value === 'string' ? value : value?.message || '';
+  const raw = typeof value === 'string' ? value : errorMessage(value, '');
   const message = String(raw || '').replace(/\s+/g, ' ').trim();
   if (!message) return 'Operation failed. Please try again.';
   const low = message.toLowerCase();

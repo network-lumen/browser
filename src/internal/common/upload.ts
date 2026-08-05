@@ -5,6 +5,7 @@ import type { UploadActivity, UploadPathResult, DriveFile } from "../../types/up
 import { driveFilesKey, driveLocalNamesKey } from "../services/driveStorage";
 import { readJson, writeJson } from "../services/storage";
 
+import { errorMessage } from "../services/coerce";
 const api: any = useInternalLumen();
 const uploadActivities: UploadActivity = {};
 let localNames: Record<string, string> = {};
@@ -100,9 +101,9 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         files = [dirFile, ...filtered];
         writeJson(driveFilesKey(pid), files);
         return { ok: true, cid, rootName: name, rootPath, totalBytes };
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
-        return { ok: false, error: String(err?.message || err || "Failed to upload"), rootName: name, rootPath };
+        return { ok: false, error: errorMessage(err, "Failed to upload"), rootName: name, rootPath };
     } finally {
         setTimeout(() => {
             delete uploadActivities[dirPath];

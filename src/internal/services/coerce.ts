@@ -16,6 +16,30 @@ export function safeString(value: unknown, maxLen: number = DEFAULT_MAX_LENGTH):
   return text.length > maxLen ? text.slice(0, maxLen) : text;
 }
 
+/**
+ * The readable part of anything thrown, for showing to a user.
+ *
+ * A `catch` binding is `unknown`, and what actually arrives varies: an `Error`,
+ * a rejected IPC reply, a bare string, sometimes `undefined`. Call sites used
+ * to spell this out inline, which forced the binding to be annotated `any` and
+ * so gave up type-checking for the whole block.
+ *
+ * Objects yield their `message` and never `String(obj)` - a plain object would
+ * otherwise reach the user as `[object Object]`, which the inline form did.
+ * Primitives yield themselves, so a thrown string survives instead of being
+ * flattened into the fallback.
+ */
+export function errorMessage(error: unknown, fallback = ''): string {
+  if (error && typeof error === 'object') {
+    const message = safeString((error as { message?: unknown }).message);
+    if (message) return message;
+  } else {
+    const raw = safeString(error);
+    if (raw) return raw;
+  }
+  return fallback;
+}
+
 /** Finite number, or `null` when the input can't be read as one. */
 export function safeNumber(value: unknown): number | null {
   const n = typeof value === 'number' ? value : Number(value);

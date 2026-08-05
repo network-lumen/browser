@@ -193,6 +193,7 @@ import { activeProfileId, createProfile, initProfiles, profilesState } from '../
 import { useInternalLumen } from '../composables/useInternalLumen';
 import type { OnboardingStep } from '../types/walletOnboardingModal';
 
+import { errorMessage } from '../internal/services/coerce';
 const completeReminders = [
   'Never share your password or backup file',
   'Store your backup in multiple secure locations',
@@ -264,8 +265,8 @@ async function handlePasswordSubmit() {
     } else {
       passwordError.value = result?.error || 'Failed to set password.';
     }
-  } catch (e: any) {
-    passwordError.value = e?.message || 'Failed to set password.';
+  } catch (e) {
+    passwordError.value = errorMessage(e, 'Failed to set password.');
   } finally {
     settingPassword.value = false;
   }
@@ -379,8 +380,8 @@ async function createWallet() {
         verifyCheck?.error ||
         'Wallet creation failed. Please try again.';
     }
-  } catch (e: any) {
-    walletError.value = e?.message || 'Failed to create wallet.';
+  } catch (e) {
+    walletError.value = errorMessage(e, 'Failed to create wallet.');
   } finally {
     creatingWallet.value = false;
   }
@@ -446,8 +447,8 @@ async function handleExportBackup() {
         backupError.value = errorMessages[result?.error] || 'Failed to export backup.';
       }
     }
-  } catch (e: any) {
-    backupError.value = e?.message || 'Failed to export backup.';
+  } catch (e) {
+    backupError.value = errorMessage(e, 'Failed to export backup.');
   } finally {
     exportingBackup.value = false;
   }

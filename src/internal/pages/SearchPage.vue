@@ -475,7 +475,7 @@ import {
 } from "lucide-vue-next";
 import { localIpfsGatewayBase } from "../services/contentResolver";
 import { appSettingsState } from "../services/appSettings";
-import { clamp01 } from "../services/coerce";
+import { clamp01, errorMessage } from '../services/coerce';
 import { useToast } from "../../composables/useToast";
 import {
   getThumbSafetyService,
@@ -1450,8 +1450,8 @@ async function togglePinImage(result: ResultItem) {
         toast.error(err ? `Failed to save to local: ${err}` : "Failed to save to local");
       }
     }
-  } catch (e: any) {
-    toast.error(String(e?.message || "Operation failed"));
+  } catch (e) {
+    toast.error(errorMessage(e, "Operation failed"));
   }
 }
 
@@ -4333,9 +4333,9 @@ async function runSearch(
       const sites = merged.filter((r) => r && r.kind === "site");
       void enrichSiteResultsWithEntryPaths(sites, seq);
     }
-  } catch (e: any) {
+  } catch (e) {
     if (seq !== searchSeq) return;
-    const errMessage = String(e?.message || e || "search_failed");
+    const errMessage = errorMessage(e, "search_failed");
     errorMsg.value = errMessage;
     results.value = [];
     clearPageCursorStates();
@@ -4461,9 +4461,9 @@ async function loadPrevious() {
         nextRoot.scrollTo({ top: Math.max(0, prevScrollTop + delta), behavior: "auto" });
       }
     }
-  } catch (e: any) {
+  } catch (e) {
     if (seq !== searchSeq) return;
-    const errMessage = String(e?.message || e || "load_previous_failed");
+    const errMessage = errorMessage(e, "load_previous_failed");
     errorMsg.value = errMessage;
     toast.error(`Load previous failed: ${errMessage}`);
   } finally {
@@ -4560,9 +4560,9 @@ async function loadMore() {
         void enrichSiteResultsWithEntryPaths(sites, seq);
       }
     }
-  } catch (e: any) {
+  } catch (e) {
     if (seq !== searchSeq) return;
-    const errMessage = String(e?.message || e || "load_more_failed");
+    const errMessage = errorMessage(e, "load_more_failed");
     errorMsg.value = errMessage;
     toast.error(`Load more failed: ${errMessage}`);
   } finally {
