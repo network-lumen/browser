@@ -836,6 +836,7 @@ import {
 import { useTheme } from '../../composables/useTheme';
 import { STORAGE_KEYS, readString, writeString } from '../services/storage';
 import { clamp, errorMessage } from '../services/coerce';
+import { normalizeHttpBaseUrl } from '../navigationUrl';
 import { useToast } from '../../composables/useToast';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
 import { useHistory } from '../historyStore';
@@ -1319,20 +1320,6 @@ watch(
   { immediate: true },
 );
 
-function validateUrl(raw: string): string | null {
-  const v = String(raw || '').trim();
-  if (!v) return null;
-  try {
-    const u = new URL(v);
-    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
-    u.hash = '';
-    u.search = '';
-    return u.toString().replace(/\/+$/, '');
-  } catch {
-    return null;
-  }
-}
-
 function validatePositiveInteger(raw: string): number | null {
   const value = String(raw || '').trim();
   if (!/^\d+$/.test(value)) return null;
@@ -1398,8 +1385,8 @@ function resetDevSettings() {
 
 async function saveDevSettings() {
   if (devSettingsSaving.value) return;
-  const localGatewayBase = validateUrl(localGatewayDraft.value);
-  const ipfsApiBase = validateUrl(ipfsApiDraft.value);
+  const localGatewayBase = normalizeHttpBaseUrl(localGatewayDraft.value);
+  const ipfsApiBase = normalizeHttpBaseUrl(ipfsApiDraft.value);
   const localDriveMaxUploadSizeGb = validatePositiveInteger(localDriveMaxUploadSizeDraft.value);
   if (!localGatewayBase) {
     devSettingsError.value = 'Invalid Local IPFS Gateway URL.';
