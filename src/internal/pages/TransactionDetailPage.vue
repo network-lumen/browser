@@ -119,9 +119,7 @@ const txHash = computed(() => {
 });
 
 function navigateToBlock(height: number) {
-  if (openInNewTab) {
-    openInNewTab(explorerBlockUrl(height));
-  }
+  openInNewTab?.(explorerBlockUrl(height));
 }
 
 function formatNumber(num: number | string): string {

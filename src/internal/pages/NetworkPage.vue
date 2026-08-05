@@ -841,7 +841,7 @@ import { profilesState, activeProfileId } from '../profilesStore';
 import { formatNumber, truncateMiddle } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
-import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
+import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl, openExplorerUrl } from '../services/explorerLinks';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, Info, ExternalLink, CirclePlus, CircleAlert, CircleCheckBig, Activity, Network, SlidersHorizontal, Vote, FileText, Plus, ThumbsUp, ThumbsDown, Circle, X } from 'lucide-vue-next';
@@ -887,30 +887,15 @@ const isAddressDetailView = computed(() => {
 });
 
 function navigateToBlock(height: number) {
-  const url = explorerBlockUrl(height);
-  if (openInNewTab) {
-    openInNewTab(url);
-  } else {
-    window.location.href = url;
-  }
+  openExplorerUrl(explorerBlockUrl(height), openInNewTab);
 }
 
 function navigateToTransaction(hash: string) {
-  const url = explorerTransactionUrl(hash);
-  if (openInNewTab) {
-    openInNewTab(url);
-  } else {
-    window.location.href = url;
-  }
+  openExplorerUrl(explorerTransactionUrl(hash), openInNewTab);
 }
 
 function navigateToAddress(address: string) {
-  const url = explorerAddressUrl(address);
-  if (openInNewTab) {
-    openInNewTab(url);
-  } else {
-    window.location.href = url;
-  }
+  openExplorerUrl(explorerAddressUrl(address), openInNewTab);
 }
 
 // Each sidebar item is its own sub-page (lumen://network/blocks, /transactions,

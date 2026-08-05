@@ -136,15 +136,11 @@ const accountAddress = computed(() => {
 });
 
 function navigateToTx(hash: string) {
-  if (openInNewTab) {
-    openInNewTab(explorerTransactionUrl(hash));
-  }
+  openInNewTab?.(explorerTransactionUrl(hash));
 }
 
 function navigateToBlock(height: number) {
-  if (openInNewTab) {
-    openInNewTab(explorerBlockUrl(height));
-  }
+  openInNewTab?.(explorerBlockUrl(height));
 }
 
 function formatAmount(amount: string | number): string {

@@ -14,7 +14,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { appSettingsState } from "../internal/services/appSettings";
 import { getSecuritySessionTimeoutIdleText } from "../internal/services/securitySessionTimeout";
-import PasswordPromptModal from "./PasswordPromptModal.vue";
+import PasswordPromptModal from "../dialogs/PasswordPromptModal.vue";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import type { LockReason } from '../types/securityGate';
 

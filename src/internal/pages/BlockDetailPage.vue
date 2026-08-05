@@ -85,7 +85,7 @@ import { computeTxHash } from '../chainRpc';
 import { formatNumber } from '../services/format';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
 import type { ProposerInfo } from '../../types/networkPage';
-import { explorerTransactionUrl } from '../services/explorerLinks';
+import { explorerTransactionUrl, openExplorerUrl } from '../services/explorerLinks';
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const loading = ref(true);
@@ -154,11 +154,7 @@ function calculateBlockSize(block: any): string {
 }
 
 function navigateToTransaction(hash: string) {
-  if (openInNewTab) {
-    openInNewTab(explorerTransactionUrl(hash));
-  } else {
-    window.location.href = explorerTransactionUrl(hash);
-  }
+  openExplorerUrl(explorerTransactionUrl(hash), openInNewTab);
 }
 
 async function loadBlockData() {
