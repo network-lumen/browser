@@ -48,11 +48,11 @@ function sleep(ms: number) {
 
 async function pollOnce(): Promise<boolean> {
   try {
-    if (!useInternalLumen() || typeof useInternalLumen().ipfsStatus !== 'function') {
+    if (!useInternalLumen() || typeof useInternalLumen()?.ipfsStatus !== 'function') {
       console.warn('[startup] window.lumen.ipfsStatus not available yet');
       return false;
     }
-    const res = await useInternalLumen().ipfsStatus();
+    const res = await useInternalLumen()?.ipfsStatus();
     return !!res?.ok;
   } catch (e) {
     console.error('[startup] ipfsStatus error', e);

@@ -5,12 +5,17 @@ import {
   REQUIRED_FUNCTIONS,
   REQUIRED_NAMESPACES,
   REQUIRED_VALUES
-} from '../../src/internal/common/fatal_errors';
+} from '../../src/internal/common/lumenBridgeSurface';
 
 /**
- * `fatal_errors.ts` hand-lists the preload surface it guards. This re-derives
- * that surface from `electron/preload.cjs` and fails when the two drift, so a
- * method added or removed there is caught in CI instead of at a user's startup.
+ * `lumenBridgeSurface.ts` hand-lists the preload surface. This re-derives that
+ * surface from `electron/preload.cjs` and fails when the two drift, so a method
+ * added or removed there is caught in CI instead of at a user's startup.
+ *
+ * Two things now rest on that list, not one: `fatal_errors.ts` checks the live
+ * bridge against it at startup, and `src/types/lumenBridge.ts` derives the TYPE
+ * of `useInternalLumen()` from it. So this test also keeps the compiler's idea
+ * of the bridge honest.
  */
 
 const repoRoot = path.resolve(__dirname, '../..');

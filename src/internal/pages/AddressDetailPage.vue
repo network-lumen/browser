@@ -181,6 +181,11 @@ async function loadAddressData() {
     error.value = '';
     notFound.value = false;
 
+    // Thrown rather than optional-chained: without the bridge there is nothing
+    // to show, and the catch below turns this into a visible message instead of
+    // a page that silently stays empty.
+    if (!lumen) throw new Error('Lumen API unavailable');
+
     const accountResponse = await lumen.net.restGet(
       `/cosmos/auth/v1beta1/accounts/${accountAddress.value}`
     );

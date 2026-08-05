@@ -144,6 +144,10 @@ async function loadTransactionData() {
 
     const upperHash = txHash.value.toUpperCase();
 
+    // Surfaced through the catch below rather than optional-chained: there is
+    // no transaction to render without the bridge.
+    if (!lumen) throw new Error('Lumen API unavailable');
+
     const response = await lumen.net.rpcGet(`/tx?hash=0x${upperHash}`);
 
     if (!response.ok) {
@@ -214,6 +218,7 @@ function formatFeeAmount(coins: any): string {
 }
 
 async function fetchTxRestData(hash: string): Promise<{ fee: string; messages: any[] }> {
+  if (!lumen) return { fee: 'N/A', messages: [] };
   try {
     const res = await lumen.net.restGet(`/cosmos/tx/v1beta1/txs/${hash}`);
     if (!res.ok) return { fee: 'N/A', messages: [] };

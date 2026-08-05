@@ -1090,9 +1090,9 @@ watch(
 // Security functions
 async function loadSecurityStatus() {
   try {
-    const status = await useInternalLumen().security.getStatus();
+    const status = await useInternalLumen()?.security.getStatus();
     securityStatus.value = { enabled: !!(status?.passwordEnabled && status?.hasPassword) };
-    const session = await useInternalLumen().security.checkSession();
+    const session = await useInternalLumen()?.security.checkSession();
     securitySessionActive.value = !!session?.active;
   } catch (e) {
     console.error('Failed to load security status:', e);
@@ -1136,7 +1136,7 @@ async function setSecurityPassword() {
   
   securityLoading.value = true;
   try {
-    const result = await useInternalLumen().security.setPassword({ password: newPassword.value });
+    const result = await useInternalLumen()?.security.setPassword({ password: newPassword.value });
     if (result?.ok) {
       securityStatus.value = { enabled: true };
       securitySessionActive.value = true;
@@ -1173,7 +1173,7 @@ async function changeSecurityPassword() {
   securityLoading.value = true;
   try {
     // Verify current password first
-    const verify = await useInternalLumen().security.verifyPassword({ password: currentPassword.value });
+    const verify = await useInternalLumen()?.security.verifyPassword({ password: currentPassword.value });
     if (!verify?.ok) {
       securityError.value = 'Current password is incorrect.';
       securityLoading.value = false;
@@ -1181,14 +1181,14 @@ async function changeSecurityPassword() {
     }
     
     // Remove old and set new
-    const removeResult = await useInternalLumen().security.removePassword({ password: currentPassword.value });
+    const removeResult = await useInternalLumen()?.security.removePassword({ password: currentPassword.value });
     if (!removeResult?.ok) {
       securityError.value = removeResult?.error || 'Failed to change password.';
       securityLoading.value = false;
       return;
     }
     
-    const setResult = await useInternalLumen().security.setPassword({ password: newPassword.value });
+    const setResult = await useInternalLumen()?.security.setPassword({ password: newPassword.value });
     if (setResult?.ok) {
       currentPassword.value = '';
       newPassword.value = '';
@@ -1213,7 +1213,7 @@ async function removeSecurityPassword() {
   securityLoading.value = true;
   
   try {
-    const result = await useInternalLumen().security.removePassword({ password: removePasswordInput.value });
+    const result = await useInternalLumen()?.security.removePassword({ password: removePasswordInput.value });
     if (result?.ok) {
       securityStatus.value = { enabled: false };
       securitySessionActive.value = false;
@@ -1241,7 +1241,7 @@ function cancelRemovePassword() {
 
 async function lockSecuritySession() {
   try {
-    await useInternalLumen().security.lockSession();
+    await useInternalLumen()?.security.lockSession();
     securitySessionActive.value = false;
   } catch (e) {
     console.error('Failed to lock session:', e);
@@ -1571,7 +1571,7 @@ async function openLogsFolderAction() {
 async function loadPrivateCloudConfig() {
   privateCloudLoading.value = true;
   try {
-    const config = await useInternalLumen().settingsLoadPrivateCloudConfig();
+    const config = await useInternalLumen()?.settingsLoadPrivateCloudConfig();
 
     privateCloudEnabled.value = !!config.enabled;
     preferPrivateGateways.value = !!config.preferPrivate;
@@ -1600,7 +1600,7 @@ async function savePrivateCloudConfig() {
       maxRetries: maxRetries.value
     };
     
-    const result = await useInternalLumen().settingsSavePrivateCloudConfig(config);
+    const result = await useInternalLumen()?.settingsSavePrivateCloudConfig(config);
 
     if (!result.ok) {
       console.error('Failed to save private cloud config:', result.error);

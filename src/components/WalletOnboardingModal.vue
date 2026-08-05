@@ -251,7 +251,7 @@ async function handlePasswordSubmit() {
   settingPassword.value = true;
 
   try {
-    const result = await useInternalLumen().security.setPassword({ 
+    const result = await useInternalLumen()?.security.setPassword({ 
       password: password.value 
     });
 
@@ -400,7 +400,7 @@ async function handleExportBackup() {
     }
 
     // CRITICAL: Validate wallet is fully created before allowing backup
-    const walletCheck = await useInternalLumen().profiles.isWalletFullyCreated(profileId);
+    const walletCheck = await useInternalLumen()?.profiles.isWalletFullyCreated(profileId);
     
     if (!walletCheck?.ok) {
       const errorMessages: Record<string, string> = {

@@ -81,7 +81,7 @@ async function handleSubmit() {
   
   try {
     // Verify password with backend
-    const result = await useInternalLumen().security.verifyPassword({ password: password.value });
+    const result = await useInternalLumen()?.security.verifyPassword({ password: password.value });
     
     if (result?.ok) {
       emit('confirm', password.value);
