@@ -793,7 +793,7 @@ function normalizeExtensionPayload(payload: any): NavBarExtensionSummary[] {
       launchUrl: String(entry?.launchUrl || '').trim()
     }))
     .filter((entry: NavBarExtensionSummary) => !!entry.id)
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a: NavBarExtensionSummary, b: NavBarExtensionSummary) => a.name.localeCompare(b.name));
 }
 
 async function refreshExtensions() {
@@ -1286,7 +1286,7 @@ async function confirmCreateProfile() {
       profileMessage.value = 'Failed to create profile. (No profile returned)';
       console.error('[NavBar] Failed to create profile: createProfile returned null or undefined');
     }
-  } catch (e) {
+  } catch (e: any) {
     profileMessage.value = 'Error creating profile: ' + (e?.message || e || 'Unknown error');
     console.error('[NavBar] Error creating profile:', e);
   }

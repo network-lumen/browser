@@ -1120,7 +1120,10 @@ async function valconsAddressFromPubkeyBase64(pubKeyB64: string): Promise<string
   const key = String(pubKeyB64 || '').trim();
   if (!key) return null;
   try {
-    const pub = fromBase64(key);
+    // Copied into an ArrayBuffer-backed view: fromBase64 hands back a
+    // Uint8Array over ArrayBufferLike, which could be a SharedArrayBuffer and
+    // so is not a BufferSource. It is a 32-byte key, the copy costs nothing.
+    const pub = new Uint8Array(fromBase64(key));
     const digest = await crypto.subtle.digest('SHA-256', pub);
     const hash = new Uint8Array(digest).slice(0, 20);
     return toBech32('lmnvalcons', hash);

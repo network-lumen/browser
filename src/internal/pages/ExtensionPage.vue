@@ -171,7 +171,7 @@ function normalizeDocumentBase(rawUrl: string): string {
 
 async function navigateGuestInPage(target: string): Promise<boolean> {
   const w: any = webviewRef.value;
-  if (!w || !target) return;
+  if (!w || !target) return false;
   const current = String(typeof w?.getURL === "function" ? w.getURL() : w?.src || "").trim();
   if (!current) return false;
   if (normalizeDocumentBase(current) !== normalizeDocumentBase(target)) return false;

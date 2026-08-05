@@ -6,10 +6,8 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
+defineProps<{
   title: string;
   description: string;
-}>(), {
-  cardClass: 'bg-fill-tertiary p-14px border-05-light',
-});
+}>();
 </script>
