@@ -147,6 +147,32 @@ async function connectStandardSigningClient(endpoint, signer, { timeoutMs = 15_0
   return await Promise.race([connectPromise, timeoutPromise]);
 }
 
+// A node running with `tx_index.indexer = "null"` answers a tx lookup with
+// an RPC error instead of the transaction. The broadcast itself usually
+// SUCCEEDED - only the confirmation read failed - so reporting it as a plain
+// failure is both alarming and wrong, and leaking the raw body puts
+// {"code":-32603,"message":"Internal error",...} in front of the user.
+//
+// This lived inline in sendTokens and ibcTransfer only. The other eleven
+// handlers that broadcast (the three dns:*, the four staking ones, the two
+// gov ones and the two release ones) had no such check, so the same node
+// produced a clean message from one screen and raw JSON from every other.
+// Returns null for anything else, leaving each caller's own path intact.
+const INDEXING_DISABLED_HINT = 'transaction indexing is disabled';
+
+function indexingDisabledResult(error) {
+  const raw = String(error && error.message ? error.message : error);
+  if (!raw.includes(INDEXING_DISABLED_HINT)) return null;
+  console.warn('[wallet] node has transaction indexing disabled - the broadcast may well have succeeded, it just cannot be read back');
+  const txhash = String((error && error.txhash) || '');
+  return {
+    ok: false,
+    error: 'indexing_disabled',
+    message: 'Your transaction was most likely sent, but the node used to confirm it has transaction indexing disabled, so it cannot be read back. Check your balance in a few moments.',
+    ...(txhash ? { txhash } : {})
+  };
+}
+
 async function signAndBroadcastStandard({ client, address, msgs, fee, memo }) {
   const res = await client.signAndBroadcast(address, msgs, fee, memo);
   if (res && typeof res.code === 'number' && res.code !== 0) {
@@ -1188,18 +1214,11 @@ function registerWalletIpc() {
         }
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
+
       const raw = String(e && e.message ? e.message : e);
-      
-      // Handle transaction indexing disabled error
-      if (raw.includes('transaction indexing is disabled')) {
-        console.warn('[wallet:sendTokens] Transaction indexing disabled on node - transaction may have succeeded but cannot be queried');
-        return { 
-          ok: false, 
-          error: 'indexing_disabled',
-          message: 'Transaction may have been broadcast but node indexing is disabled. Please check your balance after a few moments.'
-        };
-      }
-      
+
       // Log error without stack trace for expected errors
       console.error('[wallet:sendTokens] error:', e);
       
@@ -1365,14 +1384,10 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
+
       const raw = String(e && e.message ? e.message : e);
-      if (raw.includes('transaction indexing is disabled')) {
-        return {
-          ok: false,
-          error: 'indexing_disabled',
-          message: 'Transaction may have been broadcast but node indexing is disabled. Please check your balance after a few moments.'
-        };
-      }
       return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
     }
   });
@@ -1498,6 +1513,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       const raw = String(e && e.message ? e.message : e);
       return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
     }
@@ -1684,6 +1701,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       const raw = String(e && e.message ? e.message : e);
       return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
     }
@@ -1822,6 +1841,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       const raw = String(e && e.message ? e.message : e);
       return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
     }
@@ -1920,6 +1941,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2016,6 +2039,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2114,6 +2139,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2208,6 +2235,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2559,6 +2588,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2656,6 +2687,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2822,6 +2855,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2953,6 +2988,8 @@ function registerWalletIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });

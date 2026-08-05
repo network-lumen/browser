@@ -315,6 +315,7 @@ async function broadcastTx(txBytes, options = {}) {
 
   const deadline = nowMs() + confirmTimeoutMs;
   let lastErr = null;
+  let sawIndexingDisabled = false;
 
   while (nowMs() < deadline) {
     const peer = confirmPeer;
@@ -334,16 +335,32 @@ async function broadcastTx(txBytes, options = {}) {
     }
 
     // Not found yet or peer problem.
-    if (r && r.timeout) {
+    //
+    // A node with transaction indexing disabled answers this lookup with an
+    // RPC error rather than a transaction, and does so promptly - so without
+    // the second test below it never looked like a failure, was never marked
+    // suspect, and the loop kept re-asking the one peer on the network that
+    // structurally cannot answer until the whole confirm window ran out. It
+    // is a property of the node, not of the transaction, so the fix is to
+    // move on to another peer rather than to keep waiting.
+    const indexingDisabled = !!(r && r.json && r.json.error && String(r.json.error.data || '').includes('transaction indexing is disabled'));
+    if (indexingDisabled) sawIndexingDisabled = true;
+    if ((r && r.timeout) || indexingDisabled) {
       pool.markSuspect(peer);
-      const alt = pool.pickPeers('rpc', 1, { requireAlive: true, exclude: new Set([broadcastPeer.rpc]) })[0] || null;
+      const alt = pool.pickPeers('rpc', 1, { requireAlive: true, exclude: new Set([broadcastPeer.rpc, peer.rpc]) })[0] || null;
       if (alt) confirmPeer = alt;
     }
     lastErr = r && r.error ? r.error : lastErr;
     await sleep(pollIntervalMs);
   }
 
-  return { ok: false, error: 'tx_not_confirmed', transactionHash: txhash, lastError: lastErr };
+  // Naming the real cause matters: if every peer we reached has indexing off,
+  // the transaction is probably fine and simply unreadable. Saying
+  // "tx_not_confirmed" would send the caller down the generic failure path,
+  // while this string is what indexingDisabledResult() in ipc/wallet.cjs
+  // recognises to tell the user their transaction most likely went through.
+  const error = sawIndexingDisabled ? 'transaction indexing is disabled' : 'tx_not_confirmed';
+  return { ok: false, error, transactionHash: txhash, lastError: lastErr };
 }
 
 module.exports = {
