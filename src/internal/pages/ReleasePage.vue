@@ -157,145 +157,15 @@
       </section>
     </main>
 
-    <UiModal :model-value="daoModalOpen" title="Send to DAO" panel-class="w-min-900px-96vw" @update:model-value="closeDaoModal">
-        <div class="flex flex-column gap-12px">
-          <div class="gap-12px grid grid-cols-2-minmax0">
-            <UiFormField label="Action">
-              <select v-model="daoForm.kind" class="w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
-                <option value="validate">Validate release</option>
-                <option value="reject">Reject release</option>
-              </select>
-            </UiFormField>
-            <UiFormField label="Deposit (LMN)">
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.depositLmn" placeholder="0" class="focus-outline-none focus-ring focus-shadow" />
-            </UiFormField>
-          </div>
+    <DaoProposalDialog :model-value="daoModalOpen" :form="daoForm" :busy="submittingDao" @update:model-value="closeDaoModal" @submit="submitDaoProposal" />
 
-          <UiFormField label="Title">
-            <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="daoForm.title" class="focus-outline-none focus-ring focus-shadow" />
-          </UiFormField>
-
-          <UiFormField label="Summary">
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.summary" rows="3" class="focus-outline-none focus-ring focus-shadow" />
-          </UiFormField>
-
-          <UiFormField v-if="daoForm.kind === 'reject'" label="Reason (optional)">
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="daoForm.reason" rows="3" placeholder="Why should this release be rejected?" class="focus-outline-none focus-ring focus-shadow" />
-          </UiFormField>
-        </div>
-
-        <template #footer>
-          <UiButton variant="secondary" type="button" @click="closeDaoModal" :disabled="submittingDao">Cancel</UiButton>
-          <UiButton variant="primary" type="button" @click="submitDaoProposal" :disabled="submittingDao">
-            <span v-if="submittingDao" class="flex-inline-align-center gap-8px"><UiSpinner size="sm" /> Sending…</span>
-            <span v-else>Broadcast proposal</span>
-          </UiButton>
-        </template>
-    </UiModal>
-
-    <UiModal :model-value="publishModalOpen" title="Publish release" panel-class="w-min-900px-96vw" @update:model-value="closePublishModal">
-        <div class="flex flex-column gap-12px">
-          <div class="mb-16px border-radius-16px border-1 bg-primary pt-14px pr-14px pb-4px pl-14px">
-            <div class="flex-align-center flex-justify-space-between mt-8px">
-              <h3>Import from GitHub release</h3>
-              <UiButton variant="secondary" size="sm" type="button"
-                :disabled="importingGithub || !githubReleaseUrl.trim()"
-                @click="importFromGithubRelease">
-                <span v-if="importingGithub" class="flex-inline-align-center gap-8px"><UiSpinner size="sm" /> Importing…</span>
-                <span v-else>Auto-fill</span>
-              </UiButton>
-            </div>
-
-            <UiFormField label="GitHub release URL" hint="Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.">
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="githubReleaseUrl"
-                placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8" class="mono focus-outline-none focus-ring focus-shadow" />
-            </UiFormField>
-          </div>
-
-          <div class="gap-12px grid grid-cols-2-minmax0">
-            <UiFormField label="Version">
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.version" placeholder="0.1.9" class="focus-outline-none focus-ring focus-shadow" />
-            </UiFormField>
-            <UiFormField label="Channel">
-              <select v-model="draft.channel" class="w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
-                <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
-              </select>
-            </UiFormField>
-            <UiFormField label="Supersedes (IDs)">
-              <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.supersedes" placeholder="12, 13" class="focus-outline-none focus-ring focus-shadow" />
-            </UiFormField>
-            <UiFormField label="Emergency flag">
-              <UiCheckbox v-model="draft.emergencyOk">Allow emergency rollout</UiCheckbox>
-            </UiFormField>
-          </div>
-
-          <UiFormField label="Release notes" :hint="`${draft.notes.length} / ${params?.maxNotesLen || '∞'}`">
-            <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="draft.notes" rows="4" placeholder="Changelog, highlights, etc." class="focus-outline-none focus-ring focus-shadow" />
-          </UiFormField>
-
-          <div>
-            <div class="flex-align-center flex-justify-space-between mt-8px">
-              <h3>Artifacts</h3>
-              <UiButton variant="secondary" size="sm" type="button" @click="addArtifact">Add artifact</UiButton>
-            </div>
-
-            <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="border-radius-12px border-1-light p-12px mt-12px bg-primary">
-              <div class="flex-align-center flex-justify-space-between mb-8px">
-                <div class="color-text-tertiary fw-500">Artifact #{{ idx + 1 }}</div>
-                <UiButton
-                  v-if="draft.artifacts.length > 1"
-                  variant="secondary"
-                  size="sm"
-                  type="button"
-                  @click="removeArtifact(idx)"
-                >
-                  Remove
-                </UiButton>
-              </div>
-
-              <div class="gap-12px grid grid-cols-2-minmax0">
-                <UiFormField label="Platform">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.platform" placeholder="windows-amd64" class="focus-outline-none focus-ring focus-shadow" />
-                </UiFormField>
-                <UiFormField label="Kind">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.kind" placeholder="browser" class="focus-outline-none focus-ring focus-shadow" />
-                </UiFormField>
-              </div>
-
-              <div class="gap-12px grid grid-cols-2-minmax0">
-                <UiFormField label="CID">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.cid" placeholder="Optional" class="focus-outline-none focus-ring focus-shadow" />
-                </UiFormField>
-                <UiFormField label="SHA-256">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.sha256Hex" placeholder="64 hex chars" class="focus-outline-none focus-ring focus-shadow" />
-                </UiFormField>
-                <UiFormField label="Size (bytes)">
-                  <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.size" placeholder="123456" class="focus-outline-none focus-ring focus-shadow" />
-                </UiFormField>
-              </div>
-
-              <UiFormField label="URLs (one per line)">
-                <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="a.urlsText" rows="3" placeholder="https://example.com/file.exe" class="mono focus-outline-none focus-ring focus-shadow" />
-              </UiFormField>
-            </div>
-          </div>
-        </div>
-
-        <template #footer>
-          <UiButton variant="secondary" type="button" @click="closePublishModal" :disabled="submitting">Cancel</UiButton>
-          <UiButton variant="primary" type="button" @click="submitRelease" :disabled="submitting">
-            <span v-if="submitting" class="flex-inline-align-center gap-8px"><UiSpinner size="sm" /> Publishing…</span>
-            <span v-else>Publish</span>
-          </UiButton>
-        </template>
-    </UiModal>
+    <PublishReleaseDialog :model-value="publishModalOpen" :draft="draft" :github-release-url="githubReleaseUrl" :channel-options="channelOptions" :max-notes-len="params?.maxNotesLen" :importing-github="importingGithub" :submitting="submitting" @update:model-value="closePublishModal" @update:github-release-url="githubReleaseUrl = $event" @submit="submitRelease" @add-artifact="addArtifact" @remove-artifact="removeArtifact" @import-github="importFromGithubRelease" />
   </div>
 </template>
 
 <script setup lang="ts">
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
-import UiModal from '../../ui/UiModal.vue';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { Plus, RefreshCw, Rocket } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
@@ -304,7 +174,6 @@ import UiCheckbox from '../../ui/UiCheckbox.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
-import UiFormField from '../../ui/UiFormField.vue';
 import UiKeyValue from '../../ui/UiKeyValue.vue';
 import { addToast } from '../../stores/toastStore';
 import { getActiveProfile } from '../profilesStore';
@@ -312,9 +181,11 @@ import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatBytes as formatBytesValue, formatDateTime } from '../services/format';
 import { safeString, errorMessage } from '../services/coerce';
-import type { ReleaseParams, ArtifactRecord, ReleaseRecord, ArtifactDraft, DaoKind } from '../../types/releasePage';
+import type { ReleaseParams, ArtifactRecord, ReleaseRecord, ArtifactDraft, DaoKind , DaoProposalForm, ReleaseDraft } from '../../types/releasePage';
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
+import DaoProposalDialog from '../../dialogs/DaoProposalDialog.vue';
+import PublishReleaseDialog from '../../dialogs/PublishReleaseDialog.vue';
 const { navigate } = useTabNavigation();
 const { currentTabRefresh } = useTabState();
 
@@ -333,7 +204,7 @@ const submitting = ref(false);
 
 const daoModalOpen = ref(false);
 const submittingDao = ref(false);
-const daoForm = reactive({
+const daoForm = reactive<DaoProposalForm>({
   kind: 'validate' as DaoKind,
   title: '',
   summary: '',
@@ -347,7 +218,7 @@ const testMode = reactive({
   allowUnvalidatedStable: false
 });
 
-const draft = reactive({
+const draft = reactive<ReleaseDraft>({
   version: '',
   channel: '',
   notes: '',

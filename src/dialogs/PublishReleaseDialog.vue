@@ -1,0 +1,137 @@
+<template>
+  <UiModal :model-value="modelValue" title="Publish release" panel-class="w-min-900px-96vw" @update:model-value="$emit('update:modelValue', false)">
+      <div class="flex flex-column gap-12px">
+        <div class="mb-16px border-radius-16px border-1 bg-primary pt-14px pr-14px pb-4px pl-14px">
+          <div class="flex-align-center flex-justify-space-between mt-8px">
+            <h3>Import from GitHub release</h3>
+            <UiButton variant="secondary" size="sm" type="button"
+              :disabled="importingGithub || !githubReleaseUrl.trim()"
+              @click="$emit('import-github')">
+              <span v-if="importingGithub" class="flex-inline-align-center gap-8px"><UiSpinner size="sm" /> Importing…</span>
+              <span v-else>Auto-fill</span>
+            </UiButton>
+          </div>
+
+          <UiFormField label="GitHub release URL" hint="Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.">
+            <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" :model-value="githubReleaseUrl" @update:model-value="$emit('update:githubReleaseUrl', String($event).trim())"
+              placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8" class="mono focus-outline-none focus-ring focus-shadow" />
+          </UiFormField>
+        </div>
+
+        <div class="gap-12px grid grid-cols-2-minmax0">
+          <UiFormField label="Version">
+            <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.version" placeholder="0.1.9" class="focus-outline-none focus-ring focus-shadow" />
+          </UiFormField>
+          <UiFormField label="Channel">
+            <select v-model="draft.channel" class="w-full border-radius-12px color-text-primary text-15px line-height-12 border-1 bg-secondary py-8px px-10px focus-outline-none focus-border-primary focus-ring focus-shadow">
+              <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
+            </select>
+          </UiFormField>
+          <UiFormField label="Supersedes (IDs)">
+            <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="draft.supersedes" placeholder="12, 13" class="focus-outline-none focus-ring focus-shadow" />
+          </UiFormField>
+          <UiFormField label="Emergency flag">
+            <UiCheckbox v-model="draft.emergencyOk">Allow emergency rollout</UiCheckbox>
+          </UiFormField>
+        </div>
+
+        <UiFormField label="Release notes" :hint="`${draft.notes.length} / ${maxNotesLen || '∞'}`">
+          <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="draft.notes" rows="4" placeholder="Changelog, highlights, etc." class="focus-outline-none focus-ring focus-shadow" />
+        </UiFormField>
+
+        <div>
+          <div class="flex-align-center flex-justify-space-between mt-8px">
+            <h3>Artifacts</h3>
+            <UiButton variant="secondary" size="sm" type="button" @click="$emit('add-artifact')">Add artifact</UiButton>
+          </div>
+
+          <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="border-radius-12px border-1-light p-12px mt-12px bg-primary">
+            <div class="flex-align-center flex-justify-space-between mb-8px">
+              <div class="color-text-tertiary fw-500">Artifact #{{ idx + 1 }}</div>
+              <UiButton
+                v-if="draft.artifacts.length > 1"
+                variant="secondary"
+                size="sm"
+                type="button"
+                @click="$emit('remove-artifact', idx)"
+              >
+                Remove
+              </UiButton>
+            </div>
+
+            <div class="gap-12px grid grid-cols-2-minmax0">
+              <UiFormField label="Platform">
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.platform" placeholder="windows-amd64" class="focus-outline-none focus-ring focus-shadow" />
+              </UiFormField>
+              <UiFormField label="Kind">
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.kind" placeholder="browser" class="focus-outline-none focus-ring focus-shadow" />
+              </UiFormField>
+            </div>
+
+            <div class="gap-12px grid grid-cols-2-minmax0">
+              <UiFormField label="CID">
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.cid" placeholder="Optional" class="focus-outline-none focus-ring focus-shadow" />
+              </UiFormField>
+              <UiFormField label="SHA-256">
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.sha256Hex" placeholder="64 hex chars" class="focus-outline-none focus-ring focus-shadow" />
+              </UiFormField>
+              <UiFormField label="Size (bytes)">
+                <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model.trim="a.size" placeholder="123456" class="focus-outline-none focus-ring focus-shadow" />
+              </UiFormField>
+            </div>
+
+            <UiFormField label="URLs (one per line)">
+              <UiInput type="textarea" bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" v-model="a.urlsText" rows="3" placeholder="https://example.com/file.exe" class="mono focus-outline-none focus-ring focus-shadow" />
+            </UiFormField>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <UiButton variant="secondary" type="button" @click="$emit('update:modelValue', false)" :disabled="submitting">Cancel</UiButton>
+        <UiButton variant="primary" type="button" @click="$emit('submit')" :disabled="submitting">
+          <span v-if="submitting" class="flex-inline-align-center gap-8px"><UiSpinner size="sm" /> Publishing…</span>
+          <span v-else>Publish</span>
+        </UiButton>
+      </template>
+  </UiModal>
+</template>
+
+<script setup lang="ts">
+import UiModal from '../ui/UiModal.vue';
+import UiButton from '../ui/UiButton.vue';
+import UiSpinner from '../ui/UiSpinner.vue';
+import UiFormField from '../ui/UiFormField.vue';
+import UiInput from '../ui/UiInput.vue';
+import UiCheckbox from '../ui/UiCheckbox.vue';
+import type { ReleaseDraft } from '../types/releasePage';
+
+/**
+ * Publishing a release: the version and channel, the notes, and the list of
+ * artifacts with their hashes.
+ *
+ * The draft stays with the page - it is filled from an existing release when
+ * one is being superseded, and read back on submit - and so does the artifact
+ * list handling, which is why adding and removing one are events rather than
+ * something this component does to a prop it does not own.
+ */
+defineProps<{
+  modelValue: boolean;
+  draft: ReleaseDraft;
+  githubReleaseUrl: string;
+  /** Channels the chain accepts, from the release params. */
+  channelOptions: string[];
+  /** Cap on the notes field, shown as a counter. */
+  maxNotesLen?: number;
+  importingGithub?: boolean;
+  submitting?: boolean;
+}>();
+defineEmits<{
+  (e: 'update:modelValue', value: boolean): void;
+  (e: 'update:githubReleaseUrl', value: string): void;
+  (e: 'submit'): void;
+  (e: 'add-artifact'): void;
+  (e: 'remove-artifact', index: number): void;
+  (e: 'import-github'): void;
+}>();
+</script>
