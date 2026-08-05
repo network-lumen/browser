@@ -18,3 +18,13 @@ export type ProposerInfo = {
   avatar?: string;
   keybaseId?: string;
 };
+
+/** The fields of the create-proposal form. */
+export type ProposalForm = {
+  title: string;
+  summary: string;
+  depositLmn: string;
+};
+
+/** The four things one can do with a stake against a validator. */
+export type StakeAction = 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw';
