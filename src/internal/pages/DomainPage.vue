@@ -442,6 +442,7 @@ import { loadStableLinkRecords } from '../services/contentResolver';
 import type { DomainRow, RawDomainRow, SettingsRecord } from '../../types/domainPage';
 
 import { errorMessage } from '../services/coerce';
+import { sanitizeStableLinkLabel, stableLinkDisplayName, stableLinkKeyNameFromLabel } from '../services/stableLinks';
 const currentTabRefresh = inject<any>('currentTabRefresh', null);
 const openInNewTab = inject<(url: string) => void>('openInNewTab');
 
@@ -468,20 +469,7 @@ const pageTitle = computed(() =>
 useTabLoadingSync(loading);
 
 const toast = useToast();
-function showToast(
-  message: string,
-  type: 'success' | 'error' | 'warning' | 'info' = 'success'
-) {
-  if (type === 'error') {
-    toast.error(message);
-  } else if (type === 'warning') {
-    toast.warning(message);
-  } else if (type === 'info') {
-    toast.info(message);
-  } else {
-    toast.success(message);
-  }
-}
+const showToast = toast.show;
 
 const showRegisterModal = ref(false);
 const domainAvailable = ref(true);
@@ -644,27 +632,7 @@ function defaultStableLinkName(): string {
   return suffix;
 }
 
-function sanitizeStableLinkLabel(input: string): string {
-  return String(input || '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-zA-Z0-9._-]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 96);
-}
 
-function stableLinkKeyNameFromLabel(input: string): string {
-  const label = sanitizeStableLinkLabel(input);
-  return label ? `stable:${label}` : '';
-}
-
-function stableLinkDisplayName(name: string): string {
-  const raw = String(name || '').trim();
-  if (!raw) return '';
-  const parts = raw.split(':').map((part) => part.trim()).filter(Boolean);
-  if (parts[0] === 'stable' && parts.length > 1) return parts[parts.length - 1];
-  return raw;
-}
 
 function openStableLinkModal(mode: 'generate' | 'import') {
   stableLinkModalMode.value = mode;

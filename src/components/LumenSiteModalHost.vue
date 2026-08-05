@@ -318,6 +318,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, KeyRound, Link, Plus, Save, Send, Shield } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import { bytesToText, errorMessage } from '../internal/services/coerce';
+import { sanitizeStableLinkLabel, stableLinkDisplayName, stableLinkKeyNameFromLabel } from '../internal/services/stableLinks';
 import {
   driveFilesKey,
   driveLocalNamesKey,
@@ -828,26 +829,6 @@ const canSubmitStableLink = computed(() => {
   return !!sanitizeStableLinkLabel(stableLinkNewLabel.value);
 });
 
-function sanitizeStableLinkLabel(input: string): string {
-  return String(input || "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-zA-Z0-9._-]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 96);
-}
-
-function stableLinkKeyNameFromLabel(input: string): string {
-  const label = sanitizeStableLinkLabel(input);
-  return label ? `stable:${label}` : "";
-}
-
-function stableLinkDisplayName(name: string): string {
-  const raw = String(name || "").trim();
-  const parts = raw.split(":").map((part) => part.trim()).filter(Boolean);
-  if (parts[0] === "stable" && parts.length > 1) return parts[parts.length - 1];
-  return raw;
-}
 
 function shortStableIpns(id: string): string {
   const s = String(id || "").trim();

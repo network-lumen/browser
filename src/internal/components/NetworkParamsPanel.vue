@@ -194,9 +194,7 @@ const fatalError = ref('');
 
 const toastApi = useToast();
 
-function showToast(message: string) {
-  toastApi.success(message);
-}
+const showToast = toastApi.show;
 
 function toggleSection(id: string) {
   const s = sections.value.find((x) => x.id === id);

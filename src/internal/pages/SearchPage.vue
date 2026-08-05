@@ -476,6 +476,7 @@ import {
 import { localIpfsGatewayBase } from "../services/contentResolver";
 import { appSettingsState } from "../services/appSettings";
 import { clamp01, errorMessage } from '../services/coerce';
+import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
 import { useToast } from "../../composables/useToast";
 import {
   getThumbSafetyService,
@@ -4076,7 +4077,7 @@ function buildFastResults(query: string): ResultItem[] {
     list.push({
       id: `tx:${s}`,
       title: "Transaction",
-      url: `lumen://network/tx/${s}`,
+      url: explorerTransactionUrl(s),
       description: "View transaction details",
       kind: "tx",
       badges: ["Explorer"],
@@ -4087,7 +4088,7 @@ function buildFastResults(query: string): ResultItem[] {
     list.push({
       id: `addr:${s}`,
       title: "Wallet address",
-      url: `lumen://network/address/${s}`,
+      url: explorerAddressUrl(s),
       description: "View address activity",
       kind: "address",
       badges: ["Explorer"],
@@ -4098,7 +4099,7 @@ function buildFastResults(query: string): ResultItem[] {
     list.push({
       id: `block:${s}`,
       title: "Block",
-      url: `lumen://network/block/${s}`,
+      url: explorerBlockUrl(s),
       description: "View block details",
       kind: "block",
       badges: ["Explorer"],

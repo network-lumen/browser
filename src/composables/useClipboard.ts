@@ -1,4 +1,5 @@
 import { useInternalLumen } from './useInternalLumen';
+import { useToast } from './useToast';
 
 /**
  * Copies text to the system clipboard. `navigator.clipboard.writeText` can
@@ -23,4 +24,22 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     // ignore
   }
   return false;
+}
+
+/**
+ * Copy, then say so. Pages kept re-wrapping `copyToClipboard` with the same
+ * success/failure toast pair and only differed in wording, so the wording is
+ * the argument and the behaviour is here.
+ *
+ * Returns whether the copy worked, for callers that also change state on it.
+ */
+export async function copyToClipboardWithToast(
+  text: string,
+  successMessage = 'Copied to clipboard',
+  failureMessage = 'Failed to copy to clipboard'
+): Promise<boolean> {
+  const toast = useToast();
+  const ok = await copyToClipboard(text);
+  toast.show(ok ? successMessage : failureMessage, ok ? 'success' : 'error');
+  return ok;
 }

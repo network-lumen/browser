@@ -112,6 +112,7 @@ import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatMicroAmount, truncateMiddle } from '../services/format';
+import { explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
 
 import { errorMessage } from '../services/coerce';
 const loading = ref(true);
@@ -136,13 +137,13 @@ const accountAddress = computed(() => {
 
 function navigateToTx(hash: string) {
   if (openInNewTab) {
-    openInNewTab(`lumen://network/tx/${hash}`);
+    openInNewTab(explorerTransactionUrl(hash));
   }
 }
 
 function navigateToBlock(height: number) {
   if (openInNewTab) {
-    openInNewTab(`lumen://network/block/${height}`);
+    openInNewTab(explorerBlockUrl(height));
   }
 }
 

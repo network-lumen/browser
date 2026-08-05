@@ -95,6 +95,7 @@ import { ref, onMounted, computed, inject, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatDateTime, formatDenom, formatNumber as formatNumberValue } from '../services/format';
+import { explorerBlockUrl } from '../services/explorerLinks';
 
 import { errorMessage } from '../services/coerce';
 const loading = ref(true);
@@ -119,7 +120,7 @@ const txHash = computed(() => {
 
 function navigateToBlock(height: number) {
   if (openInNewTab) {
-    openInNewTab(`lumen://network/block/${height}`);
+    openInNewTab(explorerBlockUrl(height));
   }
 }
 

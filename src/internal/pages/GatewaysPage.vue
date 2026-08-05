@@ -262,9 +262,7 @@ const registerState = reactive({
 
 const toastApi = useToast();
 
-function notify(message: string, kind: 'success' | 'error' | 'info' = 'success') {
-  toastApi[kind](message);
-}
+const notify = toastApi.show;
 
 const myGateways = computed(() => {
   const me = activeAddress.value.trim().toLowerCase();
