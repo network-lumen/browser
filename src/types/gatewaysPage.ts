@@ -31,3 +31,12 @@ export type GatewayEditState = {
     active: boolean;
   };
 };
+
+/** The fields of the "create gateway" form. */
+export type GatewayRegisterForm = {
+  endpoint: string;
+  regions: string;
+  payout: string;
+  metadata: string;
+  memo: string;
+};
