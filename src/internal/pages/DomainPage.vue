@@ -339,7 +339,7 @@
               </UiCard>
 
               <div class="flex flex-justify-end gap-8px">
-                <UiButton variant="secondary" type="button" @click="closeSettingsModal" class="outline-none">
+                <UiButton variant="secondary" type="button" @click="closeSettingsModal()" class="outline-none">
                   Cancel
                 </UiButton>
                 <UiButton variant="primary" type="button"
@@ -930,7 +930,9 @@ function sanitizeDomainInput(event: Event) {
 }
 
 watch(
-  () => [registerForm.value.domainName, registerForm.value.ext, showRegisterModal.value],
+  // `as const` keeps this a [string, string, boolean] tuple. Without it the
+  // array widens to (string | boolean)[] and `ext` arrives as string | true.
+  () => [registerForm.value.domainName, registerForm.value.ext, showRegisterModal.value] as const,
   async ([name, ext, open]) => {
     if (!open) return;
     if (!name || !(ext || '').trim()) {

@@ -726,7 +726,7 @@
                   min="1000"
                   max="30000"
                   step="1000"
-                  v-model="gatewayTimeout"
+                  v-model.number="gatewayTimeout"
                   class="slider-thumb-accent flex-1 outline-none border-radius-4px bg-border h-6px appearance-none"
                 />
                 <span class="text-right text-14px txt-weight-light color-text-secondary min-w-48px">{{ gatewayTimeout / 1000 }}s</span>
@@ -737,7 +737,8 @@
                   type="number"
                   min="1"
                   max="10"
-                  v-model="maxRetries"
+                  :model-value="String(maxRetries)"
+                  @update:model-value="(v: string) => (maxRetries = Math.round(clamp(v, 1, 10)))"
                   font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-80px"
                 />
               </UiOptionRow>
@@ -834,6 +835,7 @@ import {
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
 import { STORAGE_KEYS, readString, writeString } from '../services/storage';
+import { clamp } from '../services/coerce';
 import { useToast } from '../../composables/useToast';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
 import { useHistory } from '../historyStore';

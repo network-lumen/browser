@@ -753,12 +753,14 @@ function switchThumbToLocalGateway(r: ResultItem): boolean {
   return true;
 }
 
-function corsAttrForThumb(r: ResultItem): string | null {
-  if (!isSearchImageThumb(r)) return null;
-  if (!isGreyZoneByTags(r.badges || [])) return null;
-  if (thumbCorsDisabledById.value[r.id]) return null;
+// Typed against what the DOM attribute actually accepts rather than as a loose
+// string. undefined instead of null drops the attribute just the same in Vue.
+function corsAttrForThumb(r: ResultItem): "anonymous" | undefined {
+  if (!isSearchImageThumb(r)) return undefined;
+  if (!isGreyZoneByTags(r.badges || [])) return undefined;
+  if (thumbCorsDisabledById.value[r.id]) return undefined;
   const origin = originFromUrl(r.thumbUrl || "");
-  if (origin && thumbCorsDisabledByOrigin.value[origin]) return null;
+  if (origin && thumbCorsDisabledByOrigin.value[origin]) return undefined;
   return "anonymous";
 }
 
@@ -1759,21 +1761,23 @@ function displayTextPreviewList(r: ResultItem): string | null {
   return "No preview available";
 }
 
-function displayTextPreviewHover(r: ResultItem): string | null {
-  if (!isExploreTextPreviewResult(r)) return null;
+// undefined rather than null: both fall through v-if and render as nothing,
+// but only undefined matches what the title attribute accepts.
+function displayTextPreviewHover(r: ResultItem): string | undefined {
+  if (!isExploreTextPreviewResult(r)) return undefined;
   const raw = String(r.description || "");
   const formatted = formatCodePreviewHover(raw);
   if (formatted) return formatted;
   return "No preview available";
 }
 
-function displayDescription(r: ResultItem): string | null {
-  if (!r) return null;
-  if (isExploreTextPreviewResult(r)) return null;
+function displayDescription(r: ResultItem): string | undefined {
+  if (!r) return undefined;
+  if (isExploreTextPreviewResult(r)) return undefined;
   const raw = String(r.description || "").trim();
   if (raw) return formatResultDescription(raw);
   if (r.kind === "site") return "No description available";
-  return null;
+  return undefined;
 }
 
 function isNoDescriptionPlaceholder(r: ResultItem): boolean {
@@ -4387,8 +4391,11 @@ async function loadPrevious() {
     );
 
     const prependBatches: ResultItem[][] = [];
-    let hasPrev = gatewayHasPrev.value;
-    let cursor = cloneSearchRouteCursor(gatewayPrevCursor.value);
+    // Annotated rather than inferred: both are reassigned from the page result
+    // inside the loop below, and the loop condition otherwise narrows them to
+    // the value they happened to start with.
+    let hasPrev: boolean = gatewayHasPrev.value;
+    let cursor: SearchRouteCursor | null = cloneSearchRouteCursor(gatewayPrevCursor.value);
     let attempts = 0;
     let prependedCount = 0;
     let pageCursorForState = cloneSearchRouteCursor(cursor);
@@ -4497,8 +4504,10 @@ async function loadMore() {
     const appendStartIndex = results.value.length;
     const pageCursor = cloneSearchRouteCursor(gatewayNextCursor.value);
 
-    let hasMore = gatewayHasMore.value;
-    let cursor = gatewayNextCursor.value;
+    // Same as the prepend loop above: reassigned inside the loop, so the types
+    // have to be stated rather than narrowed from the starting value.
+    let hasMore: boolean = gatewayHasMore.value;
+    let cursor: SearchRouteCursor | null = gatewayNextCursor.value;
     let attempts = 0;
 
     while (

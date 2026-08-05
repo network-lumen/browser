@@ -250,7 +250,7 @@
             </span>
             <div class="flex gap-8px mt-8px">
               <UiButton variant="secondary" type="button"
-                @click="pauseHlsQueue"
+                @click="pauseHlsQueue()"
                 :disabled="convertingCanceling || convertingPauseRequested" class="disabled-fade-50">
                 {{
                   convertingPauseRequested ? "Pausing..." : "Pause"
@@ -281,7 +281,7 @@
           <div class="flex-inline-align-center flex-wrap-wrap gap-8px flex-justify-end">
             <UiButton variant="secondary" v-if="hlsQueueCanPause"
               type="button"
-              @click="pauseHlsQueue"
+              @click="pauseHlsQueue()"
               :disabled="convertingPauseRequested" class="hover-border-color-accent-enabled disabled-fade-50">
               <Pause :size="14" />
               <span>{{ convertingPauseRequested ? "Pausing..." : "Pause" }}</span>
@@ -1373,6 +1373,7 @@ import {
   driveBackupLastExportAtKey,
   driveBackupLastImportAtKey,
   driveFilesKey,
+  driveHlsQueueKey,
   driveLocalNamesKey,
   nextDriveBackupSeq,
   readDriveBackupSeq
@@ -1395,7 +1396,7 @@ import type {
   PlanView,
   SubscriptionView,
   GatewayView,
-  DriveBackupSnapshotV1,
+  DriveBackupSnapshotV2,
   DriveBackupSnapshot,
 } from "../../types/drivePage";
 
@@ -3773,7 +3774,7 @@ function setDriveBackupMeta(kind: "export" | "import", ts: number) {
   else driveBackupLastImportAt.value = ts;
 }
 
-function makeDriveBackupSnapshot(): DriveBackupSnapshotV1 | null {
+function makeDriveBackupSnapshot(): DriveBackupSnapshotV2 | null {
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) return null;
   const walletAddress = activeWalletAddress();
@@ -3922,12 +3923,11 @@ function applyDriveBackupSnapshotPayload(snap: any): { ok: boolean; error?: stri
       .slice(0, 5000),
   ) as Record<string, string>;
 
+  // Named as unknown[] first: `snap` is `any`, and inlining the ternary let the
+  // element type drift instead of settling on the strings this produces.
+  const rawFav: unknown[] = Array.isArray(snap.favourites) ? snap.favourites : [];
   const nextFav = Array.from(
-    new Set(
-      (Array.isArray(snap.favourites) ? snap.favourites : [])
-        .map((u: any) => String(u || "").trim())
-        .filter(Boolean),
-    ),
+    new Set(rawFav.map((u) => String(u || "").trim()).filter(Boolean)),
   );
   const nextShortcutEntries = Array.isArray(snap.shortcutEntries) ? snap.shortcutEntries : null;
 

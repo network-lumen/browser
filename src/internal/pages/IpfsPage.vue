@@ -1098,7 +1098,10 @@ function looksLikeMarkdown(text: string, nameOrPath = ""): boolean {
   if (/!\[[^\]\n]*\]\([^)]+\)/.test(sample)) score += 1;
   if (/\[[^\]\n]+\]\([^)]+\)/.test(sample)) score += 1;
   if (/^\s{0,3}(?:>|\-\s|\*\s|\+\s|\d+\.\s)\S+/m.test(sample)) score += 1;
-  if (/^\s{0,3}(?:[-*_])(?:\s*\1){2,}\s*$/m.test(sample)) score += 1;
+  // Capturing, not (?:...): \1 needs a group to point at. With a non-capturing
+  // group there was no group 1, so this never matched a horizontal rule and
+  // the point was never scored.
+  if (/^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/m.test(sample)) score += 1;
 
   const lineCount = sample.split(/\r?\n/).length;
   if (lineCount >= 4 && /^\s*[-*+]\s+\S+/m.test(sample)) score += 1;
