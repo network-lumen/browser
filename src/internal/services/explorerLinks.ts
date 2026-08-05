@@ -10,6 +10,8 @@
  * keep.
  */
 
+import type { TabOpenInNewTab } from '../../types/tabNavigation';
+
 export function explorerTransactionUrl(hash: string): string {
   return `lumen://network/tx/${hash}`;
 }
@@ -20,4 +22,18 @@ export function explorerBlockUrl(height: number | string): string {
 
 export function explorerAddressUrl(address: string): string {
   return `lumen://network/address/${address}`;
+}
+
+/**
+ * Opens an explorer URL in a new tab, or in this window when no opener was
+ * injected. Used by the pages that want that fallback - `NetworkPage` and
+ * `BlockDetailPage`. The detail sub-views deliberately do nothing instead, and
+ * call `openInNewTab` themselves.
+ */
+export function openExplorerUrl(url: string, openInNewTab: TabOpenInNewTab | null): void {
+  if (openInNewTab) {
+    openInNewTab(url);
+    return;
+  }
+  window.location.href = url;
 }
