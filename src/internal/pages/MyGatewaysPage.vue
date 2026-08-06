@@ -101,7 +101,7 @@
                     </div>
                   </td>
                   <td class="py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
-                    <span class="color-text-secondary text-13px mono">{{ formatAddress(entry.wallet_address) }}</span>
+                    <AddressLabel :address="entry.wallet_address" tone-class="color-text-secondary text-13px" />
                   </td>
                   <td class="py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">{{ formatDate(entry.added_at) }}</td>
                   <td class="py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
@@ -255,7 +255,8 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { formatDate, truncateMiddle } from '../services/format';
+import { formatDate, shortenAddress } from '../services/format';
+import AddressLabel from '../../entities/AddressLabel.vue';
 import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
 import type { ExternalGatewayForm, Gateway, WhitelistEntryForm } from '../../types/myGatewaysPage';
 
@@ -619,7 +620,7 @@ function getUserDisplayName(address: string): string {
 }
 
 function formatAddress(address: string): string {
-  return truncateMiddle(address, { start: 10, end: 6 });
+  return shortenAddress(address);
 }
 
 function openWhitelistModal() {
