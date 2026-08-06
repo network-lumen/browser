@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     :title="plan ? `Confirm subscription &quot;${planDisplayName(plan)}&quot;` : 'Confirm subscription'"
     panel-class="w-full max-w-520px"
@@ -91,9 +92,6 @@
             </p>
           </div>
 
-          <div v-if="error" class="text-11px line-height-12 color-error mt-16px">
-            {{ error }}
-          </div>
 
           <p v-if="busy" class="text-11px line-height-12 color-text-tertiary mt-4px">
             Submitting on-chain transaction… This can take ~1–2 minutes the

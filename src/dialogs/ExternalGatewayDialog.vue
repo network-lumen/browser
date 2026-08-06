@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     :title="editing ? 'Edit External Gateway' : 'Add External Gateway'"
     panel-class="max-w-500px w-90pct"
@@ -29,9 +30,6 @@
               placeholder="Your gateway API key" class="focus-outline-none focus-ring-blue" />
           </UiFormField>
 
-          <div v-if="error" class="color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
-            {{ error }}
-          </div>
 
     <template #confirm>{{ saving ? 'Saving...' : (editing ? 'Update' : 'Create') }}</template>
   </UiDialog>

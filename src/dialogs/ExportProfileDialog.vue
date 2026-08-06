@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     title="Export Profile"
     panel-class="min-w-360px max-w-90vw"
@@ -76,9 +77,6 @@
             </div>
           </template>
 
-          <div v-if="error" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
-            {{ error }}
-          </div>
 
     <template #confirm>Export {{ encrypted ? '(Encrypted)' : '' }}</template>
   </UiDialog>

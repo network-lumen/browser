@@ -8,6 +8,7 @@
   >
     <template v-if="$slots.header" #header><slot name="header" /></template>
 
+    <UiBanner v-if="error" variant="error" class="mb-12px">{{ error }}</UiBanner>
     <slot />
 
     <template v-if="!hideFooter" #footer>
@@ -37,6 +38,7 @@
 import UiModal from './UiModal.vue';
 import UiButton from './UiButton.vue';
 import UiSpinnerRing from './UiSpinnerRing.vue';
+import UiBanner from './UiBanner.vue';
 
 /**
  * The shape almost every dialog in `src/dialogs` turned out to have: a modal
@@ -60,6 +62,13 @@ withDefaults(
   defineProps<{
     modelValue: boolean;
     title?: string;
+    /**
+     * Shown as an error banner above the body. Thirteen dialogs rendered this
+     * themselves in five different looks - a bare red line, a red line with a
+     * background, a bordered box, and two banner variants - for what is always
+     * the same thing: what just went wrong. Empty renders nothing.
+     */
+    error?: string;
     panelClass?: string;
     /** Shows the close cross and lets a click outside dismiss. */
     closable?: boolean;
@@ -80,6 +89,7 @@ withDefaults(
   }>(),
   {
     title: '',
+    error: '',
     panelClass: 'w-min-520px-92vw',
     closable: true,
     busy: false,

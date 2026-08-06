@@ -24,7 +24,10 @@
         @keydown.enter.prevent="$emit('confirm')"
       />
 
-      <div v-if="error" class="text-14px color-error mt-4px">{{ error }}</div>
+      <!-- Sits under the field rather than above the body like UiDialog's own
+           banner: this dialog keeps its five-button footer and so does not go
+           through UiDialog, but it should still look the same. -->
+      <UiBanner v-if="error" variant="error" class="mt-4px">{{ error }}</UiBanner>
 
       <slot name="after-form" />
 
@@ -65,6 +68,7 @@ import { computed } from 'vue';
 import UiModal from '../ui/UiModal.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiInput from '../ui/UiInput.vue';
+import UiBanner from '../ui/UiBanner.vue';
 import UiPinProgressCard from '../ui/UiPinProgressCard.vue';
 
 /**

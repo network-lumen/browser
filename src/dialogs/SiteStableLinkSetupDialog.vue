@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     panel-class="w-min-520px-92vw max-h-100vh-32px"
     :closable="!loading"
@@ -17,7 +18,6 @@
           <UiBanner variant="info" v-if="siteLabel">
             <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
-          <UiBanner v-if="error" variant="error" class="mb-12px">{{ error }}</UiBanner>
           <UiFormGroup label="Live link" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <select class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSetupSelectedName" :disabled="loading">
               <option value="">{{ loading ? 'Loading live links...' : 'Select a live link' }}</option>

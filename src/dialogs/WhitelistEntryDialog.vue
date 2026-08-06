@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     :title="editing ? 'Edit User' : 'Add User to Whitelist'"
     panel-class="max-w-500px w-90pct"
@@ -26,9 +27,6 @@
               placeholder="Additional notes about this user..." class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring-blue"></UiInput>
           </UiFormField>
 
-          <div v-if="error" class="color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
-            {{ error }}
-          </div>
 
     <template #confirm>{{ saving ? 'Saving...' : (editing ? 'Update' : 'Add') }}</template>
   </UiDialog>
