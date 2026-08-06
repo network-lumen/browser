@@ -43,6 +43,7 @@ import UiBanner from '../ui/UiBanner.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
 import { Link } from 'lucide-vue-next';
+import { shortenIpnsId as shortStableIpns } from '../internal/services/format';
 import type { StableLinkItem } from '../types/lumenSiteModalHost';
 
 /** Picking which live link to restore previous settings from. */
@@ -50,7 +51,6 @@ defineProps<{
   modelValue: boolean;
   siteLabel: string;
   stableLinks: StableLinkItem[];
-  shortStableIpns: (id: string) => string;
   loading?: boolean;
   error?: string;
 }>();

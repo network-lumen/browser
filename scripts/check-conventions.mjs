@@ -844,6 +844,56 @@ const warnings = [];
 }
 
 // ---------------------------------------------------------------------------
+// Rule 16: no function-typed prop in a .vue component.
+//
+// A component that receives a function is usually receiving its own
+// presentation - how to format its own values, what to call its own things -
+// which means it cannot be read on its own, and two callers can only agree by
+// accident because the same parent happens to feed both. Sixteen of these
+// accumulated across the Drive dialogs alone: format a size, a date, a price,
+// name a plan, colour its badge. Every one of them belonged either in a
+// service both sides import, or inside the component itself.
+//
+// The two honest alternatives, in order of preference:
+//   - a shared module in src/internal/services/, when the logic is real
+//   - an emit, when the parent is being asked to *do* something
+//
+// It stays a rule rather than a warning because the fix is nearly always one
+// of those two. The exceptions are genuinely rare and listed below, each with
+// the reason it cannot be either.
+// ---------------------------------------------------------------------------
+const FUNCTION_PROP_ALLOWLIST = new Map([
+  // Whether a plan is subscribed is read from the subscriptions the page
+  // holds; the dialog turns that answer into words and colours itself.
+  [`${join('src', 'dialogs', 'CloudPlansDialog.vue')}:statusOf`, true],
+]);
+{
+  for (const file of vueFiles) {
+    const rel = relative(ROOT, file);
+    const text = readFileSync(file, 'utf8');
+    const script = text.match(/<script[^>]*>([\s\S]*)<\/script>/)?.[1];
+    if (!script) continue;
+
+    // Only the props block: a function inside an emits declaration or a plain
+    // type alias is not what this rule is about.
+    const propsMatch = script.match(/defineProps<\{([\s\S]*?)\}>\(\)/);
+    if (!propsMatch) continue;
+
+    for (const m of propsMatch[1].matchAll(/^\s*(\w+)\??:\s*\((?:[^)]*)\)\s*=>/gm)) {
+      const name = m[1];
+      if (FUNCTION_PROP_ALLOWLIST.has(`${rel}:${name}`)) continue;
+      const index = text.indexOf(propsMatch[0]) + propsMatch[0].indexOf(m[0]);
+      violations.push({
+        rule: 'no-function-prop',
+        file: rel,
+        line: text.slice(0, index).split('\n').length,
+        detail: `${name} - move the logic to src/internal/services/ (or into this component), or make it an emit`,
+      });
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 const titles = {
@@ -861,6 +911,7 @@ const titles = {
   'no-literal-vif': 'Literal v-if="true"/"false" (dead code or forgotten debug toggle)',
   'no-duplicate-class-token': 'Same class listed twice in one class="..." attribute',
   'no-dead-css-variable': 'CSS custom property (--foo) defined in theme.css but never referenced via var()',
+  'no-function-prop': 'Function passed as a prop (a component should not receive its own presentation)',
 };
 
 if (warnings.length) {

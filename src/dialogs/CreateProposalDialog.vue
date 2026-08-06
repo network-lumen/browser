@@ -85,6 +85,7 @@ import UiCard from '../ui/UiCard.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiInput from '../ui/UiInput.vue';
 import { Info, Plus } from 'lucide-vue-next';
+import { findGovernanceActionTemplate } from '../internal/pages/governanceActionTemplates';
 import type { GovernanceActionDraft, GovernanceActionTemplate } from '../types/networkGovernance';
 import type { ProposalForm } from '../types/networkPage';
 
@@ -100,13 +101,24 @@ defineProps<{
   form: ProposalForm;
   actionDrafts: GovernanceActionDraft[];
   templates: GovernanceActionTemplate[];
-  templateForDraft: (draft: GovernanceActionDraft) => GovernanceActionTemplate | undefined;
   canSubmit: boolean;
   governanceMinDepositLmn: string;
-  resetActionDraftValues: (draft: GovernanceActionDraft) => void;
   isSubmitting?: boolean;
   submissionEnabled?: boolean;
 }>();
+/**
+ * The template a draft is built from. Looked up here rather than passed in:
+ * the registry is a module, not something the page knows better than we do.
+ */
+function templateForDraft(draft: GovernanceActionDraft): GovernanceActionTemplate | undefined {
+  return findGovernanceActionTemplate(draft.templateId);
+}
+
+/** Switching template invalidates whatever was filled in for the old one. */
+function resetActionDraftValues(draft: GovernanceActionDraft) {
+  draft.values = {};
+}
+
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'submit'): void;

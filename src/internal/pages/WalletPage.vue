@@ -570,7 +570,7 @@
     <AssetTransferDialog :model-value="showAssetTransferModal" :context="assetTransferContext" :form="assetTransferForm" :selected-target="selectedAssetTransferTarget" :can-submit="canSubmitAssetTransfer" :validate-amount-input="validateAssetTransferAmountInput" :sending="assetTransferSending" @update:model-value="closeAssetTransferModal" @submit="confirmAssetTransfer" />
 
     <!-- ####### lumen://wallet SEND MODAL ####### -->
-    <SendTokensDialog :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" v-model:show-contact-picker="showContactPicker" :validate-amount-input="validateAmountInput" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSendPreview" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
+    <SendTokensDialog :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" v-model:show-contact-picker="showContactPicker" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSendPreview" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
 
     <!-- ####### lumen://wallet RECEIVE MODAL ####### -->
     <ReceiveDialog :model-value="showReceiveModal" :address="address" :qr-data-url="qrCodeDataUrl" @update:model-value="closeReceiveModal" @copy="copyAddressWithToast" />
@@ -1813,28 +1813,6 @@ async function executeRecurringPayment(paymentId: string) {
     return;
   }
   showToast(result.error, result.locked ? 'warning' : 'error');
-}
-
-function validateAmountInput(event: Event) {
-  const input = event.target as HTMLInputElement;
-  let value = input.value;
-  
-  // Allow only numbers and single decimal point
-  value = value.replace(/[^0-9.]/g, '');
-  
-  // Ensure only one decimal point
-  const parts = value.split('.');
-  if (parts.length > 2) {
-    value = parts[0] + '.' + parts.slice(1).join('');
-  }
-  
-  // Limit to 6 decimal places
-  if (parts.length === 2 && parts[1].length > 6) {
-    value = parts[0] + '.' + parts[1].slice(0, 6);
-  }
-  
-  sendForm.value.amount = value;
-  input.value = value;
 }
 
 async function copyToClipboard(text: string, message: string = 'Copied to clipboard!') {

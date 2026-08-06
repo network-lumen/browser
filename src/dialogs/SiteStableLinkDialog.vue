@@ -85,6 +85,7 @@ import UiDetailRow from '../ui/UiDetailRow.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
 import { ChevronDown, Link, Plus, Save } from 'lucide-vue-next';
+import { shortenIpnsId as shortStableIpns } from '../internal/services/format';
 import type { StableLinkItem } from '../types/lumenSiteModalHost';
 
 /**
@@ -100,7 +101,6 @@ defineProps<{
   stableLinks: StableLinkItem[];
   records: { key: string; value: string }[];
   liveTitle?: string;
-  shortStableIpns: (id: string) => string;
   canSubmit: boolean;
   saving?: boolean;
   loading?: boolean;

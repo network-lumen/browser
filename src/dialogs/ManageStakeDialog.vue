@@ -148,7 +148,6 @@ defineProps<{
   selectedValidator: { moniker?: string; address?: string } | null;
   stakedBalance: string;
   availableBalance: string;
-  popupStyleFor: (status: string) => Record<string, string>;
   /** Validators the stake can be moved to - redelegation only. */
   validators: Validator[];
   stakeActions: StakeAction[];
@@ -158,6 +157,13 @@ defineProps<{
   txMessage?: string;
   txHash?: string;
 }>();
+/** The outcome tints the popup's border - the only thing the status draws here. */
+function popupStyleFor(status: string): Record<string, string> {
+  if (status === 'success') return { border: '2px solid rgba(var(--color-success-rgb), 0.5)' };
+  if (status === 'error') return { border: '2px solid var(--color-error)' };
+  return { border: '2px solid var(--color-primary)' };
+}
+
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'confirm'): void;

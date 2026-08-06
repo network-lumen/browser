@@ -111,7 +111,7 @@
               inputmode="decimal"
               v-model="form.amount"
               placeholder="0.000000"
-              @input="validateAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
+              @input="onAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
             <span class="txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ assetSymbol }}</span>
           </UiFormGroup>
 
@@ -143,6 +143,7 @@ import UiSummaryCard from '../ui/UiSummaryCard.vue';
 import UiSummaryRow from '../ui/UiSummaryRow.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { QrCode, Send, Users } from 'lucide-vue-next';
+import { maskDecimalInput } from '../internal/services/inputMasks';
 import type { IbcChannelOption, SendForm, IbcForm, SendTargetMode } from '../types/walletPage';
 
 /**
@@ -152,7 +153,7 @@ import type { IbcChannelOption, SendForm, IbcForm, SendTargetMode } from '../typ
  * dialog's own: nothing outside it ever looked at them, they only decided
  * what was folded open.
  */
-defineProps<{
+const props = defineProps<{
   modelValue: boolean;
   title: string;
   form: SendForm;
@@ -179,7 +180,6 @@ defineProps<{
    * page computes it; it is not a fold the user toggles.
    */
   showTaxBreakdown: boolean;
-  validateAmountInput: (event: Event) => void;
   sending?: boolean;
 }>();
 
@@ -189,6 +189,11 @@ defineEmits<{
   (e: 'scan-qr'): void;
   (e: 'select-contact', contact: any): void;
 }>();
+
+/** The form object is shared with the page, which is what signs and sends it. */
+function onAmountInput(event: Event) {
+  props.form.amount = maskDecimalInput(event);
+}
 
 /**
  * Whether the contact list is unfolded. It stays with the page because the
