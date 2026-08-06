@@ -38,6 +38,9 @@ export type PlanView = {
   description?: string;
 };
 
+/** CID to the moment it was pinned, for pins the gateway has yet to confirm. */
+export type OptimisticPins = Record<string, number>;
+
 export type SubscriptionView = {
   id: string;
   gatewayId: string;
