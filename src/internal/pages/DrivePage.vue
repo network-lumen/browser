@@ -532,7 +532,7 @@
     <SitesDataDialog :model-value="showSiteDataModal" :records="siteDataRecords" :fields="siteDataFields" :row-id="siteDataRowId" :site-data-site-label="siteDataSiteLabel" :format-date="formatDate" :site-data-json="siteDataJson" :expanded-id="expandedSiteDataId" :raw-id="rawSiteDataId" :removing-id="removingSiteDataId" :loading="siteDataLoading" @close="closeSiteDataModal" @remove="removeSiteDataRecord" @toggle-expanded="toggleSiteDataExpanded" @toggle-raw="toggleSiteDataRaw" />
 
     <!-- ####### lumen://drive PLANS MODAL ####### -->
-    <CloudPlansDialog :model-value="showPlansModal" :plans="plans" :plan-groups="planGroups" :plan-paged-groups="planPagedGroups" :plan-regions="planRegions" :plan-total-pages="planTotalPages" :has-plan-filters="hasPlanFilters" :gateway-expanded="isGatewayExpanded" :status-of="planStatus" :plan-gateway-label="planGatewayLabel" :plan-display-name="planDisplayName" :plan-status-label="planStatusLabel" :format-regions-title="formatRegionsTitle" :format-regions-label="formatRegionsLabel" :format-plan-price="formatPlanPrice" :format-plan-price-short="formatPlanPriceShort" :plan-status-badge-class="planStatusBadgeClass" :plan-page-start="planPageStart" :plan-page-end="planPageEnd" :plans-loading="plansLoading" :plans-error="plansError" v-model:plan-filter="planFilter" v-model:plan-region="planRegion" v-model:plan-online-only="planOnlineOnly" v-model:plan-sort-by="planSortBy" v-model:plan-page="planPage" v-model:plan-page-size="planPageSize" @close="closePlansModal" @retry="openPlansModal" @reset-filters="resetPlanFilters" @toggle-gateway="toggleGatewayExpanded" @subscribe="openSubscribeModal" />
+    <CloudPlansDialog :model-value="showPlansModal" :plans="plans" :plan-groups="planGroups" :plan-paged-groups="planPagedGroups" :plan-regions="planRegions" :plan-total-pages="planTotalPages" :has-plan-filters="hasPlanFilters" :gateway-expanded="isGatewayExpanded" :status-of="planStatus" :plan-gateway-label="gatewayDisplayName" :plan-display-name="planDisplayName" :plan-status-label="planStatusLabel" :format-regions-title="formatRegionsTitle" :format-regions-label="formatRegionsLabel" :format-plan-price="formatPlanPrice" :format-plan-price-short="formatPlanPriceShort" :plan-status-badge-class="planStatusBadgeClass" :plan-page-start="planPageStart" :plan-page-end="planPageEnd" :plans-loading="plansLoading" :plans-error="plansError" v-model:plan-filter="planFilter" v-model:plan-region="planRegion" v-model:plan-online-only="planOnlineOnly" v-model:plan-sort-by="planSortBy" v-model:plan-page="planPage" v-model:plan-page-size="planPageSize" @close="closePlansModal" @retry="openPlansModal" @reset-filters="resetPlanFilters" @toggle-gateway="toggleGatewayExpanded" @subscribe="openSubscribeModal" />
 
     <!-- ####### lumen://drive SUBSCRIBE PLAN MODAL ####### -->
     <SubscribeConfirmDialog :model-value="!!(showSubscribeModal && subscribePlan)" :plan="subscribePlan" :plan-display-name="planDisplayName" :format-plan-price="formatPlanPrice" :subscribe-months="subscribeMonths" :subscribe-total-price="subscribeTotalPrice" :balance="subscribeBalance" :balance-loading="subscribeBalanceLoading" :insufficient-funds="hasInsufficientFunds" :busy="subscribeBusy" :error="subscribeError" @close="closeSubscribeModal" @confirm="confirmSubscribe" />
@@ -626,6 +626,17 @@ import { useToast } from "../../composables/useToast";
 import type { DriveFile } from "../../types/upload";
 import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
 import DriveFileRow from "../../entities/DriveFileRow.vue";
+import {
+  addOptimisticPin,
+  deriveGatewayStatus,
+  encodeGatewayPath,
+  formatRegionsLabel,
+  formatRegionsTitle,
+  gatewayDisplayName,
+  normalizeRegions,
+  reconcileOptimisticPins,
+  removeOptimisticPin,
+} from "../services/gateways";
 import {
   countHlsQueue,
   hlsQueueHasPendingItems,
@@ -835,7 +846,6 @@ const gatewayDetailsUsageError = ref("");
 const gatewayDetailsPinned = ref<string[]>([]);
 const gatewayDetailsPinnedError = ref("");
 const optimisticGatewayPinned = ref<Record<string, Record<string, number>>>({});
-const OPTIMISTIC_GATEWAY_PIN_TTL_MS = 2 * 60 * 1000;
 
 const showPlansModal = ref(false);
 const plans = ref<PlanView[]>([]);
@@ -1005,16 +1015,6 @@ watch([planFilter, planRegion, planOnlineOnly, planSortBy, planPageSize], () => 
   planPage.value = 1;
 });
 
-function planGatewayDisplay(gw: GatewayView): string {
-  if (gw.endpoint) return gw.endpoint;
-  if (gw.operator) return `Gateway · ${gw.operator}`;
-  return `Gateway ${gw.id}`;
-}
-
-function planGatewayLabel(gw: GatewayView): string {
-  return planGatewayDisplay(gw);
-}
-
 const expandedGatewayIds = ref<Set<string>>(new Set());
 
 function toggleGatewayExpanded(id: string) {
@@ -1044,7 +1044,7 @@ const planGroups = computed(() => {
 
     if (!query) return true;
 
-    const haystack = `${planGatewayLabel(gw)} ${gw.operator}`.toLowerCase();
+    const haystack = `${gatewayDisplayName(gw)} ${gw.operator}`.toLowerCase();
     if (haystack.includes(query)) return true;
 
     const plansForGw = plans.value.filter((p) => p.gatewayId === gw.id);
@@ -1059,15 +1059,15 @@ const planGroups = computed(() => {
     gwList.sort(
       (a, b) =>
         (b.score ?? 0) - (a.score ?? 0) ||
-        planGatewayLabel(a).localeCompare(planGatewayLabel(b)),
+        gatewayDisplayName(a).localeCompare(gatewayDisplayName(b)),
     );
   } else if (planSortBy.value === "name-asc") {
     gwList.sort((a, b) =>
-      planGatewayLabel(a).localeCompare(planGatewayLabel(b)),
+      gatewayDisplayName(a).localeCompare(gatewayDisplayName(b)),
     );
   } else if (planSortBy.value === "name-desc") {
     gwList.sort((a, b) =>
-      planGatewayLabel(b).localeCompare(planGatewayLabel(a)),
+      gatewayDisplayName(b).localeCompare(gatewayDisplayName(a)),
     );
   }
 
@@ -1187,16 +1187,6 @@ function isWindowsAppPlatform(): boolean {
   } catch {
     return false;
   }
-}
-
-function encodeGatewayPath(p: string): string {
-  const cleaned = String(p || "").replace(/^\/+/, "");
-  if (!cleaned) return "";
-  return cleaned
-    .split("/")
-    .filter((seg) => seg.length > 0)
-    .map((seg) => encodeURIComponent(seg))
-    .join("/");
 }
 
 function bytesFromBase64(b64: string): Uint8Array {
@@ -1570,38 +1560,6 @@ const headerSubtitle = computed(() => {
     ? "Saved files on your cloud plan"
     : "Saved files on your local drive";
 });
-
-function deriveGatewayStatus(
-  subs: SubscriptionView[],
-): "active" | "pending" | "off" {
-  const normalized = subs.map((s) => String(s.status || "").toLowerCase());
-  if (normalized.some((s) => s.includes("active"))) return "active";
-  if (normalized.some((s) => s.includes("pending"))) return "pending";
-  return "off";
-}
-
-function normalizeRegions(input: string[] | null | undefined): string[] {
-  const list = Array.isArray(input) ? input : [];
-  return list
-    .map((r) => String(r || "").trim())
-    .filter((r) => r);
-}
-
-function formatRegionsTitle(input: string[] | null | undefined): string {
-  return normalizeRegions(input).join(", ");
-}
-
-function formatRegionsLabel(
-  input: string[] | null | undefined,
-  max = 2,
-): string {
-  const regions = normalizeRegions(input);
-  if (!regions.length) return "";
-  const cap =
-    typeof max === "number" && Number.isFinite(max) && max > 0 ? Math.floor(max) : 2;
-  if (regions.length <= cap) return regions.join(" · ");
-  return `${regions.slice(0, cap).join(" · ")} +${regions.length - cap}`;
-}
 
 const subscribedGatewayIds = computed(() => {
   const set = new Set<string>();
@@ -2813,32 +2771,22 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
       ? data.cids.map((x: any) => String(x))
       : [];
 
-    const now = Date.now();
-    const server = Array.from(
-      new Set(
+    const server: string[] = Array.from(
+      new Set<string>(
         cids
           .map((x: any) => String(x || "").trim())
           .filter((x: string) => x && !isIgnoredCid(x)),
       ),
     );
-    const serverSet = new Set(server);
-    const optimisticMissing: string[] = [];
-    const nextOptimistic: Record<string, number> = {};
-    const optimisticForGateway = optimisticGatewayPinned.value[gid] || {};
-    for (const [cid, ts] of Object.entries(optimisticForGateway)) {
-      const key = String(cid || "").trim();
-      if (!key) continue;
-      if (serverSet.has(key)) continue;
-      if (typeof ts !== "number" || !Number.isFinite(ts)) continue;
-      if (now - ts > OPTIMISTIC_GATEWAY_PIN_TTL_MS) continue;
-      nextOptimistic[key] = ts;
-      optimisticMissing.push(key);
-    }
+    const settled = reconcileOptimisticPins(
+      optimisticGatewayPinned.value[gid] || {},
+      server,
+    );
     optimisticGatewayPinned.value = {
       ...optimisticGatewayPinned.value,
-      [gid]: nextOptimistic,
+      [gid]: settled.pins,
     };
-    gatewayPinned.value = [...optimisticMissing, ...server as string[]];
+    gatewayPinned.value = settled.displayed;
 
     const allowSet = new Set(server);
     const nextNames: Record<string, string> = {};
@@ -2883,13 +2831,11 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
 
 function addOptimisticGatewayPinnedCid(cid: string) {
   const key = String(cid || "").trim();
-  if (!key) return;
   const gid = String(hosting.value.gatewayId || "").trim();
-  if (!gid) return;
-  const current = optimisticGatewayPinned.value[gid] || {};
+  if (!key || !gid) return;
   optimisticGatewayPinned.value = {
     ...optimisticGatewayPinned.value,
-    [gid]: { ...current, [key]: Date.now() },
+    [gid]: addOptimisticPin(optimisticGatewayPinned.value[gid] || {}, key),
   };
   if (hosting.value.kind === "gateway") {
     gatewayPinned.value = [
@@ -2900,15 +2846,12 @@ function addOptimisticGatewayPinnedCid(cid: string) {
 }
 
 function removeOptimisticGatewayPinnedCid(cid: string) {
-  const key = String(cid || "").trim();
-  if (!key) return;
   const gid = String(hosting.value.gatewayId || "").trim();
   if (!gid) return;
-  const current = optimisticGatewayPinned.value[gid];
-  if (!current || !current[key]) return;
-  const next = { ...current };
-  delete next[key];
-  optimisticGatewayPinned.value = { ...optimisticGatewayPinned.value, [gid]: next };
+  optimisticGatewayPinned.value = {
+    ...optimisticGatewayPinned.value,
+    [gid]: removeOptimisticPin(optimisticGatewayPinned.value[gid] || {}, cid),
+  };
 }
 
 function loadFiles() {
