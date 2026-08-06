@@ -1,0 +1,79 @@
+<template>
+  <UiModal :model-value="modelValue" panel-class="sitemodal-send w-min-520px-92vw max-h-100vh-32px" :closable="!sending" @update:model-value="$emit('close')">
+    <template #header>
+      <UiModalHeader title="Send LMN" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+        <template #icon><Send :size="18" /></template>
+      </UiModalHeader>
+    </template>
+          <UiBanner variant="info" v-if="siteLabel">
+            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
+          </UiBanner>
+
+          <UiBanner v-if="error" variant="error" class="mb-12px">{{ error }}</UiBanner>
+
+          <UiFormGroup label="From" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input class="w-full border-radius-10px color-text-primary text-14px border-default py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
+          </UiFormGroup>
+
+          <UiFormGroup required label="To" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" :model-value="to" @update:model-value="$emit('update:to', $event)" placeholder="lmn1..." :disabled="sending" />
+          </UiFormGroup>
+
+          <UiFormGroup required label="Amount (LMN)" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" :model-value="amount" @update:model-value="$emit('update:amount', $event)" placeholder="0.000000" :disabled="sending" />
+            <span class="text-12px color-text-secondary absolute top-half translate-y-center right-12px">LMN</span>
+            <template #hint>
+              <div v-if="balanceUlmn !== null">Available: {{ balanceLmnDisplay }} LMN</div>
+              <div v-else class="color-error">Balance unavailable</div>
+              <div v-if="insufficientFunds" class="color-error mt-8px">not enough funds</div>
+            </template>
+          </UiFormGroup>
+
+          <UiFormGroup label="Memo (optional)" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" :model-value="memo" @update:model-value="$emit('update:memo', $event)" :disabled="sending" />
+          </UiFormGroup>
+    <template #footer>
+      <UiButton variant="secondary" type="button" @click="$emit('close')" :disabled="sending">
+        Cancel
+      </UiButton>
+      <UiButton variant="primary" type="button" @click="$emit('submit')" :disabled="!canSend">
+        <UiSpinnerRing v-if="sending" />
+        <span>{{ sending ? 'Sending...' : 'Send' }}</span>
+      </UiButton>
+    </template>
+  </UiModal>
+</template>
+
+<script setup lang="ts">
+import UiModal from '../ui/UiModal.vue';
+import UiModalHeader from '../ui/UiModalHeader.vue';
+import UiBanner from '../ui/UiBanner.vue';
+import UiFormGroup from '../ui/UiFormGroup.vue';
+import UiButton from '../ui/UiButton.vue';
+import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
+import { Send } from 'lucide-vue-next';
+
+/** Sending LMN at a site's request. The balance and the verdict on it come
+ * from the host, which is the side that can read the wallet. */
+defineProps<{
+  modelValue: boolean;
+  siteLabel: string;
+  to: string;
+  amount: string;
+  memo: string;
+  activeAddress: string;
+  balanceUlmn: bigint | null;
+  balanceLmnDisplay: string;
+  insufficientFunds: boolean;
+  canSend: boolean;
+  sending?: boolean;
+  error?: string;
+}>();
+defineEmits<{
+  (e: 'close'): void;
+  (e: 'submit'): void;
+  (e: 'update:to', value: string): void;
+  (e: 'update:amount', value: string): void;
+  (e: 'update:memo', value: string): void;
+}>();
+</script>

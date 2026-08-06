@@ -1,321 +1,70 @@
 <template>
-  <UiModal :model-value="!!(current && modalType === 'permission')" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="denyPermission">
-    <template #header>
-      <UiModalHeader title="Permission required" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
-        <template #icon><Shield :size="18" /></template>
-      </UiModalHeader>
-    </template>
-          <UiBanner variant="info">
-            <span>
-              Allow this website to open Lumen action modals?
-            </span>
-          </UiBanner>
+  <SitePermissionDialog :model-value="!!(current && modalType === 'permission')" :site-label="siteLabel" :action-kind="actionKind" @deny="denyPermission" @allow-once="allowOnce" @allow-always="allowAlways" />
 
-          <div class="border-radius-10px border-default py-10px px-12px">
-            <UiDetailRow variant="baseline" label="Site" :value="siteLabel" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
-            <UiDetailRow v-if="actionKind" variant="baseline" label="Action" :value="actionKind" />
-          </div>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="denyPermission">
-        Deny
-      </UiButton>
-      <UiButton variant="secondary" type="button" @click="allowOnce">
-        Allow once
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="allowAlways">
-        Always allow
-      </UiButton>
-    </template>
-  </UiModal>
+  <SiteSendTokenDialog :model-value="!!(current && modalType === 'sendToken')" :site-label="siteLabel" :to="sendTo" :amount="sendAmount" :memo="sendMemo" :active-address="activeAddress" :balance-ulmn="balanceUlmn" :balance-lmn-display="balanceLmnDisplay" :insufficient-funds="insufficientFunds" :can-send="canSend" :sending="sending" :error="sendError" @close="closeSend(false)" @submit="submitSend" @update:to="sendTo = $event" @update:amount="sendAmount = $event" @update:memo="sendMemo = $event" />
 
-  <UiModal :model-value="!!(current && modalType === 'sendToken')" panel-class="sitemodal-send w-min-520px-92vw max-h-100vh-32px" :closable="!sending" @update:model-value="closeSend(false)">
-    <template #header>
-      <UiModalHeader title="Send LMN" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
-        <template #icon><Send :size="18" /></template>
-      </UiModalHeader>
-    </template>
-          <UiBanner variant="info" v-if="siteLabel">
-            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
-          </UiBanner>
-
-          <UiBanner v-if="sendError" variant="error" class="mb-12px">{{ sendError }}</UiBanner>
-
-          <UiFormGroup label="From" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input class="w-full border-radius-10px color-text-primary text-14px border-default py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />
-          </UiFormGroup>
-
-          <UiFormGroup required label="To" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendTo" placeholder="lmn1..." :disabled="sending" />
-          </UiFormGroup>
-
-          <UiFormGroup required label="Amount (LMN)" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendAmount" placeholder="0.000000" :disabled="sending" />
-            <span class="text-12px color-text-secondary absolute top-half translate-y-center right-12px">LMN</span>
-            <template #hint>
-              <div v-if="balanceUlmn !== null">Available: {{ balanceLmnDisplay }} LMN</div>
-              <div v-else class="color-error">Balance unavailable</div>
-              <div v-if="insufficientFunds" class="color-error mt-8px">not enough funds</div>
-            </template>
-          </UiFormGroup>
-
-          <UiFormGroup label="Memo (optional)" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" v-model="sendMemo" :disabled="sending" />
-          </UiFormGroup>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="closeSend(false)" :disabled="sending">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="submitSend" :disabled="!canSend">
-        <UiSpinnerRing v-if="sending" />
-        <span>{{ sending ? 'Sending...' : 'Send' }}</span>
-      </UiButton>
-    </template>
-  </UiModal>
-
-  <UiModal :model-value="!!(current && modalType === 'pin')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!pinning" @update:model-value="closePin(false)">
+  <SaveToDriveDialog
+    :model-value="!!(current && modalType === 'pin')"
+    :name="saveNameDraft"
+    placeholder="Enter a name"
+    :error="pinError"
+    :confirm-disabled="!pinTarget"
+    :saving="pinning"
+    :job-id="pinJobId"
+    :status-label="pinStatusLabel"
+    :counter="pinProgressCounter"
+    :percent="pinProgressPercent"
+    :progress-text="pinProgressText"
+    :is-running="pinIsRunning"
+    :can-pause="pinCanPause"
+    :can-resume="pinCanResume"
+    :can-stop="pinCanStop"
+    @update:model-value="closePin(false)"
+    @update:name="saveNameDraft = $event"
+    @confirm="submitPin"
+    @pause="pausePinJob"
+    @resume="resumePinJob"
+    @stop="cancelPinJob"
+  >
     <template #header>
       <UiModalHeader title="Save to Drive" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
         <template #icon><Save :size="18" /></template>
       </UiModalHeader>
     </template>
-          <UiBanner variant="info" v-if="siteLabel">
-            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
-          </UiBanner>
-          <UiBanner v-if="pinError" variant="error" class="mb-12px">{{ pinError }}</UiBanner>
-
-          <UiFormGroup required label="Name" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input
-              class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
-              type="text"
-              v-model="saveNameDraft"
-              placeholder="Enter a name"
-              :disabled="pinning"
-              @keydown.enter.prevent="submitPin"
-            />
-          </UiFormGroup>
-
-          <div class="border-radius-10px border-default py-10px px-12px">
-            <UiDetailRow variant="baseline" label="Target" :value="pinTargetDisplay" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
-          </div>
-
-          <UiPinProgressCard
-            v-if="pinJobId"
-            :status="pinStatusLabel"
-            :counter="pinProgressCounter"
-            :percent="pinProgressPercent"
-            :indeterminate="pinProgressPercent == null && pinIsRunning"
-            :text="pinProgressText || (pinIsRunning ? 'Saving content from the network…' : 'Waiting for action.')"
-          />
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="closePin(false)" :disabled="pinIsRunning">
-        Cancel
-      </UiButton>
-      <UiButton variant="secondary" v-if="pinCanPause"
-        type="button"
-        @click="pausePinJob">
-        Pause
-      </UiButton>
-      <UiButton variant="secondary" v-if="pinCanResume"
-        type="button"
-        @click="resumePinJob">
-        Resume
-      </UiButton>
-      <UiButton variant="danger" v-if="pinCanStop"
-        type="button"
-        @click="cancelPinJob">
-        Stop
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="submitPin" :disabled="pinIsRunning || !pinTarget">
-        <UiSpinnerRing v-if="pinning" />
-        <span>{{ pinJobId ? (pinCanResume ? 'Resume save' : (pinIsRunning ? 'Saving...' : 'Save')) : 'Save' }}</span>
-      </UiButton>
+    <template #before-form>
+      <UiBanner variant="info" v-if="siteLabel">
+        <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
+      </UiBanner>
     </template>
-  </UiModal>
-
-  <UiModal :model-value="!!(current && modalType === 'stableLink')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSaving" @update:model-value="closeStableLink(false)">
-    <template #header>
-      <UiModalHeader title="Choose or create a stable link for your live" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
-        <template #icon><Link :size="18" /></template>
-      </UiModalHeader>
+    <template #after-form>
+      <div class="border-radius-10px border-default py-10px px-12px">
+        <UiDetailRow variant="baseline" label="Target" :value="pinTargetDisplay" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
+      </div>
     </template>
-          <UiBanner variant="info" v-if="siteLabel">
-            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
-          </UiBanner>
-          <UiBanner v-if="stableLinkError" variant="error" class="mb-12px">{{ stableLinkError }}</UiBanner>
+  </SaveToDriveDialog>
 
-          <div class="border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
-              Existing
-            </button>
-            <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
-              Create new
-            </button>
-          </div>
+  <SiteStableLinkDialog :model-value="!!(current && modalType === 'stableLink')" :site-label="siteLabel" :stable-links="stableLinks" :records="stableLinkRecords" :live-title="stableLinkLiveTitle" :short-stable-ipns="shortStableIpns" :can-submit="canSubmitStableLink" :saving="stableLinkSaving" :loading="stableLinkLoading" :error="stableLinkError" v-model:mode="stableLinkMode" v-model:selected-name="stableLinkSelectedName" v-model:new-label="stableLinkNewLabel" @close="closeStableLink(false)" @submit="submitStableLink" />
 
-          <UiFormGroup v-if="stableLinkMode === 'existing'" label="Stable link" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <select class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSelectedName" :disabled="stableLinkSaving || stableLinkLoading">
-              <option value="">{{ stableLinkLoading ? 'Loading stable links...' : 'Select a stable link' }}</option>
-              <option v-for="item in stableLinks" :key="item.name" :value="item.name">
-                {{ item.label }} — {{ shortStableIpns(item.id) }}
-              </option>
-            </select>
-          </UiFormGroup>
+  <SiteStableLinkSetupDialog :model-value="!!(current && modalType === 'stableLinkSetup')" :site-label="siteLabel" :stable-links="stableLinks" :short-stable-ipns="shortStableIpns" :loading="stableLinkSetupLoading" :error="stableLinkSetupError" v-model:selected-name="stableLinkSetupSelectedName" @close="closeStableLinkSetup(false)" @submit="submitStableLinkSetup" />
 
-          <UiFormGroup v-else label="New stable link label" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <input
-              class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
-              type="text"
-              v-model="stableLinkNewLabel"
-              placeholder="my-live"
-              :disabled="stableLinkSaving"
-              @keydown.enter.prevent="submitStableLink"
-            />
-          </UiFormGroup>
+  <SiteKeyExportDialog :model-value="!!(current && modalType === 'siteDataKeyExport')" :site-label="siteLabel" :ipns-name="keyFlowIpnsName" @close="closeKeyExport" @confirm="confirmKeyExport" />
 
-          <div class="border-radius-10px border-default py-10px px-12px">
-            <UiDetailRow variant="baseline" label="Live" :value="stableLinkLiveTitle || 'Untitled live'" />
-            <UiDetailRow variant="baseline" label="Records">
-              <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
-                <span class="mono">{{ stableLinkRecords.length }} record{{ stableLinkRecords.length === 1 ? '' : 's' }}</span>
-                <ChevronDown :size="14" class="transition-transform-02" :class="{ 'rotate-180': stableLinkRecordsExpanded }" />
-              </UiButton>
-            </UiDetailRow>
-            <div v-if="stableLinkRecordsExpanded" class="grid gap-6px mt-8px pt-8px border-top-default">
-              <div v-for="record in stableLinkRecords" :key="record.key" class="grid gap-10px grid-cols-70-1fr align-items-start">
-                <span class="mono text-12px color-text-secondary">{{ record.key }}</span>
-                <span class="mono text-12px color-text-primary overflow-wrap-anywhere" :title="record.value">{{ record.value }}</span>
-              </div>
-            </div>
-          </div>
-
-          <p class="text-12px color-text-secondary mt-8px">
-            The stable link URL will be copied after it is attached to this live.
-          </p>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="closeStableLink(false)" :disabled="stableLinkSaving">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="submitStableLink" :disabled="!canSubmitStableLink">
-        <UiSpinnerRing v-if="stableLinkSaving" />
-        <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
-        <Save v-else :size="16" />
-        <span>{{ stableLinkSaving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span>
-      </UiButton>
-    </template>
-  </UiModal>
-
-  <UiModal :model-value="!!(current && modalType === 'stableLinkSetup')" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!stableLinkSetupLoading" @update:model-value="closeStableLinkSetup(false)">
-    <template #header>
-      <UiModalHeader title="Select a live link" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
-        <template #icon><Link :size="18" /></template>
-      </UiModalHeader>
-    </template>
-          <UiBanner variant="info" v-if="siteLabel">
-            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
-          </UiBanner>
-          <UiBanner v-if="stableLinkSetupError" variant="error" class="mb-12px">{{ stableLinkSetupError }}</UiBanner>
-          <UiFormGroup label="Live link" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
-            <select class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSetupSelectedName" :disabled="stableLinkSetupLoading">
-              <option value="">{{ stableLinkSetupLoading ? 'Loading live links...' : 'Select a live link' }}</option>
-              <option v-for="item in stableLinks" :key="item.name" :value="item.name">
-                {{ item.label }} — {{ shortStableIpns(item.id) }}
-              </option>
-            </select>
-          </UiFormGroup>
-          <p class="text-12px color-text-secondary mt-8px">
-            Previous live settings will be loaded from this link if records are available.
-          </p>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="closeStableLinkSetup(false)" :disabled="stableLinkSetupLoading">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="submitStableLinkSetup" :disabled="stableLinkSetupLoading || !stableLinkSetupSelectedName">
-        <UiSpinnerRing v-if="stableLinkSetupLoading" />
-        <Link v-else :size="16" />
-        <span>{{ stableLinkSetupLoading ? 'Loading...' : 'Load previous settings' }}</span>
-      </UiButton>
-    </template>
-  </UiModal>
-
-  <UiModal :model-value="!!(current && modalType === 'siteDataKeyExport')" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="closeKeyExport">
-    <template #header>
-      <UiModalHeader title="Export this site identity" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
-        <template #icon><KeyRound :size="18" /></template>
-      </UiModalHeader>
-    </template>
-    <UiBanner variant="info" v-if="siteLabel">
-      <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
-    </UiBanner>
-    <UiBanner variant="warning" class="mt-12px">
-      <span class="overflow-wrap-anywhere">
-        This downloads the <strong>private key</strong> of your identity on this site — the key to the vault.
-        Anyone who holds that file <strong>is you</strong> on this site, permanently: an identity key cannot be
-        revoked or reissued. Keep it like a password, and never send it to anyone.
-      </span>
-    </UiBanner>
-    <UiDetailRow v-if="keyFlowIpnsName" label="Identity" :flex="true" class="mt-12px">
-      <span class="mono text-12px overflow-wrap-anywhere">{{ keyFlowIpnsName }}</span>
-    </UiDetailRow>
-    <p class="text-12px color-text-secondary mt-8px">
-      You choose where the file is saved. The page never receives the key itself.
-    </p>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="closeKeyExport">Cancel</UiButton>
-      <UiButton variant="primary" type="button" @click="confirmKeyExport">
-        <KeyRound :size="16" />
-        <span>Choose a location and export</span>
-      </UiButton>
-    </template>
-  </UiModal>
-
-  <UiModal :model-value="!!(current && modalType === 'siteDataKeyImport')" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="closeKeyImport">
-    <template #header>
-      <UiModalHeader title="Restore an identity on this site" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
-        <template #icon><KeyRound :size="18" /></template>
-      </UiModalHeader>
-    </template>
-    <UiBanner variant="info" v-if="siteLabel">
-      <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
-    </UiBanner>
-    <UiBanner variant="warning" class="mt-12px" v-if="keyFlowHasExisting">
-      <span class="overflow-wrap-anywhere">
-        This site already has an identity. Importing a key file <strong>replaces it</strong>: from now on this
-        site publishes as the imported identity, and the current one stops being used here.
-      </span>
-    </UiBanner>
-    <UiDetailRow v-if="keyFlowIpnsName" label="Current identity" :flex="true" class="mt-12px">
-      <span class="mono text-12px overflow-wrap-anywhere">{{ keyFlowIpnsName }}</span>
-    </UiDetailRow>
-    <label v-if="keyFlowHasExisting" class="flex flex-inline-align-center gap-8px mt-12px cursor-pointer">
-      <input type="checkbox" v-model="keyImportBackupFirst" />
-      <span class="text-13px color-text-primary">
-        Save the identity I'm about to replace to my computer first, so I can restore it later
-      </span>
-    </label>
-    <p class="text-12px color-text-secondary mt-8px">
-      You pick the key file yourself — the page cannot choose it or read it.
-    </p>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="closeKeyImport">Cancel</UiButton>
-      <UiButton variant="primary" type="button" @click="confirmKeyImport">
-        <KeyRound :size="16" />
-        <span>{{ keyImportBackupFirst && keyFlowHasExisting ? 'Save current, then choose a key' : 'Choose a key file' }}</span>
-      </UiButton>
-    </template>
-  </UiModal>
+  <SiteKeyImportDialog :model-value="!!(current && modalType === 'siteDataKeyImport')" :site-label="siteLabel" :ipns-name="keyFlowIpnsName" :has-existing="keyFlowHasExisting" v-model:backup-first="keyImportBackupFirst" @close="closeKeyImport" @confirm="confirmKeyImport" />
 </template>
 
 <script setup lang="ts">
-import UiButton from '../ui/UiButton.vue';
-import UiModal from '../ui/UiModal.vue';
-import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiBanner from '../ui/UiBanner.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';
-import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
-import UiPinProgressCard from '../ui/UiPinProgressCard.vue';
+import SaveToDriveDialog from '../dialogs/SaveToDriveDialog.vue';
+import SitePermissionDialog from '../dialogs/SitePermissionDialog.vue';
+import SiteSendTokenDialog from '../dialogs/SiteSendTokenDialog.vue';
+import SiteStableLinkDialog from '../dialogs/SiteStableLinkDialog.vue';
+import SiteStableLinkSetupDialog from '../dialogs/SiteStableLinkSetupDialog.vue';
+import SiteKeyExportDialog from '../dialogs/SiteKeyExportDialog.vue';
+import SiteKeyImportDialog from '../dialogs/SiteKeyImportDialog.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { ChevronDown, KeyRound, Link, Plus, Save, Send, Shield } from "lucide-vue-next";
+import { Save } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import { bytesToText, errorMessage } from '../internal/services/coerce';
 import { readPinJobSnapshot } from '../internal/services/pinJobs';
