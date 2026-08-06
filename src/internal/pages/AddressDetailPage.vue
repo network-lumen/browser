@@ -83,9 +83,8 @@
                 </div>
               </div>
               <div class="flex-align-center">
-                <span :class="['text-12px flex-inline-align-justify-center', tx.success ? 'bg-fill-success' : 'bg-fill-error']">
-                  {{ tx.success ? '✓' : '✗' }}
-                </span>
+                <TxStatusPill :success="tx.success" compact />
+
               </div>
             </UiCard>
           </div>
@@ -116,6 +115,7 @@ import { explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLi
 
 import { errorMessage } from '../services/coerce';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
+import TxStatusPill from '../../entities/TxStatusPill.vue';
 const loading = ref(true);
 const error = ref('');
 const notFound = ref(false);

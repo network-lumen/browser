@@ -249,9 +249,7 @@
                     </div>
                   </div>
                   <div class="flex-align-end flex-column gap-4px">
-                    <div class="text-12px txt-weight-light border-radius-12px py-0px px-8px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
-                      {{ tx.success ? 'Success' : 'Failed' }}
-                    </div>
+                    <TxStatusPill :success="tx.success" />
                     <div class="text-12px color-text-tertiary">{{ formatTimeAgo(tx.time) }}</div>
                   </div>
                 </div>
@@ -369,10 +367,7 @@
                   <span class="text-12px txt-weight-light border-radius-4px py-4px px-12px bg-fill-blue color-accent-secondary">{{ tx.type }}</span>
                 </div>
                 <div class="flex-align-center text-14px">
-                  <span class="flex-inline-align-center text-12px txt-weight-light gap-6px border-radius-4px py-4px px-12px" :class="tx.success ? 'success bg-fill-success' : 'failed bg-fill-error'">
-                    <CircleCheckBig class="w-14px h-14px" v-if="tx.success" :size="14" />
-                    {{ tx.success ? 'Success' : 'Failed' }}
-                  </span>
+                  <TxStatusPill :success="tx.success" />
                 </div>
                 <div class="flex-align-center text-14px">
                   <span class="transition-color-02 hover-underline color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
@@ -580,7 +575,7 @@ import ManageStakeDialog from '../../dialogs/ManageStakeDialog.vue';
 import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl, openExplorerUrl } from '../services/explorerLinks';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
-import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus, CircleCheckBig, Activity, Network, SlidersHorizontal, FileText } from 'lucide-vue-next';
+import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus,  Activity, Network, SlidersHorizontal, FileText } from 'lucide-vue-next';
 import { GOVERNANCE_ACTION_TEMPLATES, findGovernanceActionTemplate } from './governanceActionTemplates';
 import type { GovernanceActionDraft } from '../../types/networkGovernance';
 import { useToast } from '../../composables/useToast';
@@ -593,6 +588,7 @@ import type { Block as NetworkBlock, ProposalForm, ProposerInfo, StakeAction } f
 import type { GovernanceProposal, GovernanceVoteOption } from '../../types/networkGovernance';
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
+import TxStatusPill from '../../entities/TxStatusPill.vue';
 const toast = useToast();
 const lumen = useInternalLumen();
 const { navigate, openInNewTab } = useTabNavigation();
