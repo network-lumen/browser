@@ -282,6 +282,7 @@ import {
 } from "../services/contentResolver";
 import { activeProfileId } from "../profilesStore";
 import { formatBytes } from "../services/format";
+import { downloadBytes } from "../services/download";
 import { installExtensionFromChromeWebStore } from "../services/extensions";
 import { driveFilesKey, driveLocalNamesKey, nextDriveBackupSeq } from "../services/driveStorage";
 import { readJson, writeJson } from "../services/storage";
@@ -2167,15 +2168,8 @@ async function download() {
   const gateways = await loadWhitelistedGatewayBases().catch(() => []);
   const got = await useInternalLumen()?.ipfsGet?.(target, { gateways }).catch(() => null);
   if (!got?.ok || !Array.isArray(got.data)) return;
-  const bytes = new Uint8Array(got.data);
-  const blob = new Blob([bytes]);
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
   const name = rel ? rel.split("/").pop() || rootCid.value : rootCid.value;
-  a.href = url;
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadBytes(got.data, name);
 }
 
 function onMediaError() {
