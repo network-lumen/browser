@@ -26,8 +26,26 @@ import type { DriveFile } from '../../types/upload';
  * The page knows those from caches it fills as it browses, and passes the
  * answer down.
  */
+/**
+ * Extension to MIME type, for the images the Drive previews.
+ *
+ * This doubles as the list of what counts as an image, so classifying a file
+ * and typing its blob cannot disagree - they were two separate lists of the
+ * same seven extensions, and adding an eighth to one would have left the other
+ * handing back application/octet-stream for a file it had just called an image.
+ */
+const IMAGE_MIME_BY_EXTENSION: Record<string, string> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+  bmp: 'image/bmp',
+};
+
 const EXTENSIONS: Array<[DriveEntryKind, string[]]> = [
-  ['image', ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp']],
+  ['image', Object.keys(IMAGE_MIME_BY_EXTENSION)],
   ['video', ['mp4', 'webm', 'mov', 'avi', 'mkv']],
   ['audio', ['mp3', 'wav', 'ogg', 'flac', 'm4a']],
   ['archive', ['zip', 'rar', '7z', 'tar', 'gz']],
@@ -56,6 +74,28 @@ export function isImageFile(name: string): boolean {
 
 export function isVideoFile(name: string): boolean {
   return EXTENSIONS[1][1].includes(extensionOf(name));
+}
+
+/**
+ * The type to hand a Blob built from an image's bytes. Falls back to
+ * octet-stream, which a browser will refuse to render rather than guess at.
+ */
+export function imageMimeFromName(name: string): string {
+  return IMAGE_MIME_BY_EXTENSION[extensionOf(name)] || 'application/octet-stream';
+}
+
+/**
+ * The name alone. An EPUB can also be recognised from its content type, which
+ * only the page has, so the caller passes that in - `isEpubEntry` below takes
+ * both.
+ */
+export function isEpubName(name: string): boolean {
+  return extensionOf(name) === 'epub';
+}
+
+export function isEpubEntry(name: string, contentType?: string): boolean {
+  if (isEpubName(name)) return true;
+  return String(contentType || '').includes('application/epub+zip');
 }
 
 /**

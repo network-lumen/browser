@@ -665,6 +665,8 @@ import type { DriveEntryAction, DriveThumbnailSources } from "../../types/drive"
 import {
   DRIVE_ENTRY_ICONS,
   driveEntryKindFromName,
+  imageMimeFromName,
+  isEpubEntry,
   isHlsEntry,
   isImageFile,
   isVideoFile,
@@ -4553,25 +4555,10 @@ async function ensureContentTypeCached(cid: string) {
 }
 
 function isEpubFile(file: DriveFile | null | undefined): boolean {
-  const name = String(file?.name || "").toLowerCase();
-  if (name.endsWith(".epub")) return true;
-  const ct = entryContentTypeCache.value[String(file?.cid || "").trim()] || "";
-  return ct.includes("application/epub+zip");
-}
-
-function imageMimeFromName(name: string): string {
-  const ext =
-    String(name || "")
-      .split(".")
-      .pop()
-      ?.toLowerCase() || "";
-  if (ext === "png") return "image/png";
-  if (ext === "jpg" || ext === "jpeg") return "image/jpeg";
-  if (ext === "gif") return "image/gif";
-  if (ext === "webp") return "image/webp";
-  if (ext === "svg") return "image/svg+xml";
-  if (ext === "bmp") return "image/bmp";
-  return "application/octet-stream";
+  return isEpubEntry(
+    String(file?.name || ""),
+    entryContentTypeCache.value[String(file?.cid || "").trim()],
+  );
 }
 
 function getImageSrc(file: DriveFile): string {
