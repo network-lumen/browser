@@ -490,9 +490,7 @@
             </div>
 
             <div class="min-w-0">
-              <span class="flex-inline-align-center text-12px txt-weight-light border-radius-6px nowrap py-8px px-10px" :class="(tx.code === undefined || tx.code === 0) ? 'success bg-fill-success' : 'failed bg-fill-error'">
-                {{ (tx.code === undefined || tx.code === 0) ? 'Success' : 'Failed' }}
-              </span>
+              <TxStatusPill :success="tx.code === undefined || tx.code === 0" />
             </div>
 
             <div class="min-w-0">
@@ -618,6 +616,7 @@ import ReceiveDialog from '../../dialogs/ReceiveDialog.vue';
 import SendTokensDialog from '../../dialogs/SendTokensDialog.vue';
 import AssetTransferDialog from '../../dialogs/AssetTransferDialog.vue';
 import UiButton from '../../ui/UiButton.vue';
+import TxStatusPill from '../../entities/TxStatusPill.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiTag from '../../ui/UiTag.vue';

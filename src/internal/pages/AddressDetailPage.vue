@@ -57,7 +57,7 @@
                 </div>
               </div>
               <div class="color-text-primary txt-weight-light text-14px">
-                {{ formatAmount(delegation.amount) }} LUMEN
+                {{ formatAmount(delegation.amount) }} LMN
               </div>
             </UiCard>
           </div>
