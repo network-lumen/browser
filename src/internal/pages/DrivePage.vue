@@ -276,7 +276,7 @@
         <div class="flex-align-start gap-16px flex-justify-space-between">
           <div class="flex flex-column gap-2px min-w-0">
             <strong class="text-14px color-text-primary">HLS queue</strong>
-            <span class="text-12px color-text-secondary">{{ hlsQueueSummaryText() }}</span>
+            <span class="text-12px color-text-secondary">{{ hlsQueueSummary() }}</span>
           </div>
           <div class="flex-inline-align-center flex-wrap-wrap gap-8px flex-justify-end">
             <UiButton variant="secondary" v-if="hlsQueueCanPause"
@@ -315,7 +315,7 @@
             </div>
             <span class="flex-inline-align-center txt-weight-medium color-text-secondary gap-8px flex-shrink-0 text-12px" :style="hlsQueueStatusTextStyle(item.status)">
               <UiSpinner v-if="item.status === 'converting'" size="sm" />
-              <span>{{ hlsQueueStatusLabel(item) }}</span>
+              <span>{{ hlsQueueStatusLabel(item.status) }}</span>
             </span>
           </div>
         </div>
@@ -627,6 +627,18 @@ import type { DriveFile } from "../../types/upload";
 import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
 import DriveFileRow from "../../entities/DriveFileRow.vue";
 import {
+  countHlsQueue,
+  hlsQueueHasPendingItems,
+  hlsQueueIsPaused,
+  hlsQueueItemStyle,
+  hlsQueueStatusLabel,
+  hlsQueueStatusTextStyle,
+  hlsQueueSummaryText,
+  nextHlsQueueItemId,
+  parseStoredHlsQueue,
+  serializeHlsQueue,
+} from "../services/hlsQueue";
+import {
   downloadBlob,
   downloadBytes,
   downloadTextFile,
@@ -641,7 +653,6 @@ import {
   isVideoFile,
 } from "../services/driveEntries";
 import type {
-  HlsQueueItemStatus,
   HlsQueueItem,
   IpfsStats,
   HostingKind,
@@ -1368,28 +1379,8 @@ const allVisibleLocalEntriesSelected = computed(() => {
   );
 });
 
-const hlsQueueActiveCount = computed(
-  () =>
-    hlsQueue.value.filter(
-      (item) => item.status === "queued" || item.status === "converting",
-    ).length,
-);
-
-const hlsQueueDoneCount = computed(
-  () => hlsQueue.value.filter((item) => item.status === "done").length,
-);
-
-const hlsQueuePausedCount = computed(
-  () => hlsQueue.value.filter((item) => item.status === "paused").length,
-);
-
-const hlsQueueFailedCount = computed(
-  () => hlsQueue.value.filter((item) => item.status === "failed").length,
-);
-
-const hlsQueueCancelledCount = computed(
-  () => hlsQueue.value.filter((item) => item.status === "cancelled").length,
-);
+const hlsQueueCounts = computed(() => countHlsQueue(hlsQueue.value));
+const hlsQueuePausedCount = computed(() => hlsQueueCounts.value.paused);
 
 const hlsQueueVisible = computed(() => {
   if (hlsQueue.value.length > 1) return true;
@@ -3450,55 +3441,16 @@ function setSavedName(cid: string, name: string) {
   saveLocalNames();
 }
 
-function normalizeStoredHlsQueueStatus(rawStatus: unknown): HlsQueueItemStatus {
-  const status = String(rawStatus || "").trim().toLowerCase();
-  if (status === "done") return "done";
-  if (status === "failed") return "failed";
-  if (status === "cancelled") return "cancelled";
-  return "paused";
-}
-
-function sanitizeStoredHlsQueueFile(raw: any): DriveFile | null {
-  const cid = String(raw?.cid || "").trim();
-  const name = String(raw?.name || "").trim();
-  if (!cid || !name) return null;
-
-  const size = Number(raw?.size);
-  const uploadedAt = Number(raw?.uploadedAt);
-  const type = raw?.type === "dir" ? "dir" : raw?.type === "file" ? "file" : undefined;
-  const rootCid = String(raw?.rootCid || "").trim();
-  const relPath = String(raw?.relPath || "").trim();
-
-  return {
-    cid,
-    name,
-    size: Number.isFinite(size) && size > 0 ? Math.round(size) : 0,
-    uploadedAt:
-      Number.isFinite(uploadedAt) && uploadedAt > 0 ? Math.round(uploadedAt) : undefined,
-    type,
-    rootCid: rootCid || undefined,
-    relPath: relPath || undefined,
-  };
-}
-
 function persistHlsQueue(
   items: HlsQueueItem[] = hlsQueue.value,
   profileId: string = hlsQueueProfileId.value,
 ) {
-  {
-    const key = driveHlsQueueKey(profileId);
-    if (!items.length) {
-      removeKey(key);
-      return;
-    }
-    const payload = items.map((item) => ({
-      id: item.id,
-      file: item.file,
-      status: item.status,
-      error: item.status === "failed" || item.status === "cancelled" ? item.error : undefined,
-    }));
-    writeJson(key, payload);
+  const key = driveHlsQueueKey(profileId);
+  if (!items.length) {
+    removeKey(key);
+    return;
   }
+  writeJson(key, serializeHlsQueue(items));
 }
 
 function loadHlsQueue(profileId: string = String(activeProfileId.value || "").trim()) {
@@ -3507,49 +3459,9 @@ function loadHlsQueue(profileId: string = String(activeProfileId.value || "").tr
   convertingPauseRequested.value = false;
 
   const parsed = readJson<unknown>(driveHlsQueueKey(hlsQueueProfileId.value), null);
-
-  try {
-    const items = Array.isArray(parsed) ? parsed : [];
-    const restored: HlsQueueItem[] = [];
-
-    for (const raw of items) {
-      const file = sanitizeStoredHlsQueueFile(raw?.file);
-      if (!file) continue;
-      restored.push({
-        id: String(raw?.id || nextHlsQueueItemId()),
-        file,
-        status: normalizeStoredHlsQueueStatus(raw?.status),
-        error:
-          normalizeStoredHlsQueueStatus(raw?.status) === "failed" ||
-          normalizeStoredHlsQueueStatus(raw?.status) === "cancelled"
-            ? String(raw?.error || "").trim() || undefined
-            : undefined,
-      });
-    }
-
-    hlsQueue.value = restored;
-    persistHlsQueue(restored, hlsQueueProfileId.value);
-  } catch {
-    hlsQueue.value = [];
-  }
-}
-
-function hlsQueueHasPendingItems(items: HlsQueueItem[] = hlsQueue.value): boolean {
-  return items.some(
-    (item) =>
-      item.status === "queued" ||
-      item.status === "converting" ||
-      item.status === "paused",
-  );
-}
-
-function hlsQueueIsPaused(): boolean {
-  return (
-    hlsQueue.value.some((item) => item.status === "paused") &&
-    !hlsQueue.value.some(
-      (item) => item.status === "queued" || item.status === "converting",
-    )
-  );
+  const restored = parseStoredHlsQueue(parsed);
+  hlsQueue.value = restored;
+  persistHlsQueue(restored, hlsQueueProfileId.value);
 }
 
 function upsertFileMetadata(next: DriveFile) {
@@ -3737,7 +3649,7 @@ function enqueueHlsConversions(filesToQueue: DriveFile[]): {
 } {
   resetFinishedHlsQueueIfIdle();
   const nextStatus: "queued" | "paused" =
-    hlsQueuePauseRequested.value || hlsQueueIsPaused() ? "paused" : "queued";
+    hlsQueuePauseRequested.value || hlsQueueIsPaused(hlsQueue.value) ? "paused" : "queued";
 
   const known = new Set(
     hlsQueue.value.map((item) => hlsQueueKeyFor(item.file)).filter(Boolean),
@@ -4391,10 +4303,6 @@ function toggleVisibleLocalSelection(checked: boolean) {
   selectedLocalCids.value = Array.from(next);
 }
 
-function nextHlsQueueItemId(): string {
-  return `hlsq-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
 function hlsQueueKeyFor(file: DriveFile | null | undefined): string {
   if (!file) return "";
   const target = contentTargetFor(file);
@@ -4412,7 +4320,7 @@ function updateHlsQueueItem(
 
 function resetFinishedHlsQueueIfIdle() {
   if (converting.value) return;
-  if (!hlsQueueHasPendingItems()) hlsQueue.value = [];
+  if (!hlsQueueHasPendingItems(hlsQueue.value)) hlsQueue.value = [];
 }
 
 function clearHlsQueue() {
@@ -4428,41 +4336,8 @@ function clearHlsQueue() {
   hlsQueue.value = [];
 }
 
-function hlsQueueItemStyle(status: string): Record<string, string> {
-  if (status === "converting") return { borderColor: "var(--primary-a20)", background: "var(--primary-a05)" };
-  if (status === "done") return { borderColor: "rgba(var(--color-success-rgb), 0.25)", background: "rgba(var(--color-success-rgb), 0.06)" };
-  if (status === "paused") return { borderColor: "rgba(var(--color-primary-rgb), 0.25)", background: "rgba(var(--color-primary-rgb), 0.06)" };
-  if (status === "failed") return { borderColor: "rgba(var(--color-error-rgb), 0.25)", background: "rgba(var(--color-error-rgb), 0.06)" };
-  if (status === "cancelled") return { borderColor: "rgba(var(--color-warning-rgb), 0.25)", background: "rgba(var(--color-warning-rgb), 0.06)" };
-  return {};
-}
-
-function hlsQueueStatusTextStyle(status: string): Record<string, string> {
-  if (status === "failed") return { color: "var(--color-error)" };
-  if (status === "paused") return { color: "var(--color-primary)" };
-  if (status === "cancelled") return { color: "var(--color-warning)" };
-  return {};
-}
-
-function hlsQueueStatusLabel(item: HlsQueueItem): string {
-  if (item.status === "queued") return "Queued";
-  if (item.status === "converting") return "Converting";
-  if (item.status === "paused") return "Paused";
-  if (item.status === "done") return "Done";
-  if (item.status === "cancelled") return "Cancelled";
-  return "Failed";
-}
-
-function hlsQueueSummaryText(): string {
-  const parts: string[] = [];
-  if (hlsQueueActiveCount.value) parts.push(`${hlsQueueActiveCount.value} active`);
-  if (hlsQueuePausedCount.value) parts.push(`${hlsQueuePausedCount.value} paused`);
-  if (hlsQueueDoneCount.value) parts.push(`${hlsQueueDoneCount.value} done`);
-  if (hlsQueueFailedCount.value) parts.push(`${hlsQueueFailedCount.value} failed`);
-  if (hlsQueueCancelledCount.value) {
-    parts.push(`${hlsQueueCancelledCount.value} cancelled`);
-  }
-  return parts.join(" • ");
+function hlsQueueSummary(): string {
+  return hlsQueueSummaryText(countHlsQueue(hlsQueue.value));
 }
 
 watch(
