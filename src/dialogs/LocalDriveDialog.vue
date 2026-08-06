@@ -66,12 +66,12 @@ import UiButton from '../ui/UiButton.vue';
 /** What the local IPFS repo holds, and the way in to backing it up. */
 defineProps<{
   modelValue: boolean;
-  stats: { repoSize?: number } | null;
+  stats: { repoSize: number } | null;
   ipfsConnected: boolean;
   driveBackupLastExportAt: number | null;
   driveBackupLastImportAt: number | null;
-  formatDate: (value: unknown) => string;
-  formatSize: (bytes: number | undefined) => string;
+  formatDate: (ts: number) => string;
+  formatSize: (bytes: number) => string;
   localSavedCount: number;
   pinnedFiles: unknown[];
   busy?: boolean;

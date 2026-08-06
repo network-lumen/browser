@@ -736,6 +736,13 @@ import type {
 } from "../../types/drivePage";
 
 import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
+import LocalDriveDialog from "../../dialogs/LocalDriveDialog.vue";
+import DriveBackupExportDialog from "../../dialogs/DriveBackupExportDialog.vue";
+import DriveBackupImportDialog from "../../dialogs/DriveBackupImportDialog.vue";
+import SubscriptionDetailsDialog from "../../dialogs/SubscriptionDetailsDialog.vue";
+import SitesDataDialog from "../../dialogs/SitesDataDialog.vue";
+import CloudPlansDialog from "../../dialogs/CloudPlansDialog.vue";
+import SubscribeConfirmDialog from "../../dialogs/SubscribeConfirmDialog.vue";
 const { navigate, openInNewTab } = useTabNavigation();
 const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);

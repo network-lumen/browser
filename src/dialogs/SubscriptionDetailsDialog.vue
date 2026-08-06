@@ -79,7 +79,7 @@ defineProps<{
   bandwidthUsed: string;
   gatewayDetailsStatusClass: string;
   gatewayDetailsStatusLabel: string;
-  formatSize: (bytes: number | undefined) => string;
+  formatSize: (bytes: number) => string;
   pinned: unknown[];
   loading?: boolean;
   usageError?: string;

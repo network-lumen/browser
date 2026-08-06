@@ -114,7 +114,7 @@ defineProps<{
   password: string;
   activeProfileDisplay: string;
   hasPendingImport: boolean;
-  formatDate: (value: unknown) => string;
+  formatDate: (ts: number) => string;
   details: DriveBackupRestoreDetails | null;
   busy?: boolean;
   error?: string;

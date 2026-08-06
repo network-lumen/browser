@@ -101,7 +101,7 @@ export type DriveBackupRestoreDetails = {
   /** True when the snapshot belongs to a different wallet than the active one. */
   walletMismatch?: boolean;
   rollback?: unknown;
-  createdAt?: unknown;
+  createdAt?: number;
   localSeq?: number;
 };
 
@@ -110,5 +110,5 @@ export type SiteDataRecord = {
   siteKey?: string;
   profileId?: string;
   datas?: unknown;
-  updatedAt?: unknown;
+  updatedAt?: number;
 };

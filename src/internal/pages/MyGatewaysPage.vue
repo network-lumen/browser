@@ -240,6 +240,7 @@
 
 <script setup lang="ts">
 import UiButton from '../../ui/UiButton.vue';
+import UiCard from '../../ui/UiCard.vue';
 import ConfirmDialog from '../../dialogs/ConfirmDialog.vue';
 import ExternalGatewayDialog from '../../dialogs/ExternalGatewayDialog.vue';
 import WhitelistEntryDialog from '../../dialogs/WhitelistEntryDialog.vue';
