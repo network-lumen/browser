@@ -89,3 +89,26 @@ export type DriveBackupSnapshotV2 = {
 };
 
 export type DriveBackupSnapshot = DriveBackupSnapshotV1 | DriveBackupSnapshotV2;
+
+/** A gateway with the plans it offers, as grouped for the plans dialog. */
+export type PlanGroup = { gateway: GatewayView; plans: PlanView[] };
+
+/** What a decrypted Drive snapshot turned out to contain. */
+export type DriveBackupRestoreDetails = {
+  filesCount: number;
+  favCount: number;
+  walletAddress?: string;
+  /** True when the snapshot belongs to a different wallet than the active one. */
+  walletMismatch?: boolean;
+  rollback?: unknown;
+  createdAt?: unknown;
+  localSeq?: number;
+};
+
+/** One per-site data record, as listed in the "Sites data" dialog. */
+export type SiteDataRecord = {
+  siteKey?: string;
+  profileId?: string;
+  datas?: unknown;
+  updatedAt?: unknown;
+};
