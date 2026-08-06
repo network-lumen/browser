@@ -243,9 +243,9 @@
                     <RotateCw :size="16" />
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="txt-weight-light color-text-primary text-14px mb-4px">{{ shortenHash(tx.hash) }}</div>
+                    <TxHashLink :hash="tx.hash" class="mb-4px" @open="navigateToTransaction(tx.hash)" />
                     <div class="flex-align-center text-12px color-text-tertiary gap-8px">
-                      <span class="color-primary txt-weight-light text-uppercase border-radius-4px text-10px py-0px px-8px bg-primary-a10">{{ tx.type }}</span>
+                      <TxTypeBadge :type="tx.type" />
                     </div>
                   </div>
                   <div class="flex-align-end flex-column gap-4px">
@@ -356,7 +356,7 @@
                 <div class="reveal-on-hover flex-align-center gap-8px text-14px">
                   <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
                     <Activity class="animate-icon-bounce color-text-tertiary flex-shrink-0" :size="14" />
-                    <code class="reveal-hash-code-target color-text-secondary bg-secondary border-radius-4px mono py-4px px-6px text-10px">{{ shortenHash(tx.hash) }}</code>
+                    <TxHashLink :hash="tx.hash" wide @open="navigateToTransaction(tx.hash)" />
                     <Link class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" :size="14" />
                   </div>
                   <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash" class="size-24px">
@@ -364,7 +364,7 @@
                   </UiButton>
                 </div>
                 <div class="flex-align-center text-14px">
-                  <span class="text-12px txt-weight-light border-radius-4px py-4px px-12px bg-fill-blue color-accent-secondary">{{ tx.type }}</span>
+                  <TxTypeBadge :type="tx.type" />
                 </div>
                 <div class="flex-align-center text-14px">
                   <TxStatusPill :success="tx.success" />
@@ -589,6 +589,8 @@ import type { GovernanceProposal, GovernanceVoteOption } from '../../types/netwo
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 import TxStatusPill from '../../entities/TxStatusPill.vue';
+import TxHashLink from '../../entities/TxHashLink.vue';
+import TxTypeBadge from '../../entities/TxTypeBadge.vue';
 const toast = useToast();
 const lumen = useInternalLumen();
 const { navigate, openInNewTab } = useTabNavigation();
@@ -1331,10 +1333,6 @@ function formatTimeAgo(timestamp: string): string {
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return `${Math.floor(diff / 86400)}d ago`;
-}
-
-function shortenHash(hash: string): string {
-  return truncateMiddle(hash, { start: 20, end: 10 });
 }
 
 function shortenAddress(address: string): string {

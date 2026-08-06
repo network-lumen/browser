@@ -74,8 +74,8 @@
                 <Activity :size="16" />
               </UiIconBadge>
               <div class="flex-1">
-                <div class="underline-on-hover cursor-pointer mb-4px" @click="navigateToTx(tx.hash)">
-                  <code class="underline-target color-primary mono text-12px">{{ shortenHash(tx.hash) }}</code>
+                <div class="mb-4px">
+                  <TxHashLink :hash="tx.hash" @open="navigateToTx(tx.hash)" />
                 </div>
                 <div class="flex gap-16px color-text-tertiary text-12px">
                   <span class="hover-underline cursor-pointer color-primary" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>
@@ -116,6 +116,7 @@ import { explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLi
 import { errorMessage } from '../services/coerce';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 import TxStatusPill from '../../entities/TxStatusPill.vue';
+import TxHashLink from '../../entities/TxHashLink.vue';
 const loading = ref(true);
 const error = ref('');
 const notFound = ref(false);
@@ -149,10 +150,6 @@ function formatAmount(amount: string | number): string {
 
 function shortenAddress(addr: string): string {
   return truncateMiddle(addr, { start: 10, end: 8 });
-}
-
-function shortenHash(hash: string): string {
-  return truncateMiddle(hash, { start: 8, end: 8 });
 }
 
 function getValidatorColor(validator: string): string {

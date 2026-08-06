@@ -58,7 +58,7 @@
               <div class="flex-1 min-w-0">
                 <UiCopyField :value="tx.hash" title="Copy hash" wrapper-class="gap-8px mb-8px" code-class="flex-1 border-radius-10px py-8px px-10px bg-card border-default text-12px mono break-all" :icon-size="12" />
                 <div class="flex-align-center gap-16px text-13px">
-                  <span class="color-text-secondary fw-500">{{ tx.type }}</span>
+                  <TxTypeBadge :type="tx.type" />
                   <span class="flex-align-center gap-4px color-success txt-weight-light bg-fill-success border-radius-4px py-4px px-6px">✓ Success</span>
                 </div>
               </div>
@@ -88,6 +88,7 @@ import type { ProposerInfo } from '../../types/networkPage';
 import { explorerTransactionUrl, openExplorerUrl } from '../services/explorerLinks';
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
+import TxTypeBadge from '../../entities/TxTypeBadge.vue';
 const loading = ref(true);
 const error = ref('');
 const block = ref<any>(null);
