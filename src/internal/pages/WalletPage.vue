@@ -569,280 +569,16 @@
     </main>
 
     <!-- ####### lumen://wallet ASSET TRANSFER MODAL ####### -->
-    <UiModal :model-value="showAssetTransferModal" panel-class="asset-transfer-modal w-full max-w-500px" @update:model-value="closeAssetTransferModal">
-      <template #header>
-        <UiModalHeader title="IBC Transfer">
-          <template #icon><ArrowLeftRight :size="20" /></template>
-        </UiModalHeader>
-      </template>
-          <template v-if="assetTransferContext">
-            <UiBanner class="mb-24px">
-              <span>
-                Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.
-              </span>
-            </UiBanner>
-
-            <UiFormGroup label="Asset" dimmed>
-              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                :value="`${assetTransferContext.displayName} (${assetTransferContext.displaySymbol})`"
-                readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-            </UiFormGroup>
-
-            <div class="gap-16px grid grid-cols-2-minmax0">
-              <UiFormGroup label="From chain" dimmed>
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.chainLabel" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-              </UiFormGroup>
-              <UiFormGroup label="To chain">
-                <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="assetTransferForm.destinationKey">
-                  <option
-                    v-for="target in assetTransferContext.transferTargets"
-                    :key="target.key"
-                    :value="target.key"
-                  >
-                    {{ target.chainLabel }}
-                  </option>
-                </select>
-              </UiFormGroup>
-            </div>
-
-            <UiFormGroup label="From address" dimmed>
-              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="assetTransferContext.ownerAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-            </UiFormGroup>
-
-            <UiFormGroup required label="Recipient" :hint="selectedAssetTransferTarget ? `Default wallet on destination: ${selectedAssetTransferTarget.defaultRecipient}` : ''">
-              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                v-model="assetTransferForm.recipient"
-                :placeholder="selectedAssetTransferTarget?.defaultRecipient || 'Destination address'" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-            </UiFormGroup>
-
-            <UiFormGroup required label="Amount" :hint="`Available: ${assetTransferContext.displayAmount} ${assetTransferContext.displaySymbol}`">
-              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                inputmode="decimal"
-                v-model="assetTransferForm.amount"
-                placeholder="0.000000"
-                @input="validateAssetTransferAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
-              <span class="txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ assetTransferContext.displaySymbol }}</span>
-            </UiFormGroup>
-
-            <UiSummaryCard title="Transfer Summary">
-              <UiSummaryRow label="Route" :value="selectedAssetTransferTarget?.routeLabel || 'Select destination'" />
-              <UiSummaryRow label="Source chain" :value="assetTransferContext.chainLabel" />
-              <UiSummaryRow highlight label="Destination chain" :value="selectedAssetTransferTarget?.chainLabel || 'Unknown'" />
-            </UiSummaryCard>
-
-            <UiButton variant="primary" @click="confirmAssetTransfer"
-              :disabled="!canSubmitAssetTransfer || assetTransferSending" class="disabled-fade-50">
-              <ArrowLeftRight :size="18" v-if="!assetTransferSending" />
-              <UiSpinner v-else size="sm" class="spinner-color-white" />
-              <span>{{ assetTransferSending ? 'Transferring...' : 'IBC Transfer' }}</span>
-            </UiButton>
-          </template>
-    </UiModal>
+    <AssetTransferDialog :model-value="showAssetTransferModal" :context="assetTransferContext" :form="assetTransferForm" :selected-target="selectedAssetTransferTarget" :can-submit="canSubmitAssetTransfer" :validate-amount-input="validateAssetTransferAmountInput" :sending="assetTransferSending" @update:model-value="closeAssetTransferModal" @submit="confirmAssetTransfer" />
 
     <!-- ####### lumen://wallet SEND MODAL ####### -->
-    <UiModal :model-value="showSendModal" panel-class="send-modal w-full max-w-500px" @update:model-value="closeSendModal">
-      <template #header>
-        <UiModalHeader :title="sendModalTitle">
-          <template #icon><Send :size="20" /></template>
-        </UiModalHeader>
-      </template>
-            <UiBanner class="mb-24px">
-              <span v-if="sendAssetContext">
-                <template v-if="isIbcSend">
-                  Move this asset from {{ sendSourceChainLabel }} to another linked chain over IBC.
-                </template>
-                <template v-else>
-                  Send this asset on {{ sendSourceChainLabel }} to any {{ sendSourcePrefix }}1... address. Use “To Other Chain” only when you want to bridge it.
-                </template>
-              </span>
-              <span v-else>
-                💡 Your first transaction may take up to 60 seconds. <br>
-                After that, transactions are confirmed within ~6 seconds.</span>
-            </UiBanner>
-
-            <UiFormGroup label="From" dimmed :hint="`Chain: ${sendSourceChainLabel}`">
-              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="sendSourceAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-            </UiFormGroup>
-
-            <UiFormGroup label="Asset" dimmed>
-              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="`${sendAssetName} (${sendAssetSymbol})`" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-            </UiFormGroup>
-
-            <UiFormGroup v-if="!sendAssetContext" label="Send to">
-              <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="sendTargetMode">
-                <option value="lumen">On the current chain</option>
-                <option value="ibc">Across IBC to another chain</option>
-              </select>
-            </UiFormGroup>
-
-            <UiFormGroup v-if="isIbcSend" required label="IBC route">
-              <select
-                class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none"
-                v-model="ibcForm.sourceChannel"
-                :disabled="ibcChannelsLoading || !ibcChannels.length"
-              >
-                <option value="" disabled>
-                  {{ ibcChannelsLoading ? 'Loading IBC channels...' : 'Select an IBC route' }}
-                </option>
-                <option
-                  v-for="channel in ibcChannels"
-                  :key="`${channel.portId}:${channel.channelId}`"
-                  :value="channel.channelId"
-                >
-                  {{ channel.label }}
-                </option>
-              </select>
-              <template v-if="selectedIbcChannel || ibcChannelsError" #hint>
-                <template v-if="selectedIbcChannel">
-                  Route: {{ selectedIbcChannel.portId }}/{{ selectedIbcChannel.channelId }}
-                  <span v-if="selectedIbcChannel.chainId"> · Destination chain: {{ selectedIbcChannel.chainId }}</span>
-                </template>
-                <template v-else-if="ibcChannelsError">{{ ibcChannelsError }}</template>
-              </template>
-            </UiFormGroup>
-
-            <UiFormGroup required :label="isIbcSend ? 'Destination address' : 'Recipient'">
-              <div class="relative">
-                <div class="relative">
-                  <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                    v-model="sendForm.recipient"
-                    :placeholder="sendRecipientPlaceholder" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-                  <UiButton variant="secondary" @click="openQrScanner"
-                    type="button"
-                    title="Scan QR Code" class="hover-bg-accent-color-white absolute top-half translate-y-center right-12px">
-                    <QrCode :size="16" />
-                  </UiButton>
-                  <button
-                    v-if="contacts.length > 0"
-                    class="hover-bg-accent-color-white flex-align-justify-center color-text-secondary cursor-pointer absolute p-8px border-none bg-hover border-radius-6px transition-all-02 top-half translate-y-center right-3-5rem"
-                    @click="showContactPicker = !showContactPicker"
-                    type="button"
-                    title="Select from contacts"
-                  >
-                    <Users :size="16" />
-                  </button>
-                </div>
-                <div v-if="showContactPicker" class="border-radius-12px absolute top-full mt-8px bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-md">
-                  <div class="flex-align-center-justify-space-between txt-weight-light color-text-primary py-12px px-16px bg-secondary border-bottom-1 text-14px">
-                    <span>Select Contact</span>
-                    <UiButton variant="icon" @click="showContactPicker = false">
-                      <X :size="14" />
-                    </UiButton>
-                  </div>
-                  <div class="max-h-300px overflow-y-auto">
-                    <button
-                      v-for="contact in contacts"
-                      :key="contact.id"
-                      class="hover-bg-hover last-border-bottom-none flex-align-center gap-12px w-full text-left cursor-pointer py-12px px-16px border-none bg-transparent transition-all-02 border-bottom-1"
-                      @click="selectContactForSend(contact)"
-                    >
-                      <div class="flex-align-justify-center size-36px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-14px flex-shrink-0">{{ contact.name.charAt(0).toUpperCase() }}</div>
-                      <div class="flex flex-column flex-1 gap-4px min-w-0">
-                        <span class="txt-weight-light color-text-primary text-14px">{{ contact.name }}</span>
-                        <span class="text-12px color-text-tertiary mono">{{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}</span>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </UiFormGroup>
-
-            <UiFormGroup required :label="`Amount (${sendAssetSymbol})`" :hint="sendAvailableLabel ? `Available: ${sendAvailableLabel} ${sendAssetSymbol}` : ''">
-              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                inputmode="decimal"
-                v-model="sendForm.amount"
-                placeholder="0.000000"
-                @input="validateAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
-              <span class="txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ sendAssetSymbol }}</span>
-            </UiFormGroup>
-
-            <UiSummaryCard :title="isIbcSend ? 'Transfer Summary' : 'Transaction Summary'">
-              <UiSummaryRow :label="isIbcSend ? 'Transfer amount' : 'Amount debited'" :value="`${sendSummary.amount} ${sendAssetSymbol}`" />
-              <UiSummaryRow v-if="!isIbcSend" label="Chain" :value="sendSourceChainLabel" />
-              <UiSummaryRow v-if="showSendTaxBreakdown" label="Tax" :value="sendSummary.taxLabel" value-class="color-warning" />
-              <UiSummaryRow v-if="showSendTaxBreakdown" highlight label="Receiver net" :value="`${sendSummary.receiver} ${sendAssetSymbol}`" />
-              <UiSummaryRow v-if="isIbcSend" label="Route" :value="sendSummary.routeLabel" />
-              <UiSummaryRow v-if="isIbcSend" highlight label="Destination chain" :value="sendSummary.destinationChain" />
-            </UiSummaryCard>
-
-            <UiButton variant="primary" @click="confirmSendPreview" :disabled="!canSend || sendingTransaction" class="disabled-fade-50">
-              <Send :size="18" v-if="!sendingTransaction" />
-              <UiSpinner v-else size="sm" class="spinner-color-white" />
-              <span>{{ sendPrimaryActionLabel }}</span>
-            </UiButton>
-    </UiModal>
+    <SendTokensDialog :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" :target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" v-model:show-contact-picker="showContactPicker" :validate-amount-input="validateAmountInput" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSendPreview" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
 
     <!-- ####### lumen://wallet RECEIVE MODAL ####### -->
-    <UiModal :model-value="showReceiveModal" panel-class="receive-modal w-full max-w-500px" @update:model-value="closeReceiveModal">
-      <template #header>
-        <UiModalHeader title="Receive LMN">
-          <template #icon><ArrowDownLeft :size="20" /></template>
-        </UiModalHeader>
-      </template>
-            <UiBanner class="mb-24px">
-              <span>📱 Share your wallet address or QR code to receive LMN from another wallet.</span>
-            </UiBanner>
-
-            <div class="flex-justify-center m-0px mt-24px mb-24px">
-              <div class="p-20px bg-card border-2 border-radius-16px shadow-md">
-                <img 
-                  v-if="qrCodeDataUrl" 
-                  :src="qrCodeDataUrl"
-                  alt="QR Code"
-                  class="h-240px block border-radius-8px w-240px"
-                />
-                <div v-else class="h-240px flex-align-justify-center color-text-tertiary bg-secondary border-radius-8px text-14px w-240px">
-                  <div class="flex-align-center gap-8px color-text-secondary">
-                    <span class="border-radius-full w-20px h-20px border-2-fill-secondary spinner-accent inline-block flex-shrink-0"></span>
-                    Generating QR Code...
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="border-radius-12px p-20px border-2 bg-secondary mb-0px">
-              <div class="txt-weight-medium color-text-secondary text-uppercase text-14px mb-12px letter-spacing-005em">Your Wallet Address</div>
-              <div class="mono p-14px text-15px color-text-primary break-all mb-16px bg-card border-1 border-radius-8px line-height-15">{{ address || '-' }}</div>
-              <UiButton variant="secondary" type="button" @click="copyAddressWithToast" :disabled="!address" class="border-2-primary disabled-fade-50">
-                <Copy :size="16" />
-                <span>Copy Address</span>
-              </UiButton>
-            </div>
-    </UiModal>
+    <ReceiveDialog :model-value="showReceiveModal" :address="address" :qr-data-url="qrCodeDataUrl" @update:model-value="closeReceiveModal" @copy="copyAddressWithToast" />
 
     <!-- ####### lumen://wallet ADD/EDIT CONTACT MODAL ####### -->
-    <UiModal :model-value="showContactModal" panel-class="walletpage-contact-modal w-full max-w-500px" @update:model-value="closeContactModal">
-      <template #header>
-        <UiModalHeader :title="editingContact ? 'Edit Contact' : 'Add Contact'">
-          <template #icon><Users :size="20" /></template>
-        </UiModalHeader>
-      </template>
-            <UiFormGroup required label="Name">
-              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                v-model="contactForm.name"
-                placeholder="Enter contact name" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-            </UiFormGroup>
-
-            <UiFormGroup required label="Address">
-              <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-                v-model="contactForm.address"
-                placeholder="lmn1..."
-                :readonly="!!editingContact" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-            </UiFormGroup>
-
-            <UiFormGroup label="Note (optional)">
-              <UiInput type="textarea" bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" v-model="contactForm.note"
-                placeholder="Add a note about this contact"
-                rows="3" class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary"></UiInput>
-            </UiFormGroup>
-
-            <UiButton variant="primary" @click="saveContact" 
-              :disabled="!contactForm.name || !contactForm.address || savingContact" class="disabled-fade-50">
-              <Check :size="18" v-if="!savingContact" />
-              <UiSpinner v-else size="sm" class="spinner-color-white" />
-              <span>{{ savingContact ? 'Saving...' : (editingContact ? 'Update Contact' : 'Add Contact') }}</span>
-            </UiButton>
-    </UiModal>
+    <ContactEditorDialog :model-value="showContactModal" :editing="!!editingContact" :form="contactForm" :saving="savingContact" @update:model-value="closeContactModal" @submit="saveContact" />
 
     <!-- ####### lumen://wallet QR SCANNER MODAL ####### -->
     <QrScanner
@@ -875,22 +611,19 @@
 </template>
 
 <script setup lang="ts">
-import UiInput from '../../ui/UiInput.vue';
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
-import UiModal from '../../ui/UiModal.vue';
 import ConfirmDialog from '../../dialogs/ConfirmDialog.vue';
+import ContactEditorDialog from '../../dialogs/ContactEditorDialog.vue';
+import ReceiveDialog from '../../dialogs/ReceiveDialog.vue';
+import SendTokensDialog from '../../dialogs/SendTokensDialog.vue';
+import AssetTransferDialog from '../../dialogs/AssetTransferDialog.vue';
 import UiButton from '../../ui/UiButton.vue';
-import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiTag from '../../ui/UiTag.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiChartHeader from '../../ui/UiChartHeader.vue';
-import UiModalHeader from '../../ui/UiModalHeader.vue';
-import UiSummaryCard from '../../ui/UiSummaryCard.vue';
-import UiSummaryRow from '../../ui/UiSummaryRow.vue';
-import UiFormGroup from '../../ui/UiFormGroup.vue';
 import UiBanner from '../../ui/UiBanner.vue';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -912,18 +645,15 @@ import {
   ArrowDownLeft,
   CreditCard,
   Plus,
-  X,
   Copy,
   ExternalLink,
   ChevronDown,
-  Check,
   AlertCircle,
   Users,
   Edit,
   Trash2,
   Download,
   Upload,
-  QrCode,
   Calendar,
   RefreshCw,
   ShieldCheck
@@ -949,7 +679,7 @@ import type {
   DexListingConfig,
   DexStatus,
   DexRow
-} from '../../types/walletPage';
+, ContactForm, SendForm, IbcForm, AssetTransferForm } from '../../types/walletPage';
 
 import { errorMessage } from '../services/coerce';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
@@ -1004,7 +734,7 @@ const contactToDelete = ref<any>(null);
 const showContactPicker = ref(false);
 const editingContact = ref<any>(null);
 const savingContact = ref(false);
-const contactForm = ref({
+const contactForm = ref<ContactForm>({
   name: '',
   address: '',
   note: ''
@@ -1069,14 +799,14 @@ const DEX_LISTINGS: DexListingConfig[] = [
   }
 ];
 
-const sendForm = ref({
+const sendForm = ref<SendForm>({
   recipient: '',
   amount: '',
   gasFee: 'medium'
 });
 const sendAssetContext = ref<AssetRow | null>(null);
 const sendTargetMode = ref<SendTargetMode>('lumen');
-const ibcForm = ref({
+const ibcForm = ref<IbcForm>({
   sourceChannel: '',
   sourcePort: 'transfer'
 });
@@ -1095,7 +825,7 @@ const currentNetworkChainId = ref('');
 const showAssetTransferModal = ref(false);
 const assetTransferSending = ref(false);
 const assetTransferContext = ref<AssetRow | null>(null);
-const assetTransferForm = ref({
+const assetTransferForm = ref<AssetTransferForm>({
   destinationKey: '',
   recipient: '',
   amount: ''
