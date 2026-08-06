@@ -529,7 +529,7 @@
     <SubscriptionDetailsDialog :model-value="showGatewayDetails" :gateway-label="gatewayDetailsGatewayLabel" :usage="gatewayDetailsUsage" :bandwidth-used="gatewayDetailsBandwidthUsed" :gateway-details-status-class="gatewayDetailsStatusClass" :gateway-details-status-label="gatewayDetailsStatusLabel" :format-size="formatSize" :pinned="gatewayDetailsPinned" :loading="gatewayDetailsLoading" :usage-error="gatewayDetailsUsageError" @close="closeGatewayDetails" @unlock="requestUnlock" />
 
     <!-- ####### lumen://drive SITES DATA MODAL ####### -->
-    <SitesDataDialog :model-value="showSiteDataModal" :records="siteDataRecords" :fields="siteDataFields" :row-id="siteDataRowId" :site-data-site-label="siteDataSiteLabel" :format-date="formatDate" :site-data-json="siteDataJson" :expanded-id="expandedSiteDataId" :raw-id="rawSiteDataId" :removing-id="removingSiteDataId" :loading="siteDataLoading" @close="closeSiteDataModal" @remove="removeSiteDataRecord" @toggle-expanded="toggleSiteDataExpanded" @toggle-raw="toggleSiteDataRaw" />
+    <SitesDataDialog :model-value="showSiteDataModal" :records="siteDataRecords" :removing-id="removingSiteDataId" :loading="siteDataLoading" @close="closeSiteDataModal" @remove="removeSiteDataRecord" />
 
     <!-- ####### lumen://drive PLANS MODAL ####### -->
     <CloudPlansDialog :model-value="showPlansModal" :plans="plans" :plan-groups="planGroups" :plan-paged-groups="planPagedGroups" :plan-regions="planRegions" :plan-total-pages="planTotalPages" :has-plan-filters="hasPlanFilters" :gateway-expanded="isGatewayExpanded" :status-of="planStatus" :plan-gateway-label="gatewayDisplayName" :plan-display-name="planDisplayName" :plan-status-label="planStatusLabel" :format-regions-title="formatRegionsTitle" :format-regions-label="formatRegionsLabel" :format-plan-price="formatPlanPrice" :format-plan-price-short="formatPlanPriceShort" :plan-status-badge-class="planStatusBadgeClass" :plan-page-start="planPageStart" :plan-page-end="planPageEnd" :plans-loading="plansLoading" :plans-error="plansError" v-model:plan-filter="planFilter" v-model:plan-region="planRegion" v-model:plan-online-only="planOnlineOnly" v-model:plan-sort-by="planSortBy" v-model:plan-page="planPage" v-model:plan-page-size="planPageSize" @close="closePlansModal" @retry="openPlansModal" @reset-filters="resetPlanFilters" @toggle-gateway="toggleGatewayExpanded" @subscribe="openSubscribeModal" />
@@ -626,6 +626,7 @@ import { useToast } from "../../composables/useToast";
 import type { DriveFile } from "../../types/upload";
 import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
 import DriveFileRow from "../../entities/DriveFileRow.vue";
+import { siteDataRowId, siteDataSiteLabel } from "../services/siteData";
 import {
   buildDriveBackupSnapshot,
   driveBackupFriendlyError,
@@ -896,63 +897,6 @@ const siteDataRecords = ref<any[]>([]);
 const siteDataLoading = ref(false);
 const showSiteDataModal = ref(false);
 const removingSiteDataId = ref("");
-const expandedSiteDataId = ref("");
-const rawSiteDataId = ref("");
-
-function siteDataRowId(record: any): string {
-  return `${record?.siteKey || ""}|${record?.profileId || ""}`;
-}
-
-function shortSiteDataId(id: string): string {
-  const s = String(id || "");
-  return s.length > 18 ? `${s.slice(0, 8)}...${s.slice(-6)}` : s;
-}
-
-// The site (not the arbitrary title text a site chose for the record) is
-// what actually identifies which entry is which - two different sites can
-// easily both call their record "My profile", so lead with siteKey/domain.
-function siteDataSiteLabel(record: any): string {
-  const key = String(record?.siteKey || "").trim();
-  if (key.startsWith("domain:")) return key.slice("domain:".length);
-  if (key.startsWith("ipfs:")) return `ipfs:${shortSiteDataId(key.slice("ipfs:".length))}`;
-  if (key.startsWith("ipns:")) return `ipns:${shortSiteDataId(key.slice("ipns:".length))}`;
-  return key || "Unknown site";
-}
-
-function toggleSiteDataExpanded(record: any) {
-  const id = siteDataRowId(record);
-  expandedSiteDataId.value = expandedSiteDataId.value === id ? "" : id;
-}
-
-function toggleSiteDataRaw(record: any) {
-  const id = siteDataRowId(record);
-  rawSiteDataId.value = rawSiteDataId.value === id ? "" : id;
-}
-
-/** Top-level datas fields as a flat, scannable table - datas is arbitrary site-defined JSON, so nested arrays/objects are summarized (count) rather than dumped inline; "View raw JSON" still shows everything for anyone who wants the full picture. */
-function siteDataFields(record: any): { key: string; value: string }[] {
-  const datas = record?.datas && typeof record.datas === "object" && !Array.isArray(record.datas) ? record.datas : {};
-  return Object.entries(datas).map(([key, value]) => ({ key, value: formatSiteDataFieldValue(value) }));
-}
-
-function formatSiteDataFieldValue(value: any): string {
-  if (value === null || value === undefined) return "—";
-  if (Array.isArray(value)) return `${value.length} item${value.length === 1 ? "" : "s"}`;
-  if (typeof value === "object") {
-    const count = Object.keys(value).length;
-    return `${count} field${count === 1 ? "" : "s"}`;
-  }
-  const str = String(value);
-  return str.length > 140 ? `${str.slice(0, 140)}…` : str;
-}
-
-function siteDataJson(record: any): string {
-  try {
-    return JSON.stringify(record?.datas ?? {}, null, 2);
-  } catch {
-    return "";
-  }
-}
 
 async function loadSiteDataRecords() {
   if (!siteData_lumen_api?.list) return;
