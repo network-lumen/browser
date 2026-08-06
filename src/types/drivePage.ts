@@ -93,6 +93,38 @@ export type DriveBackupSnapshotV2 = {
 
 export type DriveBackupSnapshot = DriveBackupSnapshotV1 | DriveBackupSnapshotV2;
 
+export type DriveBackupShortcutEntry = DriveBackupSnapshotV2["shortcutEntries"][number];
+
+/**
+ * `shortcutEntries` is null for a version 1 snapshot, which predates them:
+ * null means the backup has nothing to say about shortcuts, where an empty
+ * list would mean it says there are none.
+ */
+export type DriveBackupReadResult =
+  | { ok: false; error: string }
+  | {
+      ok: true;
+      files: DriveFile[];
+      localNames: Record<string, string>;
+      favourites: string[];
+      shortcutEntries: DriveBackupShortcutEntry[] | null;
+      seq?: number;
+    };
+
+export type DriveBackupSnapshotSummary = {
+  source: string;
+  createdAt: number;
+  seq: number;
+  walletAddress: string;
+  filesCount: number;
+  favCount: number;
+  localSeq: number;
+  /** The snapshot is older than what has already been applied here. */
+  rollback: boolean;
+  /** The snapshot was made under a different wallet. */
+  walletMismatch: boolean;
+};
+
 /** A gateway with the plans it offers, as grouped for the plans dialog. */
 export type PlanGroup = { gateway: GatewayView; plans: PlanView[] };
 
