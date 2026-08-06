@@ -665,6 +665,7 @@ import QrScanner from '../../dialogs/QrScanner.vue';
 import SubscriptionsView from '../../dialogs/SubscriptionsView.vue';
 import { payReminder } from '../services/paymentReminders';
 import { formatDenom as formatDenomValue, truncateMiddle } from '../services/format';
+import { downloadTextFile } from '../services/download';
 import { STORAGE_KEYS, readString, writeJson } from '../services/storage';
 import { useToast } from '../../composables/useToast';
 import type {
@@ -3578,14 +3579,11 @@ function exportTransactions() {
     ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
   ].join('\n');
 
-  // Download
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `lumen-transactions-${address.value.slice(0, 8)}-${Date.now()}.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadTextFile(
+    `lumen-transactions-${address.value.slice(0, 8)}-${Date.now()}.csv`,
+    csvContent,
+    'text/csv;charset=utf-8;'
+  );
   
   showToast('Transactions exported!', 'success');
 }

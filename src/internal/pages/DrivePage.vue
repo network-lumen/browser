@@ -626,6 +626,12 @@ import { useToast } from "../../composables/useToast";
 import type { DriveFile } from "../../types/upload";
 import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
 import DriveFileRow from "../../entities/DriveFileRow.vue";
+import {
+  downloadBlob,
+  downloadBytes,
+  downloadTextFile,
+  sanitizeFilenameSegment,
+} from "../services/download";
 import type { DriveEntryAction, DriveThumbnailSources } from "../../types/drive";
 import {
   DRIVE_ENTRY_ICONS,
@@ -1278,12 +1284,7 @@ async function downloadHlsAsZip(file: DriveFile): Promise<void> {
     compression: "STORE",
     streamFiles: true,
   });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${archiveRoot}.zip`;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `${archiveRoot}.zip`);
 }
 
 const rootSavedEntries = computed<DriveFile[]>(() => {
@@ -3084,28 +3085,6 @@ function makeDriveBackupSnapshot(): DriveBackupSnapshotV2 | null {
   };
 }
 
-function sanitizeBackupFilenameSegment(input: string): string {
-  const raw = String(input || "").trim();
-  if (!raw) return "";
-  let out = raw.replace(/[<>:"/\\|?*\x00-\x1F]/g, "").replace(/\s+/g, " ").trim();
-  out = out.replace(/[. ]+$/g, "");
-  if (out.length > 64) out = out.slice(0, 64).trim();
-  return out;
-}
-
-function downloadTextFile(filename: string, text: string, mime = "application/json") {
-  const blob = new Blob([text], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename || "download.json";
-  a.rel = "noopener";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
 function driveBackupFriendlyError(code: string): string {
   const c = String(code || "").trim();
   if (!c) return "Backup failed";
@@ -3285,7 +3264,7 @@ async function confirmDriveBackupExport() {
       return;
     }
 
-    const nameSeg = sanitizeBackupFilenameSegment(activeProfileDisplay.value) || "profile";
+    const nameSeg = sanitizeFilenameSegment(activeProfileDisplay.value) || "profile";
     const stamp = new Date().toISOString().replace(/[:.]/g, "-");
     const filename = `lumen-drive-backup-${nameSeg}-${stamp}.enc.json`;
     downloadTextFile(filename, JSON.stringify(res.encrypted, null, 2));
@@ -4098,13 +4077,7 @@ async function downloadFile(file: DriveFile) {
     const result = await lumen_api?.ipfsGet?.(target, { gateways });
 
     if (result?.ok && result.data) {
-      const blob = new Blob([new Uint8Array(result.data)]);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = file.name;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadBytes(result.data, file.name);
       showToast("Downloaded!", "success");
     } else {
       showToast("Download failed", "error");
