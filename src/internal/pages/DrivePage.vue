@@ -381,44 +381,16 @@
           <div v-if="canUseLocalMultiSelect" class="flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px" @click.stop>
             <UiCheckbox boxed :model-value="isLocalFileSelected(file)" @update:model-value="(checked: boolean) => setLocalFileSelected(file, checked)" />
           </div>
-          <div class="flex-align-justify-center size-32px color-text-secondary border-radius-6px bg-transparent flex-shrink-0" :class="getFileTypeClass(file)">
-            <!-- Show small thumbnail for images -->
-            <img
-              v-if="isImageFile(file.name)"
-              :src="getImageSrc(file)"
-              :alt="file.name"
-              class="w-full h-full object-fit-cover border-radius-4px"
-              loading="lazy"
-              decoding="async"
-              fetchpriority="low"
-              @error="() => onImageError(file)"
-            />
-            <video
-              v-else-if="isVideoFile(file.name)"
-              :src="getGatewayUrl(contentTargetFor(file))"
-              class="w-full h-full object-fit-cover border-radius-4px bg-secondary block"
-              :poster="videoPosterFor(file)"
-              preload="metadata"
-              muted
-              playsinline
-              @loadeddata="markVideoThumbReady(file)"
-            ></video>
-            <img
-              v-else-if="isHlsEntry(file)"
-              :src="videoPosterFor(file) || ''"
-              :alt="file.name"
-              class="w-full h-full object-fit-cover border-radius-4px"
-              loading="lazy"
-              decoding="async"
-              fetchpriority="low"
-            />
-            <component
-              v-else
-              :is="getFileIcon(file)"
-              :size="20"
-              stroke-width="1.5"
-            />
-          </div>
+          <DriveEntryThumbnail
+            :file="file"
+            container-class="flex-align-justify-center size-32px color-text-secondary border-radius-6px bg-transparent flex-shrink-0"
+            :image-src="getImageSrc(file)"
+            :video-src="getGatewayUrl(contentTargetFor(file))"
+            :poster="videoPosterFor(file)"
+            :icon="getFileIcon(file)"
+            @image-error="onImageError(file)"
+            @video-ready="markVideoThumbReady(file)"
+          />
           <span class="flex-1 text-14px fw-500 color-text-primary min-w-0 truncate">{{ file.name }}</span>
           <span class="color-text-secondary w-80px text-right text-13px flex-shrink-0 min-w-80px">{{ formatSize(file.size) }}</span>
           <span class="color-text-secondary text-right text-13px flex-shrink-0 truncate min-w-180px w-180px">{{
@@ -524,40 +496,16 @@
         </UiButton>
       </div>
 
-      <div class="h-160px flex-align-justify-center border-radius-12px mb-20px color-text-tertiary bg-secondary overflow-hidden border-1-light" :class="getFileTypeClass(selectedFile)">
-        <!-- Show actual image preview in detail panel -->
-        <img
-          v-if="isImageFile(selectedFile.name)"
-          :src="getImageSrc(selectedFile)"
-          :alt="selectedFile.name"
-          class="object-fit-contain w-full h-full border-radius-12px"
-          decoding="async"
-          @error="() => selectedFile && onImageError(selectedFile)"
-        />
-        <!-- Show video preview in detail panel -->
-        <video
-          v-else-if="isVideoFile(selectedFile.name)"
-          :src="getGatewayUrl(contentTargetFor(selectedFile))"
-          class="object-fit-contain w-full h-full border-radius-12px"
-          controls
-          muted
-          playsinline
-        ></video>
-        <img
-          v-else-if="isHlsEntry(selectedFile)"
-          :src="videoPosterFor(selectedFile) || ''"
-          :alt="selectedFile.name"
-          class="object-fit-contain w-full h-full border-radius-12px"
-          decoding="async"
-        />
-        <!-- Show icon for other files -->
-        <component
-          v-else
-          :is="getFileIcon(selectedFile)"
-          :size="48"
-          stroke-width="1.5"
-        />
-      </div>
+      <DriveEntryThumbnail
+        :file="selectedFile"
+        variant="preview"
+        container-class="h-160px flex-align-justify-center border-radius-12px mb-20px color-text-tertiary bg-secondary overflow-hidden border-1-light"
+        :image-src="getImageSrc(selectedFile)"
+        :video-src="getGatewayUrl(contentTargetFor(selectedFile))"
+        :poster="videoPosterFor(selectedFile)"
+        :icon="getFileIcon(selectedFile)"
+        @image-error="selectedFile && onImageError(selectedFile)"
+      />
 
       <div class="flex flex-column gap-16px mb-20px">
         <div class="flex flex-column gap-4px">
@@ -668,14 +616,6 @@ import {
   Trash2,
   X,
   Share2,
-  FileText,
-  FileImage,
-  FileVideo,
-  FileAudio,
-  FileArchive,
-  BookOpen,
-  Folder,
-  File,
   Pause,
   Play,
   TableProperties,
@@ -722,6 +662,14 @@ import {
 import JSZip from "jszip";
 import { useToast } from "../../composables/useToast";
 import type { DriveFile } from "../../types/upload";
+import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
+import {
+  DRIVE_ENTRY_ICONS,
+  driveEntryKindFromName,
+  isHlsEntry,
+  isImageFile,
+  isVideoFile,
+} from "../services/driveEntries";
 import type {
   HlsQueueItemStatus,
   HlsQueueItem,
@@ -1235,19 +1183,6 @@ function contentTargetFor(file: DriveFile): string {
   return String(file?.cid || "").trim();
 }
 
-function isHlsEntry(file: DriveFile | null | undefined): boolean {
-  const rel = String(file?.relPath || "")
-    .replace(/\\/g, "/")
-    .replace(/^\/+/, "")
-    .replace(/\/+$/, "")
-    .toLowerCase();
-  if (rel.endsWith(".m3u8")) return true;
-
-  const name = String(file?.name || "").trim();
-  const lower = name.toLowerCase();
-  if (lower.endsWith(".m3u8")) return true;
-  return /\s-\s*hls$/i.test(name);
-}
 
 function openTargetFor(file: DriveFile): string {
   const target = contentTargetFor(file);
@@ -4918,30 +4853,6 @@ async function removeFile(file: DriveFile) {
   showToast("Remove failed", "error");
 }
 
-function getFileTypeClass(file: DriveFile | null | undefined): string {
-  if (isDirEntry(file)) return "type-folder";
-  if (isHlsEntry(file)) return "type-video";
-  const name = String(file?.name || "");
-  const ext = name.split(".").pop()?.toLowerCase() || "";
-  if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext))
-    return "type-image";
-  if (["mp4", "webm", "mov", "avi", "mkv"].includes(ext)) return "type-video";
-  if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return "type-audio";
-  if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return "type-archive";
-  if (["epub"].includes(ext) || isEpubFile(file)) return "type-book";
-  if (["pdf", "doc", "docx", "txt", "md"].includes(ext)) return "type-document";
-  return "type-file";
-}
-
-function isImageFile(name: string): boolean {
-  const ext = name.split(".").pop()?.toLowerCase() || "";
-  return ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext);
-}
-
-function isVideoFile(name: string): boolean {
-  const ext = name.split(".").pop()?.toLowerCase() || "";
-  return ["mp4", "webm", "mov", "avi", "mkv"].includes(ext);
-}
 
 function videoPosterFor(file: DriveFile): string | undefined {
   const key = contentTargetFor(file);
@@ -5085,18 +4996,12 @@ async function onImageError(file: DriveFile) {
 }
 
 function getFileIcon(file: DriveFile | null | undefined) {
-  if (isDirEntry(file)) return Folder;
-  if (isHlsEntry(file)) return FileVideo;
-  const name = String(file?.name || "");
-  const ext = name.split(".").pop()?.toLowerCase() || "";
-  if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext))
-    return FileImage;
-  if (["mp4", "webm", "mov", "avi", "mkv"].includes(ext)) return FileVideo;
-  if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return FileAudio;
-  if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return FileArchive;
-  if (["epub"].includes(ext) || isEpubFile(file)) return BookOpen;
-  if (["pdf", "doc", "docx", "txt", "md"].includes(ext)) return FileText;
-  return File;
+  if (isDirEntry(file)) return DRIVE_ENTRY_ICONS.folder;
+  if (isHlsEntry(file)) return DRIVE_ENTRY_ICONS.video;
+  const kind = driveEntryKindFromName(String(file?.name || ""), {
+    book: isEpubFile(file),
+  });
+  return DRIVE_ENTRY_ICONS[kind];
 }
 
 function formatSize(bytes: number): string {
