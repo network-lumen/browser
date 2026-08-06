@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     panel-class="sitemodal-send w-min-520px-92vw max-h-100vh-32px"
     :closable="!sending"
@@ -18,7 +19,6 @@
             <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
 
-          <UiBanner v-if="error" variant="error" class="mb-12px">{{ error }}</UiBanner>
 
           <UiFormGroup label="From" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <input class="w-full border-radius-10px color-text-primary text-14px border-default py-10px px-12px bg-secondary" type="text" :value="activeAddress || '-'" readonly />

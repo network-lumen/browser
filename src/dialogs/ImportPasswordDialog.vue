@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     title="Encrypted Backup"
     panel-class="min-w-360px max-w-90vw"
@@ -29,9 +30,6 @@
             </UiFormGroup>
           </div>
 
-          <div v-if="error" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
-            {{ error }}
-          </div>
   </UiDialog>
 </template>
 

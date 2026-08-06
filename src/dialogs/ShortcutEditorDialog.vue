@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-512px-full"
     @update:model-value="$emit('update:modelValue', false)"
@@ -30,9 +31,6 @@
 
           <UiCheckbox v-model="draft.pinned">Mark this shortcut as favourite</UiCheckbox>
 
-          <div v-if="error" class="color-error txt-weight-light text-14px">
-            {{ error }}
-          </div>
         </div>
 
     <template #confirm>{{ mode === "create" ? "Add shortcut" : "Save changes" }}</template>

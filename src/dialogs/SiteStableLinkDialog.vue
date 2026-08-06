@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     panel-class="w-min-520px-92vw max-h-100vh-32px"
     :closable="!saving"
@@ -17,7 +18,6 @@
           <UiBanner variant="info" v-if="siteLabel">
             <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
-          <UiBanner v-if="error" variant="error" class="mb-12px">{{ error }}</UiBanner>
 
           <div class="border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
             <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">

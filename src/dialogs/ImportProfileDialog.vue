@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     title="Import profile"
     panel-class="min-w-360px max-w-90vw w-min-560px-92vw"
@@ -136,9 +137,6 @@
             </p>
           </div>
 
-          <div v-if="error" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
-            {{ error }}
-          </div>
 
     <template #confirm><span v-if="!busy">{{ mode === 'file' ? 'Choose file…' : 'Import' }}</span>
         <span v-else class="flex-inline-align-justify-center gap-8px"><UiSpinner size="sm" /> Importing…</span></template>
