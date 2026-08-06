@@ -57,7 +57,6 @@
 .hover-border-primary-a30:hover { border-color: var(--primary-a30); }
 .hover-border-radius-6px:hover { border-radius: 6px; }
 .hover-color-accent:hover { color: var(--color-primary); }
-.hover-color-accent-secondary:hover { color: var(--color-secondary); }
 .hover-color-error:hover { color: var(--color-error); }
 .hover-color-primary:hover { color: var(--color-primary); }
 .hover-color-text-primary:hover { color: var(--text-primary); }

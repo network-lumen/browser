@@ -370,7 +370,7 @@
                   <TxStatusPill :success="tx.success" />
                 </div>
                 <div class="flex-align-center text-14px">
-                  <span class="transition-color-02 hover-underline color-primary txt-weight-light cursor-pointer text-13px hover-color-accent-secondary" @click="navigateToBlock(tx.height)">{{ formatNumber(tx.height) }}</span>
+                  <BlockHeightLink :height="tx.height" @open="navigateToBlock(tx.height)" />
                 </div>
                 <div class="flex-align-center text-14px">
                   <span class="text-12px color-text-primary fw-500 mono">{{ tx.fee || '—' }}</span>
@@ -410,7 +410,7 @@
                     </div>
                     <div class="flex flex-column gap-4px">
                       <span class="txt-weight-light color-text-primary text-18px">{{ validator.moniker }}</span>
-                      <span class="transition-color-02 color-text-tertiary cursor-pointer mt-8px pt-12px text-11px border-top-1 mono hover-color-primary" @click.stop="copyToClipboard(validator.address, 'Validator address')" title="Click to copy address">{{ shortenAddress(validator.address) }}</span>
+                      <AddressLabel :address="validator.address" copyable class="mt-8px pt-12px border-top-1" @copy="copyToClipboard(validator.address, 'Validator address')" />
                     </div>
                   </div>
                 </div>
@@ -566,7 +566,7 @@ import BlockDetailPage from './BlockDetailPage.vue';
 import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../profilesStore';
-import { formatNumber, truncateMiddle } from '../services/format';
+import { formatNumber } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
 import CastVoteDialog from '../../dialogs/CastVoteDialog.vue';
@@ -591,6 +591,8 @@ import { useTabNavigation, useTabState } from '../../composables/useTabNavigatio
 import TxStatusPill from '../../entities/TxStatusPill.vue';
 import TxHashLink from '../../entities/TxHashLink.vue';
 import TxTypeBadge from '../../entities/TxTypeBadge.vue';
+import BlockHeightLink from '../../entities/BlockHeightLink.vue';
+import AddressLabel from '../../entities/AddressLabel.vue';
 const toast = useToast();
 const lumen = useInternalLumen();
 const { navigate, openInNewTab } = useTabNavigation();
@@ -1333,10 +1335,6 @@ function formatTimeAgo(timestamp: string): string {
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return `${Math.floor(diff / 86400)}d ago`;
-}
-
-function shortenAddress(address: string): string {
-  return truncateMiddle(address, { start: 12, end: 8 });
 }
 
 function formatVotingPower(tokens: string): string {
