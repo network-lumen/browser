@@ -26,9 +26,7 @@
             </span>
           </UiDetailRow>
           <UiDetailRow label="Block Height:">
-            <span class="underline cursor-pointer color-primary text-14px break-all hover-color-accent-secondary" @click="navigateToBlock(transaction.height)">
-              {{ transaction.height }}
-            </span>
+            <BlockHeightLink :height="transaction.height" size-class="text-14px" @open="navigateToBlock(transaction.height)" />
           </UiDetailRow>
           <UiDetailRow label="Time:" :value="transaction.time" />
           <UiDetailRow label="Gas Used:" :value="formatNumber(transaction.gasUsed)" />
@@ -99,6 +97,8 @@ import { explorerBlockUrl } from '../services/explorerLinks';
 import { errorMessage } from '../services/coerce';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 import TxStatusPill from '../../entities/TxStatusPill.vue';
+import BlockHeightLink from '../../entities/BlockHeightLink.vue';
+
 const loading = ref(true);
 const error = ref('');
 const pending = ref(false);

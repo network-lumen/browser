@@ -53,7 +53,7 @@
                 </div>
                 <div class="flex flex-column gap-4px">
                   <div class="color-text-primary txt-weight-light text-14px">{{ delegation.validatorMoniker || delegation.validator }}</div>
-                  <div class="color-text-tertiary text-12px mono">{{ shortenAddress(delegation.validator) }}</div>
+                  <AddressLabel :address="delegation.validator" />
                 </div>
               </div>
               <div class="color-text-primary txt-weight-light text-14px">
@@ -78,7 +78,7 @@
                   <TxHashLink :hash="tx.hash" @open="navigateToTx(tx.hash)" />
                 </div>
                 <div class="flex gap-16px color-text-tertiary text-12px">
-                  <span class="hover-underline cursor-pointer color-primary" @click="navigateToBlock(tx.height)">Block {{ tx.height }}</span>
+                  <BlockHeightLink :height="tx.height" prefixed size-class="text-12px" @open="navigateToBlock(tx.height)" />
                   <span>{{ tx.time }}</span>
                 </div>
               </div>
@@ -110,13 +110,16 @@ import { Clock, Activity } from 'lucide-vue-next';
 import { ref, onMounted, computed, watch } from 'vue';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { formatMicroAmount, truncateMiddle } from '../services/format';
+import { formatMicroAmount } from '../services/format';
 import { explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
 
 import { errorMessage } from '../services/coerce';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 import TxStatusPill from '../../entities/TxStatusPill.vue';
 import TxHashLink from '../../entities/TxHashLink.vue';
+import BlockHeightLink from '../../entities/BlockHeightLink.vue';
+import AddressLabel from '../../entities/AddressLabel.vue';
+
 const loading = ref(true);
 const error = ref('');
 const notFound = ref(false);
@@ -146,10 +149,6 @@ function navigateToBlock(height: number) {
 
 function formatAmount(amount: string | number): string {
   return formatMicroAmount(amount, { decimals: 6, trimTrailingZeros: false, empty: '0' });
-}
-
-function shortenAddress(addr: string): string {
-  return truncateMiddle(addr, { start: 10, end: 8 });
 }
 
 function getValidatorColor(validator: string): string {
