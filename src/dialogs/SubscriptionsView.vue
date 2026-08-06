@@ -107,7 +107,9 @@
 
           <div class="mb-16px">
             <UiDetailRow variant="compact" label="Next due:" :value="formatDate(payment.nextPaymentDate)" />
-            <UiDetailRow variant="compact" label="Recipient:" :value="formatAddress(payment.recipient)" value-class="color-text-primary mono text-12px fw-500" />
+            <UiDetailRow variant="compact" label="Recipient:">
+              <AddressLabel :address="payment.recipient" tone-class="color-text-primary text-12px fw-500" />
+            </UiDetailRow>
             <UiDetailRow variant="compact" label="Sent so far:" :value="String(payment.successfulPayments)" />
           </div>
 
@@ -218,7 +220,8 @@ import {
 import RecurringPaymentModal from './RecurringPaymentModal.vue';
 import QrScanner from './QrScanner.vue';
 import { getRecurringPaymentsService, type RecurringPayment, type PaymentHistory } from '../internal/services/recurringPayments';
-import { formatDate, formatDateTime, formatDecimal, truncateMiddle } from '../internal/services/format';
+import { formatDate, formatDateTime, formatDecimal, shortenAddress } from '../internal/services/format';
+import AddressLabel from '../entities/AddressLabel.vue';
 
 import { errorMessage } from '../internal/services/coerce';
 const emit = defineEmits<{
@@ -409,7 +412,7 @@ function formatAmount(amount: number): string {
 }
 
 function formatAddress(address: string): string {
-  return truncateMiddle(address, { start: 8, end: 6 });
+  return shortenAddress(address);
 }
 
 function formatRelativeDate(date: Date): string {

@@ -4,7 +4,7 @@
     :class="sizeClass"
     :title="`Block ${formatted}`"
     @click="$emit('open')"
-  >{{ prefixed ? `Block ${formatted}` : formatted }}</span>
+  >{{ prefixed ? `#${formatted}` : formatted }}</span>
 </template>
 
 <script setup lang="ts">
@@ -22,14 +22,16 @@ import { formatNumber } from '../internal/services/format';
  * others underline on hover.
  *
  * The number is always separated now, because a chain height passes six
- * digits early and is unreadable without it. `prefixed` keeps the word for
+ * digits early and is unreadable without it. `prefixed` adds the "#" for
  * places where the value sits among other metadata and needs saying what it
- * is; elsewhere the column heading already does that.
+ * is; elsewhere the column heading already does that. "#" rather than the
+ * word "Block" because the card headings on the network page spell it that
+ * way in three places, against one for the word.
  */
 const props = withDefaults(
   defineProps<{
     height: number | string;
-    /** Prepends "Block", for lists where the value is otherwise unlabelled. */
+    /** Prepends "#", for lists where the value is otherwise unlabelled. */
     prefixed?: boolean;
     sizeClass?: string;
   }>(),

@@ -174,3 +174,20 @@ export function truncateMiddle(value: string, options: TruncateMiddleOptions = {
   if (raw.length <= start + end + separator.length) return raw;
   return `${raw.slice(0, start)}${separator}${raw.slice(-end)}`;
 }
+
+/**
+ * A chain address, cut short.
+ *
+ * The lengths are here rather than at each call site because the app was
+ * cutting the same address four different ways - 12/8, 10/8, 10/6, 8/6 - and
+ * two of those lived in files that also rendered the full-length version
+ * nearby, so one address read two ways on a single screen. `truncateMiddle`
+ * carries the algorithm; this carries the decision.
+ *
+ * Prefer the AddressLabel component where the address is being drawn. This is
+ * for the places that need a string instead: a confirmation prompt, a display
+ * name falling back to the raw address.
+ */
+export function shortenAddress(address: string): string {
+  return truncateMiddle(address, { start: 12, end: 8 });
+}

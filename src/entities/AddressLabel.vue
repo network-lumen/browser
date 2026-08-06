@@ -1,7 +1,7 @@
 <template>
   <span
-    class="mono color-text-tertiary text-11px"
-    :class="copyable ? 'cursor-pointer transition-color-02 hover-color-primary' : ''"
+    class="mono"
+    :class="[toneClass, copyable ? 'cursor-pointer transition-color-02 hover-color-primary' : '']"
     :title="copyable ? `${address} — click to copy` : address"
     @click="copyable ? $emit('copy') : undefined"
   >{{ shortened }}</span>
@@ -9,27 +9,31 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { truncateMiddle } from '../internal/services/format';
+import { shortenAddress } from '../internal/services/format';
 
 /**
  * A chain address shown under whatever it belongs to - a validator moniker,
- * an owner, a payout target.
+ * a gateway operator, a payout target.
  *
- * Two places showed one, truncated to different lengths (12/8 against 10/8)
- * and only one of them offering to copy, with no hint on the other that the
- * full value existed at all. Both now truncate the same way and carry the
- * whole address in their title.
+ * Four places drew one, cut to four different lengths (12/8, 10/8, 10/6, 8/6),
+ * and only one of them offered to copy, with nothing on the others to suggest
+ * the full value existed. They all cut the same way now and carry the whole
+ * address in their title.
+ *
+ * The type scale stays a prop because it genuinely varies - a sublabel under a
+ * validator name is smaller than a table cell - but the truncation does not,
+ * and neither does being monospaced.
  *
  * Copying is opt-in rather than always on: the caller owns the clipboard and
- * the toast that follows, and a non-interactive label should not look
+ * the toast that follows, and a label nobody can click should not look
  * clickable.
  */
 const props = withDefaults(
-  defineProps<{ address: string; copyable?: boolean }>(),
-  { copyable: false }
+  defineProps<{ address: string; copyable?: boolean; toneClass?: string }>(),
+  { copyable: false, toneClass: 'color-text-tertiary text-11px' }
 );
 
 defineEmits<{ (e: 'copy'): void }>();
 
-const shortened = computed(() => truncateMiddle(props.address, { start: 12, end: 8 }));
+const shortened = computed(() => shortenAddress(props.address));
 </script>
