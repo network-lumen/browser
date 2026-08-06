@@ -14,7 +14,20 @@ export type OpenExtensionPopup = (input: any) => void;
 export type SetTabFavicon = (icon: string | null) => void;
 
 /** What `MainScreen` and `TabBar` provide to everything rendered inside a tab. */
+export type TabOpenOptions = {
+  /** Open in a new tab instead of here. */
+  blank?: boolean;
+  /** Add a history entry. Ignored when opening in a new tab. */
+  push?: boolean;
+};
+
 export type TabNavigation = {
+  /**
+   * Go to a URL, wherever the caller is. Prefer this over reaching for
+   * `navigate` or `openInNewTab` directly - it falls back to whichever one
+   * exists, which is the whole of what five hand-written helpers used to do.
+   */
+  open: (url: string, options?: TabOpenOptions) => void;
   navigate: TabNavigate | null;
   openInNewTab: TabOpenInNewTab | null;
   openExtensionPopup: OpenExtensionPopup | null;

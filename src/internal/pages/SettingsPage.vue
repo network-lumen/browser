@@ -136,7 +136,7 @@
               {{ historyEntries.length }} history item{{ historyEntries.length === 1 ? '' : 's' }}
               saved for {{ activeHistoryProfileDisplay }}.
             </template>
-            <UiButton variant="secondary" @click="openInNewTabSafe('lumen://history')" class="disabled-fade-50">
+            <UiButton variant="secondary" @click="open('lumen://history', { blank: true })" class="disabled-fade-50">
               Open history
             </UiButton>
           </UiOptionRow>
@@ -771,19 +771,19 @@
             <a
               href="https://lumen-browser.com/"
               class="color-primary fw-500 text-14px hover-underline"
-              @click.prevent="openInNewTabSafe('https://lumen-browser.com/')"
+              @click.prevent="open('https://lumen-browser.com/', { blank: true })"
               >Website</a
             >
             <a
               href="https://github.com/network-lumen"
               class="color-primary fw-500 text-14px hover-underline"
-              @click.prevent="openInNewTabSafe('https://github.com/network-lumen')"
+              @click.prevent="open('https://github.com/network-lumen', { blank: true })"
               >GitHub</a
             >
             <a
               href="lumen://help"
               class="color-primary fw-500 text-14px hover-underline"
-              @click.prevent="openInNewTabSafe('lumen://help')"
+              @click.prevent="open('lumen://help', { blank: true })"
               >Documentation</a
             >
           </div>
@@ -870,15 +870,7 @@ import { isPasswordLongEnough } from '../services/passwordPolicy';
 const toast = useToast();
 const appVersion = String((pkg as any)?.version || '0.0.0');
 
-const { navigate, openInNewTab } = useTabNavigation();
-
-function openInNewTabSafe(url: string) {
-  if (openInNewTab) {
-    openInNewTab(url);
-    return;
-  }
-  navigate?.(url, { push: true });
-}
+const { open, navigate } = useTabNavigation();
 
 function onHistoryToggleChange(enabled: boolean) {
   setHistoryEnabled(enabled);

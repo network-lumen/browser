@@ -421,7 +421,7 @@ const toast = useToast();
 
 const { currentTabUrl, currentTabRefresh } = useTabState();
 
-const { navigate, openInNewTab } = useTabNavigation();
+const { open, navigate, openInNewTab } = useTabNavigation();
 const q = ref("");
 const selectedType = ref<SearchType>("site");
 const touched = ref(false);
@@ -1683,14 +1683,6 @@ function isNoTextPreviewPlaceholder(r: ResultItem): boolean {
   return !String(r.description || "").trim();
 }
 
-function goto(url: string, opts?: { push?: boolean }) {
-  if (navigate) {
-    navigate(url, opts);
-    return;
-  }
-  openInNewTab?.(url);
-}
-
 function normalizeSearchCursor(raw: any): SearchCursor | null {
   if (!raw) return null;
   let cur = raw;
@@ -2281,7 +2273,7 @@ function setType(t: SearchType) {
     runSearch(s, t, { force: true });
     return;
   }
-  goto(nextUrl, { push: false });
+  open(nextUrl, { push: false });
 }
 
 function submit() {
@@ -2294,7 +2286,7 @@ function submit() {
     runSearch(s, selectedType.value, { force: true });
     return;
   }
-  goto(nextUrl, { push: true });
+  open(nextUrl, { push: true });
 }
 
 function cidForViewPing(r: ResultItem): string | null {
@@ -2359,9 +2351,9 @@ async function openResult(r: ResultItem) {
           const nextUrl = encoded ? `lumen://ipfs/${cid}/${encoded}` : `lumen://ipfs/${cid}`;
           if (wantsNewTab) {
             if (openInNewTab) openInNewTab(nextUrl);
-            else goto(nextUrl, { push: true });
+            else open(nextUrl, { push: true });
           } else {
-            goto(nextUrl, { push: true });
+            open(nextUrl, { push: true });
           }
           return;
         }
@@ -2381,9 +2373,9 @@ async function openResult(r: ResultItem) {
           const nextUrl = encoded ? `lumen://ipfs/${cid}/${encoded}` : `lumen://ipfs/${cid}`;
           if (wantsNewTab) {
             if (openInNewTab) openInNewTab(nextUrl);
-            else goto(nextUrl, { push: true });
+            else open(nextUrl, { push: true });
           } else {
-            goto(nextUrl, { push: true });
+            open(nextUrl, { push: true });
           }
           return;
         }
@@ -2396,11 +2388,11 @@ async function openResult(r: ResultItem) {
 
   if (wantsNewTab) {
     if (openInNewTab) openInNewTab(r.url);
-    else goto(r.url, { push: true });
+    else open(r.url, { push: true });
     return;
   }
 
-  goto(r.url, { push: true });
+  open(r.url, { push: true });
 }
 
 const brokenThumbs = ref<Record<string, true>>({});

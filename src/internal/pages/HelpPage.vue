@@ -50,16 +50,16 @@
           <section class="flex flex-column gap-16px">
             <h3 class="color-text-primary txt-weight-medium m-0px text-16px">Get Started</h3>
             <div class="gap-12px grid grid-cols-2">
-              <UiActionCard title="Drive" description="Upload and manage your files" icon-class="color-primary bg-fill-blue" @click="goto('lumen://drive')">
+              <UiActionCard title="Drive" description="Upload and manage your files" icon-class="color-primary bg-fill-blue" @click="open('lumen://drive')">
                 <template #icon><FolderOpen :size="24" /></template>
               </UiActionCard>
-              <UiActionCard title="Domains" description="Register your .lmn domain" icon-class="color-purple bg-purple-a15" @click="goto('lumen://domain')">
+              <UiActionCard title="Domains" description="Register your .lmn domain" icon-class="color-purple bg-purple-a15" @click="open('lumen://domain')">
                 <template #icon><Link2 :size="24" /></template>
               </UiActionCard>
-              <UiActionCard title="Wallet" description="Manage your LMN tokens" icon-class="bg-fill-success color-success" @click="goto('lumen://wallet')">
+              <UiActionCard title="Wallet" description="Manage your LMN tokens" icon-class="bg-fill-success color-success" @click="open('lumen://wallet')">
                 <template #icon><Wallet :size="24" /></template>
               </UiActionCard>
-              <UiActionCard title="Search" description="Discover decentralized content" icon-class="bg-warning-a15 color-warning" @click="goto('lumen://search')">
+              <UiActionCard title="Search" description="Discover decentralized content" icon-class="bg-warning-a15 color-warning" @click="open('lumen://search')">
                 <template #icon><Search :size="24" /></template>
               </UiActionCard>
             </div>
@@ -88,7 +88,7 @@
             <UiTutorialStep :number="2" title="Upload It to Drive">
               Open Drive, upload that folder, then copy its Lumen link — that's your content's address.
               <template #action>
-                <UiButton variant="primary" type="button" @click="goto('lumen://drive')">
+                <UiButton variant="primary" type="button" @click="open('lumen://drive')">
                   <FolderOpen :size="18" />
                   <span>Open Drive</span>
                 </UiButton>
@@ -98,7 +98,7 @@
             <UiTutorialStep :number="3" title="Get a Domain">
               Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.
               <template #action>
-                <UiButton variant="primary" type="button" @click="goto('lumen://domain')">
+                <UiButton variant="primary" type="button" @click="open('lumen://domain')">
                   <Link2 :size="18" />
                   <span>Open Domains</span>
                 </UiButton>
@@ -142,7 +142,7 @@
               description-tag="p"
               description-class="color-text-secondary text-14px line-height-14"
               :arrow-size="18"
-              @click="openInNewTabSafe('https://discord.gg/DwK6V9shKc')"
+              @click="open('https://discord.gg/DwK6V9shKc', { blank: true })"
             >
               <template #icon><MessageCircle :size="28" /></template>
             </UiActionCard>
@@ -158,7 +158,7 @@
               description-tag="p"
               description-class="color-text-secondary text-14px line-height-14"
               :arrow-size="18"
-              @click="openInNewTabSafe('https://github.com/network-lumen/')"
+              @click="open('https://github.com/network-lumen/', { blank: true })"
             >
               <template #icon><Github :size="28" /></template>
             </UiActionCard>
@@ -174,7 +174,7 @@
               description-tag="p"
               description-class="color-text-secondary text-14px line-height-14"
               :arrow-size="18"
-              @click="openInNewTabSafe('lumen://lumen.lmn')"
+              @click="open('lumen://lumen.lmn', { blank: true })"
             >
               <template #icon><Globe :size="28" /></template>
             </UiActionCard>
@@ -252,7 +252,7 @@ const currentTabUrl = inject<ComputedRef<string>>(
   computed(() => 'lumen://help'),
 );
 
-const { navigate, openInNewTab } = useTabNavigation();
+const { open, navigate } = useTabNavigation();
 const currentView = ref<HelpView>('discover');
 
 function normalizeViewFromUrl(rawUrl: string): HelpView {
@@ -310,19 +310,6 @@ function setView(view: HelpView) {
   }
 }
 
-function goto(url: string) {
-  if (!navigate) return;
-  navigate(url, { push: true });
-}
-
-function openInNewTabSafe(url: string) {
-  if (openInNewTab) {
-    openInNewTab(url);
-    return;
-  }
-  goto(url);
-}
-
 watch(
   () => currentTabUrl?.value,
   (u) => {
@@ -352,4 +339,3 @@ function getViewDescription(): string {
   return descs[currentView.value] || '';
 }
 </script>
-

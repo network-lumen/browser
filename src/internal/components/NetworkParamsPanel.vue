@@ -70,8 +70,7 @@ import UiButton from '../../ui/UiButton.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { useToast } from '../../composables/useToast';
-import { copyToClipboard } from '../../composables/useClipboard';
+import { copyToClipboardWithToast } from '../../composables/useClipboard';
 import {
   ChevronDown,
   ChevronRight,
@@ -192,9 +191,7 @@ const loadingAll = computed(() => sections.value.some((s) => s.loading));
 const hasAnyData = computed(() => sections.value.some((s) => s.data));
 const fatalError = ref('');
 
-const toastApi = useToast();
 
-const showToast = toastApi.show;
 
 function toggleSection(id: string) {
   const s = sections.value.find((x) => x.id === id);
@@ -260,8 +257,7 @@ async function refreshAll() {
 
 async function copySection(s: ParamSection) {
   if (!s.data) return;
-  await copyToClipboard(pretty(s.data));
-  showToast(`Copied ${s.title}`);
+  await copyToClipboardWithToast(pretty(s.data));
 }
 
 const allJson = computed(() => {
@@ -271,8 +267,7 @@ const allJson = computed(() => {
 });
 
 async function copyAll() {
-  await copyToClipboard(pretty(allJson.value));
-  showToast('Copied all params');
+  await copyToClipboardWithToast(pretty(allJson.value));
 }
 
 defineExpose({ refreshAll });

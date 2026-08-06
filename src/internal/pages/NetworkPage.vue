@@ -359,7 +359,7 @@
                     <TxHashLink :hash="tx.hash" wide @open="navigateToTransaction(tx.hash)" />
                     <Link class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" :size="14" />
                   </div>
-                  <UiButton variant="icon" @click.stop="copyToClipboard(tx.hash, 'Transaction hash')" title="Copy hash" class="size-24px">
+                  <UiButton variant="icon" @click.stop="copyToClipboardWithToast(tx.hash)" title="Copy hash" class="size-24px">
                     <Copy :size="14" />
                   </UiButton>
                 </div>
@@ -410,7 +410,7 @@
                     </div>
                     <div class="flex flex-column gap-4px">
                       <span class="txt-weight-light color-text-primary text-18px">{{ validator.moniker }}</span>
-                      <AddressLabel :address="validator.address" copyable class="mt-8px pt-12px border-top-1" @copy="copyToClipboard(validator.address, 'Validator address')" />
+                      <AddressLabel :address="validator.address" copyable class="mt-8px pt-12px border-top-1" @copy="copyToClipboardWithToast(validator.address)" />
                     </div>
                   </div>
                 </div>
@@ -1621,10 +1621,6 @@ async function confirmStakeAction() {
 watch(stakePercentage, (newVal) => {
   setStakePercentage(newVal);
 });
-
-async function copyToClipboard(text: string, label: string = 'Text') {
-  await copyToClipboardWithToast(text, `${label} copied to clipboard`);
-}
 
 function initializeCharts() {
   if (currentView.value !== 'overview') return;

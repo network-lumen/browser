@@ -219,6 +219,7 @@ import { profilesState, activeProfileId } from '../profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';
+import { copyToClipboardWithToast } from '../../composables/useClipboard';
 import { loadStableLinkRecords } from '../services/contentResolver';
 import type { DomainRow, RawDomainRow, SettingsRecord , DomainRegisterForm } from '../../types/domainPage';
 
@@ -526,37 +527,10 @@ function openRawDomain(d: RawDomainRow) {
   openInNewTab?.(url);
 }
 
-async function copyTextToClipboard(text: string): Promise<boolean> {
-  const value = String(text || '');
-  if (!value) return false;
-  try {
-    await navigator.clipboard.writeText(value);
-    return true;
-  } catch {
-    // Electron pages can deny navigator.clipboard depending on origin and focus.
-  }
-
-  try {
-    const api = useInternalLumen();
-    if (typeof api?.clipboardWriteText === 'function') {
-      const result = await api.clipboardWriteText(value);
-      return result === true || result?.ok === true;
-    }
-  } catch (e) {
-    console.error('[domains] electron clipboard failed', e);
-  }
-  return false;
-}
-
 async function copyRawDomainUrl(d: RawDomainRow) {
   const url = rawDomainUrl(d);
   if (!url) return;
-  const ok = await copyTextToClipboard(url);
-  if (ok) {
-    showToast('Ugly domain URL copied.', 'success');
-  } else {
-    showToast('Failed to copy ugly domain URL.', 'error');
-  }
+  await copyToClipboardWithToast(url);
 }
 
 async function exportStableLink(d: RawDomainRow) {
@@ -825,13 +799,7 @@ function openDomain(d: DomainRow) {
 }
 
 async function copyDomainUrl(d: DomainRow) {
-  const url = `lumen://${d.name}`;
-  const ok = await copyTextToClipboard(url);
-  if (ok) {
-    showToast('Domain URL copied to clipboard', 'success');
-  } else {
-    showToast('Failed to copy domain URL', 'error');
-  }
+  await copyToClipboardWithToast(`lumen://${d.name}`);
 }
 
 function openRegisterModal() {

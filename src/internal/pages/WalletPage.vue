@@ -184,7 +184,7 @@
                     aria-label="Refresh this asset" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                     <RefreshCw :size="14" :class="{ spinning: assetRowRefreshingId === asset.id }" />
                   </UiButton>
-                  <UiButton variant="secondary" @click="copyToClipboard(asset.ownerAddress, 'Address copied!')"
+                  <UiButton variant="secondary" @click="copyToClipboardWithToast(asset.ownerAddress)"
                     title="Copy chain address"
                     aria-label="Copy chain address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                     <Copy :size="14" />
@@ -448,7 +448,7 @@
                 </template>
               </span>
               <UiButton variant="icon" icon-radius-class="border-radius-10px" v-if="tx.from"
-                @click.stop="copyToClipboard(tx.from, 'Address copied!')"
+                @click.stop="copyToClipboardWithToast(tx.from)"
                 title="Copy address"
                 aria-label="Copy from address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                 <Copy :size="14" />
@@ -468,7 +468,7 @@
                 </template>
               </span>
               <UiButton variant="icon" icon-radius-class="border-radius-10px" v-if="tx.to"
-                @click.stop="copyToClipboard(tx.to, 'Address copied!')"
+                @click.stop="copyToClipboardWithToast(tx.to)"
                 title="Copy address"
                 aria-label="Copy to address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                 <Copy :size="14" />
@@ -484,7 +484,7 @@
                 aria-label="Open transaction in new tab" class="disabled-opacity-60-not-allowed-no-transform bg-card-disabled-hover">
                 <ExternalLink :size="14" />
               </UiButton>
-              <UiButton variant="icon" icon-radius-class="border-radius-10px" @click.stop="copyToClipboard(tx.txhash, 'Hash copied!')" title="Copy hash" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
+              <UiButton variant="icon" icon-radius-class="border-radius-10px" @click.stop="copyToClipboardWithToast(tx.txhash)" title="Copy hash" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                 <Copy :size="14" />
               </UiButton>
             </div>
@@ -538,7 +538,7 @@
                 <Send :size="16" />
                 <span>Send</span>
               </UiButton>
-              <UiButton variant="secondary" @click="copyToClipboard(contact.address, 'Address copied!')">
+              <UiButton variant="secondary" @click="copyToClipboardWithToast(contact.address)">
                 <Copy :size="16" />
                 <span>Copy</span>
               </UiButton>
@@ -1813,10 +1813,6 @@ async function executeRecurringPayment(paymentId: string) {
     return;
   }
   showToast(result.error, result.locked ? 'warning' : 'error');
-}
-
-async function copyToClipboard(text: string, message: string = 'Copied to clipboard!') {
-  await copyToClipboardWithToast(text, message);
 }
 
 const showToast = toast.show;
