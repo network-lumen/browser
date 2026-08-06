@@ -21,9 +21,8 @@
           </UiDetailRow>
           <UiDetailRow label="Status:">
             <span class="color-text-primary text-14px break-all">
-              <span class="py-4px px-12px border-radius-full text-12px" :class="transaction.success ? 'bg-fill-success' : 'bg-fill-error'">
-                {{ transaction.success ? '✓ Success' : '✗ Failed' }}
-              </span>
+              <TxStatusPill :success="transaction.success" />
+
             </span>
           </UiDetailRow>
           <UiDetailRow label="Block Height:">
@@ -99,6 +98,7 @@ import { explorerBlockUrl } from '../services/explorerLinks';
 
 import { errorMessage } from '../services/coerce';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
+import TxStatusPill from '../../entities/TxStatusPill.vue';
 const loading = ref(true);
 const error = ref('');
 const pending = ref(false);
