@@ -43,9 +43,9 @@
     </template>
   </SaveToDriveDialog>
 
-  <SiteStableLinkDialog :model-value="!!(current && modalType === 'stableLink')" :site-label="siteLabel" :stable-links="stableLinks" :records="stableLinkRecords" :live-title="stableLinkLiveTitle" :short-stable-ipns="shortStableIpns" :can-submit="canSubmitStableLink" :saving="stableLinkSaving" :loading="stableLinkLoading" :error="stableLinkError" v-model:mode="stableLinkMode" v-model:selected-name="stableLinkSelectedName" v-model:new-label="stableLinkNewLabel" @close="closeStableLink(false)" @submit="submitStableLink" />
+  <SiteStableLinkDialog :model-value="!!(current && modalType === 'stableLink')" :site-label="siteLabel" :stable-links="stableLinks" :records="stableLinkRecords" :live-title="stableLinkLiveTitle" :can-submit="canSubmitStableLink" :saving="stableLinkSaving" :loading="stableLinkLoading" :error="stableLinkError" v-model:mode="stableLinkMode" v-model:selected-name="stableLinkSelectedName" v-model:new-label="stableLinkNewLabel" @close="closeStableLink(false)" @submit="submitStableLink" />
 
-  <SiteStableLinkSetupDialog :model-value="!!(current && modalType === 'stableLinkSetup')" :site-label="siteLabel" :stable-links="stableLinks" :short-stable-ipns="shortStableIpns" :loading="stableLinkSetupLoading" :error="stableLinkSetupError" v-model:selected-name="stableLinkSetupSelectedName" @close="closeStableLinkSetup(false)" @submit="submitStableLinkSetup" />
+  <SiteStableLinkSetupDialog :model-value="!!(current && modalType === 'stableLinkSetup')" :site-label="siteLabel" :stable-links="stableLinks" :loading="stableLinkSetupLoading" :error="stableLinkSetupError" v-model:selected-name="stableLinkSetupSelectedName" @close="closeStableLinkSetup(false)" @submit="submitStableLinkSetup" />
 
   <SiteKeyExportDialog :model-value="!!(current && modalType === 'siteDataKeyExport')" :site-label="siteLabel" :ipns-name="keyFlowIpnsName" @close="closeKeyExport" @confirm="confirmKeyExport" />
 
@@ -569,12 +569,6 @@ const canSubmitStableLink = computed(() => {
   return !!sanitizeStableLinkLabel(stableLinkNewLabel.value);
 });
 
-
-function shortStableIpns(id: string): string {
-  const s = String(id || "").trim();
-  if (s.length <= 16) return s || "-";
-  return `${s.slice(0, 8)}…${s.slice(-6)}`;
-}
 
 function defaultStableLiveLabel(): string {
   const suggested = sanitizeStableLinkLabel(String(current.value?.data?.suggestedName || ""));

@@ -50,7 +50,7 @@
               inputmode="decimal"
               v-model="form.amount"
               placeholder="0.000000"
-              @input="validateAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
+              @input="onAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
             <span class="txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ context.displaySymbol }}</span>
           </UiFormGroup>
 
@@ -81,17 +81,22 @@ import UiSummaryCard from '../ui/UiSummaryCard.vue';
 import UiSummaryRow from '../ui/UiSummaryRow.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { ArrowLeftRight } from 'lucide-vue-next';
+import { maskDecimalInput } from '../internal/services/inputMasks';
 import type { AssetRow, AssetTransferForm, AssetTransferTarget } from '../types/walletPage';
 
 /** Moving an IBC asset to another chain. */
-defineProps<{
+const props = defineProps<{
   modelValue: boolean;
   context: AssetRow | null;
   form: AssetTransferForm;
   selectedTarget: AssetTransferTarget | null;
   canSubmit: boolean;
-  validateAmountInput: (event: Event) => void;
   sending?: boolean;
 }>();
 defineEmits<{ (e: 'update:modelValue', value: boolean): void; (e: 'submit'): void }>();
+
+/** The form object is shared with the page, which is what submits it. */
+function onAmountInput(event: Event) {
+  props.form.amount = maskDecimalInput(event);
+}
 </script>

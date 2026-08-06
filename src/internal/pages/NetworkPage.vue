@@ -535,10 +535,10 @@
     </div>
 
     <!-- ####### EXPLORER: STAKE MANAGEMENT MODAL ####### -->
-    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :popup-style-for="txStatusPopupStyle" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :tx-status="txStatus" :tx-message="txMessage" :tx-hash="txHash" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @reset="txStatus = 'idle'" @set-percentage="setStakePercentage" @view-transaction="viewTransaction(txHash)" />
+    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :tx-status="txStatus" :tx-message="txMessage" :tx-hash="txHash" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @reset="txStatus = 'idle'" @set-percentage="setStakePercentage" @view-transaction="viewTransaction(txHash)" />
 
     <!-- ####### GOVERNANCE: CREATE PROPOSAL MODAL ####### -->
-    <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :template-for-draft="templateForDraft" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :reset-action-draft-values="resetActionDraftValues" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" />
+    <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" />
 
     <!-- ####### GOVERNANCE: VOTE MODAL ####### -->
     <CastVoteDialog :model-value="showVoteModal" v-model:option="voteOption" :is-voting="isVoting" :selected-proposal="selectedProposal" @update:model-value="closeVoteModal" @submit="castVote" />
@@ -576,7 +576,7 @@ import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl, openExplo
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus,  Activity, Network, SlidersHorizontal, FileText } from 'lucide-vue-next';
-import { GOVERNANCE_ACTION_TEMPLATES, findGovernanceActionTemplate } from './governanceActionTemplates';
+import { GOVERNANCE_ACTION_TEMPLATES } from './governanceActionTemplates';
 import type { GovernanceActionDraft } from '../../types/networkGovernance';
 import { useToast } from '../../composables/useToast';
 import { fromBase64, toBech32 } from '@cosmjs/encoding';
@@ -714,11 +714,6 @@ const isProcessingTx = ref(false);
 const txMessage = ref('');
 const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
 
-function txStatusPopupStyle(status: string): Record<string, string> {
-  if (status === 'success') return { border: '2px solid rgba(var(--color-success-rgb), 0.5)' };
-  if (status === 'error') return { border: '2px solid var(--color-error)' };
-  return { border: '2px solid var(--color-primary)' };
-}
 const txHash = ref('');
 
 const bondedTokens = ref<number | null>(null);
@@ -2272,14 +2267,6 @@ const showCreateProposalModal = ref(false);
 const isSubmittingProposal = ref(false);
 const proposalForm = ref<ProposalForm>({ title: '', summary: '', depositLmn: '10' });
 const actionDrafts = ref<GovernanceActionDraft[]>([]);
-
-function templateForDraft(draft: GovernanceActionDraft) {
-  return findGovernanceActionTemplate(draft.templateId);
-}
-
-function resetActionDraftValues(draft: GovernanceActionDraft) {
-  draft.values = {};
-}
 
 function addActionDraft() {
   const first = GOVERNANCE_ACTION_TEMPLATES[0];

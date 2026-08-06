@@ -191,3 +191,12 @@ export function truncateMiddle(value: string, options: TruncateMiddleOptions = {
 export function shortenAddress(address: string): string {
   return truncateMiddle(address, { start: 12, end: 8 });
 }
+
+/**
+ * An IPNS key, cut short. Shorter than an address because it appears inline in
+ * a sentence rather than in a column, and shows an em dash when absent so the
+ * line does not collapse.
+ */
+export function shortenIpnsId(id: string): string {
+  return truncateMiddle(id, { start: 8, end: 6, separator: '…', empty: '-' });
+}

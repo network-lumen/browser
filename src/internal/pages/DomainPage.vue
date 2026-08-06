@@ -177,7 +177,7 @@
       <UglyDomainRecordDialog :model-value="showStableSettingsModal" :cid="stableSettingsCidValue" :loading="stableSettingsLoading" :saving="stableSettingsSaving" @update:model-value="closeStableSettingsModal" @update:cid="stableSettingsCidValue = $event" @submit="saveStableSettings" />
 
       <!-- Register Domain Modal -->
-      <RegisterDomainDialog :model-value="showRegisterModal" :form="registerForm" :can-submit="canRegister" :busy="registering" :sanitize-domain-input="sanitizeDomainInput" :refresh-availability="refreshAvailability" :domain-available="domainAvailable" :dns-total-fee-label="dnsTotalFeeLabel" @update:model-value="closeRegisterModal" @submit="confirmRegister" />
+      <RegisterDomainDialog :model-value="showRegisterModal" :form="registerForm" :can-submit="canRegister" :busy="registering" @refresh-availability="refreshAvailability" :domain-available="domainAvailable" :dns-total-fee-label="dnsTotalFeeLabel" @update:model-value="closeRegisterModal" @submit="confirmRegister" />
 
       <!-- Settings Modal -->
       <DomainSettingsDialog :model-value="showSettingsModal" :records="settingsRecords" :domain="selectedDomain" :expiry-label="selectedDomain ? expiryText(selectedDomain) : ''" :cost-label="settingsCostLabel" :wallet-balance-label="settingsWalletBalanceLabel" :can-submit="canSaveSettings" :busy="savingSettings" :insufficient-balance="settingsInsufficientBalance" @update:model-value="closeSettingsModal" @submit="saveSettings" @add-record="addSettingsRecord" @remove-record="removeSettingsRecord" />
@@ -669,25 +669,6 @@ async function saveStableSettings() {
     await loadRawDomains();
   } finally {
     stableSettingsSaving.value = false;
-  }
-}
-
-function sanitizeDomainInput(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const cursorPos = input.selectionStart;
-  const oldValue = registerForm.value.domainName;
-  // Only allow alphanumeric characters (a-z, A-Z, 0-9) and hyphens (-)
-  const sanitized = oldValue.replace(/[^a-zA-Z0-9-]/g, '');
-  
-  if (sanitized !== oldValue) {
-    registerForm.value.domainName = sanitized;
-    // Restore cursor position after sanitization
-    const removedChars = oldValue.length - sanitized.length;
-    const newPos = Math.max(0, (cursorPos || 0) - removedChars);
-    // Use nextTick to ensure DOM is updated before setting cursor
-    setTimeout(() => {
-      input.setSelectionRange(newPos, newPos);
-    }, 0);
   }
 }
 

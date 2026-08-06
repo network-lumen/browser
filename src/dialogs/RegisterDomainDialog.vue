@@ -7,13 +7,13 @@
               <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                 v-model="form.domainName"
                 placeholder="myname"
-                @input="sanitizeDomainInput"
-                @blur="refreshAvailability" class="flex-12 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                @input="onDomainInput"
+                @blur="$emit('refresh-availability')" class="flex-12 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
               <span class="txt-weight-light color-text-tertiary text-14px">.</span>
               <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
                 v-model="form.ext"
                 placeholder="lmn"
-                @blur="refreshAvailability" class="flex-08 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
+                @blur="$emit('refresh-availability')" class="flex-08 focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
             </div>
             <div
               v-if="form.domainName"
@@ -56,21 +56,28 @@ import UiCard from '../ui/UiCard.vue';
 import UiInput from '../ui/UiInput.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { Plus } from 'lucide-vue-next';
+import { maskDomainInput } from '../internal/services/inputMasks';
 import type { DomainRegisterForm } from '../types/domainPage';
 
 /**
  * Buying a domain. The price quote and whether the wallet can cover it are
  * worked out by the page, which is the only side that talks to the chain.
  */
-defineProps<{
+const props = defineProps<{
   modelValue: boolean;
   form: DomainRegisterForm;
   canSubmit: boolean;
-  sanitizeDomainInput: (event: Event) => void;
-  refreshAvailability: () => void;
   domainAvailable: boolean | null;
   dnsTotalFeeLabel?: string;
   busy?: boolean;
 }>();
-defineEmits<{ (e: 'update:modelValue', value: boolean): void; (e: 'submit'): void }>();
+defineEmits<{
+  (e: 'update:modelValue', value: boolean): void;
+  (e: 'submit'): void;
+  (e: 'refresh-availability'): void;
+}>();
+
+function onDomainInput(event: Event) {
+  props.form.domainName = maskDomainInput(event);
+}
 </script>
