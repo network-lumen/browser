@@ -5,31 +5,14 @@
         <template #icon><Users :size="20" /></template>
       </UiModalHeader>
     </template>
-          <UiFormGroup required label="Name">
-            <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-              v-model="form.name"
-              placeholder="Enter contact name" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-          </UiFormGroup>
 
-          <UiFormGroup required label="Address">
-            <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
-              v-model="form.address"
-              placeholder="lmn1..."
-              :readonly="!!editing" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-          </UiFormGroup>
+    <ContactFields :form="form" :editing="editing" />
 
-          <UiFormGroup label="Note (optional)">
-            <UiInput type="textarea" bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" v-model="form.note"
-              placeholder="Add a note about this contact"
-              rows="3" class="textarea-min-h-80-font-inherit resize-vertical focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary"></UiInput>
-          </UiFormGroup>
-
-          <UiButton variant="primary" @click="$emit('submit')" 
-            :disabled="!form.name || !form.address || saving" class="disabled-fade-50">
-            <Check :size="18" v-if="!saving" />
-            <UiSpinner v-else size="sm" class="spinner-color-white" />
-            <span>{{ saving ? 'Saving...' : (editing ? 'Update Contact' : 'Add Contact') }}</span>
-          </UiButton>
+    <UiButton variant="primary" class="disabled-fade-50 mt-12px" :disabled="!form.name || !form.address || saving" @click="$emit('submit')">
+      <Check v-if="!saving" :size="18" />
+      <UiSpinner v-else size="sm" class="spinner-color-white" />
+      <span>{{ saving ? 'Saving...' : (editing ? 'Update Contact' : 'Add Contact') }}</span>
+    </UiButton>
   </UiModal>
 </template>
 
@@ -37,18 +20,23 @@
 import UiModal from '../ui/UiModal.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiButton from '../ui/UiButton.vue';
-import UiFormGroup from '../ui/UiFormGroup.vue';
-import UiInput from '../ui/UiInput.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
+import ContactFields from '../forms/ContactFields.vue';
 import { Check, Users } from 'lucide-vue-next';
 import type { ContactForm } from '../types/walletPage';
 
-/** Adding or renaming an address-book entry. */
+/**
+ * Adding or renaming an address-book entry.
+ *
+ * Its action sits in the body rather than a footer, which is how this one was
+ * written, so it keeps UiModal directly rather than going through UiDialog.
+ */
 defineProps<{
   modelValue: boolean;
   editing: boolean;
   form: ContactForm;
   saving?: boolean;
 }>();
+
 defineEmits<{ (e: 'update:modelValue', value: boolean): void; (e: 'submit'): void }>();
 </script>
