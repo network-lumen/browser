@@ -743,6 +743,7 @@ import SubscriptionDetailsDialog from "../../dialogs/SubscriptionDetailsDialog.v
 import SitesDataDialog from "../../dialogs/SitesDataDialog.vue";
 import CloudPlansDialog from "../../dialogs/CloudPlansDialog.vue";
 import SubscribeConfirmDialog from "../../dialogs/SubscribeConfirmDialog.vue";
+import { isPasswordLongEnough } from '../services/passwordPolicy';
 const { navigate, openInNewTab } = useTabNavigation();
 const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);
@@ -3365,7 +3366,7 @@ async function confirmDriveBackupExport() {
 
   const password = String(driveBackupExportPassword.value || "");
   const confirm = String(driveBackupExportPasswordConfirm.value || "");
-  if (password.length < 8) {
+  if (!isPasswordLongEnough(password)) {
     driveBackupError.value = driveBackupFriendlyError("weak_password");
     return;
   }
@@ -3474,7 +3475,7 @@ async function decryptDriveBackupImport() {
     driveBackupError.value = driveBackupFriendlyError("missing_password");
     return;
   }
-  if (password.length < 8) {
+  if (!isPasswordLongEnough(password)) {
     driveBackupError.value = driveBackupFriendlyError("weak_password");
     return;
   }

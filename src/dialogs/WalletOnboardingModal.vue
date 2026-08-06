@@ -194,6 +194,7 @@ import { useInternalLumen } from '../composables/useInternalLumen';
 import type { OnboardingStep } from '../types/walletOnboardingModal';
 
 import { errorMessage } from '../internal/services/coerce';
+import { isPasswordLongEnough } from '../internal/services/passwordPolicy';
 const completeReminders = [
   'Never share your password or backup file',
   'Store your backup in multiple secure locations',
@@ -239,7 +240,7 @@ function handleSkipBackup() {
 async function handlePasswordSubmit() {
   passwordError.value = '';
 
-  if (password.value.length < 8) {
+  if (!isPasswordLongEnough(password.value)) {
     passwordError.value = 'Password must be at least 8 characters.';
     return;
   }

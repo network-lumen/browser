@@ -866,6 +866,7 @@ import {
 import type { BootstrapPathState } from '../../types/settingsPage';
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
+import { isPasswordLongEnough } from '../services/passwordPolicy';
 const toast = useToast();
 const appVersion = String((pkg as any)?.version || '0.0.0');
 
@@ -1125,7 +1126,7 @@ async function setSecurityPassword() {
   securityError.value = '';
   securitySuccess.value = '';
   
-  if (newPassword.value.length < 8) {
+  if (!isPasswordLongEnough(newPassword.value)) {
     securityError.value = 'Password must be at least 8 characters.';
     return;
   }
@@ -1161,7 +1162,7 @@ async function changeSecurityPassword() {
   securityError.value = '';
   securitySuccess.value = '';
   
-  if (newPassword.value.length < 8) {
+  if (!isPasswordLongEnough(newPassword.value)) {
     securityError.value = 'New password must be at least 8 characters.';
     return;
   }

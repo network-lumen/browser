@@ -290,6 +290,7 @@ import type { NavBarExtensionSummary, NavBarImportMode , ManualImportForm } from
 import { clamp, errorMessage } from '../internal/services/coerce';
 
 import { useTabNavigation } from '../composables/useTabNavigation';
+import { isPasswordLongEnough } from '../internal/services/passwordPolicy';
 const props = defineProps<{
   tabActive: string;
   tabs: Tab[];
@@ -736,7 +737,7 @@ async function confirmExportProfile() {
         : 'Password is required for encrypted export.';
       return;
     }
-    if (exportPassword.value.length < 6) {
+    if (!isPasswordLongEnough(exportPassword.value)) {
       exportError.value = 'Password must be at least 6 characters.';
       return;
     }
@@ -753,7 +754,7 @@ async function confirmExportProfile() {
   try {
     // Always pass password if user entered one (either for decryption or encryption)
     // Don't rely on needsPassword flag - if there's a password entered, send it
-    const password = exportPassword.value && exportPassword.value.length >= 6 ? exportPassword.value : undefined;
+    const password = exportPassword.value && isPasswordLongEnough(exportPassword.value) ? exportPassword.value : undefined;
     
     // encryptOutput is true when user explicitly wants to encrypt the backup file
     const encryptOutput = exportEncrypted.value;

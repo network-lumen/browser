@@ -99,29 +99,7 @@
                 </div>
               </header>
 
-              <div class="grid gap-y-14px gap-x-16px grid-cols-2-minmax0" v-if="editMap[gw.id]">
-                <UiFormField label="Endpoint" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                  <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].endpoint" placeholder="gateway.city" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                </UiFormField>
-                <UiFormField label="Regions" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                  <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].regions"
-                    placeholder="us-east, eu-west" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                </UiFormField>
-                <UiFormField label="Payout address" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                  <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].payout" placeholder="lmn1..." class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                </UiFormField>
-                <UiFormField label="Active" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                  <UiCheckbox v-model="editMap[gw.id].active" />
-                </UiFormField>
-                <UiFormField class="grid-col-full" label="Metadata (JSON object)" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                  <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].metadata"
-                    rows="7"
-                    placeholder='{\n  "name": "My gateway"\n}' class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary"></UiInput>
-                </UiFormField>
-                <UiFormField class="grid-col-full" label="Memo" label-class="text-12px color-text-tertiary letter-spacing-006em">
-                  <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="editMap[gw.id].memo" placeholder="Optional memo" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-                </UiFormField>
-              </div>
+              <GatewayFields v-if="editMap[gw.id]" :form="editMap[gw.id]" with-active memo-class="grid-col-full" />
 
               <div v-if="editMap[gw.id]?.error" class="mt-12px p-12px border-1-error-a25 bg-error-a08">
                 {{ editMap[gw.id].error }}
@@ -163,11 +141,9 @@
 </template>
 
 <script setup lang="ts">
-import UiInput from '../../ui/UiInput.vue';
-import UiFormField from '../../ui/UiFormField.vue';
-import UiCheckbox from '../../ui/UiCheckbox.vue';
 import UiButton from '../../ui/UiButton.vue';
 import GatewayRegisterDialog from '../../dialogs/GatewayRegisterDialog.vue';
+import GatewayFields from '../../forms/GatewayFields.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
@@ -617,4 +593,3 @@ watch(
   }
 );
 </script>
-
