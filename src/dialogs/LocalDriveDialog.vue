@@ -62,6 +62,10 @@ import UiModal from '../ui/UiModal.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import UiButton from '../ui/UiButton.vue';
+import {
+  formatBytes as formatSize,
+  formatDateTime as formatDate,
+} from '../internal/services/format';
 
 /** What the local IPFS repo holds, and the way in to backing it up. */
 defineProps<{
@@ -70,8 +74,6 @@ defineProps<{
   ipfsConnected: boolean;
   driveBackupLastExportAt: number | null;
   driveBackupLastImportAt: number | null;
-  formatDate: (ts: number) => string;
-  formatSize: (bytes: number) => string;
   localSavedCount: number;
   pinnedFiles: unknown[];
   busy?: boolean;

@@ -96,6 +96,7 @@ import UiCheckbox from '../ui/UiCheckbox.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import type { DriveBackupRestoreDetails } from '../types/drivePage';
 import { isPasswordLongEnough } from '../internal/services/passwordPolicy';
+import { formatDateTime as formatDate } from '../internal/services/format';
 
 /**
  * Restoring a Drive snapshot. `details` is what the file turned out to
@@ -108,7 +109,6 @@ defineProps<{
   password: string;
   activeProfileDisplay: string;
   hasPendingImport: boolean;
-  formatDate: (ts: number) => string;
   details: DriveBackupRestoreDetails | null;
   busy?: boolean;
   error?: string;
