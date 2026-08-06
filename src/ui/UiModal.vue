@@ -3,6 +3,8 @@
     <div
       v-if="modelValue"
       class="fixed inset-0 flex-align-justify-center bg-black-a50 backdrop-blur-4 z-9999"
+      role="dialog"
+      aria-modal="true"
       @click.self="close"
     >
       <div class="bg-card border-radius-16px shadow-lg overflow-hidden flex flex-column max-h-90vh" :class="panelClass" @click.stop>
@@ -26,9 +28,59 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, watch } from 'vue';
 import { X } from 'lucide-vue-next';
 
-withDefaults(defineProps<{
+/**
+ * The shell every modal in the app is drawn in.
+ *
+ * Escape and the scroll lock live here rather than in each caller because
+ * neither existed anywhere: no modal in the app closed on Escape, and the page
+ * behind one kept scrolling under the overlay. Both were uniformly absent,
+ * which is exactly why nobody noticed - now that all 46 dialogs come through
+ * this file, one place fixes all of them.
+ */
+
+/**
+ * Every modal currently open, oldest first.
+ *
+ * Escape has to close the top one only. Dialogs do stack here - the site host
+ * can raise a permission prompt over a page's own modal - so a plain global
+ * listener would have closed all of them at once.
+ */
+const openModals: Array<() => void> = [];
+
+/** Set by whichever modal opened first; restored when the last one closes. */
+let previousBodyOverflow: string | null = null;
+
+function onGlobalKeydown(event: KeyboardEvent) {
+  if (event.key !== 'Escape') return;
+  const top = openModals[openModals.length - 1];
+  if (!top) return;
+  event.stopPropagation();
+  top();
+}
+
+function register(dismiss: () => void) {
+  if (!openModals.length) {
+    previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onGlobalKeydown, true);
+  }
+  openModals.push(dismiss);
+}
+
+function unregister(dismiss: () => void) {
+  const at = openModals.lastIndexOf(dismiss);
+  if (at !== -1) openModals.splice(at, 1);
+  if (!openModals.length) {
+    window.removeEventListener('keydown', onGlobalKeydown, true);
+    document.body.style.overflow = previousBodyOverflow ?? '';
+    previousBodyOverflow = null;
+  }
+}
+
+const props = withDefaults(defineProps<{
   modelValue: boolean;
   title?: string;
   closable?: boolean;
@@ -43,4 +95,27 @@ const emit = defineEmits<{ (e: 'update:modelValue', value: boolean): void }>();
 function close() {
   emit('update:modelValue', false);
 }
+
+/**
+ * Escape is refused while `closable` is false, matching the cross and the
+ * click outside - a dialog that blocks dismissal during a request means it,
+ * and the keyboard is not a way around that.
+ */
+function dismissFromEscape() {
+  if (props.closable) close();
+}
+
+watch(
+  () => props.modelValue,
+  (open, wasOpen) => {
+    if (open === wasOpen) return;
+    if (open) register(dismissFromEscape);
+    else unregister(dismissFromEscape);
+  },
+  { immediate: true }
+);
+
+// A modal unmounted while still open (its whole page went away) would
+// otherwise leave the scroll locked for good.
+onBeforeUnmount(() => unregister(dismissFromEscape));
 </script>
