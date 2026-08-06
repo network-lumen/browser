@@ -371,57 +371,23 @@
           <div class="min-w-160px w-160px"></div>
         </div>
         <!-- List Items -->
-        <div
+        <DriveFileRow
           v-for="file in displayFiles"
           :key="file.cid"
-          class="reveal-on-hover hover-bg-primary-a10 content-visibility-auto-920-56 last-border-bottom-none transition-all-fast flex-align-center gap-12px cursor-pointer py-10px px-16px border-bottom-1-hover-bg"
-          @click="handleEntryClick(file)"
-          :class="{ 'selected bg-fill-blue': selectedFile?.cid === file.cid, 'bg-primary-a05-selected': isLocalFileSelected(file), }"
-        >
-          <div v-if="canUseLocalMultiSelect" class="flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px" @click.stop>
-            <UiCheckbox boxed :model-value="isLocalFileSelected(file)" @update:model-value="(checked: boolean) => setLocalFileSelected(file, checked)" />
-          </div>
-          <DriveEntryThumbnail
-            :file="file"
-            container-class="flex-align-justify-center size-32px color-text-secondary border-radius-6px bg-transparent flex-shrink-0"
-            :image-src="getImageSrc(file)"
-            :video-src="getGatewayUrl(contentTargetFor(file))"
-            :poster="videoPosterFor(file)"
-            :icon="getFileIcon(file)"
-            @image-error="onImageError(file)"
-            @video-ready="markVideoThumbReady(file)"
-          />
-          <span class="flex-1 text-14px fw-500 color-text-primary min-w-0 truncate">{{ file.name }}</span>
-          <span class="color-text-secondary w-80px text-right text-13px flex-shrink-0 min-w-80px">{{ formatSize(file.size) }}</span>
-          <span class="color-text-secondary text-right text-13px flex-shrink-0 truncate min-w-180px w-180px">{{
-            file.uploadedAt ? formatDate(file.uploadedAt) : "—"
-          }}</span>
-          <div class="reveal-actions-target divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-02 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
-            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" v-if="!isBrowsing && isDirEntry(file)"
-              title="Details"
-              @click.stop="openEntryDetails(file)" class="active-scale-98">
-              <TableProperties :size="14" />
-            </UiButton>
-            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Download"
-              @click.stop="downloadFile(file)" class="active-scale-98">
-              <Download :size="14" />
-            </UiButton>
-            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" v-if="!isDirEntry(file) && isVideoFile(file.name)"
-              title="Convert to HLS"
-              :disabled="converting || uploading"
-              @click.stop="convertToHls(file)" class="active-scale-98">
-              <Clapperboard :size="14" />
-            </UiButton>
-            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Share"
-              @click.stop="copyLumenLinkFor(file)" class="active-scale-98">
-              <Share2 :size="14" />
-            </UiButton>
-            <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Remove"
-              @click.stop="removeFile(file)" class="active-scale-98 hover-bg-error bg-error-a08 color-error">
-              <Trash2 :size="14" />
-            </UiButton>
-          </div>
-        </div>
+          :file="file"
+          :thumbnail="thumbnailFor(file)"
+          :selected="selectedFile?.cid === file.cid"
+          :checked="isLocalFileSelected(file)"
+          :selectable="canUseLocalMultiSelect"
+          :is-directory="isDirEntry(file)"
+          :browsing="isBrowsing"
+          :busy="converting || uploading"
+          @open="handleEntryClick(file)"
+          @update:checked="(checked: boolean) => setLocalFileSelected(file, checked)"
+          @action="(kind) => runEntryAction(kind, file)"
+          @image-error="onImageError(file)"
+          @video-ready="markVideoThumbReady(file)"
+        />
       </div>
 
       <!-- Pagination -->
@@ -500,10 +466,7 @@
         :file="selectedFile"
         variant="preview"
         container-class="h-160px flex-align-justify-center border-radius-12px mb-20px color-text-tertiary bg-secondary overflow-hidden border-1-light"
-        :image-src="getImageSrc(selectedFile)"
-        :video-src="getGatewayUrl(contentTargetFor(selectedFile))"
-        :poster="videoPosterFor(selectedFile)"
-        :icon="getFileIcon(selectedFile)"
+        v-bind="thumbnailFor(selectedFile)"
         @image-error="selectedFile && onImageError(selectedFile)"
       />
 
@@ -613,7 +576,6 @@ import {
   Upload,
   Clapperboard,
   ExternalLink,
-  Trash2,
   X,
   Share2,
   Pause,
@@ -663,6 +625,8 @@ import JSZip from "jszip";
 import { useToast } from "../../composables/useToast";
 import type { DriveFile } from "../../types/upload";
 import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
+import DriveFileRow from "../../entities/DriveFileRow.vue";
+import type { DriveEntryAction, DriveThumbnailSources } from "../../types/drive";
 import {
   DRIVE_ENTRY_ICONS,
   driveEntryKindFromName,
@@ -4993,6 +4957,28 @@ async function onImageError(file: DriveFile) {
   } finally {
     imagePreviewInFlight.delete(key);
   }
+}
+
+/**
+ * Everything a row or the detail panel needs to picture an entry. Gathered
+ * here because each piece reads page state - the gateway, the blob preview
+ * cache, the set of videos whose real first frame has arrived.
+ */
+function thumbnailFor(file: DriveFile): DriveThumbnailSources {
+  return {
+    imageSrc: getImageSrc(file),
+    videoSrc: getGatewayUrl(contentTargetFor(file)),
+    poster: videoPosterFor(file),
+    icon: getFileIcon(file),
+  };
+}
+
+function runEntryAction(kind: DriveEntryAction, file: DriveFile) {
+  if (kind === "details") return openEntryDetails(file);
+  if (kind === "download") return downloadFile(file);
+  if (kind === "convert") return convertToHls(file);
+  if (kind === "share") return copyLumenLinkFor(file);
+  if (kind === "remove") return removeFile(file);
 }
 
 function getFileIcon(file: DriveFile | null | undefined) {
