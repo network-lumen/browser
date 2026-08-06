@@ -123,8 +123,7 @@
 .reveal-on-active.active .reveal-color-target { color: var(--text-primary); }
 .reveal-on-hover:hover .reveal-accent-shift-target { color: var(--color-primary); transform: translateX(2px); }
 .reveal-on-hover:hover .reveal-actions-target,
-.reveal-on-hover.selected .reveal-actions-target,
-.reveal-on-hover.checked .reveal-actions-target { opacity: 1; pointer-events: auto; }
+.reveal-on-hover.selected .reveal-actions-target { opacity: 1; pointer-events: auto; }
 .reveal-on-hover:hover .reveal-badge-target { background: var(--primary-a10); border-color: var(--primary-a30); transform: translateY(-1px); }
 .reveal-on-hover:hover .reveal-border-bg-target { border-color: var(--border-color); background: var(--bg-secondary); }
 .reveal-on-hover:hover .reveal-color-accent-target { color: var(--color-primary); }

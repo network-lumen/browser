@@ -104,6 +104,13 @@ let violations = [];
 // multi-selector rules correctly, e.g. `.a,\n.b { ... }`).
 // ---------------------------------------------------------------------------
 function parseCssRules(cssText) {
+  // Comments and statement at-rules (@import "./scale.css";) carry no braces,
+  // so whatever they contain would otherwise accumulate into the selector text
+  // of the rule that follows - a comment mentioning "scale.css" or an @import
+  // both end up declaring a phantom ".css" class.
+  cssText = cssText
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/@(?:import|charset|namespace)[^;]*;/g, '');
   const rules = [];
   let depth = 0;
   let selectorStart = 0;
@@ -145,8 +152,13 @@ const allClassNames = new Map(); // className -> [{file, selectorText}]
     const rules = parseCssRules(text);
     for (const rule of rules) {
       const key = rule.selectorText.replace(/\s+/g, ' ');
-      if (!seenSelectors.has(key)) seenSelectors.set(key, []);
-      seenSelectors.get(key).push(relative(ROOT, file));
+      // Only class rules: :root and * are legitimately declared in more than
+      // one file (custom properties split across theme files, a reset repeated
+      // per layer), and this rule exists for collided class names.
+      if (key.includes('.')) {
+        if (!seenSelectors.has(key)) seenSelectors.set(key, []);
+        seenSelectors.get(key).push(relative(ROOT, file));
+      }
 
       for (const m of rule.selectorText.matchAll(/\.([a-zA-Z][a-zA-Z0-9_-]*)/g)) {
         const cls = m[1];
@@ -182,10 +194,77 @@ const DEAD_CLASS_PREFIX_ALLOWLIST = [
   'ui-toggle-md', 'ui-toggle-sm', // UiToggle.vue: `ui-toggle-${size}`
 ];
 
+// A class can only take effect somewhere a class can be applied: an attribute
+// whose name ends in "class" (class, :class, v-bind:class, and this codebase's
+// dozens of kebab-case overrides like badge-class/tone-class), or a string
+// literal in script that gets handed to classList/a template.
+//
+// Searching the whole file text instead - which this rule used to do - means
+// any class whose name is also an ordinary identifier can never be reported.
+// `.reveal-on-hover.checked` went unnoticed for exactly that reason: nothing
+// applies a "checked" class, but the word appears 25 times across src/ as a
+// prop, an emit and a comment, so the rule saw it everywhere and flagged
+// nothing.
+// A bound attribute (:class, :badge-class) holds a JS expression, so only the
+// string literals inside it are class names - taking the whole expression
+// would count every identifier in it, which is the same mistake in miniature:
+// `:class="{ 'a': checked }"` would otherwise make "checked" look applied.
+function collectAppliedClassTokens() {
+  const tokens = new Set();
+  const parts = [];
+  const anyClassAttrRe = /(:|v-bind:)?([\w.-]*)class="([^"]*)"/g;
+  const stringInExprRe = /'([^'\n]*)'|"([^"\n]*)"|`([^`\n]*)`/g;
+  for (const file of vueFiles) {
+    const text = readFileSync(file, 'utf8');
+    for (const m of text.matchAll(anyClassAttrRe)) {
+      const bound = !!m[1];
+      const value = m[3];
+      if (!bound) {
+        parts.push(value);
+        continue;
+      }
+      for (const s of value.matchAll(stringInExprRe)) {
+        parts.push(s[1] ?? s[2] ?? s[3] ?? '');
+      }
+      // An object key can also be a bare identifier: :class="{ spinning: busy }".
+      for (const k of value.matchAll(/(?:\{|,)\s*([a-zA-Z][\w-]*)\s*:/g)) {
+        parts.push(k[1]);
+      }
+    }
+  }
+  const stringLiteralRe = /'([^'\n]*)'|"([^"\n]*)"|`([^`\n]*)`/g;
+  for (const file of [...vueFiles, ...tsFiles]) {
+    const text = readFileSync(file, 'utf8');
+    const script = (
+      file.endsWith('.vue')
+        ? (text.match(/<script[^>]*>([\s\S]*)<\/script>/)?.[1] ?? '')
+        : text
+    )
+      // Comments first: an apostrophe in prose ("the template's fields") opens a
+      // phantom string literal that runs to the next apostrophe, handing back
+      // whatever words lie between. That is not hypothetical - one comment
+      // reading "fields were checked against docs/governance.md" was on its own
+      // enough to make the ".checked" rule below look applied.
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+    for (const m of script.matchAll(stringLiteralRe)) {
+      parts.push(m[1] ?? m[2] ?? m[3] ?? '');
+    }
+  }
+  // Compare whole whitespace-separated tokens rather than searching concatenated
+  // text: a word-boundary search treats ':' as a boundary, so the literal
+  // 'update:checked' in an $emit would make a ".checked" rule look applied.
+  for (const part of parts) {
+    for (const token of part.split(/\s+/)) {
+      if (token) tokens.add(token);
+    }
+  }
+  return tokens;
+}
+
 {
   const vueText = vueFiles.map((f) => readFileSync(f, 'utf8')).join('\n');
-  const tsText = tsFiles.map((f) => readFileSync(f, 'utf8')).join('\n');
-  const haystack = vueText + '\n' + tsText;
+  const appliedClasses = collectAppliedClassTokens();
 
   // UiPageHeader.vue builds `text-${titleSize}` dynamically from a
   // title-size="Npx" prop - the literal class name never appears as a
@@ -198,9 +277,7 @@ const DEAD_CLASS_PREFIX_ALLOWLIST = [
   for (const [cls, files] of allClassNames) {
     if (DEAD_CLASS_PREFIX_ALLOWLIST.some((p) => cls.startsWith(p))) continue;
     if (dynamicTextSizeClasses.has(cls)) continue;
-    // Word-boundary-safe substring search (avoid `primary` matching inside `primary-a10`).
-    const re = new RegExp(`(?<![a-zA-Z0-9_-])${cls.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![a-zA-Z0-9_-])`);
-    if (!re.test(haystack)) {
+    if (!appliedClasses.has(cls)) {
       violations.push({
         rule: 'no-dead-css-class',
         file: files.join(', '),
