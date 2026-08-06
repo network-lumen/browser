@@ -1,5 +1,14 @@
 <template>
-  <UiModal :model-value="modelValue" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-544px-full" :closable="false" @update:model-value="$emit('dismiss')">
+    <UiDialog
+    :model-value="modelValue"
+    panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-544px-full"
+    :closable="false"
+    cancel-label="Skip"
+    confirm-label="Learn Lumen"
+    @update:model-value="$emit('dismiss')"
+    @confirm="$emit('learn')"
+  >
+
     <div class="flex-align-start gap-16px mb-16px">
       <div class="flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-16px size-48px" aria-hidden="true">
         <Hexagon :size="22" />
@@ -12,21 +21,11 @@
         </p>
       </div>
     </div>
-
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="$emit('dismiss')" class="outline-none">
-        Skip
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="$emit('learn')" class="outline-none">
-        Learn Lumen
-      </UiButton>
-    </template>
-  </UiModal>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
-import UiButton from '../ui/UiButton.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import { Hexagon } from 'lucide-vue-next';
 
 /** First-run welcome on the new-tab page. Copy only; the page decides when. */

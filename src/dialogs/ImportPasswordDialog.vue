@@ -1,5 +1,13 @@
 <template>
-  <UiModal :model-value="modelValue" title="Encrypted Backup" panel-class="min-w-360px max-w-90vw" @update:model-value="$emit('update:modelValue', false)">
+    <UiDialog
+    :model-value="modelValue"
+    title="Encrypted Backup"
+    panel-class="min-w-360px max-w-90vw"
+    confirm-label="Import"
+    @update:model-value="$emit('update:modelValue', false)"
+    @confirm="$emit('submit')"
+  >
+
           <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
             This backup is encrypted. Please enter the password to decrypt and import it.
           </p>
@@ -24,21 +32,11 @@
           <div v-if="error" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
             {{ error }}
           </div>
-
-    <template #footer>
-      <UiButton variant="secondary" class="flex-1" @click="$emit('update:modelValue', false)">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" class="flex-1" @click="$emit('submit')">
-        Import
-      </UiButton>
-    </template>
-  </UiModal>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
-import UiButton from '../ui/UiButton.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiInput from '../ui/UiInput.vue';
 

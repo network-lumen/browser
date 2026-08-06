@@ -1,5 +1,14 @@
 <template>
-  <UiModal :model-value="modelValue" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!saving" @update:model-value="$emit('close')">
+    <UiDialog
+    :model-value="modelValue"
+    panel-class="w-min-520px-92vw max-h-100vh-32px"
+    :closable="!saving"
+    :busy="saving"
+    :confirm-disabled="!canSubmit"
+    @update:model-value="$emit('close')"
+    @confirm="$emit('submit')"
+  >
+
     <template #header>
       <UiModalHeader title="Choose or create a stable link for your live" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
         <template #icon><Link :size="18" /></template>
@@ -58,23 +67,17 @@
           <p class="text-12px color-text-secondary mt-8px">
             The stable link URL will be copied after it is attached to this live.
           </p>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="$emit('close')" :disabled="saving">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="$emit('submit')" :disabled="!canSubmit">
-        <UiSpinnerRing v-if="saving" />
+
+    <template #confirm><UiSpinnerRing v-if="saving" />
         <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
         <Save v-else :size="16" />
-        <span>{{ saving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span>
-      </UiButton>
-    </template>
-  </UiModal>
+        <span>{{ saving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import UiModal from '../ui/UiModal.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiBanner from '../ui/UiBanner.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';

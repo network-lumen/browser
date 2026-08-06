@@ -1,5 +1,14 @@
 <template>
-  <UiModal :model-value="modelValue" panel-class="sitemodal-send w-min-520px-92vw max-h-100vh-32px" :closable="!sending" @update:model-value="$emit('close')">
+    <UiDialog
+    :model-value="modelValue"
+    panel-class="sitemodal-send w-min-520px-92vw max-h-100vh-32px"
+    :closable="!sending"
+    :busy="sending"
+    :confirm-disabled="!canSend"
+    @update:model-value="$emit('close')"
+    @confirm="$emit('submit')"
+  >
+
     <template #header>
       <UiModalHeader title="Send LMN" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
         <template #icon><Send :size="18" /></template>
@@ -32,24 +41,17 @@
           <UiFormGroup label="Memo (optional)" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" :model-value="memo" @update:model-value="$emit('update:memo', $event)" :disabled="sending" />
           </UiFormGroup>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="$emit('close')" :disabled="sending">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="$emit('submit')" :disabled="!canSend">
-        <UiSpinnerRing v-if="sending" />
-        <span>{{ sending ? 'Sending...' : 'Send' }}</span>
-      </UiButton>
-    </template>
-  </UiModal>
+
+    <template #confirm><UiSpinnerRing v-if="sending" />
+        <span>{{ sending ? 'Sending...' : 'Send' }}</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiBanner from '../ui/UiBanner.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
-import UiButton from '../ui/UiButton.vue';
 import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
 import { Send } from 'lucide-vue-next';
 

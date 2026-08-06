@@ -1,5 +1,13 @@
 <template>
-  <UiModal :model-value="modelValue" title="Import profile" panel-class="min-w-360px max-w-90vw w-min-560px-92vw" @update:model-value="$emit('update:modelValue', false)">
+    <UiDialog
+    :model-value="modelValue"
+    title="Import profile"
+    panel-class="min-w-360px max-w-90vw w-min-560px-92vw"
+    :confirm-disabled="busy"
+    @update:model-value="$emit('update:modelValue', false)"
+    @confirm="$emit('submit')"
+  >
+
           <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
             Choose how you want to import your profile.
           </p>
@@ -132,25 +140,13 @@
             {{ error }}
           </div>
 
-    <template #footer>
-      <UiButton variant="secondary" class="flex-1" @click="$emit('update:modelValue', false)">
-        Cancel
-      </UiButton>
-      <UiButton
-        variant="primary"
-        class="flex-1"
-        :disabled="busy"
-        @click="$emit('submit')"
-      >
-        <span v-if="!busy">{{ mode === 'file' ? 'Choose file…' : 'Import' }}</span>
-        <span v-else class="flex-inline-align-justify-center gap-8px"><UiSpinner size="sm" /> Importing…</span>
-      </UiButton>
-    </template>
-  </UiModal>
+    <template #confirm><span v-if="!busy">{{ mode === 'file' ? 'Choose file…' : 'Import' }}</span>
+        <span v-else class="flex-inline-align-justify-center gap-8px"><UiSpinner size="sm" /> Importing…</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiInput from '../ui/UiInput.vue';

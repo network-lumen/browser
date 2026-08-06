@@ -1,5 +1,11 @@
 <template>
-  <UiModal :model-value="modelValue" panel-class="w-min-520px-92vw max-h-100vh-32px" @update:model-value="$emit('close')">
+    <UiDialog
+    :model-value="modelValue"
+    panel-class="w-min-520px-92vw max-h-100vh-32px"
+    @update:model-value="$emit('close')"
+    @confirm="$emit('confirm')"
+  >
+
     <template #header>
       <UiModalHeader title="Export this site identity" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
         <template #icon><KeyRound :size="18" /></template>
@@ -21,22 +27,17 @@
     <p class="text-12px color-text-secondary mt-8px">
       You choose where the file is saved. The page never receives the key itself.
     </p>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="$emit('close')">Cancel</UiButton>
-      <UiButton variant="primary" type="button" @click="$emit('confirm')">
-        <KeyRound :size="16" />
-        <span>Choose a location and export</span>
-      </UiButton>
-    </template>
-  </UiModal>
+
+    <template #confirm><KeyRound :size="16" />
+        <span>Choose a location and export</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiBanner from '../ui/UiBanner.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';
-import UiButton from '../ui/UiButton.vue';
 import { KeyRound } from 'lucide-vue-next';
 
 /**
