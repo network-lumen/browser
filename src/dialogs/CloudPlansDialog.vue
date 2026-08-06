@@ -93,9 +93,9 @@
                     ></span>
                     <span
                       class="txt-weight-light color-text-primary text-14px truncate max-w-260px"
-                      :title="planGatewayLabel(group.gateway)"
+                      :title="gatewayDisplayName(group.gateway)"
                     >
-                      {{ planGatewayLabel(group.gateway) }}
+                      {{ gatewayDisplayName(group.gateway) }}
                     </span>
                   </div>
                   <div class="flex-justify-end flex-wrap-wrap gap-y-4px gap-x-12px">
@@ -120,7 +120,7 @@
                       </UiTag>
                     </span>
                     <UiButton variant="secondary" type="button"
-                      @click.stop="$emit('toggle-gateway', group.gateway.id)">
+                      @click.stop="toggleGateway(group.gateway.id)">
                       {{
                         gatewayExpanded(group.gateway.id)
                           ? "Hide details"
@@ -184,14 +184,14 @@
                         <UiButton variant="secondary" v-if="statusOf(plan) === 'none'"
                           type="button"
                           @click.stop="$emit('subscribe', plan)">
-                          {{ planStatusLabel(plan) }}
+                          {{ planStatusLabel(statusOf(plan)) }}
                         </UiButton>
                         <span
                           v-else
                           class="border-radius-full txt-weight-light color-text-secondary text-11px bg-primary border-1 py-2px px-10px"
-                          :class="planStatusBadgeClass(plan)"
+                          :class="planStatusBadgeClass(statusOf(plan))"
                         >
-                          {{ planStatusLabel(plan) }}
+                          {{ planStatusLabel(statusOf(plan)) }}
                         </span>
                       </div>
                     </div>
@@ -258,9 +258,21 @@ import UiEmptyState from '../ui/UiEmptyState.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiTag from '../ui/UiTag.vue';
+import { ref, watch } from 'vue';
 import { MapPin, Search } from 'lucide-vue-next';
-import type { GatewayView, PlanGroup, PlanView } from '../types/drivePage';
-
+import {
+  formatRegionsLabel,
+  formatRegionsTitle,
+  gatewayDisplayName,
+} from '../internal/services/gateways';
+import {
+  formatPlanPrice,
+  formatPlanPriceShort,
+  planDisplayName,
+  planStatusBadgeClass,
+  planStatusLabel,
+} from '../internal/services/plans';
+import type { PlanGroup, PlanView } from '../types/drivePage';
 
 /**
  * Browsing the cloud plans on offer, grouped by gateway.
@@ -268,8 +280,14 @@ import type { GatewayView, PlanGroup, PlanView } from '../types/drivePage';
  * The filters are models rather than local state: the page also clears them,
  * and it is the page that derives the grouped and paged lists from them. So
  * this component holds the controls and shows the result, and owns neither.
+ *
+ * `statusOf` is the one thing still passed in, and it is the one thing that
+ * cannot be worked out here: whether a plan is subscribed comes from the
+ * subscriptions the page holds. Everything else about how a plan reads - its
+ * name, its price, the words and colour of its badge - now comes from the
+ * services, so the dialog is not asking its parent how to draw a plan card.
  */
-defineProps<{
+const props = defineProps<{
   modelValue: boolean;
   plans: PlanView[];
   planGroups: PlanGroup[];
@@ -277,16 +295,7 @@ defineProps<{
   planRegions: string[];
   planTotalPages: number;
   hasPlanFilters: boolean;
-  gatewayExpanded: (id: string) => boolean;
   statusOf: (plan: PlanView) => string;
-  planGatewayLabel: (gateway: GatewayView) => string;
-  planDisplayName: (plan: PlanView) => string;
-  planStatusLabel: (plan: PlanView) => string;
-  formatRegionsTitle: (regions: string[] | null | undefined) => string;
-  formatRegionsLabel: (regions: string[] | null | undefined) => string;
-  formatPlanPrice: (ulmn: number) => string;
-  formatPlanPriceShort: (ulmn: number) => string;
-  planStatusBadgeClass: (plan: PlanView) => string;
   planPageStart: number;
   planPageEnd: number;
   plansLoading?: boolean;
@@ -296,9 +305,32 @@ defineEmits<{
   (e: 'close'): void;
   (e: 'retry'): void;
   (e: 'reset-filters'): void;
-  (e: 'toggle-gateway', id: string): void;
   (e: 'subscribe', plan: PlanView): void;
 }>();
+
+/** Which gateways are showing their plans - seen nowhere but this list. */
+const expandedGatewayIds = ref<Set<string>>(new Set());
+
+function gatewayExpanded(id: string): boolean {
+  return expandedGatewayIds.value.has(String(id || '').trim());
+}
+
+function toggleGateway(id: string) {
+  const key = String(id || '').trim();
+  if (!key) return;
+  const next = new Set(expandedGatewayIds.value);
+  if (next.has(key)) next.delete(key);
+  else next.add(key);
+  expandedGatewayIds.value = next;
+}
+
+/** Open collapsed, as the page did when it held this. */
+watch(
+  () => props.modelValue,
+  (open) => {
+    if (open) expandedGatewayIds.value = new Set();
+  }
+);
 
 const planFilter = defineModel<string>('planFilter', { required: true });
 const planRegion = defineModel<string>('planRegion', { required: true });

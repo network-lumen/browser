@@ -106,6 +106,7 @@
 <script setup lang="ts">
 import UiDialog from '../ui/UiDialog.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
+import { formatPlanPrice, planDisplayName } from '../internal/services/plans';
 import type { PlanView } from '../types/drivePage';
 
 /** Confirming a cloud plan subscription, with what it costs against what the
@@ -113,8 +114,6 @@ import type { PlanView } from '../types/drivePage';
 defineProps<{
   modelValue: boolean;
   plan: PlanView | null;
-  planDisplayName: (plan: PlanView) => string;
-  formatPlanPrice: (ulmn: number) => string;
   subscribeMonths: number;
   subscribeTotalPrice: number;
   balance: number | null;

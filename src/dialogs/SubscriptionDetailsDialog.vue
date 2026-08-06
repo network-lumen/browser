@@ -65,6 +65,7 @@ import UiModal from '../ui/UiModal.vue';
 import UiLoadingBlock from '../ui/UiLoadingBlock.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';
 import UiButton from '../ui/UiButton.vue';
+import { formatBytes as formatSize } from '../internal/services/format';
 
 /**
  * What a cloud subscription is currently using.
@@ -79,7 +80,6 @@ defineProps<{
   bandwidthUsed: string;
   gatewayDetailsStatusClass: string;
   gatewayDetailsStatusLabel: string;
-  formatSize: (bytes: number) => string;
   pinned: unknown[];
   loading?: boolean;
   usageError?: string;

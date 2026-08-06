@@ -517,25 +517,25 @@
     </aside>
 
     <!-- ####### lumen://drive LOCAL DETAILS MODAL ####### -->
-    <LocalDriveDialog :model-value="showLocalDetails" :stats="stats" :format-size="formatSize" :ipfs-connected="ipfsConnected" :drive-backup-last-export-at="driveBackupLastExportAt" :drive-backup-last-import-at="driveBackupLastImportAt" :format-date="formatDate" :local-saved-count="localSavedCount" :pinned-files="pinnedFiles" :busy="driveBackupBusy" :error="driveBackupError" @close="closeLocalDetails" @export="openDriveBackupExportModal" @import="triggerImportDriveBackup" @file-selected="handleImportDriveBackupFile" />
+    <LocalDriveDialog :model-value="showLocalDetails" :stats="stats" :ipfs-connected="ipfsConnected" :drive-backup-last-export-at="driveBackupLastExportAt" :drive-backup-last-import-at="driveBackupLastImportAt" :local-saved-count="localSavedCount" :pinned-files="pinnedFiles" :busy="driveBackupBusy" :error="driveBackupError" @close="closeLocalDetails" @export="openDriveBackupExportModal" @import="triggerImportDriveBackup" @file-selected="handleImportDriveBackupFile" />
 
     <!-- ####### lumen://drive EXPORT SNAPSHOT MODAL ####### -->
     <DriveBackupExportDialog :model-value="showDriveBackupExportModal" :password="driveBackupExportPassword" :active-profile-display="activeProfileDisplay" :password-confirm="driveBackupExportPasswordConfirm" :busy="driveBackupBusy" :error="driveBackupError" @close="closeDriveBackupExportModal" @submit="confirmDriveBackupExport" @update:password="driveBackupExportPassword = $event" @update:password-confirm="driveBackupExportPasswordConfirm = $event" />
 
     <!-- ####### lumen://drive IMPORT SNAPSHOT MODAL ####### -->
-    <DriveBackupImportDialog :model-value="showDriveBackupImportModal" :filename="driveBackupImportFilename" :password="driveBackupImportPassword" :active-profile-display="activeProfileDisplay" :format-date="formatDate" :has-pending-import="!!pendingDriveBackupImport" :details="driveBackupRestoreDetails" :busy="driveBackupBusy" :error="driveBackupError" @close="closeDriveBackupImportModal" @update:password="driveBackupImportPassword = $event" @decrypt="decryptDriveBackupImport" @restore="confirmDriveBackupRestore" />
+    <DriveBackupImportDialog :model-value="showDriveBackupImportModal" :filename="driveBackupImportFilename" :password="driveBackupImportPassword" :active-profile-display="activeProfileDisplay" :has-pending-import="!!pendingDriveBackupImport" :details="driveBackupRestoreDetails" :busy="driveBackupBusy" :error="driveBackupError" @close="closeDriveBackupImportModal" @update:password="driveBackupImportPassword = $event" @decrypt="decryptDriveBackupImport" @restore="confirmDriveBackupRestore" />
 
     <!-- ####### lumen://drive SUBSCRIPTION DETAILS MODAL ####### -->
-    <SubscriptionDetailsDialog :model-value="showGatewayDetails" :gateway-label="gatewayDetailsGatewayLabel" :usage="gatewayDetailsUsage" :bandwidth-used="gatewayDetailsBandwidthUsed" :gateway-details-status-class="gatewayDetailsStatusClass" :gateway-details-status-label="gatewayDetailsStatusLabel" :format-size="formatSize" :pinned="gatewayDetailsPinned" :loading="gatewayDetailsLoading" :usage-error="gatewayDetailsUsageError" @close="closeGatewayDetails" @unlock="requestUnlock" />
+    <SubscriptionDetailsDialog :model-value="showGatewayDetails" :gateway-label="gatewayDetailsGatewayLabel" :usage="gatewayDetailsUsage" :bandwidth-used="gatewayDetailsBandwidthUsed" :gateway-details-status-class="gatewayDetailsStatusClass" :gateway-details-status-label="gatewayDetailsStatusLabel" :pinned="gatewayDetailsPinned" :loading="gatewayDetailsLoading" :usage-error="gatewayDetailsUsageError" @close="closeGatewayDetails" @unlock="requestUnlock" />
 
     <!-- ####### lumen://drive SITES DATA MODAL ####### -->
     <SitesDataDialog :model-value="showSiteDataModal" :records="siteDataRecords" :removing-id="removingSiteDataId" :loading="siteDataLoading" @close="closeSiteDataModal" @remove="removeSiteDataRecord" />
 
     <!-- ####### lumen://drive PLANS MODAL ####### -->
-    <CloudPlansDialog :model-value="showPlansModal" :plans="plans" :plan-groups="planGroups" :plan-paged-groups="planPagedGroups" :plan-regions="planRegions" :plan-total-pages="planTotalPages" :has-plan-filters="hasPlanFilters" :gateway-expanded="isGatewayExpanded" :status-of="planStatus" :plan-gateway-label="gatewayDisplayName" :plan-display-name="planDisplayName" :plan-status-label="planStatusLabel" :format-regions-title="formatRegionsTitle" :format-regions-label="formatRegionsLabel" :format-plan-price="formatPlanPrice" :format-plan-price-short="formatPlanPriceShort" :plan-status-badge-class="planStatusBadgeClass" :plan-page-start="planPageStart" :plan-page-end="planPageEnd" :plans-loading="plansLoading" :plans-error="plansError" v-model:plan-filter="planFilter" v-model:plan-region="planRegion" v-model:plan-online-only="planOnlineOnly" v-model:plan-sort-by="planSortBy" v-model:plan-page="planPage" v-model:plan-page-size="planPageSize" @close="closePlansModal" @retry="openPlansModal" @reset-filters="resetPlanFilters" @toggle-gateway="toggleGatewayExpanded" @subscribe="openSubscribeModal" />
+    <CloudPlansDialog :model-value="showPlansModal" :plans="plans" :plan-groups="planGroups" :plan-paged-groups="planPagedGroups" :plan-regions="planRegions" :plan-total-pages="planTotalPages" :has-plan-filters="hasPlanFilters" :status-of="planStatus" :plan-page-start="planPageStart" :plan-page-end="planPageEnd" :plans-loading="plansLoading" :plans-error="plansError" v-model:plan-filter="planFilter" v-model:plan-region="planRegion" v-model:plan-online-only="planOnlineOnly" v-model:plan-sort-by="planSortBy" v-model:plan-page="planPage" v-model:plan-page-size="planPageSize" @close="closePlansModal" @retry="openPlansModal" @reset-filters="resetPlanFilters" @subscribe="openSubscribeModal" />
 
     <!-- ####### lumen://drive SUBSCRIBE PLAN MODAL ####### -->
-    <SubscribeConfirmDialog :model-value="!!(showSubscribeModal && subscribePlan)" :plan="subscribePlan" :plan-display-name="planDisplayName" :format-plan-price="formatPlanPrice" :subscribe-months="subscribeMonths" :subscribe-total-price="subscribeTotalPrice" :balance="subscribeBalance" :balance-loading="subscribeBalanceLoading" :insufficient-funds="hasInsufficientFunds" :busy="subscribeBusy" :error="subscribeError" @close="closeSubscribeModal" @confirm="confirmSubscribe" />
+    <SubscribeConfirmDialog :model-value="!!(showSubscribeModal && subscribePlan)" :plan="subscribePlan" :subscribe-months="subscribeMonths" :subscribe-total-price="subscribeTotalPrice" :balance="subscribeBalance" :balance-loading="subscribeBalanceLoading" :insufficient-funds="hasInsufficientFunds" :busy="subscribeBusy" :error="subscribeError" @close="closeSubscribeModal" @confirm="confirmSubscribe" />
 
   </div>
 </template>
@@ -627,6 +627,7 @@ import type { DriveFile } from "../../types/upload";
 import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
 import DriveFileRow from "../../entities/DriveFileRow.vue";
 import { siteDataRowId, siteDataSiteLabel } from "../services/siteData";
+import { planDisplayName } from "../services/plans";
 import {
   buildDriveBackupSnapshot,
   driveBackupFriendlyError,
@@ -965,22 +966,6 @@ function resetPlanFilters() {
 watch([planFilter, planRegion, planOnlineOnly, planSortBy, planPageSize], () => {
   planPage.value = 1;
 });
-
-const expandedGatewayIds = ref<Set<string>>(new Set());
-
-function toggleGatewayExpanded(id: string) {
-  const key = String(id || "").trim();
-  if (!key) return;
-  const next = new Set(expandedGatewayIds.value);
-  if (next.has(key)) next.delete(key);
-  else next.add(key);
-  expandedGatewayIds.value = next;
-}
-
-function isGatewayExpanded(id: string): boolean {
-  const key = String(id || "").trim();
-  return expandedGatewayIds.value.has(key);
-}
 
 const planGroups = computed(() => {
   const query = planFilter.value.trim().toLowerCase();
@@ -2350,7 +2335,6 @@ async function openPlansModal() {
 
     showPlansModal.value = true;
     planPage.value = 1;
-    expandedGatewayIds.value = new Set();
     plansLoading.value = true;
     plansError.value = "";
 
@@ -2476,46 +2460,6 @@ function planStatus(plan: PlanView): string {
   const fallback = planSubscriptions.value.get(plan.gatewayId.toLowerCase());
   if (fallback && fallback.length) return fallback[0].status || "unknown";
   return "none";
-}
-
-function planStatusBadgeClass(plan: PlanView): string {
-  const status = planStatus(plan);
-  if (status === "active") return "bg-fill-success color-success";
-  if (status === "pending") return "bg-warning-a15 color-warning";
-  return "";
-}
-
-function planStatusLabel(plan: PlanView): string {
-  const status = planStatus(plan);
-  switch (status) {
-    case "active":
-      return "Subscribed";
-    case "pending":
-      return "Pending";
-    case "cancelled":
-    case "canceled":
-      return "Cancelled";
-    case "completed":
-      return "Completed";
-    default:
-      return "Subscribe";
-  }
-}
-
-function planDisplayName(plan: PlanView | null): string {
-  return plan?.planId?.split(":").pop() || "Plan";
-}
-
-function formatPlanPrice(ulmn: number): string {
-  const lmn = ulmn / 1_000_000;
-  if (!ulmn) return "Free";
-  return `${lmn.toFixed(lmn >= 10 ? 0 : 2)} LMN / mo`;
-}
-
-function formatPlanPriceShort(ulmn: number): string {
-  const lmn = ulmn / 1_000_000;
-  if (!ulmn) return "Free";
-  return lmn >= 10 ? `${lmn.toFixed(0)} LMN` : `${lmn.toFixed(2)} LMN`;
 }
 
 const showSubscribeModal = ref(false);
