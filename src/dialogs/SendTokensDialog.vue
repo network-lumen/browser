@@ -143,7 +143,7 @@ import UiSummaryCard from '../ui/UiSummaryCard.vue';
 import UiSummaryRow from '../ui/UiSummaryRow.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { QrCode, Send, Users } from 'lucide-vue-next';
-import type { IbcChannelOption, SendForm, IbcForm } from '../types/walletPage';
+import type { IbcChannelOption, SendForm, IbcForm, SendTargetMode } from '../types/walletPage';
 
 /**
  * Sending tokens - on this chain, or over IBC to another one.
@@ -157,7 +157,6 @@ defineProps<{
   title: string;
   form: SendForm;
   ibcForm: IbcForm;
-  targetMode: string;
   isIbcSend: boolean;
   assetContext: unknown;
   assetName: string;
@@ -196,5 +195,8 @@ defineEmits<{
  * page closes it too - on pick, on send, and when the modal shuts.
  */
 const showContactPicker = defineModel<boolean>('showContactPicker', { required: true });
+
+/** Same-chain or IBC. The page reacts to it by loading channels. */
+const targetMode = defineModel<SendTargetMode>('targetMode', { required: true });
 
 </script>
