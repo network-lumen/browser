@@ -1,5 +1,6 @@
 <template>
     <UiDialog
+    :error="error"
     :model-value="modelValue"
     panel-class="w-min-760px-full"
     :closable="!busy"
@@ -16,26 +17,9 @@
       </div>
     </template>
 
-    <div class="grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
-      <UiFormField label="Endpoint" label-class="text-12px color-text-tertiary letter-spacing-006em">
-        <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="form.endpoint" placeholder="gateway.city" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-      </UiFormField>
-      <UiFormField label="Regions" label-class="text-12px color-text-tertiary letter-spacing-006em">
-        <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="form.regions" placeholder="us-east, eu-west" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-      </UiFormField>
-      <UiFormField label="Payout address" label-class="text-12px color-text-tertiary letter-spacing-006em">
-        <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="form.payout" placeholder="lmn1..." class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-      </UiFormField>
-      <UiFormField class="grid-col-full" label="Metadata (JSON object)" label-class="text-12px color-text-tertiary letter-spacing-006em">
-        <UiInput type="textarea" bg-class="bg-secondary" :focus-ring="false" v-model="form.metadata" rows="7" placeholder='{\n  "name": "My gateway"\n}' class="mono focus-ring focus-outline-none focus-shadow placeholder-tertiary"></UiInput>
-      </UiFormField>
-      <UiFormField label="Memo" label-class="text-12px color-text-tertiary letter-spacing-006em">
-        <UiInput bg-class="bg-secondary" :focus-ring="false" v-model="form.memo" placeholder="Optional memo" class="focus-ring focus-outline-none focus-shadow placeholder-tertiary" />
-      </UiFormField>
-
-      <div v-if="error" class="mt-12px p-12px border-1-error-a25 bg-error-a08">{{ error }}</div>
+    <GatewayFields :form="form">
       <div v-if="txhash" class="mono mt-12px p-12px bg-success-a08 border-1-success-a25">tx: {{ txhash }}</div>
-    </div>
+    </GatewayFields>
 
     <template #confirm><span v-if="!busy">Create</span>
         <span v-else>Submitting…</span></template>
@@ -45,8 +29,7 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue';
 import UiDialog from '../ui/UiDialog.vue';
-import UiFormField from '../ui/UiFormField.vue';
-import UiInput from '../ui/UiInput.vue';
+import GatewayFields from '../forms/GatewayFields.vue';
 import type { GatewayRegisterForm } from '../types/gatewaysPage';
 
 /**

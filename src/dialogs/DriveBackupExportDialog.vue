@@ -4,7 +4,7 @@
     title="Export drive snapshot"
     panel-class="w-full max-w-520px"
     :busy="busy"
-    :confirm-disabled="busy || !password || password.length < 8 || password !== passwordConfirm"
+    :confirm-disabled="busy || !isPasswordLongEnough(password) || password !== passwordConfirm"
     @update:model-value="$emit('close')"
     @confirm="$emit('submit')"
   >
@@ -59,6 +59,7 @@ import UiDialog from '../ui/UiDialog.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
+import { isPasswordLongEnough } from '../internal/services/passwordPolicy';
 
 /** Encrypting a Drive snapshot before it leaves the machine. */
 defineProps<{

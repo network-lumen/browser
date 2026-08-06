@@ -4,7 +4,7 @@
     title="Import drive snapshot"
     panel-class="w-full max-w-520px"
     :busy="busy"
-    :confirm-disabled="busy || !hasPendingImport || (!details && (!password || password.length < 8))"
+    :confirm-disabled="busy || !hasPendingImport || (!details && !isPasswordLongEnough(password))"
     @update:model-value="$emit('close')"
     @confirm="details ? $emit('restore') : $emit('decrypt')"
   >
@@ -95,6 +95,7 @@ import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import type { DriveBackupRestoreDetails } from '../types/drivePage';
+import { isPasswordLongEnough } from '../internal/services/passwordPolicy';
 
 /**
  * Restoring a Drive snapshot. `details` is what the file turned out to
