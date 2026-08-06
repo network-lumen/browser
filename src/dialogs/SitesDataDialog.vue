@@ -61,7 +61,7 @@ defineProps<{
   fields: (record: SiteDataRecord) => { key: string; value: string }[];
   rowId: (record: SiteDataRecord) => string;
   siteDataSiteLabel: (record: SiteDataRecord) => string;
-  formatDate: (value: unknown) => string;
+  formatDate: (ts: number) => string;
   siteDataJson: (record: SiteDataRecord) => string;
   expandedId: string;
   rawId: string;

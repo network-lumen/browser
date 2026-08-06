@@ -11,6 +11,8 @@
 </template>
 
 <script setup lang="ts">
+import UiCard from './UiCard.vue';
+
 withDefaults(defineProps<{
   label?: string;
   description?: string;
