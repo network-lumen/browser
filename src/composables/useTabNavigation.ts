@@ -5,6 +5,7 @@ import type {
   SetTabFavicon,
   TabNavigation,
   TabOpenInNewTab,
+  TabOpenOptions,
   TabState
 } from '../types/tabNavigation';
 import type { RegisterFindTargetFn } from '../types/tab';
@@ -44,9 +45,43 @@ const REGISTER_FIND_TARGET_KEY = 'findRegisterTarget';
  * testing before calling.
  */
 export function useTabNavigation(): TabNavigation {
+  const navigate = inject<TabNavigate | null>(NAVIGATE_KEY, null);
+  const openInNewTab = inject<TabOpenInNewTab | null>(OPEN_IN_NEW_TAB_KEY, null);
+
+  /**
+   * Five components wrote this by hand, as `goto` or `openInNewTabSafe`, and
+   * they disagreed in ways nobody chose: one had no fallback at all, one
+   * defaulted a blank URL to the new tab page, one forwarded the caller's push
+   * option and the rest hard-coded it.
+   *
+   * Either side can be absent - a component rendered outside the tab system
+   * gets neither - so each falls back to the other, and asking for a new tab
+   * where none can be opened still gets you there.
+   */
+  function open(url: string, options: TabOpenOptions = {}) {
+    const target = String(url || '').trim();
+    if (!target) return;
+
+    if (options.blank) {
+      if (openInNewTab) {
+        openInNewTab(target);
+        return;
+      }
+      navigate?.(target, { push: true });
+      return;
+    }
+
+    if (navigate) {
+      navigate(target, { push: options.push ?? true });
+      return;
+    }
+    openInNewTab?.(target);
+  }
+
   return {
-    navigate: inject<TabNavigate | null>(NAVIGATE_KEY, null),
-    openInNewTab: inject<TabOpenInNewTab | null>(OPEN_IN_NEW_TAB_KEY, null),
+    open,
+    navigate,
+    openInNewTab,
     openExtensionPopup: inject<OpenExtensionPopup | null>(OPEN_EXTENSION_POPUP_KEY, null),
     setTabFavicon: inject<SetTabFavicon | null>(SET_TAB_FAVICON_KEY, null),
     registerFindTarget: inject<RegisterFindTargetFn | null>(REGISTER_FIND_TARGET_KEY, null)

@@ -602,7 +602,7 @@ import {
 } from "../services/contentResolver";
 import { profilesState, activeProfileId } from "../profilesStore";
 import { formatBytes, formatDateTime } from "../services/format";
-import { copyToClipboard } from "../../composables/useClipboard";
+import { copyToClipboardWithToast } from "../../composables/useClipboard";
 import { clampPercent, errorMessage } from '../services/coerce';
 import { STORAGE_KEYS, readJson, readString, removeKey, writeJson, writeString } from "../services/storage";
 import {
@@ -3709,9 +3709,7 @@ function lumenLinkFor(file: DriveFile): string {
 }
 
 async function copyLumenLinkFor(file: DriveFile) {
-  const url = lumenLinkFor(file);
-  await copyToClipboard(url);
-  showToast("Link copied!", "success");
+  await copyToClipboardWithToast(lumenLinkFor(file));
 }
 
 function openInIpfs(file: DriveFile) {

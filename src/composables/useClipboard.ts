@@ -27,19 +27,19 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 }
 
 /**
- * Copy, then say so. Pages kept re-wrapping `copyToClipboard` with the same
- * success/failure toast pair and only differed in wording, so the wording is
- * the argument and the behaviour is here.
+ * Copy, then say so.
+ *
+ * The wording is deliberately not an argument. Nine call sites each wrote
+ * their own pair - "Address copied!", "Ugly domain URL copied.", "Failed to
+ * copy domain URL" - which is nine ways of saying one of two things, and the
+ * user already knows what they clicked. Naming the thing back at them adds
+ * nothing and guarantees the phrasings drift.
  *
  * Returns whether the copy worked, for callers that also change state on it.
  */
-export async function copyToClipboardWithToast(
-  text: string,
-  successMessage = 'Copied to clipboard',
-  failureMessage = 'Failed to copy to clipboard'
-): Promise<boolean> {
+export async function copyToClipboardWithToast(text: string): Promise<boolean> {
   const toast = useToast();
   const ok = await copyToClipboard(text);
-  toast.show(ok ? successMessage : failureMessage, ok ? 'success' : 'error');
+  toast.show(ok ? 'Copied' : 'Failed to copy', ok ? 'success' : 'error');
   return ok;
 }

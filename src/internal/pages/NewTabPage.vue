@@ -49,7 +49,7 @@
             <Flame :size="15" />
             <span>Trending (soon)</span>
           </button>
-          <UiButton variant="primary" type="button" @click="goto('lumen://web.lmn/')" class="outline-none border-radius-full">
+          <UiButton variant="primary" type="button" @click="open('lumen://web.lmn/')" class="outline-none border-radius-full">
             <Globe :size="15" />
             <span>All known websites</span>
           </UiButton>
@@ -130,7 +130,7 @@
         <div class="flex-align-center flex-justify-space-between gap-16px">
           <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Recent</div>
 
-          <UiButton variant="primary" type="button" @click="goto('lumen://history')" class="outline-none">
+          <UiButton variant="primary" type="button" @click="open('lumen://history')" class="outline-none">
             <History :size="15" />
             <span>Open history</span>
           </UiButton>
@@ -184,7 +184,7 @@ import { useTabNavigation } from "../../composables/useTabNavigation";
 null
 
 
-  const { navigate, openInNewTab } = useTabNavigation();
+  const { open, openInNewTab } = useTabNavigation();
 const {
     favouriteEntries,
     removeFavouriteById,
@@ -344,15 +344,6 @@ function dismissOnboarding() {
   showOnboarding.value = false;
 }
 
-function goto(url: string) {
-  const target = String(url || "").trim() || "lumen://newtab";
-  if (navigate) {
-    navigate(target, { push: true });
-    return;
-  }
-  openInNewTab?.(target);
-}
-
 function openTarget(url: string, event?: MouseEvent) {
   const target = String(url || "").trim() || "lumen://newtab";
   const wantsNewTab = !!(event && (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1));
@@ -360,18 +351,18 @@ function openTarget(url: string, event?: MouseEvent) {
     openInNewTab(target);
     return;
   }
-  goto(target);
+  open(target);
 }
 
 function submitOmnibox() {
   const target = normalizeAddressInput(commandInput.value, builtinHosts);
   commandInput.value = target;
-  goto(target);
+  open(target);
 }
 
 function learnLumen() {
   dismissOnboarding();
-  goto("lumen://help/discover");
+  open("lumen://help/discover");
 }
 
 function onShortcutDragStart(event: DragEvent, id: string) {
