@@ -627,6 +627,12 @@ import type { DriveFile } from "../../types/upload";
 import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
 import DriveFileRow from "../../entities/DriveFileRow.vue";
 import {
+  buildDriveBackupSnapshot,
+  driveBackupFriendlyError,
+  readDriveBackupSnapshot,
+  summarizeDriveBackupSnapshot,
+} from "../services/driveBackup";
+import {
   addOptimisticPin,
   deriveGatewayStatus,
   encodeGatewayPath,
@@ -672,7 +678,6 @@ import type {
   SubscriptionView,
   GatewayView,
   DriveBackupSnapshotV2,
-  DriveBackupSnapshot,
 } from "../../types/drivePage";
 
 import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
@@ -2952,153 +2957,37 @@ function setDriveBackupMeta(kind: "export" | "import", ts: number) {
 function makeDriveBackupSnapshot(): DriveBackupSnapshotV2 | null {
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) return null;
-  const walletAddress = activeWalletAddress();
   let seq = getCurrentDriveBackupSeq(pid);
   if (!seq) seq = nextDriveBackupSeq(pid);
 
-  const rawFiles = Array.isArray(files.value) ? files.value : [];
-  const outFiles: DriveFile[] = rawFiles
-    .map((f: any) => {
-      const cid = String(f?.cid || "").trim();
-      if (!cid) return null;
-      const name = String(f?.name || "").trim() || "Unknown";
-      const sizeRaw = Number(f?.size);
-      const size = Number.isFinite(sizeRaw) && sizeRaw >= 0 ? sizeRaw : 0;
-      const uploadedAtRaw = Number(f?.uploadedAt);
-      const uploadedAt = Number.isFinite(uploadedAtRaw) ? uploadedAtRaw : undefined;
-      const type = f?.type === "dir" ? "dir" : f?.type === "file" ? "file" : undefined;
-      const rootCid = String(f?.rootCid || "").trim() || undefined;
-      const relPath = String(f?.relPath || "").trim() || undefined;
-      return {
-        cid,
-        name,
-        size,
-        ...(uploadedAt != null ? { uploadedAt } : {}),
-        ...(type ? { type } : {}),
-        ...(rootCid ? { rootCid } : {}),
-        ...(relPath ? { relPath } : {}),
-      } as DriveFile;
-    })
-    .filter(Boolean)
-    .slice(0, 500) as DriveFile[];
-
-  const rawNames =
-    localNames.value && typeof localNames.value === "object" ? localNames.value : {};
-  const outNames = Object.fromEntries(
-    Object.entries(rawNames)
-      .map(([k, v]) => [String(k || "").trim(), String(v || "").trim()] as const)
-      .filter(([k, v]) => !!k && !!v && v.toLowerCase() !== "unknown")
-      .slice(0, 5000),
-  ) as Record<string, string>;
-
-  return {
-    type: "lumen.driveBackup.snapshot",
-    version: 2,
-    createdAt: Date.now(),
+  return buildDriveBackupSnapshot({
     seq,
-    walletAddress,
-    drive: {
-      files: outFiles,
-      localNames: outNames,
-    },
-    favourites: Array.from(
-      new Set(
-        (Array.isArray(favourites.value) ? favourites.value : [])
-          .map((u) => String(u || "").trim())
-        .filter(Boolean),
-      ),
-    ),
-    shortcutEntries: getFavouriteEntriesForProfile(pid).map((entry) => ({
-      id: entry.id,
-      url: entry.url,
-      ...(entry.title ? { title: entry.title } : {}),
-      ...(entry.pinned ? { pinned: true } : {}),
-      ...(entry.createdAt ? { createdAt: entry.createdAt } : {}),
-      ...(entry.updatedAt ? { updatedAt: entry.updatedAt } : {}),
-    })),
-  };
-}
-
-function driveBackupFriendlyError(code: string): string {
-  const c = String(code || "").trim();
-  if (!c) return "Backup failed";
-  if (c === "missing_password") return "Password required.";
-  if (c === "weak_password") return "Password too short (min 8 characters).";
-  if (c === "decrypt_failed") return "Wrong password or corrupted backup file.";
-  if (c === "invalid_envelope") return "Invalid backup file.";
-  if (c === "invalid_snapshot") return "Invalid snapshot.";
-  return c.replace(/_/g, " ");
+    walletAddress: activeWalletAddress(),
+    files: files.value,
+    localNames: localNames.value,
+    favourites: favourites.value,
+    shortcutEntries: getFavouriteEntriesForProfile(pid),
+  });
 }
 
 function applyDriveBackupSnapshotPayload(snap: any): { ok: boolean; error?: string; seq?: number } {
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) return { ok: false, error: "missing_profile_id" };
 
-  if (
-    !snap ||
-    snap.type !== "lumen.driveBackup.snapshot" ||
-    ![1, 2].includes(Number(snap.version))
-  ) {
-    return { ok: false, error: "invalid_snapshot" };
-  }
+  const read = readDriveBackupSnapshot(snap);
+  if (!read.ok) return { ok: false, error: read.error };
 
-  const rawFiles = Array.isArray(snap.drive?.files) ? snap.drive.files : [];
-  const nextFiles: DriveFile[] = rawFiles
-    .map((f: any) => {
-      const cid = String(f?.cid || "").trim();
-      if (!cid) return null;
-      const name = String(f?.name || "").trim() || "Unknown";
-      const sizeRaw = Number(f?.size);
-      const size = Number.isFinite(sizeRaw) && sizeRaw >= 0 ? sizeRaw : 0;
-      const uploadedAtRaw = Number(f?.uploadedAt);
-      const uploadedAt = Number.isFinite(uploadedAtRaw) ? uploadedAtRaw : undefined;
-      const type = f?.type === "dir" ? "dir" : f?.type === "file" ? "file" : undefined;
-      const rootCid = String(f?.rootCid || "").trim() || undefined;
-      const relPath = String(f?.relPath || "").trim() || undefined;
-      return {
-        cid,
-        name,
-        size,
-        ...(uploadedAt != null ? { uploadedAt } : {}),
-        ...(type ? { type } : {}),
-        ...(rootCid ? { rootCid } : {}),
-        ...(relPath ? { relPath } : {}),
-      } as DriveFile;
-    })
-    .filter(Boolean)
-    .slice(0, 500) as DriveFile[];
-
-  const rawNames = snap.drive?.localNames && typeof snap.drive.localNames === "object" ? snap.drive.localNames : {};
-  const nextNames = Object.fromEntries(
-    Object.entries(rawNames)
-      .map(([k, v]) => [String(k || "").trim(), String(v || "").trim()] as const)
-      .filter(([k, v]) => !!k && !!v && v.toLowerCase() !== "unknown")
-      .slice(0, 5000),
-  ) as Record<string, string>;
-
-  // Named as unknown[] first: `snap` is `any`, and inlining the ternary let the
-  // element type drift instead of settling on the strings this produces.
-  const rawFav: unknown[] = Array.isArray(snap.favourites) ? snap.favourites : [];
-  const nextFav = Array.from(
-    new Set(rawFav.map((u) => String(u || "").trim()).filter(Boolean)),
-  );
-  const nextShortcutEntries = Array.isArray(snap.shortcutEntries) ? snap.shortcutEntries : null;
-
-  files.value = nextFiles;
-  localNames.value = nextNames;
+  files.value = read.files;
+  localNames.value = read.localNames;
   saveFiles();
   saveLocalNames();
-  if (nextShortcutEntries) {
-    setFavouriteEntriesForProfile(pid, nextShortcutEntries as any);
+  if (read.shortcutEntries) {
+    setFavouriteEntriesForProfile(pid, read.shortcutEntries as any);
   } else {
-    setFavouritesForProfile(pid, nextFav);
+    setFavouritesForProfile(pid, read.favourites);
   }
 
-  const seq = Number(snap.seq);
-  if (Number.isFinite(seq) && seq > 0) {
-    bumpDriveBackupSeq(pid, seq);
-  }
-
+  if (read.seq) bumpDriveBackupSeq(pid, read.seq);
   setDriveBackupMeta("import", Date.now());
 
   // Ensure the restored metadata is visible immediately.
@@ -3108,41 +2997,18 @@ function applyDriveBackupSnapshotPayload(snap: any): { ok: boolean; error?: stri
   } else {
     void loadPinnedFiles();
   }
-  return { ok: true, ...(Number.isFinite(seq) && seq > 0 ? { seq } : {}) };
+  return { ok: true, ...(read.seq ? { seq: read.seq } : {}) };
 }
 
 const driveBackupRestoreDetails = computed(() => {
   const pending = pendingDriveBackupRestore.value;
   if (!pending) return null;
-  const snap = pending.snapshot as DriveBackupSnapshot | null;
-  const createdAt = Number(snap?.createdAt) || 0;
-  const seq = Number(snap?.seq) || 0;
-  const walletAddress = String(snap?.walletAddress || "").trim();
-  const filesCount = Array.isArray(snap?.drive?.files) ? snap.drive.files.length : 0;
-  const favCount = Array.isArray((snap as any)?.shortcutEntries)
-    ? (snap as any).shortcutEntries.length
-    : Array.isArray(snap?.favourites)
-      ? snap.favourites.length
-      : 0;
   const pid = String(activeProfileId.value || "").trim();
-  const localSeq = pid ? getCurrentDriveBackupSeq(pid) : 0;
-  const rollback = !!seq && !!localSeq && seq < localSeq;
-  const currentWallet = activeWalletAddress();
-  const walletMismatch =
-    !!walletAddress &&
-    !!currentWallet &&
-    walletAddress.toLowerCase() !== currentWallet.toLowerCase();
-  return {
-    source: String(pending.source || "").trim(),
-    createdAt,
-    seq,
-    walletAddress,
-    filesCount,
-    favCount,
-    localSeq,
-    rollback,
-    walletMismatch,
-  };
+  return summarizeDriveBackupSnapshot(pending.snapshot, {
+    localSeq: pid ? getCurrentDriveBackupSeq(pid) : 0,
+    currentWallet: activeWalletAddress(),
+    source: pending.source,
+  });
 });
 
 const driveBackupImportFilename = computed(() => {
