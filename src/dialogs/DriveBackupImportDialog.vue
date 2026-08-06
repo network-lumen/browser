@@ -1,5 +1,14 @@
 <template>
-  <UiModal :model-value="modelValue" title="Import drive snapshot" panel-class="w-full max-w-520px" @update:model-value="$emit('close')">
+    <UiDialog
+    :model-value="modelValue"
+    title="Import drive snapshot"
+    panel-class="w-full max-w-520px"
+    :busy="busy"
+    :confirm-disabled="busy || !hasPendingImport || (!details && (!password || password.length < 8))"
+    @update:model-value="$emit('close')"
+    @confirm="details ? $emit('restore') : $emit('decrypt')"
+  >
+
           <p class="color-text-secondary mb-24px text-14px">
             This will replace your local drive metadata (CIDs, names, favourites) for
             <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
@@ -64,21 +73,8 @@
               <div class="color-text-secondary text-13px">{{ error }}</div>
             </div>
           </template>
-          <template #footer>
-            <UiButton variant="secondary" type="button"
-              :disabled="busy"
-              @click="$emit('close')" class="disabled-fade-50">
-              Cancel
-            </UiButton>
-            <UiButton variant="primary" type="button"
-              :disabled="
-                busy ||
-                !hasPendingImport ||
-                (!details &&
-                  (!password || password.length < 8))
-              "
-              @click="details ? $emit('restore') : $emit('decrypt')">
-              <UiSpinner v-if="busy" size="sm" />
+
+    <template #confirm><UiSpinner v-if="busy" size="sm" />
               <span>{{
                 busy
                   ? details
@@ -87,19 +83,16 @@
                   : details
                     ? "Restore"
                     : "Decrypt"
-              }}</span>
-            </UiButton>
-          </template>
-  </UiModal>
+              }}</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import UiModal from '../ui/UiModal.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';
-import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import type { DriveBackupRestoreDetails } from '../types/drivePage';
 

@@ -1,5 +1,14 @@
 <template>
-  <UiModal :model-value="modelValue" title="Publish release" panel-class="w-min-900px-96vw" @update:model-value="$emit('update:modelValue', false)">
+    <UiDialog
+    :model-value="modelValue"
+    title="Publish release"
+    panel-class="w-min-900px-96vw"
+    :busy="submitting"
+    :confirm-disabled="submitting"
+    @update:model-value="$emit('update:modelValue', false)"
+    @confirm="$emit('submit')"
+  >
+
       <div class="flex flex-column gap-12px">
         <div class="mb-16px border-radius-16px border-1 bg-primary pt-14px pr-14px pb-4px pl-14px">
           <div class="flex-align-center flex-justify-space-between mt-8px">
@@ -87,18 +96,13 @@
         </div>
       </div>
 
-      <template #footer>
-        <UiButton variant="secondary" type="button" @click="$emit('update:modelValue', false)" :disabled="submitting">Cancel</UiButton>
-        <UiButton variant="primary" type="button" @click="$emit('submit')" :disabled="submitting">
-          <span v-if="submitting" class="flex-inline-align-center gap-8px"><UiSpinner size="sm" /> Publishing…</span>
-          <span v-else>Publish</span>
-        </UiButton>
-      </template>
-  </UiModal>
+    <template #confirm><span v-if="submitting" class="flex-inline-align-center gap-8px"><UiSpinner size="sm" /> Publishing…</span>
+          <span v-else>Publish</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import UiFormField from '../ui/UiFormField.vue';

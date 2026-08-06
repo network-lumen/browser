@@ -1,5 +1,11 @@
 <template>
-  <UiModal :model-value="modelValue" panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-512px-full" @update:model-value="$emit('update:modelValue', false)">
+    <UiDialog
+    :model-value="modelValue"
+    panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-512px-full"
+    @update:model-value="$emit('update:modelValue', false)"
+    @confirm="$emit('submit')"
+  >
+
     <template #header>
       <div>
         <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcut</div>
@@ -29,20 +35,12 @@
           </div>
         </div>
 
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="$emit('update:modelValue', false)" class="outline-none">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="$emit('submit')" class="outline-none">
-        {{ mode === "create" ? "Add shortcut" : "Save changes" }}
-      </UiButton>
-    </template>
-  </UiModal>
+    <template #confirm>{{ mode === "create" ? "Add shortcut" : "Save changes" }}</template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
-import UiButton from '../ui/UiButton.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiFormField from '../ui/UiFormField.vue';
 import UiInput from '../ui/UiInput.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';

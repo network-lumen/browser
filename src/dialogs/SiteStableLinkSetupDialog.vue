@@ -1,5 +1,14 @@
 <template>
-  <UiModal :model-value="modelValue" panel-class="w-min-520px-92vw max-h-100vh-32px" :closable="!loading" @update:model-value="$emit('close')">
+    <UiDialog
+    :model-value="modelValue"
+    panel-class="w-min-520px-92vw max-h-100vh-32px"
+    :closable="!loading"
+    :busy="loading"
+    :confirm-disabled="loading || !stableLinkSetupSelectedName"
+    @update:model-value="$emit('close')"
+    @confirm="$emit('submit')"
+  >
+
     <template #header>
       <UiModalHeader title="Select a live link" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
         <template #icon><Link :size="18" /></template>
@@ -20,25 +29,18 @@
           <p class="text-12px color-text-secondary mt-8px">
             Previous live settings will be loaded from this link if records are available.
           </p>
-    <template #footer>
-      <UiButton variant="secondary" type="button" @click="$emit('close')" :disabled="loading">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" type="button" @click="$emit('submit')" :disabled="loading || !stableLinkSetupSelectedName">
-        <UiSpinnerRing v-if="loading" />
+
+    <template #confirm><UiSpinnerRing v-if="loading" />
         <Link v-else :size="16" />
-        <span>{{ loading ? 'Loading...' : 'Load previous settings' }}</span>
-      </UiButton>
-    </template>
-  </UiModal>
+        <span>{{ loading ? 'Loading...' : 'Load previous settings' }}</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiBanner from '../ui/UiBanner.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
-import UiButton from '../ui/UiButton.vue';
 import UiSpinnerRing from '../ui/UiSpinnerRing.vue';
 import { Link } from 'lucide-vue-next';
 import type { StableLinkItem } from '../types/lumenSiteModalHost';

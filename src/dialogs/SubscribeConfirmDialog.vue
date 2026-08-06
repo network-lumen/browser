@@ -1,5 +1,14 @@
 <template>
-  <UiModal :model-value="modelValue" :title="plan ? `Confirm subscription &quot;${planDisplayName(plan)}&quot;` : 'Confirm subscription'" panel-class="w-full max-w-520px" @update:model-value="$emit('close')">
+    <UiDialog
+    :model-value="modelValue"
+    :title="plan ? `Confirm subscription &quot;${planDisplayName(plan)}&quot;` : 'Confirm subscription'"
+    panel-class="w-full max-w-520px"
+    :busy="busy"
+    :confirm-disabled="busy || insufficientFunds || !plan"
+    @update:model-value="$emit('close')"
+    @confirm="$emit('confirm')"
+  >
+
           <p class="color-text-secondary mb-24px text-14px">
             Review the plan details and confirm your subscription.
           </p>
@@ -90,27 +99,14 @@
             Submitting on-chain transaction… This can take ~1–2 minutes the
             first time (PQC setup + block confirmation).
           </p>
-          <template #footer>
-            <UiButton variant="secondary" type="button"
-              @click="$emit('close')"
-              :disabled="busy" class="disabled-fade-50">
-              Cancel
-            </UiButton>
-            <UiButton variant="primary" type="button"
-              @click="$emit('confirm')"
-              :disabled="
-                busy || insufficientFunds || !plan
-              ">
-              <UiSpinner v-if="busy" size="sm" />
-              <span>{{ busy ? "Submitting..." : "Confirm" }}</span>
-            </UiButton>
-          </template>
-  </UiModal>
+
+    <template #confirm><UiSpinner v-if="busy" size="sm" />
+              <span>{{ busy ? "Submitting..." : "Confirm" }}</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
-import UiButton from '../ui/UiButton.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import type { PlanView } from '../types/drivePage';
 

@@ -1,5 +1,14 @@
 <template>
-  <UiModal :model-value="modelValue" :title="editing ? 'Edit External Gateway' : 'Add External Gateway'" panel-class="max-w-500px w-90pct" @update:model-value="$emit('update:modelValue', false)">
+    <UiDialog
+    :model-value="modelValue"
+    :title="editing ? 'Edit External Gateway' : 'Add External Gateway'"
+    panel-class="max-w-500px w-90pct"
+    :busy="saving"
+    :confirm-disabled="saving || !valid"
+    @update:model-value="$emit('update:modelValue', false)"
+    @confirm="$emit('submit')"
+  >
+
           <p class="color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-primary-a20">
             Add an external private gateway (e.g., your VPS or company server). 
             For local embedded server, use the "Start Embedded Server" button instead.
@@ -23,20 +32,13 @@
           <div v-if="error" class="color-error mt-16px border-radius-10px py-12px px-16px text-14px bg-error-a08 border-1-error-a25">
             {{ error }}
           </div>
-    <template #footer>
-      <UiButton variant="secondary" @click="$emit('update:modelValue', false)" :disabled="saving">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" @click="$emit('submit')" :disabled="saving || !valid" class="disabled-fade-50">
-        {{ saving ? 'Saving...' : (editing ? 'Update' : 'Create') }}
-      </UiButton>
-    </template>
-  </UiModal>
+
+    <template #confirm>{{ saving ? 'Saving...' : (editing ? 'Update' : 'Create') }}</template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
-import UiButton from '../ui/UiButton.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiFormField from '../ui/UiFormField.vue';
 import UiInput from '../ui/UiInput.vue';
 import type { ExternalGatewayForm } from '../types/myGatewaysPage';

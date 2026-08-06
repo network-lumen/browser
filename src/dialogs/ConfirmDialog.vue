@@ -1,43 +1,38 @@
 <template>
-  <UiModal
+  <UiDialog
     :model-value="modelValue"
     :title="title"
     :panel-class="panelClass"
-    :closable="!busy"
-    @update:model-value="onClose"
+    :busy="busy"
+    :confirm-label="confirmLabel"
+    :busy-label="busyLabel"
+    :cancel-label="cancelLabel"
+    :confirm-variant="variant"
+    :button-class="buttonClass"
+    :spinner="false"
+    @update:model-value="$emit('update:modelValue', false)"
+    @confirm="$emit('confirm')"
   >
     <p v-if="message">{{ message }}</p>
     <slot />
     <p v-if="consequence" class="color-warning mt-8px text-14px">{{ consequence }}</p>
 
-    <template #footer>
-      <UiButton variant="secondary" :class="buttonClass" :disabled="busy" @click="onClose">
-        {{ cancelLabel }}
-      </UiButton>
-      <UiButton :variant="variant" :class="buttonClass" :disabled="busy" @click="$emit('confirm')">
-        <slot name="confirm">{{ busy ? busyLabel : confirmLabel }}</slot>
-      </UiButton>
-    </template>
-  </UiModal>
+    <template v-if="$slots.confirm" #confirm><slot name="confirm" /></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
-import UiButton from '../ui/UiButton.vue';
+import UiDialog from '../ui/UiDialog.vue';
 
 /**
  * "Are you sure?" - a question, what it costs, and a button that cannot be
  * taken back.
  *
- * Pages kept rebuilding this: the same panel width, the same Cancel beside a
- * danger button, the same swap to a present-participle label while the action
- * runs. Only the words differed, so the words are the props.
- *
- * The message is a slot as well as a prop because most of these want a bolded
- * subject in the middle of the sentence, which a string cannot carry.
- * `consequence` is separate rather than part of the message: it is the line
- * that says the deletion is permanent, and it should keep looking like a
- * warning wherever it appears.
+ * Only two things separate this from `UiDialog` itself: the danger variant by
+ * default, and `consequence` - the line saying the deletion is permanent,
+ * which keeps looking like a warning wherever it is used. The message stays a
+ * slot as well as a prop because every caller bolds its subject mid-sentence,
+ * which a string cannot carry.
  */
 withDefaults(
   defineProps<{
@@ -69,12 +64,8 @@ withDefaults(
   }
 );
 
-const emit = defineEmits<{
+defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'confirm'): void;
 }>();
-
-function onClose() {
-  emit('update:modelValue', false);
-}
 </script>

@@ -1,10 +1,14 @@
 <template>
-  <UiModal
+    <UiDialog
     :model-value="modelValue"
     panel-class="w-min-760px-full"
     :closable="!busy"
+    :busy="busy"
+    :confirm-disabled="busy || !canSubmit"
     @update:model-value="close"
+    @confirm="submit"
   >
+
     <template #header>
       <div>
         <h2 class="color-text-primary text-16px">Create gateway</h2>
@@ -33,20 +37,14 @@
       <div v-if="txhash" class="mono mt-12px p-12px bg-success-a08 border-1-success-a25">tx: {{ txhash }}</div>
     </div>
 
-    <template #footer>
-      <UiButton variant="secondary" type="button" :disabled="busy" @click="close">Cancel</UiButton>
-      <UiButton variant="primary" type="button" :disabled="busy || !canSubmit" @click="submit">
-        <span v-if="!busy">Create</span>
-        <span v-else>Submitting…</span>
-      </UiButton>
-    </template>
-  </UiModal>
+    <template #confirm><span v-if="!busy">Create</span>
+        <span v-else>Submitting…</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue';
-import UiModal from '../ui/UiModal.vue';
-import UiButton from '../ui/UiButton.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiFormField from '../ui/UiFormField.vue';
 import UiInput from '../ui/UiInput.vue';
 import type { GatewayRegisterForm } from '../types/gatewaysPage';

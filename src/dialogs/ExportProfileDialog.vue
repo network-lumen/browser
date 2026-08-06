@@ -1,5 +1,12 @@
 <template>
-  <UiModal :model-value="modelValue" title="Export Profile" panel-class="min-w-360px max-w-90vw" @update:model-value="$emit('update:modelValue', false)">
+    <UiDialog
+    :model-value="modelValue"
+    title="Export Profile"
+    panel-class="min-w-360px max-w-90vw"
+    @update:model-value="$emit('update:modelValue', false)"
+    @confirm="$emit('submit')"
+  >
+
           <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
             Export your profile backup.
             <template v-if="requiresPassword">
@@ -73,20 +80,12 @@
             {{ error }}
           </div>
 
-    <template #footer>
-      <UiButton variant="secondary" class="flex-1" @click="$emit('update:modelValue', false)">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" class="flex-1" @click="$emit('submit')">
-        Export {{ encrypted ? '(Encrypted)' : '' }}
-      </UiButton>
-    </template>
-  </UiModal>
+    <template #confirm>Export {{ encrypted ? '(Encrypted)' : '' }}</template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
-import UiModal from '../ui/UiModal.vue';
-import UiButton from '../ui/UiButton.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiInput from '../ui/UiInput.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';

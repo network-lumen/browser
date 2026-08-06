@@ -1,5 +1,14 @@
 <template>
-  <UiModal :model-value="modelValue" title="Export drive snapshot" panel-class="w-full max-w-520px" @update:model-value="$emit('close')">
+    <UiDialog
+    :model-value="modelValue"
+    title="Export drive snapshot"
+    panel-class="w-full max-w-520px"
+    :busy="busy"
+    :confirm-disabled="busy || !password || password.length < 8 || password !== passwordConfirm"
+    @update:model-value="$emit('close')"
+    @confirm="$emit('submit')"
+  >
+
           <p class="color-text-secondary mb-24px text-14px">
             Set a password to encrypt your drive metadata backup for
             <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
@@ -38,33 +47,17 @@
               <div class="color-text-secondary text-13px">{{ error }}</div>
             </div>
           </div>
-          <template #footer>
-            <UiButton variant="secondary" type="button"
-              :disabled="busy"
-              @click="$emit('close')" class="disabled-fade-50">
-              Cancel
-            </UiButton>
-            <UiButton variant="primary" type="button"
-              :disabled="
-                busy ||
-                !password ||
-                password.length < 8 ||
-                password !== passwordConfirm
-              "
-              @click="$emit('submit')">
-              <UiSpinner v-if="busy" size="sm" />
-              <span>{{ busy ? "Exporting..." : "Export" }}</span>
-            </UiButton>
-          </template>
-  </UiModal>
+
+    <template #confirm><UiSpinner v-if="busy" size="sm" />
+              <span>{{ busy ? "Exporting..." : "Export" }}</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import UiModal from '../ui/UiModal.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';
-import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 
 /** Encrypting a Drive snapshot before it leaves the machine. */

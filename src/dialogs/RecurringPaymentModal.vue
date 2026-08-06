@@ -1,5 +1,12 @@
 <template>
-  <UiModal :model-value="true" panel-class="w-full max-w-600px" @update:model-value="$emit('close')">
+    <UiDialog
+    :model-value="true"
+    panel-class="w-full max-w-600px"
+    :confirm-disabled="!isFormValid"
+    @update:model-value="$emit('close')"
+    @confirm="handleSubmit"
+  >
+
     <template #header>
       <h2 class="flex-align-center m-0px color-text-primary text-20px txt-weight-light gap-12px">
         <Calendar :size="24" />
@@ -143,20 +150,14 @@
           </div>
         </div>
 
-    <template #footer>
-      <UiButton variant="secondary" @click="$emit('close')" class="disabled-fade-50">Cancel</UiButton>
-      <UiButton variant="primary" @click="handleSubmit"
-        :disabled="!isFormValid" class="disabled-fade-50">
-        <Check :size="16" />
-        <span>{{ isEditing ? 'Update Payment' : 'Schedule Payment' }}</span>
-      </UiButton>
-    </template>
-  </UiModal>
+    <template #confirm><Check :size="16" />
+        <span>{{ isEditing ? 'Update Payment' : 'Schedule Payment' }}</span></template>
+  </UiDialog>
 </template>
 
 <script setup lang="ts">
 import UiButton from '../ui/UiButton.vue';
-import UiModal from '../ui/UiModal.vue';
+import UiDialog from '../ui/UiDialog.vue';
 import { ref, computed, watch } from 'vue';
 import { Calendar, QrCode, Bell, Check } from 'lucide-vue-next';
 import type { PaymentFrequency } from '../internal/services/recurringPayments';
