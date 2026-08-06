@@ -13,3 +13,13 @@ export type NavBarExtensionSummary = {
 };
 
 export type NavBarImportMode = 'file' | 'manual';
+
+/** The pasted-by-hand fields of the profile import form. */
+export type ManualImportForm = {
+  name: string;
+  mnemonic: string;
+  pqcPublicKey: string;
+  pqcPrivateKey: string;
+  profileSourceName: string;
+  pqcSourceName: string;
+};

@@ -224,276 +224,13 @@
   </header>
 
   <!-- ####### NavBar EXPORT OPTIONS MODAL ####### -->
-  <UiModal :model-value="showExportModal" title="Export Profile" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelExportModal">
-          <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
-            Export your profile backup.
-            <template v-if="exportRequiresPassword">
-              <br/><strong>Note:</strong> Your wallet is password-protected. Enter your password to include wallet data in the backup.
-            </template>
-            <template v-else>
-              You can optionally encrypt it with a password.
-            </template>
-          </p>
-          
-          <!-- Password required for decryption notice -->
-          <div v-if="exportRequiresPassword" class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-            <UiFormGroup label="Wallet Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-              <UiInput
-                type="password"
-                v-model="exportPassword"
-                placeholder="Enter your wallet password"
-                radius-class="border-radius-10px"
-                font-size-class="text-13px"
-                padding-class="py-8px px-10px"
-                border-class="border-default"
-                :focus-ring="false"
-                class="focus-shadow"
-                @keyup.enter="confirmExportProfile"
-              />
-            </UiFormGroup>
-            
-            <div class="hover-bg-hover mt-12px border-radius-10px py-8px px-10px transition-bg-fast">
-              <UiCheckbox v-model="exportEncrypted">Also encrypt the backup file with this password</UiCheckbox>
-            </div>
-          </div>
-          
-          <!-- Optional encryption for non-protected wallets -->
-          <template v-if="!exportRequiresPassword">
-            <div class="hover-bg-hover border-radius-10px py-8px px-10px transition-bg-fast">
-              <UiCheckbox v-model="exportEncrypted">Encrypt backup with password</UiCheckbox>
-            </div>
-            
-            <div v-if="exportEncrypted" class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-              <UiFormGroup label="Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <UiInput
-                  type="password"
-                  v-model="exportPassword"
-                  placeholder="Enter password (min 6 characters)"
-                  radius-class="border-radius-10px"
-                  font-size-class="text-13px"
-                  padding-class="py-8px px-10px"
-                  border-class="border-default"
-                  :focus-ring="false"
-                  class="focus-shadow"
-                />
-              </UiFormGroup>
-              <UiFormGroup label="Confirm Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <UiInput
-                  type="password"
-                  v-model="exportPasswordConfirm"
-                  placeholder="Confirm password"
-                  radius-class="border-radius-10px"
-                  font-size-class="text-13px"
-                  padding-class="py-8px px-10px"
-                  border-class="border-default"
-                  :focus-ring="false"
-                  class="focus-shadow"
-                  @keyup.enter="confirmExportProfile"
-                />
-              </UiFormGroup>
-            </div>
-          </template>
-          
-          <div v-if="exportError" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
-            {{ exportError }}
-          </div>
-          
-    <template #footer>
-      <UiButton variant="secondary" class="flex-1" @click="cancelExportModal">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" class="flex-1" @click="confirmExportProfile">
-        Export {{ exportEncrypted ? '(Encrypted)' : '' }}
-      </UiButton>
-    </template>
-  </UiModal>
+  <ExportProfileDialog :model-value="showExportModal" :password="exportPassword" :password-confirm="exportPasswordConfirm" :encrypted="exportEncrypted" :requires-password="exportRequiresPassword" :error="exportError" @update:model-value="cancelExportModal" @update:password="exportPassword = $event" @update:password-confirm="exportPasswordConfirm = $event" @update:encrypted="exportEncrypted = $event" @submit="confirmExportProfile" />
 
   <!-- ####### NavBar IMPORT MODAL ####### -->
-  <UiModal :model-value="showImportModal" title="Import profile" panel-class="min-w-360px max-w-90vw w-min-560px-92vw" @update:model-value="cancelImportModal">
-          <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
-            Choose how you want to import your profile.
-          </p>
-
-          <div class="gap-8px mb-16px grid grid-cols-2-minmax0">
-            <button
-              type="button"
-              class="hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
-              :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': importMode === 'file' }"
-              @click="setImportMode('file')"
-            >
-              Via file
-            </button>
-            <button
-              type="button"
-              class="hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
-              :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': importMode === 'manual' }"
-              @click="setImportMode('manual')"
-            >
-              Manual
-            </button>
-          </div>
-
-          <div v-if="importMode === 'file'" class="flex flex-column gap-12px">
-            <p class="m-0px border-radius-12px color-text-secondary text-13px p-14px bg-secondary line-height-15 border-05-light">
-              Keep the current workflow and select a full profile backup file or folder.
-            </p>
-          </div>
-
-          <div v-else class="flex flex-column gap-12px">
-            <div class="flex flex-wrap-wrap gap-8px">
-              <UiButton
-                variant="secondary"
-                class="flex-1 min-w-180px"
-                :disabled="importBusy"
-                @click="loadManualProfileSourceIntoForm"
-              >
-                Load profile backup…
-              </UiButton>
-              <UiButton
-                variant="secondary"
-                class="flex-1 min-w-180px"
-                :disabled="importBusy"
-                @click="loadManualPqcSourceIntoForm"
-              >
-                Load Dilithium backup…
-              </UiButton>
-            </div>
-
-            <div
-              v-if="manualImportProfileSourceName || manualImportPqcSourceName"
-              class="flex flex-column border-radius-12px color-text-secondary text-12px gap-4px bg-secondary py-12px px-16px border-05-light"
-            >
-              <div v-if="manualImportProfileSourceName" class="line-height-14 break-word">
-                Profile source: {{ manualImportProfileSourceName }}
-              </div>
-              <div v-if="manualImportPqcSourceName" class="line-height-14 break-word">
-                Dilithium source: {{ manualImportPqcSourceName }}
-              </div>
-            </div>
-
-            <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-              <UiFormGroup label="Profile Name" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <UiInput
-                  v-model="manualImportName"
-                  type="text"
-                  radius-class="border-radius-10px"
-                  font-size-class="text-13px"
-                  padding-class="py-8px px-10px"
-                  border-class="border-default"
-                  :focus-ring="false"
-                  class="focus-shadow"
-                  placeholder="Enter profile name"
-                />
-              </UiFormGroup>
-
-              <UiFormGroup label="Mnemonic" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <UiInput
-                  v-model="manualImportMnemonic"
-                  type="textarea"
-                  radius-class="border-radius-10px"
-                  font-size-class="text-13px"
-                  padding-class="py-8px px-10px"
-                  border-class="border-default"
-                  :focus-ring="false"
-                  class="focus-shadow resize-vertical min-h-84px"
-                  placeholder="Enter wallet mnemonic"
-                />
-              </UiFormGroup>
-
-              <UiFormGroup label="PQC Public Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <UiInput
-                  v-model="manualImportPqcPublicKey"
-                  type="textarea"
-                  radius-class="border-radius-10px"
-                  font-size-class="text-13px"
-                  padding-class="py-8px px-10px"
-                  border-class="border-default"
-                  :focus-ring="false"
-                  class="focus-shadow mono resize-vertical min-h-84px"
-                  placeholder="Optional"
-                />
-              </UiFormGroup>
-
-              <UiFormGroup label="PQC Private Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-                <UiInput
-                  v-model="manualImportPqcPrivateKey"
-                  type="textarea"
-                  radius-class="border-radius-10px"
-                  font-size-class="text-13px"
-                  padding-class="py-8px px-10px"
-                  border-class="border-default"
-                  :focus-ring="false"
-                  class="focus-shadow mono resize-vertical min-h-84px"
-                  placeholder="Optional"
-                />
-              </UiFormGroup>
-            </div>
-
-            <p class="m-0px text-12px color-text-tertiary line-height-15">
-              You can paste values manually or load `profile.json` and `lumen_pqc_*.json` to prefill the form.
-            </p>
-
-            <p class="m-0px text-12px color-text-tertiary line-height-15">
-              If you do not have PQC keys yet, leave both fields empty: they will be generated automatically.
-            </p>
-          </div>
-
-          <div v-if="importModalError" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
-            {{ importModalError }}
-          </div>
-
-    <template #footer>
-      <UiButton variant="secondary" class="flex-1" @click="cancelImportModal">
-        Cancel
-      </UiButton>
-      <UiButton
-        variant="primary"
-        class="flex-1"
-        :disabled="importBusy"
-        @click="importMode === 'file' ? startFileImport() : confirmManualImport()"
-      >
-        <span v-if="!importBusy">{{ importMode === 'file' ? 'Choose file…' : 'Import' }}</span>
-        <span v-else class="flex-inline-align-justify-center gap-8px"><UiSpinner size="sm" /> Importing…</span>
-      </UiButton>
-    </template>
-  </UiModal>
+  <ImportProfileDialog :model-value="showImportModal" :mode="importMode" :form="manualImportForm" :error="importModalError" :busy="importBusy" @update:model-value="cancelImportModal" @update:mode="setImportMode" @update:field="setManualImportField" @pick-profile-source="loadManualProfileSourceIntoForm" @pick-pqc-source="loadManualPqcSourceIntoForm" @submit="importMode === 'file' ? startFileImport() : confirmManualImport()" />
 
   <!-- ####### NavBar IMPORT PASSWORD MODAL (encrypted backups) ####### -->
-  <UiModal :model-value="showImportPasswordModal" title="Encrypted Backup" panel-class="min-w-360px max-w-90vw" @update:model-value="cancelImportPasswordModal">
-          <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
-            This backup is encrypted. Please enter the password to decrypt and import it.
-          </p>
-          
-          <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-            <UiFormGroup label="Backup Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
-              <UiInput
-                type="password"
-                v-model="importPassword"
-                placeholder="Enter backup password"
-                radius-class="border-radius-10px"
-                font-size-class="text-13px"
-                padding-class="py-8px px-10px"
-                border-class="border-default"
-                :focus-ring="false"
-                class="focus-shadow"
-                @keyup.enter="confirmImportEncrypted"
-              />
-            </UiFormGroup>
-          </div>
-          
-          <div v-if="importError" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
-            {{ importError }}
-          </div>
-          
-    <template #footer>
-      <UiButton variant="secondary" class="flex-1" @click="cancelImportPasswordModal">
-        Cancel
-      </UiButton>
-      <UiButton variant="primary" class="flex-1" @click="confirmImportEncrypted">
-        Import
-      </UiButton>
-    </template>
-  </UiModal>
+  <ImportPasswordDialog :model-value="showImportPasswordModal" :password="importPassword" :error="importError" @update:model-value="cancelImportPasswordModal" @update:password="importPassword = $event" @submit="confirmImportEncrypted" />
 
   <!-- Delete Profile Confirm Modal -->
   <ConfirmDialog
@@ -512,35 +249,23 @@
   </ConfirmDialog>
 
   <!-- PQC Link Notice -->
-  <UiModal :model-value="showPqcLinkedModal" title="Post-quantum security enabled" panel-class="min-w-360px max-w-90vw" @update:model-value="dismissPqcLinkedModal">
-    <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
-      Re-export <strong>{{ pqcLinkedProfileDisplay }}</strong>.
-      Your wallet is now linked on-chain and uses post-quantum security.
-    </p>
-    <template #footer>
-      <UiButton variant="secondary" class="flex-1" @click="dismissPqcLinkedModal">
-        Ignore
-      </UiButton>
-      <UiButton variant="primary" class="flex-1" @click="exportAfterPqcLinked">
-        Export
-      </UiButton>
-    </template>
-  </UiModal>
+  <PqcLinkedDialog :model-value="showPqcLinkedModal" :profile-name="pqcLinkedProfileDisplay" @dismiss="dismissPqcLinkedModal" @export="exportAfterPqcLinked" />
 </template>
 
 <script setup lang="ts">
 import UiInput from '../ui/UiInput.vue';
 import UiCard from '../ui/UiCard.vue';
-import UiModal from '../ui/UiModal.vue';
 import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
-import UiFormGroup from '../ui/UiFormGroup.vue';
+import PqcLinkedDialog from '../dialogs/PqcLinkedDialog.vue';
+import ImportPasswordDialog from '../dialogs/ImportPasswordDialog.vue';
+import ImportProfileDialog from '../dialogs/ImportProfileDialog.vue';
+import ExportProfileDialog from '../dialogs/ExportProfileDialog.vue';
 import { computed,  onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { ArrowLeft, ArrowRight, RefreshCw, Search, House, Cloud, Trash2, Star, ChevronDown, Puzzle, ExternalLink } from 'lucide-vue-next';
 import ActiveProfileCard from '../components/ActiveProfileCard.vue';
 import ProfileAvatar from '../components/ProfileAvatar.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
-import UiCheckbox from '../ui/UiCheckbox.vue';
 import UiToggle from '../ui/UiToggle.vue';
 import UiMenuItem from '../ui/UiMenuItem.vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
@@ -559,8 +284,9 @@ import {
 } from '../internal/profilesStore';
 import { useFavourites } from '../internal/favouritesStore';
 import { buildExtensionTabUrl, normalizeAddressInput } from '../internal/navigationUrl';
+import type { Ref } from 'vue';
 import type { Tab } from '../types/tab';
-import type { NavBarExtensionSummary, NavBarImportMode } from '../types/navBar';
+import type { NavBarExtensionSummary, NavBarImportMode , ManualImportForm } from '../types/navBar';
 import { clamp, errorMessage } from '../internal/services/coerce';
 
 import { useTabNavigation } from '../composables/useTabNavigation';
@@ -618,6 +344,29 @@ const manualImportPqcPublicKey = ref('');
 const manualImportPqcPrivateKey = ref('');
 const manualImportProfileSourceName = ref('');
 const manualImportPqcSourceName = ref('');
+
+/** The six manual-import refs as one object, for the dialog that presents them. */
+const manualImportForm = computed<ManualImportForm>(() => ({
+  name: manualImportName.value,
+  mnemonic: manualImportMnemonic.value,
+  pqcPublicKey: manualImportPqcPublicKey.value,
+  pqcPrivateKey: manualImportPqcPrivateKey.value,
+  profileSourceName: manualImportProfileSourceName.value,
+  pqcSourceName: manualImportPqcSourceName.value
+}));
+
+const MANUAL_IMPORT_REFS: Record<keyof ManualImportForm, Ref<string>> = {
+  name: manualImportName,
+  mnemonic: manualImportMnemonic,
+  pqcPublicKey: manualImportPqcPublicKey,
+  pqcPrivateKey: manualImportPqcPrivateKey,
+  profileSourceName: manualImportProfileSourceName,
+  pqcSourceName: manualImportPqcSourceName
+};
+
+function setManualImportField(field: keyof ManualImportForm, value: string) {
+  MANUAL_IMPORT_REFS[field].value = value;
+}
 
 // Import encrypted modal state
 const showImportPasswordModal = ref(false);

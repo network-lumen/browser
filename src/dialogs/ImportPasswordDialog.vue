@@ -1,0 +1,52 @@
+<template>
+  <UiModal :model-value="modelValue" title="Encrypted Backup" panel-class="min-w-360px max-w-90vw" @update:model-value="$emit('update:modelValue', false)">
+          <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
+            This backup is encrypted. Please enter the password to decrypt and import it.
+          </p>
+
+          <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
+            <UiFormGroup label="Backup Password" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <UiInput
+                type="password"
+                :model-value="password" @update:model-value="$emit('update:password', $event)"
+                placeholder="Enter backup password"
+                radius-class="border-radius-10px"
+                font-size-class="text-13px"
+                padding-class="py-8px px-10px"
+                border-class="border-default"
+                :focus-ring="false"
+                class="focus-shadow"
+                @keyup.enter="$emit('submit')"
+              />
+            </UiFormGroup>
+          </div>
+
+          <div v-if="error" class="border-radius-10px text-12px py-8px px-10px mt-8px bg-error-a08 color-error border-05-error-a25">
+            {{ error }}
+          </div>
+
+    <template #footer>
+      <UiButton variant="secondary" class="flex-1" @click="$emit('update:modelValue', false)">
+        Cancel
+      </UiButton>
+      <UiButton variant="primary" class="flex-1" @click="$emit('submit')">
+        Import
+      </UiButton>
+    </template>
+  </UiModal>
+</template>
+
+<script setup lang="ts">
+import UiModal from '../ui/UiModal.vue';
+import UiButton from '../ui/UiButton.vue';
+import UiFormGroup from '../ui/UiFormGroup.vue';
+import UiInput from '../ui/UiInput.vue';
+
+/** The password prompt for an encrypted profile backup being imported. */
+defineProps<{ modelValue: boolean; password: string; error?: string }>();
+defineEmits<{
+  (e: 'update:modelValue', value: boolean): void;
+  (e: 'update:password', value: string): void;
+  (e: 'submit'): void;
+}>();
+</script>
