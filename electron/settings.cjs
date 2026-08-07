@@ -2,13 +2,14 @@ const { app, BrowserWindow } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 5 * 60 * 1000;
+const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 15 * 60 * 1000;
 const BYTES_PER_GIB = 1024 * 1024 * 1024;
 const DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = 10;
 const MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = Math.floor(Number.MAX_SAFE_INTEGER / BYTES_PER_GIB);
 const VALID_IPFS_CONNECTIVITY_MODES = new Set(['light', 'normal', 'high']);
+// 5 minutes was the old floor. Anything stored at that value now falls back to
+// the default below, which raises it rather than lowering anyone's setting.
 const VALID_SECURITY_SESSION_TIMEOUTS = new Set([
-  5 * 60 * 1000,
   15 * 60 * 1000,
   30 * 60 * 1000,
   2 * 60 * 60 * 1000
