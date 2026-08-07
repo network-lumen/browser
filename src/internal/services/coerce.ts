@@ -6,7 +6,17 @@
  * ever throwing, so callers can stay linear instead of guarding each field.
  */
 
-/** Upper bound applied to untrusted strings so a hostile payload can't blow up the UI. */
+/**
+ * Upper bound applied to untrusted strings so a hostile payload can't blow up
+ * the UI.
+ *
+ * 4096, where the main process's `electron/utils/strings.cjs` uses 2048. The
+ * two are separate implementations by necessity - this is bundled TypeScript
+ * and cannot require a `.cjs` from the other process - and the difference is
+ * live here: about half the calls in `src/` omit the argument, while every
+ * call on the main-process side passes one. Lowering it to match would start
+ * truncating strings that reach the UI today.
+ */
 const DEFAULT_MAX_LENGTH = 4096;
 
 /** Trimmed string, capped in length. Returns `''` for anything unusable. */

@@ -1,6 +1,12 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-function safeString(value, maxLen = 4096) {
+/**
+ * Copy of `utils/strings.cjs`. A sandboxed preload cannot `require()` a local
+ * file, so pointing this at the shared one stops the preload loading at all,
+ * silently. Keep it byte-identical instead - the only defence a copy has is
+ * being the same, and this one had drifted to a 4096 default.
+ */
+function safeString(value, maxLen = 2048) {
   const text = String(value ?? '').trim();
   if (!text) return '';
   return text.length > maxLen ? text.slice(0, maxLen) : text;
