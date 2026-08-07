@@ -133,7 +133,6 @@ async function httpGet(url, options = {}) {
       'cache-control': 'no-cache, no-store, must-revalidate',
       pragma: 'no-cache'
     };
-    //console.log("[http:get]", rewritten.url);
     const res = await fetch(rewritten.url, {
       method: 'GET',
       cache: 'no-store',
@@ -162,12 +161,6 @@ async function httpGet(url, options = {}) {
     };
   } catch (e) {
     const isTimeout = e.name === 'AbortError' || String(e).includes('aborted');
-    const isDnsError = e.cause && (e.cause.code === 'ENOTFOUND' || e.cause.code === 'EAI_AGAIN');
-    //console.warn("[http:get]", rewriteLocalhostSubdomain(url, options.headers), e);
-    // Only log non-timeout and non-DNS errors
-    if (!isTimeout && !isDnsError) {
-      //console.warn('[electron][http:get] error', e);
-    }
     return {
       ok: false,
       status: 0,

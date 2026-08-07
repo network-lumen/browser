@@ -894,6 +894,84 @@ const FUNCTION_PROP_ALLOWLIST = new Map([
 }
 
 // ---------------------------------------------------------------------------
+// Rule 17 & 18: comments are in English, and are not code.
+//
+// Found in a file that turned out to be dead scaffolding: a French "// ton
+// ipfs import ici" sitting above a commented-out import, in a worker whose
+// only call was to the function that import would have provided. Nothing
+// referenced the file, so it would have thrown on its first run.
+//
+// Two separate problems, one sweep.
+//
+// English is not a style preference here: the code, the docs and the commit
+// messages are English, and a comment in another language is one the next
+// reader skips. The detection is deliberately narrow - accented characters,
+// or two words that have no English homograph. The first attempt matched on
+// "on", "note", "la" and "si" and reported 345 English sentences, which is
+// how a check earns its way into being switched off.
+//
+// Commented-out code is the second half. It says nothing about why it is
+// there, git already remembers it, and it rots: the http:get error branch had
+// been commented out until the `if` around it was empty, while the comment
+// above still explained the logging it was supposed to do.
+// ---------------------------------------------------------------------------
+const NON_ENGLISH_ACCENTS = /[àâäéèêëïîôöùûüÿçœæ]/i;
+
+/** No English homograph. `on`, `note`, `la`, `si`, `de` are excluded on purpose. */
+const FRENCH_ONLY = /\b(?:dans|avec|pour|sous|vers|chez|entre|sans|mais|donc|alors|quand|lorsque|avant|apres|toujours|jamais|aucun|aucune|chaque|plusieurs|depuis|pendant|ensuite|sinon|parce|celui|celle|ceux|cela|ceci|ici|nous|vous|elles|leur|leurs|notre|votre|faut|doit|peut|veut|sont|etait|sera|etre|faire|mettre|prendre|savoir|aller|venir|tous|toute|toutes|rien|quelque|necessaire|besoin|fichier|ligne|erreur|ajouter|supprimer|verifier|utiliser)\b/i;
+
+/** A comment body that is a statement rather than a sentence. */
+const COMMENTED_OUT_CODE = [
+  /^import\s+[\w{*][^;]*from\s+['"]/,
+  /^export\s+(?:default\s+)?(?:const|function|class)\s/,
+  /^(?:const|let|var)\s+[\w{[][\w\s,{}[\]:]*=\s*\S/,
+  /^(?:console|window|document|process)\.\w+\(/,
+  /^(?:await\s+)?\w[\w.]*\([^)]*\)\s*;?\s*$/,
+  /^return\s+\S+\s*;\s*$/,
+  /^(?:if|for|while|switch)\s*\(.+\)\s*\{\s*$/,
+];
+
+{
+  const commentedFiles = [...vueFiles, ...tsFiles, ...electronFiles, ...walk(join(ROOT, 'scripts'), ['.mjs'])];
+  for (const file of commentedFiles) {
+    const rel = relative(ROOT, file);
+    // Split on /\r?\n/: `.` does not match \r, so a trailing-comment regex
+    // anchored with $ never matches in a CRLF file and every one is missed.
+    readFileSync(file, 'utf8').split(/\r?\n/).forEach((raw, index) => {
+      const trimmed = raw.trim();
+      let body = null;
+      if (trimmed.startsWith('//')) body = trimmed.slice(2).trim();
+      else if (/^\*(?!\/)/.test(trimmed)) body = trimmed.slice(1).trim();
+      else {
+        const m = raw.match(/(?:^|[^:'"`\\])\/\/(.*)$/);
+        if (m && !/['"`]/.test(m[1])) body = m[1].trim();
+      }
+      if (!body || /^(?:eslint|@ts-|prettier|https?:\/\/)/.test(body)) return;
+
+      const line = index + 1;
+      const words = body.split(/[^a-zA-ZÀ-ÿ]+/).filter(Boolean);
+      const frenchWords = words.filter((w) => FRENCH_ONLY.test(w)).length;
+      if (NON_ENGLISH_ACCENTS.test(body) || frenchWords >= 2) {
+        violations.push({
+          rule: 'comment-must-be-english',
+          file: rel,
+          line,
+          detail: body.slice(0, 90),
+        });
+      }
+      if (trimmed.startsWith('//') && COMMENTED_OUT_CODE.some((re) => re.test(body))) {
+        violations.push({
+          rule: 'no-commented-out-code',
+          file: rel,
+          line,
+          detail: `${body.slice(0, 80)} - delete it; git remembers it`,
+        });
+      }
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 const titles = {
@@ -912,6 +990,8 @@ const titles = {
   'no-duplicate-class-token': 'Same class listed twice in one class="..." attribute',
   'no-dead-css-variable': 'CSS custom property (--foo) defined in theme.css but never referenced via var()',
   'no-function-prop': 'Function passed as a prop (a component should not receive its own presentation)',
+  'comment-must-be-english': 'Comment is not in English (the code, docs and commits all are)',
+  'no-commented-out-code': 'Commented-out code (it explains nothing and git already has it)',
 };
 
 if (warnings.length) {
