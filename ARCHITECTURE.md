@@ -165,18 +165,13 @@ other would have silently dropped files at restore.
 `goto`/`openInNewTabSafe` and they disagreed: one had no fallback at all, one turned a blank URL
 into the new tab page, one forwarded the caller's push option and the rest hard-coded it.
 
-**Comments are English, and are not code.** Both were found in one file that turned out to be dead
-scaffolding: a French `// ton ipfs import ici` sitting above a commented-out import, in a worker
-whose only call was to the function that import would have provided - nothing referenced the file,
-so it would have thrown on its first run. English is not a style preference: the code, the docs and
-the commits are English, and a comment in another language is one the next reader skips.
-Commented-out code says nothing about why it is there, git already remembers it, and it rots - the
-`http:get` error branch had been commented out until the `if` around it was empty, while the comment
-above still explained the logging it was supposed to be doing.
-
-> The detection is deliberately narrow: accented characters, or two words with no English homograph.
-> The first attempt matched on `on`, `note`, `la` and `si`, and reported 345 English sentences.
-> That is how a check earns its way into being switched off.
+**Comments are English, and are not code.** Not machine-checked - the whole repo held three
+non-English comments and four commented-out lines, which is not a rate worth a rule. It is written
+down because of where they were: a French `// ton ipfs import ici` above a commented-out import, in
+a worker whose only call was to the function that import would have provided. Nothing referenced the
+file, so it would have thrown on its first run. Commented-out code also rots - the `http:get` error
+branch had been commented out until the `if` around it was empty, while the comment above still
+explained the logging it was supposed to be doing.
 
 ---
 
