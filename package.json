@@ -16,7 +16,7 @@
     "dist": "npm run build && electron-builder --publish=never",
     "dist:win": "npm run build && electron-builder --win nsis --publish=never",
     "electron": "electron .",
-    "test": "npm run check:conventions && npm run lint && npm run typecheck && npm run test:unit",
+    "test": "npm run check:conventions && npm run check:ipc && npm run lint && npm run typecheck && npm run test:unit",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "check:conventions": "node scripts/check-conventions.mjs",
@@ -24,7 +24,8 @@
     "typecheck": "vue-tsc --noEmit",
     "test:e2e": "npx playwright test",
     "test:all": "npm run test:unit && npm run test:e2e",
-    "doc:window.lumen": "node --experimental-specifier-resolution=node scripts/generate-window-lumen-doc.mjs"
+    "doc:window.lumen": "node --experimental-specifier-resolution=node scripts/generate-window-lumen-doc.mjs",
+    "check:ipc": "node scripts/check-ipc.mjs"
   },
   "dependencies": {
     "@cosmjs/crypto": "^0.36.0",
