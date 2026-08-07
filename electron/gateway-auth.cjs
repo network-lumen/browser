@@ -175,10 +175,28 @@ async function authenticateRequest(headers, cid) {
 }
 
 /**
- * Verify API key
+ * Verify API key.
+ *
+ * This used to be `apiKey === config?.apiKey`, which accepted a request with
+ * no `x-api-key` header at all whenever the server had no key configured -
+ * `undefined === undefined` is true. That guards the whitelist admin
+ * endpoints, and the server runs with permissive CORS, so a web page could
+ * have administered the local gateway in that state. A missing configured key
+ * now refuses everything instead of accepting anything.
+ *
+ * Compared with `timingSafeEqual` because this is a bearer secret: a plain
+ * `===` leaks its length and, in principle, its prefix through comparison
+ * time.
  */
 function verifyApiKey(apiKey) {
-  return apiKey === config?.apiKey;
+  const expected = config && typeof config.apiKey === 'string' ? config.apiKey : '';
+  const given = typeof apiKey === 'string' ? apiKey : '';
+  if (!expected || !given) return false;
+
+  const a = Buffer.from(given, 'utf8');
+  const b = Buffer.from(expected, 'utf8');
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
 }
 
 module.exports = {
