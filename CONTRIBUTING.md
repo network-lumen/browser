@@ -10,7 +10,7 @@ arbitrary.
 ## Before you open a PR
 
 ```bash
-npm test          # conventions, IPC contract, eslint (src + electron), vue-tsc, unit tests
+npm test          # conventions, IPC contract, test reachability, eslint (src + electron), vue-tsc, unit tests
 npm run test:e2e  # Playwright, needs `npx playwright install chromium` once
 ```
 
