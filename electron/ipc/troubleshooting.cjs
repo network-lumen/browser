@@ -1,4 +1,5 @@
 const { safeString } = require('../utils/strings.cjs');
+const { ensureDir } = require('../utils/fs.cjs');
 const { ipcMain, app, clipboard, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
@@ -18,12 +19,6 @@ const LOGS_DIRNAME = 'logs';
 const REPORT_FILENAME = 'debug-report.txt';
 const MAX_LOG_TAIL_LINES = 200;
 const MAX_LOG_TAIL_CHARS = 40_000;
-
-function ensureDir(dirPath) {
-  try {
-    fs.mkdirSync(dirPath, { recursive: true });
-  } catch {}
-}
 
 function getUserDataDir() {
   return app.getPath('userData');
