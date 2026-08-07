@@ -64,11 +64,16 @@ const { contextBridge, ipcRenderer } = require('electron');
 /**
  * Coerce a value to a trimmed string, capped at `maxLen` characters.
  * Used everywhere untrusted/renderer-provided input crosses into an IPC call.
+ *
+ * Copy of `utils/strings.cjs`. A sandboxed preload cannot `require()` a local
+ * file, so pointing this at the shared one stops the preload loading at all,
+ * silently - which is how every site lost `window.lumen` once already. Keep it
+ * byte-identical instead: the only defence a copy has is being the same.
  */
-function safeString(v, maxLen = 2048) {
-  const s = String(v ?? '').trim();
-  if (!s) return '';
-  return s.length > maxLen ? s.slice(0, maxLen) : s;
+function safeString(value, maxLen = 2048) {
+  const text = String(value ?? '').trim();
+  if (!text) return '';
+  return text.length > maxLen ? text.slice(0, maxLen) : text;
 }
 
 /** Clamp a delay (ms) to a sane [250, 30000] range, falling back if not finite. */

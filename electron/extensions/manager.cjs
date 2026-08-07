@@ -415,6 +415,9 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
   }
   root.__lumenBackgroundShimInstalled = true;
 
+  // Copy of utils/strings.cjs, and unavoidable: this is inside the generated
+  // source of the MV3 service-worker shim, which runs in the extension's own
+  // worker realm with nothing of ours to require.
   const safeString = (value, maxLen = 2048) => {
     const text = String(value ?? '').trim();
     if (!text) return '';
