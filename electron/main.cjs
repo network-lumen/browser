@@ -1547,6 +1547,55 @@ ipcMain.handle('lumenSite:sendToken', async (evt, input) => {
   });
 });
 
+/**
+ * Approval for a signature requested through the Keplr/Leap shims.
+ *
+ * Those shims stand in for a wallet extension, and a real one always shows its
+ * own approval window before signing. Nothing showed one here, so a site could
+ * sign with an unlocked session and never surface it - unlike
+ * lumenSite:sendToken above, which has always prompted.
+ *
+ * Deliberately does NOT go through ensureLumenSitePermission: that persists an
+ * "always allow", which is right for reading a domain and wrong for
+ * authorising signatures. Every call prompts.
+ */
+ipcMain.handle('lumenSite:approveWalletSigning', async (evt, input) => {
+  const ctx = senderSiteContext(evt);
+  if (!ctx.ok) return { ok: false, error: ctx.error };
+
+  const operation = safeString(input && input.operation ? input.operation : '', 64);
+  const chainId = safeString(input && input.chainId ? input.chainId : '', 128);
+  const signerAddress = safeString(input && input.signerAddress ? input.signerAddress : '', 256);
+  const details = safeString(input && input.details ? input.details : '', 8192);
+
+  const lock = tryBeginSiteAction(ctx.siteKey);
+  if (!lock.ok) return lock;
+
+  return enqueueUi(async () => {
+    try {
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+
+      await enforceSiteModalDelay(ctx.siteKey);
+
+      if (!isSenderSiteContextStillValid(ctx)) return { ok: false, error: 'tab_closed' };
+
+      const res = await requestUi(
+        'walletSign',
+        { siteKey: ctx.siteKey, meta: { href: ctx.href }, operation, chainId, signerAddress, details },
+        { timeoutMs: UI_INTERACTIVE_TIMEOUT_MS }
+      );
+      markSiteModalCooldown(ctx.siteKey);
+
+      // Anything short of an explicit approval is a refusal - a timeout, a
+      // closed window, a malformed reply. The safe default is not to sign.
+      if (res && res.ok === true && res.approved === true) return { ok: true };
+      return { ok: false, error: safeString((res && res.error) || 'user_denied', 128) };
+    } finally {
+      endSiteAction(lock.key);
+    }
+  });
+});
+
 ipcMain.handle('lumenSite:pin', async (evt, input) => {
   const ctx = senderSiteContext(evt);
   if (!ctx.ok) return { ok: false, error: ctx.error };
