@@ -40,7 +40,8 @@ import { useInternalLumen } from '../composables/useInternalLumen';
 import { normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
 import type { Tab, RegisterFindTargetFn } from "../types/tab";
 import { navigateTabToInternalUrl } from '../internal/services/tabHistory';
-import { clamp, safeNumber } from "../internal/services/coerce";
+import { tabCurrentUrl } from '../internal/services/tabPosition';
+import { safeNumber } from "../internal/services/coerce";
 
 
 const props = defineProps<{
@@ -87,30 +88,14 @@ watch(
   { immediate: true },
 );
 
+/**
+ * What the address bar shows. Unlike the pane below it, a draft wins: while
+ * the user is typing, the bar shows what they typed, not where the tab is.
+ */
 function currentUrl(): string {
-  const t = activeTab.value;
-  if (!t) return "lumen://newtab";
-
-  // 🔥 PRIORITAS: draft dulu
-  if (t.draftUrl !== undefined) {
-    return t.draftUrl;
-  }
-
-  const fallback = t.url || "lumen://newtab";
-  const history = Array.isArray(t.history) ? t.history : [];
-
-  const rawPos =
-    typeof t.history_position === "number"
-      ? t.history_position
-      : history.length - 1;
-
-  const max = Math.max(history.length - 1, 0);
-  const pos = clamp(rawPos, 0, max);
-  const entry = history[pos] || history[history.length - 1];
-
-  const url = typeof entry?.url === "string" ? entry.url.trim() : "";
-
-  return url || fallback;
+  const tab = activeTab.value;
+  if (tab?.draftUrl !== undefined) return tab.draftUrl;
+  return tabCurrentUrl(tab, { fallback: "lumen://newtab" });
 }
 
 function navigateInternal(url: string, opts: { push?: boolean } = {}) {
@@ -135,11 +120,7 @@ function onRefresh() {
   if (!tab) return;
   if (activeTabIsExtension.value) return;
   tab.refreshTick = (tab.refreshTick ?? 0) + 1;
-  const history = tab.history || [];
-  const pos = tab.history_position ?? history.length - 1;
-  const entry = history[pos] || history[history.length - 1];
-  const target = entry?.url || tab.url || "lumen://newtab";
-  navigateInternal(target, { push: false });
+  navigateInternal(tabCurrentUrl(tab, { fallback: "lumen://newtab" }), { push: false });
 }
 
 function onHistoryStep(payload: { delta: number }) {

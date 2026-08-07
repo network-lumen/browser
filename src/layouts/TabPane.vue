@@ -19,7 +19,7 @@ import {
 import { isBrowserUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
 import type { Tab } from "../types/tab";
 import { navigateTabToInternalUrl } from '../internal/services/tabHistory';
-import { clamp } from "../internal/services/coerce";
+import { tabCurrentUrl } from '../internal/services/tabPosition';
 
 const props = defineProps<{
   tab: Tab;
@@ -35,18 +35,7 @@ function isExtensionTabUrl(rawUrl: string): boolean {
 }
 
 function currentUrl(): string {
-  const tab = tabState.value;
-  const fallback = tab?.url || "lumen://newtab";
-  const history = Array.isArray(tab?.history) ? tab.history : [];
-  const rawPos =
-    typeof tab?.history_position === "number"
-      ? tab.history_position
-      : history.length - 1;
-  const max = Math.max(history.length - 1, 0);
-  const pos = clamp(rawPos, 0, max);
-  const entry = history[pos] || history[history.length - 1];
-  const url = typeof entry?.url === "string" ? entry.url.trim() : "";
-  return url || fallback;
+  return tabCurrentUrl(tabState.value, { fallback: "lumen://newtab" });
 }
 
 provide(

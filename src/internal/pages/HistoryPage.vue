@@ -133,7 +133,7 @@ import { formatTimeOfDay } from "../services/format";
 
 
 import { useTabNavigation } from "../../composables/useTabNavigation";
-const { navigate, openInNewTab } = useTabNavigation();
+const { open } = useTabNavigation();
 const query = ref("");
 
 const {
@@ -194,21 +194,11 @@ const emptyCopy = computed(() => {
 });
 
 function openEntry(url: string) {
-  const target = String(url || "").trim();
-  if (!target) return;
-  if (openInNewTab) {
-    openInNewTab(target);
-    return;
-  }
-  navigate?.(target, { push: true });
+  open(url, { blank: true });
 }
 
 function openNewTab() {
-  if (openInNewTab) {
-    openInNewTab("lumen://newtab");
-    return;
-  }
-  navigate?.("lumen://newtab", { push: true });
+  open("lumen://newtab", { blank: true });
 }
 
 function toggleHistoryMode() {
