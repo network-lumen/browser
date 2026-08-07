@@ -1385,7 +1385,7 @@ function getCumulativeProgress(index: number): number {
 // Stake modal functions
 function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw' = 'Delegate') {
   if (!hasActiveProfile.value) {
-    alert('Please create or select a wallet profile first');
+    toast.error('Create or select a wallet profile first');
     return;
   }
 

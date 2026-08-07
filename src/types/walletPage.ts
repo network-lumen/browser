@@ -127,3 +127,17 @@ export type StoredChainRegistryCache = Record<
   string,
   { updatedAt: number; chain: any | null; assets: any[] }
 >;
+
+/** The bit of an activity that decides how it is drawn. */
+export type ActivityLike = { action?: string; type?: string };
+
+export type ActivityDescriptor = {
+  label: string;
+  /** Theme colour token, empty when the message is unrecognised. */
+  tint: string;
+  icon: unknown;
+  carriesDomainName: boolean;
+};
+
+/** One chain message type and everything an activity row shows for it. */
+export type ChainMessageEntry = ActivityDescriptor & { type: string };
