@@ -217,8 +217,8 @@ import {
   Calendar, Plus, Bell, AlertCircle, X, PlayCircle, PauseCircle, 
   DollarSign, Edit, Trash2, History, Check, Clock
 } from 'lucide-vue-next';
-import RecurringPaymentModal from './RecurringPaymentModal.vue';
-import QrScanner from './QrScanner.vue';
+import RecurringPaymentModal from '../dialogs/RecurringPaymentModal.vue';
+import QrScanner from '../dialogs/QrScanner.vue';
 import { getRecurringPaymentsService, type RecurringPayment, type PaymentHistory } from '../internal/services/recurringPayments';
 import { formatDate, formatDateTime, formatDecimal, shortenAddress } from '../internal/services/format';
 import AddressLabel from '../entities/AddressLabel.vue';
