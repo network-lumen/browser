@@ -2,22 +2,22 @@ import type { SecuritySessionTimeoutMs } from "../../types/settings";
 
 export type { SecuritySessionTimeoutMs };
 
-export const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 5 * 60 * 1000;
+export const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 15 * 60 * 1000;
 
+/**
+ * 5 minutes used to be the shortest option. It is gone rather than deprecated:
+ * a setting stored at that value no longer normalizes, so it falls back to the
+ * default above - which lengthens nobody's lock but shortens nobody's session
+ * either. Keep this list in step with electron/settings.cjs, which validates
+ * the same values on the way in.
+ */
 const VALID_SECURITY_SESSION_TIMEOUTS = new Set<number>([
-  5 * 60 * 1000,
   15 * 60 * 1000,
   30 * 60 * 1000,
   2 * 60 * 60 * 1000,
 ]);
 
 export const SECURITY_SESSION_TIMEOUT_OPTIONS = Object.freeze([
-  {
-    value: 5 * 60 * 1000,
-    serialized: "300000",
-    label: "5 min",
-    durationText: "5 minutes",
-  },
   {
     value: 15 * 60 * 1000,
     serialized: "900000",
