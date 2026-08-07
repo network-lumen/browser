@@ -15,7 +15,8 @@
  */
 /** Top-level `window.lumen.<name>()` functions. */
 export const REQUIRED_FUNCTIONS = [
-  'appIsRoot', 'clipboardWriteText', 'tabsOnOpenInNewTab', 'tabsReportState', 'settingsGetAll',
+  'appIsRoot', 'appReportRendererError', 'clipboardWriteText', 'tabsOnOpenInNewTab',
+  'tabsReportState', 'settingsGetAll',
   'settingsSet', 'settingsOnChanged', 'bootstrapPathGetState',
   'bootstrapPathSetCustomUserDataPath', 'bootstrapPathResetCustomUserDataPath',
   'settingsLoadGateways', 'settingsAddGateway', 'settingsUpdateGateway',

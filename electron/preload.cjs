@@ -2,6 +2,20 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('lumen', {
   appPlatform: process.platform,
+  /**
+   * Report an error the renderer could not handle, for errors.log.
+   *
+   * Fire-and-forget on purpose: this is called from `window.onerror`, and a
+   * reporter that can itself reject would turn one error into two. Deliberately
+   * absent from webview-preload - a page must not be able to write to the log.
+   */
+  appReportRendererError: (payload) => {
+    try {
+      ipcRenderer.send('app:reportRendererError', payload || {});
+    } catch {
+      // Nothing useful left to do if the bridge is already gone.
+    }
+  },
   appIsRoot: () => {
     try {
       return typeof process.getuid === 'function' && process.getuid() === 0;

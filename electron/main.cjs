@@ -8,7 +8,7 @@ const {
   resetCustomUserDataPath,
   setCustomUserDataPath,
 } = require('./bootstrap_paths.cjs');
-const { initializeMainLogger } = require('./services/main_logger.cjs');
+const { initializeMainLogger, appendRendererError } = require('./services/main_logger.cjs');
 
 function configureAppPaths() {
   try {
@@ -347,6 +347,23 @@ ipcMain.handle('siteHost:status', async () => getSiteHostStatus());
  * claim any webContents belongs to a domain of its choosing - which is the one
  * thing the site context exists to prevent.
  */
+/**
+ * An error the renderer could not handle itself, on its way to errors.log.
+ *
+ * `ensureUiSender` is not optional here. This writes to a file on every call,
+ * so a channel a page could reach is a way to fill the user's disk from a
+ * tab - which is also why it is not exposed in webview-preload at all. Two
+ * gates rather than one, because the cheap one can be forgotten.
+ */
+ipcMain.on('app:reportRendererError', (evt, payload) => {
+  if (!ensureUiSender(evt).ok) return;
+  try {
+    appendRendererError(payload);
+  } catch {
+    // A logger that throws is worse than a missing line.
+  }
+});
+
 ipcMain.on('site:registerDomainTarget', (evt, targetWebContentsId, host) => {
   if (!ensureUiSender(evt).ok) return;
   const id = Number(targetWebContentsId);
