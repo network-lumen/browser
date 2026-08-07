@@ -50,6 +50,17 @@
   <SiteKeyExportDialog :model-value="!!(current && modalType === 'siteDataKeyExport')" :site-label="siteLabel" :ipns-name="keyFlowIpnsName" @close="closeKeyExport" @confirm="confirmKeyExport" />
 
   <SiteKeyImportDialog :model-value="!!(current && modalType === 'siteDataKeyImport')" :site-label="siteLabel" :ipns-name="keyFlowIpnsName" :has-existing="keyFlowHasExisting" v-model:backup-first="keyImportBackupFirst" @close="closeKeyImport" @confirm="confirmKeyImport" />
+
+  <SiteSignRequestDialog
+    :model-value="!!(current && modalType === 'walletSign')"
+    :site-label="siteLabel"
+    :operation="signOperation"
+    :chain-id="signChainId"
+    :signer-address="signSignerAddress"
+    :details="signDetails"
+    @close="closeSignRequest"
+    @confirm="confirmSignRequest"
+  />
 </template>
 
 <script setup lang="ts">
@@ -63,6 +74,7 @@ import SiteStableLinkDialog from '../dialogs/SiteStableLinkDialog.vue';
 import SiteStableLinkSetupDialog from '../dialogs/SiteStableLinkSetupDialog.vue';
 import SiteKeyExportDialog from '../dialogs/SiteKeyExportDialog.vue';
 import SiteKeyImportDialog from '../dialogs/SiteKeyImportDialog.vue';
+import SiteSignRequestDialog from '../dialogs/SiteSignRequestDialog.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { Save } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
@@ -118,6 +130,18 @@ const keyImportBackupFirst = ref(true);
 
 const keyFlowIpnsName = computed(() => String(current.value?.data?.ipnsName || ""));
 const keyFlowHasExisting = computed(() => !!current.value?.data?.hasExisting);
+
+const signOperation = computed(() => String(current.value?.data?.operation || ""));
+const signChainId = computed(() => String(current.value?.data?.chainId || ""));
+const signSignerAddress = computed(() => String(current.value?.data?.signerAddress || ""));
+const signDetails = computed(() => String(current.value?.data?.details || ""));
+
+function closeSignRequest() {
+  respond({ ok: false, error: "user_denied" });
+}
+function confirmSignRequest() {
+  respond({ ok: true, approved: true });
+}
 
 function closeKeyExport() {
   respond({ ok: false, error: "user_cancelled" });

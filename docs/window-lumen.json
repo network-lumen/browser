@@ -1,7 +1,7 @@
 {
   "title": "window.lumen API Reference",
   "source": "electron/webview-preload.cjs",
-  "generatedAt": "2026-08-04T23:37:24.687Z",
+  "generatedAt": "2026-08-07T11:10:18.961Z",
   "generator": "scripts/generate-window-lumen-doc.mjs",
   "appVersion": "0.9.8",
   "groups": [

@@ -1350,6 +1350,44 @@ async function getWalletAccountsForChain(chainId) {
   };
 }
 
+/**
+ * Blocks until the user approves a signature, or throws.
+ *
+ * The Keplr/Leap shims stand in for a wallet extension, and a real one always
+ * shows its own approval window. Nothing showed one here, so a site could sign
+ * with an unlocked session and never surface it. Every signing entry point
+ * below waits on this.
+ *
+ * `details` is what the user is actually agreeing to, pretty-printed. Failing
+ * to serialize it is not a reason to skip the prompt - the prompt still shows,
+ * with less detail.
+ */
+async function requireSigningApproval(operation, { chainId, signerAddress, payload } = {}) {
+  let details = '';
+  try {
+    details = payload === undefined ? '' : JSON.stringify(payload, jsonSafeReplacer, 2);
+  } catch {
+    details = '';
+  }
+
+  const res = await ipcRenderer.invoke('lumenSite:approveWalletSigning', {
+    operation,
+    chainId: webview_utils.safeString(chainId, 128),
+    signerAddress: webview_utils.safeString(signerAddress, 256),
+    details: webview_utils.safeString(details, 8192)
+  });
+
+  if (!res || res.ok !== true) {
+    throw new Error(webview_utils.safeString(res?.error || 'user_denied', 256));
+  }
+}
+
+/** BigInt is common in Direct sign docs and would otherwise throw here. */
+function jsonSafeReplacer(_key, value) {
+  if (typeof value === 'bigint') return value.toString();
+  if (value instanceof Uint8Array) return `<${value.length} bytes>`;
+  return value;
+}
 function serializeStdSignature(result) {
   return {
     pub_key: {
@@ -1388,6 +1426,11 @@ function makeOfflineSigner(chainId) {
     },
     signAmino: async (signerAddress, signDoc) => {
       const context = await getWalletAccountsForChain(chainId);
+      await requireSigningApproval('signAmino', {
+        chainId,
+        signerAddress: signerAddress || context.account.address,
+        payload: signDoc
+      });
       const response = await ipcRenderer.invoke('wallet:signAmino', {
         profileId: context.profile.profileId,
         bech32Prefix: context.bech32Config.bech32PrefixAccAddr,
@@ -1404,6 +1447,11 @@ function makeOfflineSigner(chainId) {
     },
     signDirect: async (signerAddress, signDoc) => {
       const context = await getWalletAccountsForChain(chainId);
+      await requireSigningApproval('signDirect', {
+        chainId,
+        signerAddress: signerAddress || context.account.address,
+        payload: signDoc
+      });
       const response = await ipcRenderer.invoke('wallet:signDirect', {
         profileId: context.profile.profileId,
         bech32Prefix: context.bech32Config.bech32PrefixAccAddr,
@@ -1484,6 +1532,11 @@ function createCosmosProvider(providerKind) {
       makeOfflineSigner(chainId).signDirect(signerAddress, signDoc),
     signArbitrary: async (chainId, signer, data) => {
       const context = await getWalletAccountsForChain(chainId);
+      await requireSigningApproval('signArbitrary', {
+        chainId,
+        signerAddress: signer || context.account.address,
+        payload: typeof data === 'string' ? data : '<binary>'
+      });
       const response = await ipcRenderer.invoke('wallet:signArbitrary', {
         profileId: context.profile.profileId,
         address: webview_utils.safeString(signer, 256) || context.account.address,
@@ -1502,6 +1555,9 @@ function createCosmosProvider(providerKind) {
       };
     },
     sendTx: async (_chainId, txBytes, _mode) => {
+      // Broadcasting is gated too: bytes signed under an earlier approval, or
+      // obtained anywhere else, still leave the wallet's account when sent.
+      await requireSigningApproval('sendTx', { chainId: _chainId });
       const response = await ipcRenderer.invoke('net:broadcastTx', webview_utils.normalizeBytes(txBytes), {});
       if (!response || response.ok === false) {
         throw new Error(webview_utils.safeString(response?.rawLog || response?.error || 'broadcast_failed', 512));
@@ -1514,6 +1570,7 @@ function createCosmosProvider(providerKind) {
     },
     sendTransaction: async (payload) => {
       if (payload && typeof payload === 'object' && Object.prototype.hasOwnProperty.call(payload, 'txBytes')) {
+        await requireSigningApproval('sendTx', { chainId: payload?.chainId });
         const response = await ipcRenderer.invoke('net:broadcastTx', webview_utils.normalizeBytes(payload.txBytes), payload.options || {});
         if (!response || response.ok === false) {
           throw new Error(webview_utils.safeString(response?.rawLog || response?.error || 'broadcast_failed', 512));
@@ -1522,6 +1579,16 @@ function createCosmosProvider(providerKind) {
       }
 
       const context = await getWalletAccountsForChain(payload?.chainId);
+      await requireSigningApproval('sendTransaction', {
+        chainId: payload?.chainId,
+        signerAddress: context.account.address,
+        payload: {
+          to: payload?.to || payload?.recipient,
+          amount: payload?.amount,
+          denom: payload?.denom || 'ulmn',
+          memo: payload?.memo || ''
+        }
+      });
       const response = await ipcRenderer.invoke('wallet:sendTokens', {
         profileId: context.profile.profileId,
         from: context.account.address,
