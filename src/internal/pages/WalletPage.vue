@@ -403,20 +403,12 @@
             class="grid-cols-170-1fr-12fr-12fr-15fr-100-120 hover-pl-calc-125rem-3px last-border-bottom-none gap-16px grid py-16px px-20px flex-inline-align-center transition-all-02 border-bottom-1-light hover-bg-hover border-left-3-accent-primary-hover"
           >
             <div class="min-w-0">
-              <div class="inline-flex text-12px txt-weight-light flex-align-start gap-6px border-radius-6px nowrap py-8px px-10px" :style="getActivityBadgeStyle(tx)">
-                <Edit v-if="isDnsUpdateTx(tx)" :size="14" />
-                <Users v-else-if="isDnsTransferTx(tx)" :size="14" />
-                <Plus v-else-if="isDnsRegisterTx(tx)" :size="14" />
-                <TrendingUp v-else-if="isWithdrawRewardsTx(tx)" :size="14" />
-                <Upload v-else-if="isPublishReleaseTx(tx)" :size="14" />
-                <ShieldCheck v-else-if="isPqcLinkTx(tx)" :size="14" />
-                <ArrowUpRight v-else-if="tx.type === 'send'" :size="14" />
-                <ArrowDownLeft v-else-if="tx.type === 'receive'" :size="14" />
-                <ArrowLeftRight v-else :size="14" />
+              <div class="inline-flex text-12px txt-weight-light flex-align-start gap-6px border-radius-6px nowrap py-8px px-10px" :style="activityBadgeStyle(tx)">
+                <component :is="describeActivity(tx).icon" :size="14" />
                 <div class="flex flex-column gap-2px min-w-0 line-height-12">
-                  <span>{{ getActivityLabel(tx) }}</span>
+                  <span>{{ describeActivity(tx).label }}</span>
                   <span
-                    v-if="(isDnsUpdateTx(tx) || isDnsTransferTx(tx) || isDnsRegisterTx(tx) || isWithdrawRewardsTx(tx) || isPublishReleaseTx(tx)) && tx.dnsName"
+                    v-if="describeActivity(tx).carriesDomainName && tx.dnsName"
                     class="fw-500 color-text-tertiary text-11px truncate max-w-140px"
                     :title="tx.dnsName"
                   >{{ tx.dnsName }}</span>
@@ -626,6 +618,7 @@ import UiChartHeader from '../../ui/UiChartHeader.vue';
 import UiBanner from '../../ui/UiBanner.vue';
 import { buildAbsoluteUrl, fetchAbsoluteJson, trimTrailingSlash } from '../services/httpJson';
 import { fetchIbcTransferChannels } from '../services/ibcChannels';
+import { activityBadgeStyle, describeActivity } from '../services/chainMessages';
 import {
   clearDenomTraceCache,
   resolveChainRegistryIconUrl,
@@ -640,7 +633,7 @@ import {
   resolveKnownChainMeta,
 } from '../services/ibcChains';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { copyToClipboard as copyToClipboardShared, copyToClipboardWithToast } from '../../composables/useClipboard';
+import { copyToClipboardWithToast } from '../../composables/useClipboard';
 import { explorerTransactionUrl } from '../services/explorerLinks';
 
 const { currentTabRefresh } = useTabState();
@@ -666,10 +659,8 @@ import {
   Edit,
   Trash2,
   Download,
-  Upload,
   Calendar,
-  RefreshCw,
-  ShieldCheck
+  RefreshCw
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../profilesStore';
 import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache } from '../services/activities';
@@ -1286,66 +1277,6 @@ async function hydrateTxMeta(list: Activity[]) {
   }
 }
 
-function isDnsUpdateTx(tx: Activity): boolean {
-  const action = String(tx.action ?? '').trim();
-  return action === '/lumen.dns.v1.MsgUpdate' || action === 'lumen.dns.v1.MsgUpdate';
-}
-
-function isDnsTransferTx(tx: Activity): boolean {
-  const action = String(tx.action ?? '').trim();
-  return action === '/lumen.dns.v1.MsgTransfer' || action === 'lumen.dns.v1.MsgTransfer';
-}
-
-function isDnsRegisterTx(tx: Activity): boolean {
-  const action = String(tx.action ?? '').trim();
-  return action === '/lumen.dns.v1.MsgRegister' || action === 'lumen.dns.v1.MsgRegister';
-}
-
-function isWithdrawRewardsTx(tx: Activity): boolean {
-  const action = String(tx.action ?? '').trim();
-  return (
-    action === '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward' ||
-    action === 'cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward'
-  );
-}
-
-function isPublishReleaseTx(tx: Activity): boolean {
-  const action = String(tx.action ?? '').trim();
-  return (
-    action === '/lumen.release.v1.MsgPublishRelease' ||
-    action === 'lumen.release.v1.MsgPublishRelease'
-  );
-}
-
-function isPqcLinkTx(tx: Activity): boolean {
-  const action = String(tx.action ?? '').trim();
-  return action === '/lumen.pqc.v1.MsgLinkAccountPQC' || action === 'lumen.pqc.v1.MsgLinkAccountPQC';
-}
-
-function getActivityLabel(tx: Activity): string {
-  if (isDnsUpdateTx(tx)) return 'Dns update';
-  if (isDnsTransferTx(tx)) return 'Dns transfer';
-  if (isDnsRegisterTx(tx)) return 'Dns register';
-  if (isWithdrawRewardsTx(tx)) return 'Withdraw rewards';
-  if (isPublishReleaseTx(tx)) return 'Publish release';
-  if (isPqcLinkTx(tx)) return 'PQC link';
-  if (tx.type === 'send') return 'Send';
-  if (tx.type === 'receive') return 'Receive';
-  return 'Unknown';
-}
-
-function getActivityBadgeStyle(tx: Activity): Record<string, string> {
-  if (isDnsUpdateTx(tx)) return { background: 'rgba(var(--color-purple-rgb), 0.1)', color: 'var(--color-purple)' };
-  if (isDnsTransferTx(tx)) return { background: 'rgba(var(--color-primary-rgb), 0.1)', color: 'var(--color-primary)' };
-  if (isDnsRegisterTx(tx)) return { background: 'rgba(var(--color-warning-rgb), 0.1)', color: 'var(--color-warning)' };
-  if (isWithdrawRewardsTx(tx)) return { background: 'rgba(var(--color-yellow-rgb), 0.1)', color: 'var(--color-yellow)' };
-  if (isPublishReleaseTx(tx)) return { background: 'rgba(var(--color-indigo-rgb), 0.1)', color: 'var(--color-indigo)' };
-  if (isPqcLinkTx(tx)) return { background: 'rgba(var(--color-pink-rgb), 0.1)', color: 'var(--color-pink)' };
-  if (tx.type === 'send') return { background: 'rgba(var(--color-error-rgb), 0.1)', color: 'var(--color-error)' };
-  if (tx.type === 'receive') return { background: 'rgba(var(--color-success-rgb), 0.1)', color: 'var(--color-success)' };
-  return {};
-}
-
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     overview: 'Wallet Overview',
@@ -1391,7 +1322,7 @@ async function refreshActivities() {
 
 function connectWallet() {
   if (!address.value) {
-    window.alert('Create or select a profile first in the top navigation.');
+    showToast('Create or select a profile first in the top navigation.', 'error');
     return;
   }
   manualDisconnected.value = false;
@@ -1571,7 +1502,7 @@ function schedulePostTransactionRefresh(options: { includeSubscriptions?: boolea
 
 function sendTransaction() {
   if (!isConnected.value || !address.value) {
-    window.alert('Connect a wallet first.');
+    showToast('Connect a wallet first.', 'error');
     return;
   }
   void refreshActivities();
@@ -2889,8 +2820,7 @@ function closeReceiveModal() {
 
 async function copyAddressWithToast() {
   if (!address.value) return;
-  const ok = await copyToClipboardShared(address.value);
-  showToast(ok ? 'Address copied to clipboard!' : 'Failed to copy', ok ? 'success' : 'error');
+  await copyToClipboardWithToast(address.value);
 }
 
 // Address Book Functions
@@ -3031,13 +2961,8 @@ function exportTransactions() {
     const date = new Date(tx.timestamp);
     const dateStr = date.toLocaleDateString('en-US');
     const timeStr = date.toLocaleTimeString('en-US');
-    const isSpecial =
-      isDnsUpdateTx(tx) ||
-      isDnsTransferTx(tx) ||
-      isDnsRegisterTx(tx) ||
-      isWithdrawRewardsTx(tx) ||
-      isPublishReleaseTx(tx);
-    const type = isSpecial && tx.dnsName ? `${getActivityLabel(tx)} (${tx.dnsName})` : getActivityLabel(tx);
+    const { label, carriesDomainName } = describeActivity(tx);
+    const type = carriesDomainName && tx.dnsName ? `${label} (${tx.dnsName})` : label;
     const from = tx.from || address.value || '-';
     const to = tx.to || '-';
     const amount = tx.amounts && tx.amounts.length 

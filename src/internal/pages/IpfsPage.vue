@@ -256,7 +256,7 @@ import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { copyToClipboard as copyToClipboardShared } from '../../composables/useClipboard';
+import { copyToClipboardWithToast } from '../../composables/useClipboard';
  import {
   computed,
   nextTick,
@@ -1911,7 +1911,7 @@ function openDirCrumb(idx: number) {
 }
 
 async function copyText(v: string) {
-  await copyToClipboardShared(v);
+  await copyToClipboardWithToast(v);
 }
 
 async function copyLink() {
