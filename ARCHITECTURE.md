@@ -174,6 +174,28 @@ into the new tab page, one forwarded the caller's push option and the rest hard-
 throws before the test runs. In practice a service is testable exactly when it is properly
 separated - which is the point.
 
+**Every shared module must be reached by a test**, enforced by `npm run check:tests` over
+`internal/services/`, `stores/` and `composables/`. Reachability, not a coverage percentage: a
+percentage needs a threshold and a threshold is a number people negotiate down, whereas a module no
+test imports is simply one nobody has ever run outside the app. The pass that added this wrote tests
+for eighteen such modules and found a real defect in six - so the rule is not bookkeeping.
+
+> The worst of the six: `checkIpfsStatus`, the gate in front of every Drive upload, was wrong in
+> both directions at once. It returned the raw `{ok: false}` reply as a boolean, and an object is
+> truthy, so `if (!await checkIpfsStatus())` never fired once - uploads against a dead daemon went
+> ahead to fail later on whatever the add itself threw. And it read the bridge into a module-level
+> `const` at import, so loading it before the preload attached refused *every* upload for the rest
+> of the session. Neither showed up in a green run, because nothing ran it.
+
+A module that genuinely cannot be reached goes in `UNREACHABLE` in `scripts/check-tests.mjs` **with
+the structural reason** - "hard to mock" is not one. The check also fails on an exemption that is no
+longer needed, so the list cannot quietly become a backlog.
+
+**A main-process module can be tested too.** `tests/unit/support/electronStub.ts` plants a fake
+`electron` in the CommonJS module cache before the module under test loads, with a fresh temporary
+`userData` per call. That way the module runs exactly as it ships, instead of production code
+growing an injectable filesystem root for the tests' benefit.
+
 **End-to-end tests** (`tests/e2e/`, Playwright) run the renderer in a browser with a **mock bridge**
 generated from `src/internal/common/lumenBridgeSurface.ts` - the same inventory the startup check
 uses, so it cannot drift.
