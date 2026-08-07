@@ -1,4 +1,4 @@
-const { app, powerMonitor } = require('electron');
+const { powerMonitor } = require('electron');
 const crypto = require('node:crypto');
 const os = require('node:os');
 

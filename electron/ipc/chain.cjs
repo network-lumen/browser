@@ -1,101 +1,15 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const fs = require('fs');
-const path = require('path');
+const { BrowserWindow, ipcMain } = require('electron');
 const { httpGet } = require('./http.cjs');
 const { getNetworkPool } = require('../network/pool_singleton.cjs');
 const { readState } = require('../network/network_middleware.cjs');
-
-// Cache to reduce log spam
-let _cachedPeersFilePath = null;
-let _cachedRpcBaseUrl = null;
-let _cachedRestBaseUrl = null;
-let _loggedPeersPath = false;
-let _loggedRpcBase = false;
-let _loggedRestBase = false;
 
 function trimSlash(s) {
   return String(s || '').replace(/\/+$/, '');
 }
 
-function ensureHttp(u) {
-  const trimmed = trimSlash(u);
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
-}
-
-function resolvePeersFilePath() {
-  if (_cachedPeersFilePath !== null) return _cachedPeersFilePath;
-
-  const appPath = app && typeof app.getAppPath === 'function' ? app.getAppPath() : process.cwd();
-
-  const packagedResourcesPath = app && app.isPackaged ? process.resourcesPath : null;
-
-  // Try multiple possible locations for peers.txt
-  const candidates = [
-    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'peers.txt')] : []),
-    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'resources', 'peers.txt')] : []),
-    path.join(appPath, 'resources', 'peers.txt'),
-    path.join(appPath, '..', 'peers.txt'),
-    path.join(appPath, '..', 'resources', 'peers.txt'), // dev mode: electron/../resources
-    path.join(process.cwd(), 'resources', 'peers.txt'),
-  ];
-
-  for (const file of candidates) {
-    try {
-      if (fs.existsSync(file)) {
-        if (!_loggedPeersPath) {
-          console.log('[rpc] found peers file at:', file);
-          _loggedPeersPath = true;
-        }
-        _cachedPeersFilePath = file;
-        return file;
-      }
-    } catch {}
-  }
-
-  _cachedPeersFilePath = '';
-  return null;
-}
-
-function parsePeerLine(line) {
-  const cleaned = String(line || '').replace(/#.*/, '').trim();
-  if (!cleaned) return null;
-  const parts = cleaned.split(/[\s,]+/).filter(Boolean);
-  if (!parts.length) return null;
-  const rpc = parts[0];
-  if (!rpc) return null;
-  const rest = parts[1] || null;
-  const grpc = parts[2] || null;
-  return { rpc, rest, grpc };
-}
-
-function loadPeersFromFile(filePath) {
-  try {
-    const raw = fs.readFileSync(filePath, 'utf8');
-    const peers = [];
-    for (const line of raw.split(/\r?\n/)) {
-      const parsed = parsePeerLine(line);
-      if (parsed) peers.push(parsed);
-    }
-    return peers;
-  } catch (e) {
-    console.warn(
-      '[rpc] unable to read peers file:',
-      filePath,
-      e && e.message ? e.message : e
-    );
-    return [];
-  }
-}
-
-function getRpcBaseUrl() {
-  try {
-    const peer = getNetworkPool().getBestPeer('rpc');
-    return peer ? peer.rpc : null;
-  } catch {
-    return null;
-  }
-}
-
+// Which node to talk to is the peer pool's decision, not this module's: it
+// reads resources/peers.txt once (network/peers.cjs) and tracks health per
+// peer. Reading that file here as well is how the two would drift apart.
 function getRestBaseUrl() {
   try {
     const peer = getNetworkPool().getBestPeer('rest');

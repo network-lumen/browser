@@ -315,52 +315,6 @@ function resolvePqcHome() {
   return userDataPath();
 }
 
-function resolvePeersFilePath() {
-  const { app } = require('electron');
-  const appPath = app && typeof app.getAppPath === 'function' ? app.getAppPath() : process.cwd();
-  const packagedResourcesPath = app && app.isPackaged ? process.resourcesPath : null;
-
-  const candidates = [
-    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'peers.txt')] : []),
-    ...(packagedResourcesPath
-      ? [path.join(packagedResourcesPath, 'resources', 'peers.txt')]
-      : []),
-    path.join(appPath, 'resources', 'peers.txt'),
-    path.join(appPath, '..', 'peers.txt'),
-    path.join(appPath, '..', 'resources', 'peers.txt'),
-    path.join(process.cwd(), 'resources', 'peers.txt'),
-  ];
-
-  for (const file of candidates) {
-    try {
-      if (fs.existsSync(file)) {
-        console.log('[wallet] found peers file at:', file);
-        return file;
-      }
-    } catch {}
-  }
-
-  return null;
-}
-
-function getRestBaseUrl() {
-  try {
-    const peer = getNetworkPool().getBestPeer('rest');
-    return peer && peer.rest ? String(peer.rest) : '';
-  } catch {
-    return '';
-  }
-}
-
-function getRpcBaseUrl() {
-  try {
-    const peer = getNetworkPool().getBestPeer('rpc');
-    return peer && peer.rpc ? String(peer.rpc) : '';
-  } catch {
-    return '';
-  }
-}
-
 function hashHex(data) {
   return crypto.createHash('sha256').update(Buffer.from(data)).digest('hex');
 }

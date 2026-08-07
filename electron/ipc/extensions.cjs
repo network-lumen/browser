@@ -13,7 +13,6 @@ let broadcastAttached = false;
 let downloadInterceptorAttached = false;
 let downloadInterceptorPending = false;
 let extensionStoreWindow = null;
-const extensionWindows = new Map();
 const EXTENSION_SESSION_PARTITION = 'persist:lumen';
 const STORE_SESSION_PARTITION = 'persist:lumen-store';
 const attachedDownloadInterceptors = new Set();
@@ -313,17 +312,6 @@ async function openExtensionInBrowserTab(sender, extensionId) {
   return prepared;
 }
 
-function closeTrackedExtensionWindow(extensionId) {
-  const id = String(extensionId || '').trim();
-  if (!id) return;
-  const win = extensionWindows.get(id);
-  extensionWindows.delete(id);
-  if (!win || win.isDestroyed()) return;
-  try {
-    win.close();
-  } catch {}
-}
-
 function createExtensionShellWindow(title) {
   const win = new BrowserWindow({
     width: 420,
@@ -421,54 +409,6 @@ function createOrFocusExtensionStoreWindow(targetUrl) {
   return extensionStoreWindow;
 }
 
-async function createOrFocusExtensionWindow(extensionId) {
-  const id = String(extensionId || '').trim();
-  if (!id) {
-    return { ok: false, error: 'extension_id_missing' };
-  }
-
-  const currentEntry =
-    extensionManager.listExtensions().find((entry) => String(entry?.id || '').trim() === id) || null;
-  if (!currentEntry) {
-    return { ok: false, error: 'extension_not_found' };
-  }
-  if (!currentEntry.enabled) {
-    return { ok: false, error: 'extension_disabled' };
-  }
-
-  const targetUrl = normalizeExtensionUrl(currentEntry.launchUrl);
-  if (!targetUrl) {
-    return { ok: false, error: 'extension_launch_url_missing' };
-  }
-
-  await warmExtensionServiceWorker(currentEntry, targetUrl);
-
-  const existing = extensionWindows.get(id);
-  if (existing && !existing.isDestroyed()) {
-    try {
-      existing.loadURL(targetUrl);
-    } catch {}
-    try {
-      existing.show();
-      existing.focus();
-    } catch {}
-    return { ok: true };
-  }
-
-  const win = createExtensionShellWindow(currentEntry.name || 'Extension');
-
-  extensionWindows.set(id, win);
-
-  win.on('closed', () => {
-    if (extensionWindows.get(id) === win) {
-      extensionWindows.delete(id);
-    }
-  });
-
-  void win.loadURL(targetUrl).catch(() => {});
-  return { ok: true };
-}
-
 async function navigateShimWindow(sender, payload) {
   const owner = sender ? BrowserWindow.fromWebContents(sender) : null;
   if (!owner || owner.isDestroyed()) return { ok: false, error: 'extension_window_not_found' };
@@ -532,17 +472,14 @@ function registerExtensionsIpc() {
   });
 
   ipcMain.handle('extensions:disable', async (_evt, extensionId) => {
-    closeTrackedExtensionWindow(extensionId);
     return resultFromOperation(await extensionManager.disableExtension(extensionId));
   });
 
   ipcMain.handle('extensions:reload', async (_evt, extensionId) => {
-    closeTrackedExtensionWindow(extensionId);
     return resultFromOperation(await extensionManager.reloadExtension(extensionId));
   });
 
   ipcMain.handle('extensions:remove', async (_evt, extensionId) => {
-    closeTrackedExtensionWindow(extensionId);
     return resultFromOperation(await extensionManager.removeExtension(extensionId));
   });
 
