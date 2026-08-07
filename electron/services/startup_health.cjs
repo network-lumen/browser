@@ -1,3 +1,4 @@
+const { safeString } = require('../utils/strings.cjs');
 const { app } = require('electron');
 const fs = require('fs');
 const path = require('path');
@@ -23,12 +24,6 @@ function currentAppVersion() {
     if (pv) return pv;
   } catch {}
   return '';
-}
-
-function safeString(v, maxLen = 128) {
-  const s = String(v ?? '').trim();
-  if (!s) return '';
-  return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
 
 function getStatePath() {
