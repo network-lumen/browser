@@ -496,56 +496,15 @@
       </div>
 
       <!-- ####### lumen://wallet ADDRESS BOOK VIEW ####### -->
-      <div v-else-if="currentView === 'addressbook'" class="flex flex-column gap-24px w-full max-w-full">
-        <UiEmptyState v-if="!contacts.length && !contactsLoading" class="mt-32px" title="No Contacts Yet" description="Add addresses you frequently send to for quick access.">
-          <Users :size="32" />
-          <template #actions>
-            <UiButton variant="primary" @click="openAddContactModal">
-              <Plus :size="16" />
-              <span>Add First Contact</span>
-            </UiButton>
-          </template>
-        </UiEmptyState>
-
-        <UiEmptyState v-else-if="contactsLoading" class="mt-32px" title="Loading contacts…">
-          <Users :size="32" />
-        </UiEmptyState>
-
-        <div v-else class="grid-cols-auto-fill-300 gap-16px mt-24px grid">
-          <div v-for="contact in contacts" :key="contact.id" class="border-radius-12px p-20px bg-card border-1 transition-all-02 hover-border-accent hover-shadow-primary">
-            <div class="flex-align-center gap-12px mb-12px">
-              <div class="flex-align-justify-center size-48px border-radius-circle txt-weight-medium bg-gradient-primary color-white text-20px flex-shrink-0">
-                {{ contact.name.charAt(0).toUpperCase() }}
-              </div>
-              <div class="flex-1 min-w-0">
-                <h4 class="text-16px txt-weight-light color-text-primary m-0px mb-4px">{{ contact.name }}</h4>
-                <p class="color-text-tertiary text-13px truncate mono" :title="contact.address">
-                  {{ contact.address.slice(0, 12) }}...{{ contact.address.slice(-8) }}
-                </p>
-              </div>
-            </div>
-            <p class="color-text-secondary mb-16px text-14px line-height-15" v-if="contact.note">{{ contact.note }}</p>
-            <div class="flex flex-wrap-wrap gap-8px">
-              <UiButton variant="secondary" @click="sendToContact(contact)">
-                <Send :size="16" />
-                <span>Send</span>
-              </UiButton>
-              <UiButton variant="secondary" @click="copyToClipboardWithToast(contact.address)">
-                <Copy :size="16" />
-                <span>Copy</span>
-              </UiButton>
-              <UiButton variant="secondary" @click="editContact(contact)">
-                <Edit :size="16" />
-                <span>Edit</span>
-              </UiButton>
-              <UiButton variant="secondary" @click="deleteContact(contact)" class="hover-bg-fill-error">
-                <Trash2 :size="16" />
-                <span>Delete</span>
-              </UiButton>
-            </div>
-          </div>
-        </div>
-      </div>
+      <AddressBookView
+        v-else-if="currentView === 'addressbook'"
+        :contacts="contacts"
+        :loading="contactsLoading"
+        @add="openAddContactModal"
+        @send="sendToContact"
+        @edit="editContact"
+        @delete="deleteContact"
+      />
 
       <!-- ####### lumen://wallet RECURRING PAYMENTS VIEW ####### -->
       <div v-else-if="currentView === 'recurring'" class="flex flex-column gap-24px w-full p-0px gap-0px max-w-full">
@@ -656,7 +615,6 @@ import {
   ChevronDown,
   AlertCircle,
   Users,
-  Edit,
   Trash2,
   Download,
   Calendar,
@@ -667,7 +625,8 @@ import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache
 import QRCode from 'qrcode';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import QrScanner from '../../dialogs/QrScanner.vue';
-import SubscriptionsView from '../../dialogs/SubscriptionsView.vue';
+import SubscriptionsView from '../../views/SubscriptionsView.vue';
+import AddressBookView from '../../views/AddressBookView.vue';
 import { payReminder } from '../services/paymentReminders';
 import { formatDenom as formatDenomValue, truncateMiddle } from '../services/format';
 import { downloadTextFile } from '../services/download';

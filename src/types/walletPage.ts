@@ -109,6 +109,9 @@ export type DexRow = DexListingConfig & {
 /** The fields of the address-book entry form. */
 export type ContactForm = { name: string; address: string; note: string };
 
+/** A saved contact as the address book returns it. */
+export type AddressBookContact = ContactForm & { id: string };
+
 /** The fields of the send-tokens form. */
 export type SendForm = { recipient: string; amount: string; gasFee: string };
 
