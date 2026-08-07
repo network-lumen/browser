@@ -224,15 +224,23 @@ const {
 } = require('@cosmjs/crypto');
 const { toBech32 } = require('@cosmjs/encoding');
 
+/**
+ * ML-KEM-768, loaded on first use.
+ *
+ * `@noble/post-quantum` is ESM-only, so a CommonJS file can only reach it
+ * through a dynamic import - hence the cache, which every call after the first
+ * returns from.
+ *
+ * There used to be a `catch` here retrying the extensionless
+ * `@noble/post-quantum/ml-kem`. That subpath is not in the package's exports
+ * map, so it could only ever fail - and it failed with
+ * ERR_PACKAGE_PATH_NOT_EXPORTED, which would have replaced whatever the real
+ * first failure was on the one path where knowing it matters.
+ */
 let mlKemModule = null;
 async function getMlKem() {
   if (mlKemModule) return mlKemModule;
-  let mod = null;
-  try {
-    mod = await import('@noble/post-quantum/ml-kem.js');
-  } catch {
-    mod = await import('@noble/post-quantum/ml-kem');
-  }
+  const mod = await import('@noble/post-quantum/ml-kem.js');
   mlKemModule = mod.ml_kem768 || mod.default?.ml_kem768 || mod;
   return mlKemModule;
 }
