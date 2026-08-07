@@ -2768,28 +2768,10 @@ function loadLocalNames() {
   const key = driveLocalNamesKey(pid);
   try {
     const storedParsed = readJson<unknown>(key, null);
-    const storedNames =
+    localNames.value =
       storedParsed && typeof storedParsed === "object"
         ? (storedParsed as Record<string, string>)
         : {};
-
-    // One-shot migrate legacy global key to per-profile storage, then delete legacy.
-    const legacy = readString(STORAGE_KEYS.driveLocalNamesLegacy);
-    if (legacy) {
-      const legacyParsed = JSON.parse(legacy);
-      const legacyNames =
-        legacyParsed && typeof legacyParsed === "object"
-          ? (legacyParsed as Record<string, string>)
-          : {};
-
-      // Prefer the current per-profile names over legacy for conflicts.
-      localNames.value = { ...legacyNames, ...storedNames };
-      writeJson(key, localNames.value);
-      removeKey(STORAGE_KEYS.driveLocalNamesLegacy);
-      return;
-    }
-
-    localNames.value = storedNames;
   } catch {
     localNames.value = {};
   }
