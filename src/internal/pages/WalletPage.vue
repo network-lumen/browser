@@ -625,13 +625,13 @@ import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiChartHeader from '../../ui/UiChartHeader.vue';
 import UiBanner from '../../ui/UiBanner.vue';
 import { buildAbsoluteUrl, fetchAbsoluteJson, trimTrailingSlash } from '../services/httpJson';
+import { fetchIbcTransferChannels } from '../services/ibcChannels';
 import {
   clearDenomTraceCache,
   resolveChainRegistryIconUrl,
   resolveDenomTrace,
 } from '../services/chainRegistry';
 import {
-  derivePrefixHintsFromChainId,
   estimateRemoteFeeAmount,
   getAddressPrefix,
   humanizeChainId,
@@ -953,83 +953,11 @@ async function loadIbcChannels(force = false) {
     return;
   }
 
-  const net = useInternalLumen()?.net;
-  if (!net || typeof net.restGet !== 'function') {
-    ibcChannelsError.value = 'Network API not available.';
-    ibcChannels.value = [];
-    ibcChannelsLoaded.value = false;
-    return;
-  }
-
   ibcChannelsLoading.value = true;
   ibcChannelsError.value = '';
 
   try {
-    let payload: any[] = [];
-    const transferRes = await net.restGet('/ibc/apps/transfer/v1/channels', { timeout: 15000 });
-    if (transferRes && transferRes.ok !== false && Array.isArray(transferRes?.json?.channels)) {
-      payload = transferRes.json.channels;
-    }
-
-    if (!payload.length) {
-      const fallbackRes = await net.restGet('/ibc/core/channel/v1/channels?pagination.limit=200', { timeout: 15000 });
-      if (fallbackRes && fallbackRes.ok !== false && Array.isArray(fallbackRes?.json?.channels)) {
-        payload = fallbackRes.json.channels;
-      }
-    }
-
-    const normalized = payload
-      .map((entry) => {
-        const counterparty = entry?.counterparty || {};
-        return {
-          channelId: String(entry?.channel_id ?? entry?.channelId ?? '').trim(),
-          portId: String(entry?.port_id ?? entry?.portId ?? 'transfer').trim() || 'transfer',
-          counterpartyChannelId: String(counterparty?.channel_id ?? counterparty?.channelId ?? '').trim(),
-          counterpartyPortId: String(counterparty?.port_id ?? counterparty?.portId ?? '').trim(),
-          connectionId: String(entry?.connection_hops?.[0] ?? entry?.connectionHops?.[0] ?? '').trim(),
-          state: String(entry?.state || '').trim().toUpperCase()
-        };
-      })
-      .filter((entry) => {
-        if (!entry.channelId) return false;
-        if (entry.state && entry.state !== 'STATE_OPEN' && entry.state !== 'OPEN') return false;
-        return entry.portId === 'transfer';
-      });
-
-    const channels = await Promise.all(
-      normalized.map(async (entry) => {
-        let chainId = '';
-        try {
-          const clientRes = await net.restGet(
-            `/ibc/core/channel/v1/channels/${encodeURIComponent(entry.channelId)}/ports/${encodeURIComponent(entry.portId)}/client_state`,
-            { timeout: 10000 }
-          );
-          chainId = String(
-            clientRes?.json?.identified_client_state?.client_state?.chain_id ||
-            clientRes?.json?.identified_client_state?.client_state?.chainId ||
-            clientRes?.json?.client_state?.chain_id ||
-            clientRes?.json?.client_state?.chainId ||
-            ''
-          ).trim();
-        } catch {
-          chainId = '';
-        }
-
-        const prefixHints = derivePrefixHintsFromChainId(chainId);
-        const label = chainId
-          ? `${entry.channelId} -> ${chainId}`
-          : `${entry.channelId}${entry.counterpartyChannelId ? ` -> ${entry.counterpartyChannelId}` : ''}`;
-
-        return {
-          ...entry,
-          chainId,
-          prefixHints,
-          label
-        } satisfies IbcChannelOption;
-      })
-    );
-
-    ibcChannels.value = channels.sort((a, b) => a.label.localeCompare(b.label));
+    ibcChannels.value = await fetchIbcTransferChannels();
     ibcChannelsLoaded.value = true;
 
     if (!ibcChannels.value.length) {

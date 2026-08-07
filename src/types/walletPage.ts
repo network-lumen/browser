@@ -1,11 +1,15 @@
 export type SendTargetMode = 'lumen' | 'ibc';
-export type IbcChannelOption = {
+/** A channel as the chain reports it, before it is matched to a counterparty. */
+export type RawIbcChannel = {
   channelId: string;
   portId: string;
   counterpartyChannelId: string;
   counterpartyPortId: string;
   connectionId: string;
   state: string;
+};
+
+export type IbcChannelOption = RawIbcChannel & {
   chainId: string;
   prefixHints: string[];
   label: string;
