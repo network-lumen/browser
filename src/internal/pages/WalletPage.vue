@@ -624,7 +624,15 @@ import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiChartHeader from '../../ui/UiChartHeader.vue';
 import UiBanner from '../../ui/UiBanner.vue';
-import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import {
+  derivePrefixHintsFromChainId,
+  estimateRemoteFeeAmount,
+  getAddressPrefix,
+  humanizeChainId,
+  pickIbcChannel,
+  reencodeAddressPrefix,
+  resolveKnownChainMeta,
+} from '../services/ibcChains';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { copyToClipboard as copyToClipboardShared, copyToClipboardWithToast } from '../../composables/useClipboard';
 import { explorerTransactionUrl } from '../services/explorerLinks';
@@ -751,31 +759,6 @@ const txMetaByHash = ref<
 const txFilterStatus = ref<'all' | 'success' | 'pending' | 'failed'>('all');
 const txSearchQuery = ref('');
 
-const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
-  'beezee-1': {
-    label: 'BeeZee',
-    addressPrefix: 'bze',
-    restEndpoint: 'https://rest.getbze.com',
-    rpcEndpoint: 'https://rpc.getbze.com',
-    nativeDenom: 'ubze',
-    feeDenom: 'ubze',
-    minGasPrice: 0.01,
-    iconText: 'BZE',
-    chainRegistryName: 'beezee'
-  },
-  'bzetestnet-3': {
-    label: 'BeeZee Testnet',
-    addressPrefix: 'bze',
-    restEndpoint: 'https://testnet.getbze.com',
-    rpcEndpoint: 'https://testnet-rpc.getbze.com',
-    nativeDenom: 'ubze',
-    feeDenom: 'ubze',
-    minGasPrice: 0.01,
-    iconText: 'BZE',
-    chainRegistryName: 'beezee'
-  }
-};
-
 const DEX_LISTINGS: DexListingConfig[] = [
   {
     key: 'beezee',
@@ -893,45 +876,10 @@ const balanceLmnDisplay = computed(() => {
   return balanceLmn.value.toFixed(6);
 });
 
-function getAddressPrefix(value: string): string {
-  const raw = String(value || '').trim().toLowerCase();
-  const match = raw.match(/^([a-z0-9]{1,24})1[ac-hj-np-z02-9]{6,}$/);
-  return match ? match[1] : '';
-}
-
 function guessSendTargetMode(value: string): SendTargetMode | null {
   const prefix = getAddressPrefix(value);
   if (!prefix) return null;
   return prefix === senderPrefix.value ? 'lumen' : 'ibc';
-}
-
-function derivePrefixHintsFromChainId(chainId: string): string[] {
-  const raw = String(chainId || '').trim().toLowerCase();
-  if (!raw) return [];
-
-  const candidates = new Set<string>();
-  const normalized = raw
-    .replace(/(?:[_-]?testnet.*$)|(?:[_-]?mainnet.*$)|(?:[_-]?devnet.*$)|(?:[_-]?localnet.*$)|(?:[_-]?stage.*$)|(?:[_-]?alpha.*$)|(?:[_-]?beta.*$)/, '')
-    .replace(/[_-]?\d+$/, '')
-    .replace(/[_-]+$/, '');
-  const firstToken = normalized.split(/[_-]/)[0] || normalized;
-
-  for (const entry of [normalized, firstToken]) {
-    const cleaned = entry.replace(/[^a-z0-9]/g, '');
-    if (cleaned) candidates.add(cleaned);
-  }
-
-  if (raw.includes('bzetestnet')) candidates.add('bze');
-  return Array.from(candidates);
-}
-
-function scoreIbcChannel(channel: IbcChannelOption, recipientPrefix: string): number {
-  const prefix = String(recipientPrefix || '').trim().toLowerCase();
-  if (!prefix) return 0;
-  if (channel.prefixHints.includes(prefix)) return 100;
-  if (channel.chainId.toLowerCase().includes(prefix)) return 40;
-  if (channel.label.toLowerCase().includes(prefix)) return 10;
-  return 0;
 }
 
 const senderPrefix = computed(() => getAddressPrefix(address.value) || 'lmn');
@@ -989,23 +937,10 @@ function autoSelectIbcChannel(force = false) {
     return;
   }
 
-  const current = selectedIbcChannel.value;
-  if (!force && current) return;
+  if (!force && selectedIbcChannel.value) return;
 
-  if (channels.length === 1) {
-    ibcForm.value.sourceChannel = channels[0].channelId;
-    ibcForm.value.sourcePort = channels[0].portId;
-    return;
-  }
-
-  const recipientPrefix = getAddressPrefix(sendForm.value.recipient);
-  const ranked = channels
-    .map((channel) => ({ channel, score: scoreIbcChannel(channel, recipientPrefix) }))
-    .sort((a, b) => b.score - a.score || a.channel.label.localeCompare(b.channel.label));
-
-  const best = ranked[0];
-  const fallback = channels[0];
-  const next = best && best.score > 0 ? best.channel : fallback;
+  const next = pickIbcChannel(channels, getAddressPrefix(sendForm.value.recipient));
+  if (!next) return;
   ibcForm.value.sourceChannel = next.channelId;
   ibcForm.value.sourcePort = next.portId;
 }
@@ -1851,53 +1786,6 @@ function shortenAddress(value: string, start = 10, end = 8): string {
 
 function trimTrailingSlash(value: string): string {
   return String(value || '').replace(/\/+$/, '');
-}
-
-function humanizeChainId(chainId: string): string {
-  const raw = String(chainId || '').trim();
-  if (!raw) return 'Unknown chain';
-  const known = KNOWN_IBC_CHAIN_METADATA[raw];
-  if (known?.label) return known.label;
-  return raw
-    .replace(/[-_]+/g, ' ')
-    .replace(/\b\w/g, (part) => part.toUpperCase());
-}
-
-function resolveKnownChainMeta(chainId: string, prefixHints: string[] = []): KnownIbcChainMeta {
-  const known = KNOWN_IBC_CHAIN_METADATA[String(chainId || '').trim()];
-  if (known) return known;
-
-  const prefix = String(prefixHints[0] || '').trim().toLowerCase();
-  return {
-    label: humanizeChainId(chainId || prefix || 'IBC chain'),
-    addressPrefix: prefix,
-    restEndpoint: '',
-    rpcEndpoint: '',
-    nativeDenom: prefix ? `u${prefix}` : '',
-    feeDenom: prefix ? `u${prefix}` : 'ulmn',
-    minGasPrice: 0,
-    iconText: prefix ? prefix.slice(0, 3).toUpperCase() : 'IBC'
-  };
-}
-
-function estimateRemoteFeeAmount(chainId: string, gas: string, fallback = '1000'): string {
-  const gasUnits = Number(String(gas || '').trim());
-  if (!Number.isFinite(gasUnits) || gasUnits <= 0) return fallback;
-
-  const meta = KNOWN_IBC_CHAIN_METADATA[String(chainId || '').trim()];
-  const minGasPrice = Number(meta?.minGasPrice || 0);
-  if (!Number.isFinite(minGasPrice) || minGasPrice <= 0) return fallback;
-
-  return String(Math.ceil(gasUnits * minGasPrice));
-}
-
-function reencodeAddressPrefix(value: string, targetPrefix: string): string {
-  try {
-    const decoded = fromBech32(String(value || '').trim());
-    return toBech32(String(targetPrefix || '').trim(), decoded.data);
-  } catch {
-    return '';
-  }
 }
 
 function buildAbsoluteUrl(base: string, path: string): string {
