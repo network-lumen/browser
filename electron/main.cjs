@@ -338,7 +338,9 @@ const siteDomainByWebContentsId = new Map();
  * local site-host server can serve it under a stable <domain>.localhost origin.
  * Resolution stays in SitePage - this only records the outcome.
  */
-ipcMain.handle('siteHost:register', async (_evt, host, target) => {
+ipcMain.handle('siteHost:register', async (evt, host, target) => {
+  const okUi = ensureUiSender(evt);
+  if (!okUi.ok) return okUi;
   try {
     return registerSiteHost(safeString(host, 256), {
       proto: safeString(target?.proto, 16),
@@ -352,7 +354,15 @@ ipcMain.handle('siteHost:register', async (_evt, host, target) => {
 
 ipcMain.handle('siteHost:status', async () => getSiteHostStatus());
 
-ipcMain.on('site:registerDomainTarget', (_evt, targetWebContentsId, host) => {
+/**
+ * Writes the map `senderSiteContext` reads to decide a site's identity, so the
+ * sender is checked here rather than trusted because of which preload happens
+ * to expose the channel today. A caller that could reach this could otherwise
+ * claim any webContents belongs to a domain of its choosing - which is the one
+ * thing the site context exists to prevent.
+ */
+ipcMain.on('site:registerDomainTarget', (evt, targetWebContentsId, host) => {
+  if (!ensureUiSender(evt).ok) return;
   const id = Number(targetWebContentsId);
   const h = safeString(host, 256).toLowerCase();
   if (!Number.isFinite(id)) return;
@@ -361,7 +371,8 @@ ipcMain.on('site:registerDomainTarget', (_evt, targetWebContentsId, host) => {
   else siteDomainByWebContentsId.delete(id);
 });
 
-ipcMain.on('site:unregisterDomainTarget', (_evt, targetWebContentsId) => {
+ipcMain.on('site:unregisterDomainTarget', (evt, targetWebContentsId) => {
+  if (!ensureUiSender(evt).ok) return;
   const id = Number(targetWebContentsId);
   console.log(`[electron][site-domain] unregister: webContentsId=${id} hadEntry=${siteDomainByWebContentsId.has(id)}`);
   if (Number.isFinite(id)) siteDomainByWebContentsId.delete(id);
@@ -556,7 +567,13 @@ const pendingUi = new Map(); // id -> { resolve, timeout }
 const UI_REQUEST_TIMEOUT_MS = 60_000;
 const UI_INTERACTIVE_TIMEOUT_MS = 10 * 60_000;
 
-ipcMain.on('lumenSite:uiResponse', (_evt, payload) => {
+/**
+ * Answers a pending permission or modal request by id. Only the window that
+ * shows those modals may answer them: without this check, anything able to
+ * reach the channel could approve its own prompt by guessing an id.
+ */
+ipcMain.on('lumenSite:uiResponse', (evt, payload) => {
+  if (!ensureUiSender(evt).ok) return;
   const id = safeString(payload && payload.id ? payload.id : '', 128);
   if (!id) return;
   const pending = pendingUi.get(id);
