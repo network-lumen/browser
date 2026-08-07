@@ -6,7 +6,13 @@
  * This existed identically in thirteen files. Three of those copies have to
  * stay: `webview-preload.cjs`, `extension-preload.cjs` and `store-preload.cjs`
  * run sandboxed, where `require()` of a local file is not possible at all, so
- * they carry their own by necessity rather than by accident.
+ * they carry their own by necessity rather than by accident. Do not "finish
+ * the job" by pointing them here - the preload stops loading, silently, and
+ * every site loses `window.lumen`.
+ *
+ * The nine that did move each had their own default cap - 128, 2048 or 4096 -
+ * which is why this looked risky. It was not: all 289 call sites across them
+ * pass an explicit length, so no default was ever reached.
  *
  * The cap is the point as much as the trim. An unbounded string from a site or
  * an extension ends up in a log line, a map key or a dialog, and 2048 is the

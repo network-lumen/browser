@@ -1,3 +1,4 @@
+const { safeString } = require('../utils/strings.cjs');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
 const path = require('node:path');
@@ -9,12 +10,6 @@ const CRX_PROD_VERSION = '131.0.6778.86';
 const CRX_SIGNATURE_CONTEXT = Buffer.from('CRX3 SignedData\0', 'utf8');
 const CRX_HEADER_EOCD = Buffer.from([0x50, 0x4b, 0x05, 0x06]);
 const CRX_HEADER_EOCD64 = Buffer.from([0x50, 0x4b, 0x06, 0x07]);
-
-function safeString(value, maxLen = 2048) {
-  const text = String(value ?? '').trim();
-  if (!text) return '';
-  return text.length > maxLen ? text.slice(0, maxLen) : text;
-}
 
 function extractChromeWebStoreId(input) {
   const raw = safeString(input, 4096);

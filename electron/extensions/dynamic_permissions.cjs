@@ -1,3 +1,4 @@
+const { safeString } = require('../utils/strings.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const { dialog } = require('electron');
@@ -8,12 +9,6 @@ const EXTENSION_DYNAMIC_PERMISSIONS_FILE = () => userDataPath('extension_dynamic
 const EXTENSION_DYNAMIC_PERMISSIONS_AUDIT_FILE = () =>
   userDataPath('logs', 'extension_dynamic_permissions_audit.jsonl');
 const PROFILES_FILE = () => userDataPath('profiles.json');
-
-function safeString(value, maxLen = 4096) {
-  const text = String(value ?? '').trim();
-  if (!text) return '';
-  return text.length > maxLen ? text.slice(0, maxLen) : text;
-}
 
 function normalizeList(values, maxLen = 4096) {
   const items = Array.isArray(values) ? values : [];

@@ -1,3 +1,4 @@
+const { safeString } = require('./utils/strings.cjs');
 const { userDataPath, readJson, writeJson } = require('./utils/fs.cjs');
 const { ipfsPinAdd, ipfsPinLs, ipfsPinRm, ipfsResolveIPNS, ipfsObjectStat } = require('./ipfs.cjs');
 
@@ -35,12 +36,6 @@ const IPNS_CACHE_TTL_MS = 5 * 60 * 1000;
 
 function nowMs() {
   return Date.now();
-}
-
-function safeString(v, maxLen = 4096) {
-  const s = String(v ?? '').trim();
-  if (!s) return '';
-  return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
 
 function invalidateIpnsCache(name) {

@@ -1,10 +1,5 @@
+const { safeString } = require('../utils/strings.cjs');
 const { app, BrowserWindow, ipcMain, webContents } = require('electron');
-
-function safeString(v, maxLen = 2048) {
-  const s = String(v ?? '').trim();
-  if (!s) return '';
-  return s.length > maxLen ? s.slice(0, maxLen) : s;
-}
 
 function safeNumber(v) {
   const n = typeof v === 'number' ? v : Number(v);

@@ -1,3 +1,4 @@
+const { safeString } = require('../utils/strings.cjs');
 const { ipcMain, app, clipboard, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
@@ -17,12 +18,6 @@ const LOGS_DIRNAME = 'logs';
 const REPORT_FILENAME = 'debug-report.txt';
 const MAX_LOG_TAIL_LINES = 200;
 const MAX_LOG_TAIL_CHARS = 40_000;
-
-function safeString(value, maxLen = 4096) {
-  const out = String(value ?? '').trim();
-  if (!out) return '';
-  return out.length > maxLen ? out.slice(0, maxLen) : out;
-}
 
 function ensureDir(dirPath) {
   try {

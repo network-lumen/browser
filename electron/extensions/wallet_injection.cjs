@@ -1,3 +1,4 @@
+const { safeString } = require('../utils/strings.cjs');
 const crypto = require('node:crypto');
 
 const PROVIDER_KEYS = Object.freeze(['keplr', 'leap', 'ethereum']);
@@ -10,12 +11,6 @@ const DEFAULT_BECH32_PREFIXES = Object.freeze({
   consensusAddress: 'lmnvalcons',
   consensusPubKey: 'lmnvalconspub'
 });
-
-function safeString(value, maxLen = 2048) {
-  const text = String(value ?? '').trim();
-  if (!text) return '';
-  return text.length > maxLen ? text.slice(0, maxLen) : text;
-}
 
 function normalizeProviderHints(input) {
   const items = Array.isArray(input) ? input : [];

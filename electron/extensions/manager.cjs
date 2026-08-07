@@ -1,3 +1,4 @@
+const { safeString } = require('../utils/strings.cjs');
 const { EventEmitter } = require('node:events');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -24,12 +25,6 @@ const LEGACY_LUMEN_BACKGROUND_SHIM_FILE = '__lumen_background_shim__.js';
 const LEGACY_LUMEN_PATCH_METADATA_FILE = '__lumen_extension_patch__.json';
 const RUNTIME_SENDMESSAGE_TIMEOUT_MS = 10_000;
 const EXTENSION_DEBUG = process.env.LUMEN_EXTENSION_DEBUG === '1';
-
-function safeString(value, maxLen = 2048) {
-  const text = String(value ?? '').trim();
-  if (!text) return '';
-  return text.length > maxLen ? text.slice(0, maxLen) : text;
-}
 
 function safeBoolean(value, fallback = false) {
   if (typeof value === 'boolean') return value;

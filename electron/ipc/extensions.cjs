@@ -1,3 +1,4 @@
+const { safeString } = require('../utils/strings.cjs');
 const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
@@ -16,12 +17,6 @@ let extensionStoreWindow = null;
 const EXTENSION_SESSION_PARTITION = 'persist:lumen';
 const STORE_SESSION_PARTITION = 'persist:lumen-store';
 const attachedDownloadInterceptors = new Set();
-
-function safeString(value, maxLen = 4096) {
-  const text = String(value ?? '').trim();
-  if (!text) return '';
-  return text.length > maxLen ? text.slice(0, maxLen) : text;
-}
 
 function broadcastExtensionsChanged(entries) {
   const windows =
