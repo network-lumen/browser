@@ -277,7 +277,14 @@ export function initActivityCenter(): void {
   }
 }
 
-/** Only needed by tests and hot reload; the panel lives for the app's lifetime. */
+/**
+ * Only needed by tests and hot reload; the panel lives for the app's lifetime.
+ *
+ * The live lists are emptied too. Stopping the timer and the subscriptions but
+ * leaving the merged entries in place meant a hot reload came back showing
+ * uploads and pin jobs from before it, with nothing left running to update or
+ * remove them.
+ */
 export function stopActivityCenter(): void {
   if (uploadTimer != null) window.clearInterval(uploadTimer);
   uploadTimer = null;
@@ -289,5 +296,8 @@ export function stopActivityCenter(): void {
     }
   }
   disposers = [];
+  liveUploads.value = [];
+  livePins.value = [];
+  livePropagations.value = [];
   started = false;
 }

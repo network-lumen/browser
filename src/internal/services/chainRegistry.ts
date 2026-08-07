@@ -187,6 +187,19 @@ export function clearDenomTraceCache() {
 }
 
 /**
+ * Forget the registry bundles, both the in-flight map and what was stored.
+ *
+ * The companion to the above, and it was missing: a forced refresh cleared the
+ * denom traces only, so a chain whose assets had failed to load stayed blank
+ * until the app restarted - including for the user who had just asked for a
+ * refresh precisely because it was blank.
+ */
+export function clearChainRegistryCache() {
+  bundleRequests.clear();
+  writeStorageCache({});
+}
+
+/**
  * What an `ibc/<hash>` denom is underneath: the original denom and the path it
  * travelled. Null for anything that is not an IBC denom.
  *

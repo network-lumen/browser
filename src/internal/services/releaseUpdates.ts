@@ -63,7 +63,17 @@ function compareSemver(a: string, b: string): number | null {
   return 0;
 }
 
-function isNewerVersion(latest: string, current: string): boolean {
+/**
+ * Whether `latest` is worth offering over `current`.
+ *
+ * Exported for its own test rather than only through the composable: this one
+ * comparison decides whether every user is shown an update prompt, and both of
+ * its edges are easy to get backwards - a prerelease sorts *below* the release
+ * it leads to (1.0.0-beta.1 < 1.0.0), and two versions neither of which parses
+ * are compared as plain strings, so "different" is treated as "newer" rather
+ * than silently never prompting.
+ */
+export function isNewerVersion(latest: string, current: string): boolean {
   const cmp = compareSemver(latest, current);
   if (cmp != null) return cmp > 0;
   return String(latest) !== String(current);
