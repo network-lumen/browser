@@ -295,7 +295,7 @@ import type { Entry, MarkdownTarget, MarkdownResolvedLink } from "../../types/ip
 import type { DriveSavedFile } from "../../types/driveSavedFile";
 
 import { errorMessage, safeDecodeUriComponent } from "../services/coerce";
-import { readPinJobSnapshot } from "../services/pinJobs";
+import { usePinJob } from "../../composables/usePinJob";
 import SaveToDriveDialog from '../../dialogs/SaveToDriveDialog.vue';
 import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
  const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
@@ -408,14 +408,34 @@ const saveNameDraft = ref("");
 const saveModalError = ref("");
 const savePreparing = ref(false);
 const saveTargetCid = ref("");
-const savePinJobId = ref("");
-const savePinJobStatus = ref("");
-const savePinProgressText = ref("");
-const savePinProgressCurrent = ref<number | null>(null);
-const savePinProgressTotal = ref<number | null>(null);
-const savePinProgressPercent = ref<number | null>(null);
-const savePinProgressUnit = ref("");
-const savePinWaitJobId = ref("");
+// Destructured under the names this file already used, so the template and
+// everything below are untouched.
+const {
+  jobId: savePinJobId,
+  progressText: savePinProgressText,
+  progressPercent: savePinProgressPercent,
+  waitJobId: savePinWaitJobId,
+  isRunning: savePinIsRunning,
+  canPause: savePinCanPause,
+  canResume: savePinCanResume,
+  canStop: savePinCanStop,
+  statusLabel: savePinStatusLabel,
+  progressCounter: savePinProgressCounter,
+  clear: clearSavePinJobState,
+  apply: applySavePinJobSnapshot,
+  pause: pauseSavePinJob,
+  resume: resumeSavePinJob,
+  cancel: cancelSavePinJob,
+} = usePinJob({
+  busy: saving,
+  error: saveModalError,
+  onResumed: async (jobId) => {
+    // Resuming needs what the job is saving under, which the modal holds.
+    const cid = saveTargetCid.value || (await resolveSaveTargetCid().catch(() => ""));
+    const name = String(saveNameDraft.value || "").trim();
+    if (cid && name) void waitForSavePinCompletion(jobId, cid, name);
+  },
+});
 let stopPinProgressListener: null | (() => void) = null;
 
 const saveNamePlaceholder = computed(() => {
@@ -423,70 +443,6 @@ const saveNamePlaceholder = computed(() => {
   return name || "Enter a name";
 });
 
-const savePinIsRunning = computed(() =>
-  ["queued", "running", "retry_waiting"].includes(String(savePinJobStatus.value || "").trim().toLowerCase()),
-);
-const savePinCanPause = computed(() => !!savePinJobId.value && savePinIsRunning.value);
-const savePinCanResume = computed(() =>
-  !!savePinJobId.value &&
-  ["paused", "failed"].includes(String(savePinJobStatus.value || "").trim().toLowerCase()),
-);
-const savePinCanStop = computed(() =>
-  !!savePinJobId.value &&
-  !["completed", "cancelled"].includes(String(savePinJobStatus.value || "").trim().toLowerCase()),
-);
-const savePinStatusLabel = computed(() => {
-  const status = String(savePinJobStatus.value || "").trim().toLowerCase();
-  if (status === "queued") return "Queued";
-  if (status === "running") return "Saving";
-  if (status === "retry_waiting") return "Retrying";
-  if (status === "paused") return "Paused";
-  if (status === "failed") return "Failed";
-  if (status === "completed") return "Completed";
-  if (status === "cancelled") return "Stopped";
-  return saving.value ? "Saving" : "Idle";
-});
-const savePinProgressCounter = computed(() => {
-  const current =
-    savePinProgressCurrent.value != null && Number.isFinite(savePinProgressCurrent.value)
-      ? String(savePinProgressCurrent.value)
-      : "";
-  const total =
-    savePinProgressTotal.value != null && Number.isFinite(savePinProgressTotal.value)
-      ? String(savePinProgressTotal.value)
-      : "";
-  const unit = String(savePinProgressUnit.value || "").trim();
-  if (current && total) return `${current}/${total}${unit ? ` ${unit}` : ""}`;
-  if (current) return `${current}${unit ? ` ${unit}` : ""}`;
-  if (savePinProgressPercent.value != null && Number.isFinite(savePinProgressPercent.value)) {
-    return `${savePinProgressPercent.value.toFixed(0)}%`;
-  }
-  return "";
-});
-
-function clearSavePinJobState() {
-  savePinJobId.value = "";
-  savePinJobStatus.value = "";
-  savePinProgressText.value = "";
-  savePinProgressCurrent.value = null;
-  savePinProgressTotal.value = null;
-  savePinProgressPercent.value = null;
-  savePinProgressUnit.value = "";
-  savePinWaitJobId.value = "";
-}
-
-function applySavePinJobSnapshot(job: any) {
-  const snapshot = readPinJobSnapshot(job);
-  if (!snapshot) return;
-  savePinJobId.value = snapshot.id;
-  savePinJobStatus.value = snapshot.status;
-  savePinProgressText.value = snapshot.progressText;
-  savePinProgressCurrent.value = snapshot.progressCurrent;
-  savePinProgressTotal.value = snapshot.progressTotal;
-  savePinProgressPercent.value = snapshot.progressPercent;
-  savePinProgressUnit.value = snapshot.progressUnit;
-  saving.value = snapshot.active;
-}
 
 function activeDriveProfileId(): string {
   return String(activeProfileId.value || "").trim() || "default";
@@ -2087,34 +2043,6 @@ async function confirmSaveToDrive() {
   }
 }
 
-async function pauseSavePinJob() {
-  const api: any = useInternalLumen();
-  if (!savePinJobId.value || !api?.ipfsPinPause) return;
-  const res = await api.ipfsPinPause(savePinJobId.value).catch(() => null);
-  if (res?.job) applySavePinJobSnapshot(res.job);
-}
-
-async function resumeSavePinJob() {
-  const api: any = useInternalLumen();
-  if (!savePinJobId.value || !api?.ipfsPinResume) return;
-  saveModalError.value = "";
-  const res = await api.ipfsPinResume(savePinJobId.value).catch(() => null);
-  if (res?.job) {
-    applySavePinJobSnapshot(res.job);
-    const cid = saveTargetCid.value || (await resolveSaveTargetCid().catch(() => ""));
-    const name = String(saveNameDraft.value || "").trim();
-    if (cid && name) void waitForSavePinCompletion(String(res.job.id || ""), cid, name);
-    return;
-  }
-  if (res?.error) saveModalError.value = String(res.error);
-}
-
-async function cancelSavePinJob() {
-  const api: any = useInternalLumen();
-  if (!savePinJobId.value || !api?.ipfsPinCancel) return;
-  const res = await api.ipfsPinCancel(savePinJobId.value).catch(() => null);
-  if (res?.job) applySavePinJobSnapshot(res.job);
-}
 
 async function refreshSavedState() {
   try {
