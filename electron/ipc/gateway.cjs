@@ -16,8 +16,6 @@ const { runWithRpcRetry } = require('../utils/tx.cjs');
 const { getNetworkPool } = require('../network/pool_singleton.cjs');
 
 // Cache to reduce log spam
-let _gwCachedPeersFilePath = null;
-let _gwLoggedPeersPath = false;
 let _gwResolvedEndpointsLogged = new Set();
 let _gwKyberBaseLogged = new Set();
 let _gwHttpDebugCached = null;
@@ -841,53 +839,6 @@ function trimSlash(s) {
   return String(s || '').replace(/\/+$/, '');
 }
 
-function parsePeerLine(line) {
-  const cleaned = String(line || '').replace(/#.*/, '').trim();
-  if (!cleaned) return null;
-  const parts = cleaned.split(/[\s,]+/).filter(Boolean);
-  if (!parts.length) return null;
-  const rpc = parts[0];
-  if (!rpc) return null;
-  const rest = parts[1] || null;
-  const grpc = parts[2] || null;
-  return { rpc, rest, grpc };
-}
-
-function resolvePeersFilePath() {
-  if (_gwCachedPeersFilePath !== null) return _gwCachedPeersFilePath || null;
-
-  const appPath = require('electron').app.getAppPath?.() || process.cwd();
-  const packagedResourcesPath =
-    require('electron').app.isPackaged ? process.resourcesPath : null;
-
-  const candidates = [
-    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'peers.txt')] : []),
-    ...(packagedResourcesPath
-      ? [path.join(packagedResourcesPath, 'resources', 'peers.txt')]
-      : []),
-    path.join(appPath, 'resources', 'peers.txt'),
-    path.join(appPath, '..', 'peers.txt'),
-    path.join(appPath, '..', 'resources', 'peers.txt'),
-    path.join(process.cwd(), 'resources', 'peers.txt'),
-  ];
-
-  for (const file of candidates) {
-    try {
-      if (existsSync(file)) {
-        if (!_gwLoggedPeersPath) {
-          console.log('[gateway] found peers file at:', file);
-          _gwLoggedPeersPath = true;
-        }
-        _gwCachedPeersFilePath = file;
-        return file;
-      }
-    } catch {}
-  }
-
-  _gwCachedPeersFilePath = '';
-  return null;
-}
-
 function resolveGatewaysWhitelistFilePath() {
   const explicit = process.env.LUMEN_GATEWAYS_WHITELIST_FILE;
   const candidates = [];
@@ -936,20 +887,7 @@ function loadGatewaysWhitelistIds() {
   }
 }
 
-function loadPeersFromFile(filePath) {
-  try {
-    const raw = readFileSync(filePath, 'utf8');
-    const peers = [];
-    for (const line of raw.split(/\r?\n/)) {
-      const parsed = parsePeerLine(line);
-      if (parsed) peers.push(parsed);
-    }
-    return peers;
-  } catch {
-    return [];
-  }
-}
-
+// The peer file is read once, by network/peers.cjs, into the pool this asks.
 function getRestBaseUrl() {
   try {
     const peer = getNetworkPool().getBestPeer('rest');

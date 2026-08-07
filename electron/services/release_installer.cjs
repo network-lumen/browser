@@ -17,7 +17,6 @@ function currentAppVersion() {
   if (v && vElectron && v !== vElectron) return v;
   try {
     // electron/services -> electron -> app root
-    // eslint-disable-next-line global-require, import/no-dynamic-require
     const pkg = require('../../package.json');
     const pv = String(pkg && pkg.version ? pkg.version : '').trim();
     if (pv) return pv;
@@ -310,19 +309,6 @@ function pickSystemdRunBinary() {
   return 'systemd-run';
 }
 
-function collectSystemdSetenvArgs() {
-  const keys = ['DISPLAY', 'WAYLAND_DISPLAY', 'XAUTHORITY', 'DBUS_SESSION_BUS_ADDRESS', 'XDG_RUNTIME_DIR', 'LANG', 'LC_ALL'];
-  const args = [];
-  for (const k of keys) {
-    const v = String(process.env[k] || '').trim();
-    if (!v) continue;
-    // Avoid absurdly long env values in argv.
-    if (v.length > 4096) continue;
-    args.push(`--setenv=${k}=${v}`);
-  }
-  return args;
-}
-
 function collectPosixExportStatements(envObj) {
   const env = envObj && typeof envObj === 'object' ? envObj : process.env;
   const keys = [
@@ -430,24 +416,6 @@ async function runCommandForExit(cmd, args, { timeoutMs = 3500, env } = {}) {
       done({ ok: false, error: String(e && e.message ? e.message : e) });
     }
   });
-}
-
-function spawnAfterExitPosix({ waitPid, command, args = [], env = {} }) {
-  const pid = Number(waitPid) || process.pid;
-  const cmd = shQuote(command);
-  const quotedArgs = Array.isArray(args) ? args.map(shQuote).join(' ') : '';
-  const exports = Object.entries(env || {})
-    .filter(([k]) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(String(k || '')))
-    .map(([k, v]) => `${k}=${shQuote(String(v ?? ''))}`)
-    .join(' ');
-
-  const script = [
-    `pid=${pid}`,
-    'while kill -0 "$pid" 2>/dev/null; do sleep 0.2; done',
-    `${exports ? `${exports} ` : ''}${cmd}${quotedArgs ? ` ${quotedArgs}` : ''} >/dev/null 2>&1 &`
-  ].join('; ');
-
-  return spawnDetached('sh', ['-c', script]);
 }
 
 async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, label, senderWebContents }) {

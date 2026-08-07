@@ -94,18 +94,6 @@ function getAvailableGateways() {
  * @param {string} cid - Content ID
  * @returns {Object|null} Selected gateway or null
  */
-function selectGateway(cid) {
-  const gateways = getAvailableGateways();
-  
-  if (gateways.length === 0) {
-    return null;
-  }
-  
-  // For now, use simple round-robin or first available
-  // In the future, could implement more sophisticated selection (health checks, latency, etc.)
-  return gateways[0];
-}
-
 /**
  * Fetch content from a private gateway
  * @param {Object} gateway - Gateway object
@@ -204,10 +192,9 @@ async function fetchFromPrivateGateways(cid, walletAddress, mnemonic, options = 
   return null;
 }
 
+// Only the retrying entry point is public. The rest are steps of it, and
+// exporting them invited a second caller to assemble its own version of the
+// same request with a different retry policy.
 module.exports = {
-  getAvailableGateways,
-  selectGateway,
-  fetchFromGateway,
-  fetchFromPrivateGateways,
-  generateAuthHeaders
+  fetchFromPrivateGateways
 };
