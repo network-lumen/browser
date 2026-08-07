@@ -8,7 +8,6 @@ export type FavouriteEntry = {
 };
 
 export type FavMap = Record<string, FavouriteEntry[]>;
-export type LegacyFavMap = Record<string, string[]>;
 
 export type FavouriteKind = "internal" | "search" | "web" | "file" | "other";
 

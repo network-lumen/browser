@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 import { activeProfileId } from "./profilesStore";
 import { canonicalizeLumenUrl, isLumenUrl } from "./navigationUrl";
-import type { FavouriteEntry, FavMap, LegacyFavMap } from "../types/favourites";
+import type { FavouriteEntry, FavMap } from "../types/favourites";
 import { STORAGE_KEYS, readJson, writeJson } from "./services/storage";
 import { clamp } from "./services/coerce";
 
@@ -82,10 +82,7 @@ function normalizeState(raw: unknown): FavMap {
 
 function loadInitialState(): FavMap {
   const next = readJson<unknown>(STORAGE_KEYS.favourites, null);
-  if (next) return normalizeState(next);
-  const legacy = readJson<LegacyFavMap | null>(STORAGE_KEYS.favouritesLegacy, null);
-  if (legacy) return normalizeState(legacy);
-  return {};
+  return next ? normalizeState(next) : {};
 }
 
 const data = ref<FavMap>(loadInitialState());

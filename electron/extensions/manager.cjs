@@ -21,8 +21,6 @@ const EXTENSION_PARTITION = 'persist:lumen';
 const LUMEN_BACKGROUND_SHIM_FILE_PREFIX = 'lumen-background-shim';
 const LUMEN_BACKGROUND_SHIM_FILE = `${LUMEN_BACKGROUND_SHIM_FILE_PREFIX}.js`;
 const LUMEN_PATCH_METADATA_FILE = 'lumen-extension-patch.json';
-const LEGACY_LUMEN_BACKGROUND_SHIM_FILE = '__lumen_background_shim__.js';
-const LEGACY_LUMEN_PATCH_METADATA_FILE = '__lumen_extension_patch__.json';
 const RUNTIME_SENDMESSAGE_TIMEOUT_MS = 10_000;
 const EXTENSION_DEBUG = process.env.LUMEN_EXTENSION_DEBUG === '1';
 
@@ -352,7 +350,6 @@ function isManagedBackgroundShimFile(rawPath) {
   if (!value) return false;
   const basename = path.posix.basename(value);
   return (
-    basename === LEGACY_LUMEN_BACKGROUND_SHIM_FILE ||
     (basename.startsWith(`${LUMEN_BACKGROUND_SHIM_FILE_PREFIX}-`) && basename.endsWith('.js')) ||
     basename === LUMEN_BACKGROUND_SHIM_FILE
   );
@@ -3099,11 +3096,7 @@ function buildExtensionBackgroundShimSource(originalWorkerPath, workerType = '')
 function prepareManagedExtensionDirectory(dirPath) {
   const manifestInfo = readManifestFromDirectory(dirPath);
   const metadataPath = path.join(manifestInfo.path, LUMEN_PATCH_METADATA_FILE);
-  const legacyMetadataPath = path.join(manifestInfo.path, LEGACY_LUMEN_PATCH_METADATA_FILE);
-  const metadata = {
-    ...readJson(legacyMetadataPath, {}),
-    ...readJson(metadataPath, {})
-  };
+  const metadata = readJson(metadataPath, {});
   const manifest = manifestInfo.manifest && typeof manifestInfo.manifest === 'object'
     ? JSON.parse(JSON.stringify(manifestInfo.manifest))
     : {};
@@ -3175,7 +3168,6 @@ function prepareManagedExtensionDirectory(dirPath) {
             if (!entry.isFile()) continue;
             if (!isManagedBackgroundShimFile(entry.name)) continue;
             if (activeShimFileName && entry.name === activeShimFileName) continue;
-            if (entry.name === LEGACY_LUMEN_BACKGROUND_SHIM_FILE) continue;
             fs.rmSync(path.join(manifestInfo.path, entry.name), { force: true });
           }
         } catch {}
@@ -3192,15 +3184,6 @@ function prepareManagedExtensionDirectory(dirPath) {
       ...metadata,
       patchedAt: new Date().toISOString()
     });
-  }
-
-  for (const legacyFile of [LEGACY_LUMEN_BACKGROUND_SHIM_FILE, LEGACY_LUMEN_PATCH_METADATA_FILE]) {
-    const legacyPath = path.join(manifestInfo.path, legacyFile);
-    try {
-      if (fs.existsSync(legacyPath)) {
-        fs.rmSync(legacyPath, { force: true });
-      }
-    } catch {}
   }
 
   return readManifestFromDirectory(manifestInfo.path);

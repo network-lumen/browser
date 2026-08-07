@@ -41,7 +41,15 @@ describe('the key registry', () => {
     expect(STORAGE_KEYS.homeMySpaceCards).toBe('my_space_cards_order');
     expect(STORAGE_KEYS.recurringPayments).toBe('lumen_recurring_payments');
     expect(STORAGE_KEYS.favourites).toBe('lumen:favourites:v2');
-    expect(STORAGE_KEYS.favouritesLegacy).toBe('lumen:favourites:v1');
+  });
+
+  it('no longer carries a key that only existed to migrate from an older one', () => {
+    // Pre-v1: there is no released version to stay compatible with, so the
+    // v1 favourites key and the global Drive-names key are gone rather than
+    // read once and deleted. The wallet keystore migrations are a different
+    // matter and were deliberately kept.
+    expect('favouritesLegacy' in STORAGE_KEYS).toBe(false);
+    expect('driveLocalNamesLegacy' in STORAGE_KEYS).toBe(false);
   });
 });
 

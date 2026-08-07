@@ -18,7 +18,6 @@ export const STORAGE_KEYS = {
 
   // Browser state
   favourites: 'lumen:favourites:v2',
-  favouritesLegacy: 'lumen:favourites:v1',
   history: 'lumen:history:v1',
   historySettings: 'lumen:history:settings:v1',
 
@@ -36,7 +35,6 @@ export const STORAGE_KEYS = {
   driveBackupLastExportAt: 'lumen:driveBackup:lastExportAt:v1',
   driveBackupLastImportAt: 'lumen:driveBackup:lastImportAt:v1',
   driveItemsPerPage: 'lumen:drive:itemsPerPage:v1',
-  driveLocalNamesLegacy: 'lumen_drive_saved_names',
 
   // Wallet
   chainRegistryCache: 'lumen_chain_registry_cache_v2',
