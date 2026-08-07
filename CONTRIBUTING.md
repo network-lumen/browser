@@ -1,237 +1,106 @@
 # Contributing to Lumen Browser
 
-Thanks for contributing. This project is kept intentionally consistent by a small set of
-mechanically-enforced rules rather than style guidelines that rely on memory or review vigilance.
-Read this before opening a PR - everything below is checked automatically and **a PR that violates
-it will be rejected**.
+This project is kept consistent by rules a machine checks, not by review vigilance. Everything
+below is enforced automatically and **a PR that violates it will be rejected**.
+
+Every rule here exists because something went wrong once. If you want the story behind one, it is
+in [ARCHITECTURE.md](./ARCHITECTURE.md) - read that before your first PR, and whenever a rule looks
+arbitrary.
 
 ## Before you open a PR
 
 ```bash
-npm test
+npm test          # conventions, eslint, vue-tsc, unit tests
+npm run test:e2e  # Playwright, needs `npx playwright install chromium` once
 ```
 
-This runs, in order: `check:conventions`, `eslint`, `vue-tsc --noEmit`, then the unit tests. It is
-also wired as `prebuild`, so `npm run build` (and therefore `pack` / `dist` / `dist:win`) refuses
-to produce a build at all if any of these fail. There is no way to "skip" this locally and still
-ship a working build - fix what's reported.
+`npm test` is also wired as `prebuild`, so `npm run build` (and `pack` / `dist` / `dist:win`)
+refuses to produce a build if anything fails. There is no way to skip it locally and still ship a
+working build.
+
+## Where does my file go?
+
+The folder a file lives in decides what it may import. The full map, the dependency direction and
+the questions to ask are in [ARCHITECTURE.md](./ARCHITECTURE.md#the-layout). The short version:
+
+| I am writing… | It goes in |
+|---|---|
+| A primitive that knows nothing about Lumen | `src/ui/` |
+| One domain value, drawn (hash, address, status) | `src/entities/` — **check it does not already exist** |
+| A modal | `src/dialogs/`, built on `UiDialog` |
+| Logic with no view state | `src/internal/services/` |
+| Reactive state shared by two components | `src/composables/` |
+| A type or interface | `src/types/` — always |
+| A stylesheet | `src/css/` — always |
 
 ---
 
-# Part 1 — How `src/` is laid out
+## Rule 1: every `type` / `interface` lives in `src/types/`
 
-Roughly 43 000 lines across 260 files. The folders are not decoration: **which folder a file lives
-in decides what it is allowed to import.** Before adding a file, find its layer here.
+Enforced by ESLint. No inline declaration anywhere in `src/**/*.ts` or `src/**/*.vue` outside
+`src/types/`.
 
-```
-src/
-├── ui/           (56)  Primitives. Know nothing about Lumen.        → types only
-├── entities/      (7)  One domain value, drawn canonically.         → ui, services, types
-├── forms/         (5)  Reusable groups of form fields.              → ui, types
-├── dialogs/      (45)  Modals. One file per modal.                  → ui, forms, services, types
-├── views/         (2)  A sub-view of a page, extracted.             → ui, entities, services
-├── layouts/       (3)  Tab bar, tab pane, nav bar.                  → ui, services, components
-├── components/   (12)  App shell pieces that are none of the above. → anything below pages
-├── composables/   (5)  Injection + shared reactive access.          → types, stores
-├── stores/        (1)  Global reactive state (toasts).              → types
-├── types/        (50)  Every type and interface. See Rule 1.        → nothing
-├── css/          (14)  Every stylesheet. See Rule 2.
-└── internal/     (71)
-    ├── pages/    (24)  One per lumen:// route. 27 700 lines - the bulk.
-    ├── services/ (34)  Domain logic with no view state.            → types, composables
-    ├── common/    (4)  Startup checks, the bridge surface.
-    └── *.ts       (8)  Stores + routing (see "known wrinkles").
-```
+- **One file per concept.** A type specific to one page is named after it (`src/types/drivePage.ts`).
+  A genuinely shared shape gets its own descriptive file (`src/types/tab.ts`).
+- Import with `import type { Foo } from '../types/foo'`. Never re-declare a shape that exists.
+- Check whether a file already covers the concept before creating one. A new settings field belongs
+  in the existing `src/types/settings.ts`.
+- **Same name ≠ same concept.** `Variant` in `uiButton.ts` and `Variant` in `uiDetailRow.ts` share
+  no value. Merging them would force a rename and imply a kinship that isn't there. Same for `Size`:
+  a shared union would be the superset of both, and `<UiToggle size="lg">` would silently stop
+  being a compile error.
 
-## The dependency rule
-
-**Imports point downward.** A layer may import from layers below it, never above.
-
-```
-        internal/pages
-              ↓
-  dialogs · views · layouts · components
-              ↓
-       entities · forms
-              ↓
-              ui
-              ↓
-            types
-```
-
-Sideways is allowed within a layer. `internal/services` sits beside this stack and may be imported
-by anything, but may itself import only `types` and `composables`.
-
-**A page may not be imported by anything except the route table.** If a dialog needs something from
-a page, that something is in the wrong file - move it to `internal/services/`.
-
-### The exceptions that exist today, and why
-
-Four files import upward. Each is deliberate; do not add a fifth without saying why in the PR.
-
-| File | Imports | Why |
-|---|---|---|
-| `ui/UiToast.vue` | `stores/toastStore` | It *is* the toast renderer. Something has to read the queue. |
-| `ui/UiCopyField.vue` | `composables/useClipboard` | A copy button that cannot copy is not a copy button. |
-| `types/lumenBridge.ts` | `internal/common/lumenBridgeSurface` | Derives the bridge type from the one inventory the startup check also uses. That module is a **leaf** on purpose - making it import anything would create a cycle. |
-| `internal/services/releaseUpdates.ts` | `stores/toastStore` | Notifies about a background download. Borderline; a service that needs to *tell the user something* is usually a service returning a result instead. |
-
-## What goes where — the questions to ask
-
-**Is it a primitive?** Would it make sense in another app entirely, with no Lumen concepts in it?
-→ `src/ui/`. It gets a `Ui` prefix and imports only types.
-
-**Is it one value from the domain, drawn?** A transaction hash, a block height, an address, a
-status. → `src/entities/`. **Check first whether it already exists**: `TxHashLink`, `TxStatusPill`,
-`TxTypeBadge`, `BlockHeightLink`, `AddressLabel`, `DriveEntryThumbnail`, `DriveFileRow`. These
-exist because the same value used to be drawn three to six different ways depending on the page. If
-you are about to write a `<code>` for a hash or slice an address by hand, stop and use the entity.
-
-**Is it a modal?** → `src/dialogs/`, one file per modal. Build it on `UiDialog`, which already gives
-you the footer, the busy state, the error banner and dismiss-blocking while busy.
-
-**Is it logic with no view state?** Formatting, parsing, a decision, a cache, a fetch.
-→ `src/internal/services/`. This is the default answer for anything that is not markup.
-
-**Is it view state?** Refs the template binds to, loading flags, which row is expanded. → it stays
-in the component. A "service" that only receives the page's refs is not a service.
-
-### Where the line falls
-
-The service owns the **algorithm and the decision** - constants, thresholds, priority order. The
-component owns **what it shows and when**. Two worked examples:
-
-- `readDriveBackupSnapshot()` validates and normalises a backup, and **returns**. It does not write
-  to storage or touch the view: the caller decides what to do with the result. That split is what
-  makes the format testable.
-- `fetchIbcTransferChannels()` asks the chain and returns the channels, or throws. `loading`,
-  `loaded` and the error string stay in the page, because they are the page's.
-
-A service that needs refs passed into it is a sign the boundary is in the wrong place.
-
-## Known wrinkles
-
-Not traps, but they will surprise you:
-
-- **`internal/*.ts` is a mixed bag.** `favouritesStore`, `historyStore` and `profilesStore` live
-  there while `toastStore` lives in `src/stores/`. `routes.ts` and `navigationUrl.ts` are routing.
-  `useTabLoading.ts` is a composable. Historical, not designed. Put *new* files in the folder that
-  matches what they are.
-- **Two "favourites" systems** share the word. `favouritesStore.ts` is browser shortcuts in
-  localStorage; `profilesStore.getFavourites` is a domain→CID map in the main process. They are
-  unrelated.
-- **`tabPosition.ts` and `tabHistory.ts` are split for a reason.** Reading where a tab is needs
-  nothing; *moving* a tab reads page titles from the route table, which imports every page, one of
-  which calls the Electron bridge as its module loads. Import `tabHistory` from a test and it
-  throws before the test runs. Keep the read side dependency-free.
-- **`window.lumen` means two different objects.** The renderer's (via `useInternalLumen()`) is the
-  full trusted bridge. The one inside a `<webview>` is a restricted, site-facing API in a different
-  JS realm. They share a name by accident.
-
----
-
-# Part 2 — The rules
-
-## Rule 1: every TypeScript `type` / `interface` lives in `src/types/`
-
-No inline `type Foo = ...` or `interface Foo { ... }` declaration is allowed anywhere in
-`src/**/*.ts` or `src/**/*.vue` outside of `src/types/`. Enforced by ESLint
-(`no-restricted-syntax` on `TSInterfaceDeclaration`/`TSTypeAliasDeclaration`).
-
-- **One file per concept.** A type specific to one page is named after it
-  (`src/types/drivePage.ts`). A shape genuinely shared gets its own descriptive file
-  (`src/types/tab.ts`).
-- Import with `import type { Foo } from '../types/foo'`. Never re-declare a shape that exists -
-  import it.
-- Before creating a file, check whether one already covers the concept. A new settings field
-  belongs in the existing `src/types/settings.ts`.
-- Two types with the *same name* but different shapes are not the same concept. `Variant` in
-  `uiButton.ts` (`'ghost' | 'primary' | …`) and `Variant` in `uiDetailRow.ts`
-  (`'grid' | 'flex' | …`) share no value. Merging them would force a rename and imply a kinship
-  that isn't there. Same for `Size`: a shared union would have to be the superset of both, and
-  `<UiToggle size="lg">` would silently stop being a compile error.
-
-### What this rule does *not* cover: anonymous unions inside props
-
-An inline literal union written directly in `defineProps<{ ... }>()` is **fine and stays**:
-
-```ts
-defineProps<{
-  variant?: 'neutral' | 'warning' | 'info' | 'error' | 'success';
-}>();
-```
-
-It declares no named type, so there is nothing to drift - one copy, next to the prop it describes.
-
-Give it a name in `src/types/` as soon as it is referenced **anywhere other than that one prop**:
-when it backs a lookup map (`Record<Size, string>`), when another file imports it, or when it
-drives state rather than styling (`OnboardingStep` is the onboarding modal's state machine).
-
-**Why**: colocating types is how one shape quietly becomes several slightly different copies. It
-happened here - a `DriveFile` interface existed identically in three files before anyone noticed.
+**Not covered: anonymous unions in props.** An inline union in `defineProps<{ … }>()` stays where it
+is - it declares no named type, so there is nothing to drift. Give it a name in `src/types/` as
+soon as it is referenced anywhere else: when it backs a `Record` map, when another file imports it,
+or when it drives state rather than styling.
 
 ## Rule 2: all CSS lives in `src/css/`
 
-- **No `<style>` blocks in `.vue` files**, and **no literal `style="..."` attribute**. The only
-  accepted exception is a computed `:style="..."` binding for a genuinely per-instance value (an
-  avatar hue). A literal `style=""` is never acceptable.
-- **Reuse before adding.** `src/css/scale.css` has the padding/margin/gap/radius/text scale
-  (axis-composable: `p-`, `px-`, `py-`, `pt-`/`pr-`/`pb-`/`pl-`, same for `m-`/`gap-`).
-  `src/css/ui/*.css` has shared component classes. If nothing covers it, follow the same
-  convention - one file per concept, values snapped to the existing scale rather than a new
-  one-off pixel value.
-- **Opacity uses the two-digit `-aNN` suffix** (hundredths: `bg-primary-a10` is 10%). Never the
-  older single-digit form.
-- **`@keyframes` live in `src/css/animation.css`** only.
-- **No `@media` today** - this is a fixed-size desktop app. If a breakpoint becomes necessary, it
-  goes in a new `src/css/responsive.css`, imported after `layout.css`.
-- **Vendored CSS** (`public/lib/bibi/`) is exempt from everything above. It is foreign code.
-
-### Consistency beats design
-
-When two near-identical values diverge for no reason - a `gap-6px` next to a `gap-8px`, two alphas
-one hundredth apart - **snap them to one canonical value**. Do not preserve a difference nobody
-chose. The design adapts afterwards; the inconsistency does not get to stay because it is already
-there.
+- **No `<style>` blocks in `.vue` files**, and **no literal `style="…"`**. A computed `:style="…"`
+  for a genuinely per-instance value (an avatar hue) is the only exception.
+- **Reuse before adding.** `src/css/scale.css` holds the spacing/radius/text scale (axis-composable:
+  `p-`, `px-`, `py-`, `pt-`/`pr-`/`pb-`/`pl-`, same for `m-`/`gap-`). `src/css/ui/*.css` holds
+  shared component classes. If nothing covers it, follow the same convention and snap values to the
+  existing scale rather than inventing a one-off pixel value.
+- **Opacity uses the two-digit `-aNN` suffix** (`bg-primary-a10` is 10%). Never the single-digit form.
+- **`@keyframes` live in `src/css/animation.css`.**
+- **No `@media` today** - fixed-size desktop app. A real breakpoint goes in a new
+  `src/css/responsive.css`, imported after `layout.css`.
+- **Vendored CSS** (`public/lib/bibi/`) is exempt from all of it. Foreign code.
 
 ## Rule 3: a component is never handed a function
 
-Enforced as `no-function-prop` in `check:conventions`. A component that receives a function
-receives its own presentation - how to format its values, what to call its things - so it cannot be
-read on its own, and two callers agree only because the same parent happens to feed both.
+Enforced as `no-function-prop`. A component that receives a function receives its own presentation,
+so it cannot be read on its own. Two alternatives:
 
-Sixteen of these had accumulated across the Drive dialogs alone: format a size, a date, a price,
-name a plan, colour its badge.
+- **A module both sides import** — usually `src/internal/services/`.
+- **An `emit`** — when the parent is being asked to *do* something.
 
-The two honest alternatives:
-
-- **A module both sides import**, when the logic is real. Usually `src/internal/services/`.
-- **An `emit`**, when the parent is being asked to *do* something.
-
-Genuine exceptions are listed by name in an allowlist inside the rule, each with its reason. Today
-there is one: `CloudPlansDialog.statusOf`, because whether a plan is subscribed comes from
-subscriptions only the page holds.
+Genuine exceptions are listed by name in an allowlist inside the rule, each with its reason.
 
 ## Rule 4: say one thing one way
 
-Not mechanically checkable, but it is what most of the other rules are protecting.
+Not mechanically checkable, and the one most of the others protect.
 
-- **A value from the domain has one rendering.** Use `src/entities/`. A transaction hash was drawn
-  three ways, a block height three (with three *different values* - `Block 12345`, `12,345`,
-  `12345`), a transaction status six.
-- **A message the user reads has one wording.** `copyToClipboardWithToast(text)` takes no label on
-  purpose: nine call sites had written their own pair, which is nine ways of saying one of two
-  things to someone who just clicked a copy button.
-- **A format written and read has one definition.** The Drive backup format was normalised
-  separately on export and import, with the same caps written twice. Raising one and forgetting the
-  other would have silently dropped files at restore.
-- **Navigation goes through `useTabNavigation().open(url, { blank, push })`**, not `navigate` or
-  `openInNewTab` directly. Five components had written their own fallback and they disagreed.
+- A **domain value** has one rendering → `src/entities/`.
+- A **message the user reads** has one wording. `copyToClipboardWithToast(text)` takes no label on
+  purpose.
+- A **format written and read** has one definition, shared by both directions.
+- **Navigation** goes through `useTabNavigation().open(url, { blank, push })`.
 
-## The rest of `check:conventions`
+## Rule 5: consistency beats design
 
-Sixteen rules, all blocking except #9. Each was written after a real bug; the script explains
-which, at the top of each check. Read it there rather than guessing.
+When two near-identical values diverge for no reason - a `gap-6px` beside a `gap-8px`, two alphas
+one hundredth apart - **snap them to one canonical value**. Do not preserve a difference nobody
+chose. The design adapts afterwards.
+
+---
+
+## The convention checker
+
+`npm run check:conventions` — sixteen rules, all blocking except #9. Each explains its reasoning at
+the top of its own check in `scripts/check-conventions.mjs`. Read it there rather than guessing.
 
 | # | Rule |
 |---|---|
@@ -250,35 +119,21 @@ which, at the top of each check. Read it there rather than guessing.
 | 13 | No literal `v-if="true"` / `v-if="false"` |
 | 14 | No class repeated twice in one attribute |
 | 15 | No dead CSS custom property |
-| 16 | No function-typed prop (Rule 3 above) |
+| 16 | No function-typed prop |
 
-**Known blind spots** — rules 4 and 5 compare tokens in the places a class can actually be applied
-(`*class` attributes, string literals). They do not see a class passed inside an object
-(`:handlers="{ … }"`) or through a slot. If you apply a class that way, the checker cannot help
-you.
+**Known blind spots.** Rules 4 and 5 compare tokens where a class can actually be applied (`*class`
+attributes, string literals). They do not see a class passed inside an object (`:handlers="{ … }"`)
+or through a slot.
 
-## Testing what you add
+## Writing tests
 
-Unit tests live in `tests/unit/`, run by vitest. **There is no Vue plugin in the test config**: a
-module that transitively imports a `.vue` file cannot be tested, and one page calls the Electron
-bridge as it loads, so importing it throws before your test runs. In practice this means a service
-is testable exactly when it is properly separated - which is the point.
+**Worth a test**: a rule with an order or a threshold, a format that is both written and read,
+anything that could be wrong without failing loudly.
 
-Worth a test: a rule with an order or a threshold (which IBC channel a transfer leaves through, two
-decimals below ten LMN and none at ten), a format that is both written and read, anything that
-could be wrong without failing loudly.
+**Not worth one**: a pass-through, a wrapper carrying a constant, markup.
 
-Not worth one: a pass-through, a wrapper carrying a constant, markup.
-
-## End-to-end tests
-
-`npm run test:e2e` runs Playwright against the renderer in a browser, with a **mock Electron
-bridge** injected before any app code runs. Without it `checkLumenAPIReferences()` puts the app
-into its fatal-error screen and nothing is reachable.
-
-The mock is generated from `src/internal/common/lumenBridgeSurface.ts` - the same inventory the
-startup check uses - so it cannot drift: a method added to the bridge appears in the mock on its
-own. Stub a specific call by passing its path to `openApp`:
+**End-to-end**: `tests/e2e/` runs the renderer with a mock bridge. Stub a call by passing its path
+to `openApp` — overrides are **source strings**, because they are serialised into the page:
 
 ```ts
 await openApp({
@@ -286,28 +141,22 @@ await openApp({
 });
 ```
 
-Overrides are **source strings**, because they are serialised into the page.
+What the tests can and cannot reach, and what has no coverage at all, is in
+[ARCHITECTURE.md](./ARCHITECTURE.md#testing-and-what-it-cannot-reach). Read it before assuming a
+green run means much.
 
-These tests cover what unit tests structurally cannot: that a button is wired, that a modal opens,
-that a route renders, that an input mask rejects what it should. They are not integration tests -
-nothing real is on the other side of the bridge.
+---
 
-### Where they deliberately stop
+## Release checklist
 
-Anything past a confirmation that talks to the chain is **not** covered, because the mock would
-have to invent response shapes and the test would then pass because the fake agrees with itself.
-That is worse than no test: it reads like coverage and proves nothing.
-
-## Release checklist — what only a human can confirm
-
-Run these against a real build (`npm run pack`) before shipping. Each is a flow the automated
-tests deliberately stop short of.
+Run these against a real build (`npm run pack`) before shipping. Each is a flow the automated tests
+deliberately stop short of, and none of them is optional.
 
 - [ ] **Send tokens** end to end on a testnet, and confirm the amount that arrives.
-- [ ] **Approve a signature from a site** - the Keplr/Leap shim must show the approval modal, and
+- [ ] **Approve a signature from a site** — the Keplr/Leap shim must show the approval modal, and
       **rejecting must actually stop the signature**.
 - [ ] **Save to Drive** from a site and from the IPFS viewer: pause, resume, cancel a pin job.
 - [ ] **Restore a Drive backup** exported by a previous version.
-- [ ] **Lock and unlock** the session; confirm the shortest timeout is 15 minutes.
+- [ ] **Lock and unlock** the session; confirm the shortest timeout offered is 15 minutes.
 - [ ] **Install an extension**, and confirm an injected wallet still works on an IPFS site.
 - [ ] **First run with no profile**: onboarding must appear and must not be skippable.
