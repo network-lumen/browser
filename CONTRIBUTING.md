@@ -269,3 +269,45 @@ decimals below ten LMN and none at ten), a format that is both written and read,
 could be wrong without failing loudly.
 
 Not worth one: a pass-through, a wrapper carrying a constant, markup.
+
+## End-to-end tests
+
+`npm run test:e2e` runs Playwright against the renderer in a browser, with a **mock Electron
+bridge** injected before any app code runs. Without it `checkLumenAPIReferences()` puts the app
+into its fatal-error screen and nothing is reachable.
+
+The mock is generated from `src/internal/common/lumenBridgeSurface.ts` - the same inventory the
+startup check uses - so it cannot drift: a method added to the bridge appears in the mock on its
+own. Stub a specific call by passing its path to `openApp`:
+
+```ts
+await openApp({
+  'wallet.getBalance': `() => Promise.resolve({ ok: true, balance: { amount: '5000000' } })`,
+});
+```
+
+Overrides are **source strings**, because they are serialised into the page.
+
+These tests cover what unit tests structurally cannot: that a button is wired, that a modal opens,
+that a route renders, that an input mask rejects what it should. They are not integration tests -
+nothing real is on the other side of the bridge.
+
+### Where they deliberately stop
+
+Anything past a confirmation that talks to the chain is **not** covered, because the mock would
+have to invent response shapes and the test would then pass because the fake agrees with itself.
+That is worse than no test: it reads like coverage and proves nothing.
+
+## Release checklist — what only a human can confirm
+
+Run these against a real build (`npm run pack`) before shipping. Each is a flow the automated
+tests deliberately stop short of.
+
+- [ ] **Send tokens** end to end on a testnet, and confirm the amount that arrives.
+- [ ] **Approve a signature from a site** - the Keplr/Leap shim must show the approval modal, and
+      **rejecting must actually stop the signature**.
+- [ ] **Save to Drive** from a site and from the IPFS viewer: pause, resume, cancel a pin job.
+- [ ] **Restore a Drive backup** exported by a previous version.
+- [ ] **Lock and unlock** the session; confirm the shortest timeout is 15 minutes.
+- [ ] **Install an extension**, and confirm an injected wallet still works on an IPFS site.
+- [ ] **First run with no profile**: onboarding must appear and must not be skippable.

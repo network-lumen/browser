@@ -18,7 +18,17 @@ function loadFiles() {
     files = readJson<DriveFile[]>(driveFilesKey(pid), []);
 }
 
-api.ipfsOnAddProgress((p: any) => {
+/**
+ * Guarded because this runs as the module loads, before Vue has mounted
+ * anything.
+ *
+ * Without the guard, a missing bridge threw here and took the whole renderer
+ * down with a blank page - including `App.vue`'s own FATAL000001 screen, which
+ * exists to tell the user precisely that the bridge is missing. The diagnostic
+ * could never appear in the one situation it was written for. Caught by the
+ * end-to-end test that loads the app with no bridge.
+ */
+api?.ipfsOnAddProgress?.((p: any) => {
   /* Example progress payload:
         {
         phase: 'upload',
