@@ -2265,14 +2265,18 @@ async function ipfsAddDirectoryFromPathWithProgress(payload, opts = {}) {
       return { ok: false, error: 'cancelled' };
     }
 
-    // On tolère une sortie non-zero si on a déjà un CID (fichiers verrouillés à la fin)
+    // A non-zero exit is tolerated once a CID is in hand: files locked by
+    // another process at the end of the walk make the CLI exit non-zero after
+    // it has already produced the root.
     if (exitCode !== 0 && !rootCid) {
       log('NON ZERO EXIT - last stderr:', stderrBuffer.slice(-3000));
       restartDaemon();
       return { ok: false, error: 'ipfs_add_failed' };
     }
 
-    // CID final
+    // The root is the last CID the CLI prints, so wait for the tail of stdout
+    // to arrive before reading it - the process can exit before its final
+    // lines are drained.
     await new Promise(r => setTimeout(r, 800));
     const cidMatch = stdoutBuffer.match(/(bafy[a-z2-7]{50,})/g);
     rootCid = cidMatch?.at(-1) || rootCid;
