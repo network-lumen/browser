@@ -989,8 +989,11 @@ ipcMain.handle('profiles:getFavourites', async () => {
   });
 
   ipcMain.handle('profiles:exportBackup', async (_evt, id, password, encryptOutput) => {
-    console.log('[exportBackup] Called with id:', id, 'password provided:', !!password, 'password length:', password?.length, 'encryptOutput:', !!encryptOutput);
-    
+    // Whether a password was given is useful; how long it is narrows a brute
+    // force and has no business in a log file.
+    console.log('[exportBackup] id:', id, 'password provided:', !!password, 'encryptOutput:', !!encryptOutput);
+
+
     const { profiles } = loadProfilesFile();
     const p = profiles.find((x) => x.id === id);
     if (!p) return { ok: false, error: 'profile_not_found' };

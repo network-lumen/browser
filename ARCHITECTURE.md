@@ -209,6 +209,14 @@ Five rules, each written after something real:
    to one and forgotten in the other is invisible until an extension calls it in the context nobody
    tested.
 
+**ESLint covers `electron/` too**, with `no-undef` as the reason it exists. Until it did, the half of
+the app that holds the keys was checked by nothing at all - and the pass that added it had, two
+commits earlier, deleted a function and left three calls to it. That is a `ReferenceError` on
+`extensions:disable` in a file no test opens. Its first clean run also found `path.resolve` used
+without requiring `path` (every directory upload with progress threw), and a `catch` that logged an
+identifier that never existed - the `catch` reporting that the webview preload failed to register,
+so the one failure that leaves every site without `window.lumen` printed nothing at all.
+
 Three modules have real unit tests, chosen because they can be wrong without failing loudly:
 `gateway-auth` (who the local gateway lets in), `utils/crypto` (what stands between a stolen profile
 folder and a stolen wallet), `network/peer_pool` (which node a signed transaction goes to). The

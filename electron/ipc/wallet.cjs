@@ -173,6 +173,22 @@ function indexingDisabledResult(error) {
   };
 }
 
+/**
+ * What a *site* is told when a wallet call fails.
+ *
+ * The six channels below are reachable only from webview-preload - they are
+ * the Keplr/Leap shim, so the caller is whatever page the user is visiting.
+ * Handing that page `String(e.message)` hands it whatever the failure happened
+ * to say, and the realistic ones name a file: an ENOENT on keystore.json
+ * discloses the OS username and the profile layout to any site that asks.
+ *
+ * The detail still goes to the log, where it is useful and stays local.
+ */
+function siteFacingWalletError(label, error) {
+  console.warn(`[wallet] ${label} failed:`, error && error.message ? error.message : error);
+  return { ok: false, error: 'wallet_request_failed' };
+}
+
 async function signAndBroadcastStandard({ client, address, msgs, fee, memo }) {
   const res = await client.signAndBroadcast(address, msgs, fee, memo);
   if (res && typeof res.code === 'number' && res.code !== 0) {
@@ -2975,7 +2991,7 @@ function registerWalletIpc() {
         ]
       };
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      return siteFacingWalletError('getSignerAccounts', e);
     }
   });
 
@@ -3008,7 +3024,7 @@ function registerWalletIpc() {
         isKeystone: false
       };
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      return siteFacingWalletError('getKeyInfo', e);
     }
   });
 
@@ -3041,7 +3057,7 @@ function registerWalletIpc() {
         signature: normalizeStdSignature(response && response.signature ? response.signature : {})
       };
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      return siteFacingWalletError('signAmino', e);
     }
   });
 
@@ -3080,7 +3096,7 @@ function registerWalletIpc() {
         ...normalizeDirectSignResponse(response)
       };
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      return siteFacingWalletError('signDirect', e);
     }
   });
 
@@ -3109,7 +3125,10 @@ function registerWalletIpc() {
         const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
         if (errMsg === 'password_required') return { ok: false, error: 'password_required' };
         if (errMsg === 'invalid_password') return { ok: false, error: 'invalid_password' };
-        return { ok: false, error: errMsg };
+        // Anything else here is a failure to read the keystore, and its
+        // message names the file. The two codes above are the only ones a
+        // site has any use for.
+        return siteFacingWalletError('signArbitrary/loadMnemonic', loadErr);
       }
 
       const privkey = await derivePrivkeyFromMnemonic(mnemonic);
@@ -3135,7 +3154,7 @@ function registerWalletIpc() {
         address: derivedAddr,
       };
     } catch (e) {
-      return { ok: false, error: String(e && e.message ? e.message : e) };
+      return siteFacingWalletError('signArbitrary', e);
     }
   });
 
