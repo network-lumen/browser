@@ -19,11 +19,7 @@ class RecurringPaymentsService {
   private storageKey = STORAGE_KEYS.recurringPayments;
   private historyKey = STORAGE_KEYS.paymentHistory;
   private remindersKey = STORAGE_KEYS.paymentReminders;
-  private checkInterval: number | null = null;
 
-  constructor() {
-    this.startPaymentChecker();
-  }
 
   /**
    * Get all recurring payments
@@ -342,46 +338,18 @@ class RecurringPaymentsService {
     }
   }
 
-  /**
-   * Check for due payments and reminders
-   */
-  async checkDuePayments(
-    executeFunction: (payment: RecurringPayment) => Promise<{ success: boolean; txHash?: string; error?: string }>
-  ): Promise<void> {
-    const payments = this.getRecurringPayments();
-    const now = new Date();
-
-    for (const payment of payments) {
-      if (payment.status !== 'active') continue;
-      if (payment.nextPaymentDate > now) continue;
-
-      // Execute the payment
-      await this.executePayment(payment.id, executeFunction);
-    }
-  }
-
-  /**
-   * Start automatic payment checker
-   */
-  startPaymentChecker(): void {
-    if (this.checkInterval !== null) return;
-
-    // Check every minute
-    this.checkInterval = window.setInterval(() => {
-      // This is just a placeholder - actual execution needs to be triggered by the app
-      // The app should call checkDuePayments with the actual execute function
-    }, 60000);
-  }
-
-  /**
-   * Stop automatic payment checker
-   */
-  stopPaymentChecker(): void {
-    if (this.checkInterval !== null) {
-      clearInterval(this.checkInterval);
-      this.checkInterval = null;
-    }
-  }
+  // There is deliberately no checkDuePayments() and no timer.
+  //
+  // Recurring payments in Lumen are a reminder plus a confirmation dialog,
+  // never an execution: signing needs the session password, and an app that
+  // spends on a schedule is not something a user can supervise. A method that
+  // fires every due payment in a loop existed here, unused, next to a
+  // constructor that armed a 60-second setInterval whose callback was empty
+  // and which nothing could stop - a wake-up a minute for nothing, and a
+  // strong hint to the next reader that this runs on a timer. It does not.
+  //
+  // The one path that spends is payReminder() in paymentReminders.ts: one
+  // reminder, one confirmation, one signature.
 
   // Private helper methods
 

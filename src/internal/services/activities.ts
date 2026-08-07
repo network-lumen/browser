@@ -142,21 +142,14 @@ export async function fetchActivities(params: ListActivitiesParams): Promise<Act
   }
 
   const rawItems: any[] = Array.isArray(res.items) ? res.items : [];
-  const normalized = rawItems.map((item) =>
-    normalizeFromIndexer({
-      txhash: item.txhash,
-      timestamp: item.timestamp,
-      height: item.height,
-      type: item.type,
-      code: item.code,
-      amounts: item.amounts,
-      from: item.from,
-      to: item.to,
-      memo: item.memo,
-      action: item.action,
-      dnsName: item.dnsName
-    })
-  );
+  // The item goes through whole. It used to be rebuilt field by field from a
+  // fixed list of eleven canonical names first, which dropped every alternate
+  // spelling *before* normalizeFromIndexer could look for it - so the alias
+  // handling below it, the entire reason that function exists, could never
+  // fire. `pick` reads the canonical name first either way, so nothing about
+  // the current payload changes; a renamed field upstream now survives instead
+  // of silently rendering blank.
+  const normalized = rawItems.map((item) => normalizeFromIndexer(item));
   const sorted = sortDescByTime(normalized);
   activitiesCache.set(cacheKey, { data: sorted, expiresAt: now + ACTIVITIES_TTL_MS });
   return sorted;
