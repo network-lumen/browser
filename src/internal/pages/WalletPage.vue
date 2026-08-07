@@ -580,6 +580,7 @@ import { fetchIbcTransferChannels } from '../services/ibcChannels';
 import { activityBadgeStyle, describeActivity } from '../services/chainMessages';
 import {
   clearDenomTraceCache,
+  clearChainRegistryCache,
   resolveChainRegistryIconUrl,
   resolveDenomTrace,
 } from '../services/chainRegistry';
@@ -2363,6 +2364,9 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
 
   if (force) {
     clearDenomTraceCache();
+    // The registry too: a chain whose assets failed to load is exactly why
+    // someone presses refresh, and clearing only the traces left it blank.
+    clearChainRegistryCache();
     ibcChannelsLoaded.value = false;
   }
 
