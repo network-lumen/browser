@@ -79,7 +79,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { Save } from "lucide-vue-next";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import { bytesToText, errorMessage } from '../internal/services/coerce';
-import { readPinJobSnapshot } from '../internal/services/pinJobs';
+import { usePinJob } from '../composables/usePinJob';
 import { sanitizeStableLinkLabel, stableLinkDisplayName, stableLinkKeyNameFromLabel } from '../internal/services/stableLinks';
 import {
   driveFilesKey,
@@ -301,14 +301,30 @@ const pinning = ref(false);
 const pinError = ref("");
 const pinTarget = ref("");
 const saveNameDraft = ref("");
-const pinJobId = ref("");
-const pinJobStatus = ref("");
-const pinProgressText = ref("");
-const pinProgressCurrent = ref<number | null>(null);
-const pinProgressTotal = ref<number | null>(null);
-const pinProgressPercent = ref<number | null>(null);
-const pinProgressUnit = ref("");
-const pinWaitJobId = ref("");
+// Destructured under the names this file already used, so the template and
+// everything below are untouched.
+const {
+  jobId: pinJobId,
+  progressText: pinProgressText,
+  progressPercent: pinProgressPercent,
+  waitJobId: pinWaitJobId,
+  isRunning: pinIsRunning,
+  canPause: pinCanPause,
+  canResume: pinCanResume,
+  canStop: pinCanStop,
+  statusLabel: pinStatusLabel,
+  progressCounter: pinProgressCounter,
+  clear: clearPinJobState,
+  apply: applyPinJobSnapshot,
+  pause: pausePinJob,
+  resume: resumePinJob,
+  cancel: cancelPinJob,
+} = usePinJob({
+  busy: pinning,
+  error: pinError,
+  onResumed: (jobId) => void waitForPinCompletion(jobId),
+});
+
 let unsubPinProgress: null | (() => void) = null;
 
 function extractCid(cidOrUrl: string): string {
@@ -361,70 +377,6 @@ const pinTargetDisplay = computed(() => {
   if (t.startsWith("/ipns/")) return formatMiddleEllipsis(`lumen://ipns/${t.slice("/ipns/".length)}`);
   return formatMiddleEllipsis(t);
 });
-
-const pinIsRunning = computed(() =>
-  ["queued", "running", "retry_waiting"].includes(String(pinJobStatus.value || "").trim().toLowerCase()),
-);
-const pinCanPause = computed(() => !!pinJobId.value && pinIsRunning.value);
-const pinCanResume = computed(() =>
-  !!pinJobId.value && ["paused", "failed"].includes(String(pinJobStatus.value || "").trim().toLowerCase()),
-);
-const pinCanStop = computed(() =>
-  !!pinJobId.value &&
-  !["completed", "cancelled"].includes(String(pinJobStatus.value || "").trim().toLowerCase()),
-);
-const pinStatusLabel = computed(() => {
-  const status = String(pinJobStatus.value || "").trim().toLowerCase();
-  if (status === "queued") return "Queued";
-  if (status === "running") return "Saving";
-  if (status === "retry_waiting") return "Retrying";
-  if (status === "paused") return "Paused";
-  if (status === "failed") return "Failed";
-  if (status === "completed") return "Completed";
-  if (status === "cancelled") return "Stopped";
-  return pinning.value ? "Saving" : "Idle";
-});
-const pinProgressCounter = computed(() => {
-  const current =
-    pinProgressCurrent.value != null && Number.isFinite(pinProgressCurrent.value)
-      ? String(pinProgressCurrent.value)
-      : "";
-  const total =
-    pinProgressTotal.value != null && Number.isFinite(pinProgressTotal.value)
-      ? String(pinProgressTotal.value)
-      : "";
-  const unit = String(pinProgressUnit.value || "").trim();
-  if (current && total) return `${current}/${total}${unit ? ` ${unit}` : ""}`;
-  if (current) return `${current}${unit ? ` ${unit}` : ""}`;
-  if (pinProgressPercent.value != null && Number.isFinite(pinProgressPercent.value)) {
-    return `${pinProgressPercent.value.toFixed(0)}%`;
-  }
-  return "";
-});
-
-function clearPinJobState() {
-  pinJobId.value = "";
-  pinJobStatus.value = "";
-  pinProgressText.value = "";
-  pinProgressCurrent.value = null;
-  pinProgressTotal.value = null;
-  pinProgressPercent.value = null;
-  pinProgressUnit.value = "";
-  pinWaitJobId.value = "";
-}
-
-function applyPinJobSnapshot(job: any) {
-  const snapshot = readPinJobSnapshot(job);
-  if (!snapshot) return;
-  pinJobId.value = snapshot.id;
-  pinJobStatus.value = snapshot.status;
-  pinProgressText.value = snapshot.progressText;
-  pinProgressCurrent.value = snapshot.progressCurrent;
-  pinProgressTotal.value = snapshot.progressTotal;
-  pinProgressPercent.value = snapshot.progressPercent;
-  pinProgressUnit.value = snapshot.progressUnit;
-  pinning.value = snapshot.active;
-}
 
 function resetPinState() {
   pinning.value = false;
@@ -528,33 +480,6 @@ async function submitPin() {
     pinError.value = errorMessage(e, "save_failed");
     pinning.value = false;
   }
-}
-
-async function pausePinJob() {
-  const api: any = useInternalLumen();
-  if (!pinJobId.value || !api?.ipfsPinPause) return;
-  const res = await api.ipfsPinPause(pinJobId.value).catch(() => null);
-  if (res?.job) applyPinJobSnapshot(res.job);
-}
-
-async function resumePinJob() {
-  const api: any = useInternalLumen();
-  if (!pinJobId.value || !api?.ipfsPinResume) return;
-  pinError.value = "";
-  const res = await api.ipfsPinResume(pinJobId.value).catch(() => null);
-  if (res?.job) {
-    applyPinJobSnapshot(res.job);
-    void waitForPinCompletion(String(res.job.id || ""));
-    return;
-  }
-  if (res?.error) pinError.value = String(res.error);
-}
-
-async function cancelPinJob() {
-  const api: any = useInternalLumen();
-  if (!pinJobId.value || !api?.ipfsPinCancel) return;
-  const res = await api.ipfsPinCancel(pinJobId.value).catch(() => null);
-  if (res?.job) applyPinJobSnapshot(res.job);
 }
 
 function closePin(confirm: boolean) {
