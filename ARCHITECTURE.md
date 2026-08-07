@@ -262,6 +262,33 @@ Three modules have real unit tests, chosen because they can be wrong without fai
 folder and a stolen wallet), `network/peer_pool` (which node a signed transaction goes to). The
 first found an auth bypass on its first run.
 
+### Where an error ends up
+
+Two log files, both under Electron's `logs` directory beside `userData`:
+
+- **`electron-main.log`** — everything, including a proxy over `console.*` in the main process. Trimmed
+  at 8 MB down to 2 MB.
+- **`errors.log`** — only `[ERROR]`, from both processes. Trimmed at 1 MB, small enough to paste into a
+  bug report. It exists because the one crash worth reading used to be somewhere inside 8 MB of IPFS
+  status polls and gateway probes.
+
+The main process has had a net for a long time — `main_logger.cjs` listens for `unhandledRejection` and
+`uncaughtExceptionMonitor` (the *monitor* variant, so it records without swallowing a crash it has no
+business surviving). **The renderer had nothing**, and half the app runs there: an error thrown outside
+a `try` went to a devtools console nobody opens and left no trace on disk.
+`internal/services/errorReporting.ts` now installs `error` and `unhandledrejection` listeners as the
+first statement in `main.ts`, before anything that can throw.
+
+> This does not replace a single `catch`. The 399 silent `catch {}` blocks in `electron/` — mostly in
+> the two preloads — are decisions about a *value*: the page is navigating, the element is gone, the
+> bridge is torn down, so absence is normal. By the time a global handler runs the call has already
+> unwound and there is nothing left to return. The net is only for what would otherwise be lost.
+
+The reporter throttles: one identical error per 10-second window, 20 reports in total. A render loop
+throwing on every frame would otherwise turn one bug into an unbounded write to the user's disk. For
+the same reason `app:reportRendererError` is guarded with `ensureUiSender` **and** left out of
+`webview-preload` entirely — a channel that appends to a file must not be reachable from a page.
+
 ### What has no tests at all
 
 Worth knowing before you assume a green run means much:
