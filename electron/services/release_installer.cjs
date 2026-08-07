@@ -65,7 +65,17 @@ function shQuote(value) {
   return `'${s.replace(/'/g, `'\\''`)}'`;
 }
 
-async function ensureDir(dirPath) {
+/**
+ * Deliberately not `utils/fs.cjs`'s `ensureDir`, and no longer sharing its
+ * name, because it does the opposite with a failure: that one swallows it.
+ *
+ * This lets the error out so the caller decides. `downloadToFile` wants it -
+ * a directory it could not create means the installer has nowhere to land, and
+ * failing there beats failing later on the write. `appendUpdateLog` catches it
+ * again on purpose, since a missing log directory is not a reason to stop an
+ * update.
+ */
+async function ensureDirOrThrow(dirPath) {
   await fs.promises.mkdir(dirPath, { recursive: true });
 }
 
@@ -73,7 +83,7 @@ async function downloadToFile({ url, targetPath, expectedSha256Hex, expectedSize
   const u = new URL(url);
   const mod = getHttpModule(u);
 
-  await ensureDir(path.dirname(targetPath));
+  await ensureDirOrThrow(path.dirname(targetPath));
 
   return new Promise((resolve, reject) => {
     const req = mod.get(
@@ -221,7 +231,7 @@ function isoNow() {
 async function appendUpdateLog(logPath, message) {
   if (!logPath) return;
   try {
-    await ensureDir(path.dirname(logPath));
+    await ensureDirOrThrow(path.dirname(logPath));
   } catch {}
   try {
     const line = `[${isoNow()}] ${String(message || '').trim()}\n`;
