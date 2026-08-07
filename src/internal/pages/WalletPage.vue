@@ -624,6 +624,12 @@ import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiChartHeader from '../../ui/UiChartHeader.vue';
 import UiBanner from '../../ui/UiBanner.vue';
+import { buildAbsoluteUrl, fetchAbsoluteJson, trimTrailingSlash } from '../services/httpJson';
+import {
+  clearDenomTraceCache,
+  resolveChainRegistryIconUrl,
+  resolveDenomTrace,
+} from '../services/chainRegistry';
 import {
   derivePrefixHintsFromChainId,
   estimateRemoteFeeAmount,
@@ -674,7 +680,6 @@ import SubscriptionsView from '../../dialogs/SubscriptionsView.vue';
 import { payReminder } from '../services/paymentReminders';
 import { formatDenom as formatDenomValue, truncateMiddle } from '../services/format';
 import { downloadTextFile } from '../services/download';
-import { STORAGE_KEYS, readString, writeJson } from '../services/storage';
 import { useToast } from '../../composables/useToast';
 import type {
   SendTargetMode,
@@ -833,10 +838,6 @@ const dexError = ref('');
 const dexExpandedKeys = ref<string[]>([]);
 const dexLastLoadedAt = ref(0);
 const DEX_REFRESH_TTL_MS = 60_000;
-const denomTraceCache = new Map<string, { baseDenom: string; path: string } | null>();
-const chainRegistryCache = new Map<string, Promise<{ chain: any | null; assets: any[] }>>();
-const CHAIN_REGISTRY_CACHE_STORAGE_KEY = STORAGE_KEYS.chainRegistryCache;
-const CHAIN_REGISTRY_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 // QR Scanner
 const showQrScanner = ref(false);
@@ -1784,16 +1785,6 @@ function shortenAddress(value: string, start = 10, end = 8): string {
   return truncateMiddle(value, { start, end, separator: '…', empty: '-' });
 }
 
-function trimTrailingSlash(value: string): string {
-  return String(value || '').replace(/\/+$/, '');
-}
-
-function buildAbsoluteUrl(base: string, path: string): string {
-  const normalizedBase = trimTrailingSlash(base);
-  const normalizedPath = String(path || '').startsWith('/') ? String(path || '') : `/${String(path || '')}`;
-  return `${normalizedBase}${normalizedPath}`;
-}
-
 function normalizeWhitespace(value: string): string {
   return String(value || '').replace(/\s+/g, ' ').trim();
 }
@@ -2185,261 +2176,6 @@ function getDexVolumeLabel(dex: DexRow): string {
   return dex.marketPreview?.quoteVolume || (dex.tradingPairsCount === 0 ? 'N/A' : 'Unavailable');
 }
 
-function buildChainRegistryRawUrl(chainRegistryName: string, fileName: string): string {
-  return `https://raw.githubusercontent.com/cosmos/chain-registry/master/${encodeURIComponent(chainRegistryName)}/${fileName}`;
-}
-
-function waitMs(ms: number): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
-
-function isTransientFetchError(error: unknown): boolean {
-  const message = String((error as any)?.message || error || '').toLowerCase();
-  if (!message) return false;
-  return (
-    message.includes('failed to fetch') ||
-    message.includes('fetch failed') ||
-    message.includes('network') ||
-    message.includes('timeout') ||
-    message.includes('aborted') ||
-    message.includes('econnreset') ||
-    message.includes('eai_again') ||
-    message.includes('enotfound') ||
-    message.includes('socket')
-  );
-}
-
-async function fetchAbsoluteJsonOnce(url: string, timeout = 15000): Promise<any> {
-  const httpGet = useInternalLumen()?.http?.get || useInternalLumen()?.httpGet;
-  if (typeof httpGet === 'function') {
-    const res = await httpGet(String(url || ''), {
-      timeout,
-      headers: { accept: 'application/json' }
-    });
-
-    let json: any = res?.json ?? null;
-    if (json == null) {
-      const text = String(res?.text || '');
-      if (text) {
-        try {
-          json = JSON.parse(text);
-        } catch {
-          json = null;
-        }
-      }
-    }
-
-    if (!res || res.ok === false) {
-      const detail =
-        json?.message ||
-        json?.error ||
-        String(res?.text || '').trim() ||
-        String(res?.error || `HTTP ${res?.status || 0}`);
-      throw new Error(String(detail));
-    }
-
-    return json;
-  }
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      cache: 'no-store',
-      headers: { accept: 'application/json' },
-      signal: controller.signal
-    });
-    const text = await response.text().catch(() => '');
-    let json: any = null;
-    try {
-      json = text ? JSON.parse(text) : null;
-    } catch {
-      json = null;
-    }
-    if (!response.ok) {
-      const detail =
-        json?.message ||
-        json?.error ||
-        (typeof text === 'string' && text.trim() ? text.trim() : '') ||
-        `HTTP ${response.status}`;
-      throw new Error(String(detail));
-    }
-    return json;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function fetchAbsoluteJson(url: string, timeout = 15000): Promise<any> {
-  let lastError: unknown = null;
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    try {
-      return await fetchAbsoluteJsonOnce(url, timeout);
-    } catch (error) {
-      lastError = error;
-      if (attempt >= 2 || !isTransientFetchError(error)) {
-        throw error;
-      }
-      await waitMs(350 * (attempt + 1));
-    }
-  }
-  throw lastError instanceof Error ? lastError : new Error('Failed to fetch JSON.');
-}
-
-function readChainRegistryStorageCache(): Record<string, { updatedAt: number; chain: any | null; assets: any[] }> {
-  try {
-    const raw = readString(CHAIN_REGISTRY_CACHE_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return {};
-    return parsed;
-  } catch {
-    return {};
-  }
-}
-
-function writeChainRegistryStorageCache(
-  next: Record<string, { updatedAt: number; chain: any | null; assets: any[] }>
-) {
-  try {
-    writeJson(CHAIN_REGISTRY_CACHE_STORAGE_KEY, next);
-  } catch {
-    // Ignore storage quota or serialization errors.
-  }
-}
-
-function getStoredChainRegistryBundle(
-  chainRegistryName: string,
-  { allowStale = false }: { allowStale?: boolean } = {}
-): { chain: any | null; assets: any[] } | null {
-  const cache = readChainRegistryStorageCache();
-  const entry = cache[String(chainRegistryName || '').trim()];
-  if (!entry) return null;
-
-  const age = Date.now() - Number(entry.updatedAt || 0);
-  const isFresh = Number.isFinite(age) && age >= 0 && age <= CHAIN_REGISTRY_CACHE_TTL_MS;
-  if (!isFresh && !allowStale) return null;
-
-  return {
-    chain: entry.chain || null,
-    assets: Array.isArray(entry.assets) ? entry.assets : []
-  };
-}
-
-function persistChainRegistryBundle(chainRegistryName: string, bundle: { chain: any | null; assets: any[] }) {
-  const key = String(chainRegistryName || '').trim();
-  if (!key) return;
-
-  const cache = readChainRegistryStorageCache();
-  cache[key] = {
-    updatedAt: Date.now(),
-    chain: bundle.chain || null,
-    assets: Array.isArray(bundle.assets) ? bundle.assets : []
-  };
-  writeChainRegistryStorageCache(cache);
-}
-
-async function loadChainRegistryBundle(chainRegistryName: string): Promise<{ chain: any | null; assets: any[] }> {
-  const key = String(chainRegistryName || '').trim();
-  if (!key) return { chain: null, assets: [] };
-
-  if (!chainRegistryCache.has(key)) {
-    chainRegistryCache.set(
-      key,
-      (async () => {
-        const freshStored = getStoredChainRegistryBundle(key);
-        if (freshStored) return freshStored;
-
-        try {
-          const [chain, assetList] = await Promise.all([
-            fetchAbsoluteJson(buildChainRegistryRawUrl(key, 'chain.json'), 10000).catch(() => null),
-            fetchAbsoluteJson(buildChainRegistryRawUrl(key, 'assetlist.json'), 10000).catch(() => null)
-          ]);
-
-          const bundle = {
-            chain: chain || null,
-            assets: Array.isArray(assetList?.assets) ? assetList.assets : []
-          };
-
-          if (bundle.chain || bundle.assets.length) {
-            persistChainRegistryBundle(key, bundle);
-            return bundle;
-          }
-
-          const staleStored = getStoredChainRegistryBundle(key, { allowStale: true });
-          const fallback = staleStored || bundle;
-          if (!fallback.chain && !fallback.assets.length) {
-            chainRegistryCache.delete(key);
-          }
-          return fallback;
-        } catch {
-          const staleStored = getStoredChainRegistryBundle(key, { allowStale: true });
-          const fallback = staleStored || { chain: null, assets: [] };
-          if (!fallback.chain && !fallback.assets.length) {
-            chainRegistryCache.delete(key);
-          }
-          return fallback;
-        }
-      })()
-    );
-  }
-
-  return chainRegistryCache.get(key)!;
-}
-
-function pickPreferredRegistryImage(entry: any): string {
-  const images = Array.isArray(entry?.images) ? entry.images : [];
-  for (const image of images) {
-    const svg = String(image?.svg || '').trim();
-    if (svg) return svg;
-    const png = String(image?.png || '').trim();
-    if (png) return png;
-  }
-
-  const logoSvg = String(entry?.logo_URIs?.svg || entry?.logo_uris?.svg || '').trim();
-  if (logoSvg) return logoSvg;
-  const logoPng = String(entry?.logo_URIs?.png || entry?.logo_uris?.png || '').trim();
-  if (logoPng) return logoPng;
-  return '';
-}
-
-async function resolveChainRegistryIconUrl(
-  chainRegistryName: string | undefined,
-  rawDenom: string,
-  trace: { baseDenom: string; path: string } | null
-): Promise<string> {
-  const registryName = String(chainRegistryName || '').trim();
-  if (!registryName) return '';
-
-  try {
-    const bundle = await loadChainRegistryBundle(registryName);
-    const denomCandidates = Array.from(
-      new Set(
-        [String(trace?.baseDenom || '').trim(), String(rawDenom || '').trim()]
-          .filter(Boolean)
-          .map((value) => value.toLowerCase())
-      )
-    );
-
-    for (const asset of bundle.assets) {
-      const base = String(asset?.base || '').trim().toLowerCase();
-      const denoms = Array.isArray(asset?.denom_units)
-        ? asset.denom_units.map((unit: any) => String(unit?.denom || '').trim().toLowerCase()).filter(Boolean)
-        : [];
-      const assetKeys = new Set([base, ...denoms]);
-      if (denomCandidates.some((candidate) => assetKeys.has(candidate))) {
-        const image = pickPreferredRegistryImage(asset);
-        if (image) return image;
-      }
-    }
-
-    return pickPreferredRegistryImage(bundle.chain);
-  } catch {
-    return '';
-  }
-}
-
 async function fetchLocalBalances(ownerAddress: string): Promise<Array<{ denom: string; amount: string }>> {
   const net = useInternalLumen()?.net;
   if (!net || typeof net.restGet !== 'function') {
@@ -2468,56 +2204,6 @@ async function fetchRemoteBalances(restEndpoint: string, ownerAddress: string): 
     denom: String(coin?.denom || '').trim(),
     amount: String(coin?.amount || '0').trim() || '0'
   }));
-}
-
-async function resolveDenomTrace(
-  restEndpoint: string,
-  denom: string,
-  { isLocal = false }: { isLocal?: boolean } = {}
-): Promise<{ baseDenom: string; path: string } | null> {
-  const rawDenom = String(denom || '').trim();
-  if (!rawDenom || !rawDenom.toUpperCase().startsWith('IBC/')) return null;
-
-  const hash = rawDenom.slice(4);
-  const cacheKey = `${isLocal ? '__local__' : trimTrailingSlash(restEndpoint)}|${hash}`;
-  if (denomTraceCache.has(cacheKey)) {
-    return denomTraceCache.get(cacheKey) || null;
-  }
-
-  try {
-    let trace: any = null;
-    if (isLocal) {
-      const net = useInternalLumen()?.net;
-      if (!net || typeof net.restGet !== 'function') {
-        throw new Error('Network API not available.');
-      }
-      const res = await net.restGet(`/ibc/apps/transfer/v1/denom_traces/${encodeURIComponent(hash)}`, {
-        timeout: 10000
-      });
-      if (!res || res.ok === false) {
-        throw new Error(String(res?.error || 'Failed to resolve denom trace.'));
-      }
-      trace = res?.json?.denom_trace || res?.json?.denomTrace || null;
-    } else {
-      const json = await fetchAbsoluteJson(
-        buildAbsoluteUrl(restEndpoint, `/ibc/apps/transfer/v1/denom_traces/${encodeURIComponent(hash)}`),
-        10000
-      );
-      trace = json?.denom_trace || json?.denomTrace || null;
-    }
-
-    const resolved = trace
-      ? {
-          baseDenom: String(trace?.base_denom || trace?.baseDenom || '').trim(),
-          path: String(trace?.path || '').trim()
-        }
-      : null;
-    denomTraceCache.set(cacheKey, resolved);
-    return resolved;
-  } catch {
-    denomTraceCache.set(cacheKey, null);
-    return null;
-  }
 }
 
 function buildAssetDisplayName(denom: string, displaySymbol: string, trace: { baseDenom: string; path: string } | null): string {
@@ -2858,7 +2544,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
   }
 
   if (force) {
-    denomTraceCache.clear();
+    clearDenomTraceCache();
     ibcChannelsLoaded.value = false;
   }
 

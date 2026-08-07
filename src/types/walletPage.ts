@@ -113,3 +113,13 @@ export type IbcForm = { sourceChannel: string; sourcePort: string };
 
 /** The fields of the asset transfer form. */
 export type AssetTransferForm = { destinationKey: string; recipient: string; amount: string };
+
+export type ChainRegistryBundle = { chain: any | null; assets: any[] };
+
+export type DenomTrace = { baseDenom: string; path: string };
+
+/** The on-disk shape of the chain registry cache, keyed by registry name. */
+export type StoredChainRegistryCache = Record<
+  string,
+  { updatedAt: number; chain: any | null; assets: any[] }
+>;
