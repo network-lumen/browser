@@ -100,12 +100,20 @@ export function bytesToHex(data: ArrayBuffer | Uint8Array, uppercase = false): s
   return uppercase ? out.toUpperCase() : out;
 }
 
-/** UTF-8 decodes a `Uint8Array`/byte array; passes strings through unchanged. */
+/**
+ * UTF-8 decodes a `Uint8Array`/byte array; passes strings through unchanged.
+ *
+ * Uses `ArrayBuffer.isView` rather than `instanceof Uint8Array`, which is only
+ * true for a view built by *this* realm. Bytes here arrive over the
+ * contextBridge from the preload, and a typed array that crossed a realm
+ * boundary failed the `instanceof` test and decoded to `''` - not an error, an
+ * empty string, which a caller renders as blank content rather than reporting.
+ */
 export function bytesToText(data: unknown): string {
   if (typeof data === 'string') return data;
   try {
-    const bytes = data instanceof Uint8Array
-      ? data
+    const bytes = ArrayBuffer.isView(data)
+      ? new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
       : Array.isArray(data)
         ? new Uint8Array(data)
         : null;
