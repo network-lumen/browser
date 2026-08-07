@@ -273,14 +273,12 @@ if (!isMainThread) {
       if (now - last < ERROR_LOG_TTL_MS) return;
       recentErrors.set(err, now);
       try {
-        // eslint-disable-next-line no-console
         console.warn('[gateway] view ping worker error', msg);
       } catch {}
     });
     worker.on('error', (err) => {
       worker = null;
       try {
-        // eslint-disable-next-line no-console
         console.warn('[gateway] view ping worker crashed', err);
       } catch {}
     });

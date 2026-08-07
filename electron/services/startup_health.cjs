@@ -18,7 +18,6 @@ function currentAppVersion() {
   } catch {}
   try {
     // electron/services -> electron -> app root
-    // eslint-disable-next-line global-require, import/no-dynamic-require
     const pkg = require('../../package.json');
     const pv = String(pkg && pkg.version ? pkg.version : '').trim();
     if (pv) return pv;
