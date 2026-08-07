@@ -29,7 +29,16 @@ function walk(dir) {
 const rel = (f) => relative(ELECTRON, f).replace(/\\/g, '/');
 const files = walk(ELECTRON);
 
-/** Balanced-paren scan, so a body containing `)` in a string is not cut short. */
+/**
+ * Balanced-paren scan, so a body containing `)` in a string is not cut short.
+ *
+ * Comments are skipped, and that is not a nicety. An apostrophe in prose -
+ * `this site's own cached JSON`, in main.cjs - reads as the start of a string
+ * literal, and from there the scan swallows the rest of the file. The handler
+ * it was measuring appeared to contain the next four, and every rule below
+ * inherited the mistake: one reported a violation that lived in a completely
+ * different handler.
+ */
 function handlerBodies(src) {
   const out = [];
   const re = /ipcMain\.(handle|on)\(\s*['"`]([^'"`]+)['"`]/g;
@@ -42,6 +51,16 @@ function handlerBodies(src) {
       const c = src[i];
       if (inStr) {
         if (c === inStr && src[i - 1] !== '\\') inStr = null;
+        continue;
+      }
+      if (c === '/' && src[i + 1] === '/') {
+        i = src.indexOf('\n', i);
+        if (i < 0) i = src.length;
+        continue;
+      }
+      if (c === '/' && src[i + 1] === '*') {
+        const end = src.indexOf('*/', i + 2);
+        i = end < 0 ? src.length : end + 1;
         continue;
       }
       if (c === "'" || c === '"' || c === '`') { inStr = c; continue; }
@@ -218,6 +237,49 @@ const KNOWN_CHROME_NAMESPACES = [
 }
 
 // ---------------------------------------------------------------------------
+// Rule 6: a site-reachable handler must not return a raw error message.
+//
+// The caller on these channels is whatever page the user is visiting. Six
+// wallet channels - the Keplr/Leap shim - returned `String(e.message)`, and
+// the realistic failure in that path is a filesystem error naming
+// keystore.json, which spells out the OS username and the profile layout. A
+// site could ask for a signature it knew would fail and read the answer.
+//
+// The fix is a stable code plus a local log, so the allowlist below is the
+// list of channels where that was considered and the message was kept. Each
+// one is here because its errors carry nothing about the machine: either the
+// message is about input the site supplied itself, or the handler only ever
+// touches memory.
+// ---------------------------------------------------------------------------
+const RAW_ERROR_ALLOWED = new Set([
+  // Pure crypto over the site's own arguments. The message tells it nothing
+  // it did not already know, and it is what makes a bad signature debuggable.
+  'wallet:verifyArbitrary',
+  // Encoding failures on the payload the site just handed in.
+  'ipfs:pubsub:publish',
+  'ipfs:pubsub:subscribe',
+  // Read in-memory state only - no file is ever opened behind these.
+  'extensions:getGrantedPermissionsSync',
+  'extensions:getProviderFallbackStateSync',
+  // Talks to an RPC node whose address ships in resources/peers.txt, and the
+  // app window shows this same message to the user.
+  'dns:getDomainInfo',
+]);
+
+const RETURNS_RAW_ERROR = /error:\s*(?:String\()?\s*(?:e|err|error)\s*(?:\?\.|\s*&&|\.message)/;
+
+for (const h of handlers) {
+  if (!fromSite.has(h.channel)) continue;
+  if (RAW_ERROR_ALLOWED.has(h.channel)) continue;
+  if (!RETURNS_RAW_ERROR.test(h.body)) continue;
+  add(
+    'no-raw-error-to-site',
+    h,
+    'returns a raw error message on a channel a site can call - return a stable code and log the detail, or add the channel to RAW_ERROR_ALLOWED in this script with the reason'
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 const TITLES = {
@@ -226,6 +288,7 @@ const TITLES = {
   'no-duplicate-channel': 'Channel registered more than once',
   'no-missing-handler': 'Channel called by a preload with no handler',
   'shims-must-match': 'chrome namespace present in one preload shim but not the other',
+  'no-raw-error-to-site': 'Raw error message returned to a site',
 };
 
 const siteCount = handlers.filter((h) => fromSite.has(h.channel)).length;

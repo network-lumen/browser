@@ -194,7 +194,7 @@ release checklist instead.
 a third of them are four-line pass-throughs where a test would exercise the mock, and a per-handler
 test would have caught none of the four missing sender guards found by hand.
 
-Five rules, each written after something real:
+Six rules, each written after something real:
 
 1. **Never take a site's identity from its arguments.** Permissions are stored per site key, so a
    handler reading `input.siteKey` without checking its sender lets any caller act as any site.
@@ -208,6 +208,16 @@ Five rules, each written after something real:
    `extension-preload` serves extension pages, and both expose the same fourteen. A namespace added
    to one and forgotten in the other is invisible until an extension calls it in the context nobody
    tested.
+6. **No raw error message back to a site.** Six wallet channels - the Keplr/Leap shim - returned
+   `String(e.message)` to whatever page was open. The realistic failure there names a file, and an
+   `ENOENT` on `keystore.json` spells out the OS username and the profile layout. Return a code, log
+   the detail. The script holds an allowlist of the channels where the message was reviewed and kept.
+
+> The pass that added rule 6 also found a bug in the checker itself: an apostrophe in a prose comment
+> (`this site's own cached JSON`) read as the start of a string literal, so the scan measuring one
+> handler swallowed the four that followed and reported a violation in the wrong one. Comments are
+> skipped now. This is the third time a hand-written scanner in this repo has been fooled by an
+> apostrophe - if you write a fourth, strip comments first.
 
 **ESLint covers `electron/` too**, with `no-undef` as the reason it exists. Until it did, the half of
 the app that holds the keys was checked by nothing at all - and the pass that added it had, two
