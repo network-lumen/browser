@@ -188,13 +188,39 @@ have to invent response shapes and the test would then pass because the fake agr
 That is worse than no test: it reads like coverage and proves nothing. Those flows are in the
 release checklist instead.
 
+### The main process
+
+`npm run check:ipc` holds all 211 IPC channels to one contract, instead of a unit test per handler -
+a third of them are four-line pass-throughs where a test would exercise the mock, and a per-handler
+test would have caught none of the four missing sender guards found by hand.
+
+Five rules, each written after something real:
+
+1. **Never take a site's identity from its arguments.** Permissions are stored per site key, so a
+   handler reading `input.siteKey` without checking its sender lets any caller act as any site.
+   Deliberately *not* "every site-reachable channel must guard its sender": most of the 36 are the
+   site-facing API on purpose, and a check that cries wolf gets switched off.
+2. **An async `ipcMain.on` must catch.** `handle` rejects the caller's promise; `on` has no caller,
+   so a throw there is an unhandled rejection in main that the renderer never hears about.
+3. **One handler per channel.** Electron reports nothing when two register.
+4. **No channel called by a preload without a handler**, which catches a rename that touched one side.
+5. **The two chrome shims must offer the same namespaces.** `webview-preload` serves content scripts,
+   `extension-preload` serves extension pages, and both expose the same fourteen. A namespace added
+   to one and forgotten in the other is invisible until an extension calls it in the context nobody
+   tested.
+
+Three modules have real unit tests, chosen because they can be wrong without failing loudly:
+`gateway-auth` (who the local gateway lets in), `utils/crypto` (what stands between a stolen profile
+folder and a stolen wallet), `network/peer_pool` (which node a signed transaction goes to). The
+first found an auth bypass on its first run.
+
 ### What has no tests at all
 
 Worth knowing before you assume a green run means much:
 
-- **The main process.** `main.cjs`, `ipc/wallet.cjs`, `ipc/gateway.cjs`, `extensions/manager.cjs` -
-  roughly 13 000 lines that hold the keys and talk to the chain. The bridge is mocked in the E2E
-  tests; what is behind it is covered nowhere.
+- **Most of the main process.** `ipc/wallet.cjs`, `ipc/gateway.cjs`, `extensions/manager.cjs` -
+  roughly 10 600 lines that hold the keys and talk to the chain. The contract check covers their IPC
+  surface; the logic behind it is covered nowhere.
 - **Error paths.** Every mock answers yes. Node down, chain unreachable, wrong password, disk full:
   no coverage.
 - **Anything that writes.** The tests read. Saving a file, restoring a backup, changing a setting,

@@ -169,6 +169,55 @@ for (const channel of anyPreload) {
 }
 
 // ---------------------------------------------------------------------------
+// Rule 5: the two chrome shims must offer the same namespaces.
+//
+// `webview-preload` builds the API for a content script inside a <webview>;
+// `extension-preload` builds it for an extension's own pages. They are two
+// implementations of one surface, and today both expose the same fourteen
+// namespaces - so an extension that works in one place works in the other.
+//
+// Nothing enforced that. A namespace added to one and forgotten in the other
+// is invisible until an extension calls it and gets `undefined is not a
+// function`, in whichever of the two contexts nobody tested.
+//
+// Only the namespace *set* is compared. The members inside differ legitimately
+// - a content script has no business calling `management.uninstall` - and
+// checking those would fire constantly.
+// ---------------------------------------------------------------------------
+function shimNamespaces(fileName) {
+  const src = readFileSync(join(ELECTRON, fileName), 'utf8');
+  const found = new Set();
+  // `const namespaces = { alarms: …, runtime: … }` in the extension preload,
+  // and `api.alarms = …` / `api.runtime.x = …` in the webview one, which
+  // enhances an object rather than declaring it whole.
+  for (const m of src.matchAll(/(?:^|\n)\s{4}([a-z][\w]*)\s*:/g)) found.add(m[1]);
+  for (const m of src.matchAll(/\bapi\.([a-z][\w]*)\b/g)) found.add(m[1]);
+  return found;
+}
+
+const KNOWN_CHROME_NAMESPACES = [
+  'alarms', 'extension', 'identity', 'idle', 'management', 'notifications',
+  'permissions', 'runtime', 'scripting', 'sidePanel', 'storage', 'tabs',
+  'webNavigation', 'windows',
+];
+
+{
+  const inWebview = shimNamespaces('webview-preload.cjs');
+  const inExtension = shimNamespaces('extension-preload.cjs');
+  for (const ns of KNOWN_CHROME_NAMESPACES) {
+    const w = inWebview.has(ns);
+    const e = inExtension.has(ns);
+    if (w === e) continue;
+    violations.push({
+      rule: 'shims-must-match',
+      where: w ? 'extension-preload.cjs' : 'webview-preload.cjs',
+      channel: `chrome.${ns}`,
+      detail: `offered by ${w ? 'webview-preload' : 'extension-preload'} but not the other - an extension using it breaks in whichever context was forgotten`,
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 const TITLES = {
@@ -176,6 +225,7 @@ const TITLES = {
   'async-on-must-catch': 'Async ipcMain.on without try/catch (unhandled rejection in main)',
   'no-duplicate-channel': 'Channel registered more than once',
   'no-missing-handler': 'Channel called by a preload with no handler',
+  'shims-must-match': 'chrome namespace present in one preload shim but not the other',
 };
 
 const siteCount = handlers.filter((h) => fromSite.has(h.channel)).length;
