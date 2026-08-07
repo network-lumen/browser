@@ -1,4 +1,5 @@
 const { ipcMain, dialog } = require('electron');
+const path = require('path');
 
 const {
   checkIpfsStatus,
@@ -12,7 +13,6 @@ const {
   ipfsGet,
   ipfsLs,
   ipfsPinList,
-  ipfsPinAdd,
   startManagedPinJob,
   pauseManagedPinJob,
   resumeManagedPinJob,

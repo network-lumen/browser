@@ -17,7 +17,6 @@ const DEBUG_RELEASE =
 function dbg(...args) {
   if (!DEBUG_RELEASE) return;
   try {
-    // eslint-disable-next-line no-console
     console.log('[release]', ...args);
   } catch {}
 }

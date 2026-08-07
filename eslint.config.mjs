@@ -69,6 +69,59 @@ export default [
     },
   },
   {
+    // The main process was linted by nothing at all until a cleanup pass here
+    // deleted a function and left three calls to it - a ReferenceError on
+    // `extensions:disable`, in a file that `npm test` never opens. `no-undef`
+    // is the whole point of this block; the other two come free.
+    //
+    // Deliberately narrower than the src rules: no-console is off (the main
+    // process logs to a real log file on purpose) and unused vars are a
+    // warning, because a preload that keeps a reference for clarity is not a
+    // bug worth failing a build over.
+    files: ['electron/**/*.cjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'commonjs',
+      globals: {
+        // Node, plus what a preload sees: it runs in a renderer, so it has
+        // both halves.
+        require: 'readonly', module: 'writable', exports: 'writable',
+        process: 'readonly', console: 'readonly', Buffer: 'readonly',
+        __dirname: 'readonly', __filename: 'readonly', global: 'readonly',
+        setTimeout: 'readonly', clearTimeout: 'readonly',
+        setInterval: 'readonly', clearInterval: 'readonly',
+        setImmediate: 'readonly', queueMicrotask: 'readonly',
+        URL: 'readonly', URLSearchParams: 'readonly', TextEncoder: 'readonly',
+        TextDecoder: 'readonly', AbortController: 'readonly', fetch: 'readonly',
+        Headers: 'readonly', Request: 'readonly', Response: 'readonly',
+        Blob: 'readonly', FormData: 'readonly', File: 'readonly',
+        ReadableStream: 'readonly', WritableStream: 'readonly',
+        TransformStream: 'readonly', structuredClone: 'readonly',
+        performance: 'readonly', crypto: 'readonly', btoa: 'readonly',
+        atob: 'readonly', Event: 'readonly', EventTarget: 'readonly',
+        CustomEvent: 'readonly', MessageChannel: 'readonly',
+        window: 'readonly', document: 'readonly', navigator: 'readonly',
+        location: 'readonly', history: 'readonly', BroadcastChannel: 'readonly',
+        localStorage: 'readonly', sessionStorage: 'readonly',
+        XMLHttpRequest: 'readonly', WebSocket: 'readonly', Image: 'readonly',
+        MutationObserver: 'readonly', requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly', getComputedStyle: 'readonly',
+        Node: 'readonly', Element: 'readonly', HTMLElement: 'readonly',
+        DOMParser: 'readonly', Worker: 'readonly', importScripts: 'readonly',
+        self: 'readonly', chrome: 'readonly', browser: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'error',
+      'no-unreachable': 'error',
+      'no-unused-vars': ['warn', {
+        args: 'none',
+        varsIgnorePattern: '^_',
+        caughtErrors: 'none',
+      }],
+    },
+  },
+  {
     // Every type/interface declaration must live in src/types/ (one file per
     // concept/page, see CONTRIBUTING.md) - single source of truth, no
     // colocated ad hoc types drifting out of sync across files. This is the

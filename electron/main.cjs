@@ -208,21 +208,6 @@ addPinJobListener((payload) => {
 const LUMEN_SESSION_PARTITION = 'persist:lumen';
 const LUMEN_SESSION_PRELOAD_ID = 'lumen-extension-preload';
 
-function describeSessionPartition(ses) {
-  try {
-    if (!ses) return 'missing';
-    if (ses === session.defaultSession) return 'default';
-    if (ses === session.fromPartition(LUMEN_SESSION_PARTITION)) return LUMEN_SESSION_PARTITION;
-    if (typeof ses.getStoragePath === 'function') {
-      const storagePath = safeString(ses.getStoragePath(), 4096);
-      if (storagePath) return storagePath;
-    }
-    return 'unknown';
-  } catch {
-    return 'unknown';
-  }
-}
-
 function listSessionPreloadScripts(ses) {
   try {
     const scripts =
@@ -284,9 +269,12 @@ function registerLumenSessionPreload() {
       scripts: listSessionPreloadScripts(ses),
     });
   } catch (e) {
+    // This is the failure that leaves every site without window.lumen, so the
+    // warning has to survive: `preloadPath` was never a variable here, and
+    // reading it threw a second time, inside the handler for the first.
     console.warn('[main] failed to register session preload', {
       partition: LUMEN_SESSION_PARTITION,
-      preloadPath,
+      preloadPaths: preloadScripts.map((preload) => preload.filePath),
       error: String(e && e.message ? e.message : e || 'unknown_error'),
     });
   }
@@ -704,25 +692,6 @@ function isDevtoolsToggle(input) {
 
 function isF12Toggle(input) {
   return String(input && input.key ? input.key : '').toUpperCase() === 'F12';
-}
-
-function isChromeExtensionUrl(rawUrl) {
-  return /^chrome-extension:\/\//i.test(safeString(rawUrl, 4096));
-}
-
-function isChromeExtensionWebviewContents(contents) {
-  if (!contents || contents.isDestroyed?.()) return false;
-  try {
-    const type = typeof contents.getType === 'function' ? String(contents.getType() || '') : '';
-    if (type.toLowerCase() !== 'webview') return false;
-  } catch {
-    return false;
-  }
-  try {
-    return isChromeExtensionUrl(contents.getURL?.());
-  } catch {
-    return false;
-  }
 }
 
 function resolveFocusedDevtoolsTarget(sourceContents) {
@@ -1151,7 +1120,7 @@ ipcMain.handle('gatewayServer:getApiKey', async () => {
 });
 
 // Gateway metadata IPC handlers
-const { saveUserMetadata, getUserMetadata, getAllUserMetadata, deleteUserMetadata } = require('./gateway-database.cjs');
+const { saveUserMetadata, getAllUserMetadata } = require('./gateway-database.cjs');
 
 ipcMain.handle('gatewayServer:saveMetadata', async (_evt, address, metadata) => {
   try {
