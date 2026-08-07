@@ -435,7 +435,9 @@ async function startGatewayServer(options = {}) {
         gatewayServer = server;
         gatewayServerPort = port;
         console.log(`[electron][gateway-server] Running on http://${config.host}:${port}`);
-        console.log(`[electron][gateway-server] API Key: ${apiKey}`);
+        // Not the key itself: it is the bearer secret for the whitelist admin
+        // endpoints, and the log is a file on disk that outlives the session.
+        console.log('[electron][gateway-server] API key loaded (see api-key.txt)');
         console.log(`[electron][gateway-server] Database: ${config.database.path}`);
         resolve({ ok: true, port, apiKey, url: `http://${config.host}:${port}` });
       });
