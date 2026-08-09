@@ -24,7 +24,14 @@ async function runWithRpcRetry(action, label, attempts = 3, delayMs = 1000) {
   throw lastError;
 }
 
+// Lumen has no gas market: the fee amount is always empty and the DAO's fixed
+// price is charged by the message itself.
+function zeroFee(gas = '250000') {
+  return { amount: [], gas: String(gas) };
+}
+
 module.exports = {
-  runWithRpcRetry
+  runWithRpcRetry,
+  zeroFee
 };
 

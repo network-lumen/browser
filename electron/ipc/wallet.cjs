@@ -10,6 +10,7 @@ const { readState } = require('../network/network_middleware.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
 const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
+const { zeroFee } = require('../utils/tx.cjs');
 const { isPasswordRequired, getSessionPassword, verifyStoredPassword } = require('./security.cjs');
 const { DEFAULT_BECH32_PREFIXES } = require('../extensions/wallet_injection.cjs');
 const { resolvePqcHome, signAndBroadcastWithPqcAutoLink } = require('../utils/pqc_link.cjs');
@@ -664,11 +665,6 @@ function registerWalletIpc() {
           })
         };
 
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '250000' }));
-
         const fee = useRemoteStandardClient
           ? {
               amount: [{ denom: feeDenom, amount: feeAmount }],
@@ -981,11 +977,6 @@ function registerWalletIpc() {
           duration_days: durationDays
         });
 
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '250000' }));
-
         const memo = String((input && input.memo) || 'dns:register');
         const fee = zeroFee();
         const res = await signAndBroadcastWithPqcAutoLink({
@@ -1169,11 +1160,6 @@ function registerWalletIpc() {
           msg.value.pow_nonce = powNonce;
         }
 
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '250000' }));
-
         const memo = String((input && input.memo) || 'dns:update');
         const fee = zeroFee();
         const res = await signAndBroadcastWithPqcAutoLink({
@@ -1309,11 +1295,6 @@ function registerWalletIpc() {
           };
         }
 
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '250000' }));
-
         const memo = String((input && input.memo) || 'dns:transfer');
         const fee = zeroFee();
         const res = await signAndBroadcastWithPqcAutoLink({
@@ -1411,11 +1392,6 @@ function registerWalletIpc() {
           })
         };
 
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '300000' }));
-
         const fee = zeroFee();
         const res = await signAndBroadcastWithPqcAutoLink({
           bridgeMod: mod,
@@ -1508,11 +1484,6 @@ function registerWalletIpc() {
             amount: amount
           })
         };
-
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '300000' }));
 
         const fee = zeroFee();
         const res = await signAndBroadcastWithPqcAutoLink({
@@ -1609,11 +1580,6 @@ function registerWalletIpc() {
           })
         };
 
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '300000' }));
-
         const fee = zeroFee();
         const res = await signAndBroadcastWithPqcAutoLink({
           bridgeMod: mod,
@@ -1704,11 +1670,6 @@ function registerWalletIpc() {
             validatorAddress: validatorAddress
           })
         };
-
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '300000' }));
 
         const fee = zeroFee();
         const res = await signAndBroadcastWithPqcAutoLink({
@@ -2058,11 +2019,6 @@ function registerWalletIpc() {
           summary
         });
 
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '500000' }));
-
         const fee = zeroFee();
         const res = await signAndBroadcastWithPqcAutoLink({
           bridgeMod: mod,
@@ -2156,11 +2112,6 @@ function registerWalletIpc() {
             metadata: ''
           })
         };
-
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '220000' }));
 
         const fee = zeroFee();
         const res = await signAndBroadcastWithPqcAutoLink({
@@ -2322,11 +2273,6 @@ function registerWalletIpc() {
         const normalizedRelease = normalizeReleasePayload(release);
         const msg = relMod.msgPublishRelease(creator, normalizedRelease);
 
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '550000' }));
-
         const fee = input && input.fee ? input.fee : zeroFee();
         const memo = String((input && input.memo) || 'release:publish');
 
@@ -2453,11 +2399,6 @@ function registerWalletIpc() {
           title: title || defaultTitle,
           summary: summary || defaultSummary
         });
-
-        const zeroFee =
-          (mod.utils && mod.utils.gas && mod.utils.gas.zeroFee) ||
-          (mod.utils && mod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '500000' }));
 
         const fee = input && input.fee ? input.fee : zeroFee();
         if (!fee.gas) fee.gas = '500000';
