@@ -25,8 +25,6 @@ const chainState = {
   polling: false,
 };
 
-let chainPollTimer = null;
-
 async function pollChainOnce() {
   if (chainState.polling) return;
   chainState.polling = true;
@@ -107,26 +105,6 @@ function broadcastChainState() {
     }
   } catch {
     // ignore
-  }
-}
-
-function scheduleNextChainPoll(delayMs) {
-  if (chainPollTimer) clearTimeout(chainPollTimer);
-  chainPollTimer = setTimeout(() => {
-    pollChainOnce('interval').catch(() => {});
-    scheduleNextChainPoll(5000);
-  }, delayMs);
-}
-
-function startChainPoller() {
-  if (chainPollTimer) return;
-  scheduleNextChainPoll(1000);
-}
-
-function stopChainPoller() {
-  if (chainPollTimer) {
-    clearTimeout(chainPollTimer);
-    chainPollTimer = null;
   }
 }
 
@@ -970,6 +948,5 @@ function registerChainIpc() {
 
 module.exports = {
   registerChainIpc,
-  startChainPoller,
-  stopChainPoller,
+  pollChainOnce,
 };

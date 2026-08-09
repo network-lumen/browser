@@ -12,6 +12,7 @@ const {
   loadPrivateCloudConfig
 } = require('../settings.cjs');
 const { getBootstrapRuntimeState } = require('../bootstrap_paths.cjs');
+const { daemonStatuses } = require('../daemons/index.cjs');
 const { getGatewayServerStatus, getGatewayDataDir } = require('../gateway-server.cjs');
 const { checkIpfsStatus, ipfsStats, ipfsSwarmPeers } = require('../ipfs.cjs');
 
@@ -404,6 +405,13 @@ function buildReport(input) {
 
   sections.push(
     [
+      '## Background Loops',
+      safeJson(input.daemons)
+    ].join('\n\n')
+  );
+
+  sections.push(
+    [
       '## File Inventory',
       input.fileInventory.join('\n')
     ].join('\n\n')
@@ -516,6 +524,9 @@ async function prepareDebugBundle() {
     gateways,
     profiles,
     services,
+    // Which loops are running, when each last ticked and what it last failed
+    // with - the first thing to look at when the app "stopped updating itself".
+    daemons: daemonStatuses(),
     fileInventory,
     artifacts
   });

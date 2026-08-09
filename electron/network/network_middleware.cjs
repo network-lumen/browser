@@ -150,7 +150,6 @@ function chooseCoherentGroup(pool, results) {
 async function readState(path, options = {}) {
   const kind = options && options.kind === 'rest' ? 'rest' : 'rpc';
   const pool = getNetworkPool();
-  pool.start();
 
   const exclude = new Set();
 
@@ -202,7 +201,6 @@ async function readState(path, options = {}) {
 
 async function broadcastTx(txBytes, options = {}) {
   const pool = getNetworkPool();
-  pool.start();
 
   const norm = normalizeTxBytes(txBytes);
   if (!norm.ok) return { ok: false, error: norm.error };

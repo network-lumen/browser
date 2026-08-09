@@ -64,7 +64,6 @@ const DEFAULT_PLATFORM = String(process.env.LUMEN_RELEASE_PLATFORM || detectPlat
 const POLL_INTERVAL_MS = Number(process.env.LUMEN_RELEASE_POLL_MS || 10 * 60_000);
 const UNSTABLE_VERSION_MESSAGE = 'This version seems unstable on your system. Please try again later.';
 
-let timer = null;
 let cached = null;
 let lastBroadcastKey = null;
 
@@ -319,19 +318,6 @@ async function pollReleaseOnce() {
   }
 }
 
-function startReleaseWatcher() {
-  if (timer) return;
-  pollReleaseOnce().catch(() => {});
-  timer = setInterval(() => pollReleaseOnce().catch(() => {}), Math.max(30_000, POLL_INTERVAL_MS | 0));
-}
-
-function stopReleaseWatcher() {
-  if (timer) {
-    clearInterval(timer);
-    timer = null;
-  }
-}
-
 function getLatestReleaseInfo() {
   return cached ? { ...cached } : null;
 }
@@ -353,8 +339,8 @@ async function openExternal(url) {
 }
 
 module.exports = {
-  startReleaseWatcher,
-  stopReleaseWatcher,
+  pollReleaseOnce,
+  RELEASE_POLL_INTERVAL_MS: Math.max(30_000, POLL_INTERVAL_MS | 0),
   getLatestReleaseInfo,
   pollNow,
   openExternal,

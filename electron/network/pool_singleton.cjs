@@ -6,7 +6,6 @@ function getNetworkPool() {
   if (_pool) return _pool;
   const pool = new PeerPool();
   pool.addBootstrapPeers(loadBootstrapPeers());
-  pool.start();
   _pool = pool;
   return pool;
 }
