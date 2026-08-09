@@ -93,7 +93,6 @@ function tempDecryptPqcKeys(password) {
 }
 
 module.exports = {
-  pqcKeysFilePath,
   arePqcKeysEncrypted,
   tempDecryptPqcKeys,
 };

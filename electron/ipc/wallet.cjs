@@ -11,6 +11,7 @@ const { userDataPath, readJson } = require('../utils/fs.cjs');
 const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { zeroFee } = require('../utils/tx.cjs');
+const { leadingZeroBits } = require('../utils/pow.cjs');
 const { isPasswordRequired, getSessionPassword, verifyStoredPassword } = require('./security.cjs');
 const { DEFAULT_BECH32_PREFIXES } = require('../extensions/wallet_injection.cjs');
 const { resolvePqcHome, signAndBroadcastWithPqcAutoLink } = require('../utils/pqc_link.cjs');
@@ -477,22 +478,6 @@ function pubkeyToAddressBech32(pubkeyCompressed, prefix) {
   }
   const hash = Buffer.from(ripemd160(sha256(pubkeyCompressed)));
   return bech32.encode(String(prefix || 'lmn'), bech32.toWords(hash));
-}
-
-function leadingZeroBits(buf) {
-  let bits = 0;
-  for (let i = 0; i < buf.length; i++) {
-    const b = buf[i];
-    if (b === 0) {
-      bits += 8;
-      continue;
-    }
-    for (let j = 7; j >= 0; j--) {
-      if (((b >> j) & 1) === 0) bits++;
-      else return bits;
-    }
-  }
-  return bits;
 }
 
 function sha256Bytes(s) {

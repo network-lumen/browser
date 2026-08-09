@@ -202,7 +202,7 @@ const ACTIVE_GATEWAY_PINS = new Map(); // wcId -> { abort: () => void }
 
 let viewPingWorker = null;
 try {
-  viewPingWorker = require('../utils/view-ping-worker.cjs');
+  viewPingWorker = require('../workers/view-ping-worker.cjs');
 } catch {
   viewPingWorker = null;
 }
