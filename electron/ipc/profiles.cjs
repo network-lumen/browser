@@ -1,4 +1,4 @@
-const { app, ipcMain, dialog, nativeImage } = require('electron');
+const { ipcMain, dialog, nativeImage } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { userDataPath, readJson, writeJson, ensureDir } = require('../utils/fs.cjs');

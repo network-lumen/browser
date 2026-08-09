@@ -34,7 +34,6 @@ const {
 } = require('../ipfs.cjs');
 const { invalidateIpnsCache } = require('../ipfs_cache.cjs');
 const { getMainWindow } = require('../windows.cjs');
-const { safeString } = require('../utils/strings.cjs');
 
 /**
  * Every `ipfs:*` channel.
@@ -133,7 +132,6 @@ function registerIpfsIpc() {
     };
     if (uploadId) ACTIVE_IPFS_ADDS.set(uploadId, { abort });
 
-    const safeName = safeString(filename, 256);
     const sendProgress = (payload2) => {
       try {
         evt?.sender?.send?.('ipfs:addProgress', {
@@ -172,7 +170,6 @@ function registerIpfsIpc() {
       try { controller.abort(); } catch {}
     };
     if (uploadId) ACTIVE_IPFS_ADDS.set(uploadId, { abort });
-    const rootName = safeString(payload?.rootName ?? '', 256);
     const key = path.resolve(payload?.rootPath || '');
     const sendProgress = (payload2) => {
       try {
