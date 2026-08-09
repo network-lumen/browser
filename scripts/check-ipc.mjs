@@ -102,10 +102,10 @@ function invokedChannels(fileName) {
   return found;
 }
 
-const fromSite = invokedChannels('webview-preload.cjs');
-const fromUi = invokedChannels('preload.cjs');
-const fromExtensionPage = invokedChannels('extension-preload.cjs');
-const fromStore = invokedChannels('store-preload.cjs');
+const fromSite = invokedChannels('preloads/webview-preload.cjs');
+const fromUi = invokedChannels('preloads/preload.cjs');
+const fromExtensionPage = invokedChannels('preloads/extension-preload.cjs');
+const fromStore = invokedChannels('preloads/store-preload.cjs');
 const anyPreload = new Set([...fromSite, ...fromUi, ...fromExtensionPage, ...fromStore]);
 
 const violations = [];
@@ -221,8 +221,8 @@ const KNOWN_CHROME_NAMESPACES = [
 ];
 
 {
-  const inWebview = shimNamespaces('webview-preload.cjs');
-  const inExtension = shimNamespaces('extension-preload.cjs');
+  const inWebview = shimNamespaces('preloads/webview-preload.cjs');
+  const inExtension = shimNamespaces('preloads/extension-preload.cjs');
   for (const ns of KNOWN_CHROME_NAMESPACES) {
     const w = inWebview.has(ns);
     const e = inExtension.has(ns);

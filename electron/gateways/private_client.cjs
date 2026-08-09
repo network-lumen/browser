@@ -3,8 +3,8 @@
  * Handles gateway selection, authentication, and content fetching
  */
 
-const { loadGateways, loadPrivateCloudConfig } = require('./settings.cjs');
-const { sha256 } = require('./utils/crypto.cjs');
+const { loadGateways, loadPrivateCloudConfig } = require('../settings.cjs');
+const { sha256 } = require('../utils/crypto.cjs');
 
 /**
  * Derive gateway private key from mnemonic

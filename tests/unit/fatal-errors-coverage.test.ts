@@ -9,7 +9,7 @@ import {
 
 /**
  * `lumenBridgeSurface.ts` hand-lists the preload surface. This re-derives that
- * surface from `electron/preload.cjs` and fails when the two drift, so a method
+ * surface from `electron/preloads/preload.cjs` and fails when the two drift, so a method
  * added or removed there is caught in CI instead of at a user's startup.
  *
  * Two things now rest on that list, not one: `fatal_errors.ts` checks the live
@@ -21,7 +21,7 @@ import {
 const repoRoot = path.resolve(__dirname, '../..');
 
 function readLumenBridge(): string {
-  const src = fs.readFileSync(path.join(repoRoot, 'electron/preload.cjs'), 'utf8');
+  const src = fs.readFileSync(path.join(repoRoot, 'electron/preloads/preload.cjs'), 'utf8');
   // Only the `lumen` bridge; the `electronAPI` block below it is a legacy alias.
   const start = src.indexOf("exposeInMainWorld('lumen'");
   const end = src.indexOf("exposeInMainWorld('electronAPI'");

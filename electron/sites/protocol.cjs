@@ -21,7 +21,7 @@
 // DNS lookup, record parsing and gateway racing, and registers the outcome; this
 // module only consults that registry, so the app keeps one resolution path.
 const { protocol, net } = require('electron');
-const { getSettings } = require('./settings.cjs');
+const { getSettings } = require('../settings.cjs');
 
 const SCHEME = 'lumen';
 

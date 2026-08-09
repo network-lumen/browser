@@ -70,7 +70,7 @@ function mockElectronRequire() {
 async function loadLumen(): Promise<any> {
   const restore = mockElectronRequire();
   try {
-    await import('../../electron/webview-preload.cjs');
+    await import('../../electron/preloads/webview-preload.cjs');
   } finally {
     restore();
   }

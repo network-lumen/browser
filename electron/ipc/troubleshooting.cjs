@@ -13,7 +13,7 @@ const {
 } = require('../settings.cjs');
 const { getBootstrapRuntimeState } = require('../bootstrap_paths.cjs');
 const { daemonStatuses } = require('../daemons/index.cjs');
-const { getGatewayServerStatus, getGatewayDataDir } = require('../gateway-server.cjs');
+const { getGatewayServerStatus, getGatewayDataDir } = require('../gateways/server/index.cjs');
 const { checkIpfsStatus, ipfsStats, ipfsSwarmPeers } = require('../ipfs.cjs');
 
 const LOGS_DIRNAME = 'logs';

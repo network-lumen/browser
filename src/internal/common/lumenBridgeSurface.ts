@@ -1,6 +1,6 @@
 /**
  * The exact shape of the `window.lumen` bridge exposed by
- * `electron/preload.cjs`, as data.
+ * `electron/preloads/preload.cjs`, as data.
  *
  * It has two consumers, and living in its own leaf module (importing nothing)
  * is what lets both use it without a cycle:

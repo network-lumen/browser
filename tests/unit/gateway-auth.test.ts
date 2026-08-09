@@ -12,8 +12,8 @@ const require_ = createRequire(import.meta.url);
 function loadAuth() {
   // Fresh module each time: setConfig writes module-level state, and a test
   // that inherits the previous one proves nothing about a cold start.
-  delete require_.cache[require_.resolve('../../electron/gateway-auth.cjs')];
-  return require_('../../electron/gateway-auth.cjs');
+  delete require_.cache[require_.resolve('../../electron/gateways/server/auth.cjs')];
+  return require_('../../electron/gateways/server/auth.cjs');
 }
 
 describe('API key check', () => {

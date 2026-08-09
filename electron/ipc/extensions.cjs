@@ -186,7 +186,7 @@ function buildInternalExtensionTabUrl(entry, targetUrl = '') {
 }
 
 function getExtensionGuestPreloadUrl() {
-  return pathToFileURL(path.join(__dirname, '..', 'extension-preload.cjs')).toString();
+  return pathToFileURL(path.join(__dirname, '..', 'preloads', 'extension-preload.cjs')).toString();
 }
 
 function normalizeShimUrl(input) {
@@ -322,7 +322,7 @@ function createExtensionShellWindow(title) {
       sandbox: true,
       partition: EXTENSION_SESSION_PARTITION,
       webSecurity: true,
-      preload: path.join(__dirname, '..', 'extension-preload.cjs')
+      preload: path.join(__dirname, '..', 'preloads', 'extension-preload.cjs')
     }
   });
 
@@ -378,7 +378,7 @@ function createOrFocusExtensionStoreWindow(targetUrl) {
       sandbox: true,
       partition: STORE_SESSION_PARTITION,
       webSecurity: true,
-      preload: path.join(__dirname, '..', 'store-preload.cjs')
+      preload: path.join(__dirname, '..', 'preloads', 'store-preload.cjs')
     }
   });
 

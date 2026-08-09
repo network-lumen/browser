@@ -7,13 +7,13 @@ import { buildDocModel, jsonOutputPath } from '../../scripts/generate-window-lum
 /**
  * docs/window-lumen.json is a *generated* file (via `npm run doc:window.lumen`)
  * that is also committed to the repo, so it can drift from the source it was
- * generated from if someone edits electron/webview-preload.cjs's window.lumen
+ * generated from if someone edits electron/preloads/webview-preload.cjs's window.lumen
  * JSDoc without re-running the generator before committing. This test
  * re-parses the current source fresh and fails loudly if the committed JSON
  * doesn't match — the fix is always `npm run doc:window.lumen`.
  */
 describe('docs/window-lumen.json freshness', () => {
-  it('matches a fresh regeneration from electron/webview-preload.cjs', () => {
+  it('matches a fresh regeneration from electron/preloads/webview-preload.cjs', () => {
     const fresh = buildDocModel();
     const committedRaw = fs.readFileSync(jsonOutputPath, 'utf8');
     const committed = JSON.parse(committedRaw);

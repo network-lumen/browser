@@ -55,7 +55,7 @@ function createSplashWindow() {
     autoHideMenuBar: true,
     webPreferences: {
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.cjs'),
+      preload: path.join(__dirname, 'preloads', 'preload.cjs'),
       webviewTag: true,
       webSecurity: true,
       allowRunningInsecureContent: false
@@ -112,7 +112,7 @@ function createMainWindow() {
     backgroundColor: '#ffffff',
     webPreferences: {
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.cjs'),
+      preload: path.join(__dirname, 'preloads', 'preload.cjs'),
       webviewTag: true,
       webSecurity: true,
       allowRunningInsecureContent: false

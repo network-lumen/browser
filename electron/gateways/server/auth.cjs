@@ -3,8 +3,8 @@
  */
 
 const crypto = require('crypto');
-const { isWhitelisted, getWhitelistEntry, getUsageStats } = require('./gateway-database.cjs');
-const { sha256 } = require('./utils/crypto.cjs');
+const { isWhitelisted, getWhitelistEntry, getUsageStats } = require('./database.cjs');
+const { sha256 } = require('../../utils/crypto.cjs');
 
 let config = null;
 

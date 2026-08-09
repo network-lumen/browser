@@ -17,7 +17,7 @@ import { stubElectron } from './support/electronStub';
 let siteData: any;
 
 beforeEach(() => {
-  siteData = stubElectron().load('site_data.cjs');
+  siteData = stubElectron().load('sites/data.cjs');
 });
 
 describe('key naming', () => {
