@@ -18,7 +18,7 @@ const { readState, broadcastTx } = require('../network/network_middleware.cjs');
 
 let pqcWorker = null;
 try {
-  pqcWorker = require('./pqc-worker.cjs');
+  pqcWorker = require('../workers/pqc-worker.cjs');
 } catch {
   pqcWorker = null;
 }

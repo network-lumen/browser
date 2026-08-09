@@ -1,3 +1,25 @@
+// ============================================================================
+// "This CID was viewed" - told to a gateway, off the main thread.
+//
+// A view ping is what pays a gateway: the renderer opens content, `gateway:
+// pingViewPq` in ipc/gateway.cjs resolves which gateway serves it, and hands
+// the job here. It is fire-and-forget in both directions - nothing waits for
+// the answer, and a failure only ever becomes a throttled console line.
+//
+// Two things to know before reading:
+//
+// 1. This file is loaded twice. `require()`d from the main process it takes
+//    the bottom branch and exports `enqueueViewPing`. That function starts a
+//    Worker on this same file (`new Worker(__filename)`), and the copy running
+//    in the thread takes the other branch: no exports, just a message loop.
+//
+// 2. The whole first section is a stripped copy of the PQ auth path in
+//    ipc/gateway.cjs. It cannot be shared: that module requires `electron`,
+//    which does not exist in a worker thread. gateway.cjs keeps its own copy
+//    as the fallback for when this module fails to load at all, so a fix to
+//    the signing or the envelope belongs in both.
+// ============================================================================
+
 const { Worker, isMainThread, parentPort } = require('worker_threads');
 const {
   createHash,
@@ -17,9 +39,14 @@ const {
   stringToPath,
 } = require('@cosmjs/crypto');
 
+// ---------------------------------------------------------------------------
+// Section: signing the ping (copy of ipc/gateway.cjs - see note 2 above)
+// ---------------------------------------------------------------------------
+
+const GATEWAY_DERIVATION_PATH = "m/44'/118'/0'/0/0";
+
 /**
- * ML-KEM-768, loaded on first use. Same shape as the copy in ipc/gateway.cjs,
- * and separate because this file runs in a worker thread with no access to it.
+ * ML-KEM-768, loaded on first use.
  *
  * The extensionless `@noble/post-quantum/ml-kem` retry that used to sit in a
  * `catch` here is gone: that subpath is not in the package's exports map, so
@@ -33,8 +60,6 @@ async function getMlKem() {
   mlKemModule = mod.ml_kem768 || mod.default?.ml_kem768 || mod;
   return mlKemModule;
 }
-
-const GATEWAY_DERIVATION_PATH = "m/44'/118'/0'/0/0";
 
 function trimSlash(s) {
   return String(s || '').replace(/\/+$/, '');
@@ -77,6 +102,8 @@ async function signGatewayPayload(mnemonic, payload) {
 const KYBER_PUBKEY_CACHE_TTL_MS = 5 * 60 * 1000;
 const kyberPubkeyCache = new Map(); // baseUrl -> { at, alg, keyId, pubKey }
 
+// The gateway's Kyber public key, from its own /pq/pub. Cached per base URL:
+// one ping per opened CID would otherwise mean one extra round trip each.
 async function resolveKyberKeyForGatewayBase(baseUrl) {
   const base = normalizeHttpBaseUrl(baseUrl);
   if (!base) throw new Error('kyber_pubkey_http_unavailable');
@@ -125,6 +152,14 @@ async function resolveKyberKeyForGatewayBase(baseUrl) {
   return out;
 }
 
+/**
+ * POST a wallet-signed payload to a gateway, sealed to its Kyber key.
+ *
+ * Three layers, in this order: the wallet signs `method|path|nonce|ts|hash` so
+ * the gateway knows who asks, the envelope holding that signature is encrypted
+ * with AES-GCM, and the AES key is the ML-KEM shared secret run through HKDF -
+ * so only this gateway can open it.
+ */
 async function sendGatewayAuthPq({
   baseUrl,
   path,
@@ -211,13 +246,11 @@ async function sendGatewayAuthPq({
   }
 }
 
-if (!isMainThread) {
-  let queue = Promise.resolve();
+// ---------------------------------------------------------------------------
+// Section: worker thread - one ping at a time, always answer
+// ---------------------------------------------------------------------------
 
-  parentPort.on('message', (msg) => {
-    queue = queue.then(() => handleMessage(msg)).catch(() => {});
-  });
-
+function runWorkerThread() {
   async function handleMessage(msg) {
     const id = msg && msg.id ? String(msg.id) : '';
     const baseUrl = msg && msg.baseUrl ? String(msg.baseUrl) : '';
@@ -260,15 +293,35 @@ if (!isMainThread) {
       });
     }
   }
-} else {
+
+  // One at a time: every ping re-derives the signing key from the mnemonic
+  // (PBKDF2), so a burst of opened CIDs would otherwise pay that cost several
+  // times over at once.
+  let queue = Promise.resolve();
+  parentPort.on('message', (msg) => {
+    queue = queue.then(() => handleMessage(msg)).catch(() => {});
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Section: main process - post and forget
+// ---------------------------------------------------------------------------
+
+function createPingClient() {
+  const ERROR_LOG_TTL_MS = 30_000;
+
   let worker = null;
   let seq = 0;
   const recentErrors = new Map(); // error -> lastAt
-  const ERROR_LOG_TTL_MS = 30_000;
 
+  // Started on the first ping and dropped whenever it dies, so the next ping
+  // gets a fresh one. Nothing is replayed: a lost ping is a lost ping.
   function ensureWorker() {
     if (worker) return worker;
     worker = new Worker(__filename);
+
+    // An unreachable gateway fails on every ping, so the same error is logged
+    // at most once per 30s - otherwise one bad gateway floods the log file.
     worker.on('message', (msg) => {
       if (!msg || msg.ok) return;
       const err = String(msg.error || 'view_ping_failed');
@@ -280,33 +333,34 @@ if (!isMainThread) {
         console.warn('[gateway] view ping worker error', msg);
       } catch {}
     });
+
     worker.on('error', (err) => {
       worker = null;
       try {
         console.warn('[gateway] view ping worker crashed', err);
       } catch {}
     });
+
     worker.on('exit', () => {
       worker = null;
     });
+
     return worker;
   }
 
-  function enqueueViewPing({ baseUrl, wallet, mnemonic, cid, timeoutMs } = {}) {
-    const w = ensureWorker();
-    const id = `${Date.now()}-${seq++}`;
-    w.postMessage({
-      id,
-      baseUrl,
-      wallet,
-      mnemonic,
-      cid,
-      timeoutMs,
-    });
-  }
-
-  module.exports = {
-    enqueueViewPing,
+  return {
+    enqueueViewPing({ baseUrl, wallet, mnemonic, cid, timeoutMs } = {}) {
+      const w = ensureWorker();
+      const id = `${Date.now()}-${seq++}`;
+      w.postMessage({ id, baseUrl, wallet, mnemonic, cid, timeoutMs });
+    }
   };
 }
 
+// ---------------------------------------------------------------------------
+
+if (isMainThread) {
+  module.exports = createPingClient();
+} else {
+  runWorkerThread();
+}
