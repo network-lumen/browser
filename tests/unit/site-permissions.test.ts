@@ -23,7 +23,7 @@ function permissionsFile() {
 
 beforeEach(() => {
   env = stubElectron();
-  perms = env.load('lumen_site_permissions.cjs');
+  perms = env.load('sites/permissions.cjs');
 });
 
 describe('by default nothing is allowed', () => {
@@ -78,7 +78,7 @@ describe('granting', () => {
 
   it('reads a grant back from disk in a fresh process', () => {
     perms.setAllowed('domain:example.lumen', true);
-    const reloaded = env.load('lumen_site_permissions.cjs');
+    const reloaded = env.load('sites/permissions.cjs');
     expect(reloaded.isAllowed('domain:example.lumen')).toBe(true);
   });
 });
@@ -86,14 +86,14 @@ describe('granting', () => {
 describe('a file it cannot trust', () => {
   it('allows nothing when the file is corrupted', () => {
     writeFileSync(permissionsFile(), '{not json', 'utf8');
-    const fresh = env.load('lumen_site_permissions.cjs');
+    const fresh = env.load('sites/permissions.cjs');
     expect(fresh.isAllowed('domain:example.lumen')).toBe(false);
   });
 
   it('allows nothing when the file is the wrong shape', () => {
     for (const body of ['null', '[]', '"a string"', '{"sites":"nope"}', '']) {
       writeFileSync(permissionsFile(), body, 'utf8');
-      const fresh = env.load('lumen_site_permissions.cjs');
+      const fresh = env.load('sites/permissions.cjs');
       expect(fresh.isAllowed('domain:example.lumen')).toBe(false);
     }
   });
@@ -106,14 +106,14 @@ describe('a file it cannot trust', () => {
         JSON.stringify({ version: 1, sites: { 'domain:a.lumen': { allowModals: value } } }),
         'utf8'
       );
-      const fresh = env.load('lumen_site_permissions.cjs');
+      const fresh = env.load('sites/permissions.cjs');
       expect(fresh.isAllowed('domain:a.lumen')).toBe(false);
     }
   });
 
   it('still works after a corrupted read, rather than staying broken', () => {
     writeFileSync(permissionsFile(), '{not json', 'utf8');
-    const fresh = env.load('lumen_site_permissions.cjs');
+    const fresh = env.load('sites/permissions.cjs');
     expect(fresh.setAllowed('domain:a.lumen', true)).toEqual({ ok: true });
     expect(fresh.isAllowed('domain:a.lumen')).toBe(true);
   });

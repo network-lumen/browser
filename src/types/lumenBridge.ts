@@ -8,7 +8,7 @@ import type {
  * A method on the preload bridge.
  *
  * Arguments and return stay `any` on purpose. The names come from a list that
- * CI keeps identical to `electron/preload.cjs`, so they are worth trusting;
+ * CI keeps identical to `electron/preloads/preload.cjs`, so they are worth trusting;
  * the signatures are not written down anywhere, and inventing them would trade
  * an honest `any` for a confident lie. What this buys is real all the same: a
  * mistyped or removed member is now a compile error rather than `undefined is

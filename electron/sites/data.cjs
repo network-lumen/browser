@@ -12,8 +12,8 @@
 // actual `ipfsAdd`+`ipfsPublishToIPNS` round trip only happens on publish,
 // for durability/portability to other devices.
 const crypto = require('node:crypto');
-const { userDataPath, readJson, writeJson } = require('./utils/fs.cjs');
-const { sha256 } = require('./utils/crypto.cjs');
+const { userDataPath, readJson, writeJson } = require('../utils/fs.cjs');
+const { sha256 } = require('../utils/crypto.cjs');
 
 const FILE = () => userDataPath('site_data_records.json');
 const VERSION = 1;

@@ -2,7 +2,7 @@
 // scripts/generate-window-lumen-doc.mjs
 //
 // Generates the window.lumen API reference from the JSDoc comments in
-// electron/webview-preload.cjs:
+// electron/preloads/webview-preload.cjs:
 //   1. docs/window-lumen.json — the canonical, machine-readable data.
 //   2. docs/window-lumen.html — a self-contained page that renders it.
 //
@@ -18,7 +18,7 @@
 // method must be a `wrapLumenApiCall(implementationFn, 'fallback_error_code')`
 // call, with a `/** ... */` JSDoc block directly above it. Nested plain
 // object literals (`wallet: {...}`, `stableLinks: {...}`, ...) are treated
-// as namespaces and traversed recursively. See electron/webview-preload.cjs's
+// as namespaces and traversed recursively. See electron/preloads/webview-preload.cjs's
 // header comment for the full contract.
 //
 // `buildDocModel()` is also exported for tests: tests/unit/window-lumen-docs.test.ts
@@ -35,7 +35,7 @@ import ts from 'typescript';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
-const sourceRelPath = path.join('electron', 'webview-preload.cjs');
+const sourceRelPath = path.join('electron', 'preloads', 'webview-preload.cjs');
 const sourcePath = path.join(repoRoot, sourceRelPath);
 const packageJsonPath = path.join(repoRoot, 'package.json');
 const docsDir = path.join(repoRoot, 'docs');

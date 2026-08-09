@@ -2564,7 +2564,7 @@ async function ipfsGet(cidOrPath, options = {}) {
     let skipExternalGatewayFallback = false;
     // Try private gateways first if configured
     try {
-      const { fetchFromPrivateGateways } = require('./gateway-client.cjs');
+      const { fetchFromPrivateGateways } = require('./gateways/private_client.cjs');
       const { loadPrivateCloudConfig } = require('./settings.cjs');
       
       const privateConfig = loadPrivateCloudConfig();

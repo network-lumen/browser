@@ -130,7 +130,7 @@ full trusted bridge. The one inside a `<webview>` is a restricted, site-facing A
 JS realm. They share a name by accident.
 
 **A sandboxed preload cannot `require()` a local file.** Every `<webview>` runs with `sandbox=yes`.
-An earlier pass extracted ~46 helpers from `electron/webview-preload.cjs` into a module for
+An earlier pass extracted ~46 helpers from `electron/preloads/webview-preload.cjs` into a module for
 readability, and the preload silently stopped loading entirely. That file is deliberately one large
 self-contained file. Do not "tidy" it.
 

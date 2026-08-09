@@ -16,7 +16,7 @@ import {
  *
  * Generating it from `lumenBridgeSurface` rather than listing methods by hand
  * means it cannot drift: a method added to the bridge appears here on its own,
- * and the unit test that holds that inventory to `preload.cjs` keeps the whole
+ * and the unit test that holds that inventory to `preloads/preload.cjs` keeps the whole
  * chain honest.
  */
 

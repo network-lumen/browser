@@ -13,7 +13,7 @@ import {
  * happened to open. This runs once from App.vue's onMounted and fails loudly
  * with a support link instead.
  *
- * The lists below mirror `electron/preload.cjs` exactly.
+ * The lists below mirror `electron/preloads/preload.cjs` exactly.
  * `tests/unit/fatal-errors-coverage.test.ts` re-derives them from that file and
  * fails if the two drift, so a preload method removed without updating this
  * list breaks CI rather than the user's startup.

@@ -73,13 +73,13 @@ async function startGatewayServer(options = {}) {
     const { initDatabase, addToWhitelist, removeFromWhitelist, getAllWhitelistEntries,
             getWhitelistEntry, updateUsage, getUsageStats, getAggregatedUsageStats,
             saveUserMetadata, getUserMetadata, getAllUserMetadata, deleteUserMetadata } = 
-            require('./gateway-database.cjs');
+            require('./database.cjs');
     
     initDatabase(dataDir);
 
     // Initialize authentication module
     const { authenticateRequest, verifyApiKey, setConfig: setAuthConfig } = 
-            require('./gateway-auth.cjs');
+            require('./auth.cjs');
     
     // Set config for auth module
     setAuthConfig(config);

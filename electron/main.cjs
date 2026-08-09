@@ -140,13 +140,13 @@ const { startIpfsDaemon, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsAdd, ad
 const { startIpfsCache, invalidateIpnsCache } = require('./daemons/ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./daemons/ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
-const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateway-server.cjs');
+const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateways/server/index.cjs');
 const {
   registerSiteSchemePrivileges,
   installSiteProtocol,
   registerSiteHost,
   getSiteHostStatus
-} = require('./site_protocol.cjs');
+} = require('./sites/protocol.cjs');
 
 // Has to happen before app 'ready', which is why it sits at module scope.
 registerSiteSchemePrivileges();
@@ -168,8 +168,8 @@ const { registerDriveBackupIpc } = require('./ipc/drive_backup.cjs');
 const { registerTroubleshootingIpc } = require('./ipc/troubleshooting.cjs');
 const { registerExtensionsIpc } = require('./ipc/extensions.cjs');
 const { extensionManager } = require('./extensions/manager.cjs');
-const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./lumen_site_permissions.cjs');
-const siteData = require('./site_data.cjs');
+const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./sites/permissions.cjs');
+const siteData = require('./sites/data.cjs');
 const { startDaemons, stopDaemons } = require('./daemons/index.cjs');
 const { recordLaunchStart, markGracefulExit } = require('./services/startup_health.cjs');
 
@@ -231,7 +231,7 @@ function registerLumenSessionPreload() {
     {
       id: LUMEN_SESSION_PRELOAD_ID,
       type: 'frame',
-      filePath: path.join(__dirname, 'webview-preload.cjs'),
+      filePath: path.join(__dirname, 'preloads', 'webview-preload.cjs'),
     },
   ];
 
@@ -1134,7 +1134,7 @@ ipcMain.handle('gatewayServer:getApiKey', async () => {
 });
 
 // Gateway metadata IPC handlers
-const { saveUserMetadata, getAllUserMetadata } = require('./gateway-database.cjs');
+const { saveUserMetadata, getAllUserMetadata } = require('./gateways/server/database.cjs');
 
 ipcMain.handle('gatewayServer:saveMetadata', async (_evt, address, metadata) => {
   try {
@@ -2110,7 +2110,7 @@ app.whenReady().then(async () => {
 
   console.log('[electron] app ready, booting IPFS and main window');
   startIpfsDaemon();
-  // Stable per-domain origins for site storage - see site_protocol.cjs.
+  // Stable per-domain origins for site storage - see sites/protocol.cjs.
   installSiteProtocol(session.fromPartition(LUMEN_SESSION_PARTITION));
   startIpfsSeedBootstrapper();
   void prefetchPublicIpfsGateways().catch(() => {});
