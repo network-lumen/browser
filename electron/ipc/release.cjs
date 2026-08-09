@@ -3,7 +3,7 @@ const {
   getLatestReleaseInfo,
   openExternal,
   pollNow
-} = require('../services/release_watcher.cjs');
+} = require('../daemons/release_watcher.cjs');
 const { downloadAndInstall } = require('../services/release_installer.cjs');
 
 function registerReleaseIpc() {

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createRequire } from 'node:module';
 
 const require_ = createRequire(import.meta.url);
-const { PeerPool } = require_('../../electron/network/peer_pool.cjs');
+const { PeerPool } = require_('../../electron/daemons/peers/peer_pool.cjs');
 
 /**
  * Which node the wallet talks to.

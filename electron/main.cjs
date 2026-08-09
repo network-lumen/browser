@@ -137,8 +137,8 @@ try {
 } catch {}
 
 const { startIpfsDaemon, stopIpfsDaemon, prefetchPublicIpfsGateways, ipfsAdd, addPinJobListener, ipfsPublishToIPNS, ipfsKeyList, ipfsKeyGen, ipfsKeyImportFromPath, ipfsKeyExportToPath, ipfsKeyRm } = require('./ipfs.cjs');
-const { startIpfsCache, invalidateIpnsCache } = require('./ipfs_cache.cjs');
-const { startIpfsSeedBootstrapper } = require('./ipfs_seed.cjs');
+const { startIpfsCache, invalidateIpnsCache } = require('./daemons/ipfs_cache.cjs');
+const { startIpfsSeedBootstrapper } = require('./daemons/ipfs_seed.cjs');
 const { getSettings, setSettings, loadGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
 const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateway-server.cjs');
 const {

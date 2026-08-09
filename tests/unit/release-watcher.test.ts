@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { stubElectron } from './support/electronStub';
 
-const { isNewerVersion } = stubElectron().load<any>('services/release_watcher.cjs');
+const { isNewerVersion } = stubElectron().load<any>('daemons/release_watcher.cjs');
 
 /**
  * Whether the app offers you an update.

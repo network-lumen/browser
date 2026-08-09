@@ -32,7 +32,7 @@ const {
   ipfsKeyRm,
   ipfsPropagateCidToPublicGateways
 } = require('../ipfs.cjs');
-const { invalidateIpnsCache } = require('../ipfs_cache.cjs');
+const { invalidateIpnsCache } = require('../daemons/ipfs_cache.cjs');
 const { getMainWindow } = require('../windows.cjs');
 
 /**

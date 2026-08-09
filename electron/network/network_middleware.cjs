@@ -1,4 +1,4 @@
-const { getNetworkPool } = require('./pool_singleton.cjs');
+const { getNetworkPool } = require('../daemons/peers/pool_singleton.cjs');
 const { sha256 } = require('../utils/crypto.cjs');
 const { clampInt, sleep, pickRandom } = require('../utils/values.cjs');
 
