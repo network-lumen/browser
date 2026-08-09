@@ -1,30 +1,6 @@
 const { getNetworkPool } = require('./pool_singleton.cjs');
 const { sha256 } = require('../utils/crypto.cjs');
-
-function nowMs() {
-  return Date.now();
-}
-
-function clampInt(n, min, max) {
-  const x = Number(n);
-  if (!Number.isFinite(x)) return min;
-  return Math.min(max, Math.max(min, x | 0));
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function pickRandom(items, count) {
-  const arr = Array.isArray(items) ? items.slice() : [];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const tmp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = tmp;
-  }
-  return arr.slice(0, Math.max(0, count | 0));
-}
+const { clampInt, sleep, pickRandom } = require('../utils/values.cjs');
 
 function normalizeTxBytes(input) {
   if (!input) return { ok: false, error: 'missing_txBytes' };
@@ -98,7 +74,7 @@ async function queryPeerWithStatus(pool, kind, peer, path, options) {
   const timeout = clampInt(options && options.timeout ? options.timeout : 12_000, 1_000, 120_000);
 
   // Ensure fresh-ish status (chain_id / height)
-  const now = nowMs();
+  const now = Date.now();
   if (!peer.lastSeenAt || !peer.chainId || typeof peer.lastSeenHeight !== 'number' || now - peer.lastSeenAt > statusAgeMaxMs) {
     await pool.pingPeer(peer).catch(() => {});
   }
@@ -252,9 +228,9 @@ async function broadcastTx(txBytes, options = {}) {
   for (const p of tries) {
     exclude.add(p.rpc);
     const body = { jsonrpc: '2.0', id: `lumen-${Date.now()}`, method: 'broadcast_tx_sync', params: { tx: txB64 } };
-    const start = nowMs();
+    const start = Date.now();
     const r = await rpcJsonPost(p.rpc, body, timeout);
-    const latencyMs = nowMs() - start;
+    const latencyMs = Date.now() - start;
     if (!r.ok || !r.json) {
       if (r.timeout) pool.markFailure(p, { latencyMs, timeout: true });
       continue;
@@ -309,11 +285,11 @@ async function broadcastTx(txBytes, options = {}) {
     }
   } catch {}
 
-  const deadline = nowMs() + confirmTimeoutMs;
+  const deadline = Date.now() + confirmTimeoutMs;
   let lastErr = null;
   let sawIndexingDisabled = false;
 
-  while (nowMs() < deadline) {
+  while (Date.now() < deadline) {
     const peer = confirmPeer;
     const r = await pool.requestOnPeer('rpc', peer, `/tx?hash=0x${txhash}`, { timeout: 8_000 });
     if (r && r.ok && r.json && r.json.result) {

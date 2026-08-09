@@ -1,4 +1,5 @@
 const { safeString } = require('./utils/strings.cjs');
+const { sleep } = require('./utils/values.cjs');
 const { app, BrowserWindow, ipcMain, session, dialog, webContents, desktopCapturer, clipboard } = require('electron');
 const path = require('path');
 const {
@@ -278,10 +279,6 @@ function registerLumenSessionPreload() {
       error: String(e && e.message ? e.message : e || 'unknown_error'),
     });
   }
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function deriveSiteKeyFromHref(href) {

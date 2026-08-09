@@ -1,5 +1,9 @@
+const { app } = require('electron');
+const fs = require('fs');
+const path = require('path');
 const { httpGet } = require('../ipc/http.cjs');
-const { trimSlash, ensureHttp } = require('./peers.cjs');
+const { safeString, trimSlash } = require('../utils/strings.cjs');
+const { clampInt, pickRandom } = require('../utils/values.cjs');
 
 const DEFAULTS = {
   requestTimeoutMs: 12_000,
@@ -11,21 +15,90 @@ const DEFAULTS = {
   onChainRefreshMs: 15 * 60_000
 };
 
-function nowMs() {
-  return Date.now();
+// --- the bootstrap list -----------------------------------------------------
+// resources/peers.txt is the only way in: the pool has nowhere to ask until it
+// has one peer to ask. Everything after that comes from the chain's own
+// validator set.
+
+let _cachedPeersFilePath = null;
+let _loggedPeersPath = false;
+
+function ensureHttp(u) {
+  const trimmed = trimSlash(u);
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
 }
 
-function clampInt(n, min, max) {
-  const x = Number(n);
-  if (!Number.isFinite(x)) return min;
-  return Math.min(max, Math.max(min, x | 0));
+// Packaged and dev builds put the file in different places, and being wrong
+// here means starting with no peers at all.
+function resolvePeersFilePath() {
+  if (_cachedPeersFilePath !== null) return _cachedPeersFilePath || null;
+
+  const appPath = app && typeof app.getAppPath === 'function' ? app.getAppPath() : process.cwd();
+  const packagedResourcesPath = app && app.isPackaged ? process.resourcesPath : null;
+
+  const candidates = [
+    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'peers.txt')] : []),
+    ...(packagedResourcesPath ? [path.join(packagedResourcesPath, 'resources', 'peers.txt')] : []),
+    path.join(appPath, 'resources', 'peers.txt'),
+    path.join(appPath, '..', 'peers.txt'),
+    path.join(appPath, '..', 'resources', 'peers.txt'), // dev mode: electron/../resources
+    path.join(process.cwd(), 'resources', 'peers.txt')
+  ];
+
+  for (const file of candidates) {
+    try {
+      if (fs.existsSync(file)) {
+        if (!_loggedPeersPath) {
+          console.log('[net] found peers file at:', file);
+          _loggedPeersPath = true;
+        }
+        _cachedPeersFilePath = file;
+        return file;
+      }
+    } catch {}
+  }
+
+  _cachedPeersFilePath = '';
+  return null;
 }
 
-function safeStr(v, maxLen = 2048) {
-  const s = String(v ?? '').trim();
-  if (!s) return '';
-  return s.length > maxLen ? s.slice(0, maxLen) : s;
+/** One peer per line: `rpc [rest [grpc]]`, `#` starts a comment. */
+function parsePeerLine(line) {
+  const cleaned = String(line || '').replace(/#.*/, '').trim();
+  if (!cleaned) return null;
+  const parts = cleaned.split(/[\s,]+/).filter(Boolean);
+  if (!parts.length) return null;
+  const rpc = parts[0];
+  if (!rpc) return null;
+  const rest = parts[1] || null;
+  const grpc = parts[2] || null;
+  return { rpc, rest, grpc };
 }
+
+function loadBootstrapPeers() {
+  const filePath = resolvePeersFilePath();
+  if (!filePath) return [];
+
+  try {
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const peers = [];
+    for (const line of raw.split(/\r?\n/)) {
+      const parsed = parsePeerLine(line);
+      if (!parsed) continue;
+      peers.push({
+        rpc: ensureHttp(parsed.rpc),
+        rest: parsed.rest ? ensureHttp(parsed.rest) : null,
+        grpc: parsed.grpc ? String(parsed.grpc).trim() : null
+      });
+    }
+    return peers;
+  } catch (e) {
+    console.warn('[net] unable to read peers file:', filePath, e && e.message ? e.message : e);
+    return [];
+  }
+}
+
+// --- the pool ---------------------------------------------------------------
 
 function uniqBy(items, keyFn) {
   const out = [];
@@ -39,22 +112,10 @@ function uniqBy(items, keyFn) {
   return out;
 }
 
-function pickRandom(items, count) {
-  const arr = Array.isArray(items) ? items.slice() : [];
-  // Fisher-Yates partial shuffle
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const tmp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = tmp;
-  }
-  return arr.slice(0, Math.max(0, count | 0));
-}
-
 function parseTendermintStatus(json) {
   const latest =
     json && json.result && json.result.sync_info && json.result.sync_info.latest_block_height;
-  const chainId = safeStr(json && json.result && json.result.node_info && json.result.node_info.network, 128);
+  const chainId = safeString(json && json.result && json.result.node_info && json.result.node_info.network, 128);
   const height = Number(latest);
   return {
     ok: Number.isFinite(height) && height > 0 && !!chainId,
@@ -64,7 +125,7 @@ function parseTendermintStatus(json) {
 }
 
 function normalizeEndpoint(u) {
-  const s = safeStr(u, 4096);
+  const s = safeString(u, 4096);
   if (!s) return null;
   return trimSlash(ensureHttp(s));
 }
@@ -94,7 +155,7 @@ class PeerPool {
     const rpc = normalizeEndpoint(input && input.rpc ? input.rpc : '');
     if (!rpc) return null;
     const rest = input && input.rest ? normalizeEndpoint(input.rest) : null;
-    const grpc = input && input.grpc ? safeStr(input.grpc, 512) : null;
+    const grpc = input && input.grpc ? safeString(input.grpc, 512) : null;
     const source = input && input.source ? String(input.source) : 'bootstrap';
 
     const existing = this.peersByRpc.get(rpc);
@@ -133,7 +194,7 @@ class PeerPool {
   }
 
   snapshot() {
-    const now = nowMs();
+    const now = Date.now();
     const peers = [];
     for (const p of this.peersByRpc.values()) {
       peers.push({
@@ -170,7 +231,7 @@ class PeerPool {
   }
 
   pickPeers(kind, count, options = {}) {
-    const now = nowMs();
+    const now = Date.now();
     this._resurrectExpired(now);
     const exclude = options && options.exclude ? options.exclude : null;
     const requireAlive = options && Object.prototype.hasOwnProperty.call(options, 'requireAlive')
@@ -204,7 +265,7 @@ class PeerPool {
   markSuspect(peer, ttlMs) {
     const p = peer && typeof peer === 'object' ? peer : this.getPeerByRpc(peer);
     if (!p) return false;
-    const until = nowMs() + clampInt(ttlMs || this.opts.slowTtlMs, 1_000, this.opts.deathTtlMs);
+    const until = Date.now() + clampInt(ttlMs || this.opts.slowTtlMs, 1_000, this.opts.deathTtlMs);
     p.suspectUntil = Math.max(p.suspectUntil || 0, until);
     return true;
   }
@@ -234,12 +295,12 @@ class PeerPool {
     const suffix = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
     const url = `${trimSlash(base)}${suffix}`;
 
-    const start = nowMs();
+    const start = Date.now();
     const res = await httpGet(url, { timeout });
-    const latencyMs = nowMs() - start;
+    const latencyMs = Date.now() - start;
 
     if (res && res.ok) {
-      p.lastSeenAt = nowMs();
+      p.lastSeenAt = Date.now();
       p.latencyMs = latencyMs;
       return { ...res, peer: { rpc: p.rpc, rest: p.rest || null, grpc: p.grpc || null } };
     }
@@ -251,7 +312,7 @@ class PeerPool {
   }
 
   getBestPeer(kind = 'rpc') {
-    const now = nowMs();
+    const now = Date.now();
     const peers = Array.from(this.peersByRpc.values()).filter((p) => {
       if (kind === 'rest' && !p.rest) return false;
       return this._isAlive(p, now) && !(p.slowUntil > now) && !(p.suspectUntil > now);
@@ -276,7 +337,7 @@ class PeerPool {
   }
 
   getNetworkHeight() {
-    const now = nowMs();
+    const now = Date.now();
     let best = null;
     for (const p of this.peersByRpc.values()) {
       if (!this._isAlive(p, now)) continue;
@@ -345,7 +406,7 @@ class PeerPool {
   }
 
   async _healthTick() {
-    const now = nowMs();
+    const now = Date.now();
     this._resurrectExpired(now);
 
     const peers = Array.from(this.peersByRpc.values());
@@ -360,9 +421,9 @@ class PeerPool {
 
   async _pingPeer(peer) {
     const url = `${trimSlash(peer.rpc)}/status`;
-    const start = nowMs();
+    const start = Date.now();
     const res = await httpGet(url, { timeout: this.opts.statusTimeoutMs });
-    const latencyMs = nowMs() - start;
+    const latencyMs = Date.now() - start;
 
     if (!res || !res.ok || !res.json) {
       if (shouldCountAsPeerFailure(res)) this._markFailure(peer, { latencyMs, timeout: !!(res && res.timeout) });
@@ -381,14 +442,14 @@ class PeerPool {
       this.networkChainId = parsed.chainId;
     } else if (this.networkChainId && parsed.chainId && this.networkChainId !== parsed.chainId) {
       // Chain ID mismatch -> suspect
-      peer.suspectUntil = nowMs() + this.opts.slowTtlMs;
+      peer.suspectUntil = Date.now() + this.opts.slowTtlMs;
     }
 
     return { ok: true, chainId: parsed.chainId, height: parsed.height };
   }
 
   _markSuccess(peer, { chainId, height, latencyMs }) {
-    const now = nowMs();
+    const now = Date.now();
     peer.chainId = chainId || peer.chainId || null;
     peer.lastSeenHeight = typeof height === 'number' ? height : peer.lastSeenHeight;
     peer.lastSeenAt = now;
@@ -403,7 +464,7 @@ class PeerPool {
   }
 
   _markFailure(peer, { latencyMs, timeout }) {
-    const now = nowMs();
+    const now = Date.now();
     peer.lastSeenAt = peer.lastSeenAt || 0;
     peer.latencyMs = typeof latencyMs === 'number' ? latencyMs : peer.latencyMs;
     peer.consecutiveFailures = (peer.consecutiveFailures || 0) + 1;
@@ -418,7 +479,7 @@ class PeerPool {
   }
 
   _choosePeers(kind, count) {
-    const now = nowMs();
+    const now = Date.now();
     this._resurrectExpired(now);
 
     const peers = Array.from(this.peersByRpc.values()).filter((p) => {
@@ -442,7 +503,7 @@ class PeerPool {
     if (typeof a.lastSeenHeight !== 'number' || typeof b.lastSeenHeight !== 'number') return;
     const delta = Math.abs(a.lastSeenHeight - b.lastSeenHeight);
     if (delta <= 2) return;
-    const until = nowMs() + this.opts.slowTtlMs;
+    const until = Date.now() + this.opts.slowTtlMs;
     a.suspectUntil = Math.max(a.suspectUntil || 0, until);
     b.suspectUntil = Math.max(b.suspectUntil || 0, until);
   }
@@ -476,16 +537,16 @@ class PeerPool {
     const attempts = selected.slice(0, 2).map(async (peer) => {
       const base = kind === 'rpc' ? peer.rpc : peer.rest;
       const url = `${trimSlash(base)}${p}`;
-      const start = nowMs();
+      const start = Date.now();
       const res = await httpGet(url, { timeout });
-      const latencyMs = nowMs() - start;
+      const latencyMs = Date.now() - start;
 
       if (res && res.ok) {
         // Optionally refresh peer status if it hasn't been seen in a while.
-        if (!peer.lastSeenAt || nowMs() - peer.lastSeenAt > 30_000) {
+        if (!peer.lastSeenAt || Date.now() - peer.lastSeenAt > 30_000) {
           this._pingPeer(peer).catch(() => {});
         } else {
-          peer.lastSeenAt = nowMs();
+          peer.lastSeenAt = Date.now();
           peer.latencyMs = latencyMs;
         }
         return { ok: true, peer, res };
@@ -512,7 +573,7 @@ class PeerPool {
     }
 
     // Retry with a third peer if both failed.
-    const now = nowMs();
+    const now = Date.now();
     const used = new Set(selected.map((x) => x.rpc));
     const thirdCandidates = Array.from(this.peersByRpc.values()).filter((p) => {
       if (used.has(p.rpc)) return false;
@@ -531,14 +592,14 @@ class PeerPool {
 
     const base3 = kind === 'rpc' ? third.rpc : third.rest;
     const url3 = `${trimSlash(base3)}${p}`;
-    const start3 = nowMs();
+    const start3 = Date.now();
     const res3 = await httpGet(url3, { timeout });
-    const latencyMs3 = nowMs() - start3;
+    const latencyMs3 = Date.now() - start3;
     if (res3 && res3.ok) {
-      if (!third.lastSeenAt || nowMs() - third.lastSeenAt > 30_000) {
+      if (!third.lastSeenAt || Date.now() - third.lastSeenAt > 30_000) {
         this._pingPeer(third).catch(() => {});
       } else {
-        third.lastSeenAt = nowMs();
+        third.lastSeenAt = Date.now();
         third.latencyMs = latencyMs3;
       }
       return { ...res3, peer: { rpc: third.rpc, rest: third.rest || null, grpc: third.grpc || null } };
@@ -556,7 +617,7 @@ class PeerPool {
       this.start();
 
       // Pick a REST peer even if it's stale (it might still be fine); we don't want to deadlock on staleness.
-      const now = nowMs();
+      const now = Date.now();
       this._resurrectExpired(now);
       const restPeers = Array.from(this.peersByRpc.values()).filter((p) => p.rest && !(p.deathUntil > now));
       const chosen = pickRandom(restPeers, 1)[0] || null;
@@ -566,7 +627,7 @@ class PeerPool {
       if (!validators.ok) return validators;
 
       this.validators = validators.validators;
-      this.lastOnChainRefreshAt = nowMs();
+      this.lastOnChainRefreshAt = Date.now();
 
       // Enrich pool from website/details metadata.
       const added = this._extractAndAddPeersFromValidators(this.validators);
@@ -593,18 +654,18 @@ class PeerPool {
       for (const v of validators) {
         if (!v) continue;
         out.push({
-          operator_address: safeStr(v.operator_address, 256) || null,
+          operator_address: safeString(v.operator_address, 256) || null,
           description: {
-            website: safeStr(v.description && v.description.website ? v.description.website : '', 1024) || null,
-            details: safeStr(v.description && v.description.details ? v.description.details : '', 4096) || null
+            website: safeString(v.description && v.description.website ? v.description.website : '', 1024) || null,
+            details: safeString(v.description && v.description.details ? v.description.details : '', 4096) || null
           },
-          status: safeStr(v.status, 64) || null,
+          status: safeString(v.status, 64) || null,
           jailed: !!v.jailed
         });
       }
 
       const pagination = res.json.pagination || {};
-      nextKey = safeStr(pagination.next_key, 4096) || null;
+      nextKey = safeString(pagination.next_key, 4096) || null;
       if (!nextKey) break;
     }
 
@@ -635,7 +696,7 @@ class PeerPool {
   }
 
   _extractEndpoints(text) {
-    const s = safeStr(text, 8192);
+    const s = safeString(text, 8192);
     if (!s) return null;
 
     const urls = [];
@@ -667,9 +728,9 @@ class PeerPool {
       } catch {
         continue;
       }
-      const host = safeStr(u.hostname, 512).toLowerCase();
-      const port = safeStr(u.port, 16);
-      const path = safeStr(u.pathname, 512).toLowerCase();
+      const host = safeString(u.hostname, 512).toLowerCase();
+      const port = safeString(u.port, 16);
+      const path = safeString(u.pathname, 512).toLowerCase();
       const full = trimSlash(u.toString());
 
       if (!rpc) {
@@ -679,7 +740,7 @@ class PeerPool {
         if (port === '1317' || path.endsWith('/api') || host.startsWith('api.') || host.includes('lcd')) rest = full;
       }
       if (!grpc) {
-        if (host.startsWith('grpc.') || port === '9090') grpc = safeStr(u.host, 512);
+        if (host.startsWith('grpc.') || port === '9090') grpc = safeString(u.host, 512);
       }
     }
 
@@ -694,5 +755,6 @@ class PeerPool {
 }
 
 module.exports = {
-  PeerPool
+  PeerPool,
+  loadBootstrapPeers
 };

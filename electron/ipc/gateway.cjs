@@ -13,6 +13,7 @@ const {
 } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { zeroFee } = require('../utils/tx.cjs');
+const { trimSlash } = require('../utils/strings.cjs');
 const { getSessionPassword } = require('./security.cjs');
 const { getNetworkPool } = require('../network/pool_singleton.cjs');
 const { resolvePqcHome, signAndBroadcastWithPqcAutoLink } = require('../utils/pqc_link.cjs');
@@ -388,10 +389,6 @@ async function signGatewayPayload(mnemonic, payload) {
   };
 }
 
-function trimSlash(s) {
-  return String(s || '').replace(/\/+$/, '');
-}
-
 function resolveGatewaysWhitelistFilePath() {
   const explicit = process.env.LUMEN_GATEWAYS_WHITELIST_FILE;
   const candidates = [];
@@ -440,7 +437,7 @@ function loadGatewaysWhitelistIds() {
   }
 }
 
-// The peer file is read once, by network/peers.cjs, into the pool this asks.
+// The peer file is read once, by network/peer_pool.cjs, into the pool this asks.
 function getRestBaseUrl() {
   try {
     const peer = getNetworkPool().getBestPeer('rest');

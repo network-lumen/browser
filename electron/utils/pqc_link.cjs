@@ -3,9 +3,7 @@
 //
 // It used to live twice, copy-pasted, and the two copies had silently drifted:
 // only the wallet one broadcast through the network middleware, only the wallet
-// one polled the link through the peer pool, and only the gateway one accepted
-// `utils.gas.zeroFee`. This module is the single behaviour - the union of what
-// each copy did right.
+// one polled the link through the peer pool. This module is the single one.
 //
 // The chain refuses a tx from an account with no Dilithium key linked on-chain,
 // so the whole flow is: make sure a local key exists -> make sure it is linked

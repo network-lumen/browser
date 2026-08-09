@@ -1,5 +1,4 @@
-const { loadBootstrapPeers } = require('./peers.cjs');
-const { PeerPool } = require('./peer_pool.cjs');
+const { PeerPool, loadBootstrapPeers } = require('./peer_pool.cjs');
 
 let _pool = null;
 
