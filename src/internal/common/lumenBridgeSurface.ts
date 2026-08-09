@@ -83,7 +83,7 @@ export const REQUIRED_NAMESPACES = {
     'rpcGet', 'restGet', 'broadcastTx', 'getState', 'getValidators', 'refreshOnChain'
   ],
   release: [
-    'getLatestInfo', 'getTestOptions', 'setTestOptions', 'pollNow', 'downloadAndInstall',
+    'getLatestInfo', 'pollNow', 'downloadAndInstall',
     'openExternal', 'publishRelease', 'submitToDao', 'onUpdateAvailable', 'onUpdateProgress'
   ],
   extensions: [

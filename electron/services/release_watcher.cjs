@@ -62,16 +62,11 @@ const DEFAULT_CHANNEL = String(process.env.LUMEN_RELEASE_CHANNEL || 'beta');
 const DEFAULT_KIND = String(process.env.LUMEN_RELEASE_KIND || 'browser');
 const DEFAULT_PLATFORM = String(process.env.LUMEN_RELEASE_PLATFORM || detectPlatform());
 const POLL_INTERVAL_MS = Number(process.env.LUMEN_RELEASE_POLL_MS || 10 * 60_000);
-const TEST_MODE = String(process.env.LUMEN_RELEASE_TEST_MODE || '') === '1';
 const UNSTABLE_VERSION_MESSAGE = 'This version seems unstable on your system. Please try again later.';
 
 let timer = null;
 let cached = null;
 let lastBroadcastKey = null;
-let testOptions = {
-  allowUnvalidatedStable: String(process.env.LUMEN_RELEASE_ALLOW_UNVALIDATED_STABLE || '') === '1',
-  forcePrompt: String(process.env.LUMEN_RELEASE_FORCE_PROMPT || '') === '1'
-};
 
 function detectPlatform() {
   const archMap = { x64: 'amd64', arm64: 'arm64', arm: 'arm', ia32: '386' };
@@ -171,9 +166,7 @@ async function findLatestFromList() {
     if (entryChannel !== DEFAULT_CHANNEL.toLowerCase()) continue;
     const statusRaw = String(entry.status || '').toUpperCase();
     const emergencyOk = !!(entry.emergencyOk ?? entry.emergency_ok);
-    if (DEFAULT_CHANNEL === 'stable' && statusRaw !== 'VALIDATED' && !emergencyOk) {
-      if (!(TEST_MODE && testOptions.allowUnvalidatedStable)) continue;
-    }
+    if (DEFAULT_CHANNEL === 'stable' && statusRaw !== 'VALIDATED' && !emergencyOk) continue;
     const artifacts = Array.isArray(entry.artifacts) ? entry.artifacts : [];
     const art = selectArtifact(artifacts, DEFAULT_PLATFORM, DEFAULT_KIND);
     if (!art) continue;
@@ -221,7 +214,7 @@ async function pollReleaseOnce() {
         const currentVersion = currentAppVersion();
 
         if (!payload.version) return;
-        if (!testOptions.forcePrompt && (!currentVersion || !isNewerVersion(payload.version, currentVersion))) return;
+        if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) return;
 
         const broadcastKey = `${payload.version}|${payload.artifact.sha256Hex || ''}`;
         if (broadcastKey !== lastBroadcastKey) {
@@ -262,7 +255,7 @@ async function pollReleaseOnce() {
         const currentVersion = currentAppVersion();
 
         if (!payload.version) return;
-        if (!testOptions.forcePrompt && (!currentVersion || !isNewerVersion(payload.version, currentVersion))) return;
+        if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) return;
 
         const broadcastKey = `${payload.version}|${payload.artifact.sha256Hex || ''}`;
         if (broadcastKey !== lastBroadcastKey) {
@@ -296,9 +289,7 @@ async function pollReleaseOnce() {
       emergencyOk = fallback.emergencyOk;
     }
 
-    if (DEFAULT_CHANNEL === 'stable' && status !== 'VALIDATED' && !emergencyOk) {
-      if (!(TEST_MODE && testOptions.allowUnvalidatedStable)) return;
-    }
+    if (DEFAULT_CHANNEL === 'stable' && status !== 'VALIDATED' && !emergencyOk) return;
 
     const payload = {
       version: String(release && release.version ? release.version : ''),
@@ -316,7 +307,7 @@ async function pollReleaseOnce() {
     const currentVersion = currentAppVersion();
 
     if (!payload.version) return;
-    if (!testOptions.forcePrompt && (!currentVersion || !isNewerVersion(payload.version, currentVersion))) return;
+    if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) return;
 
     const broadcastKey = `${payload.version}|${artifact.sha256Hex || ''}`;
     if (broadcastKey !== lastBroadcastKey) {
@@ -345,22 +336,6 @@ function getLatestReleaseInfo() {
   return cached ? { ...cached } : null;
 }
 
-function getReleaseTestOptions() {
-  if (!TEST_MODE) return { enabled: false };
-  return { enabled: true, ...testOptions };
-}
-
-function setReleaseTestOptions(input) {
-  if (!TEST_MODE) return { ok: false, error: 'test_mode_disabled' };
-  const next = { ...testOptions };
-  if (input && typeof input === 'object') {
-    if (typeof input.allowUnvalidatedStable === 'boolean') next.allowUnvalidatedStable = input.allowUnvalidatedStable;
-    if (typeof input.forcePrompt === 'boolean') next.forcePrompt = input.forcePrompt;
-  }
-  testOptions = next;
-  return { ok: true, options: getReleaseTestOptions() };
-}
-
 async function pollNow() {
   await pollReleaseOnce().catch(() => {});
   return getLatestReleaseInfo();
@@ -381,8 +356,9 @@ module.exports = {
   startReleaseWatcher,
   stopReleaseWatcher,
   getLatestReleaseInfo,
-  getReleaseTestOptions,
-  setReleaseTestOptions,
   pollNow,
-  openExternal
+  openExternal,
+  // Exported for tests: it is the whole decision to prompt someone to update,
+  // and it no longer has a switch to bypass it.
+  isNewerVersion
 };
