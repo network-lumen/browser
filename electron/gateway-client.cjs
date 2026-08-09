@@ -4,14 +4,7 @@
  */
 
 const { loadGateways, loadPrivateCloudConfig } = require('./settings.cjs');
-const crypto = require('crypto');
-
-/**
- * SHA256 hash of UTF-8 string
- */
-function sha256Utf8(data) {
-  return crypto.createHash('sha256').update(data, 'utf8').digest();
-}
+const { sha256 } = require('./utils/crypto.cjs');
 
 /**
  * Derive gateway private key from mnemonic
@@ -37,7 +30,7 @@ async function signGatewayPayload(mnemonic, payload) {
   const { Secp256k1 } = require('@cosmjs/crypto');
   
   const privkey = await deriveGatewayPrivkey(mnemonic);
-  const digest = sha256Utf8(payload);
+  const digest = sha256(payload, { bytes: true });
   const sigObj = await Secp256k1.createSignature(digest, privkey);
   const signature = sigObj.toFixedLength();
   
