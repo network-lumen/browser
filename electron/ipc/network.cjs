@@ -1,6 +1,6 @@
 const { ipcMain } = require('electron');
 const { getNetworkPool } = require('../daemons/peers/pool_singleton.cjs');
-const { readState, broadcastTx } = require('../network/network_middleware.cjs');
+const { readState, broadcastTx } = require('../chain/client.cjs');
 
 function registerNetworkIpc() {
   ipcMain.handle('net:rpcGet', async (_evt, path, options) => {

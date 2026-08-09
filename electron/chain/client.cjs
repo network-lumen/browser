@@ -1,3 +1,15 @@
+// The chain client: every read of on-chain state, and every transaction that
+// leaves this app, goes through here.
+//
+// It was called network_middleware, which described where it sat rather than
+// what it does, and it sat alone in a folder named after the same idea. The two
+// things it offers are worth naming: readState asks two peers in parallel and
+// compares chain id and height before believing either - Lumen has no light
+// client, so that quorum is what stands between one node lying and the app
+// rendering the lie - and broadcastTx pushes a signed transaction peer by peer,
+// confirming on a different one than it sent to.
+//
+// Which peers it may use is the pool's decision, in daemons/peers.
 const { getNetworkPool } = require('../daemons/peers/pool_singleton.cjs');
 const { sha256 } = require('../utils/crypto.cjs');
 const { clampInt, sleep, pickRandom } = require('../utils/values.cjs');

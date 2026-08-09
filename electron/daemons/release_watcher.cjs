@@ -1,5 +1,5 @@
 const { BrowserWindow, shell } = require('electron');
-const { readState } = require('../network/network_middleware.cjs');
+const { readState } = require('../chain/client.cjs');
 const { currentAppVersion } = require('../utils/app_version.cjs');
 const { isVersionUnstable } = require('../services/startup_health.cjs');
 

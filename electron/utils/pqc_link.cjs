@@ -2,7 +2,7 @@
 // Lumen transaction (`ipc/wallet.cjs`, `ipc/gateway.cjs`).
 //
 // It used to live twice, copy-pasted, and the two copies had silently drifted:
-// only the wallet one broadcast through the network middleware, only the wallet
+// only the wallet one broadcast through the chain client, only the wallet
 // one polled the link through the peer pool. This module is the single one.
 //
 // The chain refuses a tx from an account with no Dilithium key linked on-chain,
@@ -12,7 +12,7 @@ const { BrowserWindow } = require('electron');
 const { sha256 } = require('./crypto.cjs');
 const { userDataPath } = require('./fs.cjs');
 const { runWithRpcRetry, zeroFee } = require('./tx.cjs');
-const { readState, broadcastTx } = require('../network/network_middleware.cjs');
+const { readState, broadcastTx } = require('../chain/client.cjs');
 
 let pqcWorker = null;
 try {
