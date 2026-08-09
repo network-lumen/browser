@@ -3337,17 +3337,6 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
           }
         };
 
-        const readPath = (target, path) => {
-          if (!isObject(target)) return undefined;
-          let node = target;
-          for (const segment of path.split('.')) {
-            if (!isObject(node) && typeof node !== 'function') return undefined;
-            node = node?.[segment];
-            if (node == null) return node;
-          }
-          return node;
-        };
-
         const ensureParentPath = (target, path) => {
           if (!isObject(target)) return null;
           const segments = path.split('.');

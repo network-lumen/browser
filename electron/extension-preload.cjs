@@ -1124,21 +1124,6 @@ function createMinimalBrowserApi() {
     return results;
   };
 
-  const normalizeNativeTabResult = (value, fallback) => {
-    if (value && typeof value === 'object') return cloneValue(value);
-    return fallback();
-  };
-
-  const normalizeNativeTabsQueryResult = (value, fallback) => {
-    if (Array.isArray(value) && value.length > 0) return cloneValue(value);
-    return fallback();
-  };
-
-  const normalizeNativeWindowResult = (value, fallback) => {
-    if (value && typeof value === 'object') return cloneValue(value);
-    return fallback();
-  };
-
   const buildEffectiveTabsQueryResults = async (queryInfo) => {
     const info = queryInfo && typeof queryInfo === 'object' ? queryInfo : {};
     const hostContext = await getHostTabContext();
@@ -2052,17 +2037,6 @@ function installMainWorldExtensionApi(shimKey, shimSource) {
               return false;
             }
           }
-        };
-
-        const readPath = (target, path) => {
-          if (!isObject(target)) return undefined;
-          let node = target;
-          for (const segment of path.split('.')) {
-            if (!isObject(node) && typeof node !== 'function') return undefined;
-            node = node?.[segment];
-            if (node == null) return node;
-          }
-          return node;
         };
 
         const ensureParentPath = (target, path) => {
