@@ -221,6 +221,7 @@ class PeerPool {
     };
   }
 
+  /** Raw peers, for tests to observe what upsert/bootstrap actually stored. */
   listPeers() {
     return Array.from(this.peersByRpc.values());
   }
@@ -336,18 +337,6 @@ class PeerPool {
     return pickRandom(nonDead, 1)[0] || null;
   }
 
-  getNetworkHeight() {
-    const now = Date.now();
-    let best = null;
-    for (const p of this.peersByRpc.values()) {
-      if (!this._isAlive(p, now)) continue;
-      if (typeof p.lastSeenHeight !== 'number') continue;
-      if (this.networkChainId && p.chainId && p.chainId !== this.networkChainId) continue;
-      if (!best || p.lastSeenHeight > best.lastSeenHeight) best = p;
-    }
-    return best ? best.lastSeenHeight : null;
-  }
-
   start() {
     if (this._started) return;
     this._started = true;
@@ -355,14 +344,6 @@ class PeerPool {
     // Kick off health loop quickly, then periodically.
     this._scheduleHealth(250);
     this._scheduleOnChainRefresh(1_000);
-  }
-
-  stop() {
-    this._started = false;
-    if (this._healthTimer) clearTimeout(this._healthTimer);
-    this._healthTimer = null;
-    if (this._refreshTimer) clearTimeout(this._refreshTimer);
-    this._refreshTimer = null;
   }
 
   _scheduleHealth(delayMs) {
@@ -476,138 +457,6 @@ class PeerPool {
     if (peer.consecutiveFailures >= 3) {
       peer.deathUntil = now + this.opts.deathTtlMs;
     }
-  }
-
-  _choosePeers(kind, count) {
-    const now = Date.now();
-    this._resurrectExpired(now);
-
-    const peers = Array.from(this.peersByRpc.values()).filter((p) => {
-      if (kind === 'rest' && !p.rest) return false;
-      if (p.deathUntil > now) return false;
-      if (p.lastSeenAt && now - p.lastSeenAt > this.opts.staleTtlMs) return false;
-      if (this.networkChainId && p.chainId && p.chainId !== this.networkChainId) return false;
-      return true;
-    });
-
-    // Prefer non-slow peers when possible, but never permanently exclude.
-    const fast = peers.filter((p) => !(p.slowUntil > now));
-    const base = fast.length >= count ? fast : peers;
-    return pickRandom(base, count);
-  }
-
-  _flagSuspectIfDivergent(peers) {
-    if (!Array.isArray(peers) || peers.length < 2) return;
-    const [a, b] = peers;
-    if (!a || !b) return;
-    if (typeof a.lastSeenHeight !== 'number' || typeof b.lastSeenHeight !== 'number') return;
-    const delta = Math.abs(a.lastSeenHeight - b.lastSeenHeight);
-    if (delta <= 2) return;
-    const until = Date.now() + this.opts.slowTtlMs;
-    a.suspectUntil = Math.max(a.suspectUntil || 0, until);
-    b.suspectUntil = Math.max(b.suspectUntil || 0, until);
-  }
-
-  async rpcGet(path, options = {}) {
-    return this._get('rpc', path, options);
-  }
-
-  async restGet(path, options = {}) {
-    return this._get('rest', path, options);
-  }
-
-  async _get(kind, path, options = {}) {
-    this.start();
-
-    const timeout = clampInt(options && options.timeout ? options.timeout : this.opts.requestTimeoutMs, 1000, 120_000);
-    const cleanPath = String(path || '').trim();
-    const p = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-
-    let selected = this._choosePeers(kind, 2);
-    if (!selected.length) {
-      // Force-refresh health a bit and retry selection
-      await this._healthTick().catch(() => {});
-      selected = this._choosePeers(kind, 2);
-      if (!selected.length) return { ok: false, status: 0, error: 'no_peers_available' };
-    }
-
-    this._flagSuspectIfDivergent(selected);
-
-    // GETs are safe to race across 2 peers for resilience/anti-censorship.
-    const attempts = selected.slice(0, 2).map(async (peer) => {
-      const base = kind === 'rpc' ? peer.rpc : peer.rest;
-      const url = `${trimSlash(base)}${p}`;
-      const start = Date.now();
-      const res = await httpGet(url, { timeout });
-      const latencyMs = Date.now() - start;
-
-      if (res && res.ok) {
-        // Optionally refresh peer status if it hasn't been seen in a while.
-        if (!peer.lastSeenAt || Date.now() - peer.lastSeenAt > 30_000) {
-          this._pingPeer(peer).catch(() => {});
-        } else {
-          peer.lastSeenAt = Date.now();
-          peer.latencyMs = latencyMs;
-        }
-        return { ok: true, peer, res };
-      }
-
-      if (shouldCountAsPeerFailure(res)) {
-        this._markFailure(peer, { latencyMs, timeout: !!(res && res.timeout) });
-      }
-      return { ok: false, peer, res };
-    });
-
-    const settled = await Promise.allSettled(attempts);
-    const successes = [];
-    const failures = [];
-    for (const s of settled) {
-      if (s.status !== 'fulfilled') continue;
-      (s.value.ok ? successes : failures).push(s.value);
-    }
-
-    if (successes.length) {
-      successes.sort((a, b) => (a.peer.latencyMs || 0) - (b.peer.latencyMs || 0));
-      const win = successes[0];
-      return { ...win.res, peer: { rpc: win.peer.rpc, rest: win.peer.rest || null, grpc: win.peer.grpc || null } };
-    }
-
-    // Retry with a third peer if both failed.
-    const now = Date.now();
-    const used = new Set(selected.map((x) => x.rpc));
-    const thirdCandidates = Array.from(this.peersByRpc.values()).filter((p) => {
-      if (used.has(p.rpc)) return false;
-      if (kind === 'rest' && !p.rest) return false;
-      if (p.deathUntil > now) return false;
-      if (this.networkChainId && p.chainId && p.chainId !== this.networkChainId) return false;
-      return true;
-    });
-    const third = pickRandom(thirdCandidates, 1)[0] || null;
-    if (!third) {
-      const firstFailure = failures[0];
-      return firstFailure && firstFailure.res
-        ? { ...firstFailure.res, peer: { rpc: firstFailure.peer.rpc, rest: firstFailure.peer.rest || null, grpc: firstFailure.peer.grpc || null } }
-        : { ok: false, status: 0, error: 'all_peers_failed' };
-    }
-
-    const base3 = kind === 'rpc' ? third.rpc : third.rest;
-    const url3 = `${trimSlash(base3)}${p}`;
-    const start3 = Date.now();
-    const res3 = await httpGet(url3, { timeout });
-    const latencyMs3 = Date.now() - start3;
-    if (res3 && res3.ok) {
-      if (!third.lastSeenAt || Date.now() - third.lastSeenAt > 30_000) {
-        this._pingPeer(third).catch(() => {});
-      } else {
-        third.lastSeenAt = Date.now();
-        third.latencyMs = latencyMs3;
-      }
-      return { ...res3, peer: { rpc: third.rpc, rest: third.rest || null, grpc: third.grpc || null } };
-    }
-    if (shouldCountAsPeerFailure(res3)) {
-      this._markFailure(third, { latencyMs: latencyMs3, timeout: !!(res3 && res3.timeout) });
-    }
-    return { ...res3, peer: { rpc: third.rpc, rest: third.rest || null, grpc: third.grpc || null } };
   }
 
   async refreshFromOnChain() {
