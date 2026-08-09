@@ -1,6 +1,6 @@
-const { safeString } = require('./utils/strings.cjs');
-const { userDataPath, readJson, writeJson } = require('./utils/fs.cjs');
-const { ipfsPinAdd, ipfsPinLs, ipfsPinRm, ipfsResolveIPNS, ipfsObjectStat } = require('./ipfs.cjs');
+const { safeString } = require('../utils/strings.cjs');
+const { userDataPath, readJson, writeJson } = require('../utils/fs.cjs');
+const { ipfsPinAdd, ipfsPinLs, ipfsPinRm, ipfsResolveIPNS, ipfsObjectStat } = require('../ipfs.cjs');
 
 const DEFAULT_TTL_MS = 72 * 60 * 60 * 1000; // 72h
 const DEFAULT_CLEANUP_INTERVAL_MS = 10 * 60 * 1000; // 10m

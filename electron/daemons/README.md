@@ -1,26 +1,34 @@
 # electron/daemons
 
-Everything this app runs in a loop, and nothing else.
+Everything this app runs in the background, and the runtime that owns it.
 
-`daemon.cjs` is the contract: a name, a tick, a period. A daemon never overlaps
-itself, never lets a throw escape, is always `unref`'d, and can always be
-stopped. `index.cjs` declares them all and exposes `startDaemons`,
-`stopDaemons` and `daemonStatuses`. `main.cjs` starts them at `whenReady` and
-stops them on both quit paths.
+```
+daemon.cjs          the contract: a name, a tick, a period
+index.cjs           the eight declarations, startDaemons / stopDaemons / daemonStatuses
+chain_poller.cjs    height, status and the RPC it came from
+ipfs_cache.cjs      the rolling pin cache: TTL, quota, LRU eviction
+ipfs_seed.cjs       the self-repairing bootstrap
+release_watcher.cjs update checks and the cached latest release
+peers/              the peer pool and its single instance
+```
 
-**The rule of this folder: the schedule lives here, the work does not.** Each
-tick stays in the module that owns the state it touches, and is imported here by
-name. `refreshWhitelistedGatewayHealth` writes two caches inside `ipc/gateway.cjs`
-and `cleanupExpired` evicts entries owned by `ipfs_cache.cjs`; moving either one
-next to its schedule would separate it from the data it exists to change.
+A daemon never overlaps itself, never lets a throw escape, is always `unref`'d,
+and can always be stopped. `main.cjs` calls `startDaemons()` at `whenReady` and
+`stopDaemons()` on both quit paths. Adding a background loop is one line in
+`index.cjs`.
 
-That holds even for the one that could move. `services/release_watcher.cjs` is
-named after its loop, but `ipc/release.cjs` also takes `getLatestReleaseInfo`,
-`pollNow` and `openExternal` from it — it is the release feature, which happens
-to poll. Keeping one body here and five elsewhere would put the inconsistency in
-the file that is supposed to be the summary.
+**The one body that is not here is gateway health**, and the reason is worth
+knowing before someone tries to move it. Its 190 lines drag 535 with them:
+`fetchGatewaysFromRest`, `resolveGatewayBaseFromEndpoint`, the whitelist loader,
+the Kyber key cache. That is not a daemon, it is the gateway client, and the IPC
+handlers call it synchronously on every user action. It lives in
+`gateways/client.cjs`, which both `ipc/gateway.cjs` and this folder import.
+Moving only the daemon part would put a `require` cycle between the two.
 
-Adding a background loop is one line in `index.cjs`. A `setInterval` anywhere
-else in `electron/` is either a mistake or scoped to a single job — the two that
-remain, HLS transcode progress and pubsub topic discovery, live and die with the
-job that started them.
+The same reasoning is why `ipc/*` should stay thin: a handler translates a
+channel into a call, the module it calls owns the state. `ipc/chain.cjs` and
+`ipc/gateway.cjs` lost 90 and 565 lines to that rule.
+
+A `setInterval` anywhere else in `electron/` is either a mistake or scoped to a
+single job — the two that remain, HLS transcode progress and pubsub topic
+discovery, live and die with the job that started them.

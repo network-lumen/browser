@@ -1,5 +1,5 @@
 const { ipcMain } = require('electron');
-const { getNetworkPool } = require('../network/pool_singleton.cjs');
+const { getNetworkPool } = require('../daemons/peers/pool_singleton.cjs');
 const { readState, broadcastTx } = require('../network/network_middleware.cjs');
 
 function registerNetworkIpc() {

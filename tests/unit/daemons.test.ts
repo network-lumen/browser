@@ -179,31 +179,31 @@ describe('the ticks the registry reaches for', () => {
   const load = (m: string) => stubElectron().load<any>(m);
 
   it('are exported by the module that owns them', () => {
-    expect(typeof load('ipc/chain.cjs').pollChainOnce).toBe('function');
-    expect(typeof load('services/release_watcher.cjs').pollReleaseOnce).toBe('function');
-    expect(typeof load('ipc/gateway.cjs').refreshWhitelistedGatewayHealth).toBe('function');
-    expect(typeof load('ipc/gateway.cjs').gatewayHealthMonitorEnabled).toBe('function');
-    expect(typeof load('ipc/gateway.cjs').gatewayHealthPeriodMs).toBe('function');
-    expect(typeof load('ipfs_cache.cjs').cleanupExpired).toBe('function');
-    expect(typeof load('ipfs_seed.cjs').bootstrapPeriodically).toBe('function');
-    expect(typeof load('ipfs_seed.cjs').bootstrapOnNetworkChange).toBe('function');
+    expect(typeof load('daemons/chain_poller.cjs').pollChainOnce).toBe('function');
+    expect(typeof load('daemons/release_watcher.cjs').pollReleaseOnce).toBe('function');
+    expect(typeof load('gateways/client.cjs').refreshWhitelistedGatewayHealth).toBe('function');
+    expect(typeof load('gateways/client.cjs').gatewayHealthMonitorEnabled).toBe('function');
+    expect(typeof load('gateways/client.cjs').gatewayHealthPeriodMs).toBe('function');
+    expect(typeof load('daemons/ipfs_cache.cjs').cleanupExpired).toBe('function');
+    expect(typeof load('daemons/ipfs_seed.cjs').bootstrapPeriodically).toBe('function');
+    expect(typeof load('daemons/ipfs_seed.cjs').bootstrapOnNetworkChange).toBe('function');
 
-    const pool = load('network/peer_pool.cjs');
+    const pool = load('daemons/peers/peer_pool.cjs');
     const instance = new pool.PeerPool();
     expect(typeof instance.healthTick).toBe('function');
     expect(typeof instance.refreshFromOnChain).toBe('function');
   });
 
   it('carry the periods the registry reads off them', () => {
-    expect(load('services/release_watcher.cjs').RELEASE_POLL_INTERVAL_MS).toBeGreaterThan(0);
-    expect(load('ipfs_cache.cjs').CACHE_CLEANUP_INTERVAL_MS).toBeGreaterThan(0);
-    expect(load('ipfs_seed.cjs').SEED_REFRESH_INTERVAL_MS).toBeGreaterThan(0);
+    expect(load('daemons/release_watcher.cjs').RELEASE_POLL_INTERVAL_MS).toBeGreaterThan(0);
+    expect(load('daemons/ipfs_cache.cjs').CACHE_CLEANUP_INTERVAL_MS).toBeGreaterThan(0);
+    expect(load('daemons/ipfs_seed.cjs').SEED_REFRESH_INTERVAL_MS).toBeGreaterThan(0);
   });
 
   it('no longer offers the start/stop each module used to own', () => {
     // Two owners would mean two schedules for the same work.
-    expect(load('ipc/chain.cjs').startChainPoller).toBeUndefined();
-    expect(load('services/release_watcher.cjs').startReleaseWatcher).toBeUndefined();
-    expect(typeof new (load('network/peer_pool.cjs').PeerPool)().start).toBe('undefined');
+    expect(load('daemons/chain_poller.cjs').startChainPoller).toBeUndefined();
+    expect(load('daemons/release_watcher.cjs').startReleaseWatcher).toBeUndefined();
+    expect(typeof new (load('daemons/peers/peer_pool.cjs').PeerPool)().start).toBe('undefined');
   });
 });

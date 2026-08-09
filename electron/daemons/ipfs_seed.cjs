@@ -1,15 +1,15 @@
 const { powerMonitor } = require('electron');
 const os = require('node:os');
 
-const { userDataPath, readJson, writeJson } = require('./utils/fs.cjs');
-const { sha256 } = require('./utils/crypto.cjs');
-const { trimSlash } = require('./utils/strings.cjs');
-const { sleep } = require('./utils/values.cjs');
-const { getSetting } = require('./settings.cjs');
+const { userDataPath, readJson, writeJson } = require('../utils/fs.cjs');
+const { sha256 } = require('../utils/crypto.cjs');
+const { trimSlash } = require('../utils/strings.cjs');
+const { sleep } = require('../utils/values.cjs');
+const { getSetting } = require('../settings.cjs');
 const {
   fetchGatewaysFromRest,
   resolveGatewayBaseFromEndpoint,
-} = require('./ipc/gateway.cjs');
+} = require('../gateways/client.cjs');
 
 // Seeds are bootstrap entry points only.
 // They are NOT assumed to host content.

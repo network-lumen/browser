@@ -4,7 +4,7 @@ const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const { httpModuleForUrl } = require('./utils/http.cjs');
-const { recordCidResolutionFailure, recordCidResolutionSuccess } = require('./ipfs_seed.cjs');
+const { recordCidResolutionFailure, recordCidResolutionSuccess } = require('./daemons/ipfs_seed.cjs');
 const { getSetting } = require('./settings.cjs');
 
 let ipfsProcess = null;

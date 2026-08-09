@@ -1,9 +1,9 @@
 const { app } = require('electron');
 const fs = require('fs');
 const path = require('path');
-const { httpGet } = require('../ipc/http.cjs');
-const { safeString, trimSlash } = require('../utils/strings.cjs');
-const { clampInt, pickRandom } = require('../utils/values.cjs');
+const { httpGet } = require('../../ipc/http.cjs');
+const { safeString, trimSlash } = require('../../utils/strings.cjs');
+const { clampInt, pickRandom } = require('../../utils/values.cjs');
 
 const DEFAULTS = {
   requestTimeoutMs: 12_000,

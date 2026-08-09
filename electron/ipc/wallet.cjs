@@ -1,7 +1,7 @@
 const { ipcMain } = require('electron');
 const { Buffer } = require('buffer');
 const Long = require('long');
-const { getNetworkPool } = require('../network/pool_singleton.cjs');
+const { getNetworkPool } = require('../daemons/peers/pool_singleton.cjs');
 const { readState } = require('../network/network_middleware.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
 const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected, sha256 } = require('../utils/crypto.cjs');

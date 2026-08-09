@@ -1,27 +1,27 @@
-// Everything this app runs in the background, declared in one place.
+// Everything this app runs in the background, declared in one place: what runs,
+// how often, and the one start/stop that covers all of it.
 //
-// The bodies stay in the module that owns their state - pulling
-// refreshWhitelistedGatewayHealth out of ipc/gateway.cjs would separate it from
-// the caches it writes. What lives here is the schedule and the ownership: what
-// runs, how often, and the one start/stop that covers all of it.
+// Seven of the eight bodies live in this folder. The eighth, gateway health, is
+// in gateways/client.cjs - see README.md for why its work cannot be separated
+// from the client the IPC handlers call.
 //
 // Adding a loop means adding a line here, not another setInterval somewhere.
 
 const { defineDaemon } = require('./daemon.cjs');
-const { pollChainOnce } = require('../ipc/chain.cjs');
-const { pollReleaseOnce, RELEASE_POLL_INTERVAL_MS } = require('../services/release_watcher.cjs');
+const { pollChainOnce } = require('./chain_poller.cjs');
+const { pollReleaseOnce, RELEASE_POLL_INTERVAL_MS } = require('./release_watcher.cjs');
 const {
   refreshWhitelistedGatewayHealth,
   gatewayHealthMonitorEnabled,
   gatewayHealthPeriodMs
-} = require('../ipc/gateway.cjs');
-const { cleanupExpired, CACHE_CLEANUP_INTERVAL_MS } = require('../ipfs_cache.cjs');
+} = require('../gateways/client.cjs');
+const { cleanupExpired, CACHE_CLEANUP_INTERVAL_MS } = require('./ipfs_cache.cjs');
 const {
   bootstrapPeriodically,
   bootstrapOnNetworkChange,
   SEED_REFRESH_INTERVAL_MS
-} = require('../ipfs_seed.cjs');
-const { getNetworkPool } = require('../network/pool_singleton.cjs');
+} = require('./ipfs_seed.cjs');
+const { getNetworkPool } = require('./peers/pool_singleton.cjs');
 
 const daemons = [
   defineDaemon({

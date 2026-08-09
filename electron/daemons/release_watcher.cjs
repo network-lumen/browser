@@ -1,7 +1,7 @@
 const { BrowserWindow, shell } = require('electron');
 const { readState } = require('../network/network_middleware.cjs');
 const { currentAppVersion } = require('../utils/app_version.cjs');
-const { isVersionUnstable } = require('./startup_health.cjs');
+const { isVersionUnstable } = require('../services/startup_health.cjs');
 
 function parseSemver(input) {
   const s = String(input || '').trim();
