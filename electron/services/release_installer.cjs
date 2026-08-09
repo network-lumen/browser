@@ -2,27 +2,9 @@ const { app, BrowserWindow, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const http = require('http');
-const https = require('https');
 const { spawn } = require('child_process');
-
-function currentAppVersion() {
-  const vElectron = String((process.versions && process.versions.electron) || '').trim();
-  let v = '';
-  try {
-    v = app && typeof app.getVersion === 'function' ? String(app.getVersion() || '').trim() : '';
-  } catch {
-    v = '';
-  }
-  if (v && vElectron && v !== vElectron) return v;
-  try {
-    // electron/services -> electron -> app root
-    const pkg = require('../../package.json');
-    const pv = String(pkg && pkg.version ? pkg.version : '').trim();
-    if (pv) return pv;
-  } catch {}
-  return v || '';
-}
+const { currentAppVersion } = require('../utils/app_version.cjs');
+const { httpModuleForUrl } = require('../utils/http.cjs');
 
 function isValidSha256Hex(value) {
   return /^[0-9a-f]{64}$/i.test(String(value || '').trim());
@@ -55,10 +37,6 @@ function safeFilename(input) {
   return s.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_').slice(0, 180) || 'update.bin';
 }
 
-function getHttpModule(url) {
-  return url.protocol === 'http:' ? http : https;
-}
-
 function shQuote(value) {
   const s = String(value ?? '');
   if (!s) return "''";
@@ -81,7 +59,7 @@ async function ensureDirOrThrow(dirPath) {
 
 async function downloadToFile({ url, targetPath, expectedSha256Hex, expectedSizeBytes, onProgress }) {
   const u = new URL(url);
-  const mod = getHttpModule(u);
+  const mod = httpModuleForUrl(u);
 
   await ensureDirOrThrow(path.dirname(targetPath));
 
@@ -221,11 +199,7 @@ function spawnDetached(cmd, args = [], options = {}) {
 }
 
 function isoNow() {
-  try {
-    return new Date().toISOString();
-  } catch {
-    return String(Date.now());
-  }
+  return new Date().toISOString();
 }
 
 async function appendUpdateLog(logPath, message) {

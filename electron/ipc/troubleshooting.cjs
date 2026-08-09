@@ -306,8 +306,7 @@ function getRuntimeSummary() {
     releaseChannel: safeString(process.env.LUMEN_RELEASE_CHANNEL, 64) || '(default)',
     releaseKind: safeString(process.env.LUMEN_RELEASE_KIND, 64) || '(default)',
     releasePlatform: safeString(process.env.LUMEN_RELEASE_PLATFORM, 64) || '(default)',
-    debugElectron: safeString(process.env.DEBUG_LUMEN_ELECTRON, 64) || '(unset)',
-    debugRelease: safeString(process.env.DEBUG_LUMEN_RELEASE, 64) || '(unset)'
+    debugElectron: safeString(process.env.DEBUG_LUMEN_ELECTRON, 64) || '(unset)'
   };
 }
 

@@ -1,4 +1,5 @@
 const { safeString } = require('../utils/strings.cjs');
+const { currentAppVersion } = require('../utils/app_version.cjs');
 const { app } = require('electron');
 const fs = require('fs');
 const path = require('path');
@@ -10,20 +11,6 @@ function currentCrashThreshold() {
   const n = Number(process.env.LUMEN_STARTUP_CRASH_THRESHOLD || DEFAULT_CRASH_THRESHOLD);
   if (!Number.isFinite(n)) return DEFAULT_CRASH_THRESHOLD;
   return Math.max(1, Math.min(10, Math.floor(n)));
-}
-
-function currentAppVersion() {
-  try {
-    const v = app && typeof app.getVersion === 'function' ? String(app.getVersion() || '').trim() : '';
-    if (v) return v;
-  } catch {}
-  try {
-    // electron/services -> electron -> app root
-    const pkg = require('../../package.json');
-    const pv = String(pkg && pkg.version ? pkg.version : '').trim();
-    if (pv) return pv;
-  } catch {}
-  return '';
 }
 
 function getStatePath() {
@@ -54,12 +41,12 @@ async function writeState(next) {
     await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
   } catch {}
 
+  // Write beside, then rename over: rename replaces an existing file
+  // atomically on POSIX and on Windows alike. Unlinking the target first would
+  // open a window with no file at all - and being killed mid-run is the exact
+  // thing this state exists to record.
   const tmpPath = `${filePath}.tmp`;
-  const data = JSON.stringify(next, null, 2);
-  await fs.promises.writeFile(tmpPath, data, 'utf8');
-  try {
-    await fs.promises.unlink(filePath);
-  } catch {}
+  await fs.promises.writeFile(tmpPath, JSON.stringify(next, null, 2), 'utf8');
   await fs.promises.rename(tmpPath, filePath);
 }
 
@@ -163,7 +150,6 @@ async function isVersionUnstable(versionInput) {
 }
 
 module.exports = {
-  currentAppVersion,
   recordLaunchStart,
   markStartupSuccess,
   markGracefulExit,

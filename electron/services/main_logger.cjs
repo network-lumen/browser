@@ -125,9 +125,8 @@ function appendLog(level, args) {
       trimLogFileIfNeeded(errorLogFilePath, MAX_ERROR_LOG_BYTES, TRIM_ERROR_LOG_TO_BYTES);
       fs.appendFileSync(errorLogFilePath, line, 'utf8');
     }
-  } catch {
-    // ignore logging failures
-  } finally {
+  } catch {} 
+  finally {
     writeInProgress = false;
   }
 }

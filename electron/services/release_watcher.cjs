@@ -1,25 +1,7 @@
-const { BrowserWindow, shell, app } = require('electron');
-const fs = require('fs');
-const path = require('path');
+const { BrowserWindow, shell } = require('electron');
 const { readState } = require('../network/network_middleware.cjs');
+const { currentAppVersion } = require('../utils/app_version.cjs');
 const { isVersionUnstable } = require('./startup_health.cjs');
-
-const DEBUG_RELEASE =
-  String(process.env.DEBUG_LUMEN_RELEASE || '') === '1' ||
-  (() => {
-    try {
-      return !(app && app.isPackaged);
-    } catch {
-      return false;
-    }
-  })();
-
-function dbg(...args) {
-  if (!DEBUG_RELEASE) return;
-  try {
-    console.log('[release]', ...args);
-  } catch {}
-}
 
 function parseSemver(input) {
   const s = String(input || '').trim();
@@ -74,42 +56,6 @@ function isNewerVersion(latest, current) {
   if (va && vb) return compareSemver(latest, current) > 0;
   // Fall back to strict inequality (legacy behavior) for non-semver versions.
   return String(latest) !== String(current);
-}
-
-function currentAppVersion() {
-  const vElectron = String((process.versions && process.versions.electron) || '').trim();
-  let v = '';
-  try {
-    v = app && typeof app.getVersion === 'function' ? String(app.getVersion() || '').trim() : '';
-  } catch {
-    v = '';
-  }
-
-  // In dev, Electron can report its own version here (e.g. when launched with a direct main script
-  // path instead of the app directory).
-  if (v && vElectron && v !== vElectron) return v;
-
-  const candidates = [];
-  try {
-    const appPath = app && typeof app.getAppPath === 'function' ? String(app.getAppPath() || '') : '';
-    if (appPath) candidates.push(path.join(appPath, 'package.json'));
-  } catch {}
-  candidates.push(path.join(__dirname, '..', '..', 'package.json'));
-  candidates.push(path.join(process.cwd(), 'package.json'));
-
-  for (const pkgPath of candidates) {
-    try {
-      if (!pkgPath || !fs.existsSync(pkgPath)) continue;
-      const raw = fs.readFileSync(pkgPath, 'utf8');
-      const json = JSON.parse(raw);
-      const pv = String(json && json.version ? json.version : '').trim();
-      if (pv) return pv;
-    } catch {
-      // ignore
-    }
-  }
-
-  return v || '';
 }
 
 const DEFAULT_CHANNEL = String(process.env.LUMEN_RELEASE_CHANNEL || 'beta');
@@ -254,8 +200,6 @@ function broadcastUpdate(payload) {
 
 async function pollReleaseOnce() {
   try {
-    dbg('poll', { channel: DEFAULT_CHANNEL, platform: DEFAULT_PLATFORM, kind: DEFAULT_KIND });
-
     // /latest is VALIDATED-only; for non-stable channels we want the newest release even if PENDING.
     // Prefer scanning /releases and fall back to /latest only if needed.
     if (DEFAULT_CHANNEL !== 'stable') {
@@ -273,22 +217,15 @@ async function pollReleaseOnce() {
 
         await applyStartupHealthBlock(payload);
         cached = payload;
-        dbg('cached (list primary)', { version: payload.version, status: fallback.status, downloadUrl: payload.downloadUrl });
 
         const currentVersion = currentAppVersion();
 
         if (!payload.version) return;
-        if (!testOptions.forcePrompt) {
-          if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) {
-            dbg('no prompt (not newer or unknown current)', { currentVersion, latestVersion: payload.version });
-            return;
-          }
-        }
+        if (!testOptions.forcePrompt && (!currentVersion || !isNewerVersion(payload.version, currentVersion))) return;
 
         const broadcastKey = `${payload.version}|${payload.artifact.sha256Hex || ''}`;
         if (broadcastKey !== lastBroadcastKey) {
           lastBroadcastKey = broadcastKey;
-          dbg('broadcast updateAvailable', { currentVersion, latestVersion: payload.version });
           broadcastUpdate(payload);
         }
         return;
@@ -306,7 +243,6 @@ async function pollReleaseOnce() {
       res = await readState(`/lumen/release/latest?${qs.toString()}`, { kind: 'rest', timeout: 12_000 });
       if (!res || !res.ok) {
         // Some networks may not expose /latest endpoints reliably. Fall back to scanning /releases.
-        dbg('latest endpoint unavailable, falling back to list', { ok: res?.ok, error: res?.error, status: res?.status });
         const fallback = await findLatestFromList().catch(() => null);
         if (!fallback) return;
 
@@ -322,22 +258,15 @@ async function pollReleaseOnce() {
 
         await applyStartupHealthBlock(payload);
         cached = payload;
-        dbg('cached (list fallback)', { version: payload.version, status: fallback.status, downloadUrl: payload.downloadUrl });
 
         const currentVersion = currentAppVersion();
 
         if (!payload.version) return;
-        if (!testOptions.forcePrompt) {
-          if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) {
-            dbg('no prompt (not newer or unknown current)', { currentVersion, latestVersion: payload.version });
-            return;
-          }
-        }
+        if (!testOptions.forcePrompt && (!currentVersion || !isNewerVersion(payload.version, currentVersion))) return;
 
         const broadcastKey = `${payload.version}|${payload.artifact.sha256Hex || ''}`;
         if (broadcastKey !== lastBroadcastKey) {
           lastBroadcastKey = broadcastKey;
-          dbg('broadcast updateAvailable', { currentVersion, latestVersion: payload.version });
           broadcastUpdate(payload);
         }
         return;
@@ -383,19 +312,15 @@ async function pollReleaseOnce() {
 
     await applyStartupHealthBlock(payload);
     cached = payload;
-    dbg('cached', { version: payload.version, status, downloadUrl: payload.downloadUrl });
 
     const currentVersion = currentAppVersion();
 
     if (!payload.version) return;
-    if (!testOptions.forcePrompt) {
-      if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) return;
-    }
+    if (!testOptions.forcePrompt && (!currentVersion || !isNewerVersion(payload.version, currentVersion))) return;
 
     const broadcastKey = `${payload.version}|${artifact.sha256Hex || ''}`;
     if (broadcastKey !== lastBroadcastKey) {
       lastBroadcastKey = broadcastKey;
-      dbg('broadcast updateAvailable', { currentVersion, latestVersion: payload.version });
       broadcastUpdate(payload);
     }
   } catch {
