@@ -132,6 +132,25 @@ describe('the registry', () => {
   // when someone launches the app - this is the check that replaces that.
   const { daemons, daemonStatuses } = stubElectron().load<any>('daemons/index.cjs');
 
+  // The list before the move, with the cadence each loop scheduled for itself.
+  // This is the regression guard for the refactor: losing a declaration means
+  // a loop silently stops running, and nothing else would notice.
+  const EXPECTED = [
+    ['chain-poller', 5_000],
+    ['peer-health', 10_000],
+    ['peer-onchain-refresh', 15 * 60_000],
+    ['gateway-health', 10 * 60_000],
+    ['ipfs-cache-cleanup', 10 * 60_000],
+    ['ipfs-seed-refresh', 60 * 60_000],
+    ['ipfs-seed-network-change', 5 * 60_000],
+    ['release-watcher', 10 * 60_000]
+  ] as const;
+
+  it('still runs every loop that used to schedule itself, at the same cadence', () => {
+    const actual = daemons.map((d: any) => [d.name, d.status().everyMs]);
+    expect(actual).toEqual(EXPECTED.map(([n, ms]) => [n, ms]));
+  });
+
   it('declares every background loop with a real tick and a sane period', () => {
     expect(daemons.length).toBeGreaterThan(0);
     for (const d of daemons) {
@@ -150,5 +169,41 @@ describe('the registry', () => {
 
   it('lists one status per declared daemon', () => {
     expect(daemonStatuses()).toHaveLength(daemons.length);
+  });
+});
+
+describe('the ticks the registry reaches for', () => {
+  // A declaration wraps its tick in an arrow, so `tick` is a function even when
+  // the import behind it is undefined - defineDaemon cannot catch that, and the
+  // app would only fail on the first firing. These assert the exports exist.
+  const load = (m: string) => stubElectron().load<any>(m);
+
+  it('are exported by the module that owns them', () => {
+    expect(typeof load('ipc/chain.cjs').pollChainOnce).toBe('function');
+    expect(typeof load('services/release_watcher.cjs').pollReleaseOnce).toBe('function');
+    expect(typeof load('ipc/gateway.cjs').refreshWhitelistedGatewayHealth).toBe('function');
+    expect(typeof load('ipc/gateway.cjs').gatewayHealthMonitorEnabled).toBe('function');
+    expect(typeof load('ipc/gateway.cjs').gatewayHealthPeriodMs).toBe('function');
+    expect(typeof load('ipfs_cache.cjs').cleanupExpired).toBe('function');
+    expect(typeof load('ipfs_seed.cjs').bootstrapPeriodically).toBe('function');
+    expect(typeof load('ipfs_seed.cjs').bootstrapOnNetworkChange).toBe('function');
+
+    const pool = load('network/peer_pool.cjs');
+    const instance = new pool.PeerPool();
+    expect(typeof instance.healthTick).toBe('function');
+    expect(typeof instance.refreshFromOnChain).toBe('function');
+  });
+
+  it('carry the periods the registry reads off them', () => {
+    expect(load('services/release_watcher.cjs').RELEASE_POLL_INTERVAL_MS).toBeGreaterThan(0);
+    expect(load('ipfs_cache.cjs').CACHE_CLEANUP_INTERVAL_MS).toBeGreaterThan(0);
+    expect(load('ipfs_seed.cjs').SEED_REFRESH_INTERVAL_MS).toBeGreaterThan(0);
+  });
+
+  it('no longer offers the start/stop each module used to own', () => {
+    // Two owners would mean two schedules for the same work.
+    expect(load('ipc/chain.cjs').startChainPoller).toBeUndefined();
+    expect(load('services/release_watcher.cjs').startReleaseWatcher).toBeUndefined();
+    expect(typeof new (load('network/peer_pool.cjs').PeerPool)().start).toBe('undefined');
   });
 });
