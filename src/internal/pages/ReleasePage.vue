@@ -47,13 +47,6 @@
             placeholder="Version, publisher, ID…"
             :disabled="loading" class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
         </div>
-
-        <div v-if="testMode.enabled" class="flex-align-center gap-12px flex-wrap-wrap border-radius-14px border-1 bg-primary py-8px px-12px" aria-label="Update test tools">
-          <span class="txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Update test</span>
-          <UiCheckbox v-model="testMode.forcePrompt" :disabled="loading" @update:modelValue="applyTestMode">Force prompt</UiCheckbox>
-          <UiCheckbox v-model="testMode.allowUnvalidatedStable" :disabled="loading" @update:modelValue="applyTestMode">Allow pending (stable)</UiCheckbox>
-          <UiButton variant="secondary" type="button" @click="pollNow" :disabled="loading">Re-check</UiButton>
-        </div>
       </section>
 
       <section v-if="!allowed && !loading">
@@ -170,7 +163,6 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { Plus, RefreshCw, Rocket } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import UiSpinner from '../../ui/UiSpinner.vue';
-import UiCheckbox from '../../ui/UiCheckbox.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
@@ -210,12 +202,6 @@ const daoForm = reactive<DaoProposalForm>({
   summary: '',
   depositLmn: '0',
   reason: ''
-});
-
-const testMode = reactive({
-  enabled: false,
-  forcePrompt: false,
-  allowUnvalidatedStable: false
 });
 
 const draft = reactive<ReleaseDraft>({
@@ -780,45 +766,6 @@ async function submitRelease() {
   }
 }
 
-async function loadTestMode() {
-  try {
-    const api = useInternalLumen()?.release?.getTestOptions;
-    if (typeof api !== 'function') return;
-    const res = await api();
-    if (!res || !res.enabled) return;
-    testMode.enabled = true;
-    testMode.forcePrompt = !!res.forcePrompt;
-    testMode.allowUnvalidatedStable = !!res.allowUnvalidatedStable;
-  } catch {
-    // ignore
-  }
-}
-
-async function applyTestMode() {
-  try {
-    const api = useInternalLumen()?.release?.setTestOptions;
-    if (typeof api !== 'function') return;
-    const res = await api({
-      forcePrompt: !!testMode.forcePrompt,
-      allowUnvalidatedStable: !!testMode.allowUnvalidatedStable
-    });
-    if (res && res.ok === false) addToast('error', String(res.error || 'Unable to apply test options'));
-  } catch (e) {
-    addToast('error', errorMessage(e, 'Unable to apply test options'));
-  }
-}
-
-async function pollNow() {
-  try {
-    const api = useInternalLumen()?.release?.pollNow;
-    if (typeof api !== 'function') return;
-    await api();
-    addToast('success', 'Release watcher refreshed');
-  } catch (e) {
-    addToast('error', errorMessage(e, 'Unable to refresh'));
-  }
-}
-
 function artifactSummary(r: ReleaseRecord) {
   const count = r.artifacts?.length || 0;
   const base = `${count} ${count === 1 ? 'artifact' : 'artifacts'}`;
@@ -867,7 +814,6 @@ function formatDuration(seconds: number) {
 
 onMounted(async () => {
   resetDraft();
-  await loadTestMode();
   await refreshAll();
   if (!allowed.value) {
     navigate?.('lumen://home', { push: true });

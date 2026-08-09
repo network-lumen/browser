@@ -355,8 +355,6 @@ contextBridge.exposeInMainWorld('lumen', {
   },
   release: {
     getLatestInfo: () => ipcRenderer.invoke('release:getLatestInfo'),
-    getTestOptions: () => ipcRenderer.invoke('release:getTestOptions'),
-    setTestOptions: (opts) => ipcRenderer.invoke('release:setTestOptions', opts || {}),
     pollNow: () => ipcRenderer.invoke('release:pollNow'),
     downloadAndInstall: (payload) => ipcRenderer.invoke('release:downloadAndInstall', payload || {}),
     openExternal: (url) => ipcRenderer.invoke('release:openExternal', url),
