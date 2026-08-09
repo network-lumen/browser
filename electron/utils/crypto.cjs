@@ -46,6 +46,12 @@ function getAppSecret() {
   return cachedSecret;
 }
 
+function sha256Hex(data, { length = 0, upper = false } = {}) {
+  const hex = createHash('sha256').update(Buffer.from(data)).digest('hex');
+  const out = length > 0 ? hex.slice(0, length) : hex;
+  return upper ? out.toUpperCase() : out;
+}
+
 const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1, dklen: 32 };
 // Lower params for password-based encryption to avoid memory issues
 // N=2048, r=8 is still secure and uses only ~2MB memory
@@ -236,6 +242,7 @@ function decryptMnemonicLocal(keystore) {
 }
 
 module.exports = {
+  sha256Hex,
   encryptMnemonicLocal,
   decryptMnemonicLocal,
   hashPassword,

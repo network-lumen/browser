@@ -13,6 +13,7 @@
 // for durability/portability to other devices.
 const crypto = require('node:crypto');
 const { userDataPath, readJson, writeJson } = require('./utils/fs.cjs');
+const { sha256Hex } = require('./utils/crypto.cjs');
 
 const FILE = () => userDataPath('site_data_records.json');
 const VERSION = 1;
@@ -31,7 +32,7 @@ function recordId(siteKey, profileId) {
 
 /** Deterministic per-(site, profile) Kubo key name - same pair always resolves to the same key, never duplicated. */
 function siteDataKeyName(siteKey, profileId) {
-  const hash = crypto.createHash('sha256').update(`${siteKey}::${profileId}`).digest('hex').slice(0, 32);
+  const hash = sha256Hex(`${siteKey}::${profileId}`, { length: 32 });
   return `sitedata:${hash}`;
 }
 

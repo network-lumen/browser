@@ -13,6 +13,27 @@ const crypto_ = require_('../../electron/utils/crypto.cjs');
  * verify that stopped rejecting, an envelope whose tag stopped being checked.
  */
 
+describe('sha256Hex', () => {
+  const EMPTY = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+  it('hashes bytes and the utf8 string that spells them the same way', () => {
+    expect(crypto_.sha256Hex('')).toBe(EMPTY);
+    expect(crypto_.sha256Hex('abc')).toBe(crypto_.sha256Hex(Buffer.from('abc', 'utf8')));
+  });
+
+  it('slices and uppercases on demand', () => {
+    expect(crypto_.sha256Hex('abc', { length: 12 })).toBe(crypto_.sha256Hex('abc').slice(0, 12));
+    expect(crypto_.sha256Hex('abc', { upper: true })).toBe(crypto_.sha256Hex('abc').toUpperCase());
+  });
+
+  it('throws on a missing value rather than returning the hash of nothing', () => {
+    // Callers compare this against a hash from the chain or from a signed
+    // archive; two absent values must not come out equal.
+    expect(() => crypto_.sha256Hex(null)).toThrow();
+    expect(() => crypto_.sha256Hex(undefined)).toThrow();
+  });
+});
+
 describe('password hashing', () => {
   it('accepts the right password and refuses a near miss', () => {
     const stored = crypto_.hashPassword('correct horse battery staple');

@@ -1,7 +1,7 @@
 const { ipcMain } = require('electron');
 const { readFileSync, existsSync } = require('fs');
 const path = require('path');
-const { createHash, randomBytes, hkdfSync, createCipheriv, createDecipheriv } = require('crypto');
+const { randomBytes, hkdfSync, createCipheriv, createDecipheriv } = require('crypto');
 const { userDataPath, readJson, writeJson } = require('../utils/fs.cjs');
 const { getSetting } = require('../settings.cjs');
 const {
@@ -9,6 +9,7 @@ const {
   decryptMnemonicWithPassword,
   encryptMnemonicLocal,
   isPasswordProtected,
+  sha256Hex,
 } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { getSessionPassword } = require('./security.cjs');
@@ -301,7 +302,7 @@ function loadMnemonic(profileId) {
       if (cached.mode === 'password' && cached.mnemonic && cached.sessionKey) {
         const pwd = getSessionPassword();
         if (!pwd) throw new Error('password_required');
-        const key = createHash('sha256').update(pwd).digest('hex');
+        const key = sha256Hex(pwd);
         if (key === cached.sessionKey) {
           return cached.mnemonic;
         }
@@ -329,7 +330,7 @@ function loadMnemonic(profileId) {
       mnemonic,
       at: Date.now(),
       mode: 'password',
-      sessionKey: createHash('sha256').update(pwd).digest('hex'),
+      sessionKey: sha256Hex(pwd),
     });
     return mnemonic;
   }
@@ -746,7 +747,7 @@ async function sendGatewayAuthPq(params) {
   }
 
   const canonicalPayload = JSON.stringify(payload ?? null);
-  const payloadHashHex = createHash('sha256').update(canonicalPayload).digest('hex');
+  const payloadHashHex = sha256Hex(canonicalPayload);
 
   const nonce = randomBytes(12).toString('hex');
   const ts = Date.now();

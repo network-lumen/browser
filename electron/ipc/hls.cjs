@@ -4,8 +4,8 @@ const fs = require('node:fs');
 const { spawn } = require('node:child_process');
 const { pipeline } = require('node:stream/promises');
 const { Readable, Transform } = require('node:stream');
-const crypto = require('node:crypto');
 const { getSetting } = require('../settings.cjs');
+const { sha256Hex } = require('../utils/crypto.cjs');
 
 const ACTIVE_HLS_CONVERSIONS = new Map(); // wcId -> { abort: () => void }
 const ACTIVE_HLS_ARCHIVE_EXPORTS = new Map(); // wcId -> { abort: () => void }
@@ -39,10 +39,7 @@ function hlsResultKeyFor(args) {
   const cidOrPath = String(args?.cidOrPath || '').trim();
   if (!cidOrPath) return '';
   const audioBitrate = String(args?.audioBitrate || '128k').trim() || '128k';
-  return crypto
-    .createHash('sha256')
-    .update(JSON.stringify({ version: 1, cidOrPath, audioBitrate }))
-    .digest('hex');
+  return sha256Hex(JSON.stringify({ version: 1, cidOrPath, audioBitrate }));
 }
 
 function getPersistedHlsResult(args) {
