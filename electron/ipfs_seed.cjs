@@ -33,7 +33,7 @@ let started = false;
 let lastAttemptAtMem = 0;
 let lastKuboUnavailableLogAt = 0;
 
-function readState() {
+function readSeedState() {
   const fallback = {
     version: 1,
     firstRunDone: false,
@@ -48,7 +48,7 @@ function readState() {
   return { ...fallback, ...(st || {}) };
 }
 
-function writeState(state) {
+function writeSeedState(state) {
   try {
     writeJson(STATE_FILE(), state);
   } catch {}
@@ -266,7 +266,7 @@ async function maybeBootstrapIpfsSeeds(trigger) {
   if (bootstrapInProgress) return { ok: false, skipped: 'in_progress' };
   bootstrapInProgress = true;
   try {
-    const state = readState();
+    const state = readSeedState();
     const now = Date.now();
     const fp = networkFingerprint();
 
@@ -295,7 +295,7 @@ async function maybeBootstrapIpfsSeeds(trigger) {
       lastReason: String(trigger || decision.reason || ''),
       lastNetworkFingerprint: fp || state.lastNetworkFingerprint,
     };
-    writeState(nextState);
+    writeSeedState(nextState);
 
     console.log('[electron][ipfs-seed] bootstrap start', {
       trigger: String(trigger || ''),
@@ -314,11 +314,11 @@ async function maybeBootstrapIpfsSeeds(trigger) {
 
     const success = connect.connected > 0;
     const finalState = {
-      ...readState(),
+      ...readSeedState(),
       lastNetworkFingerprint: fp || state.lastNetworkFingerprint,
       ...(success ? { lastSuccessAt: now, cidFailureStreak: 0 } : {}),
     };
-    writeState(finalState);
+    writeSeedState(finalState);
     return { ok: success, ...connect };
   } finally {
     bootstrapInProgress = false;
@@ -327,13 +327,13 @@ async function maybeBootstrapIpfsSeeds(trigger) {
 
 function recordCidResolutionFailure() {
   try {
-    const st = readState();
+    const st = readSeedState();
     const next = {
       ...st,
       cidFailureStreak: Math.min(Number(st.cidFailureStreak || 0) + 1, 1000),
       lastCidFailureAt: Date.now(),
     };
-    writeState(next);
+    writeSeedState(next);
     if (next.cidFailureStreak >= CID_FAILURE_THRESHOLD) {
       void maybeBootstrapIpfsSeeds('cid_failure');
     }
@@ -342,9 +342,9 @@ function recordCidResolutionFailure() {
 
 function recordCidResolutionSuccess() {
   try {
-    const st = readState();
+    const st = readSeedState();
     if (!st.cidFailureStreak) return;
-    writeState({ ...st, cidFailureStreak: 0 });
+    writeSeedState({ ...st, cidFailureStreak: 0 });
   } catch {}
 }
 

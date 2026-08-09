@@ -22,7 +22,7 @@ function getStatePath() {
   return path.join(process.cwd(), 'startup_health.json');
 }
 
-async function readState() {
+async function readHealthState() {
   const filePath = getStatePath();
   try {
     const raw = await fs.promises.readFile(filePath, 'utf8');
@@ -35,7 +35,7 @@ async function readState() {
   }
 }
 
-async function writeState(next) {
+async function writeHealthState(next) {
   const filePath = getStatePath();
   try {
     await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
@@ -67,7 +67,7 @@ async function recordLaunchStart(versionInput) {
 
   const threshold = currentCrashThreshold();
   const state =
-    (await readState()) || { schemaVersion: SCHEMA_VERSION, crashThreshold: threshold, lastLaunch: null, versions: {} };
+    (await readHealthState()) || { schemaVersion: SCHEMA_VERSION, crashThreshold: threshold, lastLaunch: null, versions: {} };
 
   state.schemaVersion = SCHEMA_VERSION;
   state.crashThreshold = threshold;
@@ -89,7 +89,7 @@ async function recordLaunchStart(versionInput) {
 
   state.lastLaunch = { version, startedAt: now, success: false, successAt: null, endedGracefully: false, endedAt: null };
 
-  await writeState(state);
+  await writeHealthState(state);
 
   const vs = ensureVersionState(state, version);
   return { ok: true, version, threshold, consecutiveCrashes: Number(vs?.consecutiveCrashes || 0), unstable: !!vs?.unstable };
@@ -102,7 +102,7 @@ async function markStartupSuccess(versionInput) {
 
   const threshold = currentCrashThreshold();
   const state =
-    (await readState()) || { schemaVersion: SCHEMA_VERSION, crashThreshold: threshold, lastLaunch: null, versions: {} };
+    (await readHealthState()) || { schemaVersion: SCHEMA_VERSION, crashThreshold: threshold, lastLaunch: null, versions: {} };
 
   state.schemaVersion = SCHEMA_VERSION;
   state.crashThreshold = threshold;
@@ -119,7 +119,7 @@ async function markStartupSuccess(versionInput) {
     vs.lastSuccessAt = now;
   }
 
-  await writeState(state);
+  await writeHealthState(state);
   return { ok: true };
 }
 
@@ -127,7 +127,7 @@ async function markGracefulExit() {
   const now = Date.now();
   const threshold = currentCrashThreshold();
   const state =
-    (await readState()) || { schemaVersion: SCHEMA_VERSION, crashThreshold: threshold, lastLaunch: null, versions: {} };
+    (await readHealthState()) || { schemaVersion: SCHEMA_VERSION, crashThreshold: threshold, lastLaunch: null, versions: {} };
 
   state.schemaVersion = SCHEMA_VERSION;
   state.crashThreshold = threshold;
@@ -137,14 +137,14 @@ async function markGracefulExit() {
     state.lastLaunch.endedAt = now;
   }
 
-  await writeState(state);
+  await writeHealthState(state);
   return { ok: true };
 }
 
 async function isVersionUnstable(versionInput) {
   const version = safeString(versionInput, 64);
   if (!version) return false;
-  const state = await readState();
+  const state = await readHealthState();
   const vs = state && state.versions && typeof state.versions === 'object' ? state.versions[version] : null;
   return !!(vs && vs.unstable);
 }
