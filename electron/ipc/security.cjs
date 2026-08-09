@@ -4,7 +4,6 @@ const path = require('path');
 const {
   hashPassword,
   verifyPassword,
-  encryptMnemonicWithPassword,
   decryptMnemonicWithPassword,
   encryptMnemonicLocal,
   decryptMnemonicLocal,
@@ -217,7 +216,7 @@ function reEncryptAllKeystores(password) {
       if (!mnemonic) continue;
 
       // Re-encrypt with password
-      const newKs = encryptMnemonicWithPassword(mnemonic, password);
+      const newKs = encryptWithPassword(mnemonic, password);
       fs.writeFileSync(ksPath, JSON.stringify(newKs, null, 2), 'utf8');
     } catch (e) {
       console.warn('[security] failed to re-encrypt keystore for profile', p.id, e);
@@ -341,7 +340,7 @@ function changePassword(currentPassword, newPassword) {
       if (!mnemonic) continue;
 
       // Re-encrypt with new password
-      const newKs = encryptMnemonicWithPassword(mnemonic, newPassword);
+      const newKs = encryptWithPassword(mnemonic, newPassword);
       fs.writeFileSync(ksPath, JSON.stringify(newKs, null, 2), 'utf8');
     } catch (e) {
       console.warn('[security] failed to change password for profile', p.id, e);
