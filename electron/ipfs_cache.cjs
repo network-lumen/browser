@@ -34,10 +34,6 @@ const inflightPins = new Map();
 const ipnsToCidCache = new Map();
 const IPNS_CACHE_TTL_MS = 5 * 60 * 1000;
 
-function nowMs() {
-  return Date.now();
-}
-
 function invalidateIpnsCache(name) {
   const n = safeString(name, 512);
   if (!n) {
@@ -90,7 +86,7 @@ function flushCacheToDisk() {
       sizeBytes: v.sizeBytes
     };
   }
-  writeJson(CACHE_FILE(), { version: 1, entries: out, updatedAt: nowMs() });
+  writeJson(CACHE_FILE(), { version: 1, entries: out, updatedAt: Date.now() });
   dirty = false;
 }
 
@@ -217,7 +213,7 @@ async function resolveIpnsToIpfsPath(ipnsPath) {
   if (!parsed || parsed.proto !== 'ipns') return '';
   const name = parsed.id;
   const rest = parsed.rest || '';
-  const now = nowMs();
+  const now = Date.now();
 
   const cached = ipnsToCidCache.get(name);
   if (cached && now - cached.ts < IPNS_CACHE_TTL_MS && cached.cid) {
@@ -241,7 +237,7 @@ async function touchIpfsPath(ipfsPath) {
   const p = safeString(ipfsPath, 4096);
   if (!p) return;
 
-  const now = nowMs();
+  const now = Date.now();
 
   // Don't pin full site roots. (We still track and refresh if we already manage it.)
   const existing = entries.get(p);
@@ -306,7 +302,7 @@ async function cleanupExpired() {
   cleanupRunning = true;
   cleanupQueued = false;
   try {
-    const now = nowMs();
+    const now = Date.now();
     let changed = false;
 
     for (const [key, entry] of entries.entries()) {

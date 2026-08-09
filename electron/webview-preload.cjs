@@ -31,20 +31,19 @@
 // everything the webview preload needs in this one file.
 //
 // --- Doc-generation contract -----------------------------------------------
-// `scripts/generate-window-lumen-doc.mjs` parses the `lumen` object literal
-// declared below as TEXT (it never executes this file) using naive per-line
-// brace-depth counting. That means every leaf entry in `lumen` MUST be a
-// single line shaped like:
+// `scripts/generate-window-lumen-doc.mjs` builds docs/window-lumen.{json,html}
+// from the JSDoc below. It parses this file with the TypeScript compiler API,
+// so nested braces and multi-line types are read correctly. What it does
+// require: inside the `lumen` object literal, every leaf must be
 //
 //   name: wrapLumenApiCall(someNamedFunction, 'fallback_error_code'),
 //
-// immediately preceded by a `/** ... */` JSDoc block (description, @param,
-// @returns, @error). Never inline a multi-line function body directly inside
-// `lumen` — a stray line that is exactly `}` or `},` inside that body will be
-// mistaken by the parser for the end of a namespace and corrupt the rest of
-// the generated docs. Put real logic in a named function above the object
-// instead (see the "window.lumen action functions" section below) and
-// reference it by name.
+// with a `/** ... */` block (description, @param, @returns, @error) directly
+// above it, and a nested object literal is treated as a namespace. Put real
+// logic in a named function above the object (see the "window.lumen action
+// functions" section below) and reference it by name. Run
+// `npm run doc:window.lumen` after editing: tests/unit/window-lumen-docs.test.ts
+// diffs the committed docs against the source and fails if they drifted.
 // ============================================================================
 
 const { contextBridge, ipcRenderer } = require('electron');
@@ -165,8 +164,9 @@ function isChromeWebStoreUrl(href = currentHref()) {
 }
 
 /**
- * True for `/ipfs/*`, `/ipns/*` paths and subdomain-gateway hosts
- * (e.g. `<cid>.ipfs.localhost:8080`) — the pages `window.lumen` is allowed on.
+ * True for the pages `window.lumen` is allowed on: `/ipfs/*` and `/ipns/*`
+ * paths, subdomain-gateway hosts (e.g. `<cid>.ipfs.localhost:8080`), and any
+ * `lumen://<domain>` page — see the note in the body for that last one.
  */
 function isIpfsGatewayUrl(href) {
   try {

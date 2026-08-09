@@ -3,6 +3,8 @@ const os = require('node:os');
 
 const { userDataPath, readJson, writeJson } = require('./utils/fs.cjs');
 const { sha256 } = require('./utils/crypto.cjs');
+const { trimSlash } = require('./utils/strings.cjs');
+const { sleep } = require('./utils/values.cjs');
 const { getSetting } = require('./settings.cjs');
 const {
   fetchGatewaysFromRest,
@@ -30,18 +32,6 @@ let bootstrapInProgress = false;
 let started = false;
 let lastAttemptAtMem = 0;
 let lastKuboUnavailableLogAt = 0;
-
-function nowMs() {
-  return Date.now();
-}
-
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-function trimSlash(s) {
-  return String(s || '').replace(/\/+$/, '');
-}
 
 function readState() {
   const fallback = {
@@ -277,7 +267,7 @@ async function maybeBootstrapIpfsSeeds(trigger) {
   bootstrapInProgress = true;
   try {
     const state = readState();
-    const now = nowMs();
+    const now = Date.now();
     const fp = networkFingerprint();
 
     let peerCount;
@@ -341,7 +331,7 @@ function recordCidResolutionFailure() {
     const next = {
       ...st,
       cidFailureStreak: Math.min(Number(st.cidFailureStreak || 0) + 1, 1000),
-      lastCidFailureAt: nowMs(),
+      lastCidFailureAt: Date.now(),
     };
     writeState(next);
     if (next.cidFailureStreak >= CID_FAILURE_THRESHOLD) {
@@ -364,8 +354,8 @@ function startIpfsSeedBootstrapper() {
 
   // First launch: wait for Kubo readiness, then attempt a single bootstrap run.
   void (async () => {
-    const deadline = nowMs() + 90_000;
-    while (nowMs() < deadline) {
+    const deadline = Date.now() + 90_000;
+    while (Date.now() < deadline) {
       const res = await maybeBootstrapIpfsSeeds('startup');
       if (res?.skipped !== 'kubo_unavailable') return;
       await sleep(1500);

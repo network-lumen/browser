@@ -39,10 +39,9 @@ const { safeString } = require('../utils/strings.cjs');
 /**
  * Every `ipfs:*` channel.
  *
- * These were 32 of main.cjs's 80 handlers, interleaved with unrelated ones
- * rather than grouped - the file had grown to hold 38% of the app's whole IPC
- * surface while an ipc/ folder sat beside it doing exactly this job for
- * fourteen other prefixes.
+ * The 32 of them were interleaved with unrelated handlers in main.cjs rather
+ * than grouped, while an ipc/ folder sat beside it doing exactly this job for
+ * every other prefix.
  *
  * The two maps below moved with them because nothing else touched them: they
  * track work that can be cancelled from the renderer, keyed by the webContents

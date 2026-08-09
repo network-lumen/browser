@@ -2,13 +2,10 @@ const { BrowserWindow, ipcMain } = require('electron');
 const { httpGet } = require('./http.cjs');
 const { getNetworkPool } = require('../network/pool_singleton.cjs');
 const { readState } = require('../network/network_middleware.cjs');
-
-function trimSlash(s) {
-  return String(s || '').replace(/\/+$/, '');
-}
+const { trimSlash } = require('../utils/strings.cjs');
 
 // Which node to talk to is the peer pool's decision, not this module's: it
-// reads resources/peers.txt once (network/peers.cjs) and tracks health per
+// reads resources/peers.txt once (network/peer_pool.cjs) and tracks health per
 // peer. Reading that file here as well is how the two would drift apart.
 function getRestBaseUrl() {
   try {
