@@ -1,10 +1,9 @@
 const { app } = require('electron');
 const { EventEmitter } = require('node:events');
 const path = require('node:path');
-const http = require('node:http');
-const https = require('node:https');
 const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
+const { httpModuleForUrl } = require('./utils/http.cjs');
 const { recordCidResolutionFailure, recordCidResolutionSuccess } = require('./ipfs_seed.cjs');
 const { getSetting } = require('./settings.cjs');
 
@@ -74,13 +73,9 @@ function localDriveMaxUploadBytes() {
   return localDriveMaxUploadSizeGb() * BYTES_PER_GIB;
 }
 
-function getHttpModuleForUrl(urlObj) {
-  return urlObj.protocol === 'https:' ? https : http;
-}
-
 async function requestTextViaNodeHttp(urlString, { method = 'GET', headers = {}, body = null, timeoutMs = 30_000 } = {}) {
   const urlObj = new URL(String(urlString || '').trim());
-  const transport = getHttpModuleForUrl(urlObj);
+  const transport = httpModuleForUrl(urlObj);
   const effectiveTimeoutMs = clampTimeoutMs(timeoutMs, 30_000, DEFAULT_IPFS_PIN_ADD_TIMEOUT_MS);
 
   return new Promise((resolve, reject) => {
