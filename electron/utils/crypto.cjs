@@ -3,31 +3,15 @@ const path = require('path');
 const { randomBytes, scryptSync, createCipheriv, createDecipheriv, createHash, timingSafeEqual } = require('crypto');
 const { userDataPath, ensureDir } = require('./fs.cjs');
 
-function secretFilePath() {
-  // Important: compute at call-time so it respects app.setPath('userData', ...)
-  // even if this module was imported before Electron finishes booting.
+function secretFilePath() { // Important: compute at call-time so it respects app.setPath('userData', ...) even if this module was imported before Electron finishes booting
   return userDataPath('secret.bin');
 }
 
-function legacySecretFileCandidates() {
-  const candidates = [];
-  try {
-    const { app } = require('electron');
-    const base = app.getPath('appData');
-    // Known legacy app names that previously affected the default userData path.
-    for (const name of ['lumen', 'lumen-browser', 'Lumen Browser', 'Electron']) {
-      candidates.push(path.join(base, name, 'secret.bin'));
-    }
-  } catch {}
-  return candidates;
-}
-
-function readSecretFile(filePath) {
+function readSecretFile(filePath) { // We expect a 32-byte random secret
   try {
     if (!filePath) return null;
     if (!fs.existsSync(filePath)) return null;
     const buf = fs.readFileSync(filePath);
-    // We expect a 32-byte random secret.
     return buf && buf.length === 32 ? buf : null;
   } catch {
     return null;
@@ -44,54 +28,22 @@ function writeSecretFile(filePath, secret) {
   }
 }
 
-let cachedSecrets = null;
+let cachedSecret = null;
 
-function getSecretCandidates() {
-  if (cachedSecrets) return cachedSecrets;
+function getAppSecret() {
+  if (cachedSecret) return cachedSecret;
 
-  const primaryFile = secretFilePath();
-  const primarySecret = readSecretFile(primaryFile);
-
-  const secrets = [];
-  const seen = new Set();
-
-  if (primarySecret) {
-    secrets.push(primarySecret);
-    seen.add(primarySecret.toString('hex'));
+  const file = secretFilePath();
+  const existing = readSecretFile(file);
+  if (existing) {
+    cachedSecret = existing;
+    return cachedSecret;
   }
 
-  for (const file of legacySecretFileCandidates()) {
-    const f = String(file || '').trim();
-    if (!f) continue;
-    if (f.toLowerCase() === String(primaryFile || '').toLowerCase()) continue;
-    const s = readSecretFile(f);
-    if (!s) continue;
-    const hex = s.toString('hex');
-    if (seen.has(hex)) continue;
-    secrets.push(s);
-    seen.add(hex);
-  }
-
-  // Migrate: if the primary secret doesn't exist yet but a legacy secret does,
-  // write it to the primary location so future runs use one stable secret.
-  if (!primarySecret && secrets.length) {
-    try {
-      writeSecretFile(primaryFile, secrets[0]);
-    } catch {}
-  }
-
-  if (!secrets.length) {
-    const s = randomBytes(32);
-    writeSecretFile(primaryFile, s);
-    secrets.push(s);
-  }
-
-  cachedSecrets = secrets;
-  return secrets;
-}
-
-function getPrimarySecret() {
-  return getSecretCandidates()[0];
+  const created = randomBytes(32);
+  writeSecretFile(file, created);
+  cachedSecret = created;
+  return cachedSecret;
 }
 
 const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1, dklen: 32 };
@@ -202,13 +154,6 @@ function decryptWithPassword(encrypted, password) {
 }
 
 /**
- * Encrypt mnemonic - uses password if provided, otherwise app secret
- */
-function encryptMnemonicWithPassword(mnemonic, password) {
-  return encryptWithPassword(mnemonic, password);
-}
-
-/**
  * Decrypt mnemonic that was encrypted with password
  */
 function decryptMnemonicWithPassword(keystore, password) {
@@ -233,7 +178,7 @@ function isPasswordProtected(keystore) {
 }
 
 function encryptMnemonicLocal(mnemonic) {
-  const appSecret = getPrimarySecret();
+  const appSecret = getAppSecret();
   const salt = randomBytes(16);
   const key = scryptSync(appSecret, salt, SCRYPT_PARAMS.dklen, {
     ...SCRYPT_PARAMS,
@@ -272,29 +217,22 @@ function decryptMnemonicLocal(keystore) {
     return null;
   }
 
-  let lastErr = null;
-  for (const appSecret of getSecretCandidates()) {
+  try {
+    const key = scryptSync(getAppSecret(), Buffer.from(salt, 'base64'), dklen, {
+      N, r, p,
+      maxmem: 128 * 1024 * 1024 // 128MB to handle any stored N value
+    });
+    const decipher = createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(tag);
+    const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+    return plaintext.toString('utf8');
+  } catch (e) {
+    // Hide low-level crypto errors from UI; callers handle null as "failed to decrypt".
     try {
-      const key = scryptSync(appSecret, Buffer.from(salt, 'base64'), dklen, { 
-        N, r, p,
-        maxmem: 128 * 1024 * 1024 // 128MB to handle any stored N value
-      });
-      const decipher = createDecipheriv('aes-256-gcm', key, iv);
-      decipher.setAuthTag(tag);
-      const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-      return plaintext.toString('utf8');
-    } catch (e) {
-      lastErr = e;
-    }
-  }
-
-  // Hide low-level crypto errors from UI; callers handle null as "failed to decrypt".
-  if (lastErr) {
-    try {
-      console.warn('[crypto] decryptMnemonicLocal failed with all secrets:', lastErr.message || lastErr);
+      console.warn('[crypto] decryptMnemonicLocal failed:', e && e.message ? e.message : e);
     } catch {}
+    return null;
   }
-  return null;
 }
 
 module.exports = {
@@ -304,7 +242,6 @@ module.exports = {
   verifyPassword,
   encryptWithPassword,
   decryptWithPassword,
-  encryptMnemonicWithPassword,
   decryptMnemonicWithPassword,
   isPasswordProtected,
   deriveKeyFromPassword
