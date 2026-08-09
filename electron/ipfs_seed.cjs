@@ -363,9 +363,11 @@ function startIpfsSeedBootstrapper() {
   })();
 
   // Recovery-only: check occasionally, but only dials when conditions match + cooldown.
+  // Both loops below run for the life of the process and nothing stops them,
+  // so they are unref'd: neither may hold it open or fire after shutdown.
   setInterval(() => {
     void maybeBootstrapIpfsSeeds('periodic');
-  }, MIN_REFRESH_INTERVAL_MS);
+  }, MIN_REFRESH_INTERVAL_MS).unref?.();
 
   try {
     powerMonitor?.on?.('resume', () => {
@@ -380,7 +382,7 @@ function startIpfsSeedBootstrapper() {
     if (!fp || fp === lastFp) return;
     lastFp = fp;
     void maybeBootstrapIpfsSeeds('network_change');
-  }, 5 * 60 * 1000);
+  }, 5 * 60 * 1000).unref?.();
 }
 
 module.exports = {

@@ -1427,6 +1427,9 @@ function startGatewayHealthMonitor() {
   _gwHealthInterval = setInterval(() => {
     void refreshWhitelistedGatewayHealth().catch(() => {});
   }, periodMs);
+  // Never cleared, so unref'd: it must not hold the process open or fire once
+  // the windows are gone.
+  _gwHealthInterval.unref?.();
 }
 
 function normalizePlan(raw, gateway, fallbackIndex) {

@@ -253,9 +253,12 @@ class PeerPool {
       peers.push(p);
     }
 
-    // Prefer non-slow peers, but never exclude if we don't have enough.
-    const fast = peers.filter((p) => !(p.slowUntil > now));
-    const base = fast.length >= (count | 0) ? fast : peers;
+    // Prefer peers that are neither slow nor suspect, but never exclude either:
+    // a chain upgrade where everyone diverges for a minute must stay usable.
+    // Suspect matters here as much as slow - readState marks a divergent peer
+    // and then comes straight back to this method for its next read.
+    const preferred = peers.filter((p) => !(p.slowUntil > now) && !(p.suspectUntil > now));
+    const base = preferred.length >= (count | 0) ? preferred : peers;
     return pickRandom(base, count);
   }
 
@@ -353,6 +356,9 @@ class PeerPool {
       this._healthTick().catch(() => {});
       this._scheduleHealth(10_000);
     }, clampInt(delayMs, 50, 60_000));
+    // Nothing stops this loop, so it must not be able to hold the process open
+    // or fire once the windows are gone.
+    this._healthTimer.unref?.();
   }
 
   _scheduleOnChainRefresh(delayMs) {
@@ -362,6 +368,7 @@ class PeerPool {
       this.refreshFromOnChain().catch(() => {});
       this._scheduleOnChainRefresh(this.opts.onChainRefreshMs);
     }, clampInt(delayMs, 200, this.opts.onChainRefreshMs));
+    this._refreshTimer.unref?.();
   }
 
   _isAlive(peer, now) {
