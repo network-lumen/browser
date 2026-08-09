@@ -46,8 +46,12 @@ function getAppSecret() {
   return cachedSecret;
 }
 
-function sha256Hex(data, { length = 0, upper = false } = {}) {
-  const hex = createHash('sha256').update(Buffer.from(data)).digest('hex');
+// Lowercase hex by default; `bytes` gives the raw digest, which is what the
+// signing paths feed to secp256k1. `length` and `upper` are hex-only.
+function sha256(data, { bytes = false, length = 0, upper = false } = {}) {
+  const digest = createHash('sha256').update(Buffer.from(data)).digest();
+  if (bytes) return digest;
+  const hex = digest.toString('hex');
   const out = length > 0 ? hex.slice(0, length) : hex;
   return upper ? out.toUpperCase() : out;
 }
@@ -242,7 +246,7 @@ function decryptMnemonicLocal(keystore) {
 }
 
 module.exports = {
-  sha256Hex,
+  sha256,
   encryptMnemonicLocal,
   decryptMnemonicLocal,
   hashPassword,

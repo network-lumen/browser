@@ -2,7 +2,7 @@ const { powerMonitor } = require('electron');
 const os = require('node:os');
 
 const { userDataPath, readJson, writeJson } = require('./utils/fs.cjs');
-const { sha256Hex } = require('./utils/crypto.cjs');
+const { sha256 } = require('./utils/crypto.cjs');
 const { getSetting } = require('./settings.cjs');
 const {
   fetchGatewaysFromRest,
@@ -79,7 +79,7 @@ function networkFingerprint() {
       }
     }
     const raw = entries.sort().join('|');
-    return sha256Hex(raw);
+    return sha256(raw);
   } catch {
     return '';
   }

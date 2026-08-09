@@ -11,7 +11,7 @@
 // so the whole flow is: make sure a local key exists -> make sure it is linked
 // -> only then build and broadcast the real message.
 const { BrowserWindow } = require('electron');
-const { sha256Hex } = require('./crypto.cjs');
+const { sha256 } = require('./crypto.cjs');
 const { userDataPath } = require('./fs.cjs');
 const { runWithRpcRetry, zeroFee } = require('./tx.cjs');
 const { readState, broadcastTx } = require('../network/network_middleware.cjs');
@@ -136,7 +136,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
     const t = normalizeHashString(target);
     for (const k of allKeys) {
       try {
-        if (sha256Hex(k.publicKey).toLowerCase() === t) return k;
+        if (sha256(k.publicKey).toLowerCase() === t) return k;
       } catch {}
     }
     return null;
@@ -144,7 +144,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
 
   if (record && onChain.linked && onChain.pubKeyHash) {
     try {
-      const localHash = sha256Hex(record.publicKey).toLowerCase();
+      const localHash = sha256(record.publicKey).toLowerCase();
       const targetHash = normalizeHashString(onChain.pubKeyHash);
       if (localHash !== targetHash) {
         const match = findByHash(targetHash);
@@ -203,7 +203,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
   }
 
   if (onChain.linked && onChain.pubKeyHash && record) {
-    const localHash = sha256Hex(record.publicKey).toLowerCase();
+    const localHash = sha256(record.publicKey).toLowerCase();
     const onChainHash = normalizeHashString(onChain.pubKeyHash);
     if (localHash !== onChainHash) {
       console.warn('[pqc-local] hash mismatch', {
@@ -211,7 +211,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
         keyName,
         localHash,
         onChainHash,
-        keys: allKeys.map((k) => ({ name: k && k.name, hash: sha256Hex(k.publicKey) }))
+        keys: allKeys.map((k) => ({ name: k && k.name, hash: sha256(k.publicKey) }))
       });
       throw new Error('PQC key mismatch: local key does not match on-chain hash. Import the correct PQC backup.');
     }

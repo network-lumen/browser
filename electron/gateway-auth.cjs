@@ -4,18 +4,12 @@
 
 const crypto = require('crypto');
 const { isWhitelisted, getWhitelistEntry, getUsageStats } = require('./gateway-database.cjs');
+const { sha256 } = require('./utils/crypto.cjs');
 
 let config = null;
 
 function setConfig(cfg) {
   config = cfg;
-}
-
-/**
- * SHA256 hash
- */
-function sha256Utf8(data) {
-  return crypto.createHash('sha256').update(data, 'utf8').digest();
 }
 
 /**
@@ -46,7 +40,7 @@ async function validateSignature(address, signatureB64, pubkeyB64, timestamp, me
       }
     }
     
-    const digest = sha256Utf8(message);
+    const digest = sha256(message, { bytes: true });
     const validSig = await Secp256k1.verifySignature(sigObj, digest, pubUncompressed);
     
     const prefix = extractPrefix(address);

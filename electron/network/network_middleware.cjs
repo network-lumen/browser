@@ -1,5 +1,5 @@
 const { getNetworkPool } = require('./pool_singleton.cjs');
-const { sha256Hex } = require('../utils/crypto.cjs');
+const { sha256 } = require('../utils/crypto.cjs');
 
 function nowMs() {
   return Date.now();
@@ -232,7 +232,7 @@ async function broadcastTx(txBytes, options = {}) {
   if (!norm.ok) return { ok: false, error: norm.error };
   const bytes = norm.bytes;
   const txB64 = bytes.toString('base64');
-  const computedHash = sha256Hex(bytes, { upper: true });
+  const computedHash = sha256(bytes, { upper: true });
 
   const timeout = clampInt(options && options.timeout ? options.timeout : 12_000, 1_000, 120_000);
   const confirmTimeoutMs = clampInt(options && options.confirmTimeoutMs ? options.confirmTimeoutMs : 60_000, 1_000, 10 * 60_000);

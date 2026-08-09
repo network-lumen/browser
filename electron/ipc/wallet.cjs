@@ -1,14 +1,10 @@
-const { ipcMain, app } = require('electron');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const crypto = require('crypto');
+const { ipcMain } = require('electron');
 const { Buffer } = require('buffer');
 const Long = require('long');
 const { getNetworkPool } = require('../network/pool_singleton.cjs');
 const { readState } = require('../network/network_middleware.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
-const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
+const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected, sha256 } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { zeroFee } = require('../utils/tx.cjs');
 const { leadingZeroBits } = require('../utils/pow.cjs');
@@ -37,11 +33,7 @@ function moduleAddressBech32(moduleName, bech32Prefix) {
   if (!bech32 || typeof bech32.encode !== 'function' || typeof bech32.toWords !== 'function') {
     throw new Error('bech32_unavailable');
   }
-  const hash = crypto
-    .createHash('sha256')
-    .update(Buffer.from(String(moduleName || ''), 'utf8'))
-    .digest()
-    .subarray(0, 20);
+  const hash = sha256(String(moduleName || ''), { bytes: true }).subarray(0, 20);
   return bech32.encode(String(bech32Prefix || 'lmn'), bech32.toWords(hash));
 }
 
@@ -453,10 +445,6 @@ async function buildSignerForProfileContext(profileIdInput, bech32PrefixInput, p
   };
 }
 
-function sha256Utf8(payload) {
-  return crypto.createHash('sha256').update(Buffer.from(String(payload ?? ''), 'utf8')).digest();
-}
-
 async function derivePrivkeyFromMnemonic(mnemonic) {
   const { Bip39, EnglishMnemonic, Slip10, Slip10Curve, Slip10RawIndex } = require('@cosmjs/crypto');
   const seed = await Bip39.mnemonicToSeed(new EnglishMnemonic(String(mnemonic || '').trim()));
@@ -471,17 +459,13 @@ async function derivePrivkeyFromMnemonic(mnemonic) {
 }
 
 function pubkeyToAddressBech32(pubkeyCompressed, prefix) {
-  const { sha256, ripemd160 } = require('@cosmjs/crypto');
+  const { ripemd160 } = require('@cosmjs/crypto');
   const bech32 = require('bech32');
   if (!bech32 || typeof bech32.encode !== 'function' || typeof bech32.toWords !== 'function') {
     throw new Error('bech32_unavailable');
   }
-  const hash = Buffer.from(ripemd160(sha256(pubkeyCompressed)));
+  const hash = Buffer.from(ripemd160(sha256(pubkeyCompressed, { bytes: true })));
   return bech32.encode(String(prefix || 'lmn'), bech32.toWords(hash));
-}
-
-function sha256Bytes(s) {
-  return crypto.createHash('sha256').update(String(s || '')).digest();
 }
 
 async function mineUpdatePowNonce(identifier, creator, bits, budgetMs = 2500) {
@@ -492,13 +476,13 @@ async function mineUpdatePowNonce(identifier, creator, bits, budgetMs = 2500) {
 
   if (!bits || bits <= 0) {
     const payload = `${identifier}|${creator}|${nonce.toString()}`;
-    const h = sha256Bytes(payload);
+    const h = sha256(payload, { bytes: true });
     return { nonce, hashHex: Buffer.from(h).toString('hex') };
   }
 
   while (Date.now() < end) {
     const payload = `${identifier}|${creator}|${nonce.toString()}`;
-    const h = sha256Bytes(payload);
+    const h = sha256(payload, { bytes: true });
     if (leadingZeroBits(h) >= bits) {
       return { nonce, hashHex: Buffer.from(h).toString('hex') };
     }
@@ -2585,7 +2569,7 @@ function registerWalletIpc() {
       const pubkeyUncompressed = kp.pubkey;
       const pubkeyCompressed = Secp256k1.compressPubkey(pubkeyUncompressed);
 
-      const digest = sha256Utf8(payload);
+      const digest = sha256(payload, { bytes: true });
       const sigObj = await Secp256k1.createSignature(digest, privkey);
       // `Secp256k1.createSignature` returns an ExtendedSecp256k1Signature
       // (r|s|recovery). For Cosmos/ADR-036 we keep the standard 64-byte (r|s).
@@ -2642,7 +2626,7 @@ function registerWalletIpc() {
       const pubCompressed = pubBytesRaw.length === 33 ? pubBytesRaw : Secp256k1.compressPubkey(pubBytesRaw);
 
       const signature = Buffer.from(signatureB64, 'base64');
-      const digest = sha256Utf8(payload);
+      const digest = sha256(payload, { bytes: true });
       let sigObj;
       try {
         sigObj = Secp256k1Signature.fromFixedLength(signature);

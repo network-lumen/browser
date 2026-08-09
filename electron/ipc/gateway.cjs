@@ -9,7 +9,7 @@ const {
   decryptMnemonicWithPassword,
   encryptMnemonicLocal,
   isPasswordProtected,
-  sha256Hex,
+  sha256,
 } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { zeroFee } = require('../utils/tx.cjs');
@@ -303,7 +303,7 @@ function loadMnemonic(profileId) {
       if (cached.mode === 'password' && cached.mnemonic && cached.sessionKey) {
         const pwd = getSessionPassword();
         if (!pwd) throw new Error('password_required');
-        const key = sha256Hex(pwd);
+        const key = sha256(pwd);
         if (key === cached.sessionKey) {
           return cached.mnemonic;
         }
@@ -331,7 +331,7 @@ function loadMnemonic(profileId) {
       mnemonic,
       at: Date.now(),
       mode: 'password',
-      sessionKey: sha256Hex(pwd),
+      sessionKey: sha256(pwd),
     });
     return mnemonic;
   }
@@ -375,13 +375,9 @@ async function deriveWalletAddressFromMnemonic(mnemonic, prefix = 'lmn') {
   return toBech32(prefix, rawAddress);
 }
 
-function sha256Utf8(data) {
-  return new Sha256(new TextEncoder().encode(String(data ?? ''))).digest();
-}
-
 async function signGatewayPayload(mnemonic, payload) {
   const privkey = await deriveGatewayPrivkey(mnemonic);
-  const digest = sha256Utf8(payload);
+  const digest = sha256(payload, { bytes: true });
   const sigObj = await Secp256k1.createSignature(digest, privkey);
   const signature = sigObj.toFixedLength();
   const { pubkey } = await Secp256k1.makeKeypair(privkey);
@@ -748,7 +744,7 @@ async function sendGatewayAuthPq(params) {
   }
 
   const canonicalPayload = JSON.stringify(payload ?? null);
-  const payloadHashHex = sha256Hex(canonicalPayload);
+  const payloadHashHex = sha256(canonicalPayload);
 
   const nonce = randomBytes(12).toString('hex');
   const ts = Date.now();

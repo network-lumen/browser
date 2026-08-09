@@ -4,7 +4,7 @@ const crypto = require('node:crypto');
 const path = require('node:path');
 const JSZip = require('jszip');
 const { ensureDir } = require('../utils/fs.cjs');
-const { sha256Hex } = require('../utils/crypto.cjs');
+const { sha256 } = require('../utils/crypto.cjs');
 
 const CRX_DOWNLOAD_BASE = 'https://clients2.google.com/service/update2/crx';
 const CRX_PROD_VERSION = '131.0.6778.86';
@@ -108,7 +108,7 @@ function extensionIdFromHashHex(input) {
 }
 
 function extensionIdFromPublicKey(publicKeyBytes) {
-  return extensionIdFromHashHex(sha256Hex(publicKeyBytes || [], { length: 32 }));
+  return extensionIdFromHashHex(sha256(publicKeyBytes || [], { length: 32 }));
 }
 
 function readVarint(buffer, offset) {
@@ -387,9 +387,9 @@ function verifyCrxArchive(crxBuffer, expectedExtensionId = '') {
     version,
     crxId: declaredCrxId,
     publicKeyBase64: matchedDeveloperPublicKey.toString('base64'),
-    publicKeySha256: sha256Hex(matchedDeveloperPublicKey),
-    archiveSha256: sha256Hex(archiveBytes),
-    fileSha256: sha256Hex(data),
+    publicKeySha256: sha256(matchedDeveloperPublicKey),
+    archiveSha256: sha256(archiveBytes),
+    fileSha256: sha256(data),
     hasVerifiedContents: !!header.verifiedContents.length
   };
 }
