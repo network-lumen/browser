@@ -12,6 +12,7 @@ const {
   sha256Hex,
 } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
+const { zeroFee } = require('../utils/tx.cjs');
 const { getSessionPassword } = require('./security.cjs');
 const { getNetworkPool } = require('../network/pool_singleton.cjs');
 const { resolvePqcHome, signAndBroadcastWithPqcAutoLink } = require('../utils/pqc_link.cjs');
@@ -2864,10 +2865,6 @@ function registerGatewayIpc() {
           };
         }
 
-        const zeroFee =
-          (bridgeMod.utils && bridgeMod.utils.gas && bridgeMod.utils.gas.zeroFee) ||
-          (bridgeMod.utils && bridgeMod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '250000' }));
         const memo = String(input?.memo || 'gateway:plan:subscribe');
 
         const fee = zeroFee();
@@ -3019,10 +3016,6 @@ function registerGatewayIpc() {
           };
         }
 
-        const zeroFee =
-          (bridgeMod.utils && bridgeMod.utils.gas && bridgeMod.utils.gas.zeroFee) ||
-          (bridgeMod.utils && bridgeMod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '250000' }));
         const fee = zeroFee();
         const memo = String(input?.memo || 'gateway:register');
 
@@ -3132,10 +3125,6 @@ function registerGatewayIpc() {
           msg = { typeUrl: '/lumen.gateway.v1.MsgUpdateGateway', value: payload };
         }
 
-        const zeroFee =
-          (bridgeMod.utils && bridgeMod.utils.gas && bridgeMod.utils.gas.zeroFee) ||
-          (bridgeMod.utils && bridgeMod.utils.zeroFee) ||
-          (() => ({ amount: [], gas: '200000' }));
         const fee = zeroFee();
         const memo = String(input?.memo || 'gateway:update');
 

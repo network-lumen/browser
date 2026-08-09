@@ -13,7 +13,7 @@
 const { BrowserWindow } = require('electron');
 const { sha256Hex } = require('./crypto.cjs');
 const { userDataPath } = require('./fs.cjs');
-const { runWithRpcRetry } = require('./tx.cjs');
+const { runWithRpcRetry, zeroFee } = require('./tx.cjs');
 const { readState, broadcastTx } = require('../network/network_middleware.cjs');
 
 let pqcWorker = null;
@@ -57,8 +57,7 @@ async function fetchOnChainPqcStatus(client, address) {
   try {
     const resp = await client.pqc().account(address);
     const info = (resp && (resp.account || resp)) || null;
-    const pubKey =
-      info && (info.pubKeyHash || info.pub_key_hash || info.pubKey || info.pub_key);
+    const pubKey = info && (info.pubKeyHash || info.pub_key_hash || info.pubKey || info.pub_key);
     const scheme = (info && (info.scheme || info.schemeName)) || null;
     const pubKeyHash = pubKey ? String(pubKey) : '';
     return { linked: !!(pubKey && (pubKey.length || 0) > 0), scheme, pubKeyHash };
@@ -74,14 +73,6 @@ async function loadPqcParams(client) {
   } catch {
     return {};
   }
-}
-
-function resolveZeroFee(bridgeMod) {
-  return (
-    (bridgeMod && bridgeMod.utils && bridgeMod.utils.gas && bridgeMod.utils.gas.zeroFee) ||
-    (bridgeMod && bridgeMod.utils && bridgeMod.utils.zeroFee) ||
-    (() => ({ amount: [], gas: '250000' }))
-  );
 }
 
 // Sign locally, then push the bytes through the peer pool rather than the
@@ -182,19 +173,13 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
         keyName = allKeys[0].name;
         record = allKeys[0];
       }
-      if (!record) {
-        throw new Error(
-          'Signer already has a PQC key on-chain but no local PQC key is available. Import the dual-signer backup (pqc_keys + dual-signer.json).'
-        );
-      }
+      if (!record)
+        throw new Error('Signer already has a PQC key on-chain but no local PQC key is available. Import the dual-signer backup (pqc_keys + dual-signer.json).');
       await store.linkAddress(address, keyName);
     }
 
-    if (!record && onChain.linked) {
-      throw new Error(
-        'Signer already has a PQC key on-chain but no matching local PQC key is available. Import the dual-signer backup (pqc_keys + dual-signer.json).'
-      );
-    }
+    if (!record && onChain.linked)
+      throw new Error('Signer already has a PQC key on-chain but no matching local PQC key is available. Import the dual-signer backup (pqc_keys + dual-signer.json).');
 
     if (!record) {
       keyName = preferred;
@@ -228,9 +213,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
         onChainHash,
         keys: allKeys.map((k) => ({ name: k && k.name, hash: sha256Hex(k.publicKey) }))
       });
-      throw new Error(
-        'PQC key mismatch: local key does not match on-chain hash. Import the correct PQC backup.'
-      );
+      throw new Error('PQC key mismatch: local key does not match on-chain hash. Import the correct PQC backup.');
     }
   }
 
@@ -269,7 +252,6 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record, label) {
     }
   }
 
-  const zeroFee = resolveZeroFee(bridgeMod);
   const msg = pqcModule.msgLinkAccountPqc(address, {
     scheme: record.scheme,
     pubKey: record.publicKey,
@@ -321,9 +303,8 @@ function isActivationBalanceErrorText(text) {
 }
 
 function sanitizePqcErrorMessage(text) {
-  if (isActivationBalanceErrorText(text)) {
+  if (isActivationBalanceErrorText(text))
     return WALLET_ACTIVATION_TOOLTIP;
-  }
   return String(text || '').trim();
 }
 
@@ -407,25 +388,9 @@ async function ensurePqcLinkedBeforeSigning(bridgeMod, client, profileId, addres
   }
 }
 
-async function signAndBroadcastWithPqcAutoLink({
-  bridgeMod,
-  client,
-  profileId,
-  address,
-  msgs,
-  fee,
-  memo,
-  label,
-}) {
+async function signAndBroadcastWithPqcAutoLink({ bridgeMod, client, profileId, address, msgs, fee, memo, label }) {
   const broadcastOnce = async () => {
-    const res = await signAndBroadcastViaPool(
-      client,
-      address,
-      msgs,
-      fee,
-      memo,
-      'broadcast_failed'
-    );
+    const res = await signAndBroadcastViaPool(client, address, msgs, fee, memo, 'broadcast_failed');
     if (res && typeof res.code === 'number' && res.code !== 0) {
       const raw = res.rawLog || `broadcast failed (code ${res.code})`;
       const err = new Error(String(raw));
@@ -438,15 +403,7 @@ async function signAndBroadcastWithPqcAutoLink({
   // Preflight: check on-chain whether this address already has a PQC key
   // linked BEFORE ever touching the real message, instead of signing it
   // blindly, catching the resulting "no PQC key linked" error, linking, and
-  // retrying the SAME broadcast call. That reactive approach reused a
-  // signing client whose internal PQC store/param/sequence caching
-  // (@lumen-chain/sdk's LumenSigningClient) isn't designed to be safely
-  // "hot swapped" mid-flight, and in practice could let the real message
-  // get broadcast with a stale signing context right after the link tx -
-  // link and real message ended up as two separate, correctly-ordered
-  // transactions, but the send was the fragile one riding on leftover state
-  // from the link. Checking first and linking to completion before ever
-  // building the real message avoids that whole class of ordering bugs.
+  // retrying the SAME broadcast call
   try {
     const onChain = await fetchOnChainPqcStatus(client, address);
     if (!onChain.linked) {
@@ -465,11 +422,6 @@ async function signAndBroadcastWithPqcAutoLink({
       throw e;
     }
 
-    // Fallback safety net for cases outside the preflight's ability to
-    // detect (e.g. a wallet restored from a bare mnemonic import, where the
-    // address is already linked on-chain but no matching local PQC key
-    // exists yet) - give linking one more shot, then give up with a clear
-    // error rather than looping on an unrecoverable local/on-chain mismatch.
     try {
       await ensurePqcLinkedBeforeSigning(bridgeMod, client, profileId, address, label);
     } catch (linkErr) {
