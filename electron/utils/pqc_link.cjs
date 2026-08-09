@@ -10,8 +10,8 @@
 // The chain refuses a tx from an account with no Dilithium key linked on-chain,
 // so the whole flow is: make sure a local key exists -> make sure it is linked
 // -> only then build and broadcast the real message.
-const { createHash } = require('crypto');
 const { BrowserWindow } = require('electron');
+const { sha256Hex } = require('./crypto.cjs');
 const { userDataPath } = require('./fs.cjs');
 const { runWithRpcRetry } = require('./tx.cjs');
 const { readState, broadcastTx } = require('../network/network_middleware.cjs');
@@ -23,18 +23,11 @@ try {
   pqcWorker = null;
 }
 
-const WALLET_ACTIVATION_TOOLTIP =
-  'To be activated, you must make your first transaction (buy domain/send token etc..) with a minimum of 0.001 LMN in your wallet';
+const WALLET_ACTIVATION_TOOLTIP = 'To be activated, you must make your first transaction (buy domain/send token etc..) with a minimum of 0.001 LMN in your wallet';
 
 function resolvePqcHome() {
   if (process.env.LUMEN_PQC_HOME) return process.env.LUMEN_PQC_HOME;
-  // Store PQC data alongside other app metadata in the app's userData folder.
-  // PqcKeyStore itself will create/use a "pqc_keys" subdirectory inside this base path.
   return userDataPath();
-}
-
-function hashHex(data) {
-  return createHash('sha256').update(Buffer.from(data)).digest('hex');
 }
 
 function normalizeHashString(input) {
@@ -45,26 +38,19 @@ function normalizeHashString(input) {
   try {
     const buf = Buffer.from(raw, 'base64');
     if (buf.length > 0) return buf.toString('hex').toLowerCase();
-  } catch {
-    // ignore
-  }
+  } catch {}
   return lower;
 }
 
 function broadcastPqcLinked(payload) {
   try {
-    const wins =
-      typeof BrowserWindow?.getAllWindows === 'function' ? BrowserWindow.getAllWindows() : [];
+    const wins = typeof BrowserWindow?.getAllWindows === 'function' ? BrowserWindow.getAllWindows() : [];
     for (const w of wins) {
       try {
         w?.webContents?.send?.('profiles:pqcLinked', payload);
-      } catch {
-        // ignore per-window failures
-      }
+      } catch {}
     }
-  } catch {
-    // ignore
-  }
+  } catch {}
 }
 
 async function fetchOnChainPqcStatus(client, address) {
@@ -159,7 +145,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
     const t = normalizeHashString(target);
     for (const k of allKeys) {
       try {
-        if (hashHex(k.publicKey).toLowerCase() === t) return k;
+        if (sha256Hex(k.publicKey).toLowerCase() === t) return k;
       } catch {}
     }
     return null;
@@ -167,7 +153,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
 
   if (record && onChain.linked && onChain.pubKeyHash) {
     try {
-      const localHash = hashHex(record.publicKey).toLowerCase();
+      const localHash = sha256Hex(record.publicKey).toLowerCase();
       const targetHash = normalizeHashString(onChain.pubKeyHash);
       if (localHash !== targetHash) {
         const match = findByHash(targetHash);
@@ -232,7 +218,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
   }
 
   if (onChain.linked && onChain.pubKeyHash && record) {
-    const localHash = hashHex(record.publicKey).toLowerCase();
+    const localHash = sha256Hex(record.publicKey).toLowerCase();
     const onChainHash = normalizeHashString(onChain.pubKeyHash);
     if (localHash !== onChainHash) {
       console.warn('[pqc-local] hash mismatch', {
@@ -240,7 +226,7 @@ async function ensureLocalPqcKey(bridgeMod, client, profileId, address) {
         keyName,
         localHash,
         onChainHash,
-        keys: allKeys.map((k) => ({ name: k && k.name, hash: hashHex(k.publicKey) }))
+        keys: allKeys.map((k) => ({ name: k && k.name, hash: sha256Hex(k.publicKey) }))
       });
       throw new Error(
         'PQC key mismatch: local key does not match on-chain hash. Import the correct PQC backup.'
@@ -503,7 +489,6 @@ async function signAndBroadcastWithPqcAutoLink({
 module.exports = {
   WALLET_ACTIVATION_TOOLTIP,
   resolvePqcHome,
-  hashHex,
   normalizeHashString,
   fetchOnChainPqcStatus,
   loadPqcParams,

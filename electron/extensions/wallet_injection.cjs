@@ -1,5 +1,4 @@
 const { safeString } = require('../utils/strings.cjs');
-const crypto = require('node:crypto');
 
 const PROVIDER_KEYS = Object.freeze(['keplr', 'leap', 'ethereum']);
 
@@ -21,14 +20,6 @@ function normalizeProviderHints(input) {
         .filter((item) => PROVIDER_KEYS.includes(item))
     )
   );
-}
-
-function hashStableId(input, length = 32) {
-  return crypto
-    .createHash('sha256')
-    .update(Buffer.from(String(input || ''), 'utf8'))
-    .digest('hex')
-    .slice(0, Math.max(8, Math.min(64, Number(length) || 32)));
 }
 
 function detectProviderHints(manifest, installSource = '') {
@@ -70,7 +61,6 @@ function buildProviderFallbackState(entries) {
 module.exports = {
   PROVIDER_KEYS,
   DEFAULT_BECH32_PREFIXES,
-  hashStableId,
   detectProviderHints,
   normalizeProviderHints,
   buildProviderFallbackState

@@ -13,9 +13,9 @@ const {
 const {
   buildProviderFallbackState,
   detectProviderHints,
-  hashStableId,
   normalizeProviderHints
 } = require('./wallet_injection.cjs');
+const { sha256Hex } = require('../utils/crypto.cjs');
 
 const EXTENSION_PARTITION = 'persist:lumen';
 const LUMEN_BACKGROUND_SHIM_FILE_PREFIX = 'lumen-background-shim';
@@ -356,7 +356,7 @@ function isManagedBackgroundShimFile(rawPath) {
 }
 
 function buildManagedBackgroundShimFileName(shimSource) {
-  const digest = hashStableId(`background-shim:${shimSource}`, 12);
+  const digest = sha256Hex(`background-shim:${shimSource}`, { length: 12 });
   return `${LUMEN_BACKGROUND_SHIM_FILE_PREFIX}-${digest}.js`;
 }
 
@@ -3338,8 +3338,8 @@ class ExtensionManager extends EventEmitter {
 
   buildManagedId(manifest, sourcePath) {
     const key = safeString(manifest?.key, 4096);
-    if (key) return hashStableId(`manifest-key:${key}`, 32);
-    return hashStableId(`source:${getRealPath(sourcePath)}`, 32);
+    if (key) return sha256Hex(`manifest-key:${key}`, { length: 32 });
+    return sha256Hex(`source:${getRealPath(sourcePath)}`, { length: 32 });
   }
 
   async unloadEntry(entry) {
