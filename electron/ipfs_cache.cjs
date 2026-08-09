@@ -11,7 +11,6 @@ const DEFAULT_CACHE_MAX_FILE_BYTES = 200 * 1024 * 1024; // 200 MB
 const CACHE_FILE = () => userDataPath('ipfs_cache.json');
 
 let started = false;
-let cleanupTimer = null;
 let flushTimer = null;
 let maintenanceSoonTimer = null;
 let cleanupRunning = false;
@@ -498,28 +497,15 @@ function startIpfsCache(opts = {}) {
 
   loadCacheFromDisk();
 
-  const interval = Number(opts.cleanupIntervalMs ?? DEFAULT_CLEANUP_INTERVAL_MS);
-  const cleanupEvery =
-    Number.isFinite(interval) && interval > 5_000 ? Math.floor(interval) : DEFAULT_CLEANUP_INTERVAL_MS;
-
-  cleanupTimer = setInterval(() => {
-    void cleanupExpired();
-  }, cleanupEvery);
-  try {
-    cleanupTimer.unref?.();
-  } catch {}
-
-  // Best-effort initial cleanup soon after startup.
-  setTimeout(() => {
-    void cleanupExpired();
-  }, 15_000);
-
+  // The eviction loop itself belongs to daemons/index.cjs.
   const sessions = Array.isArray(opts.sessions) ? opts.sessions : [];
   for (const s of sessions) observeSession(s);
 }
 
 module.exports = {
   startIpfsCache,
+  cleanupExpired,
+  CACHE_CLEANUP_INTERVAL_MS: DEFAULT_CLEANUP_INTERVAL_MS,
   touchIpfsPath,
   invalidateIpnsCache
 };

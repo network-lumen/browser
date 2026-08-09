@@ -54,8 +54,7 @@ function getRegistryForEncode(client) {
 }
 
 async function connectSigningClientWithFailover(mod, signer, connectArgs, { timeoutMs = 15_000 } = {}) {
-  const pool = getNetworkPool();
-  pool.start();
+  const pool = getNetworkPool();
 
   const exclude = new Set();
   let candidates = pool.pickPeers('rpc', 3, { requireAlive: true, exclude });

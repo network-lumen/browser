@@ -362,31 +362,41 @@ function startIpfsSeedBootstrapper() {
     }
   })();
 
-  // Recovery-only: check occasionally, but only dials when conditions match + cooldown.
-  // Both loops below run for the life of the process and nothing stops them,
-  // so they are unref'd: neither may hold it open or fire after shutdown.
-  setInterval(() => {
-    void maybeBootstrapIpfsSeeds('periodic');
-  }, MIN_REFRESH_INTERVAL_MS).unref?.();
-
+  // The two recovery loops belong to daemons/index.cjs. Resume is an event, so
+  // it stays here.
   try {
     powerMonitor?.on?.('resume', () => {
       void maybeBootstrapIpfsSeeds('resume');
     });
   } catch {}
+}
 
-  // Interface changes can happen without a resume event.
-  let lastFp = networkFingerprint();
-  setInterval(() => {
-    const fp = networkFingerprint();
-    if (!fp || fp === lastFp) return;
-    lastFp = fp;
-    void maybeBootstrapIpfsSeeds('network_change');
-  }, 5 * 60 * 1000).unref?.();
+/**
+ * Re-dial seeds when the machine's interfaces changed without a resume event -
+ * a laptop moving between networks is the case this exists for.
+ */
+let lastNetworkFingerprint = null;
+async function bootstrapOnNetworkChange() {
+  const fp = networkFingerprint();
+  if (!fp) return;
+  if (lastNetworkFingerprint === null) {
+    lastNetworkFingerprint = fp;
+    return;
+  }
+  if (fp === lastNetworkFingerprint) return;
+  lastNetworkFingerprint = fp;
+  await maybeBootstrapIpfsSeeds('network_change');
+}
+
+async function bootstrapPeriodically() {
+  await maybeBootstrapIpfsSeeds('periodic');
 }
 
 module.exports = {
   startIpfsSeedBootstrapper,
+  bootstrapPeriodically,
+  bootstrapOnNetworkChange,
+  SEED_REFRESH_INTERVAL_MS: MIN_REFRESH_INTERVAL_MS,
   maybeBootstrapIpfsSeeds,
   recordCidResolutionFailure,
   recordCidResolutionSuccess,

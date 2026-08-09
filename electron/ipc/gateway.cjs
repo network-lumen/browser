@@ -1326,8 +1326,6 @@ async function fetchGatewaysFromRest(limit, timeoutMs) {
   }
 }
 
-let _gwHealthInterval = null;
-let _gwHealthInFlight = false;
 
 function gatewayHealthMonitorEnabled() {
   const raw = String(process.env.LUMEN_GATEWAY_HEALTH_MONITOR || '').trim().toLowerCase();
@@ -1335,101 +1333,79 @@ function gatewayHealthMonitorEnabled() {
   return true;
 }
 
+// No re-entrancy guard of its own: the daemon runtime never runs a tick while
+// the previous one is still going.
 async function refreshWhitelistedGatewayHealth(opts = {}) {
-  if (_gwHealthInFlight) return;
-  _gwHealthInFlight = true;
-  try {
-    const timeoutMsRaw = Number(opts?.timeoutMs ?? 0);
-    const timeoutMs =
-      Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0
-        ? Math.min(Math.floor(timeoutMsRaw), 30_000)
-        : 2500;
+  const timeoutMsRaw = Number(opts?.timeoutMs ?? 0);
+  const timeoutMs =
+    Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0
+      ? Math.min(Math.floor(timeoutMsRaw), 30_000)
+      : 2500;
 
-    // Pull the current whitelisted gateways list and prefetch /pq/pub so PQ calls can skip dead bases quickly.
-    const { gateways } = await fetchGatewaysFromRest(250, Math.max(timeoutMs, 6000), {
-      ignoreWhitelist: false,
-    });
-    if (!Array.isArray(gateways) || !gateways.length) return;
+  // Pull the current whitelisted gateways list and prefetch /pq/pub so PQ calls can skip dead bases quickly.
+  const { gateways } = await fetchGatewaysFromRest(250, Math.max(timeoutMs, 6000), {
+    ignoreWhitelist: false,
+  });
+  if (!Array.isArray(gateways) || !gateways.length) return;
 
-    const nextInactiveGatewayHints = new Set();
-    for (const gateway of gateways) {
-      const hints = [gateway.endpoint, gateway.baseUrl, gateway.url];
-      for (const hint of hints) {
-        const normalized = trimSlash(String(hint || '').trim()).toLowerCase();
-        if (!normalized) continue;
-        if (gateway && gateway.active === false) {
-          nextInactiveGatewayHints.add(normalized);
-        }
-        if (/^https?:\/\//i.test(normalized) && gateway && gateway.active === false) {
-          KYBER_PUBKEY_CACHE.set(trimSlash(normalized), {
-            ok: false,
-            checkedAt: Date.now(),
-            error: 'gateway_inactive',
-          });
-        } else if (/^https?:\/\//i.test(normalized)) {
-          const cached = KYBER_PUBKEY_CACHE.get(trimSlash(normalized));
-          if (cached && cached.ok === false && cached.error === 'gateway_inactive') {
-            KYBER_PUBKEY_CACHE.delete(trimSlash(normalized));
-          }
+  const nextInactiveGatewayHints = new Set();
+  for (const gateway of gateways) {
+    const hints = [gateway.endpoint, gateway.baseUrl, gateway.url];
+    for (const hint of hints) {
+      const normalized = trimSlash(String(hint || '').trim()).toLowerCase();
+      if (!normalized) continue;
+      if (gateway && gateway.active === false) {
+        nextInactiveGatewayHints.add(normalized);
+      }
+      if (/^https?:\/\//i.test(normalized) && gateway && gateway.active === false) {
+        KYBER_PUBKEY_CACHE.set(trimSlash(normalized), {
+          ok: false,
+          checkedAt: Date.now(),
+          error: 'gateway_inactive',
+        });
+      } else if (/^https?:\/\//i.test(normalized)) {
+        const cached = KYBER_PUBKEY_CACHE.get(trimSlash(normalized));
+        if (cached && cached.ok === false && cached.error === 'gateway_inactive') {
+          KYBER_PUBKEY_CACHE.delete(trimSlash(normalized));
         }
       }
     }
-    INACTIVE_GATEWAY_HINTS.clear();
-    for (const hint of nextInactiveGatewayHints) INACTIVE_GATEWAY_HINTS.add(hint);
-
-    const activeGateways = gateways.filter((gateway) => gateway && gateway.active !== false);
-    if (!activeGateways.length) return;
-
-    const endpoints = Array.from(
-      new Set(
-        activeGateways
-          .map((g) => String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? '').trim())
-          .filter(Boolean),
-      ),
-    );
-    if (!endpoints.length) return;
-
-    await mapWithConcurrency(endpoints, 4, async (endpoint) => {
-      const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        await resolveKyberKeyForGatewayBase(endpoint, {
-          quiet: true,
-          timeoutMs,
-          signal: controller.signal,
-        });
-      } catch {
-        // ignore: resolveKyberKeyForGatewayBase caches negative results
-      } finally {
-        try { clearTimeout(t); } catch {}
-      }
-    });
-  } finally {
-    _gwHealthInFlight = false;
   }
+  INACTIVE_GATEWAY_HINTS.clear();
+  for (const hint of nextInactiveGatewayHints) INACTIVE_GATEWAY_HINTS.add(hint);
+
+  const activeGateways = gateways.filter((gateway) => gateway && gateway.active !== false);
+  if (!activeGateways.length) return;
+
+  const endpoints = Array.from(
+    new Set(
+      activeGateways
+        .map((g) => String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? '').trim())
+        .filter(Boolean),
+    ),
+  );
+  if (!endpoints.length) return;
+
+  await mapWithConcurrency(endpoints, 4, async (endpoint) => {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      await resolveKyberKeyForGatewayBase(endpoint, {
+        quiet: true,
+        timeoutMs,
+        signal: controller.signal,
+      });
+    } catch {
+      // ignore: resolveKyberKeyForGatewayBase caches negative results
+    } finally {
+      try { clearTimeout(t); } catch {}
+    }
+  });
 }
 
-function startGatewayHealthMonitor() {
-  if (!gatewayHealthMonitorEnabled()) return;
-  if (_gwHealthInterval) return;
-
-  const periodMsRaw = Number(process.env.LUMEN_GATEWAY_HEALTH_MONITOR_PERIOD_MS || '');
-  const periodMs =
-    Number.isFinite(periodMsRaw) && periodMsRaw > 0
-      ? Math.max(60_000, Math.floor(periodMsRaw))
-      : 10 * 60 * 1000;
-
-  // Kick once shortly after startup, then keep refreshing.
-  setTimeout(() => {
-    void refreshWhitelistedGatewayHealth().catch(() => {});
-  }, 2500);
-
-  _gwHealthInterval = setInterval(() => {
-    void refreshWhitelistedGatewayHealth().catch(() => {});
-  }, periodMs);
-  // Never cleared, so unref'd: it must not hold the process open or fire once
-  // the windows are gone.
-  _gwHealthInterval.unref?.();
+function gatewayHealthPeriodMs() {
+  const raw = Number(process.env.LUMEN_GATEWAY_HEALTH_MONITOR_PERIOD_MS || '');
+  return Number.isFinite(raw) && raw > 0 ? Math.max(60_000, Math.floor(raw)) : 10 * 60 * 1000;
 }
 
 function normalizePlan(raw, gateway, fallbackIndex) {
@@ -3143,9 +3119,6 @@ function registerGatewayIpc() {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
-
-  // Best-effort: keep a warm cache of PQ public keys so PQ operations can skip dead gateways quickly.
-  startGatewayHealthMonitor();
 }
 
 module.exports = {
@@ -3156,4 +3129,9 @@ module.exports = {
   loadProfilesFile,
   loadMnemonic,
   getWalletAddressForProfile,
+  // Driven by daemons/index.cjs: a warm cache of PQ public keys lets the PQ
+  // calls skip dead gateways quickly.
+  refreshWhitelistedGatewayHealth,
+  gatewayHealthMonitorEnabled,
+  gatewayHealthPeriodMs,
 };

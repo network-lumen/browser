@@ -145,9 +145,6 @@ class PeerPool {
     this.networkChainId = null;
     this.lastOnChainRefreshAt = 0;
     this.validators = [];
-    this._healthTimer = null;
-    this._refreshTimer = null;
-    this._started = false;
     this._refreshRunning = false;
   }
 
@@ -284,7 +281,6 @@ class PeerPool {
   }
 
   async requestOnPeer(kind, peer, path, options = {}) {
-    this.start();
     const p = peer && typeof peer === 'object' ? peer : this.getPeerByRpc(peer);
     if (!p) return { ok: false, status: 0, error: 'peer_missing' };
     const base = kind === 'rest' ? p.rest : p.rpc;
@@ -340,36 +336,6 @@ class PeerPool {
     return pickRandom(nonDead, 1)[0] || null;
   }
 
-  start() {
-    if (this._started) return;
-    this._started = true;
-
-    // Kick off health loop quickly, then periodically.
-    this._scheduleHealth(250);
-    this._scheduleOnChainRefresh(1_000);
-  }
-
-  _scheduleHealth(delayMs) {
-    if (!this._started) return;
-    if (this._healthTimer) clearTimeout(this._healthTimer);
-    this._healthTimer = setTimeout(() => {
-      this._healthTick().catch(() => {});
-      this._scheduleHealth(10_000);
-    }, clampInt(delayMs, 50, 60_000));
-    // Nothing stops this loop, so it must not be able to hold the process open
-    // or fire once the windows are gone.
-    this._healthTimer.unref?.();
-  }
-
-  _scheduleOnChainRefresh(delayMs) {
-    if (!this._started) return;
-    if (this._refreshTimer) clearTimeout(this._refreshTimer);
-    this._refreshTimer = setTimeout(() => {
-      this.refreshFromOnChain().catch(() => {});
-      this._scheduleOnChainRefresh(this.opts.onChainRefreshMs);
-    }, clampInt(delayMs, 200, this.opts.onChainRefreshMs));
-    this._refreshTimer.unref?.();
-  }
 
   _isAlive(peer, now) {
     if (peer.deathUntil > now) return false;
@@ -393,7 +359,7 @@ class PeerPool {
     }
   }
 
-  async _healthTick() {
+  async healthTick() {
     const now = Date.now();
     this._resurrectExpired(now);
 
@@ -470,7 +436,6 @@ class PeerPool {
     if (this._refreshRunning) return { ok: false, skipped: true };
     this._refreshRunning = true;
     try {
-      this.start();
 
       // Pick a REST peer even if it's stale (it might still be fine); we don't want to deadlock on staleness.
       const now = Date.now();

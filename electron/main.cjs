@@ -152,7 +152,7 @@ const {
 registerSiteSchemePrivileges();
 const { registerHttpIpc, registerExtensionNetworkRequestGuard } = require('./ipc/http.cjs');
 const { createSplashWindow, createMainWindow, getMainWindow, getSplashWindow } = require('./windows.cjs');
-const { registerChainIpc, startChainPoller, stopChainPoller } = require('./ipc/chain.cjs');
+const { registerChainIpc } = require('./ipc/chain.cjs');
 const { registerNetworkIpc } = require('./ipc/network.cjs');
 const { registerIpfsIpc } = require('./ipc/ipfs.cjs');
 const { registerReleaseIpc } = require('./ipc/release.cjs');
@@ -170,7 +170,7 @@ const { registerExtensionsIpc } = require('./ipc/extensions.cjs');
 const { extensionManager } = require('./extensions/manager.cjs');
 const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./lumen_site_permissions.cjs');
 const siteData = require('./site_data.cjs');
-const { startReleaseWatcher, stopReleaseWatcher } = require('./services/release_watcher.cjs');
+const { startDaemons, stopDaemons } = require('./daemons/index.cjs');
 const { recordLaunchStart, markGracefulExit } = require('./services/startup_health.cjs');
 
 registerChainIpc();
@@ -2127,8 +2127,7 @@ app.whenReady().then(async () => {
   }
 
   createSplashWindow();
-  startChainPoller();
-  startReleaseWatcher();
+  startDaemons();
 
   const allowDevtools = !app.isPackaged || String(process.env.DEBUG_LUMEN_ELECTRON || '') === '1';
 
@@ -2162,14 +2161,16 @@ app.whenReady().then(async () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    try { stopChainPoller(); } catch {}
-    try { stopReleaseWatcher(); } catch {}
+    try { stopDaemons(); } catch {}
     try { stopIpfsDaemon(); } catch {}
     app.quit();
   }
 });
 
 app.on('before-quit', () => {
+  // Also here, not only in window-all-closed: on macOS a quit does not go
+  // through that handler, and stopDaemons is idempotent.
+  try { stopDaemons(); } catch {}
   try {
     markGracefulExit().catch(() => {});
   } catch {}
