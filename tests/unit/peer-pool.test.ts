@@ -92,6 +92,24 @@ describe('marking a peer', () => {
     expect(pool.listPeers()).toHaveLength(1);
   });
 
+  it('stops offering a suspect peer while a clean one is available', () => {
+    // readState marks the peer that disagreed on height and then comes back
+    // here for its next read - if this ignored the mark, it would hand the
+    // same peer straight back.
+    const pool = poolWith(2);
+    pool.markSuspect('https://rpc1.test', 60_000);
+    const picked = pool.pickPeers('rpc', 1, { requireAlive: false });
+    expect(picked.map((p: any) => p.rpc)).toEqual(['https://rpc2.test']);
+  });
+
+  it('offers a suspect peer anyway rather than nothing at all', () => {
+    // A chain upgrade can have every peer diverging for a minute. Unusable is
+    // worse than suspect.
+    const pool = poolWith(1);
+    pool.markSuspect('https://rpc1.test', 60_000);
+    expect(pool.pickPeers('rpc', 1, { requireAlive: false })).toHaveLength(1);
+  });
+
   it('holds a suspect mark forward, never shortening one already set', () => {
     // Two failures in a row must not let the second, shorter penalty undo the
     // first: the peer stays out for the longer of the two.
