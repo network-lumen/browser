@@ -4,7 +4,7 @@
 // and pushed to every window when the height moves. The rpc:getHeight handler
 // in ipc/chain.cjs reads the same state rather than polling on its own.
 const { BrowserWindow } = require('electron');
-const { readState } = require('../network/network_middleware.cjs');
+const { readState } = require('../chain/client.cjs');
 
 const chainState = {
   rpcBase: null,
