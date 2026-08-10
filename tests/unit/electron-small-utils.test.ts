@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { stubElectron } from './support/electronStub';
 
 /**
@@ -169,10 +169,26 @@ describe('clampInt, sleep and pickRandom', () => {
     }
   });
 
-  it('waits, without pretending to be precise', async () => {
-    const start = Date.now();
-    await sleep(20);
-    expect(Date.now() - start).toBeGreaterThanOrEqual(15);
+  it('waits for a timer rather than resolving straight away', async () => {
+    // Fake timers, not a wall-clock comparison: a 20ms sleep measured against a
+    // 15ms floor is a coin toss on a loaded machine, and the property worth
+    // asserting is that it waits at all, not how accurately.
+    vi.useFakeTimers();
+    try {
+      let done = false;
+      const pending = sleep(1000).then(() => {
+        done = true;
+      });
+
+      await vi.advanceTimersByTimeAsync(999);
+      expect(done).toBe(false);
+
+      await vi.advanceTimersByTimeAsync(1);
+      await pending;
+      expect(done).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('samples without repeating, and never more than it was given', () => {

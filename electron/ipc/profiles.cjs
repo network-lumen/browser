@@ -1,7 +1,7 @@
 const { ipcMain, dialog, nativeImage } = require('electron');
 const fs = require('fs');
 const path = require('path');
-const { userDataPath, readJson, writeJson, ensureDir } = require('../utils/fs.cjs');
+const { userDataPath, readJson, writeJson, ensureDir, writeFileAtomic } = require('../utils/fs.cjs');
 const { encryptMnemonicLocal, decryptMnemonicLocal, encryptWithPassword, decryptWithPassword, isPasswordProtected } = require('../utils/crypto.cjs');
 const {
   Bip39,
@@ -111,11 +111,11 @@ function writePqcKeysAfterMerge(keys, encrypted, password) {
   if (encrypted) {
     const encryptedObj = encryptWithPassword(JSON.stringify(keys || {}), password);
     encryptedObj._encrypted = true;
-    fs.writeFileSync(keysFile, JSON.stringify(encryptedObj, null, 2), 'utf8');
+    writeFileAtomic(keysFile, JSON.stringify(encryptedObj, null, 2));
     return;
   }
 
-  fs.writeFileSync(keysFile, JSON.stringify(keys || {}, null, 2), 'utf8');
+  writeFileAtomic(keysFile, JSON.stringify(keys || {}, null, 2));
 }
 
 function loadProfilesFile() {
@@ -163,7 +163,7 @@ function persistProfileMetadata(profileId, updates) {
         updated[key] = value;
       }
     }
-    fs.writeFileSync(fp, JSON.stringify(updated, null, 2), 'utf8');
+    writeFileAtomic(fp, JSON.stringify(updated, null, 2));
   } catch (e) {
     console.warn('[profiles] failed to persist profile metadata', id, e?.message || e);
   }
@@ -353,7 +353,7 @@ async function ensureWalletForProfile(profile) {
 
     ensureDir(profileDir(id));
     const ks = encryptMnemonicLocal(w.mnemonic);
-    fs.writeFileSync(keystorePath(id), JSON.stringify(ks, null, 2), 'utf8');
+    writeFileAtomic(keystorePath(id), JSON.stringify(ks, null, 2));
 
     const profileRecord = {
       id: profile.id,
@@ -365,7 +365,7 @@ async function ensureWalletForProfile(profile) {
     if (avatarDataUrl) {
       profileRecord.avatarDataUrl = avatarDataUrl;
     }
-    fs.writeFileSync(profileJsonPath(id), JSON.stringify(profileRecord, null, 2), 'utf8');
+    writeFileAtomic(profileJsonPath(id), JSON.stringify(profileRecord, null, 2));
 
     return { ok: true, created: true, address: w.address };
   } catch (e) {
@@ -702,7 +702,7 @@ function importOneBackupObject(imported, profiles, passwordOverride) {
 
     ensureDir(pqcKeysDir());
     writePqcKeysAfterMerge(nextKeys, readRes.encrypted, effectivePassword);
-    fs.writeFileSync(linksFile, JSON.stringify(links, null, 2), 'utf8');
+    writeFileAtomic(linksFile, JSON.stringify(links, null, 2));
 
     // Best-effort verification (helps debug cases where links exist but the key isn't persisted).
     try {
@@ -719,7 +719,7 @@ function importOneBackupObject(imported, profiles, passwordOverride) {
       const ks = encryptMnemonicLocal(m);
       const dstDir = profileDir(id);
       ensureDir(dstDir);
-      fs.writeFileSync(keystorePath(id), JSON.stringify(ks, null, 2), 'utf8');
+      writeFileAtomic(keystorePath(id), JSON.stringify(ks, null, 2));
 
       const meta = {
         id,
@@ -730,11 +730,8 @@ function importOneBackupObject(imported, profiles, passwordOverride) {
       if (avatarDataUrl) {
         meta.avatarDataUrl = avatarDataUrl;
       }
-      fs.writeFileSync(
-        path.join(dstDir, 'profile.json'),
-        JSON.stringify(meta, null, 2),
-        'utf8'
-      );
+      writeFileAtomic(path.join(dstDir, 'profile.json'),
+        JSON.stringify(meta, null, 2));
     }
   } catch {}
 
@@ -1119,10 +1116,10 @@ ipcMain.handle('profiles:getFavourites', async () => {
         encryptedBackup.profileName = p.name; // Store name in clear for identification
         encryptedBackup.profileId = p.id;
         backupPath = path.join(baseDir, 'profile.encrypted.json');
-        fs.writeFileSync(backupPath, JSON.stringify(encryptedBackup, null, 2), 'utf8');
+        writeFileAtomic(backupPath, JSON.stringify(encryptedBackup, null, 2));
       } else {
         backupPath = path.join(baseDir, 'profile.json');
-        fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
+        writeFileAtomic(backupPath, JSON.stringify(backup, null, 2));
       }
 
       console.log('[exportBackup] Backup created successfully:', backupPath);
@@ -1182,7 +1179,7 @@ ipcMain.handle('profiles:getFavourites', async () => {
           const built = buildProfileBackupObject(p);
           const backup = built && built.backup ? built.backup : null;
           if (!backup) throw new Error('backup_failed');
-          fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
+          writeFileAtomic(backupPath, JSON.stringify(backup, null, 2));
 
           results.push({ id: p.id, ok: true, path: backupPath });
         } catch (e) {
@@ -1552,7 +1549,7 @@ ipcMain.handle('profiles:getFavourites', async () => {
       if (targetAddr && links && typeof links === 'object') {
         delete links[targetAddr];
         ensureDir(pqcKeysDir());
-        fs.writeFileSync(linksPath, JSON.stringify(links, null, 2), 'utf8');
+        writeFileAtomic(linksPath, JSON.stringify(links, null, 2));
       }
 
       const candidateNames = Array.from(

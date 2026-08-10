@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
+const { writeFileAtomic } = require('./utils/fs.cjs');
 
 const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 15 * 60 * 1000;
 const BYTES_PER_GIB = 1024 * 1024 * 1024;
@@ -122,7 +123,7 @@ function persistSettingsToDisk(next) {
   const fp = settingsPath();
   try {
     fs.mkdirSync(path.dirname(fp), { recursive: true });
-    fs.writeFileSync(fp, JSON.stringify(next, null, 2), 'utf8');
+    writeFileAtomic(fp, JSON.stringify(next, null, 2));
   } catch (e) {
     console.warn('[electron][settings] failed to persist settings:', e);
   }
@@ -349,7 +350,7 @@ function saveGateways(gateways) {
   const fp = gatewaysPath();
   try {
     fs.mkdirSync(path.dirname(fp), { recursive: true });
-    fs.writeFileSync(fp, JSON.stringify(gateways, null, 2), 'utf8');
+    writeFileAtomic(fp, JSON.stringify(gateways, null, 2));
     return { ok: true };
   } catch (e) {
     console.warn('[electron][settings] failed to save gateways:', e);
@@ -490,7 +491,7 @@ function savePrivateCloudConfig(config) {
     console.log('[electron][settings] saving config:', toSave);
     
     fs.mkdirSync(path.dirname(fp), { recursive: true });
-    fs.writeFileSync(fp, JSON.stringify(toSave, null, 2), 'utf8');
+    writeFileAtomic(fp, JSON.stringify(toSave, null, 2));
     
     console.log('[electron][settings] config saved successfully');
     return { ok: true };
