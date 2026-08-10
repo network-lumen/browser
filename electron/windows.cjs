@@ -157,7 +157,49 @@ function getSplashWindow() {
   return splashWindow;
 }
 
+/**
+ * The BrowserWindow a webContents belongs to, including a <webview>'s host.
+ *
+ * Falls back to the main window rather than null: every caller wants a window
+ * to act on, and "no window at all" is not a state the app runs in.
+ */
+function browserWindowForWebContents(contents) {
+  const fromContents = (target) => {
+    if (!target) return null;
+    try {
+      if (typeof target.getOwnerBrowserWindow === 'function') {
+        const owner = target.getOwnerBrowserWindow();
+        if (owner && !owner.isDestroyed?.()) return owner;
+      }
+    } catch {}
+    try {
+      const owner = BrowserWindow.fromWebContents(target);
+      if (owner && !owner.isDestroyed?.()) return owner;
+    } catch {}
+    return null;
+  };
+
+  const direct = fromContents(contents);
+  if (direct) return direct;
+
+  try {
+    const host = typeof contents?.hostWebContents === 'function'
+      ? contents.hostWebContents()
+      : contents?.hostWebContents;
+    const owner = fromContents(host);
+    if (owner) return owner;
+  } catch {}
+
+  return (
+    getMainWindow() ||
+    BrowserWindow.getFocusedWindow() ||
+    BrowserWindow.getAllWindows()[0] ||
+    null
+  );
+}
+
 module.exports = {
+  browserWindowForWebContents,
   createSplashWindow,
   createMainWindow,
   getMainWindow,
