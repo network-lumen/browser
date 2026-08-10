@@ -256,11 +256,25 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record, label) {
     powNonce
   });
 
-  const res = await runWithRpcRetry(
-    () =>
-      signAndBroadcastViaPool(client, address, [msg], zeroFee(), '', 'pqc_link_broadcast_failed'),
-    label ? `pqc_link:${label}` : 'pqc_link'
-  );
+  let res;
+  try {
+    res = await runWithRpcRetry(
+      () =>
+        signAndBroadcastViaPool(client, address, [msg], zeroFee(), '', 'pqc_link_broadcast_failed'),
+      label ? `pqc_link:${label}` : 'pqc_link'
+    );
+  } catch (e) {
+    // "Indexing is disabled" says the peer could not read the transaction
+    // back, not that the chain refused it - and the link is the one thing we
+    // can check another way, by asking for the record itself. Without this,
+    // the first transaction from a new wallet fails whenever the confirming
+    // peer has indexing off, while the link it just paid for is on-chain: the
+    // account is linked, the message never gets sent, and the user is told it
+    // failed. Seen on the live network.
+    if (!/transaction indexing is disabled/i.test(String(e && e.message ? e.message : e))) throw e;
+    if (!(await waitForPqcLinkCommit(address))) throw e;
+    return true;
+  }
   if (res.code !== 0) {
     throw new Error(res.rawLog || `link-account PQC failed (code ${res.code})`);
   }

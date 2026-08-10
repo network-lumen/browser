@@ -80,7 +80,10 @@ export type LaunchedApp = {
  *   another's result. Reused across runs on purpose: a first boot initialises a
  *   Kubo repository, which is slow.
  */
-export async function launchApp(name = 'default', opts: { fresh?: boolean } = {}): Promise<LaunchedApp> {
+export async function launchApp(
+  name = 'default',
+  opts: { fresh?: boolean; env?: Record<string, string> } = {}
+): Promise<LaunchedApp> {
   const profileDir = join(tmpdir(), `lumen-e2e-${name}`);
   if (opts.fresh) rmSync(profileDir, { recursive: true, force: true });
   mkdirSync(profileDir, { recursive: true });
@@ -98,7 +101,8 @@ export async function launchApp(name = 'default', opts: { fresh?: boolean } = {}
       ...env,
       LUMEN_USER_DATA_DIR: profileDir,
       VITE_DEV_SERVER_URL: 'http://127.0.0.1:5173',
-      LUMEN_GATEWAY_HEALTH_MONITOR: '0'
+      LUMEN_GATEWAY_HEALTH_MONITOR: '0',
+      ...(opts.env || {})
     }
   });
 
@@ -159,6 +163,31 @@ export async function evalInApp<R, A>(
       if (Date.now() > deadline) throw e;
     }
   }
+}
+
+/**
+ * Runs something in the app exactly once, whatever happens to the window.
+ *
+ * `evalInApp` retries when the page under it is replaced, which is right for a
+ * question and wrong for an instruction: an IPC call that already reached the
+ * main process is not undone by the page that made it going away. Retrying one
+ * sends it twice - measured on the real chain, where a transfer the harness
+ * thought had failed had in fact gone out, and the retry sent it again.
+ *
+ * Anything that writes - a transfer, a profile import - goes through here, and
+ * a window that dies mid-call is a failure to be reported, not to be papered
+ * over: only the caller knows whether repeating it is safe.
+ */
+export async function evalInAppOnce<R, A>(
+  app: ElectronApplication,
+  fn: (arg: A) => R | Promise<R>,
+  arg?: A
+): Promise<R> {
+  const w = await appWindow(app);
+  await w.waitForFunction(() => typeof (window as any).lumen === 'object', null, {
+    timeout: 30_000
+  });
+  return (await w.evaluate(fn as never, arg as never)) as R;
 }
 
 /**
