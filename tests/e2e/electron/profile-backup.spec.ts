@@ -2,7 +2,7 @@ import { test, expect, type ElectronApplication } from '@playwright/test';
 import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { launchApp, evalInApp, NO_DISPLAY, NO_DISPLAY_REASON } from './support/launch';
+import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, launchApp } from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
 test.describe.configure({ mode: 'serial' });
@@ -35,7 +35,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await app?.close().catch(() => {});
+  await closeApp(app);
   rmSync(backupDir, { recursive: true, force: true });
 });
 

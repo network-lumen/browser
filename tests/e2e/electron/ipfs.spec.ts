@@ -1,5 +1,5 @@
 import { test, expect, type ElectronApplication, type Page } from '@playwright/test';
-import { launchApp, windowWithBridge, evalInApp, NO_DISPLAY, NO_DISPLAY_REASON } from './support/launch';
+import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, launchApp, windowWithBridge } from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
 test.describe.configure({ mode: 'serial' });
@@ -47,7 +47,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await app?.close().catch(() => {});
+  await closeApp(app);
 });
 
 const addText = (page: Page, text: string, name: string) =>

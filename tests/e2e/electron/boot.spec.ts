@@ -1,11 +1,5 @@
 import { test, expect, type ElectronApplication } from '@playwright/test';
-import {
-  launchApp,
-  liveWindow,
-  windowWithBridge,
-  NO_DISPLAY,
-  NO_DISPLAY_REASON
-} from './support/launch';
+import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, launchApp, liveWindow, windowWithBridge } from './support/launch';
 
 /**
  * Booting the real thing.
@@ -33,7 +27,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await app?.close().catch(() => {});
+  await closeApp(app);
 });
 
 test('opens a window', async () => {

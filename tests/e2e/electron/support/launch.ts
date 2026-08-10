@@ -110,8 +110,57 @@ export async function launchApp(
   app.process().stdout?.on('data', (d) => chunks.push(String(d)));
   app.process().stderr?.on('data', (d) => chunks.push(String(d)));
 
+  // Anything that reads like the app falling over goes straight to the run's
+  // output. A failure here is a window that never appeared or a process that
+  // never quit, and the reason is always in the app's own log - which was
+  // captured and then never printed, so a red CI run said what happened and
+  // never why. Filtered rather than echoed whole: a full boot is thousands of
+  // lines of renderer console.
+  const shout = (d: unknown) => {
+    for (const line of String(d).split('\n')) {
+      if (/\b(FATAL|sandbox|crashed|EADDRINUSE|Unable to load preload|uncaught|unhandled)\b/i.test(line)) {
+        console.error(`[app:${name}] ${line.trim()}`);
+      }
+    }
+  };
+  app.process().stdout?.on('data', shout);
+  app.process().stderr?.on('data', shout);
+
   await app.firstWindow({ timeout: LAUNCH_TIMEOUT });
   return { app, output: () => chunks.join(''), profileDir, ports: portsFor(name) };
+}
+
+/**
+ * Closes the app, and stops waiting if it will not go.
+ *
+ * `app.close()` resolves when the process exits, and the process does not exit
+ * while the Kubo daemon it started is still shutting down. On a cold CI profile
+ * that outlasted the 240s hook budget and failed a run whose 64 tests had all
+ * passed - and `.catch()` on it never fired, because the promise does not
+ * reject, it simply never settles.
+ *
+ * The grace period is long enough that a healthy shutdown always wins, so on a
+ * developer's machine nothing changes and no Kubo process is ever orphaned
+ * holding a repository lock. Past it, the test is over and what matters is that
+ * the process is gone.
+ */
+export async function closeApp(app: ElectronApplication | null | undefined, graceMs = 20_000) {
+  if (!app) return;
+  let timer: NodeJS.Timeout | undefined;
+  const gaveUp = new Promise<void>((resolve) => {
+    timer = setTimeout(resolve, graceMs);
+  });
+  try {
+    await Promise.race([app.close().catch(() => {}), gaveUp]);
+  } finally {
+    clearTimeout(timer);
+  }
+  try {
+    const proc = app.process();
+    if (proc && proc.exitCode === null && proc.pid) proc.kill('SIGKILL');
+  } catch {
+    // Already gone, which is the outcome we wanted.
+  }
 }
 
 /**

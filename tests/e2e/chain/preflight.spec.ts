@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { chainWallet } from '../electron/support/env';
-import { LAUNCH_TIMEOUT, NO_DISPLAY, NO_DISPLAY_REASON } from '../electron/support/launch';
+import { LAUNCH_TIMEOUT, NO_DISPLAY, NO_DISPLAY_REASON, closeApp } from '../electron/support/launch';
 import { balanceUlmn, importWallet, launchChainApp, pqcParams, toLmn } from './support/wallet';
 
 /**
@@ -30,7 +30,7 @@ test.describe('chain preflight', () => {
       // then fund one address and spend from another.
       expect(res.walletAddress).toBe(w.address);
     } finally {
-      await app.close();
+      await closeApp(app);
     }
   });
 
@@ -43,7 +43,7 @@ test.describe('chain preflight', () => {
       test.skip(ulmn === 0, `not funded yet: send LMN to ${w.address}`);
       expect(ulmn).toBeGreaterThan(0);
     } finally {
-      await app.close();
+      await closeApp(app);
     }
   });
 
@@ -57,7 +57,7 @@ test.describe('chain preflight', () => {
       // The spending tests size their transfers from them.
       console.log('pqc params', JSON.stringify(res.data?.params ?? {}));
     } finally {
-      await app.close();
+      await closeApp(app);
     }
   });
 });
