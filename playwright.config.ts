@@ -9,7 +9,9 @@ export default defineConfig({
   // IPC - which is the only thing that can say the app still boots.
   projects: [
     { name: 'renderer', testDir: 'tests/e2e', testIgnore: '**/electron/**' },
-    { name: 'electron', testDir: 'tests/e2e/electron', timeout: 120_000 }
+    // One at a time: each spec launches a full app with its own IPFS daemon, and
+    // three of those at once is heavier than the machine's patience.
+    { name: 'electron', testDir: 'tests/e2e/electron', timeout: 240_000, workers: 1 }
   ],
   expect: {
     timeout: 5_000,
