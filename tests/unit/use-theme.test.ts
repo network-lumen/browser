@@ -36,7 +36,7 @@ afterEach(() => {
   document.documentElement.className = '';
 });
 
-const rootClasses = () => [...document.documentElement.classList];
+const rootClasses = () => Array.from(document.documentElement.classList);
 
 describe('setTheme', () => {
   it('puts light on no class at all, which is the default stylesheet', () => {

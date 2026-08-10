@@ -64,12 +64,15 @@ describe('defineDaemon', () => {
   it('does not stack a tick on top of one still running', async () => {
     vi.useFakeTimers();
     let started = 0;
-    let release: (() => void) | null = null;
+    // Held in an object rather than a `let`: TypeScript cannot see that the
+    // executor below runs, so it narrows a plain binding to `null` and the
+    // call at the end of the test stops type-checking.
+    const pending: { release: (() => void) | null } = { release: null };
     const d = tickingDaemon(
       () =>
         new Promise<void>((resolve) => {
           started += 1;
-          release = resolve;
+          pending.release = resolve;
         })
     );
 
@@ -81,7 +84,7 @@ describe('defineDaemon', () => {
     await vi.advanceTimersByTimeAsync(5_000);
     expect(started).toBe(1);
 
-    release?.();
+    pending.release?.();
     d.stop();
   });
 

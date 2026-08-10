@@ -172,9 +172,9 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import { avatarToneStyle, describeFavouriteUrl } from "../favouriteMeta";
-import { FavouriteEntry, useFavourites } from "../favouritesStore";
-import { useHistory } from "../historyStore";
-import { profilesState } from "../profilesStore";
+import { FavouriteEntry, useFavourites } from "../../stores/favouritesStore";
+import { useHistory } from "../../stores/historyStore";
+import { profilesState } from "../../stores/profilesStore";
 import { normalizeAddressInput } from "../navigationUrl";
 import type { ShortcutDraft, ShortcutModalMode } from "../../types/newTabPage";
 import ShortcutEditorDialog from "../../dialogs/ShortcutEditorDialog.vue";

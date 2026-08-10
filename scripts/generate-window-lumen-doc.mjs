@@ -73,7 +73,7 @@ function typeTextOf(tag, sourceFile) {
  * us the whole `{code} description` string as one blob in `tag.comment`.
  * Split it back into `{code, description}` ourselves.
  */
-function parseErrorTag(tag, sourceFile) {
+function parseErrorTag(tag, _sourceFile) {
   const raw = collapseWhitespace(ts.getTextOfJSDocComment(tag.comment) || '');
   const match = /^\{([^}]*)\}\s*-?\s*([\s\S]*)$/.exec(raw);
   if (match) {

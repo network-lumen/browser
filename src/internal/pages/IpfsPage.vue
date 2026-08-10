@@ -280,7 +280,7 @@ import {
   probeUrl,
   resolveStableLinkTarget,
 } from "../services/contentResolver";
-import { activeProfileId } from "../profilesStore";
+import { activeProfileId } from "../../stores/profilesStore";
 import { formatBytes } from "../services/format";
 import { downloadBytes } from "../services/download";
 import { installExtensionFromChromeWebStore } from "../services/extensions";

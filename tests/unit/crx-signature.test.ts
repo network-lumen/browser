@@ -1,4 +1,4 @@
-import { createPublicKey, createSign, generateKeyPairSync } from 'node:crypto';
+import { createSign, generateKeyPairSync } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { stubElectron } from './support/electronStub';
 

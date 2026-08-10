@@ -59,8 +59,8 @@ import UiCountPill from '../ui/UiCountPill.vue';
 import UiNoticeCard from '../ui/UiNoticeCard.vue';
  import { computed } from 'vue';
  import { X } from 'lucide-vue-next';
- import { profilesState, activeProfileId } from '../internal/profilesStore';
- import { useFavourites } from '../internal/favouritesStore';
+ import { profilesState, activeProfileId } from '../stores/profilesStore';
+ import { useFavourites } from '../stores/favouritesStore';
  import { avatarToneStyle, describeFavouriteUrl } from '../internal/favouriteMeta';
 
 import ActiveProfileCard from './ActiveProfileCard.vue';

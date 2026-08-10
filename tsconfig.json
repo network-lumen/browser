@@ -9,9 +9,21 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "lib": ["ESNext", "DOM"],
-    "types": ["node"]
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "skipLibCheck": true
   },
-  "include": ["src/**/*", "electron/**/*"]
+  "//": [
+    "skipLibCheck is on because vitest 1.x nests its own Vite 5 while the app builds",
+    "on Vite 6; the two ship incompatible declarations for the same types, and",
+    "checking them proves nothing about this codebase.",
+    "electron/ is deliberately absent: it is CommonJS .cjs and allowJs is off, so",
+    "listing it here type-checked nothing while suggesting it did. The main process",
+    "is covered by the eslint block in eslint.config.mjs instead.",
+    "tests/ and scripts/ are present because they were checked by nothing at all -",
+    "vitest transpiles without type-checking, so a broken type in a test only",
+    "surfaced when the test ran."
+  ],
+  "include": ["src/**/*", "tests/**/*", "scripts/**/*"]
 }
 

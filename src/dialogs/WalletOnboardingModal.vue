@@ -189,7 +189,7 @@ import UiBanner from '../ui/UiBanner.vue';
 import UiWarningBox from '../ui/UiWarningBox.vue';
 import UiCenteredInfoCard from '../ui/UiCenteredInfoCard.vue';
 import UiIconBadge from '../ui/UiIconBadge.vue';
-import { activeProfileId, createProfile, initProfiles, profilesState } from '../internal/profilesStore';
+import { activeProfileId, createProfile, initProfiles, profilesState } from '../stores/profilesStore';
 import { useInternalLumen } from '../composables/useInternalLumen';
 import type { OnboardingStep } from '../types/walletOnboardingModal';
 

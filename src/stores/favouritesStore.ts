@@ -1,9 +1,9 @@
 import { computed, ref } from "vue";
 import { activeProfileId } from "./profilesStore";
-import { canonicalizeLumenUrl, isLumenUrl } from "./navigationUrl";
+import { canonicalizeLumenUrl, isLumenUrl } from "../internal/navigationUrl";
 import type { FavouriteEntry, FavMap } from "../types/favourites";
-import { STORAGE_KEYS, readJson, writeJson } from "./services/storage";
-import { clamp } from "./services/coerce";
+import { STORAGE_KEYS, readJson, writeJson } from "../internal/services/storage";
+import { clamp } from "../internal/services/coerce";
 
 export type { FavouriteEntry };
 

@@ -72,7 +72,6 @@ function loadPreload(file: string, href: string) {
   const originalLoad = (Module as any)._load;
   (Module as any)._load = function (request: string) {
     if (request === 'electron') return electron;
-    // eslint-disable-next-line prefer-rest-params
     return originalLoad.apply(this, arguments as any);
   };
 

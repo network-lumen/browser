@@ -1,4 +1,4 @@
-import { activeProfileId } from "../profilesStore";
+import { activeProfileId } from "../../stores/profilesStore";
 import { checkIpfsStatus } from "./ipfs";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import type { UploadActivity, UploadPathResult, DriveFile } from "../../types/upload";

@@ -11,8 +11,10 @@ import { fetchKeybaseAvatarUrl } from '../../src/internal/services/keybase';
  * error.
  */
 
+// Declares the args so `spy.mock.calls[0][0]` is the requested URL and not an
+// out-of-range index on an empty tuple.
 function mockFetch(impl: () => unknown) {
-  const spy = vi.fn(async () => impl() as never);
+  const spy = vi.fn(async (..._args: unknown[]) => impl() as never);
   vi.stubGlobal('fetch', spy);
   return spy;
 }

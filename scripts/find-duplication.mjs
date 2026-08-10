@@ -79,7 +79,7 @@ const relative = (file) => path.relative(repoRoot, file).split(path.sep).join('/
 // positional placeholder is what lets `tabState.value` and `activeTab.value`
 // compare equal, which is exactly the difference that hid navigateInternal.
 
-function normalise(node, sourceText) {
+function normalise(node, _sourceText) {
   const names = new Map();
   const parts = [];
 

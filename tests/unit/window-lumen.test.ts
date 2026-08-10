@@ -57,7 +57,7 @@ const electronMock = {
 
 function mockElectronRequire() {
   const originalLoad = (Module as any)._load;
-  (Module as any)._load = function (request: string, parent: any, isMain: boolean) {
+  (Module as any)._load = function (request: string, _parent: any, _isMain: boolean) {
     if (request === 'electron') return electronMock;
     return originalLoad.apply(this, arguments as any);
   };
@@ -70,6 +70,8 @@ function mockElectronRequire() {
 async function loadLumen(): Promise<any> {
   const restore = mockElectronRequire();
   try {
+    // @ts-expect-error - a .cjs preload has no declarations, and electron/ is
+    // deliberately outside tsconfig (allowJs is off; see the note there).
     await import('../../electron/preloads/webview-preload.cjs');
   } finally {
     restore();

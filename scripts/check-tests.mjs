@@ -36,6 +36,20 @@ const WATCHED = [
   'src/internal/services',
   'src/stores',
   'src/composables',
+  // The main process has shared logic too, and for a long time none of it was
+  // watched: the rule guaranteed a renderer service was reachable from a test
+  // while 10 000 lines holding the keys answered to nobody.
+  //
+  // These four are the equivalent tier - helpers and domain logic the IPC layer
+  // calls into. `ipc/`, `extensions/`, `gateways/`, `services/` and `workers/`
+  // are deliberately still out: covering them is real work (release_installer
+  // alone is 700 lines), and listing them here today would mean a dozen
+  // exemptions, which is the backlog this rule exists to prevent. That work is
+  // named in ARCHITECTURE.md under "What has no tests at all".
+  'electron/utils',
+  'electron/sites',
+  'electron/chain',
+  'electron/daemons',
 ];
 
 // ---------------------------------------------------------------------------
@@ -71,11 +85,32 @@ const testFiles = walk(join(ROOT, 'tests'), /\.(ts|tsx)$/);
 const imported = new Set();
 for (const file of testFiles) {
   const src = readFileSync(file, 'utf8');
-  for (const m of src.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
-    const spec = m[1];
+  // `import(...)` as well as `from '...'`. A store that reads localStorage as it
+  // loads can only be tested by re-importing it after seeding, so its tests are
+  // all dynamic - and counting only static imports declared three of them
+  // untested while their test files sat right there.
+  const specifiers = [
+    ...[...src.matchAll(/from\s+['"]([^'"]+)['"]/g)].map((m) => m[1]),
+    ...[...src.matchAll(/\bimport\(\s*['"]([^'"]+)['"]\s*\)/g)].map((m) => m[1]),
+  ];
+  for (const spec of specifiers) {
     if (!spec.startsWith('.')) continue;
     const base = resolve(join(file, '..'), spec);
     for (const candidate of [base, `${base}.ts`, join(base, 'index.ts')]) {
+      if (existsSync(candidate) && statSync(candidate).isFile()) {
+        imported.add(rel(candidate));
+        break;
+      }
+    }
+  }
+
+  // A main-process module is reached two ways, and neither is an import: by
+  // name through tests/unit/support/electronStub.ts (`load('utils/crypto.cjs')`)
+  // or by `require_('../../electron/utils/strings.cjs')`. The quoted path is
+  // the only trace either leaves, so try it both relative to the test and
+  // relative to electron/.
+  for (const m of src.matchAll(/['"]([\w./-]+\.cjs)['"]/g)) {
+    for (const candidate of [resolve(join(file, '..'), m[1]), join(ROOT, 'electron', m[1])]) {
       if (existsSync(candidate) && statSync(candidate).isFile()) {
         imported.add(rel(candidate));
         break;
@@ -92,10 +127,14 @@ const staleExemptions = [];
 
 let watched = 0;
 for (const dir of WATCHED) {
-  for (const file of walk(join(ROOT, dir), /\.ts$/)) {
+  for (const file of walk(join(ROOT, dir), /\.(ts|cjs)$/)) {
     const name = rel(file);
     // A module with nothing exported is a private helper, not a surface.
-    if (!/^export\s/m.test(readFileSync(file, 'utf8'))) continue;
+    // `module.exports` counts as well as `export`: the main process is
+    // CommonJS, and testing only for the ESM spelling silently skipped every
+    // .cjs file the moment electron/ was added to the list above.
+    const text = readFileSync(file, 'utf8');
+    if (!/^export\s/m.test(text) && !/\bmodule\.exports\b/.test(text)) continue;
     watched += 1;
     if (imported.has(name)) {
       if (UNREACHABLE.has(name)) staleExemptions.push(name);

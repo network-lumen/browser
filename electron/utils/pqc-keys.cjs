@@ -92,7 +92,51 @@ function tempDecryptPqcKeys(password) {
   }
 }
 
+/**
+ * Re-encrypts PQC keys a previous run left in the clear.
+ *
+ * `tempDecryptPqcKeys` writes the Dilithium private keys out decrypted so the
+ * SDK can read them, and re-encrypts them in a cleanup callback. A crash, a
+ * kill, or a power cut between the two leaves the keys readable on disk with
+ * nothing to put them back - the next launch simply used them as they were.
+ *
+ * Called at startup while the session password is known. Silent when there is
+ * nothing to do, which is the normal case.
+ *
+ * @returns true only when a plaintext file was found and re-encrypted
+ */
+function repairPlaintextPqcKeys(password) {
+  const keysFile = pqcKeysFilePath();
+  if (!password || !fs.existsSync(keysFile)) return false;
+
+  try {
+    const data = readJson(keysFile, null);
+    if (!data || typeof data !== 'object') return false;
+
+    // Already encrypted, or not a keystore at all: nothing to repair.
+    if (data.crypto && (data._encrypted === true || isPasswordProtected(data))) return false;
+
+    // A plaintext store is a map of key records. An empty object is not worth
+    // rewriting, and anything else shaped oddly is left alone rather than
+    // guessed at.
+    const names = Object.keys(data);
+    if (!names.length) return false;
+
+    const encrypted = encryptWithPassword(JSON.stringify(data), password);
+    encrypted._encrypted = true;
+    fs.writeFileSync(keysFile, JSON.stringify(encrypted, null, 2), 'utf8');
+    console.warn(
+      `[pqc-keys] re-encrypted ${names.length} PQC key(s) left in the clear by a previous run`
+    );
+    return true;
+  } catch (e) {
+    console.error('[pqc-keys] failed to repair plaintext PQC keys', e);
+    return false;
+  }
+}
+
 module.exports = {
   arePqcKeysEncrypted,
   tempDecryptPqcKeys,
+  repairPlaintextPqcKeys,
 };

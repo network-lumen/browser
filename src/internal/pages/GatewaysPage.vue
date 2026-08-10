@@ -152,7 +152,7 @@ import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import { ref, computed, onMounted, watch, reactive } from 'vue';
 import { Server, List } from 'lucide-vue-next';
-import { profilesState, activeProfileId } from '../profilesStore';
+import { profilesState, activeProfileId } from '../../stores/profilesStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { useToast } from '../../composables/useToast';
 

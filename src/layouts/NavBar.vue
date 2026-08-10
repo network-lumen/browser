@@ -281,8 +281,8 @@ import {
   importProfileManually,
   pickManualProfileSource,
   pickManualPqcSource
-} from '../internal/profilesStore';
-import { useFavourites } from '../internal/favouritesStore';
+} from '../stores/profilesStore';
+import { useFavourites } from '../stores/favouritesStore';
 import { buildExtensionTabUrl, normalizeAddressInput } from '../internal/navigationUrl';
 import type { Ref } from 'vue';
 import type { Tab } from '../types/tab';

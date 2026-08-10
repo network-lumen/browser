@@ -66,6 +66,25 @@ function seedPorts(profileDir: string, name: string) {
   );
 }
 
+/**
+ * A profile directory with nothing in it.
+ *
+ * Deleting the usual one is the obvious way and not a reliable one: on Windows
+ * a process that was just killed still holds its Chromium cache files for a
+ * moment, and `rmSync` fails with EBUSY - failing a test for a reason that has
+ * nothing to do with what it was checking. What `fresh` actually asks for is an
+ * empty directory, and a new name gives that unconditionally.
+ */
+function emptyProfileDir(name: string) {
+  const preferred = join(tmpdir(), `lumen-e2e-${name}`);
+  try {
+    rmSync(preferred, { recursive: true, force: true });
+    return preferred;
+  } catch {
+    return join(tmpdir(), `lumen-e2e-${name}-${Date.now().toString(36)}`);
+  }
+}
+
 export type LaunchedApp = {
   app: ElectronApplication;
   /** Everything the main process wrote, for assertions about boot. */
@@ -84,8 +103,7 @@ export async function launchApp(
   name = 'default',
   opts: { fresh?: boolean; env?: Record<string, string> } = {}
 ): Promise<LaunchedApp> {
-  const profileDir = join(tmpdir(), `lumen-e2e-${name}`);
-  if (opts.fresh) rmSync(profileDir, { recursive: true, force: true });
+  const profileDir = opts.fresh ? emptyProfileDir(name) : join(tmpdir(), `lumen-e2e-${name}`);
   mkdirSync(profileDir, { recursive: true });
   seedPorts(profileDir, name);
 
@@ -146,6 +164,7 @@ export async function launchApp(
  */
 export async function closeApp(app: ElectronApplication | null | undefined, graceMs = 20_000) {
   if (!app) return;
+
   let timer: NodeJS.Timeout | undefined;
   const gaveUp = new Promise<void>((resolve) => {
     timer = setTimeout(resolve, graceMs);
@@ -155,12 +174,45 @@ export async function closeApp(app: ElectronApplication | null | undefined, grac
   } finally {
     clearTimeout(timer);
   }
+
+  const proc = (() => {
+    try {
+      return app.process();
+    } catch {
+      return null;
+    }
+  })();
+  if (!proc || proc.exitCode !== null) return;
+
+  // Killing the process is not enough on its own. The stdout/stderr readers
+  // attached at launch keep the pipes referenced, and the Kubo daemon Electron
+  // spawned inherits them - so after a SIGKILL the streams never end and the
+  // Playwright worker hangs at teardown instead of exiting. All 32 tests pass
+  // and the run still fails, which is how this was found.
   try {
-    const proc = app.process();
-    if (proc && proc.exitCode === null && proc.pid) proc.kill('SIGKILL');
+    proc.stdout?.removeAllListeners();
+    proc.stderr?.removeAllListeners();
+    proc.stdout?.destroy();
+    proc.stderr?.destroy();
   } catch {
-    // Already gone, which is the outcome we wanted.
+    // Already torn down.
   }
+
+  try {
+    proc.kill('SIGKILL');
+  } catch {
+    return;
+  }
+
+  // Wait for the exit we just asked for, briefly: leaving before the process is
+  // reaped is what leaves a handle open behind us.
+  await new Promise<void>((resolve) => {
+    const done = setTimeout(resolve, 5_000);
+    proc.once('exit', () => {
+      clearTimeout(done);
+      resolve();
+    });
+  });
 }
 
 /**

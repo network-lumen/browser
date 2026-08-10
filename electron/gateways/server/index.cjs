@@ -86,7 +86,19 @@ async function startGatewayServer(options = {}) {
 
     // Create Express app
     const expressApp = express();
-    expressApp.use(cors());
+    // No Access-Control-Allow-Origin, deliberately.
+    //
+    // `cors()` with no options answers every origin with `*`. On a server bound
+    // to 127.0.0.1 that means any web page, in this browser or any other on the
+    // machine, could call it and read the reply - enough to detect Lumen from
+    // /health, and enough to have administered the whitelist back when the API
+    // key comparison accepted a missing key (see the note in auth.cjs).
+    //
+    // Nothing legitimate needs it: content is fetched by other Lumen instances
+    // from their main process, and the /api routes are called with the API key
+    // from this one. Both are native fetch, which CORS does not apply to.
+    // `origin: false` keeps the preflight handling and sends no header.
+    expressApp.use(cors({ origin: false }));
     expressApp.use(express.json());
 
     // Initialize IPFS client (using direct HTTP calls instead of ipfs-http-client)
@@ -95,7 +107,10 @@ async function startGatewayServer(options = {}) {
     
     // Helper function to fetch from IPFS
     async function ipfsCat(cid) {
-      const response = await fetch(`${ipfsApiUrl}/api/v0/cat?arg=${cid}`, {
+      // Encoded: `cid` arrives from req.params already URL-decoded, so an `&`
+      // in it would add parameters to the Kubo API call rather than being part
+      // of the argument.
+      const response = await fetch(`${ipfsApiUrl}/api/v0/cat?arg=${encodeURIComponent(cid)}`, {
         method: 'POST'
       });
       

@@ -17,11 +17,17 @@ const service = getRecurringPaymentsService();
 
 type NewPayment = Parameters<typeof service.createRecurringPayment>[0];
 
+// No `as NewPayment` here on purpose: the cast used to hide that these drafts
+// carried a string amount while the app sends a number - RecurringPaymentModal
+// emits `parseFloat(form.amount)`. The assertions below were checking a shape
+// production never produces.
 function draft(overrides: Partial<NewPayment> = {}): NewPayment {
   return {
     name: 'Rent',
+    description: '',
     recipient: 'lmn1landlord',
-    amount: '1000000',
+    amount: 1_000_000,
+    denom: 'ulmn',
     frequency: 'monthly',
     status: 'active',
     startDate: new Date('2026-01-01T00:00:00Z'),
@@ -29,7 +35,7 @@ function draft(overrides: Partial<NewPayment> = {}): NewPayment {
     reminderEnabled: false,
     reminderDaysBefore: 3,
     ...overrides,
-  } as NewPayment;
+  };
 }
 
 beforeEach(() => {
@@ -84,13 +90,13 @@ describe('creating and reading', () => {
 describe('updating, pausing and deleting', () => {
   it('applies an update and moves updatedAt forward', () => {
     const created = service.createRecurringPayment(draft());
-    const updated = service.updateRecurringPayment(created.id, { amount: '2000000' });
-    expect(updated?.amount).toBe('2000000');
+    const updated = service.updateRecurringPayment(created.id, { amount: 2_000_000 });
+    expect(updated?.amount).toBe(2_000_000);
     expect(updated?.updatedAt.getTime()).toBeGreaterThanOrEqual(created.updatedAt.getTime());
   });
 
   it('reports null for an update to something that is not there', () => {
-    expect(service.updateRecurringPayment('nope', { amount: '1' })).toBeNull();
+    expect(service.updateRecurringPayment('nope', { amount: 1 })).toBeNull();
   });
 
   it('pauses and resumes', () => {

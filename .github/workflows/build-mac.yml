@@ -86,10 +86,14 @@ jobs:
             KUBO_PLATFORM="darwin-arm64"
           fi
 
-          echo "Downloading official Kubo binary for $KUBO_PLATFORM..."
+          # Taken from the installed package, never hardcoded: this step used to
+          # pin v0.32.1 while npm shipped 0.37.x to Windows and Linux, so macOS
+          # ran five minor versions behind on the IPFS daemon and any bug it
+          # caused was unreproducible on the other two platforms.
+          KUBO_VERSION="v$(node -p "require('./node_modules/kubo/package.json').version")"
+          echo "Downloading official Kubo $KUBO_VERSION for $KUBO_PLATFORM..."
 
-          KUBO_VERSION="v0.32.1"
-          curl -L -o kubo.tar.gz "https://github.com/ipfs/kubo/releases/download/${KUBO_VERSION}/kubo_${KUBO_VERSION}_${KUBO_PLATFORM}.tar.gz"
+          curl -fL -o kubo.tar.gz "https://github.com/ipfs/kubo/releases/download/${KUBO_VERSION}/kubo_${KUBO_VERSION}_${KUBO_PLATFORM}.tar.gz"
 
           tar -xzf kubo.tar.gz
 
@@ -108,6 +112,15 @@ jobs:
 
           echo "=== Verification ==="
           file "$KUBO_BIN_PATH"
+
+          # The binary is for the other arch half the time, so it cannot be run
+          # here. Compare what the archive claims instead - a redirect to an
+          # error page would sail past `file` and ship a broken daemon.
+          got="$(tar -xzOf kubo.tar.gz kubo/version 2>/dev/null || echo '')"
+          if [ -n "$got" ] && [ "v$got" != "$KUBO_VERSION" ]; then
+            echo "ERROR: archive contains kubo v$got, expected $KUBO_VERSION" >&2
+            exit 1
+          fi
 
       - name: Build renderer (Vite)
         run: npm run build

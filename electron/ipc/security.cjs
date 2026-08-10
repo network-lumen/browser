@@ -19,6 +19,7 @@ const {
   getStoredPasswordHash
 } = require('../settings.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
+const { repairPlaintextPqcKeys } = require('../utils/pqc-keys.cjs');
 
 // In-memory password cache for session (cleared on app quit).
 // The session stays unlocked until the configured timeout expires, or until
@@ -105,6 +106,15 @@ function clearSessionPassword() {
  */
 function setSessionPassword(password) {
   sessionPassword = password;
+  // The first moment in a run where the password is known is the only moment
+  // this can be fixed: signing writes the PQC keys out in the clear and puts
+  // them back afterwards, so a crash in between leaves them readable until
+  // someone signs again. Unlocking is when we can quietly put them back.
+  try {
+    repairPlaintextPqcKeys(password);
+  } catch {
+    // Never block an unlock on the repair.
+  }
   syncActiveSessionTimeout(getSecuritySessionTimeoutMs());
   broadcastSessionChanged(true);
 }
