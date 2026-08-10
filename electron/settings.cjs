@@ -475,9 +475,6 @@ function loadPrivateCloudConfig() {
  */
 function savePrivateCloudConfig(config) {
   const fp = privateCloudConfigPath();
-  console.log('[electron][settings] savePrivateCloudConfig called with:', config);
-  console.log('[electron][settings] config path:', fp);
-  
   try {
     const toSave = {
       enabled: !!config.enabled,
@@ -487,13 +484,9 @@ function savePrivateCloudConfig(config) {
       timeout: typeof config.timeout === 'number' ? config.timeout : 5000,
       maxRetries: typeof config.maxRetries === 'number' ? config.maxRetries : 3
     };
-    
-    console.log('[electron][settings] saving config:', toSave);
-    
+
     fs.mkdirSync(path.dirname(fp), { recursive: true });
     writeFileAtomic(fp, JSON.stringify(toSave, null, 2));
-    
-    console.log('[electron][settings] config saved successfully');
     return { ok: true };
   } catch (e) {
     console.error('[electron][settings] failed to save private cloud config:', e);

@@ -6,7 +6,10 @@ Lumen Browser
 - Node.js 18+
 - npm
 
-By default, this shell stores its IPFS repo under the Electron user data directory (for example on Windows: `%APPDATA%/lumen-browser/ipfs`), not in the global `~/.ipfs` folder.
+By default, this shell stores its IPFS repo under the Electron user data directory (on Windows:
+`%APPDATA%/lumen/ipfs`), not in the global `~/.ipfs` folder. The folder is named after `APP_NAME` in
+`electron/bootstrap_paths.cjs`, and `LUMEN_USER_DATA_DIR` overrides it for one run — which is how
+the end-to-end tests launch the app without touching your own wallet.
 
 ## Install
 
@@ -33,7 +36,13 @@ This generates a static bundle in `dist/` that `electron/main.cjs` can load in p
 
 ## Publishing on-chain releases
 
-See `RELEASE.md` for the full end-to-end workflow (publisher UI at `lumen://release`, DAO validation, artifacts, and troubleshooting).
+The publisher lives in the app itself, at `lumen://release`: it builds the record, signs it and
+submits it for DAO validation. Artifacts are produced by `.github/workflows/build-mac.yml` (which
+builds all three platforms despite the name) and attached to a draft GitHub release.
+
+A release record must carry a SHA256 for its artifact. The updater refuses to install one without,
+and takes both the URL and the digest from the record it read on-chain rather than from anything
+the interface hands it — see `electron/ipc/release.cjs`.
 
 ## Mac launch
 

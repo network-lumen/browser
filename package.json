@@ -98,6 +98,16 @@
     "directories": {
       "output": "release"
     },
+    "//mac-linux": "Only the icon and the category. The targets stay at their defaults on purpose: the workflow already passes --mac and --linux AppImage explicitly, and pinning a target set here would change what those jobs produce on platforms this was not built on.",
+    "mac": {
+      "icon": "src/img/logo.png",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "icon": "src/img/logo.png",
+      "category": "Network",
+      "synopsis": "Web3 and IPFS-native browser with a built-in Lumen wallet"
+    },
     "win": {
       "icon": "src/img/logo.png",
       "signAndEditExecutable": false,
