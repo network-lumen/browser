@@ -96,7 +96,11 @@ beforeEach(() => {
   electronMock.contextBridge.exposeInMainWorld.mockClear();
 
   globalThis.window = globalThis.window || ({} as any);
-  (globalThis.window as any).location = { href: 'https://example.com/ipfs/QmTest' };
+  // The local gateway, because the origin is now part of the gate: an /ipfs/
+  // path on someone else's host is not a Lumen site (see the last test in this
+  // file). This fixture used to be https://example.com/ipfs/QmTest, which is
+  // exactly the impersonation that closed.
+  (globalThis.window as any).location = { href: 'http://127.0.0.1:8080/ipfs/QmTest' };
   (globalThis.window as any).document = { title: 'Lumen Test' };
   globalThis.location = (globalThis.window as any).location;
 });
@@ -709,6 +713,21 @@ describe('window.lumen preload API', () => {
       (globalThis.window as any).location.href = 'https://example.com/not-ipfs';
       const result = await call(lumen);
       expect(result).toEqual({ ok: false, error: NOT_AVAILABLE });
+    });
+
+    it.each(cases)('%s refuses an /ipfs/ path on a foreign origin (%#)', async (_name, call) => {
+      // The impersonation: a site the attacker controls, serving under a path
+      // that names someone else's CID. It used to pass this gate, get the API,
+      // and be handed that CID's identity in the main process.
+      const lumen = await loadLumen();
+      (globalThis.window as any).location.href = 'https://evil.example/ipfs/QmTest/';
+      expect(await call(lumen)).toEqual({ ok: false, error: NOT_AVAILABLE });
+    });
+
+    it.each(cases)('%s still works from the subdomain gateway (%#)', async (_name, call) => {
+      const lumen = await loadLumen();
+      (globalThis.window as any).location.href = 'http://bafyabc.ipfs.localhost:8080/';
+      expect(await call(lumen)).not.toEqual({ ok: false, error: NOT_AVAILABLE });
     });
   });
 

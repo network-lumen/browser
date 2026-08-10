@@ -34,9 +34,37 @@ const { loadProfilesFile } = require('../ipc/profiles.cjs');
 const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./permissions.cjs');
 const siteData = require('./data.cjs');
 
+/**
+ * Origins allowed to speak for the content on their path.
+ *
+ * The path alone used to be enough, so `https://anything/ipfs/<cid>/` was
+ * handed that cid's identity - its stored "always allow", its site data - and
+ * webview-preload's own gate tested the same path, so such a page also got
+ * window.lumen. An attacker picked which site to impersonate by choosing a
+ * path on their own domain.
+ *
+ * Only addresses this app serves or controls count: loopback on any port,
+ * anything under .localhost (the subdomain gateway and the site-host server),
+ * and the lumen: scheme.
+ *
+ * The cost is deliberate. contentResolver can fall back to a whitelisted or
+ * public gateway when the local node cannot serve something, and a raw CID
+ * served that way now renders without window.lumen. Domain sites are not
+ * affected: their identity comes from the map SitePage writes, which is
+ * vouched for by the renderer that did the navigating.
+ */
+function isTrustedSiteOrigin(u) {
+  const protocol = String(u.protocol || '').toLowerCase();
+  if (protocol === 'lumen:') return !!String(u.hostname || '').trim();
+  if (protocol !== 'http:' && protocol !== 'https:') return false;
+  const host = String(u.hostname || '').toLowerCase().replace(/^\[|\]$/g, '');
+  return host === '127.0.0.1' || host === '::1' || host === 'localhost' || host.endsWith('.localhost');
+}
+
 function deriveSiteKeyFromHref(href) {
   try {
     const u = new URL(String(href || ''));
+    if (!isTrustedSiteOrigin(u)) return null;
     const p = String(u.pathname || '/');
     const host = String(u.hostname || '').trim();
 
