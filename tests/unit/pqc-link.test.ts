@@ -20,6 +20,49 @@ function loadModule() {
   return stubElectron().load<any>('utils/pqc_link.cjs');
 }
 
+/**
+ * No real network, and not by luck.
+ *
+ * signAndBroadcastWithPqcAutoLink reads the sender's account sequence before
+ * broadcasting, so it can tell afterwards whether an unconfirmable transaction
+ * nonetheless reached a block. That read goes through the peer pool to the
+ * endpoints in resources/peers.txt - real hosts. Left alone, these tests pass
+ * on a machine that can reach them and hang on one that cannot, which is
+ * exactly what happened: green here, a 5s timeout on the CI runner.
+ *
+ * Replacing fetch outright is what makes them hermetic. Do not remove it.
+ */
+const realFetch = globalThis.fetch;
+let fetched: string[] = [];
+
+function serve(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json' }
+  });
+}
+
+beforeEach(() => {
+  fetched = [];
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    fetched.push(url);
+    if (url.includes('/status')) {
+      return serve({
+        result: { node_info: { network: 'lumen' }, sync_info: { latest_block_height: '1000' } }
+      });
+    }
+    if (url.includes('/cosmos/auth/v1beta1/accounts/')) {
+      return serve({ account: { address: 'lmn1abc', sequence: '7' } });
+    }
+    return serve({});
+  }) as typeof fetch;
+});
+
+afterEach(() => {
+  globalThis.fetch = realFetch;
+});
+
 describe('normalizeHashString', () => {
   const { normalizeHashString } = loadModule();
 
@@ -160,6 +203,9 @@ describe('signAndBroadcastWithPqcAutoLink', () => {
     await expect(call(client({ code: 0, transactionHash: 'ABC' }))).resolves.toMatchObject({
       transactionHash: 'ABC',
     });
+    // Through the stub, not past it: if this ever reads zero, the sequence
+    // pre-read has been dropped and nothing can tell a retry from a resend.
+    expect(fetched.some((url) => url.includes('/cosmos/auth/'))).toBe(true);
   });
 
   it('reports a rejected transaction with the chain log and its hash', async () => {
