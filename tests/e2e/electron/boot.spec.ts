@@ -38,6 +38,15 @@ function isolatedProfile() {
 /** Cold, this waits on a Kubo repo being created. Warm, it is seconds. */
 const WINDOW_TIMEOUT = 180_000;
 
+/**
+ * Electron needs a display server, and the CI job runs on plain ubuntu. Skipped
+ * rather than left to fail: a launch with no X server hangs until the job times
+ * out, which reads as "the pipeline is broken" instead of "this needs xvfb".
+ * Wrap the CI step in `xvfb-run -a` and this runs there too.
+ */
+const NO_DISPLAY = process.platform === 'linux' && !process.env.DISPLAY;
+test.skip(NO_DISPLAY, 'no display server: run under xvfb to launch Electron');
+
 let app: ElectronApplication;
 let output: string[] = [];
 
