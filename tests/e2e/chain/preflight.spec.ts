@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { chainWallet } from '../electron/support/env';
-import { LAUNCH_TIMEOUT, NO_DISPLAY, NO_DISPLAY_REASON, launchApp } from '../electron/support/launch';
-import { balanceUlmn, importWallet, toLmn } from './support/wallet';
+import { LAUNCH_TIMEOUT, NO_DISPLAY, NO_DISPLAY_REASON } from '../electron/support/launch';
+import { balanceUlmn, importWallet, launchChainApp, pqcParams, toLmn } from './support/wallet';
 
 /**
  * Everything the spending tests assume, checked before any of them spends.
@@ -20,7 +20,9 @@ test.describe('chain preflight', () => {
 
   test('the app derives the same address as the wallet generator', async () => {
     const w = wallet!;
-    const { app } = await launchApp('chain', { fresh: true });
+    // Wiping the profile is safe only because the Dilithium keys are kept
+    // outside it - see pqcHome().
+    const { app } = await launchChainApp('chain', { fresh: true });
     try {
       const res = await importWallet(app, w.mnemonic, 'e2e-chain');
       expect(res.ok, `import failed: ${res.error}`).toBe(true);
@@ -34,12 +36,26 @@ test.describe('chain preflight', () => {
 
   test('the balance is readable, and says whether the wallet is funded', async () => {
     const w = wallet!;
-    const { app } = await launchApp('chain');
+    const { app } = await launchChainApp('chain');
     try {
       const ulmn = await balanceUlmn(app, w.address);
       console.log(`${w.address} holds ${toLmn(ulmn)} LMN (${ulmn} ulmn)`);
       test.skip(ulmn === 0, `not funded yet: send LMN to ${w.address}`);
       expect(ulmn).toBeGreaterThan(0);
+    } finally {
+      await app.close();
+    }
+  });
+
+  test('reports what the chain charges for a link', async () => {
+    const { app } = await launchChainApp('chain');
+    try {
+      const res = await pqcParams(app);
+      expect(res.ok, `params query failed: ${res.error}`).toBe(true);
+      // Printed rather than asserted: these are the chain's numbers, and a test
+      // that pinned them would fail on a governance vote rather than on a bug.
+      // The spending tests size their transfers from them.
+      console.log('pqc params', JSON.stringify(res.data?.params ?? {}));
     } finally {
       await app.close();
     }

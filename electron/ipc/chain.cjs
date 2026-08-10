@@ -568,6 +568,18 @@ async function pqcGetParams() {
   return { ok: true, data: { params } };
 }
 
+// "This account has no key yet", told apart from a node that is simply broken.
+// A gRPC not-found normally arrives as 404, but the pqc module raises the SDK's
+// own not-found and the gateway maps that to 500, so the body is the only
+// reliable signal. A malformed address (400) is deliberately not in here: that
+// is the caller's mistake, and reporting it as "not linked" would hide it.
+function isPqcRecordMissing(res) {
+  if (res.status === 404) return true;
+  const message = String((res.json && res.json.message) || res.text || '');
+  if (/no pqc record/i.test(message)) return true;
+  return Number(res.json && res.json.code) === 2 && /not found/i.test(message);
+}
+
 async function pqcGetAccount(addressInput) {
   const LCD_TIMEOUT_MS = 20_000;
   const restBase = getRestBaseUrl();
@@ -581,8 +593,11 @@ async function pqcGetAccount(addressInput) {
   const url = `${trimSlash(restBase)}/lumen/pqc/v1/accounts/${encodeURIComponent(address)}`;
   const res = await httpGet(url, { timeout: LCD_TIMEOUT_MS });
 
-  // Not linked yet (treat as non-error)
-  if (!res.ok && (res.status === 404 || res.status === 400)) {
+  // An address with no key yet is the normal case, not a failure - and the
+  // chain reports it as `500 {"code":2,"message":"...not found: no pqc record
+  // for lmn1..."}`, not as a 404. Recognised by the body: a bare 500 also means
+  // the node is broken, and answering "not linked" to that would be a lie.
+  if (!res.ok && isPqcRecordMissing(res)) {
     return { ok: true, linked: false, account: null };
   }
   if (!res.ok) {
