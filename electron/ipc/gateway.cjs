@@ -11,7 +11,7 @@ const {
   sha256,
 } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
-const { zeroFee } = require('../utils/tx.cjs');
+const { zeroFee, describeBroadcastFailure } = require('../utils/tx.cjs');
 const { trimSlash } = require('../utils/strings.cjs');
 const { getSessionPassword } = require('./security.cjs');
 const { getNetworkPool } = require('../daemons/peers/pool_singleton.cjs');
@@ -2313,6 +2313,8 @@ function registerGatewayIpc() {
       }
     } catch (e) {
       mark('error', { error: String(e && e.message ? e.message : e) });
+      const unconfirmable = describeBroadcastFailure(e);
+      if (unconfirmable) return unconfirmable;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2453,6 +2455,8 @@ function registerGatewayIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const unconfirmable = describeBroadcastFailure(e);
+      if (unconfirmable) return unconfirmable;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });
@@ -2562,6 +2566,8 @@ function registerGatewayIpc() {
         if (cleanupPqc) cleanupPqc();
       }
     } catch (e) {
+      const unconfirmable = describeBroadcastFailure(e);
+      if (unconfirmable) return unconfirmable;
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
   });

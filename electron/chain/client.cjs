@@ -211,6 +211,52 @@ async function readState(path, options = {}) {
   return firstAny ? firstAny.res : { ok: false, status: 0, error: 'read_failed' };
 }
 
+/**
+ * The sender's sequence number, read as state.
+ *
+ * This is what still answers when transaction indexing is off. An included
+ * transaction moves the account's sequence whether or not any node will hand
+ * the transaction back, so comparing it before and after tells us the one
+ * thing the caller has to know: whether sending again would send twice.
+ *
+ * @returns the sequence, or null when it cannot be read - including for an
+ *   account the chain has never seen, which has no sequence to speak of.
+ */
+async function accountSequence(address) {
+  const addr = String(address || '').trim();
+  if (!addr) return null;
+  try {
+    const res = await readState(`/cosmos/auth/v1beta1/accounts/${encodeURIComponent(addr)}`, {
+      kind: 'rest',
+      timeout: 6000
+    });
+    if (!res || !res.ok || !res.json) return null;
+    const account = res.json.account || res.json;
+    const raw = account && (account.sequence ?? (account.base_account && account.base_account.sequence));
+    const seq = Number(raw);
+    return Number.isFinite(seq) ? seq : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Did the transaction make it into a block, when nobody can read it back?
+ *
+ * Polled rather than asked once: the sequence moves when the block commits,
+ * which is a few seconds after the broadcast returned.
+ */
+async function sequenceAdvanced(address, before, timeoutMs, pollIntervalMs) {
+  if (before === null) return null;
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const now = await accountSequence(address);
+    if (now !== null && now > before) return true;
+    if (Date.now() > deadline) return now === null ? null : false;
+    await sleep(pollIntervalMs);
+  }
+}
+
 async function broadcastTx(txBytes, options = {}) {
   const pool = getNetworkPool();
 
@@ -223,12 +269,21 @@ async function broadcastTx(txBytes, options = {}) {
   const timeout = clampInt(options && options.timeout ? options.timeout : 12_000, 1_000, 120_000);
   const confirmTimeoutMs = clampInt(options && options.confirmTimeoutMs ? options.confirmTimeoutMs : 60_000, 1_000, 10 * 60_000);
   const pollIntervalMs = clampInt(options && options.pollIntervalMs ? options.pollIntervalMs : 1500, 250, 10_000);
+  // How long to keep watching the sender's sequence once the transaction has
+  // turned out to be unreadable. A block is seconds, so this is generous.
+  const settleTimeoutMs = clampInt(options && options.settleTimeoutMs ? options.settleTimeoutMs : 20_000, 1_000, 120_000);
 
   const exclude = new Set();
   const candidates = await ensureSomeAlive(pool, 'rpc', 2);
   if (!candidates.length) {
     return { ok: false, error: 'no_rpc_peers_available' };
   }
+
+  // Read before sending, because afterwards there is nothing to compare
+  // against. Only used if the confirmation below cannot be had; callers that
+  // pass no sender simply get the old, undecided answer.
+  const sender = String((options && options.sender) || '').trim();
+  const sequenceBefore = sender ? await accountSequence(sender) : null;
 
   // Broadcast sequentially to avoid double-broadcast.
   let broadcastPeer = null;
@@ -339,13 +394,29 @@ async function broadcastTx(txBytes, options = {}) {
   // Naming the real cause matters: if every peer we reached has indexing off,
   // the transaction is probably fine and simply unreadable. Saying
   // "tx_not_confirmed" would send the caller down the generic failure path,
-  // while this string is what indexingDisabledResult() in ipc/wallet.cjs
-  // recognises to tell the user their transaction most likely went through.
+  // while this string is what describeBroadcastFailure() in utils/tx.cjs
+  // recognises to tell the user what became of their transaction.
   const error = sawIndexingDisabled ? 'transaction indexing is disabled' : 'tx_not_confirmed';
-  return { ok: false, error, transactionHash: txhash, lastError: lastErr };
+
+  // "Probably fine" is not good enough to put in front of someone holding a
+  // send button: told a transfer may have gone through, they send it again,
+  // and the second one is real. The sequence turns that into an answer.
+  const included = sawIndexingDisabled
+    ? await sequenceAdvanced(sender, sequenceBefore, settleTimeoutMs, pollIntervalMs)
+    : null;
+
+  return {
+    ok: false,
+    error,
+    transactionHash: txhash,
+    lastError: lastErr,
+    ...(included === null ? {} : { included, retrySafe: !included })
+  };
 }
 
 module.exports = {
   readState,
-  broadcastTx
+  broadcastTx,
+  accountSequence,
+  sequenceAdvanced
 };

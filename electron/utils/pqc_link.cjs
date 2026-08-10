@@ -11,8 +11,13 @@
 const { BrowserWindow } = require('electron');
 const { sha256 } = require('./crypto.cjs');
 const { userDataPath } = require('./fs.cjs');
-const { runWithRpcRetry, zeroFee } = require('./tx.cjs');
-const { readState, broadcastTx } = require('../chain/client.cjs');
+const { runWithRpcRetry, zeroFee, INDEXING_DISABLED_HINT } = require('./tx.cjs');
+const {
+  readState,
+  broadcastTx,
+  accountSequence,
+  sequenceAdvanced
+} = require('../chain/client.cjs');
 
 let pqcWorker = null;
 try {
@@ -81,10 +86,16 @@ async function signAndBroadcastViaPool(client, address, msgs, fee, memo, fallbac
     const { TxRaw } = require('cosmjs-types/cosmos/tx/v1beta1/tx');
     const txRaw = await client.sign(address, msgs, fee, memo);
     const txBytes = TxRaw.encode(txRaw).finish();
-    const r = await broadcastTx(txBytes, { confirmTimeoutMs: 60_000 });
+    // `sender` is what lets broadcastTx decide, from the account sequence,
+    // whether an unconfirmable transaction nonetheless made it into a block.
+    const r = await broadcastTx(txBytes, { confirmTimeoutMs: 60_000, sender: address });
     if (!r || !r.ok) {
       const err = new Error(String((r && (r.rawLog || r.error)) || fallbackError));
       err.txhash = r && r.transactionHash ? r.transactionHash : '';
+      // Carried on the error because that is all the handlers upstream see;
+      // dropping it here is how "do not send this again" becomes "may have
+      // been sent".
+      if (r && typeof r.retrySafe === 'boolean') err.retrySafe = r.retrySafe;
       throw err;
     }
     return { ...r, code: r.code || 0, rawLog: r.rawLog || '', transactionHash: r.transactionHash };
@@ -402,14 +413,32 @@ async function ensurePqcLinkedBeforeSigning(bridgeMod, client, profileId, addres
 
 async function signAndBroadcastWithPqcAutoLink({ bridgeMod, client, profileId, address, msgs, fee, memo, label }) {
   const broadcastOnce = async () => {
-    const res = await signAndBroadcastViaPool(client, address, msgs, fee, memo, 'broadcast_failed');
-    if (res && typeof res.code === 'number' && res.code !== 0) {
-      const raw = res.rawLog || `broadcast failed (code ${res.code})`;
-      const err = new Error(String(raw));
-      err.txhash = res.transactionHash || res.txhash || res.hash || '';
-      throw err;
+    // Read before signing, because after a failure there is nothing left to
+    // compare against. broadcastTx works this out on its own, but only for
+    // clients that expose `sign()` and therefore go through the peer pool -
+    // the SDK's client does not, so in practice every transaction this app
+    // sends takes the other branch and would arrive here with no verdict.
+    const sequenceBefore = await accountSequence(address);
+    try {
+      const res = await signAndBroadcastViaPool(client, address, msgs, fee, memo, 'broadcast_failed');
+      if (res && typeof res.code === 'number' && res.code !== 0) {
+        const raw = res.rawLog || `broadcast failed (code ${res.code})`;
+        const err = new Error(String(raw));
+        err.txhash = res.transactionHash || res.txhash || res.hash || '';
+        throw err;
+      }
+      return res;
+    } catch (e) {
+      const unreadable = String(e && e.message ? e.message : e).includes(INDEXING_DISABLED_HINT);
+      if (unreadable && typeof e.retrySafe !== 'boolean') {
+        const included = await sequenceAdvanced(address, sequenceBefore, 20_000, 1_500);
+        if (included !== null) {
+          e.included = included;
+          e.retrySafe = !included;
+        }
+      }
+      throw e;
     }
-    return res;
   };
 
   // Preflight: check on-chain whether this address already has a PQC key

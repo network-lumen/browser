@@ -6,7 +6,7 @@ const { readState } = require('../chain/client.cjs');
 const { userDataPath, readJson } = require('../utils/fs.cjs');
 const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected, sha256 } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
-const { zeroFee } = require('../utils/tx.cjs');
+const { zeroFee, describeBroadcastFailure } = require('../utils/tx.cjs');
 const { leadingZeroBits } = require('../utils/pow.cjs');
 const { isPasswordRequired, getSessionPassword, verifyStoredPassword } = require('./security.cjs');
 const { DEFAULT_BECH32_PREFIXES } = require('../extensions/wallet_injection.cjs');
@@ -54,7 +54,7 @@ function getRegistryForEncode(client) {
 }
 
 async function connectSigningClientWithFailover(mod, signer, connectArgs, { timeoutMs = 15_000 } = {}) {
-  const pool = getNetworkPool();
+  const pool = getNetworkPool();
 
   const exclude = new Set();
   let candidates = pool.pickPeers('rpc', 3, { requireAlive: true, exclude });
@@ -134,31 +134,10 @@ async function connectStandardSigningClient(endpoint, signer, { timeoutMs = 15_0
   return await Promise.race([connectPromise, timeoutPromise]);
 }
 
-// A node running with `tx_index.indexer = "null"` answers a tx lookup with
-// an RPC error instead of the transaction. The broadcast itself usually
-// SUCCEEDED - only the confirmation read failed - so reporting it as a plain
-// failure is both alarming and wrong, and leaking the raw body puts
-// {"code":-32603,"message":"Internal error",...} in front of the user.
-//
-// This lived inline in sendTokens and ibcTransfer only. The other eleven
-// handlers that broadcast (the three dns:*, the four staking ones, the two
-// gov ones and the two release ones) had no such check, so the same node
-// produced a clean message from one screen and raw JSON from every other.
-// Returns null for anything else, leaving each caller's own path intact.
-const INDEXING_DISABLED_HINT = 'transaction indexing is disabled';
-
-function indexingDisabledResult(error) {
-  const raw = String(error && error.message ? error.message : error);
-  if (!raw.includes(INDEXING_DISABLED_HINT)) return null;
-  console.warn('[wallet] node has transaction indexing disabled - the broadcast may well have succeeded, it just cannot be read back');
-  const txhash = String((error && error.txhash) || '');
-  return {
-    ok: false,
-    error: 'indexing_disabled',
-    message: 'Your transaction was most likely sent, but the node used to confirm it has transaction indexing disabled, so it cannot be read back. Check your balance in a few moments.',
-    ...(txhash ? { txhash } : {})
-  };
-}
+// The 13 handlers below that broadcast all answer an unconfirmable broadcast
+// the same way; the wording and the "is a retry safe" verdict live in
+// utils/tx.cjs, next to the code that establishes it.
+const indexingDisabledResult = describeBroadcastFailure;
 
 /**
  * What a *site* is told when a wallet call fails.
