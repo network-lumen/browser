@@ -69,8 +69,15 @@ describe('paths built with __dirname', () => {
     expect(found.length).toBeGreaterThanOrEqual(5);
   });
 
+  const distDir = join(repoRoot, 'dist');
+  const targetOf = ({ file, parts }: { file: string; parts: string[] }) =>
+    resolve(dirname(file), ...parts);
+  const intoDist = (entry: { file: string; parts: string[] }) =>
+    targetOf(entry).startsWith(distDir);
+
   it('every one of them points at something that exists', () => {
     const broken = found
+      .filter((entry) => !intoDist(entry))
       .map(({ file, parts }) => ({ file, parts, target: join(dirname(file), ...parts) }))
       .filter(({ target }) => !existsSync(target))
       // package.json lookups walk a list of candidates on purpose, and are
@@ -81,6 +88,20 @@ describe('paths built with __dirname', () => {
       broken.map((b) => `${rel(b.file)} -> ${b.parts.join('/')}`),
       'a path built at runtime points nowhere'
     ).toEqual([]);
+  });
+
+  it('loads the renderer from the file vite is going to emit', () => {
+    // dist/ is a build output, and `prebuild` runs the tests before `vite
+    // build` - so on a clean checkout it is absent exactly when this runs.
+    // Asserting it exists passed only on a machine with a stale dist lying
+    // around, which is how it reached CI green here and red there.
+    //
+    // Checked against the committed inputs instead: the name windows.cjs asks
+    // for, and the entry vite turns into it. A rename on either side fails.
+    const targets = found.filter(intoDist).map((entry) => rel(targetOf(entry)));
+    expect(targets.length, 'the main window has to load the renderer from somewhere').toBeGreaterThan(0);
+    expect(new Set(targets)).toEqual(new Set(['dist/index.html']));
+    expect(existsSync(join(repoRoot, 'index.html')), 'the vite entry that produces it').toBe(true);
   });
 
   it('still attaches all four preloads', () => {
