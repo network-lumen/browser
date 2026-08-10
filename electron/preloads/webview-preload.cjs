@@ -209,10 +209,16 @@ function isIpfsGatewayUrl(href) {
  * Throws unless the current page is IPFS-served content or a domain site on
  * the `lumen://` scheme. Every `window.lumen` action function calls this
  * first — it is the boundary that keeps the API off arbitrary pages.
+ *
+ * The message names the origin requirement on purpose. Without it, a page at
+ * https://ipfs.io/ipfs/<cid> reads "only available on /ipfs/* pages" while
+ * being on one, and its author has no way to guess what is actually wrong.
  */
 function ensureLumenSite() {
   if (!isIpfsGatewayUrl(currentHref())) {
-    throw new Error('window.lumen is only available on lumen:// sites and /ipfs/* or /ipns/* pages.');
+    throw new Error(
+      'window.lumen is only available on lumen:// sites and on /ipfs/* or /ipns/* pages served by Lumen itself (a local gateway address).'
+    );
   }
 }
 
