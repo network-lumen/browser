@@ -640,7 +640,7 @@ describe('window.lumen preload API', () => {
 
   describe('site gating (ensureLumenSite)', () => {
     const NOT_AVAILABLE =
-      'window.lumen is only available on lumen:// sites and /ipfs/* or /ipns/* pages.';
+      'window.lumen is only available on lumen:// sites and on /ipfs/* or /ipns/* pages served by Lumen itself (a local gateway address).';
 
     const cases: [string, (lumen: any) => Promise<any>][] = [
       ['Pin', (l) => l.Pin('bafy')],
