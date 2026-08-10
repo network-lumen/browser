@@ -45,10 +45,10 @@ Enforced by ESLint. No inline declaration anywhere in `src/**/*.ts` or `src/**/*
 - Import with `import type { Foo } from '../types/foo'`. Never re-declare a shape that exists.
 - Check whether a file already covers the concept before creating one. A new settings field belongs
   in the existing `src/types/settings.ts`.
-- **Same name ≠ same concept.** `Variant` in `uiButton.ts` and `Variant` in `uiDetailRow.ts` share
-  no value. Merging them would force a rename and imply a kinship that isn't there. Same for `Size`:
-  a shared union would be the superset of both, and `<UiToggle size="lg">` would silently stop
-  being a compile error.
+- **Same name ≠ same concept.** `GatewayView` exists in both `drivePage.ts` and `searchPage.ts`, and
+  `Block` in both `explorerPage.ts` and `networkPage.ts`. Merging either pair would force a rename
+  and imply a kinship that isn't there. The union of two unions is the danger: it is the superset of
+  both, so a value that should not compile for one of them silently does.
 
 **Not covered: anonymous unions in props.** An inline union in `defineProps<{ … }>()` stays where it
 is - it declares no named type, so there is nothing to drift. Give it a name in `src/types/` as

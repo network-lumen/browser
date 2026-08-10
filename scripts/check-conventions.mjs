@@ -10,7 +10,7 @@
 // that can't be a static class - e.g. avatar hue colors) are the accepted
 // escape hatch and are NOT flagged.
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, extname, relative } from 'node:path';
 
 const ROOT = new URL('..', import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, '$1');
@@ -377,8 +377,6 @@ function collectAppliedClassTokens() {
 // silence a duplicate icon.
 // ---------------------------------------------------------------------------
 const SVG_ALLOWLIST = [
-  join('src', 'internal', 'pages', 'DaoPage.vue'),      // solid filled vote-choice badges, no lucide outline equivalent
-  join('src', 'internal', 'pages', 'ExplorerPage.vue'), // validator cumulative-share donut ring, stroke-dasharray bound to data
   join('src', 'internal', 'pages', 'NetworkPage.vue'),  // block/tx/tps line charts, points bound to live chain data
   join('src', 'ui', 'UiSpinner.vue'),                   // the spinner primitive itself
 ];
@@ -565,127 +563,20 @@ const warnings = [];
 }
 
 // ---------------------------------------------------------------------------
-// Rule 10 & 11: unused imports and unused top-level const/let/function
-// declarations inside .vue <script setup> blocks. Regex-based (this project
-// has no vue-tsc/eslint step), so scoped deliberately narrow to keep the
-// false-positive rate near zero:
-//  - only TOP-LEVEL (column-0) declarations are checked - nested/local
-//    scope needs real scope analysis, out of reach for a text scan and far
-//    noisier (shadowing, closures).
-//  - `import type` / inline `type X` specifiers are skipped - type-only
-//    unused imports are a different, TS-compiler concern.
-//  - a name counts as "used" if it appears ANYWHERE else in the file text,
-//    including <template> (script-setup bindings are auto-exposed to the
-//    template) - this is a substring/word-boundary search, same technique
-//    as rules 4/5 use for CSS classes.
-// Real bugs this exact pattern caught this session: an unused lucide icon
-// import (`User` in WalletPage.vue) and a function defined but never wired
-// to any UI control (`disconnectWallet`).
+// Rules 10 & 11 used to live here: unused imports and unused top-level
+// declarations in .vue <script setup>, found by regex.
+//
+// They are gone because ESLint does the same job properly. Their comment
+// claimed "this project has no vue-tsc/eslint step", which stopped being true
+// a long time before anyone reread it; @typescript-eslint/no-unused-vars now
+// covers both cases from a real syntax tree, and understands that a
+// script-setup binding used only in the template is used. The regex version
+// counted a name as used if it appeared anywhere in the file - including
+// inside a comment - so it was also the weaker of the two.
+//
+// Verified before deleting: an unused import and an unused const, planted in
+// a .vue file, are both reported by `npm run lint`.
 // ---------------------------------------------------------------------------
-{
-  const importStmtRe = /^import\s+(type\s+)?([^;]*?)\s+from\s+['"][^'"]+['"];?/gm;
-
-  for (const file of vueFiles) {
-    const text = readFileSync(file, 'utf8');
-    const scriptMatch = text.match(/<script[^>]*>([\s\S]*)<\/script>/);
-    if (!scriptMatch) continue;
-    const script = scriptMatch[1];
-    const scriptOffset = scriptMatch.index + scriptMatch[0].indexOf(script);
-
-    // Collect every import binding (name -> {kind, index}), then blank out
-    // the import statements to build a haystack that can't count the
-    // import line itself as a "usage".
-    const bindings = []; // {name, index}
-    let haystack = text;
-    let m;
-    while ((m = importStmtRe.exec(script))) {
-      const isTypeOnly = !!m[1];
-      const specifiers = m[2].trim();
-      const absStart = scriptOffset + m.index;
-      const absEnd = absStart + m[0].length;
-      if (!isTypeOnly) {
-        const addBinding = (name) => bindings.push({ name, index: absStart });
-        let mm;
-        if ((mm = /^\*\s+as\s+(\w+)$/.exec(specifiers))) {
-          addBinding(mm[1]);
-        } else if ((mm = /^(\w+)\s*,\s*\{([^}]*)\}$/.exec(specifiers))) {
-          addBinding(mm[1]);
-          for (const spec of mm[2].split(',')) {
-            const s = spec.trim();
-            if (!s || s.startsWith('type ')) continue;
-            const sm = /^(\w+)(?:\s+as\s+(\w+))?$/.exec(s);
-            if (sm) addBinding(sm[2] || sm[1]);
-          }
-        } else if ((mm = /^\{([^}]*)\}$/.exec(specifiers))) {
-          for (const spec of mm[1].split(',')) {
-            const s = spec.trim();
-            if (!s || s.startsWith('type ')) continue;
-            const sm = /^(\w+)(?:\s+as\s+(\w+))?$/.exec(s);
-            if (sm) addBinding(sm[2] || sm[1]);
-          }
-        } else if ((mm = /^(\w+)$/.exec(specifiers))) {
-          addBinding(mm[1]);
-        }
-      }
-      // Blank the whole statement (newlines preserved) so it can't self-match below.
-      haystack = haystack.slice(0, absStart) + m[0].replace(/[^\n]/g, ' ') + haystack.slice(absEnd);
-    }
-
-    for (const { name, index } of bindings) {
-      const useRe = new RegExp(`(?<![\\w$])${name}(?![\\w$])`);
-      if (!useRe.test(haystack)) {
-        const line = text.slice(0, index).split('\n').length;
-        violations.push({
-          rule: 'no-unused-import',
-          file: relative(ROOT, file),
-          line,
-          detail: name,
-        });
-      }
-    }
-
-    // Top-level (column-0) const/let/function declarations, checked the
-    // same way: unused if the name never appears again anywhere in the file.
-    const declRe = /^(?:export\s+)?(?:function\s+(\w+)\s*\(|const\s+(\w+)\s*[:=]|let\s+(\w+)\s*[:;=]|const\s*\{([^}]+)\}\s*=|const\s*\[([^\]]+)\]\s*=)/gm;
-    let dm;
-    while ((dm = declRe.exec(script))) {
-      const absIndex = scriptOffset + dm.index;
-      const names = [];
-      if (dm[1]) names.push(dm[1]);
-      else if (dm[2]) names.push(dm[2]);
-      else if (dm[3]) names.push(dm[3]);
-      else if (dm[4]) {
-        for (const part of dm[4].split(',')) {
-          const p = part.trim();
-          if (!p) continue;
-          const pm = /^(?:\.\.\.)?(\w+)/.exec(p);
-          if (!pm) continue;
-          const asM = /:\s*(\w+)/.exec(p);
-          names.push(asM ? asM[1] : pm[1]);
-        }
-      } else if (dm[5]) {
-        for (const part of dm[5].split(',')) {
-          const p = part.trim();
-          const pm = /^(\w+)/.exec(p);
-          if (pm) names.push(pm[1]);
-        }
-      }
-      for (const name of names) {
-        const countRe = new RegExp(`(?<![\\w$])${name}(?![\\w$])`, 'g');
-        const count = (text.match(countRe) || []).length;
-        if (count <= 1) {
-          const line = text.slice(0, absIndex).split('\n').length;
-          violations.push({
-            rule: 'no-unused-top-level-declaration',
-            file: relative(ROOT, file),
-            line,
-            detail: name,
-          });
-        }
-      }
-    }
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Rule 12: no blank/whitespace-only line inside a multi-line HTML tag's
@@ -894,6 +785,63 @@ const FUNCTION_PROP_ALLOWLIST = new Map([
 }
 
 // ---------------------------------------------------------------------------
+// The allowlists above have to stay honest.
+//
+// Every list here is a claim that some rule must not apply somewhere. A claim
+// stops being true when the file is deleted or the thing it excused is gone,
+// and nothing noticed: SVG_ALLOWLIST carried DaoPage.vue and ExplorerPage.vue
+// for as long as it took someone to read it, months after both were merged into
+// NetworkPage. check-tests already fails on an exemption it no longer needs;
+// this is the same idea, applied to the lists in this file.
+// ---------------------------------------------------------------------------
+{
+  for (const rel of SVG_ALLOWLIST) {
+    const full = join(ROOT, rel);
+    if (!existsSync(full)) {
+      violations.push({
+        rule: 'stale-allowlist-entry',
+        file: 'scripts/check-conventions.mjs',
+        line: '',
+        detail: `SVG_ALLOWLIST names ${rel}, which does not exist - remove the entry`,
+      });
+      continue;
+    }
+    const tpl = readFileSync(full, 'utf8').match(/<template>([\s\S]*)<\/template>/)?.[1] ?? '';
+    if (!/<svg[\s>]/.test(tpl)) {
+      violations.push({
+        rule: 'stale-allowlist-entry',
+        file: 'scripts/check-conventions.mjs',
+        line: '',
+        detail: `SVG_ALLOWLIST excuses ${rel}, which no longer draws an <svg> - remove the entry`,
+      });
+    }
+  }
+
+  for (const key of FUNCTION_PROP_ALLOWLIST.keys()) {
+    const [rel, prop] = key.split(':');
+    const full = join(ROOT, rel);
+    if (!existsSync(full)) {
+      violations.push({
+        rule: 'stale-allowlist-entry',
+        file: 'scripts/check-conventions.mjs',
+        line: '',
+        detail: `FUNCTION_PROP_ALLOWLIST names ${rel}, which does not exist - remove the entry`,
+      });
+      continue;
+    }
+    const props = readFileSync(full, 'utf8').match(/defineProps<\{([\s\S]*?)\}>\(\)/)?.[1] ?? '';
+    if (!new RegExp(`^\\s*${prop}\\??:\\s*\\(`, 'm').test(props)) {
+      violations.push({
+        rule: 'stale-allowlist-entry',
+        file: 'scripts/check-conventions.mjs',
+        line: '',
+        detail: `FUNCTION_PROP_ALLOWLIST excuses ${rel}:${prop}, which is no longer a function prop - remove the entry`,
+      });
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 const titles = {
@@ -912,6 +860,7 @@ const titles = {
   'no-duplicate-class-token': 'Same class listed twice in one class="..." attribute',
   'no-dead-css-variable': 'CSS custom property (--foo) defined in theme.css but never referenced via var()',
   'no-function-prop': 'Function passed as a prop (a component should not receive its own presentation)',
+  'stale-allowlist-entry': 'An allowlist in this script excuses something that is no longer there',
 };
 
 if (warnings.length) {

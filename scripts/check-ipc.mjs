@@ -1,15 +1,18 @@
 // Contract checks over every IPC channel in electron/.
 //
-// Written instead of one unit test per handler. Of the 211 channels, roughly a
-// third are four-line pass-throughs where a test asserts that a function calls
-// a function - it exercises the mock, not the code. And a per-handler test
-// would have caught none of the four missing sender guards found by hand,
-// because each test would have verified that its handler does what it does,
-// including ignoring its event.
+// Written instead of one unit test per handler. Roughly a third of them are
+// four-line pass-throughs where a test asserts that a function calls a function
+// - it exercises the mock, not the code. And a per-handler test would have
+// caught none of the four missing sender guards found by hand, because each
+// test would have verified that its handler does what it does, including
+// ignoring its event.
 //
-// What is uniform across all 211 is not their logic but their contract, so the
+// What is uniform across them is not their logic but their contract, so the
 // contract is checked once, over the whole surface. A new handler is covered
 // the moment it is written, without anyone remembering to cover it.
+//
+// The count is deliberately not written down here. It said 211 while the run
+// printed 210, which is what a number in a comment does.
 //
 // Run via `npm run check:ipc` (part of `npm test`).
 
@@ -127,8 +130,14 @@ const add = (rule, h, detail) =>
 // can act as any site. `senderSiteContext` derives it from the sender's own
 // URL; `ensureUiSender` refuses anything but the app window, which is how the
 // domainSite:* family stays safe while taking a host argument.
+//
+// Three spellings, because two of them used to slip through: the property
+// access (`input.siteKey`), the coerced assignment (`siteKey: safeString(input`)
+// and the destructuring (`const { siteKey } = input`) - which reads nothing
+// like the other two and was invisible to this rule.
 // ---------------------------------------------------------------------------
-const CLAIMS_IDENTITY = /\b(?:input|payload|opts)\s*(?:&&|\?)?\s*\.?\s*(?:\.\s*)?(?:siteKey|host)\b|\b(?:siteKey|host)\s*[:=]\s*safeString\(\s*(?:input|payload)/;
+const CLAIMS_IDENTITY =
+  /\b(?:input|payload|opts)\s*(?:&&|\?)?\s*\.?\s*(?:\.\s*)?(?:siteKey|host)\b|\b(?:siteKey|host)\s*[:=]\s*safeString\(\s*(?:input|payload)|(?:const|let)\s*\{[^}]*\b(?:siteKey|host)\b[^}]*\}\s*=\s*(?:input|payload|opts)\b/;
 
 for (const h of handlers) {
   if (h.guardsSender) continue;
@@ -279,6 +288,28 @@ for (const h of handlers) {
   );
 }
 
+// An entry in that allowlist is a claim that a channel returns a raw message on
+// purpose. The claim expires when the channel is renamed, stops being reachable
+// from a site, or is rewritten to return a code - and nothing noticed, which is
+// how a list like this turns into folklore nobody dares touch.
+for (const channel of RAW_ERROR_ALLOWED) {
+  const list = byChannel.get(channel);
+  const why = !list
+    ? 'no handler registers it any more'
+    : !fromSite.has(channel)
+      ? 'no preload exposes it to a site any more'
+      : !list.some((h) => RETURNS_RAW_ERROR.test(h.body))
+        ? 'it no longer returns a raw error message'
+        : '';
+  if (!why) continue;
+  violations.push({
+    rule: 'stale-allowlist-entry',
+    where: 'scripts/check-ipc.mjs',
+    channel,
+    detail: `listed in RAW_ERROR_ALLOWED, but ${why} - remove the entry`,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
@@ -289,6 +320,7 @@ const TITLES = {
   'no-missing-handler': 'Channel called by a preload with no handler',
   'shims-must-match': 'chrome namespace present in one preload shim but not the other',
   'no-raw-error-to-site': 'Raw error message returned to a site',
+  'stale-allowlist-entry': 'RAW_ERROR_ALLOWED excuses a channel that no longer needs it',
 };
 
 const siteCount = handlers.filter((h) => fromSite.has(h.channel)).length;
