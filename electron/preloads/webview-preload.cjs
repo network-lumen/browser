@@ -2784,7 +2784,6 @@ function createMinimalBrowserApi() {
       },
       onMessage: nativeRuntime?.onMessage || webview_utils.createBrowserEvent(),
       onConnect: nativeRuntime?.onConnect || webview_utils.createBrowserEvent(),
-      onStateChanged: webview_utils.createBrowserEvent(),
       sendMessage: async (extensionIdOrMessage, messageOrOptions, optionsOrCallback, maybeCallback) => {
         debugLog('[webview-preload] runtime.sendMessage called', {
           hasNativeRuntime: !!nativeRuntime,
