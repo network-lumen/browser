@@ -1,5 +1,5 @@
 import { test, expect, type ElectronApplication } from '@playwright/test';
-import { launchApp, evalInApp, windowWithBridge, appWindow, NO_DISPLAY, NO_DISPLAY_REASON } from './support/launch';
+import { NO_DISPLAY, NO_DISPLAY_REASON, appWindow, closeApp, evalInApp, launchApp, windowWithBridge } from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
 test.describe.configure({ mode: 'serial' });
@@ -62,7 +62,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await app?.close().catch(() => {});
+  await closeApp(app);
 });
 
 /** Drive the address bar, the way the renderer suite does. */

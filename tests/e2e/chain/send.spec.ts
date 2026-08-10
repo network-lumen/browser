@@ -1,7 +1,7 @@
 import { Bip39, Random } from '@cosmjs/crypto';
 import { type ElectronApplication, expect, test } from '@playwright/test';
 import { assertWithinCap, chainWallet } from '../electron/support/env';
-import { LAUNCH_TIMEOUT, NO_DISPLAY, NO_DISPLAY_REASON } from '../electron/support/launch';
+import { LAUNCH_TIMEOUT, NO_DISPLAY, NO_DISPLAY_REASON, closeApp } from '../electron/support/launch';
 import {
   balanceUlmn,
   importWallet,
@@ -88,7 +88,7 @@ test.describe('a first transaction links PQC and the money comes back', () => {
   });
 
   test.afterAll(async () => {
-    await app?.close();
+    await closeApp(app);
   });
 
   test('the throwaway address starts empty and unknown to the PQC module', async () => {

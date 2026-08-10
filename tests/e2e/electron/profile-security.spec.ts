@@ -1,5 +1,5 @@
 import { test, expect, type ElectronApplication } from '@playwright/test';
-import { launchApp, windowWithBridge, NO_DISPLAY, NO_DISPLAY_REASON } from './support/launch';
+import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, launchApp, windowWithBridge } from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
 test.describe.configure({ mode: 'serial' });
@@ -32,7 +32,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await app?.close().catch(() => {});
+  await closeApp(app);
 });
 
 test('starts with no profile and no password', async () => {
@@ -109,7 +109,7 @@ test('locking forgets the password until it is given again', async () => {
 test('the password survives a restart, and the session does not', async () => {
   // The distinction that matters after closing the laptop: the protection is on
   // disk, the permission to use it is not.
-  await app.close().catch(() => {});
+  await closeApp(app);
   ({ app } = await launchApp('security'));
   const w = await bridge();
 
