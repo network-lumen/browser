@@ -18,7 +18,7 @@ const {
   removeSecurityPassword,
   getStoredPasswordHash
 } = require('../settings.cjs');
-const { userDataPath, readJson } = require('../utils/fs.cjs');
+const { userDataPath, readJson, writeFilesAtomic } = require('../utils/fs.cjs');
 const { repairPlaintextPqcKeys } = require('../utils/pqc-keys.cjs');
 
 // In-memory password cache for session (cleared on app quit).
@@ -198,185 +198,171 @@ function verifyStoredPassword(password) {
 }
 
 /**
- * Re-encrypt all keystores from app-secret to password-based
+ * Every secret on disk, decrypted, or nothing at all.
+ *
+ * This is the half that used to be missing. Re-encrypting used to walk the
+ * profiles writing as it went, catching per profile and carrying on, and the
+ * new password hash was stored afterwards regardless. A profile that failed to
+ * re-encrypt therefore kept the old password while the app believed the new
+ * one - and that wallet could never be opened again. There was no backup and
+ * no way back.
+ *
+ * So: read and decrypt everything first. One failure aborts the whole thing
+ * before a single byte is written.
+ *
+ * @param decryptKeystore given the keystore and the profile id, returns
+ *   `{ mnemonic }`, `{ skip: true }` for one that needs no conversion, or
+ *   `{ error }`.
+ * @returns `{ ok: true, keystores, pqcKeys }` or `{ ok: false, error, profileId? }`
+ */
+function readAllSecrets(decryptKeystore, decryptPqc) {
+  let profiles = [];
+  try {
+    const data = readJson(userDataPath('profiles.json'), { profiles: [] });
+    profiles = Array.isArray(data.profiles) ? data.profiles : [];
+  } catch {
+    profiles = [];
+  }
+
+  const keystores = [];
+  for (const p of profiles) {
+    const ksPath = keystorePath(p.id);
+    if (!fs.existsSync(ksPath)) continue;
+
+    let ks;
+    try {
+      ks = readJson(ksPath, null);
+    } catch {
+      return { ok: false, error: 'keystore_unreadable', profileId: p.id };
+    }
+    if (!ks || !ks.crypto) continue;
+
+    let outcome;
+    try {
+      outcome = decryptKeystore(ks, p.id);
+    } catch {
+      outcome = { error: 'keystore_decrypt_failed' };
+    }
+    if (outcome.skip) continue;
+    if (!outcome.mnemonic) {
+      return { ok: false, error: outcome.error || 'keystore_decrypt_failed', profileId: p.id };
+    }
+    keystores.push({ path: ksPath, mnemonic: outcome.mnemonic });
+  }
+
+  const keysFile = path.join(pqcKeysDir(), 'keys.json');
+  let pqcKeys = null;
+  if (fs.existsSync(keysFile)) {
+    let outcome;
+    try {
+      outcome = decryptPqc(readJson(keysFile, {}) || {});
+    } catch {
+      outcome = { error: 'pqc_decrypt_failed' };
+    }
+    if (outcome.error) return { ok: false, error: outcome.error };
+    if (!outcome.skip) pqcKeys = { path: keysFile, keys: outcome.keys };
+  }
+
+  return { ok: true, keystores, pqcKeys };
+}
+
+/** Phase two: everything is in hand, so write it in one batch. */
+function writeAllSecrets(secrets, encryptKeystore, encryptPqc) {
+  const entries = secrets.keystores.map(({ path: file, mnemonic }) => ({
+    file,
+    contents: JSON.stringify(encryptKeystore(mnemonic), null, 2)
+  }));
+  if (secrets.pqcKeys) {
+    entries.push({
+      file: secrets.pqcKeys.path,
+      contents: JSON.stringify(encryptPqc(secrets.pqcKeys.keys), null, 2)
+    });
+  }
+  writeFilesAtomic(entries);
+  return { ok: true, changed: entries.length };
+}
+
+/**
+ * Turns password protection on: every keystore moves from the machine secret
+ * to the password.
  */
 function reEncryptAllKeystores(password) {
-  const profilesFile = userDataPath('profiles.json');
-  let profiles = [];
-  try {
-    const data = readJson(profilesFile, { profiles: [] });
-    profiles = Array.isArray(data.profiles) ? data.profiles : [];
-  } catch {
-    profiles = [];
-  }
-
-  for (const p of profiles) {
-    const ksPath = keystorePath(p.id);
-    if (!fs.existsSync(ksPath)) continue;
-
-    try {
-      const ks = readJson(ksPath, null);
-      if (!ks || !ks.crypto) continue;
-
-      // Skip if already password protected
-      if (isPasswordProtected(ks)) continue;
-
-      // Decrypt with app secret
+  const secrets = readAllSecrets(
+    (ks) => {
+      if (isPasswordProtected(ks)) return { skip: true };
       const mnemonic = decryptMnemonicLocal(ks);
-      if (!mnemonic) continue;
+      return mnemonic ? { mnemonic } : { error: 'keystore_decrypt_failed' };
+    },
+    (raw) => (raw && raw._encrypted ? { skip: true } : { keys: raw })
+  );
+  if (!secrets.ok) return secrets;
 
-      // Re-encrypt with password
-      const newKs = encryptWithPassword(mnemonic, password);
-      fs.writeFileSync(ksPath, JSON.stringify(newKs, null, 2), 'utf8');
-    } catch (e) {
-      console.warn('[security] failed to re-encrypt keystore for profile', p.id, e);
+  return writeAllSecrets(
+    secrets,
+    (mnemonic) => encryptWithPassword(mnemonic, password),
+    (keys) => {
+      const encrypted = encryptWithPassword(JSON.stringify(keys), password);
+      encrypted._encrypted = true;
+      return encrypted;
     }
-  }
-
-  // Re-encrypt PQC keys
-  reEncryptPqcKeys(password);
+  );
 }
 
-/**
- * Re-encrypt PQC keys with password
- */
-function reEncryptPqcKeys(password) {
-  const keysFile = path.join(pqcKeysDir(), 'keys.json');
-  if (!fs.existsSync(keysFile)) return;
-
-  try {
-    const keys = readJson(keysFile, {});
-    if (!keys || typeof keys !== 'object') return;
-
-    // Check if already encrypted
-    if (keys._encrypted) return;
-
-    // Encrypt the entire keys object
-    const encrypted = encryptWithPassword(JSON.stringify(keys), password);
-    encrypted._encrypted = true;
-    fs.writeFileSync(keysFile, JSON.stringify(encrypted, null, 2), 'utf8');
-  } catch (e) {
-    console.warn('[security] failed to re-encrypt PQC keys', e);
-  }
-}
-
-/**
- * Re-encrypt all keystores from password to app-secret (when removing password)
- */
+/** Turns password protection off: everything moves back to the machine secret. */
 function reEncryptToAppSecret(currentPassword) {
-  const profilesFile = userDataPath('profiles.json');
-  let profiles = [];
-  try {
-    const data = readJson(profilesFile, { profiles: [] });
-    profiles = Array.isArray(data.profiles) ? data.profiles : [];
-  } catch {
-    profiles = [];
-  }
-
-  for (const p of profiles) {
-    const ksPath = keystorePath(p.id);
-    if (!fs.existsSync(ksPath)) continue;
-
-    try {
-      const ks = readJson(ksPath, null);
-      if (!ks || !ks.crypto) continue;
-
-      // Only convert password-protected keystores
-      if (!isPasswordProtected(ks)) continue;
-
-      // Decrypt with password
+  const secrets = readAllSecrets(
+    (ks) => {
+      if (!isPasswordProtected(ks)) return { skip: true };
       const mnemonic = decryptMnemonicWithPassword(ks, currentPassword);
-      if (!mnemonic) continue;
-
-      // Re-encrypt with app secret
-      const newKs = encryptMnemonicLocal(mnemonic);
-      fs.writeFileSync(ksPath, JSON.stringify(newKs, null, 2), 'utf8');
-    } catch (e) {
-      console.warn('[security] failed to re-encrypt keystore to app secret for profile', p.id, e);
+      return mnemonic ? { mnemonic } : { error: 'invalid_password' };
+    },
+    (raw) => {
+      if (!raw || !raw._encrypted || !raw.crypto) return { skip: true };
+      try {
+        return { keys: JSON.parse(decryptWithPassword(raw, currentPassword)) };
+      } catch {
+        return { error: 'invalid_password' };
+      }
     }
-  }
+  );
+  if (!secrets.ok) return secrets;
 
-  // Decrypt PQC keys back to plain
-  decryptPqcKeysToPlain(currentPassword);
+  return writeAllSecrets(
+    secrets,
+    (mnemonic) => encryptMnemonicLocal(mnemonic),
+    (keys) => keys
+  );
 }
 
-/**
- * Decrypt PQC keys back to plain storage
- */
-function decryptPqcKeysToPlain(password) {
-  const keysFile = path.join(pqcKeysDir(), 'keys.json');
-  if (!fs.existsSync(keysFile)) return;
-
-  try {
-    const encrypted = readJson(keysFile, {});
-    if (!encrypted || !encrypted._encrypted || !encrypted.crypto) return;
-
-    const decrypted = decryptWithPassword(encrypted, password);
-    const keys = JSON.parse(decrypted);
-    fs.writeFileSync(keysFile, JSON.stringify(keys, null, 2), 'utf8');
-  } catch (e) {
-    console.warn('[security] failed to decrypt PQC keys', e);
-  }
-}
-
-/**
- * Change password - re-encrypt all keys with new password
- */
+/** Moves every secret from one password to another. */
 function changePassword(currentPassword, newPassword) {
-  // First decrypt everything with current password, then re-encrypt with new
-  const profilesFile = userDataPath('profiles.json');
-  let profiles = [];
-  try {
-    const data = readJson(profilesFile, { profiles: [] });
-    profiles = Array.isArray(data.profiles) ? data.profiles : [];
-  } catch {
-    profiles = [];
-  }
-
-  for (const p of profiles) {
-    const ksPath = keystorePath(p.id);
-    if (!fs.existsSync(ksPath)) continue;
-
-    try {
-      const ks = readJson(ksPath, null);
-      if (!ks || !ks.crypto) continue;
-
-      let mnemonic;
-      if (isPasswordProtected(ks)) {
-        mnemonic = decryptMnemonicWithPassword(ks, currentPassword);
-      } else {
-        mnemonic = decryptMnemonicLocal(ks);
+  const secrets = readAllSecrets(
+    (ks) => {
+      const mnemonic = isPasswordProtected(ks)
+        ? decryptMnemonicWithPassword(ks, currentPassword)
+        : decryptMnemonicLocal(ks);
+      return mnemonic ? { mnemonic } : { error: 'invalid_password' };
+    },
+    (raw) => {
+      if (!raw || !raw._encrypted || !raw.crypto) return { keys: raw || {} };
+      try {
+        return { keys: JSON.parse(decryptWithPassword(raw, currentPassword)) };
+      } catch {
+        return { error: 'invalid_password' };
       }
-      if (!mnemonic) continue;
-
-      // Re-encrypt with new password
-      const newKs = encryptWithPassword(mnemonic, newPassword);
-      fs.writeFileSync(ksPath, JSON.stringify(newKs, null, 2), 'utf8');
-    } catch (e) {
-      console.warn('[security] failed to change password for profile', p.id, e);
     }
-  }
+  );
+  if (!secrets.ok) return secrets;
 
-  // Re-encrypt PQC keys
-  const keysFile = path.join(pqcKeysDir(), 'keys.json');
-  if (fs.existsSync(keysFile)) {
-    try {
-      const encrypted = readJson(keysFile, {});
-      let keys;
-      if (encrypted._encrypted && encrypted.crypto) {
-        const decrypted = decryptWithPassword(encrypted, currentPassword);
-        keys = JSON.parse(decrypted);
-      } else {
-        keys = encrypted;
-      }
-
-      const newEncrypted = encryptWithPassword(JSON.stringify(keys), newPassword);
-      newEncrypted._encrypted = true;
-      fs.writeFileSync(keysFile, JSON.stringify(newEncrypted, null, 2), 'utf8');
-    } catch (e) {
-      console.warn('[security] failed to change password for PQC keys', e);
+  return writeAllSecrets(
+    secrets,
+    (mnemonic) => encryptWithPassword(mnemonic, newPassword),
+    (keys) => {
+      const encrypted = encryptWithPassword(JSON.stringify(keys), newPassword);
+      encrypted._encrypted = true;
+      return encrypted;
     }
-  }
+  );
 }
 
 function registerSecurityIpc() {
@@ -404,19 +390,28 @@ function registerSecurityIpc() {
 
       const status = getSecurityStatus();
 
-      // If already has password, verify current password first
-      if (status.hasPassword) {
-        if (!currentPassword) {
-          return { ok: false, error: 'current_password_required' };
-        }
-        if (!verifyStoredPassword(currentPassword)) {
-          return { ok: false, error: 'invalid_current_password' };
-        }
-        // Change password
-        changePassword(currentPassword, password);
-      } else {
-        // First time setting password - re-encrypt existing keys
-        reEncryptAllKeystores(password);
+      // The order here is the whole point. The secrets are converted first, and
+      // the stored hash only moves if every one of them made it. Storing the
+      // hash first - or storing it after a conversion that half-failed - leaves
+      // a wallet encrypted with a password the app no longer knows, and there
+      // is no way back from that.
+      const converted = status.hasPassword
+        ? (() => {
+            if (!currentPassword) return { ok: false, error: 'current_password_required' };
+            if (!verifyStoredPassword(currentPassword)) {
+              return { ok: false, error: 'invalid_current_password' };
+            }
+            return changePassword(currentPassword, password);
+          })()
+        : reEncryptAllKeystores(password);
+
+      if (!converted.ok) {
+        console.warn(
+          '[security] password change aborted, nothing was written:',
+          converted.error,
+          converted.profileId ? `profile=${converted.profileId}` : ''
+        );
+        return converted;
       }
 
       // Hash and store the new password
@@ -467,8 +462,14 @@ function registerSecurityIpc() {
         return { ok: false, error: 'invalid_password' };
       }
 
-      // Re-encrypt back to app secret
-      reEncryptToAppSecret(password);
+      // Same order as setting one: convert first, and only forget the password
+      // if every secret came back under the machine secret. Forgetting it while
+      // a keystore still needs it is unrecoverable.
+      const converted = reEncryptToAppSecret(password);
+      if (!converted.ok) {
+        console.warn('[security] password removal aborted, nothing was written:', converted.error);
+        return converted;
+      }
 
       // Remove password from settings
       removeSecurityPassword();

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { randomBytes, scryptSync, createCipheriv, createDecipheriv, createHash, timingSafeEqual } = require('crypto');
-const { userDataPath, ensureDir } = require('./fs.cjs');
+const { userDataPath, ensureDir , writeFileAtomic } = require('./fs.cjs');
 
 function secretFilePath() { // Important: compute at call-time so it respects app.setPath('userData', ...) even if this module was imported before Electron finishes booting
   return userDataPath('secret.bin');
@@ -21,7 +21,7 @@ function readSecretFile(filePath) { // We expect a 32-byte random secret
 function writeSecretFile(filePath, secret) {
   try {
     ensureDir(path.dirname(filePath));
-    fs.writeFileSync(filePath, secret);
+    writeFileAtomic(filePath, secret);
     return true;
   } catch {
     return false;
@@ -56,23 +56,42 @@ function sha256(data, { bytes = false, length = 0, upper = false } = {}) {
   return upper ? out.toUpperCase() : out;
 }
 
+// The machine secret is 32 random bytes read from a file. It has full entropy
+// already, so stretching it buys nothing - the cost here is inherited, not
+// chosen, and it is kept only because existing keystores record it.
 const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1, dklen: 32 };
-// Lower params for password-based encryption to avoid memory issues
-// N=2048, r=8 is still secure and uses only ~2MB memory
-const SCRYPT_PARAMS_PASSWORD = { N: 2048, r: 8, p: 1, dklen: 32 };
 
 /**
- * Derive a 32-byte key from a password using scrypt
+ * Work factor for a *human* password, which is the only secret here that a
+ * dictionary can reach.
+ *
+ * This used to be N=2048 - eight times cheaper than the parameters used for the
+ * random machine secret, which is precisely backwards: the cost was being spent
+ * where it bought nothing and saved where it was the whole defence. N=65536 is
+ * ~64 MB and a few hundred milliseconds, which is unnoticeable once per unlock
+ * and expensive per guess.
+ *
+ * Nothing already on disk breaks. Every encrypted blob records the parameters
+ * it was made with and is decrypted with those; the stored password hash does
+ * too, and `verifyPassword` below honours it. Old material simply keeps its old
+ * cost until the user next changes their password, which re-encrypts
+ * everything through the transactional path in ipc/security.cjs.
  */
-function deriveKeyFromPassword(password, salt) {
+const SCRYPT_PARAMS_PASSWORD = { N: 65536, r: 8, p: 1, dklen: 32 };
+/** What a stored hash with no recorded parameters was made with. */
+const LEGACY_SCRYPT_PARAMS_PASSWORD = { N: 2048, r: 8, p: 1, dklen: 32 };
+const SCRYPT_MAXMEM = 256 * 1024 * 1024;
+
+/**
+ * Derive a 32-byte key from a password using scrypt.
+ *
+ * `params` is what makes an older secret still readable: pass the ones recorded
+ * beside it, and omit them only when creating something new.
+ */
+function deriveKeyFromPassword(password, salt, params = SCRYPT_PARAMS_PASSWORD) {
   const passwordBuf = Buffer.from(String(password || ''), 'utf8');
-  // Explicitly set maxmem to 64MB to avoid memory limit errors
-  return scryptSync(passwordBuf, salt, SCRYPT_PARAMS_PASSWORD.dklen, {
-    N: SCRYPT_PARAMS_PASSWORD.N,
-    r: SCRYPT_PARAMS_PASSWORD.r,
-    p: SCRYPT_PARAMS_PASSWORD.p,
-    maxmem: 64 * 1024 * 1024
-  });
+  const { N, r, p, dklen } = { ...SCRYPT_PARAMS_PASSWORD, ...(params || {}) };
+  return scryptSync(passwordBuf, salt, dklen || 32, { N, r, p, maxmem: SCRYPT_MAXMEM });
 }
 
 /**
@@ -81,7 +100,7 @@ function deriveKeyFromPassword(password, salt) {
  */
 function hashPassword(password) {
   const salt = randomBytes(32);
-  const key = deriveKeyFromPassword(password, salt);
+  const key = deriveKeyFromPassword(password, salt, SCRYPT_PARAMS_PASSWORD);
   // Hash the derived key so we don't store the actual key
   const hash = createHash('sha256').update(key).digest();
   return {
@@ -93,13 +112,22 @@ function hashPassword(password) {
 }
 
 /**
- * Verify a password against stored hash
+ * Verify a password against stored hash.
+ *
+ * Derives with the parameters recorded next to the hash, not with today's. That
+ * distinction is what lets the work factor be raised at all: verifying with the
+ * new N against a hash made with the old one fails for every existing user, and
+ * they would be locked out of their own wallets by an upgrade.
  */
 function verifyPassword(password, stored) {
   if (!stored || !stored.hash || !stored.salt) return false;
   try {
     const salt = Buffer.from(stored.salt, 'base64');
-    const key = deriveKeyFromPassword(password, salt);
+    const params =
+      stored.params && Number.isFinite(Number(stored.params.N))
+        ? stored.params
+        : LEGACY_SCRYPT_PARAMS_PASSWORD;
+    const key = deriveKeyFromPassword(password, salt, params);
     const hash = createHash('sha256').update(key).digest();
     const storedHash = Buffer.from(stored.hash, 'base64');
     if (hash.length !== storedHash.length) return false;
@@ -147,10 +175,15 @@ function decryptWithPassword(encrypted, password) {
   }
   const { salt, N, r, p, dklen } = encrypted.crypto.kdfparams;
   const saltBuf = Buffer.from(salt, 'base64');
-  // Set maxmem high enough to handle any stored N value
-  const key = scryptSync(Buffer.from(String(password || ''), 'utf8'), saltBuf, dklen || 32, { 
-    N, r, p, 
-    maxmem: 128 * 1024 * 1024 // 128MB to handle large N values
+  // The cost comes out of the file, so it is refused rather than attempted when
+  // it is absurd: a corrupt or hostile keystore naming a huge N would otherwise
+  // be handed straight to scrypt and take the app down with it.
+  if (!Number.isInteger(N) || N < 1024 || N > 1_048_576) {
+    throw new Error('unsupported_kdf_parameters');
+  }
+  const key = scryptSync(Buffer.from(String(password || ''), 'utf8'), saltBuf, dklen || 32, {
+    N, r, p,
+    maxmem: SCRYPT_MAXMEM
   });
   const iv = Buffer.from(encrypted.crypto.iv, 'base64');
   const tag = Buffer.from(encrypted.crypto.tag, 'base64');

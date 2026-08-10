@@ -1,6 +1,7 @@
 const { app } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
+const { writeFileAtomic } = require('../utils/fs.cjs');
 
 const FILE_NAME = 'lumen_site_permissions.json';
 const VERSION = 1;
@@ -29,7 +30,7 @@ function persistToDisk(data) {
   const fp = permissionsPath();
   try {
     fs.mkdirSync(path.dirname(fp), { recursive: true });
-    fs.writeFileSync(fp, JSON.stringify(data, null, 2), 'utf8');
+    writeFileAtomic(fp, JSON.stringify(data, null, 2));
   } catch (e) {
     console.warn('[electron][lumenSite] failed to persist permissions:', e);
   }

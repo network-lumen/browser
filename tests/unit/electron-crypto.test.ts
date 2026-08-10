@@ -77,9 +77,14 @@ describe('password hashing', () => {
   });
 
   it('records the parameters it used, so a later change stays readable', () => {
+    // The point is that they are written down, not what they are: N was raised
+    // from 2048, and pinning the number here is what would make the next raise
+    // look like a break. tests/unit/password-kdf.test.ts covers the floor and
+    // the compatibility with hashes made before it moved.
     const stored = crypto_.hashPassword('pw');
     expect(stored.algorithm).toBe('scrypt-sha256');
-    expect(stored.params).toMatchObject({ N: 2048, r: 8, p: 1, dklen: 32 });
+    expect(stored.params).toMatchObject({ r: 8, p: 1, dklen: 32 });
+    expect(Number.isInteger(stored.params.N)).toBe(true);
   });
 });
 

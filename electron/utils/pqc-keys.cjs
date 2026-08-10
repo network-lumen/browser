@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { userDataPath, readJson } = require('./fs.cjs');
+const { userDataPath, readJson , writeFileAtomic } = require('./fs.cjs');
 const { encryptWithPassword, decryptWithPassword, isPasswordProtected } = require('./crypto.cjs');
 
 function resolvePqcHomeDir() {
@@ -59,7 +59,7 @@ function tempDecryptPqcKeys(password) {
 
     // Save decrypted version temporarily and keep encrypted backup as fallback.
     const backup = JSON.stringify(data);
-    fs.writeFileSync(keysFile, JSON.stringify(decryptedKeys, null, 2), 'utf8');
+    writeFileAtomic(keysFile, JSON.stringify(decryptedKeys, null, 2));
 
     return () => {
       try {
@@ -77,11 +77,11 @@ function tempDecryptPqcKeys(password) {
         if (current && typeof current === 'object') {
           const encryptedCurrent = encryptWithPassword(JSON.stringify(current), password);
           encryptedCurrent._encrypted = true;
-          fs.writeFileSync(keysFile, JSON.stringify(encryptedCurrent, null, 2), 'utf8');
+          writeFileAtomic(keysFile, JSON.stringify(encryptedCurrent, null, 2));
           return;
         }
 
-        fs.writeFileSync(keysFile, backup, 'utf8');
+        writeFileAtomic(keysFile, backup);
       } catch (e) {
         console.error('[pqc-keys] failed to restore encrypted PQC keys', e);
       }
@@ -124,7 +124,7 @@ function repairPlaintextPqcKeys(password) {
 
     const encrypted = encryptWithPassword(JSON.stringify(data), password);
     encrypted._encrypted = true;
-    fs.writeFileSync(keysFile, JSON.stringify(encrypted, null, 2), 'utf8');
+    writeFileAtomic(keysFile, JSON.stringify(encrypted, null, 2));
     console.warn(
       `[pqc-keys] re-encrypted ${names.length} PQC key(s) left in the clear by a previous run`
     );

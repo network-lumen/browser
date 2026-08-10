@@ -4,6 +4,7 @@ const path = require('node:path');
 const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const { httpModuleForUrl } = require('./utils/http.cjs');
+const { writeFileAtomic } = require('./utils/fs.cjs');
 const { recordCidResolutionFailure, recordCidResolutionSuccess } = require('./daemons/ipfs_seed.cjs');
 const { getSetting } = require('./settings.cjs');
 
@@ -178,7 +179,7 @@ function persistPinJobsNow() {
     const finalJobs = jobs.filter((job) => isFinalPinJobStatus(job.status));
     const nonFinalJobs = jobs.filter((job) => !isFinalPinJobStatus(job.status));
     const pruned = [...nonFinalJobs, ...finalJobs.slice(0, 50)];
-    fs.writeFileSync(getPinJobsFilePath(), JSON.stringify({ version: 1, jobs: pruned }, null, 2), 'utf8');
+    writeFileAtomic(getPinJobsFilePath(), JSON.stringify({ version: 1, jobs: pruned }, null, 2));
   } catch (e) {
     console.warn('[electron][ipfs] persist pin jobs failed:', String(e?.message || e));
   }
@@ -918,7 +919,7 @@ function ensureSubdomainGatewayConfig(repoPath) {
 
     cfg.Gateway.PublicGateways = pg;
 
-    fs.writeFileSync(cfgFile, JSON.stringify(cfg, null, 2), 'utf8');
+    writeFileAtomic(cfgFile, JSON.stringify(cfg, null, 2));
   } catch (e) {
     console.warn('[electron][ipfs] ensureSubdomainGatewayConfig failed', e);
   }

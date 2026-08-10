@@ -1,5 +1,13 @@
 import { test, expect, type ElectronApplication } from '@playwright/test';
-import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, launchApp, windowWithBridge } from './support/launch';
+import {
+  NO_DISPLAY,
+  NO_DISPLAY_REASON,
+  closeApp,
+  evalInApp,
+  evalInAppOnce,
+  launchApp,
+  windowWithBridge
+} from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
 test.describe.configure({ mode: 'serial' });
@@ -36,8 +44,7 @@ test.afterAll(async () => {
 });
 
 test('starts with no profile and no password', async () => {
-  const w = await bridge();
-  const state = await w.evaluate(async () => {
+  const state = await evalInApp(app, async () => {
     const l = (window as any).lumen;
     return { profiles: await l.profiles.list(), security: await l.security.getStatus() };
   });
@@ -47,8 +54,7 @@ test('starts with no profile and no password', async () => {
 });
 
 test('creating a profile mints a wallet address', async () => {
-  const w = await bridge();
-  const created = await w.evaluate(() => (window as any).lumen.profiles.create('E2E Tester'));
+  const created = await evalInAppOnce(app, () => (window as any).lumen.profiles.create('E2E Tester'));
 
   expect(created).toBeTruthy();
   expect(created.role).not.toBe('guest');
@@ -56,53 +62,49 @@ test('creating a profile mints a wallet address', async () => {
   // placeholder row written to a JSON file.
   expect(String(created.walletAddress)).toMatch(/^lmn1[0-9a-z]{38,}$/);
 
-  const list = await w.evaluate(() => (window as any).lumen.profiles.list());
+  const list = await evalInApp(app, () => (window as any).lumen.profiles.list());
   expect(list.profiles.map((p: any) => p.id)).toContain(created.id);
 });
 
 test('refuses a password too short to be worth having', async () => {
-  const w = await bridge();
-  const res = await w.evaluate(() => (window as any).lumen.security.setPassword({ password: 'abc' }));
+  const res = await evalInAppOnce(app, () => (window as any).lumen.security.setPassword({ password: 'abc' }));
   expect(res).toMatchObject({ ok: false, error: 'password_too_short' });
 
-  const status = await w.evaluate(() => (window as any).lumen.security.getStatus());
+  const status = await evalInApp(app, () => (window as any).lumen.security.getStatus());
   expect(status.hasPassword).toBe(false);
 });
 
 test('setting a password turns protection on and leaves the session open', async () => {
-  const w = await bridge();
-  const res = await w.evaluate((p) => (window as any).lumen.security.setPassword({ password: p }), PASSWORD);
+  const res = await evalInAppOnce(app, (p) => (window as any).lumen.security.setPassword({ password: p }), PASSWORD);
   expect(res.ok).toBe(true);
 
-  const status = await w.evaluate(() => (window as any).lumen.security.getStatus());
+  const status = await evalInApp(app, () => (window as any).lumen.security.getStatus());
   expect(status.hasPassword).toBe(true);
 
   // Setting it must not lock the user out of the app they are using.
-  const session = await w.evaluate(() => (window as any).lumen.security.checkSession());
+  const session = await evalInApp(app, () => (window as any).lumen.security.checkSession());
   expect(session.active).toBe(true);
 });
 
 test('the wrong password is refused and the right one accepted', async () => {
-  const w = await bridge();
-  const wrong = await w.evaluate(() => (window as any).lumen.security.verifyPassword({ password: 'not-it' }));
+  const wrong = await evalInAppOnce(app, () => (window as any).lumen.security.verifyPassword({ password: 'not-it' }));
   expect(wrong.ok).toBe(false);
 
-  const right = await w.evaluate((p) => (window as any).lumen.security.verifyPassword({ password: p }), PASSWORD);
+  const right = await evalInAppOnce(app, (p) => (window as any).lumen.security.verifyPassword({ password: p }), PASSWORD);
   expect(right.ok).toBe(true);
 });
 
 test('locking forgets the password until it is given again', async () => {
-  const w = await bridge();
-  await w.evaluate(() => (window as any).lumen.security.lockSession());
+  await evalInAppOnce(app, () => (window as any).lumen.security.lockSession());
 
-  const locked = await w.evaluate(() => (window as any).lumen.security.checkSession());
+  const locked = await evalInApp(app, () => (window as any).lumen.security.checkSession());
   expect(locked.active).toBe(false);
 
   // Verifying is how the unlock screen re-establishes the session.
-  const unlocked = await w.evaluate((p) => (window as any).lumen.security.verifyPassword({ password: p }), PASSWORD);
+  const unlocked = await evalInAppOnce(app, (p) => (window as any).lumen.security.verifyPassword({ password: p }), PASSWORD);
   expect(unlocked.ok).toBe(true);
 
-  const after = await w.evaluate(() => (window as any).lumen.security.checkSession());
+  const after = await evalInApp(app, () => (window as any).lumen.security.checkSession());
   expect(after.active).toBe(true);
 });
 
@@ -111,9 +113,8 @@ test('the password survives a restart, and the session does not', async () => {
   // disk, the permission to use it is not.
   await closeApp(app);
   ({ app } = await launchApp('security'));
-  const w = await bridge();
 
-  const state = await w.evaluate(async () => {
+  const state = await evalInApp(app, async () => {
     const l = (window as any).lumen;
     return { security: await l.security.getStatus(), session: await l.security.checkSession() };
   });

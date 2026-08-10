@@ -407,8 +407,12 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
     return { ok: false, error: 'invalid_url' };
   }
+  // A digest is required, not optional. Both checks further down were written
+  // as `if (expectedSha && ...)`, so a release that simply carried no hash was
+  // downloaded and installed with nothing verified at all - on Windows by
+  // running the NSIS installer, on macOS by replacing the .app.
   const expectedSha = String(sha256Hex || '').trim().toLowerCase();
-  if (expectedSha && !isValidSha256Hex(expectedSha)) return { ok: false, error: 'invalid_sha256' };
+  if (!isValidSha256Hex(expectedSha)) return { ok: false, error: 'invalid_sha256' };
 
   const updatesDir = path.join(app.getPath('userData'), 'updates');
   const installLogPath = path.join(updatesDir, 'update_install.log');
@@ -804,5 +808,6 @@ async function downloadAndInstall({ url, sha256Hex, sizeBytes, silent = true, la
 }
 
 module.exports = {
-  downloadAndInstall
+  downloadAndInstall,
+  isValidSha256Hex
 };
