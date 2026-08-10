@@ -32,8 +32,12 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      # Under xvfb because one of the two projects launches the real Electron
+      # app, and Electron needs a display server. Without it that project skips
+      # itself - silently, and it is the only test that proves the app boots at
+      # all: preloads attached, IPC answering, daemons started.
       - name: Run end-to-end tests
-        run: npm run test:e2e
+        run: xvfb-run -a npm run test:e2e
 
   build-mac:
     needs: [test]
