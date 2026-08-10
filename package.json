@@ -28,7 +28,9 @@
     "check:ipc": "node scripts/check-ipc.mjs",
     "check:tests": "node scripts/check-tests.mjs",
     "test:e2e:electron": "npx playwright test --project=electron",
-    "test:e2e:renderer": "npx playwright test --project=renderer"
+    "test:e2e:renderer": "npx playwright test --project=renderer",
+    "e2e:wallet": "node scripts/make-e2e-wallet.mjs",
+    "test:e2e:chain": "node scripts/run-chain-e2e.mjs"
   },
   "dependencies": {
     "@cosmjs/crypto": "^0.36.0",

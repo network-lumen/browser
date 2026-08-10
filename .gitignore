@@ -4,3 +4,7 @@ release
 test-files
 test-results
 CLAUDE.md
+
+# The chain tests' wallet. Real mnemonic, real chain - the example beside it is
+# the one that gets committed.
+tests/e2e/.env

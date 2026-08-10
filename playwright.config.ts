@@ -8,10 +8,16 @@ export default defineConfig({
   // flow is tested. `electron` launches the real app - main process, preloads,
   // IPC - which is the only thing that can say the app still boots.
   projects: [
-    { name: 'renderer', testDir: 'tests/e2e', testIgnore: '**/electron/**' },
+    { name: 'renderer', testDir: 'tests/e2e', testIgnore: ['**/electron/**', '**/chain/**'] },
     // One at a time: each spec launches a full app with its own IPFS daemon, and
     // three of those at once is heavier than the machine's patience.
-    { name: 'electron', testDir: 'tests/e2e/electron', timeout: 240_000, workers: 1 }
+    { name: 'electron', testDir: 'tests/e2e/electron', timeout: 240_000, workers: 1 },
+    // Real transactions on the real chain, so it is opt-in and never part of a
+    // plain `playwright test`: broadcasting costs money and cannot be undone.
+    // `npm run test:e2e:chain` sets the flag.
+    ...(process.env.LUMEN_E2E_CHAIN === '1'
+      ? [{ name: 'chain', testDir: 'tests/e2e/chain', timeout: 300_000, workers: 1 }]
+      : [])
   ],
   expect: {
     timeout: 5_000,
