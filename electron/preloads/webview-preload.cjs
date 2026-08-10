@@ -181,12 +181,25 @@ function isIpfsGatewayUrl(href) {
       return !!String(u.hostname || '').trim();
     }
 
+    // The path is not enough on its own: an ordinary website at
+    // https://evil.example/ipfs/<cid>/ used to pass this, get window.lumen,
+    // and be handed that cid's identity host-side (the same path-only test
+    // lived in sites/actions.cjs). Only what this app serves counts - loopback
+    // on any port, anything under .localhost. Kept inline rather than shared
+    // with the main process copy: a sandboxed preload that requires a local
+    // file stops loading, silently. Change both or neither.
+    const protocol = String(u.protocol || '').toLowerCase();
+    if (protocol !== 'http:' && protocol !== 'https:') return false;
+    const host = String(u.hostname || '').toLowerCase().replace(/^\[|\]$/g, '');
+    const trusted =
+      host === '127.0.0.1' || host === '::1' || host === 'localhost' || host.endsWith('.localhost');
+    if (!trusted) return false;
+
     const p = String(u.pathname || '/');
     if (p === '/ipfs' || p.startsWith('/ipfs/') || p === '/ipns' || p.startsWith('/ipns/')) return true;
 
-    const host = String(u.hostname || '').trim();
     if (!host) return false;
-    return /^([a-z0-9]+)\.(ipfs|ipns)\./i.test(host.toLowerCase());
+    return /^([a-z0-9]+)\.(ipfs|ipns)\./i.test(host);
   } catch {
     return false;
   }

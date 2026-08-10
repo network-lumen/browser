@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { stubElectron } from './support/electronStub';
 
@@ -79,23 +81,48 @@ describe('deriving a site key from a URL', () => {
     }
   });
 
-  it('keys on the path alone, whatever the origin - a site can be impersonated', () => {
-    // Recorded because it is true, not because it is right. Any origin whose
-    // path starts with /ipfs/<id> is handed that id's identity, and the
-    // preload's own gate (isIpfsGatewayUrl in webview-preload.cjs) tests the
-    // same path, so an ordinary website at https://evil.com/ipfs/<cid>/ is
-    // given window.lumen *and* that cid's stored permissions and site data.
-    //
-    // Tightening it to an origin allowlist is not free: contentResolver's
-    // pickFastestSource can legitimately serve a site from a whitelisted
-    // gateway or from ipfs.io, and those pages would lose the API. When that
-    // decision is made, this test is the one to change - deliberately.
-    expect(actions.deriveSiteKeyFromHref('https://evil.example/ipfs/bafyabc/')).toBe('ipfs:bafyabc');
-    expect(actions.deriveSiteKeyFromHref('chrome-extension://abc/ipfs/bafy')).toBe('ipfs:bafy');
+  it('refuses a foreign origin, whatever its path says', () => {
+    // The impersonation this closes: an ordinary website whose path is
+    // /ipfs/<cid> used to be handed that cid's identity - its stored "always
+    // allow", its site data - and webview-preload's gate tested the same path,
+    // so the page also got window.lumen. The attacker chose which site to
+    // impersonate by choosing a path on their own domain.
+    expect(actions.deriveSiteKeyFromHref('https://evil.example/ipfs/bafyabc/')).toBeNull();
+    expect(actions.deriveSiteKeyFromHref('https://ipfs.io/ipfs/bafyabc/')).toBeNull();
+    expect(actions.deriveSiteKeyFromHref('chrome-extension://abc/ipfs/bafy')).toBeNull();
+    // Subdomain form on someone else's host, which reads convincingly.
+    expect(actions.deriveSiteKeyFromHref('https://bafyabc.ipfs.evil.example/')).toBeNull();
+  });
+
+  it('accepts the addresses this app serves from', () => {
+    for (const href of [
+      'http://127.0.0.1:8080/ipfs/bafyabc/',
+      'http://localhost:5001/ipfs/bafyabc/',
+      'http://bafyabc.ipfs.localhost:8080/',
+      'http://social.lumen.lmn.localhost:8080/ipfs/bafyabc/'
+    ]) {
+      expect(actions.deriveSiteKeyFromHref(href), href).toBe('ipfs:bafyabc');
+    }
   });
 
   it('does not key a windows file path that merely contains ipfs', () => {
     expect(actions.deriveSiteKeyFromHref('file:///c:/tmp/ipfs/bafyabc')).toBeNull();
+  });
+});
+
+describe('the origin rule, which exists twice', () => {
+  // webview-preload decides whether to expose window.lumen; sites/actions
+  // decides which site is calling. Both have to agree, and the preload cannot
+  // require the shared copy - a sandboxed preload that requires a local file
+  // stops loading, silently. So the rule is duplicated on purpose, and this is
+  // what stops the two from drifting.
+  const predicate =
+    /host === '127\.0\.0\.1' \|\|\s*host === '::1' \|\|\s*host === 'localhost' \|\|\s*host\.endsWith\('\.localhost'\)/;
+
+  it('is the same expression in the main process and in the preload', () => {
+    const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
+    expect(read('electron/sites/actions.cjs')).toMatch(predicate);
+    expect(read('electron/preloads/webview-preload.cjs')).toMatch(predicate);
   });
 });
 
