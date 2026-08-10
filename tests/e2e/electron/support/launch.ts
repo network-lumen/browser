@@ -71,6 +71,8 @@ export type LaunchedApp = {
   /** Everything the main process wrote, for assertions about boot. */
   output: () => string;
   profileDir: string;
+  /** Where this suite's own daemon listens, for building URLs to serve from. */
+  ports: { api: number; gateway: number };
 };
 
 /**
@@ -105,7 +107,7 @@ export async function launchApp(name = 'default', opts: { fresh?: boolean } = {}
   app.process().stderr?.on('data', (d) => chunks.push(String(d)));
 
   await app.firstWindow({ timeout: LAUNCH_TIMEOUT });
-  return { app, output: () => chunks.join(''), profileDir };
+  return { app, output: () => chunks.join(''), profileDir, ports: portsFor(name) };
 }
 
 /**
@@ -156,6 +158,31 @@ export async function evalInApp<R, A>(
       if (!/has been closed|Target closed|Execution context/i.test(message)) throw e;
       if (Date.now() > deadline) throw e;
     }
+  }
+}
+
+/**
+ * The app's own window, never the splash.
+ *
+ * Both are open at once for a while, both load the same Vue app, and the splash
+ * is the one `windows()` hands back last - so a test that clicks "the window"
+ * clicks a loading screen with nothing on it. The splash carries `?splash=1`.
+ */
+export async function appWindow(app: ElectronApplication, timeoutMs = 60_000): Promise<Page> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const open = app.windows().filter((w) => !w.isClosed());
+    const main = open.find((w) => !w.url().includes('splash'));
+    if (main) {
+      try {
+        await main.waitForLoadState('domcontentloaded');
+        return main;
+      } catch {
+        // Replaced under us; look again.
+      }
+    }
+    if (Date.now() > deadline) throw new Error('the app never opened its main window');
+    await new Promise((r) => setTimeout(r, 250));
   }
 }
 
