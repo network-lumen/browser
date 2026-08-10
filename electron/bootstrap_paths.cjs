@@ -57,6 +57,26 @@ function persistBootstrapConfig(next) {
   return { ok: true };
 }
 
+/**
+ * A profile directory chosen from outside the app, for the run only.
+ *
+ * The same choice the Settings page already offers, reachable before the app
+ * has a window: "start Lumen on an empty profile" is the first question support
+ * asks when one looks corrupt, and it is the only way an end-to-end test can
+ * launch the real app without reading and writing the user's own wallet.
+ *
+ * It is not persisted. Nothing here writes it to bootstrap-paths.json, so the
+ * configured path is untouched and the next normal launch is unaffected.
+ */
+function getEnvUserDataPath() {
+  const raw = String(process.env.LUMEN_USER_DATA_DIR ?? '').trim();
+  // Absolute only. normalizeCustomUserDataPath would resolve a relative value
+  // against the working directory, so the same command run from two places
+  // would open two different wallets.
+  if (!raw || !path.isAbsolute(raw)) return '';
+  return normalizeCustomUserDataPath(raw);
+}
+
 function getBootstrapPathState() {
   const defaultUserDataPath = getDefaultUserDataPath();
   const disk = loadBootstrapConfig();
@@ -64,12 +84,18 @@ function getBootstrapPathState() {
   if (customUserDataPath && customUserDataPath === defaultUserDataPath) {
     customUserDataPath = '';
   }
+  const envUserDataPath = getEnvUserDataPath();
   return {
     bootstrapConfigPath: getBootstrapConfigPath(),
     defaultUserDataPath,
     customUserDataPath,
+    envUserDataPath,
     usingCustomUserDataPath: !!customUserDataPath,
-    effectiveUserDataPath: customUserDataPath || defaultUserDataPath,
+    // The environment wins over the configured path, which wins over the
+    // default. Reported separately above so the Settings page can say which
+    // one is in force rather than showing a path the user cannot change.
+    usingEnvUserDataPath: !!envUserDataPath,
+    effectiveUserDataPath: envUserDataPath || customUserDataPath || defaultUserDataPath,
   };
 }
 
@@ -113,6 +139,13 @@ function ensureUsableDirectory(targetPath) {
 }
 
 function setCustomUserDataPath(nextPath) {
+  // Refused rather than saved-and-ignored: with the environment in force the
+  // saved path would not take effect, and the Settings page would report a move
+  // that did not happen.
+  if (getEnvUserDataPath()) {
+    return { ok: false, error: 'user_data_path_pinned_by_env' };
+  }
+
   const normalized = normalizeCustomUserDataPath(nextPath);
   if (!normalized) return { ok: false, error: 'invalid_custom_user_data_path' };
 
@@ -132,6 +165,9 @@ function setCustomUserDataPath(nextPath) {
 }
 
 function resetCustomUserDataPath() {
+  if (getEnvUserDataPath()) {
+    return { ok: false, error: 'user_data_path_pinned_by_env' };
+  }
   const saved = persistBootstrapConfig({});
   if (!saved.ok) return saved;
   return { ok: true, state: getBootstrapRuntimeState() };

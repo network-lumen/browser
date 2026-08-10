@@ -26,7 +26,9 @@
     "test:all": "npm run test:unit && npm run test:e2e",
     "doc:window.lumen": "node --experimental-specifier-resolution=node scripts/generate-window-lumen-doc.mjs",
     "check:ipc": "node scripts/check-ipc.mjs",
-    "check:tests": "node scripts/check-tests.mjs"
+    "check:tests": "node scripts/check-tests.mjs",
+    "test:e2e:electron": "npx playwright test --project=electron",
+    "test:e2e:renderer": "npx playwright test --project=renderer"
   },
   "dependencies": {
     "@cosmjs/crypto": "^0.36.0",
