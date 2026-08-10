@@ -215,7 +215,7 @@ import {
   Trash2,
   Rocket
 } from 'lucide-vue-next';
-import { profilesState, activeProfileId } from '../profilesStore';
+import { profilesState, activeProfileId } from '../../stores/profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
 import { useTabLoadingSync } from '../useTabLoading';

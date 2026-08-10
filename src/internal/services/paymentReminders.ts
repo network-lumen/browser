@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
-import { activeProfileId, getActiveProfile } from '../profilesStore';
+import { activeProfileId, getActiveProfile } from '../../stores/profilesStore';
 import { getRecurringPaymentsService } from './recurringPayments';
 import type { RecurringPayment, ReminderPaymentResult } from '../../types/recurringPayments';
 

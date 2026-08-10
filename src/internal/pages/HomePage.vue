@@ -155,7 +155,7 @@ import UiWarningBox from '../../ui/UiWarningBox.vue';
 import { computed, ref } from 'vue';
 
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../routes';
-import { profilesState } from '../profilesStore';
+import { profilesState } from '../../stores/profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { STORAGE_KEYS, readJson, writeJson } from '../services/storage';
 import {

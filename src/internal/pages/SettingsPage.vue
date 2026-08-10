@@ -839,7 +839,7 @@ import { clamp, errorMessage } from '../services/coerce';
 import { normalizeHttpBaseUrl } from '../navigationUrl';
 import { useToast } from '../../composables/useToast';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
-import { useHistory } from '../historyStore';
+import { useHistory } from '../../stores/historyStore';
 import {
   profilesState,
   activeProfileId,
@@ -847,7 +847,7 @@ import {
   updateProfileName,
   updateProfileAvatarFromPath,
   clearProfileAvatar,
-} from '../profilesStore';
+} from '../../stores/profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import pkg from '../../../package.json';
 import {

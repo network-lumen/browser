@@ -7,9 +7,9 @@ import {
   isFileUrl,
   isHttpUrl,
   isLumenUrl,
-} from "./navigationUrl";
+} from "../internal/navigationUrl";
 import type { HistoryEntry, HistorySettings, HistoryMap, HistorySettingsMap } from "../types/history";
-import { STORAGE_KEYS, readJson, writeJson } from "./services/storage";
+import { STORAGE_KEYS, readJson, writeJson } from "../internal/services/storage";
 
 export type { HistoryEntry, HistorySettings };
 
@@ -91,17 +91,11 @@ async function normalizePreferredHistoryUrl(rawUrl: string): Promise<string> {
   if (isHttpUrl(value)) {
     try {
       const url = new URL(value);
-      const loweredHost = String(url.hostname || "").trim().toLowerCase();
-
-      const subdomainMatch = loweredHost.match(/^([a-z0-9]+)\.ipfs\.(.+)$/i);
-      if (subdomainMatch && isCidV0(subdomainMatch[1] || "")) {
-        const nextCid = await cidV0ToV1(subdomainMatch[1] || "");
-        if (nextCid && nextCid !== subdomainMatch[1]) {
-          url.hostname = `${nextCid}.ipfs.${subdomainMatch[2]}`;
-          return url.toString();
-        }
-      }
-
+      // No subdomain-gateway branch here, deliberately. A v0 CID is base58 and
+      // case-sensitive; a hostname is not, and the URL parser lowercases it. So
+      // `Qm…` can never appear in `url.hostname` to begin with, which is also
+      // why Kubo's subdomain gateway serves v1 only. The branch that used to
+      // test for it could not run.
       const segments = String(url.pathname || "").split("/");
       if (
         String(segments[1] || "").toLowerCase() === "ipfs" &&

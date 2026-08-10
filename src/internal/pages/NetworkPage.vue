@@ -565,7 +565,7 @@ import { useTabLoadingSync } from '../useTabLoading';
 import BlockDetailPage from './BlockDetailPage.vue';
 import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
-import { profilesState, activeProfileId } from '../profilesStore';
+import { profilesState, activeProfileId } from '../../stores/profilesStore';
 import { formatNumber } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';

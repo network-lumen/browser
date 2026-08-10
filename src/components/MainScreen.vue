@@ -113,8 +113,8 @@ import { Earth, Plus, X } from 'lucide-vue-next';
   import LumenSiteModalHost from './LumenSiteModalHost.vue';
   import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
   import { isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
-  import { normalizeHistoryUrlForComparison, useHistory } from '../internal/historyStore';
-  import { activeProfileId, initProfiles, profilesState } from '../internal/profilesStore';
+  import { normalizeHistoryUrlForComparison, useHistory } from '../stores/historyStore';
+  import { activeProfileId, initProfiles, profilesState } from '../stores/profilesStore';
   import lumenFavicon from '../img/favicon.ico';
 import { useInternalLumen } from '../composables/useInternalLumen';
   import {

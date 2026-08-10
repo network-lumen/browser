@@ -128,7 +128,7 @@ import {
 } from "lucide-vue-next";
 import InternalSidebar from "../../components/InternalSidebar.vue";
 import { avatarToneStyle, describeFavouriteUrl } from "../favouriteMeta";
-import { useHistory } from "../historyStore";
+import { useHistory } from "../../stores/historyStore";
 import { formatTimeOfDay } from "../services/format";
 
 

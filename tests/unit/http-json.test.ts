@@ -90,7 +90,8 @@ describe('fetchAbsoluteJson through the bridge', () => {
   });
 
   it('asks for JSON and passes the timeout along', async () => {
-    const get = vi.fn(async () => ({ ok: true, json: {} }));
+    // Args declared so the call tuple below is indexable rather than empty.
+    const get = vi.fn(async (..._args: unknown[]) => ({ ok: true, json: {} }));
     bridge(get);
     await fetchAbsoluteJson('https://x.test/a', 1234);
     expect(get.mock.calls[0][1]).toMatchObject({

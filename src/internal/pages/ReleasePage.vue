@@ -168,7 +168,7 @@ import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiKeyValue from '../../ui/UiKeyValue.vue';
 import { addToast } from '../../stores/toastStore';
-import { getActiveProfile } from '../profilesStore';
+import { getActiveProfile } from '../../stores/profilesStore';
 import { useTabLoadingSync } from '../useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatBytes as formatBytesValue, formatDateTime } from '../services/format';

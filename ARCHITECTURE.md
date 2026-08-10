@@ -300,3 +300,17 @@ Worth knowing before you assume a green run means much:
   no coverage.
 - **Anything that writes.** The tests read. Saving a file, restoring a backup, changing a setting,
   installing an extension - a broken write path would go unnoticed.
+
+## Third-party code copied into the repo
+
+Two places hold code this project did not write. They are different kinds of thing, and only one
+of them is a liability.
+
+- **`public/lib/bibi/`** - the Bibi EPUB reader, 23 files and ~2,3 MB, loaded by `IpfsPage.vue`.
+  Copied rather than installed, so it appears in no `package.json` and **no dependency tool sees
+  it**: `npm audit` will never mention it, and a published vulnerability arrives through nobody.
+  Its provenance, licence and the reason its version is unknown are in
+  [`public/lib/bibi/VENDOR.md`](public/lib/bibi/VENDOR.md). Read that before updating it.
+- **`src/css/lib/github-markdown.css`** - not a copy. 2,4 KB of theming laid over the real
+  `github-markdown-css` package, which is a normal dependency and is imported by `IpfsPage.vue`.
+  Nothing to track here.

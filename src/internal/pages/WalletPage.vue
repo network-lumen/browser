@@ -621,7 +621,7 @@ import {
   Calendar,
   RefreshCw
 } from 'lucide-vue-next';
-import { profilesState, activeProfileId } from '../profilesStore';
+import { profilesState, activeProfileId } from '../../stores/profilesStore';
 import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache } from '../services/activities';
 import QRCode from 'qrcode';
 import InternalSidebar from '../../components/InternalSidebar.vue';

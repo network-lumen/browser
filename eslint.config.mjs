@@ -122,6 +122,42 @@ export default [
     },
   },
   {
+    // Tests and scripts were linted by nothing, the same gap the electron block
+    // above was opened for. Narrower than the src rules on purpose: a test
+    // declares its own local types (`type NewPayment = Parameters<...>`), which
+    // is exactly what the src/types/ rule forbids, and console output is how a
+    // check script reports. What is worth catching here is the leftover - an
+    // import or a helper that survived a rewrite.
+    files: ['tests/**/*.ts', 'scripts/**/*.mjs'],
+    languageOptions: {
+      parser: tsParser,
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        process: 'readonly', console: 'readonly', Buffer: 'readonly',
+        __dirname: 'readonly', globalThis: 'readonly',
+        setTimeout: 'readonly', clearTimeout: 'readonly',
+        setInterval: 'readonly', clearInterval: 'readonly',
+        queueMicrotask: 'readonly', fetch: 'readonly', Response: 'readonly',
+        Request: 'readonly', Headers: 'readonly', URL: 'readonly',
+        TextEncoder: 'readonly', TextDecoder: 'readonly',
+        window: 'readonly', document: 'readonly', localStorage: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      'no-unreachable': 'error',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
+    },
+  },
+  {
     // Every type/interface declaration must live in src/types/ (one file per
     // concept/page, see CONTRIBUTING.md) - single source of truth, no
     // colocated ad hoc types drifting out of sync across files. This is the

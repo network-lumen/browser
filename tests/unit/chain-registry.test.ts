@@ -210,7 +210,8 @@ describe('resolveDenomTrace', () => {
   });
 
   it('resolves through the local node when asked to', async () => {
-    const restGet = vi.fn(async () => ({
+    // Args declared so the call tuple below is indexable rather than empty.
+    const restGet = vi.fn(async (..._args: unknown[]) => ({
       ok: true,
       json: { denom_trace: { base_denom: 'uosmo', path: 'transfer/channel-0' } },
     }));

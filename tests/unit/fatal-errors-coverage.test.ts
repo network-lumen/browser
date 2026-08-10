@@ -79,7 +79,7 @@ describe('fatal_errors preload coverage', () => {
   it('guards every member of every namespace', () => {
     for (const [namespace, members] of Object.entries(bridge.namespaces)) {
       expect(
-        [...(REQUIRED_NAMESPACES[namespace] ?? [])].sort(),
+        [...(REQUIRED_NAMESPACES[namespace as keyof typeof REQUIRED_NAMESPACES] ?? [])].sort(),
         `members of window.lumen.${namespace}`
       ).toEqual([...members].sort());
     }

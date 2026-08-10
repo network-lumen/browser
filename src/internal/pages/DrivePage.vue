@@ -600,7 +600,7 @@ import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
 } from "../services/contentResolver";
-import { profilesState, activeProfileId } from "../profilesStore";
+import { profilesState, activeProfileId } from "../../stores/profilesStore";
 import { formatBytes, formatDateTime } from "../services/format";
 import { copyToClipboardWithToast } from "../../composables/useClipboard";
 import { clampPercent, errorMessage } from '../services/coerce';
@@ -620,7 +620,7 @@ import {
   setFavouritesForProfile,
   getFavouriteEntriesForProfile,
   setFavouriteEntriesForProfile,
-} from "../favouritesStore";
+} from "../../stores/favouritesStore";
 import JSZip from "jszip";
 import { useToast } from "../../composables/useToast";
 import type { DriveFile } from "../../types/upload";

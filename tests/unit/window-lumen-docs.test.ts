@@ -21,7 +21,7 @@ describe('docs/window-lumen.json freshness', () => {
     // generatedAt is expected to differ (it's a timestamp) — everything else
     // must be byte-for-byte identical.
     const normalize = (model: any) => {
-      const { generatedAt, ...rest } = model;
+      const { generatedAt: _generatedAt, ...rest } = model;
       return rest;
     };
 
