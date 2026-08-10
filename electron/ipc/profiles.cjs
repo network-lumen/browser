@@ -743,10 +743,6 @@ function importOneBackupObject(imported, profiles, passwordOverride) {
   return { ok: true, id };
 }
 
-function saveProfiles(profiles, activeId) {
-  saveProfilesFile({ profiles, activeId });
-}
-
 function updateActiveProfile(mutator) {
   const data = loadProfilesFile();
   const idx = data.profiles.findIndex(p => p.id === data.activeId);
@@ -754,7 +750,13 @@ function updateActiveProfile(mutator) {
   const p = { ...data.profiles[idx] };
   mutator(p);
   data.profiles[idx] = p;
-  saveProfiles(data);
+  // Straight to saveProfilesFile, which takes exactly this shape. It used to
+  // go through a saveProfiles(profiles, activeId) wrapper and pass the whole
+  // object as the first argument, so the file came back with `profiles` as an
+  // object instead of an array - and loadProfilesFile turns any non-array into
+  // [], which is every profile gone. Only reachable through setFavourite and
+  // removeFavourite, which nothing in the renderer calls yet.
+  saveProfilesFile(data);
   return { ok: true, profile: p };
 }
 
