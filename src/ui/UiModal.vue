@@ -39,9 +39,7 @@ import { X } from 'lucide-vue-next';
  * behind one kept scrolling under the overlay. Both were uniformly absent,
  * which is exactly why nobody noticed - now that all 46 dialogs come through
  * this file, one place fixes all of them.
- */
-
-/**
+ *
  * Every modal currently open, oldest first.
  *
  * Escape has to close the top one only. Dialogs do stack here - the site host
