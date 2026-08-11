@@ -67,15 +67,7 @@ import { copyToClipboardWithToast } from '../composables/useClipboard';
 import type { AddressBookContact } from '../types/walletPage';
 
 /**
- * The saved addresses, as cards.
- *
- * The list itself stays with the page rather than being loaded here, because
- * the send modal's contact picker reads the same one - two copies would drift
- * the moment either saved a contact.
- *
- * Sending is an emit for the same reason it could not move: it resets the send
- * form, the IBC route and the asset context before opening a modal that is the
- * page's. Copying is not, because it ends where it starts.
+ * The saved addresses, as cards
  */
 defineProps<{
   contacts: AddressBookContact[];
