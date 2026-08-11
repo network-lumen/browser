@@ -64,19 +64,7 @@ import type { DriveFile } from '../types/upload';
 
 /**
  * One entry in the Drive listing.
- *
- * This has a single caller and is not trying to pretend otherwise - it is here
- * to give the row a name and a stated interface, not to be reused. That is
- * worth doing only if the interface stands on its own rather than piping the
- * page's internals through, so two things are grouped to keep it honest: the
- * four thumbnail sources arrive as one object, and the five buttons report one
- * `action` rather than owning five separate handlers.
- *
- * What the row cannot work out for itself is passed in. Whether an entry is a
- * directory needs a cache the page fills while browsing; whether an action is
- * allowed depends on an upload or conversion running elsewhere on the page.
- * Everything else - the size, the date, whether the file is a video and so can
- * be converted - it derives.
+ * This has a single caller and is not trying to pretend otherwise 
  */
 const props = defineProps<{
   file: DriveFile;
