@@ -29,16 +29,6 @@ function loadFiles() {
  * end-to-end test that loads the app with no bridge.
  */
 api?.ipfsOnAddProgress?.((p: any) => {
-  /* Example progress payload:
-        {
-        phase: 'upload',
-        uploadedBytes: 670228807.68,
-        totalBytes: 4788888535.04,
-        percent: 13.98,
-        fileCount: 4205,
-        elapsedMs: 4943
-        }
-   */
   const key = p.key;
   if (!key) return;
   const activity = uploadActivities[key];
