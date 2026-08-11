@@ -141,8 +141,7 @@ function parseCssRules(cssText) {
 
 // ---------------------------------------------------------------------------
 // Rule 3: no duplicate CSS rules across src/css/*.css (same selector list
-// defined more than once - real bug found repeatedly this session, e.g.
-// two `.border-color-primary { ... }` rules after a rename collided).
+// defined more than once)
 // ---------------------------------------------------------------------------
 const allClassNames = new Map(); // className -> [{file, selectorText}]
 {
@@ -195,9 +194,7 @@ const DEAD_CLASS_PREFIX_ALLOWLIST = [
 ];
 
 // A class can only take effect somewhere a class can be applied: an attribute
-// whose name ends in "class" (class, :class, v-bind:class, and this codebase's
-// dozens of kebab-case overrides like badge-class/tone-class), or a string
-// literal in script that gets handed to classList/a template.
+// whose name ends in "class"
 //
 // Searching the whole file text instead - which this rule used to do - means
 // any class whose name is also an ordinary identifier can never be reported.
@@ -561,22 +558,6 @@ const warnings = [];
     }
   }
 }
-
-// ---------------------------------------------------------------------------
-// Rules 10 & 11 used to live here: unused imports and unused top-level
-// declarations in .vue <script setup>, found by regex.
-//
-// They are gone because ESLint does the same job properly. Their comment
-// claimed "this project has no vue-tsc/eslint step", which stopped being true
-// a long time before anyone reread it; @typescript-eslint/no-unused-vars now
-// covers both cases from a real syntax tree, and understands that a
-// script-setup binding used only in the template is used. The regex version
-// counted a name as used if it appeared anywhere in the file - including
-// inside a comment - so it was also the weaker of the two.
-//
-// Verified before deleting: an unused import and an unused const, planted in
-// a .vue file, are both reported by `npm run lint`.
-// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // Rule 12: no blank/whitespace-only line inside a multi-line HTML tag's
