@@ -191,11 +191,6 @@ function collectTypes(files) {
 }
 
 /**
- * String literals repeated across files - injection keys, IPC channel names,
- * storage keys. A typo in one copy is silent by construction, which is what
- * makes these worth a named constant.
- */
-/**
  * The `"function"` in `typeof x === "function"`. Defensive code is full of
  * these and they drowned every real finding - they are a language keyword
  * spelled as a string, not a shared constant anyone could get wrong.
@@ -236,7 +231,6 @@ function collectLiterals(files) {
   return groups;
 }
 
-// ---------------------------------------------------------------------------
 // Report
 
 function heading(title) {
@@ -282,8 +276,7 @@ function reportLiterals(files, min) {
       files: [...byFile.keys()],
       total: [...byFile.values()].reduce((a, b) => a + b, 0)
     }))
-    // Repetition inside one file is that file's business; across files it is a
-    // contract nobody named.
+    // Repetition inside one file is that file's business; across files it is a contract nobody named.
     .filter((g) => g.files.length >= Math.max(min, 2))
     .sort((a, b) => b.files.length - a.files.length || b.total - a.total);
 

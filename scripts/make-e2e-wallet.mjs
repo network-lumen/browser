@@ -1,7 +1,7 @@
 // Creates the throwaway wallet the chain e2e tests spend from.
 //
 //   npm run e2e:wallet            once, then fund the address it prints
-//   npm run e2e:wallet -- --force replace the existing one
+//   npm run e2e:wallet --force    replace the existing one
 //
 // Writes tests/e2e/.env, which is gitignored. The address is printed; the
 // mnemonic is not, so it does not end up in a terminal log or a screenshot.
@@ -21,8 +21,7 @@ import { existsSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Depending on the resolved copy, encode/toWords sit at the top level or under
-// a `bech32` key.
+// Depending on the resolved copy, encode/toWords sit at the top level or under a `bech32` key
 const bech32 = bech32pkg.bech32 ?? bech32pkg;
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
