@@ -30,13 +30,7 @@ import { errorMessage } from './internal/services/coerce';
 const { initTheme } = useTheme();
 initTheme();
 
-
 const fatalError = ref<Error | null>(null);
-
-
-
-
-
 
 // Initialize font size
 const savedFontSize = readString(STORAGE_KEYS.fontSize) || 'medium';

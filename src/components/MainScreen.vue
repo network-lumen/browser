@@ -101,21 +101,21 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
 import { Earth, Plus, X } from 'lucide-vue-next';
-  import TabBar from '../layouts/TabBar.vue';
-  import UiSpinner from '../ui/UiSpinner.vue';
-  import UiButton from '../ui/UiButton.vue';
-  import UiToast from '../ui/UiToast.vue';
-  import ExtensionPopupHost from './ExtensionPopupHost.vue';
-  import WalletOnboardingModal from '../dialogs/WalletOnboardingModal.vue';
-  import ReleaseUpdatePrompt from '../dialogs/ReleaseUpdatePrompt.vue';
-  import DuePaymentsPrompt from './DuePaymentsPrompt.vue';
-  import ReleaseUpdateOverlay from '../dialogs/ReleaseUpdateOverlay.vue';
-  import LumenSiteModalHost from './LumenSiteModalHost.vue';
-  import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
-  import { isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
-  import { normalizeHistoryUrlForComparison, useHistory } from '../stores/historyStore';
-  import { activeProfileId, initProfiles, profilesState } from '../stores/profilesStore';
-  import lumenFavicon from '../img/favicon.ico';
+import TabBar from '../layouts/TabBar.vue';
+import UiSpinner from '../ui/UiSpinner.vue';
+import UiButton from '../ui/UiButton.vue';
+import UiToast from '../ui/UiToast.vue';
+import ExtensionPopupHost from './ExtensionPopupHost.vue';
+import WalletOnboardingModal from '../dialogs/WalletOnboardingModal.vue';
+import ReleaseUpdatePrompt from '../dialogs/ReleaseUpdatePrompt.vue';
+import DuePaymentsPrompt from './DuePaymentsPrompt.vue';
+import ReleaseUpdateOverlay from '../dialogs/ReleaseUpdateOverlay.vue';
+import LumenSiteModalHost from './LumenSiteModalHost.vue';
+import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
+import { isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
+import { normalizeHistoryUrlForComparison, useHistory } from '../stores/historyStore';
+import { activeProfileId, initProfiles, profilesState } from '../stores/profilesStore';
+import lumenFavicon from '../img/favicon.ico';
 import { useInternalLumen } from '../composables/useInternalLumen';
   import {
     buildCandidateUrl,
@@ -218,7 +218,6 @@ onMounted(async () => {
   }
 
   await initProfiles();
-
   // Check if onboarding is needed
   await checkOnboardingStatus();
 });
@@ -741,9 +740,9 @@ async function openInNewTab(url: string) {
     { immediate: true },
   );
   
-  function measureLayout() {
-    const root = hdr.value;
-    if (!root) return;
+function measureLayout() {
+  const root = hdr.value;
+  if (!root) return;
   const nodes = Array.from(root.querySelectorAll<HTMLElement>('.mainscreen-tab'));
   const rootLeft = root.getBoundingClientRect().left;
   layout.value = nodes.map((n, i) => {

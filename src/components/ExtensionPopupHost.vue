@@ -64,8 +64,7 @@ const emit = defineEmits<{
   (e: "navigate", payload: { url: string; openInNewTab?: boolean }): void;
 }>();
 
-const webprefs =
-  "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
+const webprefs = "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
 
 const webviewRef = ref<any>(null);
 const extensionGuestPreloadUrl = ref("");
