@@ -41,22 +41,6 @@ import type { DriveFile } from '../types/upload';
 /**
  * The picture standing in for a Drive entry: a real thumbnail for images and
  * video, a poster frame for HLS, an icon for everything else.
- *
- * That four-way choice was written out twice in DrivePage - once at 32px in
- * each list row, once at 160px in the detail panel beside it - so the same
- * file could be classified two ways on one screen if either copy drifted.
- *
- * The two are not pure skins of each other and the variant says so: a row
- * thumbnail is a silent poster frame that loads lazily and at low priority
- * because there are dozens on screen, while the preview is a real player with
- * controls. What had no business differing is which of the four branches a
- * given file takes.
- *
- * Sources arrive as props rather than being resolved here. Each one depends on
- * page state this component has no business reaching into - a gateway that may
- * or may not be connected, a cache of blob previews built up as images fail,
- * a set of videos whose real first frame has arrived and no longer needs the
- * placeholder poster.
  */
 const props = withDefaults(
   defineProps<{
