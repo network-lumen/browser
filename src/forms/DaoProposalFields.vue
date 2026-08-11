@@ -34,11 +34,7 @@ import UiInput from '../ui/UiInput.vue';
 import type { DaoProposalForm } from '../types/releasePage';
 
 /**
- * The fields of dao proposal fields.
- *
- * Split from its dialog so the fields can be shown without the modal around
- * them - in a page section or a wizard step - which is what made the gateway
- * fields worth sharing in the first place.
+ * The fields of dao proposal fields
  */
 defineProps<{ form: DaoProposalForm }>();
 </script>

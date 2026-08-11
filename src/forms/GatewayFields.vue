@@ -68,16 +68,7 @@ import type { GatewayEditState, GatewayRegisterForm } from '../types/gatewaysPag
 
 /**
  * The fields describing a gateway: where it is, which regions it serves, who
- * gets paid, and its metadata.
- *
- * GatewaysPage showed these twice - once in the "create gateway" modal, once
- * inline for editing an existing one - with the same labels, placeholders and
- * classes down to the character. The only real difference is that an existing
- * gateway can be switched off, which is what `withActive` adds.
- *
- * The form object is mutated in place rather than emitted back: both callers
- * own a reactive object and read it after, which is also how the dialogs that
- * take a `form` prop already work.
+ * gets paid, and its metadata
  */
 withDefaults(
   defineProps<{
