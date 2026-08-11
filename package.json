@@ -64,7 +64,7 @@
     "github-markdown-css": "^5.9.0",
     "hls.js": "^1.6.12",
     "jszip": "^3.10.1",
-    "kubo": "^0.37.0",
+    "kubo": "^0.39.0",
     "lucide-vue-next": "^0.540.0",
     "marked": "^17.0.4",
     "qrcode": "^1.5.4",
