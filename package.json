@@ -1,6 +1,8 @@
 {
   "name": "lumen-browser",
   "version": "0.9.9",
+  "description": "A decentralized Web3 browser for the Lumen network, with native IPFS, on-chain domains, P2P content, and a built-in Lumen wallet",
+  "keywords": [ "lumen", "lumen-network", "web3", "decentralized", "decentralized-web", "ipfs", "p2p", "blockchain", "l1", "crypto", "wallet", "on-chain", "domains", "electron", "browser" ],
   "private": true,
   "type": "module",
   "main": "electron/main.cjs",

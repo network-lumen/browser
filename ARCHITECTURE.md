@@ -11,9 +11,6 @@ explanation is the bug that caused it. That is deliberate: a rule whose reason h
 
 ## The layout
 
-Roughly 43 000 lines across 260 files. The folders are not decoration: **which folder a file lives
-in decides what it is allowed to import.**
-
 ```
 src/
 ├── ui/           (56)  Primitives. Know nothing about Lumen.        → types only
@@ -146,7 +143,7 @@ copies.
 
 **CSS in `src/css/` only, reuse before adding.** Two classes on one element silently fighting over
 the same property; a `var(--primary-a06)` referenced but never defined, so the rule using it did
-nothing at all; a `type-image` class applied for years with no CSS rule anywhere in the repo.
+nothing at all; a `type-image` class applied for months with no CSS rule anywhere in the repo.
 
 **Consistency beats design.** When two near-identical values diverge for no reason, snap them.
 Nobody chose the difference; it accumulated. The design adapts afterwards.
@@ -165,13 +162,7 @@ other would have silently dropped files at restore.
 `goto`/`openInNewTabSafe` and they disagreed: one had no fallback at all, one turned a blank URL
 into the new tab page, one forwarded the caller's push option and the rest hard-coded it.
 
-**Comments are English, and are not code.** Not machine-checked - the whole repo held three
-non-English comments and four commented-out lines, which is not a rate worth a rule. It is written
-down because of where they were: a French `// ton ipfs import ici` above a commented-out import, in
-a worker whose only call was to the function that import would have provided. Nothing referenced the
-file, so it would have thrown on its first run. Commented-out code also rots - the `http:get` error
-branch had been commented out until the `if` around it was empty, while the comment above still
-explained the logging it was supposed to be doing.
+**Comments are English, and are not code.** 0 explications needed
 
 ---
 
