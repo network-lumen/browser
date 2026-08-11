@@ -126,9 +126,11 @@ try {
   if (
     process.platform === 'linux' &&
     !process.env.GTK_USE_PORTAL &&
-    ((typeof process.getuid === 'function' && process.getuid() === 0) ||
+    (
+      (typeof process.getuid === 'function' && process.getuid() === 0) ||
       !String(process.env.DBUS_SESSION_BUS_ADDRESS || '').trim() ||
-      !String(process.env.XDG_RUNTIME_DIR || '').trim())
+      !String(process.env.XDG_RUNTIME_DIR || '').trim()
+    )
   ) {
     process.env.GTK_USE_PORTAL = '0';
     console.log('[electron] GTK_USE_PORTAL=0 (no-session)');
@@ -221,8 +223,7 @@ const LUMEN_SESSION_PRELOAD_ID = 'lumen-extension-preload';
 
 function listSessionPreloadScripts(ses) {
   try {
-    const scripts =
-      ses && typeof ses.getPreloadScripts === 'function' ? ses.getPreloadScripts() : [];
+    const scripts = ses && typeof ses.getPreloadScripts === 'function' ? ses.getPreloadScripts() : [];
     return Array.isArray(scripts)
       ? scripts.map((script) => ({
           id: safeString(script?.id, 256),
@@ -435,8 +436,7 @@ function configureDisplayMedia() {
 }
 
 function shouldIgnoreRendererConsoleMessage(contents, sourceId, message) {
-  const type =
-    contents && typeof contents.getType === 'function'
+  const type = contents && typeof contents.getType === 'function'
       ? String(contents.getType() || 'unknown')
       : 'unknown';
   if (type !== 'webview') return false;
@@ -701,38 +701,6 @@ ipcMain.handle('dialog:openFolder', async (evt, options) => {
     return { ok: false, error: String(e?.message || e || 'dialog_failed') };
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
