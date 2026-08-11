@@ -27,14 +27,7 @@ import UiInput from '../ui/UiInput.vue';
 import type { ContactForm } from '../types/walletPage';
 
 /**
- * The fields of an address-book entry.
- *
- * Split from its dialog so they can be shown without the modal around them -
- * in a page section or a wizard step - which is what made the gateway fields
- * worth sharing in the first place.
- *
- * The address is read-only while editing: it identifies the entry rather than
- * describing it.
+ * The fields of an address-book entry
  */
 defineProps<{ form: ContactForm; editing?: boolean }>();
 </script>

@@ -28,11 +28,7 @@ import UiInput from '../ui/UiInput.vue';
 import type { ExternalGatewayForm } from '../types/myGatewaysPage';
 
 /**
- * The fields of external gateway fields.
- *
- * Split from its dialog so the fields can be shown without the modal around
- * them - in a page section or a wizard step - which is what made the gateway
- * fields worth sharing in the first place.
+ * The fields of external gateway fields
  */
 defineProps<{ form: ExternalGatewayForm }>();
 </script>
