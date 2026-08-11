@@ -37,7 +37,7 @@ This generates a static bundle in `dist/` that `electron/main.cjs` can load in p
 ## Publishing on-chain releases
 
 The publisher lives in the app itself, at `lumen://release`: it builds the record, signs it and
-submits it for DAO validation. Artifacts are produced by `.github/workflows/build-mac.yml` (which
+submits it for DAO validation. Artifacts are produced by `.github/workflows/build.yml` (which
 builds all three platforms despite the name) and attached to a draft GitHub release.
 
 A release record must carry a SHA256 for its artifact. The updater refuses to install one without,

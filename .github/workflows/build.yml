@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   test:
-    name: Unit tests (window.lumen + docs)
+    name: All tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -97,7 +97,6 @@ jobs:
 
           tar -xzf kubo.tar.gz
 
-          # Trouve le binaire installé par le package npm
           KUBO_BIN_PATH=$(find node_modules -path "*/kubo/kubo/ipfs" | head -1)
 
           if [ -z "$KUBO_BIN_PATH" ]; then
@@ -197,7 +196,7 @@ jobs:
             } |
             Select-Object -First 1
 
-          Write-Host "Fichier choisi pour signature : $($exe.FullName)"
+          Write-Host "Signature file: $($exe.FullName)"
 
           & $signtool sign `
             /f "$env:PFX_PATH" `
@@ -211,7 +210,7 @@ jobs:
             throw "signtool failed with exit code $LASTEXITCODE"
           }
 
-          Write-Host "=== Après signature ==="
+          Write-Host "=== After signature ==="
           Get-AuthenticodeSignature $exe.FullName | Format-List Status, SignerCertificate
 
       - name: Rename signed installer
@@ -224,10 +223,10 @@ jobs:
             } |
             Select-Object -First 1
 
-          Write-Host "Fichier qui va être renommé en signed : $($exe.FullName)"
+          Write-Host "Signature file: $($exe.FullName)"
           Move-Item $exe.FullName "release/Lumen-Browser-Setup-signed-windows-x64.exe"
 
-          Write-Host "=== Fichiers finaux ==="
+          Write-Host "=== Final files ==="
           Get-ChildItem release -Filter "*windows-x64*.exe" | Format-Table Name, Length
       - name: Upload Windows artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
