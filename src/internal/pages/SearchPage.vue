@@ -1301,7 +1301,6 @@ async function togglePinImage(result: ResultItem) {
   try {
     const api: any = useInternalLumen() || null;
     if (isPinned) {
-      // Unpin
       const unpinFn =
         typeof api?.ipfsUnpin === "function"
           ? api.ipfsUnpin
@@ -1327,7 +1326,6 @@ async function togglePinImage(result: ResultItem) {
         toast.error(err ? `Failed to remove from local save: ${err}` : "Failed to remove from local save");
       }
     } else {
-      // Pin
       if (typeof api?.ipfsPinAdd !== "function") {
         const msg = "Local save API unavailable (missing ipfsPinAdd)";
         console.error("[search][local-save] pin missing API:", { cid });

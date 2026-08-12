@@ -9,6 +9,7 @@ const {
   setCustomUserDataPath,
 } = require('./bootstrap_paths.cjs');
 const { initializeMainLogger, appendRendererError } = require('./services/main_logger.cjs');
+const { applyAppIdentity } = require('./app_icon.cjs');
 
 function configureAppPaths() {
   try {
@@ -920,6 +921,8 @@ app.whenReady().then(async () => {
     });
     return;
   }
+
+  applyAppIdentity();
 
   try {
     console.log('[electron] userData path set to', app.getPath('userData'));

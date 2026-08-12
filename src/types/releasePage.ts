@@ -44,7 +44,6 @@ export type ArtifactDraft = {
 
 export type DaoKind = 'validate' | 'reject';
 
-/** The fields of the publish-release form. */
 export type ReleaseDraft = {
   version: string;
   channel: string;

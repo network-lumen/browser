@@ -6,7 +6,7 @@
   <SaveToDriveDialog
     :model-value="!!(current && modalType === 'pin')"
     :name="saveNameDraft"
-    placeholder="Enter a name"
+    :placeholder="t('Enter a name')"
     :error="pinError"
     :confirm-disabled="!pinTarget"
     :saving="pinning"
@@ -27,18 +27,18 @@
     @stop="cancelPinJob"
   >
     <template #header>
-      <UiModalHeader title="Save to Drive" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+      <UiModalHeader :title="t('Save to Drive')" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
         <template #icon><Save :size="18" /></template>
       </UiModalHeader>
     </template>
     <template #before-form>
       <UiBanner variant="info" v-if="siteLabel">
-        <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
+        <span class="overflow-wrap-anywhere">{{ t('Requested by') }} <span class="mono">{{ siteLabel }}</span></span>
       </UiBanner>
     </template>
     <template #after-form>
       <div class="border-radius-10px border-default py-10px px-12px">
-        <UiDetailRow variant="baseline" label="Target" :value="pinTargetDisplay" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
+        <UiDetailRow variant="baseline" :label="t('Target')" :value="pinTargetDisplay" label-extra-class="flex-shrink-0" value-class="mono color-text-primary text-right text-13px overflow-wrap-anywhere min-w-0" />
       </div>
     </template>
   </SaveToDriveDialog>
@@ -64,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiBanner from '../ui/UiBanner.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';

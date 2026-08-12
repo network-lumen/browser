@@ -36,15 +36,15 @@
       class="absolute p-8px shadow-xl z-100 right-0 w-340px max-w-min-92vw-340px calc-top-100-6px"
     >
       <div class="flex-align-center flex-justify-space-between p-0px pr-8px pb-8px pl-8px">
-        <span class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em">Activity</span>
+        <span class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-005em">{{ t('Activity') }}</span>
         <UiButton
           v-if="items.length"
           variant="none"
           class="text-11px color-text-tertiary cursor-pointer bg-transparent border-none"
-          title="Clear finished entries"
+          :title="t('Clear finished entries')"
           @click="clearActivityHistory"
         >
-          Clear
+          {{ t('Clear') }}
         </UiButton>
       </div>
 
@@ -70,21 +70,22 @@
           <span class="text-11px color-text-tertiary truncate">{{ item.detail }}</span>
 
           <div v-if="hasControls(item)" class="flex-align-center gap-6px">
-            <UiButton v-if="controls(item).pause" variant="secondary" class="text-11px py-2px px-8px" @click="pauseActivity(item)">Pause</UiButton>
-            <UiButton v-if="controls(item).resume" variant="secondary" class="text-11px py-2px px-8px" @click="resumeActivity(item)">Resume</UiButton>
-            <UiButton v-if="controls(item).cancel" variant="danger" class="text-11px py-2px px-8px" @click="cancelActivity(item)">Cancel</UiButton>
+            <UiButton v-if="controls(item).pause" variant="secondary" class="text-11px py-2px px-8px" @click="pauseActivity(item)">{{ t('Pause') }}</UiButton>
+            <UiButton v-if="controls(item).resume" variant="secondary" class="text-11px py-2px px-8px" @click="resumeActivity(item)">{{ t('Resume') }}</UiButton>
+            <UiButton v-if="controls(item).cancel" variant="danger" class="text-11px py-2px px-8px" @click="cancelActivity(item)">{{ t('Cancel') }}</UiButton>
           </div>
         </div>
       </div>
 
       <div v-else class="text-12px color-text-tertiary text-center py-20px px-8px">
-        Nothing yet. Uploads, saved content and gateway propagation show up here.
+        {{ t('Nothing yet. Uploads, saved content and gateway propagation show up here.') }}
       </div>
     </UiCard>
   </div>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { Activity, ArrowUpFromLine, Save, Share2 } from 'lucide-vue-next';
 import UiButton from '../ui/UiButton.vue';

@@ -12,7 +12,6 @@
     <UiErrorState v-else-if="error" :message="error" />
 
     <div v-else-if="transaction" class="flex flex-column gap-24px">
-      <!-- Transaction Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Transaction Overview" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="p-24px">
@@ -35,7 +34,6 @@
         </div>
       </UiCard>
 
-      <!-- Messages Card -->
       <UiCard v-if="transaction.messages && transaction.messages.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader :title="`Messages (${transaction.messages.length})`" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="p-24px">
@@ -51,7 +49,6 @@
         </div>
       </UiCard>
 
-      <!-- Events Card -->
       <UiCard v-if="transaction.events && transaction.events.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader :title="`Events (${transaction.events.length})`" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="p-24px">
@@ -69,7 +66,6 @@
         </div>
       </UiCard>
 
-      <!-- Raw Data Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Raw Transaction Data" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="p-24px">

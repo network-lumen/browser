@@ -16,19 +16,20 @@ src/
 ├── ui/           (56)  Primitives. Know nothing about Lumen.        → types only
 ├── entities/      (7)  One domain value, drawn canonically.         → ui, services, types
 ├── forms/         (5)  Reusable groups of form fields.              → ui, types
-├── dialogs/      (45)  Modals. One file per modal.                  → ui, forms, services, types
-├── views/         (2)  A sub-view of a page, extracted.             → ui, entities, services
+├── dialogs/      (46)  Modals. One file per modal.                  → ui, forms, services, types
+├── views/         (3)  A sub-view of a page, extracted.             → ui, entities, services
 ├── layouts/       (3)  Tab bar, tab pane, nav bar.                  → ui, services, components
-├── components/   (12)  App shell pieces that are none of the above. → anything below pages
-├── composables/   (5)  Injection, and shared reactive state.        → types, stores
-├── stores/        (1)  Global reactive state (toasts).              → types
-├── types/        (50)  Every type and interface.                    → nothing
+├── components/   (15)  App shell pieces that are none of the above. → anything below pages
+├── composables/   (6)  Injection, and shared reactive state.        → types, stores
+├── stores/        (5)  Global reactive state.                       → types, services
+├── locales/       (1)  One JSON catalogue per language.
+├── types/        (53)  Every type and interface.                    → nothing
 ├── css/          (14)  Every stylesheet.
-└── internal/     (71)
+└── internal/     (73)
     ├── pages/    (24)  One per lumen:// route. 27 700 lines - the bulk.
-    ├── services/ (34)  Domain logic with no view state.            → types, composables
+    ├── services/ (37)  Domain logic with no view state.            → types, composables
     ├── common/    (4)  Startup checks, the bridge surface.
-    └── *.ts       (8)  Stores + routing (see "wrinkles").
+    └── *.ts       (8)  Routing and URL handling (see "wrinkles").
 ```
 
 ## The dependency rule
@@ -59,10 +60,11 @@ Do not add a fifth without saying why in the PR.
 
 | File | Imports | Why |
 |---|---|---|
-| `ui/UiToast.vue` | `stores/toastStore` | It *is* the toast renderer. Something has to read the queue. |
+| `ui/UiToast.vue` | `stores/toastStore`, `composables/useClipboard` | It *is* the toast renderer. Something has to read the queue, and its copy button is the same case as `UiCopyField`'s - it used to carry its own `document.execCommand('copy')` fallback, which is both deprecated and blocked in exactly the situations the real fallback exists for. |
 | `ui/UiCopyField.vue` | `composables/useClipboard` | A copy button that cannot copy is not a copy button. |
 | `types/lumenBridge.ts` | `internal/common/lumenBridgeSurface` | Derives the bridge type from the one inventory the startup check also uses. That module is a **leaf** on purpose - making it import anything creates a cycle. |
 | `internal/services/releaseUpdates.ts` | `stores/toastStore` | Notifies about a background download. Borderline: a service that needs to *tell the user something* is usually a service returning a result instead. |
+| **anything, including `ui/`** | `stores/i18nStore`'s `t()` | Not a fifth exception but a standing one: a primitive that cannot render its own label in the user's language is not a primitive. `t` is the only export with this licence - `useI18n()` and `setLocale()` follow the normal rule. |
 
 ---
 
@@ -109,10 +111,9 @@ a pin job because two hosts each held an identical copy of it.
 
 Not traps, but they will surprise you.
 
-**`internal/*.ts` is a mixed bag.** `favouritesStore`, `historyStore` and `profilesStore` live there
-while `toastStore` lives in `src/stores/`. `routes.ts` and `navigationUrl.ts` are routing.
-`useTabLoading.ts` is a composable. Historical, not designed. Put *new* files in the folder that
-matches what they are.
+**`internal/*.ts` is a mixed bag.** `routes.ts` and `navigationUrl.ts` are routing, `favouriteMeta.ts`
+draws a saved page, `useTabLoading.ts` is a composable. Historical, not designed. Put *new* files in
+the folder that matches what they are.
 
 **Two "favourites" systems** share the word. `favouritesStore.ts` is browser shortcuts in
 localStorage; `profilesStore.getFavourites` is a domain→CID map in the main process. Unrelated.
@@ -121,6 +122,13 @@ localStorage; `profilesStore.getFavourites` is a domain→CID map in the main pr
 nothing. *Moving* a tab reads page titles from the route table, which imports every page, one of
 which calls the Electron bridge as its module loads. Import `tabHistory` from a test and it throws
 before the test runs. Keep the read side dependency-free.
+
+**Translation is keyed on the English text, not on an invented id.** `t('Save')`, not
+`t('dialogs.drive.save')`. Naming ~2 000 strings is work nobody would finish and two people would do
+differently; keying on the source means a missing translation renders the English, and
+`npm run i18n:extract` reads the whole catalogue straight out of `src/`. The cost is that rewording
+the English orphans the translation - the extractor reports that rather than deleting it. Reasoning
+in `internal/services/i18n.ts`.
 
 **`window.lumen` means two different objects.** The renderer's (via `useInternalLumen()`) is the
 full trusted bridge. The one inside a `<webview>` is a restricted, site-facing API in a different

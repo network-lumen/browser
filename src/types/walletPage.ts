@@ -106,19 +106,16 @@ export type DexRow = DexListingConfig & {
   lastCheckedAt: string;
 };
 
-/** The fields of the address-book entry form. */
 export type ContactForm = { name: string; address: string; note: string };
 
 /** A saved contact as the address book returns it. */
 export type AddressBookContact = ContactForm & { id: string };
 
-/** The fields of the send-tokens form. */
 export type SendForm = { recipient: string; amount: string; gasFee: string };
 
 /** The IBC route chosen for a cross-chain send. */
 export type IbcForm = { sourceChannel: string; sourcePort: string };
 
-/** The fields of the asset transfer form. */
 export type AssetTransferForm = { destinationKey: string; recipient: string; amount: string };
 
 export type ChainRegistryBundle = { chain: any | null; assets: any[] };

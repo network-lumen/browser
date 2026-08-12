@@ -8,7 +8,7 @@
     </div>
 
     <ActiveProfileCard v-if="activeProfile" :profile="activeProfile" />
-    <UiNoticeCard v-else title="No active profile" description="Create or import one from the navbar." class="mb-16px" />
+    <UiNoticeCard v-else :title="t('No active profile')" :description="t('Create or import one from the navbar.')" class="mb-16px" />
 
     <div class="flex-1 min-h-0 overflow-y-auto pr-4px overflow-x-hidden">
       <slot />
@@ -17,7 +17,7 @@
 
       <div v-if="renderedFavouriteEntries.length" class="mt-16px pt-12px border-top-05-border-light">
         <div class="flex-align-center-justify-space-between gap-8px mb-8px py-0px px-8px">
-          <div class="color-text-tertiary text-11px txt-weight-light text-uppercase letter-spacing-005em">Shortcuts</div>
+          <div class="color-text-tertiary text-11px txt-weight-light text-uppercase letter-spacing-005em">{{ t('Shortcuts') }}</div>
           <UiCountPill :count="renderedFavouriteEntries.length" />
         </div>
         <div class="flex flex-column gap-2px">
@@ -33,7 +33,7 @@
               <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" />
             </UiButton>
             <UiButton variant="icon" type="button"
-              title="Remove shortcut"
+              :title="t('Remove shortcut')"
               class="reveal-target opacity-0 hover-bg-error-a10-color-error flex-shrink-0"
               @click.stop="removeFavouriteById(entry.id)">
               <X :size="13" />
@@ -53,6 +53,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiButton from '../ui/UiButton.vue';
 import UiTitleSubtitle from '../ui/UiTitleSubtitle.vue';
 import UiCountPill from '../ui/UiCountPill.vue';

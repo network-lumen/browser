@@ -7,38 +7,38 @@
         ref="hdr"
       >
         <div
-          v-for="(t, i) in tabs"
-          :key="t.id"
+          v-for="(tab, i) in tabs"
+          :key="tab.id"
           class="mainscreen-tab tone-tab-active reveal-on-active relative h-32px min-w-240px max-w-510px flex-0-0-auto pl-8px pr-8px gap-8px cursor-select-none cursor-pointer border-radius-top-left-top-right-10px hover-bg-hover flex-align-justify-center transition-ui border-1-transparent bg-transparent"
-          :data-id="t.id"
-          :class="tabClasses(t)"
-          :style="tabStyle(t.id)"
-          @pointerdown="onTabPointerDown($event, t.id, i)"
-          @click="onTabClick(t.id)"
-            @auxclick="(e) => e.button === 1 && closeTab(t.id)"
+          :data-id="tab.id"
+          :class="tabClasses(tab)"
+          :style="tabStyle(tab.id)"
+          @pointerdown="onTabPointerDown($event, tab.id, i)"
+          @click="onTabClick(tab.id)"
+            @auxclick="(e) => e.button === 1 && closeTab(tab.id)"
           >
             <div class="flex-align-justify-center border-radius-circle size-16px min-w-16px min-h-16px">
-              <UiSpinner v-if="t.loading" size="sm" class="color-text-tertiary" />
+              <UiSpinner v-if="tab.loading" size="sm" class="color-text-tertiary" />
               <img
-                v-else-if="t.favicon"
+                v-else-if="tab.favicon"
                 class="border-radius-4px object-fit-cover w-16px h-16px"
-                :src="t.favicon"
+                :src="tab.favicon"
                 alt=""
                 draggable="false"
-                @error="onFaviconError(t)"
+                @error="onFaviconError(tab)"
               />
               <Earth v-else :size="16" class="color-text-tertiary" />
             </div>
-          <div class="mainscreen-tab-label reveal-color-target truncate flex-1-1-0 min-w-0" :title="currentTitle(t)">
-            {{ currentTitle(t) }}
+          <div class="mainscreen-tab-label reveal-color-target truncate flex-1-1-0 min-w-0" :title="currentTitle(tab)">
+            {{ currentTitle(tab) }}
           </div>
 
           <UiButton
             variant="icon"
             class="reveal-color-target"
-            title="Close"
+            :title="t('Close')"
             @pointerdown.stop
-            @click.stop.prevent="closeTab(t.id)"
+            @click.stop.prevent="closeTab(tab.id)"
           >
             <X :size="14" />
           </UiButton>
@@ -47,7 +47,7 @@
         <UiButton
           ref="addBtn"
           variant="none"
-          title="New tab"
+          :title="t('New tab')"
           class="hover-focus-bg-fill-primary ml-4px border-radius-circle p-4px border-none cursor-pointer color-text-primary bg-fill-secondary"
           @click="addTab"
         >
@@ -99,6 +99,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
 import { Earth, Plus, X } from 'lucide-vue-next';
 import TabBar from '../layouts/TabBar.vue';
@@ -126,6 +127,13 @@ import { useInternalLumen } from '../composables/useInternalLumen';
     resolveIpnsToCid,
   } from '../internal/services/contentResolver';
 import type { Tab } from '../types/tab';
+import type { TabStripSlot } from '../types/tabStrip';
+import {
+  planTabDrop,
+  reorder,
+  resolveReorderIndex,
+  resolveTabLabelWidth
+} from '../internal/services/tabStripLayout';
 import { tabCurrentTitle, tabCurrentUrl } from '../internal/services/tabPosition';
 import { STORAGE_KEYS, readString, writeString } from '../internal/services/storage';
 import {
@@ -152,8 +160,7 @@ const dropLeft = ref(0);
 const addBtn = ref<HTMLElement | null>(null);
 
 const startIndex = ref(-1);
-const draggingWidth = ref(0);
-const layout = ref<{ id: string; left: number; width: number; center: number }[]>([]);
+const layout = ref<TabStripSlot[]>([]);
 const dropIndex = ref(-1);
 const shifts = ref<Record<string, number>>({});
 let tabsOpenUnsub: null | (() => void) = null;
@@ -798,7 +805,6 @@ function onTabPointerDown(e: PointerEvent, id: string, idx: number) {
 
   measureLayout();
   const lay = layout.value[startIndex.value];
-  draggingWidth.value = lay?.width ?? 0;
   dropIndex.value = idx;
   dropLeft.value = lay?.left ?? 0;
 
@@ -812,41 +818,11 @@ function onTabPointerDown(e: PointerEvent, id: string, idx: number) {
     if (!isDragging.value) return;
 
     dragDx.value = dx;
-    const start = layout.value[startIndex.value];
-    if (!start) return;
 
-    const centerX = start.left + dx + start.width / 2;
-
-    let target = layout.value.findIndex((it) => centerX < it.center);
-    if (target === -1) target = layout.value.length;
-
-    dropIndex.value = target;
-
-    dropLeft.value =
-      target === layout.value.length
-        ? (layout.value[target - 1]?.left ?? 0) + (layout.value[target - 1]?.width ?? 0)
-        : layout.value[target]?.left ?? 0;
-
-    const from = startIndex.value;
-    const to = target;
-    const w = draggingWidth.value;
-    const sh: Record<string, number> = {};
-
-    if (to > from) {
-      for (let i = 0; i < layout.value.length; i++) {
-        const idAt = layout.value[i]?.id;
-        if (!idAt || idAt === draggingId.value) continue;
-        if (i >= from + 1 && i <= to - 1) sh[idAt] = -w;
-        if (i === to) sh[idAt] = -w;
-      }
-    } else if (to < from) {
-      for (let i = 0; i < layout.value.length; i++) {
-        const idAt = layout.value[i]?.id;
-        if (!idAt || idAt === draggingId.value) continue;
-        if (i >= to && i <= from - 1) sh[idAt] = +w;
-      }
-    }
-    shifts.value = sh;
+    const plan = planTabDrop(layout.value, startIndex.value, dx, draggingId.value || '');
+    dropIndex.value = plan.index;
+    dropLeft.value = plan.left;
+    shifts.value = plan.shifts;
   };
 
   const onUp = async (ev: PointerEvent) => {
@@ -864,15 +840,12 @@ function onTabPointerDown(e: PointerEvent, id: string, idx: number) {
 
       if (didDrag) {
         const from = startIndex.value;
-        let to = dropIndex.value;
-        if (to > from) to -= 1;
+        const to = resolveReorderIndex(from, dropIndex.value);
 
-        if (from !== -1 && to !== -1 && from !== to) {
-          const arr = tabs.value.slice();
-          const [moved] = arr.splice(from, 1);
-          arr.splice(to, 0, moved);
-          tabs.value = arr;
-          activeId.value = moved.id;
+        if (to !== null) {
+          const moved = tabs.value[from];
+          tabs.value = reorder(tabs.value, from, to);
+          if (moved) activeId.value = moved.id;
 
           await nextTick();
 
@@ -912,19 +885,21 @@ let ro: ResizeObserver | null = null;
 function recalcLabelWidth() {
   const root = hdr.value;
   if (!root) return;
-  const n = tabs.value.length || 1;
-  const total = root.clientWidth;
-  const plusW = (addBtn.value?.offsetWidth ?? 36) + 8;
   const firstTab = root.querySelector<HTMLElement>('.mainscreen-tab');
   const firstLabel = root.querySelector<HTMLElement>('.mainscreen-tab .mainscreen-tab-label');
-  let extras = 64;
-  if (firstTab && firstLabel) {
-    extras = firstTab.offsetWidth - firstLabel.offsetWidth;
-    if (extras < 40) extras = 40;
-  }
-  const available = total - plusW - GAP * Math.max(0, n - 1);
-  const per = Math.floor((available - n * extras) / n);
-  labelWidth.value = Math.max(MIN_LABEL, Math.min(MAX_LABEL, per));
+  // Measured rather than hard-coded, so a padding change in the CSS does not
+  // silently make every label a few pixels too wide.
+  const measuredExtras = firstTab && firstLabel ? firstTab.offsetWidth - firstLabel.offsetWidth : 64;
+
+  labelWidth.value = resolveTabLabelWidth({
+    total: root.clientWidth,
+    count: tabs.value.length,
+    plusWidth: (addBtn.value?.offsetWidth ?? 36) + 8,
+    extras: Math.max(40, measuredExtras),
+    gap: GAP,
+    min: MIN_LABEL,
+    max: MAX_LABEL
+  });
 }
 
 function createResizeObserver() {

@@ -362,7 +362,6 @@ async function createWallet() {
     // Wait a bit for wallet creation to complete
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Verify wallet was created
     const verifyCheck = await profilesApi.isWalletFullyCreated(profileId);
     
     if (verifyCheck?.ok) {

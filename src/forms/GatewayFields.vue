@@ -1,6 +1,6 @@
 <template>
   <div class="grid gap-y-14px gap-x-16px grid-cols-2-minmax0">
-    <UiFormField label="Endpoint" :label-class="labelClass">
+    <UiFormField :label="t('Endpoint')" :label-class="labelClass">
       <UiInput
         bg-class="bg-secondary"
         :focus-ring="false"
@@ -10,17 +10,17 @@
       />
     </UiFormField>
 
-    <UiFormField label="Regions" :label-class="labelClass">
+    <UiFormField :label="t('Regions')" :label-class="labelClass">
       <UiInput
         bg-class="bg-secondary"
         :focus-ring="false"
         v-model="form.regions"
-        placeholder="us-east, eu-west"
+        :placeholder="t('us-east, eu-west')"
         class="focus-ring focus-outline-none focus-shadow placeholder-tertiary"
       />
     </UiFormField>
 
-    <UiFormField label="Payout address" :label-class="labelClass">
+    <UiFormField :label="t('Payout address')" :label-class="labelClass">
       <UiInput
         bg-class="bg-secondary"
         :focus-ring="false"
@@ -30,11 +30,11 @@
       />
     </UiFormField>
 
-    <UiFormField v-if="withActive && 'active' in form" label="Active" :label-class="labelClass">
+    <UiFormField v-if="withActive && 'active' in form" :label="t('Active')" :label-class="labelClass">
       <UiCheckbox v-model="(form as GatewayEditState).active" />
     </UiFormField>
 
-    <UiFormField class="grid-col-full" label="Metadata (JSON object)" :label-class="labelClass">
+    <UiFormField class="grid-col-full" :label="t('Metadata (JSON object)')" :label-class="labelClass">
       <UiInput
         type="textarea"
         bg-class="bg-secondary"
@@ -46,12 +46,12 @@
       ></UiInput>
     </UiFormField>
 
-    <UiFormField :class="memoClass" label="Memo" :label-class="labelClass">
+    <UiFormField :class="memoClass" :label="t('Memo')" :label-class="labelClass">
       <UiInput
         bg-class="bg-secondary"
         :focus-ring="false"
         v-model="form.memo"
-        placeholder="Optional memo"
+        :placeholder="t('Optional memo')"
         class="focus-ring focus-outline-none focus-shadow placeholder-tertiary"
       />
     </UiFormField>
@@ -61,6 +61,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiFormField from '../ui/UiFormField.vue';
 import UiInput from '../ui/UiInput.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';

@@ -8,7 +8,6 @@
     <UiEmptyState v-else-if="notFound" title="No activity found" description="This address is correctly formatted, but has never sent or received anything on this blockchain." />
 
     <div v-else-if="address" class="flex flex-column gap-24px">
-      <!-- Address Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Address Overview" />
         <div class="p-24px">
@@ -20,7 +19,6 @@
         </div>
       </UiCard>
 
-      <!-- Balances Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Balances" />
         <div class="p-24px">
@@ -41,7 +39,6 @@
         </div>
       </UiCard>
 
-      <!-- Delegations Card -->
       <UiCard v-if="address.delegations && address.delegations.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader :title="`Delegations (${address.delegations.length})`" />
         <div class="p-24px">
@@ -64,7 +61,6 @@
         </div>
       </UiCard>
 
-      <!-- Recent Transactions Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Recent Transactions" />
         <div class="p-24px">

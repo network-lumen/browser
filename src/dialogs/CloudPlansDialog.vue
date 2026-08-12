@@ -77,7 +77,6 @@
                </template>
              </UiEmptyState>
 
-             <!-- Grouped by gateway -->
              <div v-if="planGroups.length" class="flex flex-column gap-12px mt-12px">
                <article
                  v-for="group in planPagedGroups"

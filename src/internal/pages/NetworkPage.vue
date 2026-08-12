@@ -1,7 +1,6 @@
 <template>
   <!-- ####### lumen://network NETWORK (explorer + live network data, merged) ####### -->
   <div class="internal-page flex">
-    <!-- Show Block Detail if URL contains /block/ -->
     <BlockDetailPage v-if="isBlockDetailView" />
 
     <!-- Show Transaction Detail if URL contains /tx/ -->
@@ -47,7 +46,6 @@
     <!-- ####### lumen://network MAIN CONTENT ####### -->
     <main class="flex-1 p-24px overflow-y-auto bg-secondary">
       <template v-if="isExplorerBrowseView">
-      <!-- Search Bar -->
       <div class="mb-32px">
         <div class="flex-align-center gap-8px border-radius-12px bg-card border-2 py-12px px-16px transition-all-02 max-w-800px focus-within-border-accent focus-within-ring">
           <Search :size="20" class="color-text-tertiary" />
@@ -64,7 +62,6 @@
         </div>
       </div>
 
-      <!-- Stats Bar -->
       <div class="gap-16px mb-32px grid grid-cols-auto-fit-200">
         <UiStatTile label="Latest Block" :value="formatNumber(latestBlock)" />
         <UiStatTile :label="`Txs (last ${txHistoryWindow} blocks)`" :value="formatNumber(txHistoryTotal)" />
@@ -72,13 +69,11 @@
         <UiStatTile label="Avg Block Time" :value="avgBlockTimeLabel" />
       </div>
 
-      <!-- Loading State -->
       <UiLoadingBlock v-if="isLoading" message="Loading blockchain data..." />
 
       <template v-else>
         <!-- ####### EXPLORER: OVERVIEW VIEW ####### -->
         <div v-if="currentView === 'overview'" class="border-radius-12px bg-transparent overflow-visible">
-          <!-- Charts Section -->
           <div class="mb-0px gap-12px grid grid-cols-2">
             <UiChartCard :title="txHistoryTitle">
               <template #header>
@@ -528,7 +523,6 @@
       </div>
     </main>
 
-    <!-- Copy Notification -->
     <div v-if="showCopyNotification" class="right-2rem animate-slide-in-up flex-align-center gap-8px txt-weight-light fixed py-12px px-20px color-white border-radius-8px text-14px bg-success z-9999 bottom-32px shadow-success">
       <Check :size="16" />
       <span>{{ copiedText }} copied!</span>
@@ -574,7 +568,7 @@ import CreateProposalDialog from '../../dialogs/CreateProposalDialog.vue';
 import ManageStakeDialog from '../../dialogs/ManageStakeDialog.vue';
 import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl, openExplorerUrl } from '../services/explorerLinks';
 import InternalSidebar from '../../components/InternalSidebar.vue';
-import NetworkParamsPanel from '../components/NetworkParamsPanel.vue';
+import NetworkParamsPanel from '../../views/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus,  Activity, Network, SlidersHorizontal, FileText } from 'lucide-vue-next';
 import { GOVERNANCE_ACTION_TEMPLATES } from './governanceActionTemplates';
 import type { GovernanceActionDraft } from '../../types/networkGovernance';
@@ -1382,7 +1376,6 @@ function getCumulativeProgress(index: number): number {
   return Number(bp) / 100;
 }
 
-// Stake modal functions
 function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw' = 'Delegate') {
   if (!hasActiveProfile.value) {
     toast.error('Create or select a wallet profile first');
@@ -1931,7 +1924,6 @@ async function fetchNetworkStatus() {
   }
 }
 
-// Fetch Keybase avatars
 async function fetchNetworkKeybaseAvatars() {
   const validatorsWithKeybase = Object.values(networkProposerMap.value)
     .filter(v => v.keybaseId && !networkAvatarCache.value[v.keybaseId]);
@@ -2020,7 +2012,6 @@ async function fetchNetworkValidatorCounts() {
         }
       }
 
-      // Fetch Keybase avatars
       await fetchNetworkKeybaseAvatars();
     }
   } catch (e) {
@@ -2335,7 +2326,6 @@ async function submitProposal() {
   }
 }
 
-// Vote modal
 const showVoteModal = ref(false);
 const selectedProposal = ref<GovernanceProposal | null>(null);
 const voteOption = ref<GovernanceVoteOption | ''>('');

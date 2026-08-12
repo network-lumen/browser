@@ -66,21 +66,21 @@
 </template>
 
 <script setup lang="ts">
-import UiButton from '../../ui/UiButton.vue';
-import UiPageHeader from '../../ui/UiPageHeader.vue';
+import UiButton from '../ui/UiButton.vue';
+import UiPageHeader from '../ui/UiPageHeader.vue';
 import { computed, onMounted, ref } from 'vue';
-import { useInternalLumen } from '../../composables/useInternalLumen';
-import { copyToClipboardWithToast } from '../../composables/useClipboard';
+import { useInternalLumen } from '../composables/useInternalLumen';
+import { copyToClipboardWithToast } from '../composables/useClipboard';
 import {
   ChevronDown,
   ChevronRight,
   Copy
 } from 'lucide-vue-next';
-import UiSpinner from '../../ui/UiSpinner.vue';
-import type { ParamSection } from '../../types/networkParamsPanel';
+import UiSpinner from '../ui/UiSpinner.vue';
+import type { ParamSection } from '../types/networkParamsPanel';
 
 
-import { errorMessage } from '../services/coerce';
+import { errorMessage } from '../internal/services/coerce';
 const lumen = useInternalLumen();
 
 function extractGovParams(json: any, kind: 'deposit' | 'voting' | 'tallying') {

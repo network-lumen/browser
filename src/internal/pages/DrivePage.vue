@@ -88,7 +88,6 @@
 
     <!-- ####### lumen://drive FILE BROWSER ####### -->
     <main class="flex flex-column flex-1 m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
-      <!-- Header -->
       <UiPageHeader :title="headerTitle" :subtitle="headerSubtitle">
         <template #actions>
           <UiButton variant="secondary" type="button" @click="openPlansModal">
@@ -113,7 +112,6 @@
         </template>
       </UiPageHeader>
 
-      <!-- Privacy Warning Banner -->
       <div class="bg-gradient-warning-banner animate-fade-in flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-warning-a30">
         <div class="flex-align-justify-center size-36px color-warning flex-shrink-0 border-radius-8px bg-warning-a15">
           <AlertTriangle :size="20" />
@@ -354,7 +352,6 @@
 
       <UiLoadingBlock v-if="showSavedListSpinner" wrapper-class="flex-1 min-h-280px" spinner-class="" />
 
-      <!-- Files List View -->
       <div
         v-else-if="!showSavedListSpinner && !browseLoading && displayFiles.length > 0 "
         class="flex flex-column flex-1 border-radius-12px overflow-y-auto bg-primary border-1 shadow-sm min-h-0"
@@ -433,7 +430,6 @@
         </span>
       </div>
 
-      <!-- Empty State -->
       <UiEmptyState
         v-else-if="!showSavedListSpinner && !browseLoading && filteredFiles.length === 0"
         class="flex-1"
@@ -875,7 +871,6 @@ const SUBSCRIBED_GATEWAY_HEALTH_TTL_MS = 10 * 60 * 1000;
 const subscribedGatewayHealthById = ref<Record<string, { at: number; ok: boolean }>>({});
 let subscribedGatewayHealthSeq = 0;
 
-// Local details
 const showLocalDetails = ref(false);
 const driveBackupBusy = ref(false);
 const driveBackupError = ref("");
@@ -1341,7 +1336,6 @@ const canBulkConvertSelectedLocal = computed(
   () => selectedLocalConvertibleCount.value > 0 && !uploading.value,
 );
 
-// Total pages
 const totalPages = computed(() => {
   return Math.ceil(filteredFiles.value.length / itemsPerPage.value) || 1;
 });

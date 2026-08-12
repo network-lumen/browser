@@ -11,7 +11,6 @@
             <p class="color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half translate-x-center backdrop-blur-8 bg-black-a60">Position QR code within the frame</p>
           </div>
 
-          <!-- Error State -->
           <div v-if="error" class="text-center py-40px px-20px">
             <AlertCircle :size="48" class="color-error mb-16px" />
             <h4 class="color-text-primary text-20px txt-weight-light m-0px mb-8px">{{ error }}</h4>
@@ -24,7 +23,6 @@
             </UiButton>
           </div>
 
-          <!-- Success State -->
           <div v-if="scannedData" class="text-center py-40px px-20px">
             <CheckCircle :size="48" class="color-success mb-16px" />
             <h4 class="color-text-primary text-20px txt-weight-light m-0px mb-8px">QR Code Scanned</h4>

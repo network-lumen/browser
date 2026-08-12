@@ -61,7 +61,6 @@
         </div>
       </div>
 
-      <!-- Empty State -->
       <UiEmptyState v-if="filteredPayments.length === 0" title="No payment reminders" description="Keep track of subscriptions, bills and regular transfers. Lumen reminds you when one is due - it does not send it for you.">
         <Calendar :size="48" />
         <template #actions>
@@ -72,7 +71,6 @@
         </template>
       </UiEmptyState>
 
-      <!-- Payments Grid -->
       <div v-else class="grid gap-16px grid-cols-auto-fill-320">
         <UiCard
           v-for="payment in filteredPayments"
@@ -146,7 +144,6 @@
       </div>
     </UiCard>
 
-    <!-- Create/Edit Modal -->
     <RecurringPaymentModal
       v-if="showCreateModal || editingPayment"
       :payment="editingPayment ?? undefined"
@@ -155,46 +152,8 @@
       @scan-address="handleScanAddress"
     />
 
-    <!-- Payment History Modal -->
-    <UiModal :model-value="showHistoryModal" panel-class="w-full max-w-500px" @update:model-value="showHistoryModal = false">
-      <template #header>
-        <h3 class="flex-align-center gap-8px color-text-primary m-0px text-18px">
-          <History :size="20" />
-          <span>Payment History</span>
-        </h3>
-      </template>
-            <UiEmptyState v-if="selectedPaymentHistory.length === 0" description="No payment history yet" />
-            <div v-else class="flex flex-column gap-12px">
-              <div
-                v-for="record in selectedPaymentHistory"
-                :key="record.id"
-                class="flex gap-12px p-12px bg-secondary border-radius-8px"
-                :class="record.status"
-              >
-                <UiIconBadge
-                  size-class="size-32px"
-                  :badge-class="[record.status, { 'bg-fill-success': record.status === 'success', 'bg-fill-error': record.status === 'failed', 'bg-warning-a15': record.status === 'pending' }]"
-                >
-                  <Check v-if="record.status === 'success'" :size="16" />
-                  <X v-else-if="record.status === 'failed'" :size="16" />
-                  <Clock v-else :size="16" />
-                </UiIconBadge>
-                <div class="flex-1">
-                  <div class="flex-align-center-justify-space-between mb-4px">
-                    <strong class="color-text-primary">{{ formatAmount(record.amount) }} LMN</strong>
-                    <span class="color-text-secondary text-12px txt-weight-light text-uppercase border-radius-4px bg-fill-tertiary py-0px px-8px">{{ record.status }}</span>
-                  </div>
-                  <div class="color-text-secondary text-13px mb-4px">{{ formatDateTime(record.executedAt) }}</div>
-                  <div v-if="record.txHash" class="color-text-secondary mono text-12px">
-                    <span>TxHash: {{ record.txHash.slice(0, 16) }}...</span>
-                  </div>
-                  <div v-if="record.error" class="text-12px color-error mt-4px">{{ record.error }}</div>
-                </div>
-              </div>
-            </div>
-    </UiModal>
+    <PaymentHistoryDialog v-model="showHistoryModal" :records="selectedPaymentHistory" />
 
-    <!-- QR Scanner -->
     <QrScanner 
       v-if="showScanner"
       @close="showScanner = false"
@@ -206,21 +165,21 @@
 
 <script setup lang="ts">
 import UiButton from '../ui/UiButton.vue';
-import UiModal from '../ui/UiModal.vue';
 import UiEmptyState from '../ui/UiEmptyState.vue';
 import UiCard from '../ui/UiCard.vue';
 import UiStatIconTile from '../ui/UiStatIconTile.vue';
 import UiDetailRow from '../ui/UiDetailRow.vue';
 import UiIconBadge from '../ui/UiIconBadge.vue';
 import { ref, computed, onMounted } from 'vue';
-import { 
-  Calendar, Plus, Bell, AlertCircle, X, PlayCircle, PauseCircle, 
-  DollarSign, Edit, Trash2, History, Check, Clock
+import {
+  Calendar, Plus, Bell, AlertCircle, X, PlayCircle, PauseCircle,
+  DollarSign, Edit, Trash2, History
 } from 'lucide-vue-next';
+import PaymentHistoryDialog from '../dialogs/PaymentHistoryDialog.vue';
 import RecurringPaymentModal from '../dialogs/RecurringPaymentModal.vue';
 import QrScanner from '../dialogs/QrScanner.vue';
 import { getRecurringPaymentsService, type RecurringPayment, type PaymentHistory } from '../internal/services/recurringPayments';
-import { formatDate, formatDateTime, formatDecimal, shortenAddress } from '../internal/services/format';
+import { formatDate, formatDecimal, shortenAddress } from '../internal/services/format';
 import AddressLabel from '../entities/AddressLabel.vue';
 
 import { errorMessage } from '../internal/services/coerce';

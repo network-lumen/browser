@@ -1,7 +1,6 @@
 <template>
   <!-- ####### lumen://home HOME ####### -->
   <div class="internal-page flex">
-    <!-- Sidebar -->
     <InternalSidebar title="Lumen" :icon="Home" activeKey="home" :showAllPages="false">
       <UiButton variant="secondary" type="button" :block="true" @click="showAllPages = !showAllPages" class="flex-justify-space-between">
         <span>All pages</span>

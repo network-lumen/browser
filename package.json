@@ -34,7 +34,7 @@
     "dist": "npm run build && electron-builder --publish=never",
     "dist:win": "npm run build && electron-builder --win nsis --publish=never",
     "electron": "electron .",
-    "test": "npm run check:conventions && npm run check:ipc && npm run check:tests && npm run lint && npm run typecheck && npm run test:unit",
+    "test": "npm run check:conventions && npm run check:ipc && npm run check:tests && npm run check:i18n && npm run lint && npm run typecheck && npm run test:unit",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "check:conventions": "node scripts/check-conventions.mjs",
@@ -48,7 +48,9 @@
     "test:e2e:electron": "npx playwright test --project=electron",
     "test:e2e:renderer": "npx playwright test --project=renderer",
     "e2e:wallet": "node scripts/make-e2e-wallet.mjs",
-    "test:e2e:chain": "node scripts/run-chain-e2e.mjs"
+    "test:e2e:chain": "node scripts/run-chain-e2e.mjs",
+    "i18n:extract": "node scripts/extract-strings.mjs",
+    "check:i18n": "node scripts/extract-strings.mjs --check"
   },
   "dependencies": {
     "@cosmjs/crypto": "^0.36.0",
@@ -111,6 +113,10 @@
       {
         "from": "resources/gateways_whitelist.txt",
         "to": "gateways_whitelist.txt"
+      },
+      {
+        "from": "src/img/logo.png",
+        "to": "icon.png"
       }
     ],
     "directories": {
@@ -127,7 +133,6 @@
     },
     "win": {
       "icon": "src/img/logo.png",
-      "signAndEditExecutable": false,
       "signtoolOptions": {
         "sign": "./resources/no-sign.cjs"
       },

@@ -1,7 +1,6 @@
 <template>
   <!-- ####### lumen://help HELP ####### -->
   <div class="internal-page flex">
-    <!-- Sidebar -->
     <InternalSidebar title="Help" :icon="HelpCircle" activeKey="help">
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Resources">
@@ -30,7 +29,6 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-column m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
-      <!-- Discover View -->
       <div v-if="currentView === 'discover'" class="flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="flex flex-column gap-20px">
           <!-- Hero Section -->
@@ -79,7 +77,6 @@
             </div>
           </section>
 
-          <!-- Steps -->
           <div class="flex flex-column gap-16px">
             <UiTutorialStep :number="1" title="Build Your Website">
               Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.
@@ -118,7 +115,6 @@
         </div>
       </div>
 
-      <!-- Contact View -->
       <div v-else-if="currentView === 'contact'" class="flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="flex flex-column gap-20px">
           <!-- Hero -->
@@ -182,7 +178,6 @@
         </div>
       </div>
       
-      <!-- Docs View -->
       <div v-else-if="currentView === 'docs'" class="flex flex-column overflow-hidden flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="flex flex-column gap-20px flex-1 min-h-0">
           <UiPageHeader class="flex-shrink-0" :title="getViewTitle()" :subtitle="getViewDescription()" title-size="20px" title-weight="strong" margin-class="mb-0px" />

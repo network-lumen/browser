@@ -9,13 +9,13 @@
 
     <main class="h-auto flex flex-1-1-auto min-h-0">
       <div v-if="phase === 'starting' || phase === 'retrying' || phase === 'error'" class="flex-align-center flex-column text-center gap-12px py-28px px-24px mt-auto mx-auto mb-32px">
-        <UiLoadingSpinner v-if="phase !== 'error'" aria-label="Loading" />
+        <UiLoadingSpinner v-if="phase !== 'error'" :aria-label="t('Loading')" />
         <div v-else>
           <div class="color-text-secondary text-13px">
             Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
           </div>
           <UiButton variant="primary" type="button" :disabled="busy" @click="restartAll" class="active-not-disabled-lift-1px disabled-opacity-60-cursor-default transition-lift-015">
-            Retry
+            {{ t('Retry') }}
           </UiButton>
         </div>
       </div>
@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiCard from '../ui/UiCard.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiLoadingSpinner from '../ui/UiLoadingSpinner.vue';

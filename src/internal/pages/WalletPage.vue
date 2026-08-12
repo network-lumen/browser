@@ -35,7 +35,6 @@
 
     <!-- ####### lumen://wallet MAIN CONTENT ####### -->
     <main class="flex flex-column flex-1 m-0px min-w-0 overflow-y-auto py-32px px-40px bg-secondary border-radius-0">
-      <!-- Header -->
       <UiPageHeader :title="getViewTitle()" title-size="20px" title-weight="light" :subtitle="getViewDescription()">
         <template v-if="currentView !== 'dex'" #actions>
           <UiButton variant="primary" @click="connectWallet" v-if="!isConnected">
@@ -59,7 +58,6 @@
 
       <!-- ####### lumen://wallet OVERVIEW VIEW ####### -->
       <div v-if="currentView === 'overview'" class="flex flex-column gap-24px">
-        <!-- Balance Card -->
         <div class="border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 shadow-glow-primary-lg">
           <div class="flex-align-center-justify-space-between mb-16px">
             <span class="text-uppercase txt-weight-light text-13px letter-spacing-008em color-white-a85">Total Balance</span>
@@ -790,7 +788,6 @@ const dexExpandedKeys = ref<string[]>([]);
 const dexLastLoadedAt = ref(0);
 const DEX_REFRESH_TTL_MS = 60_000;
 
-// QR Scanner
 const showQrScanner = ref(false);
 const qrScannerTitle = ref('Scan QR Code');
 
@@ -1487,7 +1484,6 @@ function closeSendModal() {
   sendForm.value = { recipient: '', amount: '', gasFee: 'medium' };
 }
 
-// QR Scanner functions
 function openQrScanner() {
   qrScannerTitle.value = 'Scan Wallet Address or Payment';
   showQrScanner.value = true;
@@ -1559,7 +1555,6 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
 }
 
 
-// Recurring Payments
 async function executeRecurringPayment(paymentId: string) {
   const result = await payReminder(paymentId);
   if (result.ok) {

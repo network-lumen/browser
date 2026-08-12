@@ -10,7 +10,6 @@ export type RawDomainRow = {
 
 export type SettingsRecord = { key: string; value: string };
 
-/** The fields of the domain registration form. */
 export type DomainRegisterForm = {
   domainName: string;
   years: string;

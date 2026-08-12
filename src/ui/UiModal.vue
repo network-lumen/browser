@@ -32,19 +32,22 @@ import { onBeforeUnmount, watch } from 'vue';
 import { X } from 'lucide-vue-next';
 
 /**
- * The shell every modal in the app is drawn in.
+ * The shell every modal in the app is drawn in: the overlay, the panel, and
+ * the header/body/footer slots. `UiDialog` sits on top of it and adds the
+ * Cancel-beside-one-action footer that most dialogs want.
  *
  * Escape and the scroll lock live here rather than in each caller because
  * neither existed anywhere: no modal in the app closed on Escape, and the page
  * behind one kept scrolling under the overlay. Both were uniformly absent,
- * which is exactly why nobody noticed - now that all 46 dialogs come through
+ * which is exactly why nobody noticed - now that every dialog comes through
  * this file, one place fixes all of them.
- *
- * Every modal currently open, oldest first.
- *
- * Escape has to close the top one only. Dialogs do stack here - the site host
- * can raise a permission prompt over a page's own modal - so a plain global
- * listener would have closed all of them at once.
+ */
+
+/**
+ * Every modal currently open, oldest first. Escape closes the top one only:
+ * dialogs do stack here - the site host can raise a permission prompt over a
+ * page's own modal - so a plain global listener would have closed all of them
+ * at once.
  */
 const openModals: Array<() => void> = [];
 
