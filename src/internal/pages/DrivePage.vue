@@ -218,7 +218,7 @@
               <UiButton variant="secondary" type="button"
                 @click="cancelUpload(key)"
                 :disabled="upload?.uploadingCanceling" class="disabled-fade-50">
-                {{ upload?.uploadingCanceling ? "Cancelling..." : "Cancel" }}
+                {{ upload?.uploadingCanceling ? t('Cancelling…') : t('Cancel') }}
               </UiButton>
             </div>
           </div>
@@ -249,14 +249,12 @@
               <UiButton variant="secondary" type="button"
                 @click="pauseHlsQueue()"
                 :disabled="convertingCanceling || convertingPauseRequested" class="disabled-fade-50">
-                {{
-                  convertingPauseRequested ? "Pausing..." : "Pause"
-                }}
+                {{ convertingPauseRequested ? t('Pausing…') : t('Pause') }}
               </UiButton>
               <UiButton variant="secondary" type="button"
                 @click="cancelHlsConversion"
                 :disabled="convertingCanceling || convertingPauseRequested" class="disabled-fade-50">
-                {{ convertingCanceling ? "Cancelling..." : "Cancel" }}
+                {{ convertingCanceling ? t('Cancelling…') : t('Cancel') }}
               </UiButton>
             </div>
           </div>
@@ -281,7 +279,7 @@
               @click="pauseHlsQueue()"
               :disabled="convertingPauseRequested" class="hover-border-color-accent-enabled disabled-fade-50">
               <Pause :size="14" />
-              <span>{{ convertingPauseRequested ? "Pausing..." : "Pause" }}</span>
+              <span>{{ convertingPauseRequested ? t('Pausing…') : t('Pause') }}</span>
             </UiButton>
             <UiButton variant="secondary" v-if="hlsQueueCanResume"
               type="button"
@@ -338,7 +336,7 @@
               <UiButton variant="secondary" type="button"
                 @click="cancelHlsArchiveDownload"
                 :disabled="archiveDownloadCanceling" class="disabled-fade-50">
-                {{ archiveDownloadCanceling ? "Cancelling..." : "Cancel" }}
+                {{ archiveDownloadCanceling ? t('Cancelling…') : t('Cancel') }}
               </UiButton>
             </div>
           </div>
@@ -786,7 +784,7 @@ const convertingStatusText = computed(() => {
     ) {
       return `${label} (${downloaded} / ${formatSize(convertingDownloadTotalBytes.value)})`;
     }
-    return `${label} (${downloaded} downloaded)`;
+    return t('{label} ({amount} downloaded)', { label, amount: downloaded });
   }
   return label;
 });
@@ -816,7 +814,7 @@ const archiveDownloadStatusText = computed(() => {
     return `${label} (${formatSize(done)} / ${formatSize(total)})`;
   }
   if (done != null && done > 0) {
-    return `${label} (${formatSize(done)} processed)`;
+    return t('{label} ({amount} processed)', { label, amount: formatSize(done) });
   }
   return label;
 });
@@ -921,7 +919,7 @@ function closeSiteDataModal() {
 async function removeSiteDataRecord(record: any) {
   if (!siteData_lumen_api?.delete) return;
   const label = siteDataSiteLabel(record);
-  const confirmed = window.confirm(`Delete this site's data ("${label}")?\n\nThe site will see you as a brand new visitor next time.`);
+  const confirmed = window.confirm(t('Delete this site\'s data ({label})?\n\nThe site will see you as a brand new visitor next time.', { label }));
   if (!confirmed) return;
   const rowId = siteDataRowId(record);
   removingSiteDataId.value = rowId;
@@ -1198,7 +1196,7 @@ async function downloadHlsAsZip(file: DriveFile): Promise<void> {
 
     const got = await lumen_api?.ipfsGet?.(item.target, { gateways: [] }).catch(() => null);
     if (!got?.ok || !Array.isArray(got.data)) {
-      throw new Error(`Failed to fetch ${item.archivePath}`);
+      throw new Error(t('Failed to fetch {path}', { path: item.archivePath }));
     }
     zip.file(`${archiveRoot}/${item.archivePath}`, new Uint8Array(got.data));
   }
@@ -1444,12 +1442,12 @@ const gatewayDetailsGatewayLabel = computed(() => {
 
 const hostingLabel = computed(() => {
   if (hosting.value.kind === "gateway")
-    return activeGatewayLabel.value || "Gateway";
-  return "Local";
+    return activeGatewayLabel.value || t("Gateway");
+  return t("Local");
 });
 
 const headerTitle = computed(() => {
-  return hosting.value.kind === "gateway" ? hostingLabel.value : "Local";
+  return hosting.value.kind === "gateway" ? hostingLabel.value : t("Local");
 });
 
 const browseRootName = computed(() => {
@@ -1467,7 +1465,7 @@ const browseRootLabel = computed(() => {
   const name = String(browseRootName.value || "").trim();
   if (name) return name;
   const cid = String(browseRootCid.value || "").trim();
-  if (!cid) return "Folder";
+  if (!cid) return t("Folder");
   return cid.length > 10 ? `${cid.slice(0, 10)}…` : cid;
 });
 
@@ -1671,9 +1669,9 @@ const gatewayDetailsSubscriptionRow = computed(() => {
 const gatewayDetailsStatusLabel = computed(() => {
   const row = gatewayDetailsSubscriptionRow.value;
   if (!row) return "-";
-  if (row.status === "active") return "Active";
-  if (row.status === "pending") return "Pending";
-  return "Off";
+  if (row.status === "active") return t("Active");
+  if (row.status === "pending") return t("Pending");
+  return t("Off");
 });
 
 const gatewayDetailsStatusClass = computed(() => {
@@ -3080,7 +3078,7 @@ function stripExt(name: string): string {
 
 function getSavedName(cid: string): string {
   const key = normalizeCidKey(cid);
-  if (!key) return "Unknown";
+  if (!key) return t("Unknown");
 
   if (hosting.value.kind === "gateway") {
     const remoteVal = gatewayPinnedNames.value[key];
@@ -3101,7 +3099,7 @@ function getSavedName(cid: string): string {
     // ignore
   }
 
-  return "Unknown";
+  return t("Unknown");
 }
 
 function setSavedName(cid: string, name: string) {
@@ -3296,13 +3294,13 @@ async function performHlsConversion(
         };
       }
       if (!opts.silentSuccessToast) {
-        showToast(`Converted & pinned to gateway: ${newName}`, "success");
+        showToast(t('Converted and pinned to gateway: {name}', { name: newName }), "success");
       }
     } else {
       loadStats();
       await loadPinnedFiles();
       if (!opts.silentSuccessToast) {
-        showToast(`Converted to HLS: ${newName}`, "success");
+        showToast(t('Converted to HLS: {name}', { name: newName }), "success");
       }
     }
 
@@ -3419,7 +3417,7 @@ async function ensureHlsQueueProcessing() {
   if (summary.failed) parts.push(`${summary.failed} failed`);
   if (summary.cancelled) parts.push(`${summary.cancelled} cancelled`);
   if (summary.paused) parts.push(`${summary.paused} paused`);
-  showToast(`HLS queue: ${parts.join(", ")}`, summary.failed ? "error" : "success");
+  showToast(t('HLS queue: {summary}', { summary: parts.join(", ") }), summary.failed ? "error" : "success");
 }
 
 async function convertToHls(file: DriveFile) {
@@ -3480,16 +3478,16 @@ async function convertSelectedLocalToHls() {
 
   const notes: string[] = [];
   if (skipped) notes.push(`${skipped} skipped`);
-  if (duplicates) notes.push(`${duplicates} already queued`);
+  if (duplicates) notes.push(t('{count} already queued', { count: duplicates }));
 
   const label =
     status === "paused"
       ? added === 1
         ? t("Added 1 video to paused HLS queue")
-        : `Added ${added} videos to paused HLS queue`
+        : t('Added {count} videos to paused HLS queue', { count: added })
       : added === 1
         ? t("Queued 1 video for HLS")
-        : `Queued ${added} videos for HLS`;
+        : t('Queued {count} videos for HLS', { count: added });
   showToast(notes.length ? `${label} (${notes.join(", ")})` : label, "success");
   if (status === "queued") void ensureHlsQueueProcessing();
 }
@@ -4274,13 +4272,13 @@ async function removeLocalRootEntries(entries: DriveFile[]) {
 
   if (unpinFailed) {
     showToast(
-      `Removed ${total} entries (${unpinFailed} couldn't be unpinned locally)`,
+      t('Removed {count} entries ({failed} could not be unpinned locally)', { count: total, failed: unpinFailed }),
       "success",
     );
     return;
   }
 
-  showToast(`Removed ${total} entries`, "success");
+  showToast(t('Removed {count} entries', { count: total }), "success");
 }
 
 async function removeSelectedLocalFiles() {

@@ -55,6 +55,12 @@ const ALLOWED = new Set([
   // Passed to <webview webpreferences>, parsed by Electron.
   'contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no',
 
+  // Sent as a User-Agent header, read by the Chrome Web Store.
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+
+  // The doctype prepended to the EPUB reader's srcdoc. Markup, not words.
+  '<!DOCTYPE html>\\n',
+
   // A zero balance, already in the app's number format.
   '0.000 LMN',
   '0.000000 LMN',
@@ -115,8 +121,12 @@ function isFragment(text) {
   return /^\s*[,:;.]/.test(text);
 }
 
+// Brackets alone do not make a string code: "(send tokens, delegate, etc.)" is a
+// sentence, and treating every parenthesis as code hid a whole paragraph in the
+// settings page for a pass. What is code is a *call* - an identifier stuck to an
+// opening paren - or an operator no sentence contains.
 function isCode(text) {
-  return /!==|===|=>|\|\||&&|\breturn\b|\bconst\b|\bfunction\b|[(){}[\]]/.test(text);
+  return /!==|===|=>|\|\||&&|\breturn\b|\bconst\b|\bfunction\b|[{}[\]]|\w\(/.test(text);
 }
 
 // A ticker or an acronym beside a separator - "LMN ·", "CID:" - is a value,
@@ -134,7 +144,9 @@ function isAcronymOnly(text) {
  * across this codebase - a word meant for a user is written for a user.
  */
 function isProse(text, { singleWordCounts = false } = {}) {
-  if (singleWordCounts && /^[A-Z][a-z]{2,}$/.test(text.trim())) return true;
+  // Trailing punctuation does not stop a word from being a word: `Total:` sits
+  // in front of a {{ }} and reads as a label, `Copied` as a toast.
+  if (singleWordCounts && /^[A-Z][a-z]{2,}[:.!?]?$/.test(text.trim())) return true;
   return (
     /[A-Za-z]{3}/.test(text) &&
     / /.test(text) &&
@@ -154,7 +166,7 @@ function isProse(text, { singleWordCounts = false } = {}) {
 // access your gateway."` is a sentence on screen, and it went unnoticed purely
 // because nobody had thought to add "consequence" to a list.
 const TEXT_ATTRS =
-  /\s(?:title|placeholder|aria-label|alt|message|consequence|hint|note|summary|caption|tooltip|[\w-]*(?:label|description|subtitle|text|title))="([^"{}]+)"/g;
+  /\s(?:title|placeholder|aria-label|alt|message|consequence|hint|note|detail|summary|caption|tooltip|[\w-]*(?:label|description|subtitle|text|title))="([^"{}]+)"/g;
 
 // Both wrappers count as translated: t() at the point of display, and
 // markForTranslation() for a string in a table that is translated where drawn.
@@ -202,12 +214,23 @@ for (const file of walk(SRC)) {
       // Inside {{ }} a double quote is an ordinary string delimiter; inside an
       // attribute it is the delimiter of the attribute itself, so only the
       // interpolation scan looks for it.
+      // A ternary picks between two captions, and a caption is very often one
+      // word: `{{ success ? 'Success' : 'Failed' }}`. Judging these by the
+      // sentence rule let every one-word label through.
       for (const expr of tpl.matchAll(/\{\{([\s\S]*?)\}\}/g)) {
         for (const lit of expr[1].matchAll(/(['"`])((?:\\.|(?!\1)[^\\])*)\1/g)) {
-          record(lit[2], lineAt(offset + expr.index));
+          record(lit[2], lineAt(offset + expr.index), inTemplate);
         }
       }
-      for (const expr of tpl.matchAll(/(?::|v-bind:|@|v-if=|v-else-if=|v-for=)[\w.-]*="([^"]*)"/g)) {
+      for (const expr of tpl.matchAll(/(?::|v-bind:|v-if=|v-else-if=|v-for=)[\w.-]*="([^"]*)"/g)) {
+        for (const lit of expr[1].matchAll(/(['`])((?:\\.|(?!\1)[^\\])*)\1/g)) {
+          record(lit[2], lineAt(offset + expr.index), inTemplate);
+        }
+      }
+      // An event handler holds arguments, not captions: the 'Delegate' in
+      // `@click="openStakeModal(v, 'Delegate')"` is the enum the dialog
+      // switches on, and the dialog names it itself. Sentences still count.
+      for (const expr of tpl.matchAll(/@[\w.-]*="([^"]*)"/g)) {
         for (const lit of expr[1].matchAll(/(['`])((?:\\.|(?!\1)[^\\])*)\1/g)) {
           record(lit[2], lineAt(offset + expr.index));
         }
@@ -230,8 +253,23 @@ for (const file of walk(SRC)) {
     .replace(/\bimport\s[^;\n]*from\s*['"][^'"]*['"]/g, blank)
     .replace(TRANSLATED, blank);
 
+  // A `${…}` hole is code, but the words around it are not, and leaving the
+  // hole in made isCode() reject the whole literal: `Expires ${prettyDate(ms)}`
+  // read as a function call and never got looked at.
   for (const m of script.matchAll(/(['"`])((?:\\.|(?!\1)[^\\\n])*)\1/g)) {
-    record(m[2], lineAt(offset + m.index));
+    // A literal that is only holes and glue - `lumen-transactions-${a}-${b}.csv`,
+    // `/ipfs/${cid}/favicon.ico`, `toast-${n}-${r}` - is a filename, an id or a
+    // URL path. Nothing with a space between two of its own words is.
+    if (!m[2].replace(/\$\{[^}]*\}/g, '').includes(' ')) continue;
+    record(m[2].replace(/\$\{[^}]*\}/g, ' '), lineAt(offset + m.index));
+  }
+
+  // A one-word caption returned from a function - `if (status === 'online')
+  // return 'Online';` - is on screen just as much as a sentence is. Only a
+  // capitalised word counts, which is what separates the label from the enum
+  // value it is derived from.
+  for (const m of script.matchAll(/\breturn\s+(['"])((?:\\.|(?!\1)[^\\\n])*)\1/g)) {
+    record(m[2], lineAt(offset + m.index), { singleWordCounts: true });
   }
 
   // A lookup table of display strings - `{ network: 'Network', drive: 'Drive' }`

@@ -226,8 +226,8 @@ function groupLabel(timestamp: number) {
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
-  if (isSameDay(date, today)) return "Today";
-  if (isSameDay(date, yesterday)) return "Yesterday";
+  if (isSameDay(date, today)) return t("Today");
+  if (isSameDay(date, yesterday)) return t("Yesterday");
   return new Intl.DateTimeFormat(undefined, {
     weekday: "long",
     month: "short",

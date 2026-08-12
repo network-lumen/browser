@@ -154,7 +154,7 @@ import UiButton from '../../ui/UiButton.vue';
 import UiWarningBox from '../../ui/UiWarningBox.vue';
 import { computed, ref } from 'vue';
 
-import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../routes';
+import { INTERNAL_ROUTE_KEYS, getInternalTitle, internalRouteTitle } from '../routes';
 import { profilesState } from '../../stores/profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { STORAGE_KEYS, readJson, writeJson } from '../services/storage';
@@ -536,10 +536,6 @@ const url = `lumen://${key}`;
   openInNewTab?.(url);
 }
 
-function formatRouteName(key: string): string {
-  return key.charAt(0).toUpperCase() + key.slice(1);
-}
-
 function getRouteDescription(key: string): string {
   const descriptions: Record<string, string> = {
     network: t('Browse the blockchain & view network status'),
@@ -558,22 +554,11 @@ function getRouteDescription(key: string): string {
   return descriptions[key] || '';
 }
 
+// The route table already names every page; a second, shorter copy here is what
+// left "Newtab", "Extensions" and "My-gateways" as capitalised URL keys on the
+// cards - the three routes it happened not to list.
 function getCardTitle(key: string): string {
-  const titles: Record<string, string> = {
-    network: t('Network'),
-    search: t('Search'),
-    history: t('History'),
-    help: t('Help'),
-    drive: t('Drive'),
-    wallet: t('Wallet'),
-    domain: t('Domains'),
-    gateways: t('Gateways'),
-    settings: t('Settings'),
-    ipfs: 'IPFS',
-    release: t('Release'),
-    home: t('Home')
-  };
-  return titles[key] || formatRouteName(key);
+  return internalRouteTitle(key);
 }
 
 const ACTION_ICON_STYLES: Record<string, { background: string; color: string }> = {

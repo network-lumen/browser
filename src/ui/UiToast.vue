@@ -22,7 +22,7 @@
           <button
             v-if="toast.copyable"
             class="toast-action flex-align-justify-center border-radius-circle color-text-tertiary cursor-pointer flex-shrink-0 bg-transparent border-none transition-all-fast h-20px w-20px hover-bg-primary hover-color-text-primary"
-            :title="copiedState[toast.id] ? 'Copied' : t('Copy message')"
+            :title="copiedState[toast.id] ? t('Copied') : t('Copy message')"
             @click.stop="copyToast(toast)"
           >
             <Check v-if="copiedState[toast.id]" :size="14" />

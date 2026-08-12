@@ -100,7 +100,7 @@ const payingId = isPaying;
 function lateBy(payment: RecurringPayment): string {
   const days = Math.floor((Date.now() - new Date(payment.nextPaymentDate).getTime()) / 86_400_000);
   if (days < 1) return '';
-  return days === 1 ? t('1 day late') : `${days} days late`;
+  return days === 1 ? t('1 day late') : t('{count} days late', { count: days });
 }
 
 async function confirmPay(payment: RecurringPayment) {

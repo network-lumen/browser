@@ -711,12 +711,12 @@ function thumbBlurNoticeText(r: ResultItem): string {
   if (!cats.length) return t("This image may contain sensitive content. Click to reveal.");
   const labels = cats.map(blockedCatLabel);
   if (labels.length === 1) {
-    return `This image may contain ${labels[0]}. Click to reveal.`;
+    return t('This image may contain {kinds}. Click to reveal.', { kinds: labels[0] });
   }
   if (labels.length === 2) {
-    return `This image may contain ${labels[0]} or ${labels[1]}. Click to reveal.`;
+    return t('This image may contain {kinds}. Click to reveal.', { kinds: t('{first} or {second}', { first: labels[0], second: labels[1] }) });
   }
-  return `This image may contain ${labels.slice(0, -1).join(", ")}, or ${labels[labels.length - 1]}. Click to reveal.`;
+  return t('This image may contain {kinds}. Click to reveal.', { kinds: t('{first}, or {second}', { first: labels.slice(0, -1).join(", "), second: labels[labels.length - 1] }) });
 }
 
 function shouldBlurThumb(r: ResultItem): boolean {
@@ -1324,7 +1324,7 @@ async function togglePinImage(result: ResultItem) {
       } else {
         const err = String(res?.error || "").trim();
         console.warn("[search][local-save] unpin failed:", { cid, res });
-        toast.error(err ? `Failed to remove from local save: ${err}` : t("Failed to remove from local save"));
+        toast.error(err ? t('Failed to remove from local save: {reason}', { reason: String(err) }) : t("Failed to remove from local save"));
       }
     } else {
       if (typeof api?.ipfsPinAdd !== "function") {
@@ -1342,7 +1342,7 @@ async function togglePinImage(result: ResultItem) {
       } else {
         const err = String(res?.error || "").trim();
         console.warn("[search][local-save] pin failed:", { cid, res });
-        toast.error(err ? `Failed to save to local: ${err}` : t("Failed to save to local"));
+        toast.error(err ? t('Failed to save to local: {reason}', { reason: String(err) }) : t("Failed to save to local"));
       }
     }
   } catch (e) {
@@ -1407,9 +1407,9 @@ function fileKindLabel(k: ResultItem["fileKind"]): string {
     case "html":
       return "HTML";
     case "txt":
-      return "Text";
+      return t("Text");
     case "image":
-      return "Image";
+      return t("Image");
     default:
       return "IPFS";
   }
@@ -1421,16 +1421,16 @@ function typeBadgeLabel(r: ResultItem): string {
     case "ipfs":
       return fileKindLabel(r.fileKind || "unknown");
     case "tx":
-      return "Transaction";
+      return t("Transaction");
     case "block":
-      return "Block";
+      return t("Block");
     case "address":
-      return "Address";
+      return t("Address");
     case "link":
-      return "Link";
+      return t("Link");
     case "site":
     default:
-      return "Site";
+      return t("Site");
   }
 }
 
@@ -4222,7 +4222,7 @@ async function runSearch(
     errorMsg.value = errMessage;
     results.value = [];
     clearPageCursorStates();
-    toast.error(`Search failed: ${errMessage}`);
+    toast.error(t('Search failed: {reason}', { reason: errMessage }));
   } finally {
     if (seq !== searchSeq) return;
     loading.value = false;
@@ -4348,7 +4348,7 @@ async function loadPrevious() {
     if (seq !== searchSeq) return;
     const errMessage = errorMessage(e, "load_previous_failed");
     errorMsg.value = errMessage;
-    toast.error(`Load previous failed: ${errMessage}`);
+    toast.error(t('Failed to load previous results: {reason}', { reason: errMessage }));
   } finally {
     if (seq !== searchSeq) return;
     loadingPrevious.value = false;
@@ -4447,7 +4447,7 @@ async function loadMore() {
     if (seq !== searchSeq) return;
     const errMessage = errorMessage(e, "load_more_failed");
     errorMsg.value = errMessage;
-    toast.error(`Load more failed: ${errMessage}`);
+    toast.error(t('Failed to load more results: {reason}', { reason: errMessage }));
   } finally {
     if (seq !== searchSeq) return;
     loadingMore.value = false;

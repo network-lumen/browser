@@ -15,7 +15,7 @@
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" v-if="!isExtensionTab"
         :aria-busy="loading ? 'true' : 'false'"
         :disabled="loading"
-        :title="loading ? 'Loading…' : 'Refresh'"
+        :title="loading ? t('Loading…') : t('Refresh')"
         @click="refresh" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <UiSpinner v-if="loading" size="sm" />
         <RefreshCw v-else :size="16" />

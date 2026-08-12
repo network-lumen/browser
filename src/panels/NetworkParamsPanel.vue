@@ -221,9 +221,9 @@ function statusClass(s: ParamSection): string {
 }
 
 function statusLabel(s: ParamSection): string {
-  if (s.loading) return 'Loading';
-  if (s.error) return 'Error';
-  return 'Idle';
+  if (s.loading) return t('Loading');
+  if (s.error) return t('Error');
+  return t('Idle');
 }
 
 async function loadSection(s: ParamSection) {
@@ -235,7 +235,7 @@ async function loadSection(s: ParamSection) {
   try {
     const res = await lumen.net.restGet(s.path);
     if (!res?.ok) {
-      const msg = res?.error || `Request failed (${s.path})`;
+      const msg = res?.error || t('Request failed ({path})', { path: s.path });
       throw new Error(msg);
     }
     const raw = res.json ?? null;

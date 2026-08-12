@@ -1,4 +1,5 @@
 import { t } from '../stores/i18nStore';
+import { markForTranslation } from './services/i18n';
 import HomePage from './pages/HomePage.vue';
 import SearchPage from './pages/SearchPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
@@ -24,30 +25,46 @@ import { getFileUrlTitle, isBrowserUrl, isFileUrl, parseExtensionTabUrl } from '
 import { truncateMiddle } from './services/format';
 import type { InternalRoute } from '../types/routes';
 
+/**
+ * The name of every internal page, in one place.
+ *
+ * `markForTranslation` and not `t()`: this table is built once, when the module
+ * is first imported, and `t()` here would freeze whichever language happened to
+ * be loaded at that moment - which is English, because the module is pulled in
+ * long before a profile's locale is read. Every tab title, every card on the
+ * home page and every history entry then stays English for the life of the
+ * session. The words are translated at `t(route.title)`, where they are drawn.
+ */
 const INTERNAL_ROUTES: Record<string, InternalRoute> = {
-  newtab: { component: NewTabPage, title: t('New tab') },
-  history: { component: HistoryPage, title: t('History') },
-  home: { component: HomePage, title: t('Home') },
-  search: { component: SearchPage, title: t('Search') },
-  settings: { component: SettingsPage, title: t('Settings') },
-  drive: { component: DrivePage, title: t('Drive') },
+  newtab: { component: NewTabPage, title: markForTranslation('New tab') },
+  history: { component: HistoryPage, title: markForTranslation('History') },
+  home: { component: HomePage, title: markForTranslation('Home') },
+  search: { component: SearchPage, title: markForTranslation('Search') },
+  settings: { component: SettingsPage, title: markForTranslation('Settings') },
+  drive: { component: DrivePage, title: markForTranslation('Drive') },
   ipfs: { component: IpfsPage, title: 'IPFS' },
   ipns: { component: IpfsPage, title: 'IPNS' },
-  wallet: { component: WalletPage, title: t('Wallet') },
-  domain: { component: DomainPage, title: t('Domain') },
-  domains: { component: DomainPage, title: t('Domains') },
-  extensions: { component: ExtensionsPage, title: t('Extensions') },
-  extension: { component: ExtensionPage, title: t('Extension') },
-  network: { component: NetworkPage, title: t('Network') },
-  gateways: { component: GatewaysPage, title: t('Gateways') },
-  'my-gateways': { component: MyGatewaysPage, title: t('My Gateways') },
-  block: { component: BlockDetailPage, title: t('Block details') },
-  transaction: { component: TransactionDetailPage, title: t('Transaction details') },
-  tx: { component: TransactionDetailPage, title: t('Transaction details') },
-  address: { component: AddressDetailPage, title: t('Address details') },
-  release: { component: ReleasePage, title: t('Release') },
-  help: { component: HelpPage, title: t('Help') }
+  wallet: { component: WalletPage, title: markForTranslation('Wallet') },
+  domain: { component: DomainPage, title: markForTranslation('Domain') },
+  domains: { component: DomainPage, title: markForTranslation('Domains') },
+  extensions: { component: ExtensionsPage, title: markForTranslation('Extensions') },
+  extension: { component: ExtensionPage, title: markForTranslation('Extension') },
+  network: { component: NetworkPage, title: markForTranslation('Network') },
+  gateways: { component: GatewaysPage, title: markForTranslation('Gateways') },
+  'my-gateways': { component: MyGatewaysPage, title: markForTranslation('My Gateways') },
+  block: { component: BlockDetailPage, title: markForTranslation('Block details') },
+  transaction: { component: TransactionDetailPage, title: markForTranslation('Transaction details') },
+  tx: { component: TransactionDetailPage, title: markForTranslation('Transaction details') },
+  address: { component: AddressDetailPage, title: markForTranslation('Address details') },
+  release: { component: ReleasePage, title: markForTranslation('Release') },
+  help: { component: HelpPage, title: markForTranslation('Help') }
 };
+
+/** The name of an internal page, translated, for anything drawing a route list. */
+export function internalRouteTitle(key: string): string {
+  const route = INTERNAL_ROUTES[key];
+  return route ? t(route.title) : key.charAt(0).toUpperCase() + key.slice(1);
+}
 
 function isLikelyDomainHost(host: string): boolean {
   const h = String(host || '').trim().toLowerCase();
@@ -128,11 +145,11 @@ export function getInternalTitle(rawUrl: string): string {
   // host is "network", not "block"/"tx"/"address"), so these must match on
   // the URL's PATH rather than on `key` (the host).
   const blockMatch = asString.match(/\/block\/(\d+)/i);
-  if (blockMatch) return `Block details ${blockMatch[1]}`;
+  if (blockMatch) return t('Block {height}', { height: blockMatch[1] });
   const txMatch = asString.match(/\/(?:transaction|tx)\/([A-F0-9]+)/i);
-  if (txMatch) return `Tx ${shortenHash(txMatch[1])}`;
+  if (txMatch) return t('Tx {hash}', { hash: shortenHash(txMatch[1]) });
   const addressMatch = asString.match(/\/address\/([a-z0-9]+)/i);
-  if (addressMatch) return `Address ${shortenHash(addressMatch[1])}`;
+  if (addressMatch) return t('Address {address}', { address: shortenHash(addressMatch[1]) });
   const route = INTERNAL_ROUTES[key];
   if (route) return t(route.title);
   if (isLikelyDomainHost(key)) return key;

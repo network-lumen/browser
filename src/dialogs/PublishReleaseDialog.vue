@@ -21,7 +21,7 @@
             </UiButton>
           </div>
 
-          <UiFormField :label="t('GitHub release URL')" hint="Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS.txt.">
+          <UiFormField :label="t('GitHub release URL')" :hint="t('Imports version, notes, and artifacts (URL/SHA/size) from GitHub + SHA256SUMS file.')">
             <UiInput bg-class="bg-secondary" radius-class="border-radius-12px" font-size-class="text-15px line-height-12" padding-class="py-8px px-10px" :focus-ring="false" :model-value="githubReleaseUrl" @update:model-value="$emit('update:githubReleaseUrl', String($event).trim())"
               placeholder="https://github.com/network-lumen/browser/releases/tag/v0.2.8" class="mono focus-outline-none focus-ring focus-shadow" />
           </UiFormField>

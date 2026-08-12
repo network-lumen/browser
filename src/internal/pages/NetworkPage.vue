@@ -78,7 +78,7 @@
             <UiChartCard :title="txHistoryTitle">
               <template #header>
                 <div class="flex-align-center gap-8px">
-                  <span class="text-12px color-text-tertiary mr-4px">Total: {{ formatNumber(txHistoryTotal) }}</span>
+                  <span class="text-12px color-text-tertiary mr-4px">{{ t('Total: {count}', { count: formatNumber(txHistoryTotal) }) }}</span>
                   <UiFilterButton :active="txHistoryWindow === 5" @click="txHistoryWindow = 5">5B</UiFilterButton>
                   <UiFilterButton :active="txHistoryWindow === 10" @click="txHistoryWindow = 10">10B</UiFilterButton>
                   <UiFilterButton :active="txHistoryWindow === 15" @click="txHistoryWindow = 15">15B</UiFilterButton>
@@ -162,11 +162,11 @@
               {{ networkTps.toFixed(1) }} <span class="color-text-secondary txt-weight-normal text-18px ml-4px">{{ t('tx/s') }}</span>
             </UiStatCard>
 
-            <UiStatCard :label="t('Blocks/Hour')" detail="Estimated from recent block time">
+            <UiStatCard :label="t('Blocks/Hour')" :detail="t('Estimated from recent block time')">
               {{ networkBlocksPerHour }}
             </UiStatCard>
 
-            <UiStatCard :label="t('24h volume')" detail="Estimated transaction count">
+            <UiStatCard :label="t('24h volume')" :detail="t('Estimated transaction count')">
               {{ formatNumber(networkTxVolume24h) }}
             </UiStatCard>
           </div>
@@ -743,7 +743,7 @@ const txHistoryPoints = computed(() => {
 
 const txHistoryTotal = computed(() => txHistoryPoints.value.reduce((sum, n) => sum + n, 0));
 
-const txHistoryTitle = computed(() => `Txs per block (last ${txHistoryWindow.value} blocks)`);
+const txHistoryTitle = computed(() => t('Txs per block (last {count} blocks)', { count: txHistoryWindow.value }));
 const topValidatorsPower = ref<Array<{ moniker: string; percentage: string }>>([]);
 
 // Filtered data computed properties
@@ -1304,7 +1304,7 @@ function performSearch() {
   if (/^\d+$/.test(query)) {
     const height = parseInt(query);
     navigateToBlock(height);
-    toast.info(`Navigating to block ${height}...`);
+    toast.info(t('Navigating to block {height}…', { height }));
   }
   else if (/^[A-Fa-f0-9]{64}$/.test(query)) {
     navigateToTransaction(query.toUpperCase());
@@ -1322,10 +1322,10 @@ function performSearch() {
 function formatTimeAgo(timestamp: string): string {
   const diff = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
   if (diff < 0) return t('just now');
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 60) return t('{count}s ago', { count: diff });
+  if (diff < 3600) return t('{count}m ago', { count: Math.floor(diff / 60) });
+  if (diff < 86400) return t('{count}h ago', { count: Math.floor(diff / 3600) });
+  return t('{count}d ago', { count: Math.floor(diff / 86400) });
 }
 
 function formatVotingPower(tokens: string): string {
@@ -1522,7 +1522,7 @@ async function confirmStakeAction() {
   // Start processing
   isProcessingTx.value = true;
   txStatus.value = 'processing';
-  txMessage.value = `Processing ${currentStakeAction.value.toLowerCase()}...`;
+  txMessage.value = t('Processing {action}…', { action: currentStakeAction.value.toLowerCase() });
   txHash.value = '';
   
   try {
@@ -2139,12 +2139,12 @@ const governanceVotingProposals = computed(() =>
 
 function governanceStatusLabel(status: string): string {
   switch (status) {
-    case 'PROPOSAL_STATUS_DEPOSIT_PERIOD': return 'Deposit';
-    case 'PROPOSAL_STATUS_VOTING_PERIOD': return 'Voting';
-    case 'PROPOSAL_STATUS_PASSED': return 'Passed';
-    case 'PROPOSAL_STATUS_REJECTED': return 'Rejected';
-    case 'PROPOSAL_STATUS_FAILED': return 'Failed';
-    default: return 'Unknown';
+    case 'PROPOSAL_STATUS_DEPOSIT_PERIOD': return t('Deposit');
+    case 'PROPOSAL_STATUS_VOTING_PERIOD': return t('Voting');
+    case 'PROPOSAL_STATUS_PASSED': return t('Passed');
+    case 'PROPOSAL_STATUS_REJECTED': return t('Rejected');
+    case 'PROPOSAL_STATUS_FAILED': return t('Failed');
+    default: return t('Unknown');
   }
 }
 
@@ -2199,7 +2199,7 @@ async function fetchGovernanceProposals() {
       governanceProposals.value = res.json.proposals.map((p: any): GovernanceProposal => ({
         id: Number(p.id ?? p.proposal_id ?? 0),
         status: p.status || 'PROPOSAL_STATUS_UNSPECIFIED',
-        title: p.title || `Proposal #${p.id ?? p.proposal_id ?? ''}`,
+        title: p.title || t('Proposal #{id}', { id: p.id ?? p.proposal_id ?? '' }),
         summary: p.summary || '',
         submitTime: p.submit_time || '',
         votingStart: p.voting_start_time || '',

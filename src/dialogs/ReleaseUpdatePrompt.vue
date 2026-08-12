@@ -84,7 +84,7 @@ const primaryLabel = computed(() => {
   const p = String(latest.value?.platform || '').toLowerCase();
   if (p.startsWith('darwin-')) return t('Open installer');
   if (p.startsWith('windows-') || p.startsWith('linux-')) return t('Update now');
-  return 'Download';
+  return t('Download');
 });
 
 const shaFull = computed(() => String(latest.value?.artifact?.sha256Hex || '').trim());
@@ -109,7 +109,7 @@ const busyLabel = computed(() => {
   }
   if (stage === 'verifying') return t('Verifying…');
   if (stage === 'installing') return t('Installing…');
-  if (stage === 'error') return 'Failed';
+  if (stage === 'error') return t('Failed');
   return t('Working…');
 });
 

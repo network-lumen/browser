@@ -25,6 +25,17 @@ export interface LocaleOption {
   /** Written in its own language, the way every language picker does it. */
   label: string;
   /**
+   * A flag for the picker, as a regional-indicator pair.
+   *
+   * A language is not a country - Spanish, Portuguese and Arabic are spoken in
+   * dozens - so this is the conventional shorthand a picker uses, not a claim
+   * about where the language belongs. Windows ships no flag glyphs, and
+   * Chromium falls back to drawing the two letters there, which still reads as
+   * a country marker; the endonym beside it is what actually names the
+   * language.
+   */
+  flag: string;
+  /**
    * Writing direction. Only Arabic is right-to-left here, and it is what the
    * `dir` attribute on `<html>` is set from - without it the whole interface
    * stays mirrored the wrong way round however good the translation is.

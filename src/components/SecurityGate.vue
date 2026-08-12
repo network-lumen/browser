@@ -40,7 +40,7 @@ const unlockMessage = computed(() => {
     if (!idleLockText.value) {
       return t("Session locked. Enter your password to continue.");
     }
-    return `Session locked after ${idleLockText.value}. Enter your password to continue.`;
+    return t('Session locked after {duration}. Enter your password to continue.', { duration: idleLockText.value });
   }
   return t("Enter your password to unlock the app.");
 });

@@ -402,7 +402,7 @@ async function loadManualProfileSourceIntoForm() {
     manualImportPqcPublicKey.value = result.pqcPublicKey;
     manualImportPqcPrivateKey.value = result.pqcPrivateKey;
     manualImportPqcSourceName.value = result.fileName
-      ? `${result.fileName} (embedded PQC)`
+      ? t('{name} (embedded PQC)', { name: result.fileName })
       : t('Embedded PQC');
   }
   manualImportProfileSourceName.value = result.fileName || t('Loaded profile backup');

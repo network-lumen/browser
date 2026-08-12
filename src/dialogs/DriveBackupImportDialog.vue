@@ -61,8 +61,7 @@
             <div v-if="details.rollback" class="mt-16px flex flex-column border-radius-12px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
               <div class="text-14px txt-weight-light color-text-primary">{{ t('Older snapshot') }}</div>
               <div class="color-text-secondary text-13px">
-                This snapshot looks older than your current local version (seq
-                {{ details.localSeq }}).
+                {{ t('This snapshot looks older than your current local version (seq {seq}).', { seq: details.localSeq ?? '' }) }}
               </div>
             </div>
 
@@ -76,11 +75,11 @@
               <span>{{
                 busy
                   ? details
-                    ? "Restoring..."
-                    : "Decrypting..."
+                    ? t('Restoring…')
+                    : t('Decrypting…')
                   : details
-                    ? "Restore"
-                    : "Decrypt"
+                    ? t('Restore')
+                    : t('Decrypt')
               }}</span></template>
   </UiDialog>
 </template>

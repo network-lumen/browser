@@ -737,7 +737,7 @@ function expiryText(d: DomainRow): string {
   const ms = d.expireAtSeconds * 1000;
   const days = Math.floor((ms - Date.now()) / 86_400_000);
   if (days < 0) return `Expired ${prettyDate(ms)}`;
-  return `Expires ${prettyDate(ms)}`;
+  return t('Expires {date}', { date: prettyDate(ms) });
 }
 
 // Watch for refresh signal from navbar
@@ -1117,7 +1117,7 @@ async function confirmTransfer() {
       return;
     }
     
-    showToast(`Domain ${name} transferred successfully`, 'success');
+    showToast(t('Domain {name} transferred successfully', { name }), 'success');
     closeTransferModal();
     await loadDomains();
   } catch (e) {

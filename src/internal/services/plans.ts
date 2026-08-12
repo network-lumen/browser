@@ -1,4 +1,5 @@
 import type { PlanView } from '../../types/drivePage';
+import { t } from '../../stores/i18nStore';
 
 /**
  * How a hosting plan reads.
@@ -25,13 +26,13 @@ function formatLmn(ulmn: number): string {
 }
 
 export function formatPlanPrice(ulmn: number): string {
-  if (!ulmn) return 'Free';
-  return `${formatLmn(ulmn)} LMN / mo`;
+  if (!ulmn) return t('Free');
+  return t('{amount} LMN / mo', { amount: formatLmn(ulmn) });
 }
 
 /** Same price without the period, for somewhere too narrow to carry it. */
 export function formatPlanPriceShort(ulmn: number): string {
-  if (!ulmn) return 'Free';
+  if (!ulmn) return t('Free');
   return `${formatLmn(ulmn)} LMN`;
 }
 
@@ -39,16 +40,16 @@ export function formatPlanPriceShort(ulmn: number): string {
 export function planStatusLabel(status: string): string {
   switch (status) {
     case 'active':
-      return 'Subscribed';
+      return t('Subscribed');
     case 'pending':
-      return 'Pending';
+      return t('Pending');
     case 'cancelled':
     case 'canceled':
-      return 'Cancelled';
+      return t('Cancelled');
     case 'completed':
-      return 'Completed';
+      return t('Completed');
     default:
-      return 'Subscribe';
+      return t('Subscribe');
   }
 }
 

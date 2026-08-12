@@ -79,11 +79,12 @@ onMounted(async () => {
   catch (err) {
       const code = errorMessage(err);
     if(code) {
-      fatalError.value = new Error(
-        FATAL_ERROR_MAP[code] ?
-        FATAL_ERROR_MAP[code] + `\n\nGet help on the Lumen community website (https://lumen-browser.com/community/) or contact us at contact@lumen-browser.com`
-        : code+ `\n\nGet help on the Lumen community website (https://lumen-browser.com/community/) or contact us at contact@lumen-browser.com`
-      );
+      const help = '\n\n' + t('Get help on the Lumen community website ({url}) or contact us at {email}', {
+        url: 'https://lumen-browser.com/community/',
+        email: 'contact@lumen-browser.com'
+      });
+      const mapped = FATAL_ERROR_MAP[code];
+      fatalError.value = new Error((typeof mapped === 'string' ? t(mapped) : code) + help);
     }
   }
   syncWindowMode(stage.value);

@@ -98,7 +98,7 @@
           </p>
 
     <template #confirm><UiSpinner v-if="busy" size="sm" />
-              <span>{{ busy ? "Submitting..." : "Confirm" }}</span></template>
+              <span>{{ busy ? t('Submitting…') : t('Confirm') }}</span></template>
   </UiDialog>
 </template>
 

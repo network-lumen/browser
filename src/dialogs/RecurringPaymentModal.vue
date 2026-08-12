@@ -321,14 +321,14 @@ const estimatedTotalLabel = computed(() => {
     const countByDate = calculatePaymentCount(startDate, endDate, form.value.frequency, undefined);
     
     if (maxPayments <= countByDate) {
-      return `Estimated total (${maxPayments} payment${maxPayments !== 1 ? 's' : ''})`;
+      return t('Estimated total ({count} payments)', { count: maxPayments });
     } else {
-      return `Estimated total (until ${formatDate(form.value.endDate)})`;
+      return t('Estimated total (until {date})', { date: formatDate(form.value.endDate) });
     }
   } else if (endDate) {
-    return `Estimated total (until ${formatDate(form.value.endDate)})`;
+    return t('Estimated total (until {date})', { date: formatDate(form.value.endDate) });
   } else if (maxPayments && maxPayments > 0) {
-    return `Estimated total (${maxPayments} payment${maxPayments !== 1 ? 's' : ''})`;
+    return t('Estimated total ({count} payments)', { count: maxPayments });
   } else {
     return t('Estimated total (1 year)');
   }

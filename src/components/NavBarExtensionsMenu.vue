@@ -148,10 +148,10 @@ async function refreshExtensions() {
 }
 
 function extensionStateLabel(ext: NavBarExtensionSummary) {
-  if (ext.lastError) return 'Unavailable';
-  if (!ext.enabled) return 'Disabled';
-  if (ext.loaded) return 'Enabled';
-  return 'Pending';
+  if (ext.lastError) return t('Not available');
+  if (!ext.enabled) return t('Disabled');
+  if (ext.loaded) return t('Enabled');
+  return t('Pending');
 }
 
 function toggleMenu() {

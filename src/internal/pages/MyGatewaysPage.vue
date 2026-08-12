@@ -513,7 +513,7 @@ async function toggleEmbeddedServer() {
 
           // Show success notification
           toast.success(
-            `Server running at ${result.url}`,
+            t('Server running at {url}', { url: result.url }),
             { 
               title: t('Embedded gateway server started'),
               duration: 8000 
@@ -531,7 +531,7 @@ async function toggleEmbeddedServer() {
         } catch {
           // If clipboard fails, show API key in notification
           toast.success(
-            `Server running at ${result.url}`,
+            t('Server running at {url}', { url: result.url }),
             { 
               title: t('Embedded gateway server started'),
               duration: 8000 
@@ -539,7 +539,7 @@ async function toggleEmbeddedServer() {
           );
           
           toast.info(
-            `API Key: ${result.apiKey}`,
+            t('API key: {key}', { key: result.apiKey }),
             { 
               title: t('Save your API key'),
               duration: 15000 

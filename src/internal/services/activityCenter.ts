@@ -124,7 +124,7 @@ function toPinItem(job: RawPinJob): ActivityItem | null {
   const detail =
     String(job?.error || '') ||
     String(job?.progressText || '') ||
-    (retries > 0 ? `Retried ${retries}×` : t('Saving content from the network…'));
+    (retries > 0 ? t('Retried {count}×', { count: retries }) : t('Saving content from the network…'));
   return {
     id: `pin:${id}`,
     kind: 'pin',
@@ -171,7 +171,7 @@ function toPropagationItem(payload: RawPropagationProgress): ActivityItem | null
     status: done ? 'completed' : 'running',
     title: cid,
     detail: total
-      ? `${Number(payload?.succeeded || 0)}/${total} public gateways`
+      ? t('{count}/{total} public gateways', { count: Number(payload?.succeeded || 0), total })
       : t('Contacting public gateways…'),
     percent: total > 0 ? percentOrNull((completed / total) * 100) : null,
     startedAt: now,

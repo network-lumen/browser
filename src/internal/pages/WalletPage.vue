@@ -239,8 +239,8 @@
 
                 <div class="flex flex-column min-w-0 gap-4px">
                   <div class="flex-align-center flex-wrap-wrap gap-8px">
-                    <span class="txt-weight-light color-text-primary text-16px">{{ dex.name }}</span>
-                    <UiTag>{{ dex.chainLabel }}</UiTag>
+                    <span class="txt-weight-light color-text-primary text-16px">{{ t(dex.name) }}</span>
+                    <UiTag>{{ t(dex.chainLabel) }}</UiTag>
                     <span class="flex-inline-align-center border-radius-full txt-weight-medium text-12px py-4px px-8px" :class="getDexStatusBadgeClass(dex.status)">
                       {{ getDexStatusLabel(dex.status) }}
                     </span>
@@ -298,7 +298,7 @@
                   :key="`${dex.key}:${link.label}:${link.url}`"
                   type="button"
                   @click="openDexTab(link.url)">
-                  <span>{{ link.label }}</span>
+                  <span>{{ t(link.label) }}</span>
                   <ExternalLink :size="13" />
                 </UiButton>
               </div>
@@ -714,10 +714,14 @@ const txMetaByHash = ref<
 const txFilterStatus = ref<'all' | 'success' | 'pending' | 'failed'>('all');
 const txSearchQuery = ref('');
 
+// A table built once per mount, so `t()` here would hold whichever language was
+// active when the wallet first opened. The quick-link labels are also replaced
+// by whatever the DEX itself advertises once the snapshot loads - `t()` at the
+// draw site passes those through untouched, since they are not keys.
 const DEX_LISTINGS: DexListingConfig[] = [
   {
     key: 'beezee',
-    name: t('BeeZee DEX'),
+    name: markForTranslation('BeeZee DEX'),
     chainId: 'beezee-1',
     chainLabel: markForTranslation('BeeZee'),
     restEndpoint: 'https://rest.getbze.com',
@@ -726,13 +730,13 @@ const DEX_LISTINGS: DexListingConfig[] = [
     logoUrl: 'https://dex.getbze.com/images/beezee_light.svg',
     logoTheme: 'dark',
     iconText: 'BZE',
-    description: t('Browse mainnet markets and pools before jumping into the BeeZee DEX.'),
+    description: markForTranslation('Browse mainnet markets and pools before jumping into the BeeZee DEX.'),
     fallbackLinks: [
-      { label: t('Swap'), url: 'https://dex.getbze.com/' },
-      { label: t('Exchange'), url: 'https://dex.getbze.com/exchange' },
-      { label: t('Pools'), url: 'https://dex.getbze.com/pools' },
-      { label: t('Staking'), url: 'https://staking.getbze.com/' },
-      { label: t('Website'), url: 'https://getbze.com/' }
+      { label: markForTranslation('Swap'), url: 'https://dex.getbze.com/' },
+      { label: markForTranslation('Exchange'), url: 'https://dex.getbze.com/exchange' },
+      { label: markForTranslation('Pools'), url: 'https://dex.getbze.com/pools' },
+      { label: markForTranslation('Staking'), url: 'https://staking.getbze.com/' },
+      { label: markForTranslation('Website'), url: 'https://getbze.com/' }
     ]
   }
 ];
@@ -816,7 +820,7 @@ onBeforeUnmount(() => {
 const balanceLabel = computed(() => {
   if (!isConnected.value) return t('Not connected');
   if (balanceLoading.value) return t('Loading…');
-  if (balanceError.value) return 'Error';
+  if (balanceError.value) return t('Error');
   if (balanceLmn.value == null) return '0.000000 LMN';
   return `${balanceLmn.value.toFixed(6)} LMN`;
 });
@@ -867,16 +871,18 @@ const selectedIbcChannel = computed(() =>
   ) || null
 );
 const sendModalTitle = computed(() => {
-  if (isIbcSend.value) return `Transfer ${sendAssetSymbol.value} To Other Chain`;
-  return sendAssetContext.value ? `Send ${sendAssetSymbol.value} On ${sendSourceChainLabel.value}` : 'Send';
+  if (isIbcSend.value) return t('Transfer {symbol} to other chain', { symbol: sendAssetSymbol.value });
+  return sendAssetContext.value
+    ? t('Send {symbol} on {chain}', { symbol: sendAssetSymbol.value, chain: sendSourceChainLabel.value })
+    : t('Send');
 });
 const sendRecipientPlaceholder = computed(() =>
   isIbcSend.value
     ? t('Enter recipient address on the other chain')
-    : `Enter recipient address (${sendSourcePrefix.value}1...)`
+    : t('Enter recipient address ({prefix}1…)', { prefix: sendSourcePrefix.value })
 );
 const sendPrimaryActionLabel = computed(() => {
-  if (sendingTransaction.value) return isIbcSend.value ? 'Transferring...' : 'Sending...';
+  if (sendingTransaction.value) return isIbcSend.value ? t('Transferring…') : t('Sending…');
   return isIbcSend.value ? t('Preview transfer') : t('Preview send');
 });
 
@@ -1951,11 +1957,11 @@ function openDexTab(url: string) {
 }
 
 function getDexStatusLabel(status: DexStatus): string {
-  if (status === 'loading') return 'Refreshing';
-  if (status === 'online') return 'Online';
-  if (status === 'degraded') return 'Partial';
-  if (status === 'error') return 'Offline';
-  return 'Idle';
+  if (status === 'loading') return t('Refreshing…');
+  if (status === 'online') return t('Online');
+  if (status === 'degraded') return t('Partial');
+  if (status === 'error') return t('Offline');
+  return t('Idle');
 }
 
 function assetIconStyle(iconClass: string): Record<string, string> {
@@ -1979,16 +1985,16 @@ function getDexStatusBadgeClass(status: DexStatus): string {
 }
 
 function formatDexCount(value: number | null): string {
-  if (value == null) return 'N/A';
+  if (value == null) return t('Not available');
   return String(value);
 }
 
 function getDexPriceLabel(dex: DexRow): string {
-  return dex.marketPreview?.lastPrice || (dex.tradingPairsCount === 0 ? 'N/A' : 'Unavailable');
+  return dex.marketPreview?.lastPrice || t('Not available');
 }
 
 function getDexVolumeLabel(dex: DexRow): string {
-  return dex.marketPreview?.quoteVolume || (dex.tradingPairsCount === 0 ? 'N/A' : 'Unavailable');
+  return dex.marketPreview?.quoteVolume || t('Not available');
 }
 
 async function fetchLocalBalances(ownerAddress: string): Promise<Array<{ denom: string; amount: string }>> {
@@ -2023,7 +2029,7 @@ async function fetchRemoteBalances(restEndpoint: string, ownerAddress: string): 
 
 function buildAssetDisplayName(denom: string, displaySymbol: string, trace: { baseDenom: string; path: string } | null): string {
   const lower = String(denom || '').trim().toLowerCase();
-  if (trace?.baseDenom) return `${displaySymbol} via IBC`;
+  if (trace?.baseDenom) return t('{symbol} via IBC', { symbol: displaySymbol });
   if (lower === 'ulmn') return 'Lumen';
   if (lower === 'ubze') return 'BeeZee';
   if (lower.startsWith('ibc/')) return `${displaySymbol} (IBC)`;
@@ -2085,7 +2091,9 @@ async function createAssetRow(input: {
   const addressPrefix = getAddressPrefix(input.ownerAddress);
   const sendEnabled = BigInt(rawAmount || '0') > 0n;
   const transferEnabled = input.transferTargets.length > 0 && BigInt(rawAmount || '0') > 0n;
-  const sendButtonLabel = input.chainLabel ? `Send on ${input.chainLabel}` : 'Send';
+  const sendButtonLabel = input.chainLabel
+    ? t('Send on {chain}', { chain: input.chainLabel })
+    : t('Send');
 
   return {
     id: `${input.chainId}:${rawDenom || 'unknown'}`,
@@ -2214,7 +2222,7 @@ async function confirmSendPreview() {
   }
 
   if (sendAvailableMicro.value !== null && amountMicro > sendAvailableMicro.value) {
-    showToast(`Insufficient ${sendAssetSymbol.value} balance`, 'error');
+    showToast(t('Insufficient {symbol} balance', { symbol: sendAssetSymbol.value }), 'error');
     return;
   }
 
@@ -2235,7 +2243,7 @@ async function confirmSendPreview() {
 
     if (isIbcSend.value) {
       if (recipientPrefix && recipientPrefix === sendSourcePrefix.value) {
-        showToast(`This address looks like the current chain. Use Send instead of IBC transfer for ${sendAssetSymbol.value}.`, 'warning');
+        showToast(t('This address looks like the current chain. Use Send instead of IBC transfer for {symbol}.', { symbol: sendAssetSymbol.value }), 'warning');
         return;
       }
 
@@ -2271,7 +2279,7 @@ async function confirmSendPreview() {
       };
     } else {
       if (recipientPrefix && recipientPrefix !== sendSourcePrefix.value) {
-        showToast(`Recipient must use the ${sendSourcePrefix.value} address format.`, 'warning');
+        showToast(t('Recipient must use the {prefix} address format.', { prefix: sendSourcePrefix.value }), 'warning');
         return;
       }
 
@@ -2328,7 +2336,7 @@ async function confirmSendPreview() {
       return;
     }
     
-    showToast(`${successLabel} successful! TxHash: ${res.txhash || 'N/A'}`, 'success');
+    showToast(t('{action} successful. TxHash: {hash}', { action: successLabel, hash: res.txhash || t('Not available') }), 'success');
     closeSendModal();
     schedulePostTransactionRefresh();
   } catch (e) {
@@ -2484,7 +2492,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
               chainRegistryName: entry.meta.chainRegistryName,
               transferTargets: returnTargets,
               routeLabel: returnTargets.length
-                ? `Return route: ${returnTargets[0].routeLabel}`
+                ? t('Return route: {route}', { route: returnTargets[0].routeLabel })
                 : t('No return route configured.'),
               restEndpoint: entry.meta.restEndpoint,
               rpcEndpoint: entry.meta.rpcEndpoint,
@@ -2509,7 +2517,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
                 chainRegistryName: entry.meta.chainRegistryName,
                 transferTargets: returnTargets,
                 routeLabel: returnTargets.length
-                  ? `Return route: ${returnTargets[0].routeLabel}`
+                  ? t('Return route: {route}', { route: returnTargets[0].routeLabel })
                   : t('No return route configured.'),
                 restEndpoint: entry.meta.restEndpoint,
                 rpcEndpoint: entry.meta.rpcEndpoint,
@@ -2530,7 +2538,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
               chainRegistryName: entry.meta.chainRegistryName,
               transferTargets: returnTargets,
               routeLabel: returnTargets.length
-                ? `Return route: ${returnTargets[0].routeLabel}`
+                ? t('Return route: {route}', { route: returnTargets[0].routeLabel })
                 : t('No return route configured.'),
               restEndpoint: entry.meta.restEndpoint,
               rpcEndpoint: entry.meta.rpcEndpoint,
@@ -2653,7 +2661,7 @@ async function confirmAssetTransfer() {
 
   const recipientPrefix = getAddressPrefix(recipient);
   if (target.addressPrefix && recipientPrefix && recipientPrefix !== target.addressPrefix) {
-    showToast(`Recipient must use the ${target.addressPrefix} address format.`, 'error');
+    showToast(t('Recipient must use the {prefix} address format.', { prefix: target.addressPrefix }), 'error');
     return;
   }
 
@@ -2716,11 +2724,11 @@ async function confirmAssetTransfer() {
         schedulePostTransactionRefresh();
         return;
       }
-      showToast(`Asset transfer failed: ${err}`, 'error');
+      showToast(t('Asset transfer failed: {reason}', { reason: String(err) }), 'error');
       return;
     }
 
-    showToast(`Asset transfer submitted. TxHash: ${res.txhash || 'N/A'}`, 'success');
+    showToast(t('Asset transfer submitted. TxHash: {hash}', { hash: res.txhash || t('Not available') }), 'success');
     closeAssetTransferModal();
     schedulePostTransactionRefresh();
   } catch (error) {
@@ -2927,7 +2935,7 @@ function exportTransactions() {
     const amount = tx.amounts && tx.amounts.length 
       ? (Number(tx.amounts[0].amount || '0') / 1_000_000).toFixed(6)
       : '0';
-    const status = (tx.code === undefined || tx.code === 0) ? 'Success' : 'Failed';
+    const status = (tx.code === undefined || tx.code === 0) ? t('Success') : t('Failed');
     const hash = tx.txhash;
     
     return [dateStr, timeStr, type, from, to, amount, status, hash];
