@@ -16,12 +16,36 @@ export type { LocaleCode, MessageCatalog, MessageParams };
  * is the right trade here: `npm run i18n:extract` reports orphans, and the
  * repo's own rule is that a user-facing message has one wording anyway.
  */
+/**
+ * Every language is named in its own language. A picker that lists "French"
+ * only helps someone who already reads English, which is the one person who
+ * does not need the picker.
+ */
 export const LOCALES: readonly LocaleOption[] = [
   { code: 'en', label: 'English' },
-  { code: 'fr', label: 'Français' }
+  { code: 'fr', label: 'Français' },
+  { code: 'es', label: 'Español' },
+  { code: 'pt', label: 'Português' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'ru', label: 'Русский' },
+  { code: 'ar', label: 'العربية', rtl: true },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'id', label: 'Bahasa Indonesia' },
+  { code: 'zh', label: '中文' },
+  { code: 'ja', label: '日本語' },
+  { code: 'ko', label: '한국어' }
 ];
 
 export const DEFAULT_LOCALE: LocaleCode = 'en';
+
+export function localeOption(code: LocaleCode): LocaleOption {
+  return LOCALES.find((locale) => locale.code === code) || LOCALES[0];
+}
+
+export function isRightToLeft(code: LocaleCode): boolean {
+  return !!localeOption(code).rtl;
+}
 
 export function isLocaleCode(value: unknown): value is LocaleCode {
   return LOCALES.some((locale) => locale.code === value);

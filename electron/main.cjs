@@ -331,6 +331,32 @@ ipcMain.on('app:reportRendererError', (evt, payload) => {
   }
 });
 
+/**
+ * The OS's language preferences, best first, for the renderer to pick a
+ * starting language from.
+ *
+ * Synchronous on purpose - the renderer needs an answer before its first paint,
+ * and this is a read of a value Electron already holds. `getPreferredSystemLanguages`
+ * is the ordered list a user actually configured; `getSystemLocale` is the
+ * single locale the OS reports, kept as a fallback for the platforms where the
+ * list comes back empty.
+ */
+ipcMain.on('app:systemLanguages', (evt) => {
+  evt.returnValue = [];
+  if (!ensureUiSender(evt).ok) return;
+  try {
+    const preferred = typeof app.getPreferredSystemLanguages === 'function'
+      ? app.getPreferredSystemLanguages()
+      : [];
+    const fallback = typeof app.getSystemLocale === 'function' ? app.getSystemLocale() : '';
+    evt.returnValue = [...(Array.isArray(preferred) ? preferred : []), fallback, app.getLocale()]
+      .map((entry) => String(entry || '').trim())
+      .filter(Boolean);
+  } catch (e) {
+    console.warn('[electron] failed to read system languages:', String(e?.message || e));
+  }
+});
+
 function configureDisplayMediaForSession(ses, label) {
   if (!ses) return;
 

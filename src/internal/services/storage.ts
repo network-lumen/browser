@@ -15,7 +15,10 @@ export const STORAGE_KEYS = {
   theme: 'lumen-theme',
   fontSize: 'lumen-font-size',
   brightness: 'lumen-brightness',
+  /** Profile-scoped via `profileScopedKey`; also written unscoped as the pre-profile fallback. */
   locale: 'lumen:locale:v1',
+  /** Set once someone picks a language, so onboarding only ever asks on a fresh machine. */
+  localeChosen: 'lumen:locale:chosen:v1',
 
   // Browser state
   favourites: 'lumen:favourites:v2',

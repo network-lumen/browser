@@ -5,12 +5,31 @@
  */
 export type MessageCatalog = Record<string, string>;
 
-export type LocaleCode = 'en' | 'fr';
+export type LocaleCode =
+  | 'en'
+  | 'fr'
+  | 'es'
+  | 'pt'
+  | 'de'
+  | 'it'
+  | 'ru'
+  | 'ar'
+  | 'hi'
+  | 'id'
+  | 'zh'
+  | 'ja'
+  | 'ko';
 
 export interface LocaleOption {
   code: LocaleCode;
   /** Written in its own language, the way every language picker does it. */
   label: string;
+  /**
+   * Writing direction. Only Arabic is right-to-left here, and it is what the
+   * `dir` attribute on `<html>` is set from - without it the whole interface
+   * stays mirrored the wrong way round however good the translation is.
+   */
+  rtl?: boolean;
 }
 
 /** Values spliced into `{name}` placeholders. */

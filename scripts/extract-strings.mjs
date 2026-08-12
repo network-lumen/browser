@@ -21,7 +21,7 @@ const CHECK_ONLY = process.argv.includes('--check');
 
 // Kept in step with LOCALES in src/internal/services/i18n.ts; 'en' is the
 // source language and has no catalogue of its own.
-const TARGET_LOCALES = ['fr'];
+const TARGET_LOCALES = ['fr', 'es', 'pt', 'de', 'it', 'ru', 'ar', 'hi', 'id', 'zh', 'ja', 'ko'];
 
 function walk(dir) {
   const out = [];

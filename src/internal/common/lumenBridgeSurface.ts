@@ -39,7 +39,7 @@ export const REQUIRED_FUNCTIONS = [
 
 /** Top-level members that hold a computed value rather than a function. */
 export const REQUIRED_VALUES = [
-  'appPlatform', 'appDialogLikelyBroken'
+  'appPlatform', 'appDialogLikelyBroken', 'appSystemLanguages'
 ] as const;
 
 /** `window.lumen.<namespace>.<member>()` groups. */

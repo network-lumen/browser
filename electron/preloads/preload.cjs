@@ -16,6 +16,26 @@ contextBridge.exposeInMainWorld('lumen', {
       // Nothing useful left to do if the bridge is already gone.
     }
   },
+  /**
+   * The languages the OS is set to, best first.
+   *
+   * Read once, synchronously, at preload: the renderer picks its language
+   * before it paints anything, and an async round trip would show one frame of
+   * English to a user whose machine has never been in English. It costs one IPC
+   * message at startup, and the answer never changes while the app runs.
+   *
+   * `navigator.languages` is not the same answer. That is Chromium's UI locale,
+   * which Electron sets from the OS *when it can*, and which reports a single
+   * language where the OS holds an ordered list of preferences.
+   */
+  appSystemLanguages: (() => {
+    try {
+      const languages = ipcRenderer.sendSync('app:systemLanguages');
+      return Array.isArray(languages) ? languages : [];
+    } catch {
+      return [];
+    }
+  })(),
   appIsRoot: () => {
     try {
       return typeof process.getuid === 'function' && process.getuid() === 0;
