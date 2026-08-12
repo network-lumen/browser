@@ -37,9 +37,15 @@ empty entry renders the English, so a half-filled catalogue ships fine.
 npm run i18n:extract   # add every new t('…') to each catalogue, report orphans
 ```
 
-Adding a language: a new `src/locales/<code>.json`, its code in `LOCALES`
-(`src/internal/services/i18n.ts`), `TARGET_LOCALES` in `scripts/extract-strings.mjs`, and the import
-in `src/stores/i18nStore.ts`. The picker in `lumen://settings` reads `LOCALES`, so it needs no edit.
+Thirteen languages ship. English and French are complete; the other eleven have their catalogue in
+place and are being filled — an untranslated entry renders the English, so a partial catalogue is a
+normal state rather than a broken one.
+
+The language is asked once, during first-run onboarding, pre-selected from what the OS reports. After
+that it belongs to the **profile**: switching profile switches language, and a profile created from
+another starts in that one's language. Arabic sets `dir="rtl"` on the document.
+
+Adding one is four lines and a file — see [CONTRIBUTING.md](./CONTRIBUTING.md#rule-0-user-visible-text-goes-through-t).
 
 ## Build for production
 
