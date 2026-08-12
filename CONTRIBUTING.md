@@ -80,6 +80,7 @@ Each was written after finding the drift it now blocks. The counts came out near
 | `Delete` destroys, `Remove` takes out of a list | delete a contact, remove a row |
 | A number the code enforces goes in as `{placeholder}` | `Password must be at least {min} characters.` reads `MIN_PASSWORD_LENGTH` |
 | Nothing shouts | the explorer's header row is uppercased by CSS; an ALL-CAPS source loses accents to `text-transform` |
+| A term kept in English is spelled one way inside a translation | "l'instantané du drive" beside "Enregistrer dans Drive" reads as two different things |
 
 Both checks are wired into `npm test`. All ~1 850 strings go through `t()`; the four that
 deliberately do not are named in `scripts/check-untranslated.mjs`. **Translating** them is separate
