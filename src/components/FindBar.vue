@@ -3,7 +3,7 @@
     v-if="open"
     class="flex-align-center border-radius-12px absolute gap-6px p-8px border-default bg-primary z-100 right-12px shadow-md top-10px"
     role="dialog"
-    aria-label="Find in page"
+    :aria-label="t('Find in page')"
     @mousedown.stop
     @click.stop
   >
@@ -12,7 +12,7 @@
       v-model="query"
       class="outline-none color-text-primary border-radius-10px text-13px border-default bg-primary h-32px py-0px px-8px w-220px border-color-accent-primary-focus-visible shadow-0-0-0-3-primary-a20-focus-visible"
       type="text"
-      placeholder="Find in page"
+      :placeholder="t('Find in page')"
       autocomplete="off"
       @keydown="onInputKeydown"
     />
@@ -23,7 +23,7 @@
 
     <UiButton
       variant="icon"
-      title="Previous match (Shift+Enter)"
+      :title="t('Previous match (Shift+Enter)')"
       :disabled="!canStep"
       @click="prev"
     >
@@ -32,20 +32,21 @@
 
     <UiButton
       variant="icon"
-      title="Next match (Enter)"
+      :title="t('Next match (Enter)')"
       :disabled="!canStep"
       @click="next"
     >
       <ChevronDown :size="16" />
     </UiButton>
 
-    <UiButton variant="icon" title="Close (Esc)" @click="closeBar">
+    <UiButton variant="icon" :title="t('Close (Esc)')" @click="closeBar">
       <X :size="16" />
     </UiButton>
   </div>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ChevronDown, ChevronUp, X } from "lucide-vue-next";
 import UiButton from "../ui/UiButton.vue";

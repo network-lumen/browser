@@ -1,14 +1,14 @@
 <template>
   <div class="absolute inset-0 z-1400 bg-transparent" @click="requestClose()">
     <div class="absolute overflow-hidden border-radius-14px bg-dark-111 right-12px border-1-white-a08 shadow-lg w-min-420px-100vw-n24px" :style="popupShellStyle" @click.stop>
-      <button type="button" class="absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full z-1 color-white-a86 bg-slate-900-a72 hover-bg-slate-900-a92 top-8px right-8px" aria-label="Close extension popup" @click="requestClose()">
+      <button type="button" class="absolute cursor-pointer border-none flex-inline-align-justify-center size-28px border-radius-full z-1 color-white-a86 bg-slate-900-a72 hover-bg-slate-900-a92 top-8px right-8px" :aria-label="t('Close extension popup')" @click="requestClose()">
         <X :size="14" />
       </button>
 
       <UiExtensionStatus v-if="error" error extra-class="h-full">{{ error }}</UiExtensionStatus>
-      <UiExtensionStatus v-else-if="guestPreloadLoading" extra-class="h-full">Preparing extension…</UiExtensionStatus>
-      <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error extra-class="h-full">Extension guest preload is unavailable.</UiExtensionStatus>
-      <UiExtensionStatus v-else-if="loading && !webviewMountUrl" extra-class="h-full">Loading extension…</UiExtensionStatus>
+      <UiExtensionStatus v-else-if="guestPreloadLoading" extra-class="h-full">{{ t('Preparing extension…') }}</UiExtensionStatus>
+      <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error extra-class="h-full">{{ t('Extension guest preload is unavailable.') }}</UiExtensionStatus>
+      <UiExtensionStatus v-else-if="loading && !webviewMountUrl" extra-class="h-full">{{ t('Loading extension…') }}</UiExtensionStatus>
       <webview
         v-else-if="webviewMountUrl"
         ref="webviewRef"
@@ -27,12 +27,13 @@
         @did-stop-loading="onDidStopLoading"
         @dom-ready="onDomReady"
       ></webview>
-      <UiExtensionStatus v-else extra-class="h-full">Preparing extension…</UiExtensionStatus>
+      <UiExtensionStatus v-else extra-class="h-full">{{ t('Preparing extension…') }}</UiExtensionStatus>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { X } from "lucide-vue-next";
 import { isBrowserUrl, isExtensionUrl } from "../internal/navigationUrl";

@@ -1,7 +1,7 @@
 <template>
   <div class="mt-16px pt-12px border-top-light">
     <UiSidebarNavItem spaceBetween @click="open = !open">
-      <span class="txt-weight-light">All pages</span>
+      <span class="txt-weight-light">{{ t('All pages') }}</span>
       <component :is="open ? ChevronUp : ChevronDown" :size="16" />
     </UiSidebarNavItem>
 
@@ -20,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiSidebarNavItem from '../ui/UiSidebarNavItem.vue';
 import { computed,  ref } from 'vue';
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';

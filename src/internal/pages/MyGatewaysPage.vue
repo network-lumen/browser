@@ -20,7 +20,6 @@
       />
 
       <div class="pt-2px flex-1 min-h-0 overflow-y-auto">
-        <!-- Embedded Server Card -->
         <UiCard
           class="transition-all-03 mb-32px"
           :class="{ 'card-state-active-green': embeddedServerRunning }"
@@ -67,7 +66,6 @@
           </div>
         </UiCard>
 
-        <!-- Whitelist Management Section (only show when embedded server is running) -->
         <div v-if="embeddedServerRunning" class="mb-32px border-top-1 pt-32px">
           <div class="flex-align-center flex-justify-space-between mb-24px">
             <h2 class="txt-weight-light color-text-primary m-0px text-20px">Whitelist Management</h2>
@@ -120,7 +118,6 @@
           </UiCard>
         </div>
 
-        <!-- External Gateways Section -->
         <div class="flex-align-center flex-justify-space-between mb-24px">
           <h2 class="txt-weight-light color-text-primary m-0px text-20px">External Gateways</h2>
           <UiButton variant="primary" type="button" @click="openCreateModal">
@@ -472,7 +469,6 @@ async function viewApiKey() {
     const result = await useInternalLumen()?.gatewayServerGetApiKey();
     
     if (result.ok && result.apiKey) {
-      // Copy to clipboard
       await copyToClipboardShared(result.apiKey);
 
       toast.success(
@@ -494,7 +490,6 @@ async function toggleEmbeddedServer() {
   serverLoading.value = true;
   try {
     if (embeddedServerRunning.value) {
-      // Stop server
       const result = await useInternalLumen()?.gatewayServerStop();
       if (result.ok) {
         embeddedServerRunning.value = false;
@@ -505,7 +500,6 @@ async function toggleEmbeddedServer() {
         toast.error(result.error || 'Failed to stop embedded server');
       }
     } else {
-      // Start server
       const result = await useInternalLumen()?.gatewayServerStart({ port: 3100 });
       if (result.ok) {
         embeddedServerRunning.value = true;
@@ -577,7 +571,6 @@ async function loadWhitelist() {
       return;
     }
 
-    // Fetch whitelist from embedded server
     const response = await fetch(`http://127.0.0.1:${embeddedServerPort.value}/api/whitelist`, {
       headers: {
         'X-API-Key': apiKey.apiKey
@@ -588,7 +581,6 @@ async function loadWhitelist() {
       const data = await response.json();
       whitelist.value = data.entries || [];
       
-      // Load all user metadata
       await loadAllUserMetadata();
     } else {
       console.error('Failed to load whitelist:', response.statusText);

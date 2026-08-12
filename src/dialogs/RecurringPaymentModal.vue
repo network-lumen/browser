@@ -40,7 +40,6 @@
           </UiFormGroup>
         </div>
 
-        <!-- Payment Configuration -->
         <div class="mb-32px">
           <h3 class="flex-align-center color-text-primary text-16px txt-weight-light gap-8px m-0px mb-16px">Payment Configuration</h3>
 
@@ -129,7 +128,6 @@
           </UiFormGroup>
         </div>
 
-        <!-- Payment Summary -->
         <div class="border-radius-12px p-20px color-white bg-gradient-brand">
           <h4 class="m-0px text-16px txt-weight-light mb-16px">Payment Summary</h4>
           <div class="last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">

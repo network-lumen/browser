@@ -6,7 +6,6 @@
     <UiErrorState v-else-if="error" :message="error" wrapper-class="py-64px px-32px" message-class="" />
 
     <div v-else-if="block" class="flex flex-column gap-24px bg-secondary p-32px min-h-100vh-200px">
-      <!-- Block Overview Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Block Overview" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="p-24px">
@@ -33,7 +32,6 @@
         </div>
       </UiCard>
 
-      <!-- Block Data Card -->
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader title="Block Data" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="p-24px">
@@ -46,7 +44,6 @@
         </div>
       </UiCard>
 
-      <!-- Transactions Card -->
       <UiCard v-if="block.txs > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
         <UiCardHeader :title="`Transactions (${block.txs})`" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="p-24px">

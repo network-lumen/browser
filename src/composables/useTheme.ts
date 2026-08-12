@@ -47,7 +47,6 @@ function initTheme() {
     theme.value = saved;
   }
   
-  // Get system preference
   systemPrefersDark.value = getSystemPreference();
   
   // Listen to system theme changes

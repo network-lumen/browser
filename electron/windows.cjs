@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('node:path');
 const { markStartupSuccess } = require('./services/startup_health.cjs');
+const { resolveAppIconPath } = require('./app_icon.cjs');
 
 let splashWindow = null;
 let mainWindow = null;
@@ -47,6 +48,7 @@ function createSplashWindow() {
   splashWindow = new BrowserWindow({
     width: 500,
     height: 250,
+    icon: resolveAppIconPath() || undefined,
     frame: false,
     resizable: false,
     show: false,
@@ -102,6 +104,7 @@ function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    icon: resolveAppIconPath() || undefined,
     titleBarStyle: isMac ? 'hiddenInset' : (isWin ? 'hidden' : 'default'),
     titleBarOverlay: isWin
       ? { color: '#ffffff', symbolColor: '#334155', height: 30 }

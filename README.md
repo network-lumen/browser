@@ -26,6 +26,19 @@ npm run dev
 
 This starts the Vite dev server and opens the Electron window.
 
+## Translations
+
+The interface is written in English and translated through `t()`, keyed on the English text itself.
+Catalogues live in `src/locales/<code>.json`.
+
+```bash
+npm run i18n:extract   # add every new t('…') to each catalogue, report orphans
+```
+
+Adding a language: a new `src/locales/<code>.json`, its code in `LOCALES`
+(`src/internal/services/i18n.ts`), `TARGET_LOCALES` in `scripts/extract-strings.mjs`, and the import
+in `src/stores/i18nStore.ts`. The picker in `lumen://settings` reads `LOCALES`, so it needs no edit.
+
 ## Build for production
 
 ```bash

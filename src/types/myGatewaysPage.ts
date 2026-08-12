@@ -9,7 +9,6 @@ export interface Gateway {
   owner: string;
 }
 
-/** The fields of the add/edit external gateway form. */
 export type ExternalGatewayForm = {
   name: string;
   url: string;

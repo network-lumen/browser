@@ -28,7 +28,7 @@
             <Check v-if="copiedState[toast.id]" :size="14" />
             <Copy v-else :size="14" />
           </button>
-          <button v-if="toast.dismissible" class="toast-action flex-align-justify-center border-radius-circle color-text-tertiary cursor-pointer flex-shrink-0 bg-transparent border-none transition-all-fast h-20px w-20px hover-bg-primary hover-color-text-primary" title="Dismiss" @click.stop="removeToast(toast.id)">
+          <button v-if="toast.dismissible" class="toast-action flex-align-justify-center border-radius-circle color-text-tertiary cursor-pointer flex-shrink-0 bg-transparent border-none transition-all-fast h-20px w-20px hover-bg-primary hover-color-text-primary" :title="t('Dismiss')" @click.stop="removeToast(toast.id)">
             <X :size="14" />
           </button>
         </div>
@@ -38,10 +38,12 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { ref } from 'vue';
 import UiIconBadge from './UiIconBadge.vue';
 import { CheckCircle, AlertCircle, AlertTriangle, Info, X, Copy, Check } from 'lucide-vue-next';
 import { toastList, removeToast, type Toast, type ToastType } from '../stores/toastStore';
+import { copyToClipboard } from '../composables/useClipboard';
 
 const toasts = toastList;
 const copiedState = ref<Record<string, boolean>>({});
@@ -66,31 +68,8 @@ function markToastCopied(id: string) {
   }, 2000);
 }
 
-function fallbackCopy(value: string) {
-  const textarea = document.createElement('textarea');
-  textarea.value = value;
-  textarea.setAttribute('readonly', '');
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textarea);
-}
-
 async function copyToast(toast: Toast) {
   const value = [toast.title, toast.message].filter(Boolean).join('\n');
-
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(value);
-    } else {
-      fallbackCopy(value);
-    }
-    markToastCopied(toast.id);
-  } catch {
-    fallbackCopy(value);
-    markToastCopied(toast.id);
-  }
+  if (await copyToClipboard(value)) markToastCopied(toast.id);
 }
 </script>

@@ -15,6 +15,7 @@ export const STORAGE_KEYS = {
   theme: 'lumen-theme',
   fontSize: 'lumen-font-size',
   brightness: 'lumen-brightness',
+  locale: 'lumen:locale:v1',
 
   // Browser state
   favourites: 'lumen:favourites:v2',

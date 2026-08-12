@@ -78,15 +78,12 @@
             </select>
           </div>
 
-          <!-- Transaction Status Popup -->
           <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-lg min-w-400px max-w-90vw" :style="popupStyleFor(txStatus)">
             <div class="flex-align-center flex-column gap-24px text-center">
-              <!-- Processing -->
               <UiResultState v-if="txStatus === 'processing'" title="Processing Transaction" :description="txMessage">
                 <template #icon><UiSpinner size="lg" /></template>
               </UiResultState>
 
-              <!-- Success -->
               <UiResultState v-else-if="txStatus === 'success'" title="Transaction Successful!" :description="txMessage">
                 <template #icon><CircleCheckBig class="animate-icon-bounce" :size="48" color="rgba(var(--color-success-rgb), 0.7)" /></template>
                 <template #action>
@@ -101,7 +98,6 @@
                 </template>
               </UiResultState>
 
-              <!-- Error -->
               <UiResultState v-else-if="txStatus === 'error'" title="Transaction Failed" :description="txMessage">
                 <template #icon><CircleAlert class="animate-icon-bounce" :size="48" color="var(--color-error)" /></template>
                 <template #action>

@@ -19,7 +19,6 @@ export type ProposerInfo = {
   keybaseId?: string;
 };
 
-/** The fields of the create-proposal form. */
 export type ProposalForm = {
   title: string;
   summary: string;

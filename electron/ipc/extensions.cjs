@@ -3,6 +3,7 @@ const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { extensionManager } = require('../extensions/manager.cjs');
+const { resolveAppIconPath } = require('../app_icon.cjs');
 const {
   getGrantedPermissions,
   requestOptionalPermissions,
@@ -313,6 +314,7 @@ function createExtensionShellWindow(title) {
     height: 760,
     minWidth: 360,
     minHeight: 560,
+    icon: resolveAppIconPath() || undefined,
     autoHideMenuBar: true,
     backgroundColor: '#111111',
     title: title || 'Extension',
@@ -369,6 +371,7 @@ function createOrFocusExtensionStoreWindow(targetUrl) {
     height: 900,
     minWidth: 980,
     minHeight: 720,
+    icon: resolveAppIconPath() || undefined,
     autoHideMenuBar: true,
     backgroundColor: '#ffffff',
     title: 'Chrome Web Store',

@@ -1,7 +1,6 @@
 <template>
   <!-- ####### lumen://gateways GATEWAYS ####### -->
   <div class="internal-page flex">
-    <!-- Sidebar -->
     <InternalSidebar title="Gateways" :icon="Server" activeKey="gateways">
       <nav class="flex flex-column gap-12px">
         <UiSidebarNavSection title="Manage">
@@ -15,7 +14,6 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-column overflow-hidden min-w-0 py-32px px-40px bg-secondary">
-      <!-- Header -->
       <UiPageHeader title="My gateways">
         <p class="mt-4px mb-0px color-text-secondary text-14px">Register and update on-chain gateway settings.</p>
         <p v-if="gatewayParams" class="color-text-tertiary text-12px m-0px mt-8px">
@@ -37,7 +35,6 @@
 
       <!-- Advanced gateway management -->
       <div class="overflow-y-auto">
-        <!-- Private Gateways Section -->
         <div v-if="privateGateways.length > 0">
           <div class="flex-align-center-justify-space-between">
             <h2 class="color-text-primary txt-weight-light m-0px text-20px">Private Gateways</h2>
@@ -60,7 +57,6 @@
           </div>
         </div>
 
-        <!-- DAO Gateways Section -->
         <div v-if="hasProfile">
           <div class="flex-align-center-justify-space-between">
             <h2 class="color-text-primary txt-weight-light m-0px text-20px">DAO Gateways</h2>

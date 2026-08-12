@@ -14,7 +14,7 @@
             {{ due.length === 1 ? 'A payment is due' : `${due.length} payments are due` }}
           </p>
           <p class="color-text-secondary text-11px line-height-12 m-0px">
-            Nothing is sent until you confirm it.
+            {{ t('Nothing is sent until you confirm it.') }}
           </p>
         </div>
       </header>
@@ -52,7 +52,7 @@
               :disabled="!!payingId"
               @click="snoozeUntilRestart(payment.id)"
             >
-              Later
+              {{ t('Later') }}
             </UiButton>
           </div>
         </div>
@@ -65,7 +65,7 @@
           :disabled="!!payingId"
           @click="snoozeAllUntilRestart"
         >
-          Remind me next time
+          {{ t('Remind me next time') }}
         </UiButton>
       </div>
     </section>
@@ -73,6 +73,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { onBeforeUnmount, onMounted } from 'vue';
 import { Bell } from 'lucide-vue-next';
 import UiButton from '../ui/UiButton.vue';

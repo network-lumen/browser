@@ -10,7 +10,7 @@ arbitrary.
 ## Before you open a PR
 
 ```bash
-npm test          # conventions, IPC contract, test reachability, eslint (src + electron), vue-tsc, unit tests
+npm test          # conventions, IPC contract, test reachability, locale catalogues, eslint (src + electron), vue-tsc, unit tests
 npm run test:e2e  # Playwright, needs `npx playwright install chromium` once
 ```
 
@@ -32,6 +32,20 @@ the questions to ask are in [ARCHITECTURE.md](./ARCHITECTURE.md#the-layout). The
 | Reactive state shared by two components | `src/composables/` |
 | A type or interface | `src/types/` — always |
 | A stylesheet | `src/css/` — always |
+
+## Rule 0: user-visible text goes through `t()`
+
+`{{ t('Save') }}`, `:title="t('Back')"`. The key **is** the English text — do not invent an id, and
+do not build a key by interpolation (`t(\`Delete ${n}\`)` cannot be looked up; write
+`t('Delete {n}', { n })`). Placeholder examples that are not English (`lmn1…`, a URL) stay plain.
+
+```bash
+npm run i18n:extract   # refresh src/locales/*.json from the source
+npm run check:i18n     # same, read-only - wired into `npm test`
+```
+
+Roughly 2 000 strings are still untranslated, mostly in `src/internal/pages/`. Migrating a screen is
+mechanical and can be done a screen at a time.
 
 ---
 

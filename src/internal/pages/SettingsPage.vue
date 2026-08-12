@@ -55,7 +55,6 @@
 
     <!-- ####### lumen://settings MAIN CONTENT ####### -->
     <main class="flex flex-column flex-1 m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
-      <!-- Header -->
       <UiPageHeader :title="getViewTitle()" :subtitle="getViewDescription()" />
 
       <!-- ####### lumen://settings APPEARANCE VIEW ####### -->
@@ -76,6 +75,15 @@
                 <span>System</span>
               </UiSegmentedButton>
             </div>
+          </UiOptionRow>
+          <UiOptionRow label="Language" description="The language Lumen's own screens are shown in">
+            <select
+              class="text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px"
+              :value="locale"
+              @change="setLocale(($event.target as HTMLSelectElement).value)"
+            >
+              <option v-for="option in locales" :key="option.code" :value="option.code">{{ option.label }}</option>
+            </select>
           </UiOptionRow>
           <UiOptionRow label="Font Size" description="Adjust the default font size">
             <select class="text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px" v-model="fontSize">
@@ -189,7 +197,6 @@
       <!-- ####### lumen://settings SECURITY VIEW ####### -->
       <div v-else-if="currentView === 'security'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <!-- Status Display -->
           <UiOptionRow label="Password Protection">
             <template #description>
               {{ securityStatus.enabled
@@ -234,7 +241,6 @@
             </select>
           </UiOptionRow>
 
-          <!-- Set Password (when no password is set) -->
           <UiOptionRow v-if="!securityStatus.enabled" label="Set Password" description="Create a password to lock the app and protect wallet signing operations. Your keys will be encrypted with this password." />
 
           <div v-if="!securityStatus.enabled" class="flex flex-column gap-16px border-radius-12px py-16px px-20px bg-fill-tertiary mt-8px">
@@ -317,7 +323,6 @@
             </div>
           </div>
 
-          <!-- Remove Password -->
           <UiOptionRow v-if="securityStatus.enabled" label="Remove Password" description="Disable password protection. Your keys will be re-encrypted with app-level encryption only." class="mt-24px">
             <UiButton variant="danger" @click="showRemovePasswordConfirm = true"
               :disabled="securityLoading" class="disabled-fade-50">
@@ -667,7 +672,6 @@
 
           <!-- Settings when enabled -->
           <template v-if="privateCloudEnabled">
-            <!-- Gateway Preferences -->
             <div class="mt-16px">
               <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway Preferences</h3>
 
@@ -680,7 +684,6 @@
               </UiOptionRow>
             </div>
 
-            <!-- Gateway IDs -->
             <div class="mt-16px">
               <div class="flex-align-center-justify-space-between mb-8px">
                 <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">Gateway IDs</h3>
@@ -716,7 +719,6 @@
               </div>
             </div>
 
-            <!-- Advanced Settings -->
             <div class="mt-16px">
               <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">Advanced Settings</h3>
 
@@ -744,7 +746,6 @@
               </UiOptionRow>
             </div>
 
-            <!-- Info Box -->
             <div class="flex gap-16px border-radius-12px mt-16px py-16px px-20px border-15-primary-a20">
               <Info :size="20" class="flex-shrink-0 color-primary" />
               <div>
@@ -834,6 +835,7 @@ import {
   X
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
+import { useI18n } from '../../stores/i18nStore';
 import { STORAGE_KEYS, readString, writeString } from '../services/storage';
 import { clamp, errorMessage } from '../services/coerce';
 import { normalizeHttpBaseUrl } from '../navigationUrl';
@@ -887,6 +889,7 @@ function clearProfileHistory() {
 
 const currentView = ref<'appearance' | 'content' | 'network' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'troubleshooting' | 'privatecloud' | 'about'>('appearance');
 const { theme, setTheme, initTheme } = useTheme();
+const { locale, locales, setLocale } = useI18n();
 const fontSize = ref(readString(STORAGE_KEYS.fontSize) || 'medium');
 const brightness = ref(parseInt(readString(STORAGE_KEYS.brightness) || '100'));
 const { historyEntries, historyEnabled, clearHistory, setHistoryEnabled } = useHistory();
@@ -1081,7 +1084,6 @@ watch(
   { immediate: true },
 );
 
-// Security functions
 async function loadSecurityStatus() {
   try {
     const status = await useInternalLumen()?.security.getStatus();
@@ -1547,7 +1549,6 @@ async function openLogsFolderAction() {
   }
 }
 
-// Private Cloud functions
 async function loadPrivateCloudConfig() {
   privateCloudLoading.value = true;
   try {

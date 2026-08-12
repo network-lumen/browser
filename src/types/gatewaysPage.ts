@@ -32,7 +32,6 @@ export type GatewayEditState = {
   };
 };
 
-/** The fields of the "create gateway" form. */
 export type GatewayRegisterForm = {
   endpoint: string;
   regions: string;
