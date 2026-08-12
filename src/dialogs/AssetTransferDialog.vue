@@ -57,7 +57,7 @@
           <UiSummaryCard :title="t('Transfer summary')">
             <UiSummaryRow :label="t('Route')" :value="selectedTarget?.routeLabel || t('Select destination')" />
             <UiSummaryRow :label="t('Source chain')" :value="context.chainLabel" />
-            <UiSummaryRow highlight :label="t('Destination chain')" :value="selectedTarget?.chainLabel || 'Unknown'" />
+            <UiSummaryRow highlight :label="t('Destination chain')" :value="selectedTarget?.chainLabel || t('Unknown')" />
           </UiSummaryCard>
 
           <UiButton variant="primary" @click="$emit('submit')"

@@ -32,7 +32,7 @@
             <input class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" type="text" :model-value="amount" @update:model-value="$emit('update:amount', $event)" placeholder="0.000000" :disabled="sending" />
             <span class="text-12px color-text-secondary absolute top-half translate-y-center right-12px">{{ t('LMN') }}</span>
             <template #hint>
-              <div v-if="balanceUlmn !== null">Available: {{ balanceLmnDisplay }} LMN</div>
+              <div v-if="balanceUlmn !== null">{{ t('Available: {amount} {symbol}', { amount: balanceLmnDisplay, symbol: 'LMN' }) }}</div>
               <div v-else class="color-error">{{ t('Balance not available') }}</div>
               <div v-if="insufficientFunds" class="color-error mt-8px">{{ t('Not enough funds') }}</div>
             </template>

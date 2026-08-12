@@ -171,7 +171,7 @@ function detectQRType(data: string): string {
     return 'URL';
   }
   
-  return 'Unknown';
+  return t('Unknown');
 }
 
 function scanAgain() {

@@ -48,7 +48,7 @@
           </div>
 
     <template #confirm><UiSpinner v-if="busy" size="sm" />
-              <span>{{ busy ? "Exporting..." : "Export" }}</span></template>
+              <span>{{ busy ? t('Exporting…') : t('Export') }}</span></template>
   </UiDialog>
 </template>
 

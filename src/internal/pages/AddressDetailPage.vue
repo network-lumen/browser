@@ -189,7 +189,7 @@ async function loadAddressData() {
         loading.value = false;
         return;
       }
-      throw new Error(`Failed to fetch account (status ${accountResponse.status ?? 'unknown'})`);
+      throw new Error(t('Failed to fetch account (status {status})', { status: accountResponse.status ?? t('Unknown') }));
     }
 
     const accountData = accountResponse.json;

@@ -327,8 +327,8 @@ const primaryActionLabel = computed(() => {
     if (primaryActionKind.value === "update") return t("Updating…");
     return t("Installing…");
   }
-  if (primaryActionKind.value === "remove") return "Remove";
-  if (primaryActionKind.value === "update") return "Update";
+  if (primaryActionKind.value === "remove") return t("Remove");
+  if (primaryActionKind.value === "update") return t("Update");
   return t("Install in Lumen");
 });
 const headerTitle = computed(() => {

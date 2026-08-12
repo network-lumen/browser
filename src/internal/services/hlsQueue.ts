@@ -1,5 +1,6 @@
 import type { HlsQueueItem, HlsQueueItemStatus } from '../../types/drivePage';
 import type { DriveFile } from '../../types/upload';
+import { t } from '../../stores/i18nStore';
 
 /**
  * The HLS conversion queue: what an item is, how it survives a restart, and
@@ -113,21 +114,21 @@ export function countHlsQueue(items: HlsQueueItem[]) {
 
 export function hlsQueueSummaryText(counts: ReturnType<typeof countHlsQueue>): string {
   const parts: string[] = [];
-  if (counts.active) parts.push(`${counts.active} active`);
-  if (counts.paused) parts.push(`${counts.paused} paused`);
-  if (counts.done) parts.push(`${counts.done} done`);
-  if (counts.failed) parts.push(`${counts.failed} failed`);
-  if (counts.cancelled) parts.push(`${counts.cancelled} cancelled`);
+  if (counts.active) parts.push(t('{count} active', { count: counts.active }));
+  if (counts.paused) parts.push(t('{count} paused', { count: counts.paused }));
+  if (counts.done) parts.push(t('{count} done', { count: counts.done }));
+  if (counts.failed) parts.push(t('{count} failed', { count: counts.failed }));
+  if (counts.cancelled) parts.push(t('{count} cancelled', { count: counts.cancelled }));
   return parts.join(' • ');
 }
 
 export function hlsQueueStatusLabel(status: HlsQueueItemStatus): string {
-  if (status === 'queued') return 'Queued';
-  if (status === 'converting') return 'Converting';
-  if (status === 'paused') return 'Paused';
-  if (status === 'done') return 'Done';
-  if (status === 'cancelled') return 'Cancelled';
-  return 'Failed';
+  if (status === 'queued') return t('Queued');
+  if (status === 'converting') return t('Converting');
+  if (status === 'paused') return t('Paused');
+  if (status === 'done') return t('Done');
+  if (status === 'cancelled') return t('Cancelled');
+  return t('Failed');
 }
 
 const STATUS_TINTS: Partial<Record<HlsQueueItemStatus, string>> = {

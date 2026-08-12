@@ -1,4 +1,5 @@
 import { t } from '../../stores/i18nStore';
+import { markForTranslation } from '../services/i18n';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   REQUIRED_FUNCTIONS,
@@ -20,10 +21,13 @@ import {
  * list breaks CI rather than the user's startup.
  */
 
+// The constant is marked, not translated: this table is built at module load,
+// long before a profile's locale is read, so t() here would pin it to English.
+// App.vue translates it where it draws the error.
 const FATAL_ERROR_MAP: Record<string, string | ((name: string) => string)> = {
-  FATAL000001: t('Lumen API not found'),
-  FATAL000002: (name: string) => `Missing API namespace '${name}'`,
-  FATAL000004: (name: string) => `Missing function '${name}'`
+  FATAL000001: markForTranslation('Lumen API not found'),
+  FATAL000002: (name: string) => t('Missing API namespace {name}', { name }),
+  FATAL000004: (name: string) => t('Missing function {name}', { name })
 };
 
 const missingNamespace = (name: string) =>

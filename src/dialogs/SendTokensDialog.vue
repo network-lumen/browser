@@ -53,7 +53,7 @@
             </select>
             <template v-if="selectedIbcChannel || ibcChannelsError" #hint>
               <template v-if="selectedIbcChannel">
-                Route: {{ selectedIbcChannel.portId }}/{{ selectedIbcChannel.channelId }}
+                {{ t('Route: {route}', { route: `${selectedIbcChannel.portId}/${selectedIbcChannel.channelId}` }) }}
                 <span v-if="selectedIbcChannel.chainId"> · {{ t('Destination chain: {chain}', { chain: selectedIbcChannel.chainId }) }}</span>
               </template>
               <template v-else-if="ibcChannelsError">{{ ibcChannelsError }}</template>

@@ -1,10 +1,12 @@
 <template>
   <span class="flex-inline-align-center border-radius-4px text-11px txt-weight-light py-2px px-8px bg-fill-blue color-accent-secondary">
-    {{ type || 'Unknown' }}
+    {{ type || t('Unknown') }}
   </span>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
+
 /**
  * What kind of message a transaction carried.
  *

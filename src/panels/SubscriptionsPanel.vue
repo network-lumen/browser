@@ -367,9 +367,9 @@ function formatRelativeDate(date: Date): string {
   const diff = date.getTime() - now.getTime();
   const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
   
-  if (days === 0) return 'Today';
-  if (days === 1) return 'Tomorrow';
-  if (days < 7) return `in ${days} days`;
+  if (days === 0) return t('Today');
+  if (days === 1) return t('Tomorrow');
+  if (days < 7) return t('in {count} days', { count: days });
   return formatDate(date);
 }
 

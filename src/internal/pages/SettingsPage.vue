@@ -82,7 +82,7 @@
               :value="locale"
               @change="setLocale(($event.target as HTMLSelectElement).value)"
             >
-              <option v-for="option in locales" :key="option.code" :value="option.code">{{ t(option.label) }}</option>
+              <option v-for="option in locales" :key="option.code" :value="option.code">{{ option.flag }} {{ t(option.label) }}</option>
             </select>
           </UiOptionRow>
           <UiOptionRow :label="t('Font size')" :description="t('Adjust the default font size')">
@@ -356,12 +356,9 @@
           </div>
 
           <p class="mt-16px color-text-tertiary text-13px">
-            <strong>{{ t('How it works:') }}</strong> When enabled, the entire app locks and requires
-            your password whenever the session isn't active - on launch, and again once
-            the cache duration below expires from inactivity. Wallet signing operations
-            (send tokens, delegate, create domain, etc.) also check for an active session,
-            so an expired one re-locks the app instead of prompting inline just for that
-            operation. {{ securitySessionHintText }}
+            <strong>{{ t('How it works:') }}</strong>
+            {{ t('When enabled, the entire app locks and requires your password whenever the session is not active - on launch, and again once the cache duration below expires from inactivity. Wallet signing operations (send tokens, delegate, create domain, etc.) also check for an active session, so an expired one re-locks the app instead of prompting inline just for that operation.') }}
+            {{ securitySessionHintText }}
           </p>
         </div>
       </div>
@@ -383,7 +380,7 @@
             <UiButton variant="secondary" type="button"
               @click="onExportSelectedBackups"
               :disabled="!selectedProfileIds.length || exportingBackup" class="disabled-fade-50">
-              Export selected ({{ selectedProfileIds.length }})
+              {{ t('Export selected ({count})', { count: selectedProfileIds.length }) }}
             </UiButton>
           </UiOptionRow>
           <UiHintText>
@@ -475,7 +472,7 @@
               class="flex-shrink-0"
               :profile="avatarProfileTarget"
               :size="44"
-              :title="avatarProfileTarget?.name || avatarProfileTarget?.id || 'Profile'"
+              :title="avatarProfileTarget?.name || avatarProfileTarget?.id || t('Profile')"
             />
             <UiButton variant="secondary" type="button"
               :disabled="profileAvatarSaving || !avatarProfileId"
@@ -587,7 +584,7 @@
           </UiOptionRow>
 
           <UiHintText>
-            {{ t('Next launch target:') }} <span class="break-all mono">{{ effectiveUserDataPath || defaultUserDataPath || 'Unavailable' }}</span>
+            {{ t('Next launch target:') }} <span class="break-all mono">{{ effectiveUserDataPath || defaultUserDataPath || t('Not available') }}</span>
           </UiHintText>
           <UiHintText v-if="lumenDataFolderError">
             {{ lumenDataFolderError }}
@@ -926,10 +923,10 @@ const backupExportSummary = computed(() => {
   const okCount = results.filter((r) => r && r.ok).length;
   const total = results.length || 0;
   const base = res.baseDir ? ` to ${res.baseDir}` : '';
-  if (total <= 1) return `Exported ${okCount ? t('1 profile') : t('0 profiles')}${base}.`;
-  if (!okCount) return `Export failed for ${total} profiles${base}.`;
-  if (okCount === total) return `Exported ${okCount} profiles${base}.`;
-  return `Exported ${okCount}/${total} profiles${base}.`;
+  if (total <= 1) return t('Exported {count}{suffix}.', { count: okCount ? t('1 profile') : t('0 profiles'), suffix: base });
+  if (!okCount) return t('Export failed for {count} profiles{suffix}.', { count: total, suffix: base });
+  if (okCount === total) return t('Exported {count} profiles{suffix}.', { count: okCount, suffix: base });
+  return t('Exported {count}/{total} profiles{suffix}.', { count: okCount, total, suffix: base });
 });
 
 const backupExportFailures = computed(() => {

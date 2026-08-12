@@ -1,4 +1,5 @@
 import type { GatewayView, OptimisticPins, SubscriptionView } from '../../types/drivePage';
+import { t } from '../../stores/i18nStore';
 
 /**
  * Reading a gateway, and remembering what has been pinned to one before the
@@ -14,8 +15,8 @@ import type { GatewayView, OptimisticPins, SubscriptionView } from '../../types/
 /** Endpoint if there is one, otherwise the operator, otherwise the bare id. */
 export function gatewayDisplayName(gw: GatewayView): string {
   if (gw.endpoint) return gw.endpoint;
-  if (gw.operator) return `Gateway · ${gw.operator}`;
-  return `Gateway ${gw.id}`;
+  if (gw.operator) return t('Gateway · {operator}', { operator: gw.operator });
+  return t('Gateway #{id}', { id: gw.id });
 }
 
 /** One live subscription makes the gateway active; otherwise pending beats off. */

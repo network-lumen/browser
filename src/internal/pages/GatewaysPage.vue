@@ -420,7 +420,7 @@ function parseExtras(text: string): { ok: boolean; value?: Record<string, any>; 
   } catch (e) {
     const raw = errorMessage(e);
     const msg = raw.replace(/\s+/g, ' ').trim();
-    return { ok: false, error: msg ? `Metadata JSON is invalid: ${msg}` : t('Metadata JSON is invalid.') };
+    return { ok: false, error: msg ? t('Metadata JSON is invalid: {reason}', { reason: msg }) : t('Metadata JSON is invalid.') };
   }
 }
 

@@ -4,7 +4,7 @@
           <div class="flex flex-column">
             <UiDetailRow variant="modal" :label="t('Status')">
               <span class="color-text-primary text-15px fw-500" :class="ipfsConnected ? 'color-success' : 'color-error'">
-                {{ ipfsConnected ? "Online" : "Offline" }}
+                {{ ipfsConnected ? t('Online') : t('Offline') }}
               </span>
             </UiDetailRow>
             <UiDetailRow v-if="stats" variant="modal" :label="t('Used')" :value="formatSize(stats.repoSize)" />

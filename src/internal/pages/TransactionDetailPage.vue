@@ -156,12 +156,12 @@ async function loadTransactionData() {
           return;
         }
         if (rpcError.data && rpcError.data.includes('not found')) {
-          throw new Error(`Transaction not found: ${txHash.value}\n\nThis transaction may not exist on the blockchain or hasn't been indexed yet.`);
+          throw new Error(t('Transaction not found: {hash}\n\nThis transaction may not exist on the blockchain or has not been indexed yet.', { hash: txHash.value }));
         }
-        throw new Error(`RPC Error: ${errorMessage(rpcError, t('Unknown error'))}`);
+        throw new Error(t('RPC error: {reason}', { reason: errorMessage(rpcError, t('Unknown error')) }));
       }
       const errorDetails = response.json ? JSON.stringify(response.json, null, 2) : response.statusText || t('Unknown error');
-      throw new Error(`Failed to fetch transaction (Status ${response.status}): ${errorDetails}`);
+      throw new Error(t('Failed to fetch transaction (status {status}): {reason}', { status: response.status, reason: errorDetails }));
     }
 
     const data = response.json;
@@ -173,9 +173,9 @@ async function loadTransactionData() {
         return;
       }
       if (data.error.data && data.error.data.includes('not found')) {
-        throw new Error(`Transaction not found: ${txHash.value}\n\nThis transaction may not exist on the blockchain or hasn't been indexed yet.`);
+        throw new Error(t('Transaction not found: {hash}\n\nThis transaction may not exist on the blockchain or has not been indexed yet.', { hash: txHash.value }));
       }
-      throw new Error(`RPC Error: ${data.errorMessage(error, t('Unknown error'))}`);
+      throw new Error(t('RPC error: {reason}', { reason: data.errorMessage(error, t('Unknown error')) }));
     }
 
     if (!data.result) {

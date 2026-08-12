@@ -180,7 +180,7 @@ async function loadBlockData() {
     const response = await lumen.net.rpcGet(`/block?height=${height}`);
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch block: ${response.error || t('Unknown error')}`);
+      throw new Error(t('Failed to fetch block: {reason}', { reason: response.error || t('Unknown error') }));
     }
     
     const data = response.json;
@@ -221,7 +221,7 @@ async function loadBlockData() {
     };
   } catch (err) {
     console.error('Error loading block:', err);
-    error.value = `Failed to load block data: ${err instanceof Error ? err.message : t('Unknown error')}`;
+    error.value = t('Failed to load block data: {reason}', { reason: err instanceof Error ? err.message : t('Unknown error') });
   } finally {
     loading.value = false;
   }

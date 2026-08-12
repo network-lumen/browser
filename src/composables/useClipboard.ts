@@ -41,6 +41,6 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 export async function copyToClipboardWithToast(text: string): Promise<boolean> {
   const toast = useToast();
   const ok = await copyToClipboard(text);
-  toast.show(ok ? 'Copied' : t('Failed to copy'), ok ? 'success' : 'error');
+  toast.show(ok ? t('Copied') : t('Failed to copy'), ok ? 'success' : 'error');
   return ok;
 }

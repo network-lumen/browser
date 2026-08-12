@@ -31,7 +31,7 @@
           >
             <Check v-if="saved" :size="16" />
             <Save v-else :size="16" />
-            <span>{{ saved ? "Saved" : saving ? "Saving..." : "Save" }}</span>
+            <span>{{ saved ? t('Saved') : saving ? t('Saving…') : t('Save') }}</span>
           </UiButton>
           <UiButton variant="primary" type="button"
             @click="copyLink"
@@ -540,8 +540,8 @@ async function buildEpubReaderSrcDoc() {
       fetch(book),
       fetch(`${bibi}/index.html`),
     ]);
-    if (!bookRes.ok) throw new Error(`Failed to fetch EPUB (status ${bookRes.status})`);
-    if (!tplRes.ok) throw new Error(`Failed to load EPUB reader (status ${tplRes.status})`);
+    if (!bookRes.ok) throw new Error(t('Failed to fetch EPUB (status {status})', { status: bookRes.status }));
+    if (!tplRes.ok) throw new Error(t('Failed to load EPUB reader (status {status})', { status: tplRes.status }));
 
     const base64 = arrayBufferToBase64(await bookRes.arrayBuffer());
     const tpl = await tplRes.text();

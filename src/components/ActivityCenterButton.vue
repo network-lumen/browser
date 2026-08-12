@@ -121,11 +121,11 @@ function kindIcon(kind: ActivityKind) {
 }
 
 function statusLabel(status: ActivityStatus): string {
-  if (status === 'running') return 'Running';
-  if (status === 'paused') return 'Paused';
-  if (status === 'completed') return 'Done';
-  if (status === 'failed') return 'Failed';
-  return 'Cancelled';
+  if (status === 'running') return t('Running');
+  if (status === 'paused') return t('Paused');
+  if (status === 'completed') return t('Done');
+  if (status === 'failed') return t('Failed');
+  return t('Cancelled');
 }
 
 function statusClass(status: ActivityStatus): string {

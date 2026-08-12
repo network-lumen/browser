@@ -123,7 +123,7 @@
           </div>
 
           <div>
-            <div class="txt-weight-medium color-text-primary mb-8px">Artifacts ({{ selectedRelease.artifacts.length }})</div>
+            <div class="txt-weight-medium color-text-primary mb-8px">{{ t('Artifacts ({count})', { count: selectedRelease.artifacts.length }) }}</div>
             <div v-for="(a, idx) in selectedRelease.artifacts" :key="`${a.platform}-${a.kind}-${idx}`" class="border-radius-12px border-1-light p-12px mt-12px bg-secondary">
               <div class="flex-align-baseline flex-justify-space-between gap-12px">
                 <div class="txt-weight-medium color-text-primary">{{ a.platform }} · {{ a.kind }}</div>
@@ -283,7 +283,7 @@ async function restGet(path: string) {
   const api = useInternalLumen()?.net?.restGet;
   if (typeof api !== 'function') throw new Error(t('Network API not available.'));
   const res = await api(path);
-  if (!res?.ok) throw new Error(String(res?.error || `Request failed (${path})`));
+  if (!res?.ok) throw new Error(String(res?.error || t('Request failed ({path})', { path })));
   return res.json ?? null;
 }
 
@@ -414,11 +414,13 @@ function openDaoModal(kind: DaoKind) {
   const ver = r.version ? ` · ${r.version}` : '';
   const chan = r.channel ? ` (${r.channel})` : '';
   daoForm.title =
-    kind === 'reject' ? `Reject release #${id}${chan}` : `Validate release #${id}${chan}`;
+    kind === 'reject'
+      ? t('Reject release #{id}{channel}', { id, channel: chan })
+      : t('Validate release #{id}{channel}', { id, channel: chan });
   daoForm.summary =
     kind === 'reject'
-      ? `Reject pending release #${id}${ver}${chan}.`
-      : `Validate pending release #${id}${ver}${chan}.`;
+      ? t('Reject pending release #{id}{version}{channel}.', { id, version: ver, channel: chan })
+      : t('Validate pending release #{id}{version}{channel}.', { id, version: ver, channel: chan });
   daoModalOpen.value = true;
 }
 
@@ -626,7 +628,7 @@ async function importFromGithubRelease() {
       const maxNotes = params.value?.maxNotesLen || 0;
       if (maxNotes && body.length > maxNotes) {
         draft.notes = body.slice(0, maxNotes);
-        addToast('warning', `Notes truncated to ${maxNotes} chars.`);
+        addToast('warning', t('Notes truncated to {count} characters.', { count: maxNotes }));
       } else {
         draft.notes = body;
       }
@@ -677,12 +679,12 @@ async function importFromGithubRelease() {
     const missingSha = next
       .filter((a) => !/^[0-9a-f]{64}$/i.test(String(a.sha256Hex || '').trim()))
       .map((a) => a.platform);
-    if (missingSha.length) addToast('warning', `Missing SHA-256 for: ${missingSha.join(', ')}.`);
+    if (missingSha.length) addToast('warning', t('Missing SHA-256 for: {items}.', { items: missingSha.join(', ') }));
 
     const missingSize = next
       .filter((a) => !(Number.isFinite(Number(a.size)) && Number(a.size) > 0))
       .map((a) => a.platform);
-    if (missingSize.length) addToast('warning', `Missing size for: ${missingSize.join(', ')}.`);
+    if (missingSize.length) addToast('warning', t('Missing size for: {items}.', { items: missingSize.join(', ') }));
 
     next.sort(sortArtifactsByPlatform);
     draft.artifacts.splice(0, draft.artifacts.length, ...next);
@@ -700,25 +702,25 @@ function buildReleasePayload() {
   const channel = draft.channel.trim();
   if (!channel) throw new Error(t('Channel is required'));
   const maxNotes = params.value?.maxNotesLen || 0;
-  if (maxNotes && draft.notes.length > maxNotes) throw new Error(`Notes exceed ${maxNotes} characters`);
+  if (maxNotes && draft.notes.length > maxNotes) throw new Error(t('Notes exceed {count} characters', { count: maxNotes }));
 
   const artifacts = draft.artifacts.map((a, idx) => {
     const platform = a.platform.trim();
     const kind = a.kind.trim();
     const sha = a.sha256Hex.trim().toLowerCase();
     const size = Number(a.size);
-    if (!platform) throw new Error(`Artifact #${idx + 1}: platform required`);
-    if (!kind) throw new Error(`Artifact #${idx + 1}: kind required`);
-    if (!/^[0-9a-f]{64}$/i.test(sha)) throw new Error(`Artifact #${idx + 1}: invalid SHA-256`);
-    if (!Number.isFinite(size) || size <= 0) throw new Error(`Artifact #${idx + 1}: invalid size`);
+    if (!platform) throw new Error(t('Artifact #{number}: platform required', { number: idx + 1 }));
+    if (!kind) throw new Error(t('Artifact #{number}: kind required', { number: idx + 1 }));
+    if (!/^[0-9a-f]{64}$/i.test(sha)) throw new Error(t('Artifact #{number}: invalid SHA-256', { number: idx + 1 }));
+    if (!Number.isFinite(size) || size <= 0) throw new Error(t('Artifact #{number}: invalid size', { number: idx + 1 }));
     const urls = parseUrls(a.urlsText);
     const maxUrls = params.value?.maxUrlsPerArt || 0;
-    if (maxUrls && urls.length > maxUrls) throw new Error(`Artifact #${idx + 1}: maximum ${maxUrls} URLs`);
+    if (maxUrls && urls.length > maxUrls) throw new Error(t('Artifact #{number}: maximum {count} URLs', { number: idx + 1, count: maxUrls }));
     return { platform, kind, cid: a.cid.trim(), sha256Hex: sha, size, urls };
   });
 
   const maxArtifacts = params.value?.maxArtifacts || 0;
-  if (maxArtifacts && artifacts.length > maxArtifacts) throw new Error(`Maximum ${maxArtifacts} artifacts allowed`);
+  if (maxArtifacts && artifacts.length > maxArtifacts) throw new Error(t('Maximum {count} artifacts allowed', { count: maxArtifacts }));
 
   return {
     version,

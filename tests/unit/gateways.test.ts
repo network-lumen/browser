@@ -18,7 +18,7 @@ describe('naming a gateway', () => {
   it('prefers the endpoint, then the operator, then the bare id', () => {
     expect(gatewayDisplayName(gw({ endpoint: 'https://gw.example' }))).toBe('https://gw.example');
     expect(gatewayDisplayName(gw({ operator: 'alice' }))).toBe('Gateway · alice');
-    expect(gatewayDisplayName(gw())).toBe('Gateway g1');
+    expect(gatewayDisplayName(gw())).toBe('Gateway #g1');
   });
 });
 

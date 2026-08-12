@@ -27,11 +27,12 @@
                 v-for="option in locales"
                 :key="option.code"
                 type="button"
-                class="w-full text-left cursor-pointer border-1 border-radius-10px bg-secondary color-text-primary text-14px py-10px px-12px transition-all-fast hover-bg-hover"
+                class="flex-align-center gap-8px w-full text-left cursor-pointer border-1 border-radius-10px bg-secondary color-text-primary text-14px py-10px px-12px transition-all-fast hover-bg-hover"
                 :class="{ 'bg-primary-a10 border-color-primary': option.code === pendingLocale }"
                 @click="pendingLocale = option.code"
               >
-                {{ option.label }}
+                <span class="text-18px line-height-1">{{ option.flag }}</span>
+                <span class="truncate">{{ option.label }}</span>
               </button>
             </div>
           </div>
@@ -461,7 +462,7 @@ async function handleExportBackup() {
 
     if (result?.ok) {
       backupSuccess.value = result.path 
-        ? `Backup saved to: ${result.path}`
+        ? t('Backup saved to: {path}', { path: result.path })
         : t('Backup exported successfully.');
       
       setTimeout(() => {
