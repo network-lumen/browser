@@ -23,13 +23,13 @@ export const SECURITY_SESSION_TIMEOUT_OPTIONS = Object.freeze([
   {
     value: 15 * 60 * 1000,
     serialized: "900000",
-    label: markForTranslation("15 min"),
+    label: markForTranslation("15 minutes"),
     durationText: markForTranslation("15 minutes"),
   },
   {
     value: 30 * 60 * 1000,
     serialized: "1800000",
-    label: markForTranslation("30 min"),
+    label: markForTranslation("30 minutes"),
     durationText: markForTranslation("30 minutes"),
   },
   {

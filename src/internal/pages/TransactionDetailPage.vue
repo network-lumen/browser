@@ -24,18 +24,18 @@
 
             </span>
           </UiDetailRow>
-          <UiDetailRow :label="t('Block Height')">
+          <UiDetailRow :label="t('Block height')">
             <BlockHeightLink :height="transaction.height" size-class="text-14px" @open="navigateToBlock(transaction.height)" />
           </UiDetailRow>
           <UiDetailRow :label="t('Time')" :value="transaction.time" />
-          <UiDetailRow :label="t('Gas Used')" :value="formatNumber(transaction.gasUsed)" />
-          <UiDetailRow :label="t('Gas Wanted')" :value="formatNumber(transaction.gasWanted)" />
+          <UiDetailRow :label="t('Gas used')" :value="formatNumber(transaction.gasUsed)" />
+          <UiDetailRow :label="t('Gas wanted')" :value="formatNumber(transaction.gasWanted)" />
           <UiDetailRow :label="t('Fee')" :value="transaction.fee" />
         </div>
       </UiCard>
 
       <UiCard v-if="transaction.messages && transaction.messages.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="`Messages (${transaction.messages.length})`" title-class="text-16px letter-spacing-0025em txt-weight-light" />
+        <UiCardHeader :title="t('Messages ({count})', { count: transaction.messages.length })" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(msg, index) in transaction.messages" :key="index">
@@ -50,7 +50,7 @@
       </UiCard>
 
       <UiCard v-if="transaction.events && transaction.events.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="`Events (${transaction.events.length})`" title-class="text-16px letter-spacing-0025em txt-weight-light" />
+        <UiCardHeader :title="t('Events ({count})', { count: transaction.events.length })" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(event, index) in transaction.events" :key="index">

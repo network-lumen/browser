@@ -39,13 +39,13 @@
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="context.ownerAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
           </UiFormGroup>
 
-          <UiFormGroup required :label="t('Recipient')" :hint="selectedTarget ? `Default wallet on destination: ${selectedTarget.defaultRecipient}` : ''">
+          <UiFormGroup required :label="t('Recipient')" :hint="selectedTarget ? t('Default wallet on destination: {address}', { address: selectedTarget.defaultRecipient }) : ''">
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
               v-model="form.recipient"
-              :placeholder="selectedTarget?.defaultRecipient || 'Destination address'" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+              :placeholder="selectedTarget?.defaultRecipient || t('Destination address')" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
           </UiFormGroup>
 
-          <UiFormGroup required :label="t('Amount')" :hint="`Available: ${context.displayAmount} ${context.displaySymbol}`">
+          <UiFormGroup required :label="t('Amount')" :hint="t('Available: {amount} {symbol}', { amount: context.displayAmount, symbol: context.displaySymbol })">
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
               inputmode="decimal"
               v-model="form.amount"
@@ -55,7 +55,7 @@
           </UiFormGroup>
 
           <UiSummaryCard :title="t('Transfer summary')">
-            <UiSummaryRow :label="t('Route')" :value="selectedTarget?.routeLabel || 'Select destination'" />
+            <UiSummaryRow :label="t('Route')" :value="selectedTarget?.routeLabel || t('Select destination')" />
             <UiSummaryRow :label="t('Source chain')" :value="context.chainLabel" />
             <UiSummaryRow highlight :label="t('Destination chain')" :value="selectedTarget?.chainLabel || 'Unknown'" />
           </UiSummaryCard>

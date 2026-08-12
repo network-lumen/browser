@@ -10,9 +10,8 @@
   >
 
     <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
-      {{ t('Re-export') }} <strong>{{ profileName }}</strong>
-{{ t('. Your wallet is now linked on-chain and uses post-quantum security.') }}
-</p>
+      {{ t('Re-export {profile}. Your wallet is now linked on-chain and uses post-quantum security.', { profile: profileName || '' }) }}
+    </p>
   </UiDialog>
 </template>
 

@@ -117,7 +117,7 @@
           <AlertTriangle :size="20" />
         </div>
         <div class="flex flex-column flex-1 gap-4px">
-          <strong class="text-14px txt-weight-light color-text-primary">{{ t('Privacy Notice:') }}</strong>
+          <strong class="text-14px txt-weight-light color-text-primary">{{ t('Privacy notice:') }}</strong>
           <span class="text-14px color-text-secondary line-height-14">{{ t('Everything uploaded on Lumen is public. Don\'t upload personal files.') }}</span>
         </div>
       </div>
@@ -140,10 +140,7 @@
         <div class="flex-align-center gap-12px">
           <span class="color-text-secondary text-13px nowrap">{{ filteredFiles.length === 1 ? t('1 file') : t('{count} files', { count: filteredFiles.length }) }}</span>
           <select v-model="itemsPerPage" class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-primary focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
-            <option :value="10">{{ t('10 per page') }}</option>
-            <option :value="20">{{ t('20 per page') }}</option>
-            <option :value="50">{{ t('50 per page') }}</option>
-            <option :value="100">{{ t('100 per page') }}</option>
+            <option v-for="size in [10, 20, 50, 100]" :key="size" :value="size">{{ t('{count} per page', { count: size }) }}</option>
           </select>
         </div>
       </div>
@@ -295,7 +292,7 @@
             <UiButton variant="secondary" type="button"
               @click="clearHlsQueue"
               :disabled="!hlsQueue.length" class="hover-border-color-accent-enabled disabled-fade-50">
-              {{ converting ? "Clear finished" : "Clear queue" }}
+              {{ converting ? t('Clear finished') : t('Clear queue') }}
             </UiButton>
           </div>
         </div>
@@ -455,7 +452,7 @@
     <aside v-if="selectedFile" class="flex flex-column p-24px m-0px bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px max-w-280px border-left-1-border-color">
       <div class="flex-align-center-justify-space-between mb-20px">
         <h3 class="text-12px line-height-12 txt-weight-strong">
-          {{ isDirEntry(selectedFile) ? "Folder Details" : "File Details" }}
+          {{ isDirEntry(selectedFile) ? t('Folder details') : t('File details') }}
         </h3>
         <UiButton variant="icon" @click="selectedFile = null">
           <X :size="18" />

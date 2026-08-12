@@ -11,7 +11,7 @@
       <div>
         <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">{{ t('Shortcut') }}</div>
         <h2 id="shortcut-modal-title" class="color-text-primary">
-          {{ mode === "create" ? "Add shortcut" : "Edit shortcut" }}
+          {{ mode === "create" ? t('Add shortcut') : t('Edit shortcut') }}
         </h2>
       </div>
     </template>
@@ -33,7 +33,7 @@
 
         </div>
 
-    <template #confirm>{{ mode === "create" ? "Add shortcut" : "Save changes" }}</template>
+    <template #confirm>{{ mode === "create" ? t('Add shortcut') : t('Save changes') }}</template>
   </UiDialog>
 </template>
 

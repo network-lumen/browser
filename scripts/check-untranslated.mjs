@@ -64,6 +64,11 @@ const ALLOWED = new Set([
 
   // The product name. It is the same word in every language.
   'Lumen',
+
+  // A language picker names each language in that language, so its own label is
+  // the one string in the app that must not follow the active locale.
+  'English',
+  'Français',
 ]);
 
 function walk(dir) {
@@ -88,11 +93,19 @@ function isClassList(text) {
 // A CSS value, a media query and a webPreferences string are all English words
 // separated by spaces. None of them is a sentence.
 function isMachineReadable(text) {
-  return /=|var\(|rgba?\(|--|\d+px |prefers-color-scheme|@media/.test(text);
+  return (
+    /=|var\(|rgba?\(|--|\d+px |prefers-color-scheme|@media/.test(text) ||
+    // A CSS animation shorthand: "spin 0.95s linear infinite".
+    /\d+(?:\.\d+)?m?s\s/.test(text)
+  );
 }
 
+// A `${a}, url: ${b}` template literal reads to a scanner as the fragment
+// ", url:" - punctuation at the *start*, which no sentence has. A trailing
+// colon is not the same thing: "Pending TTL:" is a label with a value after it,
+// and treating it as a fragment hid one for a whole pass.
 function isFragment(text) {
-  return /^\s*[,:;.]/.test(text) || /[,:;]\s*$/.test(text);
+  return /^\s*[,:;.]/.test(text);
 }
 
 function isCode(text) {
@@ -107,12 +120,14 @@ function isAcronymOnly(text) {
 }
 
 /**
- * A single word in a template text node is still on screen - `>Confirm {{ action }}<`
- * is a button caption. A single word in a *script* is almost always an
- * identifier, a key or an enum value, so the two are held to different bars.
+ * A single word can still be on screen - `>Confirm {{ action }}<` is a button
+ * caption, and `{ drive: 'Drive' }` is a page name in a lookup table. What it
+ * must not catch is the enum values sitting beside them: `'deny'`, `'ulmn'`,
+ * `'idle'`, `'environment'`. The two are told apart by the capital, which holds
+ * across this codebase - a word meant for a user is written for a user.
  */
 function isProse(text, { singleWordCounts = false } = {}) {
-  if (singleWordCounts && /^[A-Za-z][a-z]{2,}$/.test(text.trim())) return true;
+  if (singleWordCounts && /^[A-Z][a-z]{2,}$/.test(text.trim())) return true;
   return (
     /[A-Za-z]{3}/.test(text) &&
     / /.test(text) &&
@@ -127,8 +142,12 @@ function isProse(text, { singleWordCounts = false } = {}) {
   );
 }
 
+// Any attribute whose name says it carries words. Listing them by name was a
+// mistake the first time round: `consequence="They will no longer be able to
+// access your gateway."` is a sentence on screen, and it went unnoticed purely
+// because nobody had thought to add "consequence" to a list.
 const TEXT_ATTRS =
-  /\s(?:title|placeholder|aria-label|label|description|subtitle|alt|message|confirm-label|cancel-label|busy-label|empty-label|empty-title|empty-description)="([^"{}]+)"/g;
+  /\s(?:title|placeholder|aria-label|alt|message|consequence|hint|note|summary|caption|tooltip|[\w-]*(?:label|description|subtitle|text|title))="([^"{}]+)"/g;
 
 // Both wrappers count as translated: t() at the point of display, and
 // markForTranslation() for a string in a table that is translated where drawn.
@@ -170,6 +189,22 @@ for (const file of walk(SRC)) {
       for (const m of tpl.matchAll(/`([^`$]*[A-Za-z]{3}[^`]*)`/g)) {
         record(m[1].replace(/\$\{[^}]*\}/g, ' '), lineAt(offset + m.index));
       }
+      // A quoted string inside an interpolation or a bound attribute:
+      // `{{ expanded ? "Hide details" : "Show details" }}`. The expression is
+      // code; the two literals in it are on screen.
+      // Inside {{ }} a double quote is an ordinary string delimiter; inside an
+      // attribute it is the delimiter of the attribute itself, so only the
+      // interpolation scan looks for it.
+      for (const expr of tpl.matchAll(/\{\{([\s\S]*?)\}\}/g)) {
+        for (const lit of expr[1].matchAll(/(['"`])((?:\\.|(?!\1)[^\\])*)\1/g)) {
+          record(lit[2], lineAt(offset + expr.index));
+        }
+      }
+      for (const expr of tpl.matchAll(/(?::|v-bind:|@|v-if=|v-else-if=|v-for=)[\w.-]*="([^"]*)"/g)) {
+        for (const lit of expr[1].matchAll(/(['`])((?:\\.|(?!\1)[^\\])*)\1/g)) {
+          record(lit[2], lineAt(offset + expr.index));
+        }
+      }
     }
   }
 
@@ -190,6 +225,16 @@ for (const file of walk(SRC)) {
 
   for (const m of script.matchAll(/(['"`])((?:\\.|(?!\1)[^\\\n])*)\1/g)) {
     record(m[2], lineAt(offset + m.index));
+  }
+
+  // A lookup table of display strings - `{ network: 'Network', drive: 'Drive' }`
+  // - is a whole screen's worth of words that the scan above skips, because
+  // each value is a single word. `getCardTitle` in HomePage.vue was twelve page
+  // names rendered raw for exactly that reason.
+  for (const m of script.matchAll(/(?:^|[{,])\s*(\w+)\s*:\s*(['"])((?:\\.|(?!\2)[^\\\n])*)\2(\s*\|)?/gm)) {
+    // `action: 'Delegate' | 'Undelegate'` is a type annotation, not a table.
+    if (m[4]) continue;
+    record(m[3], lineAt(offset + m.index), { singleWordCounts: true });
   }
 }
 

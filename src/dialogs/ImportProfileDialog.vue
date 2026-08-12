@@ -63,10 +63,10 @@
               class="flex flex-column border-radius-12px color-text-secondary text-12px gap-4px bg-secondary py-12px px-16px border-05-light"
             >
               <div v-if="form.profileSourceName" class="line-height-14 break-word">
-                Profile source: {{ form.profileSourceName }}
+                {{ t('Profile source: {name}', { name: form.profileSourceName }) }}
               </div>
               <div v-if="form.pqcSourceName" class="line-height-14 break-word">
-                Dilithium source: {{ form.pqcSourceName }}
+                {{ t('Dilithium source: {name}', { name: form.pqcSourceName }) }}
               </div>
             </div>
 
@@ -99,7 +99,7 @@
                 />
               </UiFormGroup>
 
-              <UiFormGroup :label="t('PQC Public Key')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <UiFormGroup :label="t('PQC public key')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <UiInput
                   :model-value="form.pqcPublicKey" @update:model-value="$emit('update:field', 'pqcPublicKey', $event)"
                   type="textarea"
@@ -113,7 +113,7 @@
                 />
               </UiFormGroup>
 
-              <UiFormGroup :label="t('PQC Private Key')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <UiFormGroup :label="t('PQC private key')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <UiInput
                   :model-value="form.pqcPrivateKey" @update:model-value="$emit('update:field', 'pqcPrivateKey', $event)"
                   type="textarea"

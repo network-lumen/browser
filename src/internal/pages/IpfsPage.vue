@@ -26,7 +26,7 @@
             :class="{ 'bg-success-a12-override border-1-success-a38 color-success': saved }"
             :disabled="!canSaveToDrive || saving || saved"
             :title="
-              saved ? 'Saved to Drive' : saving ? t('Saving…') : t('Save to Drive')
+              saved ? t('Saved to Drive') : saving ? t('Saving…') : t('Save to Drive')
             "
           >
             <Check v-if="saved" :size="16" />
@@ -60,7 +60,7 @@
       <template v-else>
         <div v-if="!rootCid" class="flex-align-justify-center py-48px px-32px">
           <div class="text-center max-w-600px">
-            <h2 class="text-28px txt-weight-light color-text-primary mb-12px">{{ t('IPFS Content Viewer') }}</h2>
+            <h2 class="text-28px txt-weight-light color-text-primary mb-12px">{{ t('IPFS content viewer') }}</h2>
             <p class="color-text-secondary text-16px mb-32px">{{ t('View and download content from IPFS using CIDs.') }}</p>
             <UiCard padding="none" :shadow="false" class="p-24px mb-32px">
               <p class="fw-500 color-text-secondary text-14px mb-12px">{{ t('Example:') }}</p>

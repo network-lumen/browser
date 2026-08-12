@@ -22,6 +22,7 @@
 </template>
 
 <script setup lang="ts">
+import { markForTranslation } from '../internal/services/i18n';
 import UiDialog from '../ui/UiDialog.vue';
 
 /**
@@ -54,9 +55,9 @@ withDefaults(
   {
     message: '',
     consequence: '',
-    confirmLabel: 'Confirm',
+    confirmLabel: markForTranslation('Confirm'),
     busyLabel: 'Working...',
-    cancelLabel: 'Cancel',
+    cancelLabel: markForTranslation('Cancel'),
     busy: false,
     variant: 'danger',
     buttonClass: '',

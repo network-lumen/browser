@@ -6,13 +6,13 @@
           <Shield :size="30" />
         </UiIconBadge>
         <h2 class="color-text-primary txt-weight-light text-24px m-0px mb-8px">
-          {{ requiresProfileCreation ? "Create Your First Profile" : "Protect Your Wallet" }}
+          {{ requiresProfileCreation ? t('Create your first profile') : t('Protect your wallet') }}
         </h2>
         <p class="color-text-secondary m-0px text-14px">
           {{
             requiresProfileCreation
-              ? "A profile is required to use Drive, Wallet, and personal storage."
-              : "Your wallet is local and self-custodial"
+              ? t('A profile is required to use Drive, Wallet, and personal storage.')
+              : t('Your wallet is local and self-custodial')
           }}
         </p>
       </div>

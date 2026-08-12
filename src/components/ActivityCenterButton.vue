@@ -18,7 +18,7 @@
       icon-padding-class=""
       class="active-scale-98 flex-inline-align-justify-center size-32px relative"
       :class="{ 'color-yellow-override': open }"
-      :title="runningCount ? `Activity (${runningCount} running)` : 'Activity'"
+      :title="runningCount ? t('Activity ({count} running)', { count: runningCount }) : t('Activity')"
       @click.stop="toggle"
     >
       <Activity :size="16" />

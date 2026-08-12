@@ -18,7 +18,7 @@
         <p class="color-text-secondary text-14px m-0px mt-8px" v-else-if="loading">{{ t('Checking publisher permissions…') }}</p>
         <p class="color-text-secondary text-14px m-0px mt-8px" v-else>{{ t('Publisher access required.') }}</p>
         <p v-if="pendingTtlSeconds" class="color-text-tertiary text-13px m-0px mt-8px">
-          Pending TTL: {{ formatDuration(pendingTtlSeconds) }}
+          {{ t('Pending TTL: {duration}', { duration: formatDuration(pendingTtlSeconds) }) }}
         </p>
         <template #actions>
           <UiButton variant="secondary" type="button" :disabled="loading" @click="refreshAll">
@@ -612,7 +612,7 @@ async function importFromGithubRelease() {
       timeout: 30_000,
       headers: {
         Accept: 'application/vnd.github+json',
-        'User-Agent': 'LumenBrowser'
+        'User-Agent': t('LumenBrowser')
       }
     });
 

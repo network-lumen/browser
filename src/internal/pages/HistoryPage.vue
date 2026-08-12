@@ -17,7 +17,7 @@
             @click="toggleHistoryMode"
           >
             <component :is="historyEnabled ? Power : ShieldOff" :size="15" />
-            <span>{{ historyEnabled ? "Saving on" : "Saving off" }}</span>
+            <span>{{ historyEnabled ? t('Saving on') : t('Saving off') }}</span>
           </button>
 
           <button

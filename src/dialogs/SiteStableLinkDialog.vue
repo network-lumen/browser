@@ -11,7 +11,7 @@
   >
 
     <template #header>
-      <UiModalHeader :title="t('Choose or create a stable link for your live')" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+      <UiModalHeader :title="t('Choose or create a stable link for this live')" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
         <template #icon><Link :size="18" /></template>
       </UiModalHeader>
     </template>
@@ -49,7 +49,7 @@
           </UiFormGroup>
 
           <div class="border-radius-10px border-default py-10px px-12px">
-            <UiDetailRow variant="baseline" :label="t('Live')" :value="liveTitle || 'Untitled live'" />
+            <UiDetailRow variant="baseline" :label="t('Live')" :value="liveTitle || t('Untitled live')" />
             <UiDetailRow variant="baseline" :label="t('Records')">
               <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
                 <span class="mono">{{ records.length === 1 ? t('1 record') : t('{count} records', { count: records.length }) }}</span>

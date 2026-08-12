@@ -47,9 +47,9 @@
                      class="hover-border-accent size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-primary focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
                      :aria-label="t('Sort by')"
                    >
-                     <option value="score-desc">{{ t('Sort: Score (high-low)') }}</option>
-                     <option value="name-asc">{{ t('Sort: Name (A-Z)') }}</option>
-                     <option value="name-desc">{{ t('Sort: Name (Z-A)') }}</option>
+                     <option value="score-desc">{{ t('Sort: score (high-low)') }}</option>
+                     <option value="name-asc">{{ t('Sort: name (A-Z)') }}</option>
+                     <option value="name-desc">{{ t('Sort: name (Z-A)') }}</option>
                    </select>
                  </div>
                </div>
@@ -122,8 +122,8 @@
                       @click.stop="toggleGateway(group.gateway.id)">
                       {{
                         gatewayExpanded(group.gateway.id)
-                          ? "Hide details"
-                          : "Show details"
+                          ? t('Hide details')
+                          : t('Show details')
                       }}
                     </UiButton>
                   </div>
@@ -157,8 +157,8 @@
                           <span class="fw-500 color-text-primary">
                             {{
                               plan.storageGbPerMonth
-                                ? `${plan.storageGbPerMonth} GB / month`
-                                : "Not specified"
+                                ? t('{count} GB / month', { count: plan.storageGbPerMonth })
+                                : t('Not specified')
                             }}
                           </span>
                         </div>
@@ -167,8 +167,8 @@
                           <span class="fw-500 color-text-primary">
                             {{
                               plan.networkGbPerMonth
-                                ? `${plan.networkGbPerMonth} GB / month`
-                                : "Fair usage"
+                                ? t('{count} GB / month', { count: plan.networkGbPerMonth })
+                                : t('Fair usage')
                             }}
                           </span>
                         </div>
@@ -240,9 +240,7 @@
                  :aria-label="t('Rows per page')"
                  class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-primary focus-ring focus-outline-none focus-shadow"
                >
-                 <option :value="8">{{ t('8 per page') }}</option>
-                 <option :value="16">{{ t('16 per page') }}</option>
-                 <option :value="24">{{ t('24 per page') }}</option>
+                 <option v-for="size in [8, 16, 24]" :key="size" :value="size">{{ t('{count} per page', { count: size }) }}</option>
                </select>
              </div>
            </div>

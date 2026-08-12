@@ -10,8 +10,7 @@
   >
 
           <p class="color-text-secondary mb-24px text-14px">
-            {{ t('Set a password to encrypt your drive metadata backup for') }}
-            <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
+            {{ t('Set a password to encrypt the drive metadata backup for {profile}.', { profile: activeProfileDisplay || t('this profile') }) }}
           </p>
 
           <div class="flex flex-column gap-12px">

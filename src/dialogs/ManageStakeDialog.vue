@@ -29,7 +29,7 @@
             <div class="flex-align-start gap-12px p-16px border-radius-10px bg-primary-a10 border-1-primary-a15">
               <Info class="flex-shrink-0 color-primary mt-4px" :size="20" />
               <div class="flex flex-column gap-4px">
-                <strong class="text-15px txt-weight-light color-text-primary">{{ t('Withdraw Staking Rewards') }}</strong>
+                <strong class="text-15px txt-weight-light color-text-primary">{{ t('Withdraw staking rewards') }}</strong>
                 <p class="m-0px text-13px color-text-secondary line-height-14">{{ t('This will claim all pending rewards from this validator to your wallet.') }}</p>
               </div>
             </div>
@@ -80,7 +80,7 @@
 
           <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-lg min-w-400px max-w-90vw" :style="popupStyleFor(txStatus)">
             <div class="flex-align-center flex-column gap-24px text-center">
-              <UiResultState v-if="txStatus === 'processing'" :title="t('Processing Transaction')" :description="txMessage">
+              <UiResultState v-if="txStatus === 'processing'" :title="t('Processing transaction')" :description="txMessage">
                 <template #icon><UiSpinner size="lg" /></template>
               </UiResultState>
 

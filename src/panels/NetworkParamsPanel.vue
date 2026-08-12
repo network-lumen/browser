@@ -66,6 +66,7 @@
 </template>
 
 <script setup lang="ts">
+import { markForTranslation } from '../internal/services/i18n';
 import { t } from '../stores/i18nStore';
 import UiButton from '../ui/UiButton.vue';
 import UiPageHeader from '../ui/UiPageHeader.vue';
@@ -128,7 +129,7 @@ const sections = ref<ParamSection[]>([
   },
   {
     id: 'slashing',
-    title: 'Slashing',
+    title: markForTranslation('Slashing'),
     path: '/cosmos/slashing/v1beta1/params',
     open: false,
     loading: false,

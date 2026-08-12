@@ -6,7 +6,7 @@
       </UiModalHeader>
     </template>
           <p class="color-text-secondary text-14px line-height-14 m-0px mb-20px">
-            {{ message || 'Enter your password to authorize this operation.' }}
+            {{ message || t('Enter your password to authorize this operation.') }}
           </p>
 
           <div class="mb-20px">

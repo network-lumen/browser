@@ -153,6 +153,14 @@ English, ever - which is why the twelve of them are named in `scripts/check-untr
 rather than left to judgement. The same applies to a CSS selector, a CSS value and a
 `webpreferences` string.
 
+**A lookup table of display strings is the shape that hides.** Every automated
+pass looks for a quoted sentence, and `{ network: 'Network', drive: 'Drive' }` is
+twelve page names none of which contains a space. The tell is a table that ended
+up half-migrated - `content: t('Content settings')` on one line and
+`network: 'Network'` on the next - and there were eight of those. `check:i18n-strings`
+reads object values now, telling a display string from an enum value by the
+capital: `'Queued'` is for a reader, `'queued'` is for a `switch`.
+
 > The corollary is that a **sentence must be one string**. Half the work of the migration was
 > undoing sentences assembled from pieces - `{{ 'Delete' }} <strong>{{ name }}</strong> {{ '?' }}`,
 > or a template literal glueing three fragments - because word order is the first thing a language

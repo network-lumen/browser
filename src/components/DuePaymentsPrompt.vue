@@ -11,7 +11,7 @@
         </UiIconBadge>
         <div class="flex flex-column gap-2px min-w-0">
           <p class="color-text-primary text-13px line-height-12 txt-weight-medium m-0px">
-            {{ due.length === 1 ? 'A payment is due' : `${due.length} payments are due` }}
+            {{ due.length === 1 ? t('A payment is due') : t('{count} payments are due', { count: due.length }) }}
           </p>
           <p class="color-text-secondary text-11px line-height-12 m-0px">
             {{ t('Nothing is sent until you confirm it.') }}
@@ -44,7 +44,7 @@
               @click="confirmPay(payment)"
             >
               <UiSpinner v-if="payingId === payment.id" size="sm" />
-              <span>{{ payingId === payment.id ? 'Sending…' : 'Pay now' }}</span>
+              <span>{{ payingId === payment.id ? 'Sending…' : t('Pay now') }}</span>
             </UiButton>
             <UiButton
               variant="secondary"

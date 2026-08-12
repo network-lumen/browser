@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-column gap-12px">
   <p class="color-text-secondary mb-24px border-radius-8px py-12px px-16px text-14px line-height-15 bg-primary-a10 border-1-primary-a20">
-    {{ t('Add an external private gateway (e.g., your VPS or company server). For local embedded server, use the "Start Embedded Server" button instead.') }}
+    {{ t('Add an external private gateway (e.g. your VPS or company server). For a local embedded server, use the “Start server” button instead.') }}
   </p>
 
   <UiFormField class="mb-20px" :label="t('Gateway name')" label-class="block fw-500 color-text-secondary text-14px">
     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.name"
-      :placeholder="t('My Private Gateway')" class="focus-outline-none focus-ring-blue" />
+      :placeholder="t('My private gateway')" class="focus-outline-none focus-ring-blue" />
   </UiFormField>
 
   <UiFormField class="mb-20px" :label="t('Gateway URL')" label-class="block fw-500 color-text-secondary text-14px">

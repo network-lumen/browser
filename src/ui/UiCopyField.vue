@@ -8,6 +8,7 @@
 </template>
 
 <script setup lang="ts">
+import { markForTranslation } from '../internal/services/i18n';
 import UiButton from './UiButton.vue';
 import { Copy } from 'lucide-vue-next';
 import { copyToClipboard } from '../composables/useClipboard';
@@ -19,7 +20,7 @@ withDefaults(defineProps<{
   codeClass?: string;
   iconSize?: number;
 }>(), {
-  title: 'Copy',
+  title: markForTranslation('Copy'),
   wrapperClass: 'gap-8px',
   codeClass: 'bg-secondary color-text-primary py-8px px-12px border-1 border-radius-6px mono text-12px break-all',
   iconSize: 16,

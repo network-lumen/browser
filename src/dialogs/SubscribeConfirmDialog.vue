@@ -2,7 +2,7 @@
     <UiDialog
     :error="error"
     :model-value="modelValue"
-    :title="plan ? `Confirm subscription &quot;${planDisplayName(plan)}&quot;` : 'Confirm subscription'"
+    :title="plan ? t('Confirm subscription “{plan}”', { plan: planDisplayName(plan) }) : t('Confirm subscription')"
     panel-class="w-full max-w-520px"
     :busy="busy"
     :confirm-disabled="busy || insufficientFunds || !plan"
@@ -35,8 +35,8 @@
               <span class="fw-500 color-text-primary">
                 {{
                   plan.storageGbPerMonth
-                    ? `${plan.storageGbPerMonth} GB / month`
-                    : "Not specified"
+                    ? t('{count} GB / month', { count: plan.storageGbPerMonth })
+                    : t('Not specified')
                 }}
               </span>
             </div>
@@ -45,8 +45,8 @@
               <span class="fw-500 color-text-primary">
                 {{
                   plan.networkGbPerMonth
-                    ? `${plan.networkGbPerMonth} GB / month`
-                    : "Fair usage"
+                    ? t('{count} GB / month', { count: plan.networkGbPerMonth })
+                    : t('Fair usage')
                 }}
               </span>
             </div>

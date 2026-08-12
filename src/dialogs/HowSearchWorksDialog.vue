@@ -64,11 +64,11 @@
 
             <UiTitledCard :title="t('How results are ranked')">
               <ul class="list-style-disc pl-20px color-text-secondary line-height-14 m-0px mt-8px">
-                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Relevance') }}</strong>{{ t(': token matches in extracted tags/text.') }}</li>
-                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Freshness') }}</strong>{{ t(': recently seen content tends to rank higher.') }}</li>
-                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Popularity') }}</strong>{{ t(': signals like views and saves.') }}</li>
-                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Availability') }}</strong>{{ t(': prefer content that is reachable and healthy.') }}</li>
-                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Verified sites') }}</strong>{{ t(': linked domains can be boosted.') }}</li>
+                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Relevance') }}</strong> — {{ t('Token matches in the extracted tags and text.') }}</li>
+                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Freshness') }}</strong> — {{ t('Recently seen content tends to rank higher.') }}</li>
+                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Popularity') }}</strong> — {{ t('Signals like views and saves.') }}</li>
+                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Availability') }}</strong> — {{ t('Content that is reachable and healthy is preferred.') }}</li>
+                <li class="m-0px mt-8px mb-8px"><strong>{{ t('Verified sites') }}</strong> — {{ t('Linked domains can be boosted.') }}</li>
               </ul>
             </UiTitledCard>
 

@@ -11,7 +11,7 @@
                 {{ t('Move this asset from {chain} to another linked chain over IBC.', { chain: sourceChainLabel }) }}
               </template>
               <template v-else>
-                {{ t('Send this asset on {chain} to any {prefix}1… address. Use “To Other Chain” only when you want to bridge it.', { chain: sourceChainLabel, prefix: sourcePrefix || '' }) }}
+                {{ t('Send this asset on {chain} to any {prefix}1… address. Use “To other chain” only when you want to bridge it.', { chain: sourceChainLabel, prefix: sourcePrefix || '' }) }}
               </template>
             </span>
             <span v-else>
@@ -19,7 +19,7 @@
               {{ t('After that, transactions are confirmed within ~6 seconds.') }}</span>
           </UiBanner>
 
-          <UiFormGroup :label="t('From')" dimmed :hint="`Chain: ${sourceChainLabel}`">
+          <UiFormGroup :label="t('From')" dimmed :hint="t('Chain: {chain}', { chain: sourceChainLabel })">
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="sourceAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
           </UiFormGroup>
 
@@ -54,7 +54,7 @@
             <template v-if="selectedIbcChannel || ibcChannelsError" #hint>
               <template v-if="selectedIbcChannel">
                 Route: {{ selectedIbcChannel.portId }}/{{ selectedIbcChannel.channelId }}
-                <span v-if="selectedIbcChannel.chainId"> · Destination chain: {{ selectedIbcChannel.chainId }}</span>
+                <span v-if="selectedIbcChannel.chainId"> · {{ t('Destination chain: {chain}', { chain: selectedIbcChannel.chainId }) }}</span>
               </template>
               <template v-else-if="ibcChannelsError">{{ ibcChannelsError }}</template>
             </template>
@@ -106,7 +106,7 @@
             </div>
           </UiFormGroup>
 
-          <UiFormGroup required :label="`Amount (${assetSymbol})`" :hint="availableLabel ? `Available: ${availableLabel} ${assetSymbol}` : ''">
+          <UiFormGroup required :label="t('Amount ({symbol})', { symbol: assetSymbol })" :hint="availableLabel ? t('Available: {amount} {symbol}', { amount: availableLabel, symbol: assetSymbol }) : ''">
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
               inputmode="decimal"
               v-model="form.amount"

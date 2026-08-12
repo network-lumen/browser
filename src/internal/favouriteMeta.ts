@@ -1,3 +1,4 @@
+import { markForTranslation } from './services/i18n';
 import { t } from '../stores/i18nStore';
 import {
   canonicalizeLumenUrl,
@@ -17,24 +18,24 @@ function normalizePreferredTitle(rawTitle?: string): string {
 
 const INTERNAL_TITLES: Record<string, string> = {
   newtab: t("New tab"),
-  home: "Home",
-  search: "Search",
-  settings: "Settings",
-  drive: "Drive",
+  home: markForTranslation("Home"),
+  search: markForTranslation("Search"),
+  settings: markForTranslation("Settings"),
+  drive: markForTranslation("Drive"),
   ipfs: "IPFS",
-  wallet: "Wallet",
-  domain: "Domain",
-  extensions: "Extensions",
-  extension: "Extension",
-  network: "Network",
-  gateways: "Gateways",
+  wallet: markForTranslation("Wallet"),
+  domain: markForTranslation("Domain"),
+  extensions: markForTranslation("Extensions"),
+  extension: markForTranslation("Extension"),
+  network: markForTranslation("Network"),
+  gateways: markForTranslation("Gateways"),
   "my-gateways": t("My Gateways"),
   block: t("Block details"),
   transaction: t("Transaction details"),
   tx: t("Transaction details"),
   address: t("Address details"),
-  release: "Release",
-  help: "Help",
+  release: markForTranslation("Release"),
+  help: markForTranslation("Help"),
 };
 
 
@@ -54,7 +55,8 @@ function humanizeSlug(value: string): string {
 
 function getInternalFavouriteTitle(host: string): string {
   const key = String(host || "").trim().toLowerCase();
-  return INTERNAL_TITLES[key] || humanizeSlug(key) || t("Lumen page");
+  const known = INTERNAL_TITLES[key];
+  return known ? t(known) : humanizeSlug(key) || t("Lumen page");
 }
 
 function buildMonogram(value: string): string {

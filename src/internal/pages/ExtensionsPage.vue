@@ -216,7 +216,7 @@ function compareVersions(a: unknown, b: unknown) {
 function describeStoreTarget(raw: string) {
   const fallback = {
     kind: "browse",
-    title: "Extensions",
+    title: t("Extensions"),
     subtitle: t("Browse official Chrome Web Store pages in Lumen. Discovery stays on the official listing while installation is handled by the browser."),
   };
   const href = safeString(raw, 8192);

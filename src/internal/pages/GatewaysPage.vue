@@ -17,7 +17,7 @@
       <UiPageHeader :title="t('My Gateways')">
         <p class="mt-4px mb-0px color-text-secondary text-14px">{{ t('Register and update on-chain gateway settings.') }}</p>
         <p v-if="gatewayParams" class="color-text-tertiary text-12px m-0px mt-8px">
-          Register fee: {{ registerFeeLabel }} · Update fee: {{ updateFeeLabel }}
+          {{ t('Register fee: {register} · Update fee: {update}', { register: registerFeeLabel, update: updateFeeLabel }) }}
         </p>
         <template #actions>
           <UiButton variant="secondary" type="button"
@@ -39,7 +39,7 @@
           <div class="flex-align-center-justify-space-between">
             <h2 class="color-text-primary txt-weight-light m-0px text-20px">{{ t('Private gateways') }}</h2>
             <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="hover-opacity-80 color-primary text-14px transition-opacity-02 hover-underline">
-              {{ t('Manage Private Gateways →') }}
+              {{ t('Manage private gateways →') }}
             </a>
           </div>
           <div class="grid grid-cols-auto-fill-280">

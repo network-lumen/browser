@@ -53,8 +53,7 @@
         <UiEmptyState v-else-if="!domains.length" :title="t('Get your name on Lumen')">
           <template #description>
             <p class="text-14px color-text-tertiary m-0px">
-              {{ t('Register a new domain and open it as') }}
-              <span class="mono">lumen://your-name.lmn</span>
+              {{ t('Register a new domain and open it as {example}', { example: 'lumen://your-name.lmn' }) }}
             </p>
           </template>
           <template #actions>
@@ -133,7 +132,7 @@
                   :size="14"
                 />
               </div>
-              <span class="mono text-12px color-text-tertiary truncate max-w-520px">{{ d.id || 'IPNS id unavailable' }}</span>
+              <span class="mono text-12px color-text-tertiary truncate max-w-520px">{{ d.id || t('IPNS ID not available') }}</span>
             </div>
             <div class="flex-align-center gap-6px">
               <UiButton variant="icon" type="button"

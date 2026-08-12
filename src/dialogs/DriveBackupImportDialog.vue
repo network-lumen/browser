@@ -10,8 +10,7 @@
   >
 
           <p class="color-text-secondary mb-24px text-14px">
-            {{ t('This will replace your local drive metadata (CIDs, names, favourites) for') }}
-            <strong>{{ activeProfileDisplay || "this profile" }}</strong>.
+            {{ t('This will replace the local drive metadata (CIDs, names, favourites) for {profile}.', { profile: activeProfileDisplay || t('this profile') }) }}
           </p>
 
           <div v-if="filename" class="flex flex-column">

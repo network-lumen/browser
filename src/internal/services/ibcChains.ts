@@ -18,7 +18,7 @@ import type { IbcChannelOption, KnownIbcChainMeta } from '../../types/walletPage
 
 export const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
   'beezee-1': {
-    label: 'BeeZee',
+    label: t('BeeZee'),
     addressPrefix: 'bze',
     restEndpoint: 'https://rest.getbze.com',
     rpcEndpoint: 'https://rpc.getbze.com',

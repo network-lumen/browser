@@ -22,7 +22,7 @@
     </main>
 
     <footer class="flex-justify-center border-top-default py-12px px-16px">
-      <span class="color-text-tertiary text-12px">{{ phase !== 'error' ? 'This usually takes a few seconds.' : 'If it keeps failing, restart Lumen.' }}</span>
+      <span class="color-text-tertiary text-12px">{{ phase !== 'error' ? t('This usually takes a few seconds.') : t('If it keeps failing, restart Lumen.') }}</span>
     </footer>
   </UiCard>
 </template>

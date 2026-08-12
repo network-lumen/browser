@@ -3958,7 +3958,7 @@ function buildFastResults(query: string): ResultItem[] {
   if (isTxHash(s)) {
     list.push({
       id: `tx:${s}`,
-      title: "Transaction",
+      title: t("Transaction"),
       url: explorerTransactionUrl(s),
       description: t("View transaction details"),
       kind: "tx",
@@ -3980,7 +3980,7 @@ function buildFastResults(query: string): ResultItem[] {
   if (isBlockHeight(s)) {
     list.push({
       id: `block:${s}`,
-      title: "Block",
+      title: t("Block"),
       url: explorerBlockUrl(s),
       description: t("View block details"),
       kind: "block",

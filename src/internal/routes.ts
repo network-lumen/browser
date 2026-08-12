@@ -26,27 +26,27 @@ import type { InternalRoute } from '../types/routes';
 
 const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   newtab: { component: NewTabPage, title: t('New tab') },
-  history: { component: HistoryPage, title: 'History' },
-  home: { component: HomePage, title: 'Home' },
-  search: { component: SearchPage, title: 'Search' },
-  settings: { component: SettingsPage, title: 'Settings' },
-  drive: { component: DrivePage, title: 'Drive' },
+  history: { component: HistoryPage, title: t('History') },
+  home: { component: HomePage, title: t('Home') },
+  search: { component: SearchPage, title: t('Search') },
+  settings: { component: SettingsPage, title: t('Settings') },
+  drive: { component: DrivePage, title: t('Drive') },
   ipfs: { component: IpfsPage, title: 'IPFS' },
   ipns: { component: IpfsPage, title: 'IPNS' },
-  wallet: { component: WalletPage, title: 'Wallet' },
-  domain: { component: DomainPage, title: 'Domain' },
-  domains: { component: DomainPage, title: 'Domains' },
-  extensions: { component: ExtensionsPage, title: 'Extensions' },
-  extension: { component: ExtensionPage, title: 'Extension' },
-  network: { component: NetworkPage, title: 'Network' },
-  gateways: { component: GatewaysPage, title: 'Gateways' },
+  wallet: { component: WalletPage, title: t('Wallet') },
+  domain: { component: DomainPage, title: t('Domain') },
+  domains: { component: DomainPage, title: t('Domains') },
+  extensions: { component: ExtensionsPage, title: t('Extensions') },
+  extension: { component: ExtensionPage, title: t('Extension') },
+  network: { component: NetworkPage, title: t('Network') },
+  gateways: { component: GatewaysPage, title: t('Gateways') },
   'my-gateways': { component: MyGatewaysPage, title: t('My Gateways') },
   block: { component: BlockDetailPage, title: t('Block details') },
   transaction: { component: TransactionDetailPage, title: t('Transaction details') },
   tx: { component: TransactionDetailPage, title: t('Transaction details') },
   address: { component: AddressDetailPage, title: t('Address details') },
-  release: { component: ReleasePage, title: 'Release' },
-  help: { component: HelpPage, title: 'Help' }
+  release: { component: ReleasePage, title: t('Release') },
+  help: { component: HelpPage, title: t('Help') }
 };
 
 function isLikelyDomainHost(host: string): boolean {
@@ -134,7 +134,7 @@ export function getInternalTitle(rawUrl: string): string {
   const addressMatch = asString.match(/\/address\/([a-z0-9]+)/i);
   if (addressMatch) return `Address ${shortenHash(addressMatch[1])}`;
   const route = INTERNAL_ROUTES[key];
-  if (route) return route.title;
+  if (route) return t(route.title);
   if (isLikelyDomainHost(key)) return key;
-  return INTERNAL_ROUTES.search.title;
+  return t(INTERNAL_ROUTES.search.title);
 }
