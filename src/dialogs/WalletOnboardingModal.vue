@@ -6,18 +6,37 @@
           <Shield :size="30" />
         </UiIconBadge>
         <h2 class="color-text-primary txt-weight-light text-24px m-0px mb-8px">
-          {{ requiresProfileCreation ? t('Create your first profile') : t('Protect your wallet') }}
+          {{ step === 'language'
+            ? t('Choose your language')
+            : requiresProfileCreation ? t('Create your first profile') : t('Protect your wallet') }}
         </h2>
         <p class="color-text-secondary m-0px text-14px">
           {{
-            requiresProfileCreation
-              ? t('A profile is required to use Drive, Wallet, and personal storage.')
-              : t('Your wallet is local and self-custodial')
+            step === 'language'
+              ? t('You can change this later in Settings.')
+              : requiresProfileCreation
+                ? t('A profile is required to use Drive, Wallet, and personal storage.')
+                : t('Your wallet is local and self-custodial')
           }}
         </p>
       </div>
     </template>
-          <div v-if="step === 'intro'" class="animate-walletonboard-fade-in">
+          <div v-if="step === 'language'" class="animate-walletonboard-fade-in">
+            <div class="grid grid-cols-1fr-1fr gap-8px overflow-y-auto max-h-280px pr-4px">
+              <button
+                v-for="option in locales"
+                :key="option.code"
+                type="button"
+                class="w-full text-left cursor-pointer border-1 border-radius-10px bg-secondary color-text-primary text-14px py-10px px-12px transition-all-fast hover-bg-hover"
+                :class="{ 'bg-primary-a10 border-color-primary': option.code === pendingLocale }"
+                @click="pendingLocale = option.code"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
+
+          <div v-else-if="step === 'intro'" class="animate-walletonboard-fade-in">
             <UiWarningBox>
               <p class="text-14px txt-weight-medium m-0px">{{ t('Important: no one can recover your wallet') }}</p>
               <p class="text-13px line-height-15 color-text-tertiary mt-4px m-0px">
@@ -129,6 +148,11 @@
             </div>
           </div>
     <template #footer>
+      <UiButton variant="primary" v-if="step === 'language'"
+        @click="confirmLanguage" class="disabled-fade-50">
+        {{ t('Continue') }}
+      </UiButton>
+
       <UiButton variant="secondary" v-if="step === 'intro' && !requiresProfileCreation"
         @click="handleSkip" class="hover-bg-secondary">
         {{ t('Skip for now') }}
@@ -174,7 +198,7 @@
 </template>
 
 <script setup lang="ts">
-import { t } from '../stores/i18nStore';
+import { LOCALES, hasChosenLocale, setLocale, suggestedLocale, t } from '../stores/i18nStore';
 import UiInput from '../ui/UiInput.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
@@ -210,7 +234,19 @@ const emit = defineEmits<{
   skip: [];
 }>();
 
-const step = ref<OnboardingStep>('intro');
+/**
+ * The language question is skipped on every start after the first: a profile
+ * inherits the language of the profile it was created from, so asking again
+ * would be asking someone to repeat an answer the app already has.
+ */
+const step = ref<OnboardingStep>(hasChosenLocale() ? 'intro' : 'language');
+const locales = LOCALES;
+const pendingLocale = ref(suggestedLocale());
+
+function confirmLanguage() {
+  setLocale(pendingLocale.value, { chosen: true });
+  step.value = 'intro';
+}
 const password = ref('');
 const confirmPassword = ref('');
 const passwordError = ref('');
