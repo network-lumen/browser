@@ -2,7 +2,7 @@
     <UiDialog
     :error="error"
     :model-value="modelValue"
-    :title="editing ? t('Edit External Gateway') : t('Add External Gateway')"
+    :title="editing ? t('Edit external gateway') : t('Add external gateway')"
     panel-class="max-w-500px w-90pct"
     :busy="saving"
     :confirm-disabled="saving || !valid"

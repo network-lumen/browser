@@ -221,7 +221,7 @@ async function openExternalAndSnooze(url: string) {
 
   if (!opened) {
     const copied = await copyToClipboard(url);
-    addToast('warning', copied ? t('Could not open download link. URL copied to clipboard.') : t('Could not open download link.'));
+    addToast('warning', copied ? t('Failed to open the download link. The URL was copied to the clipboard.') : t('Failed to open the download link.'));
   }
 
   // External/manual install flow: avoid re-prompting immediately, but don't permanently skip.

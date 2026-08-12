@@ -6,7 +6,7 @@
         <UiSidebarNavSection :title="t('Manage')">
           <UiSidebarNavItem active>
             <List :size="18" />
-            <span>{{ t('My gateways') }}</span>
+            <span>{{ t('My Gateways') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -14,7 +14,7 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-column overflow-hidden min-w-0 py-32px px-40px bg-secondary">
-      <UiPageHeader :title="t('My gateways')">
+      <UiPageHeader :title="t('My Gateways')">
         <p class="mt-4px mb-0px color-text-secondary text-14px">{{ t('Register and update on-chain gateway settings.') }}</p>
         <p v-if="gatewayParams" class="color-text-tertiary text-12px m-0px mt-8px">
           Register fee: {{ registerFeeLabel }} · Update fee: {{ updateFeeLabel }}
@@ -37,7 +37,7 @@
       <div class="overflow-y-auto">
         <div v-if="privateGateways.length > 0">
           <div class="flex-align-center-justify-space-between">
-            <h2 class="color-text-primary txt-weight-light m-0px text-20px">{{ t('Private Gateways') }}</h2>
+            <h2 class="color-text-primary txt-weight-light m-0px text-20px">{{ t('Private gateways') }}</h2>
             <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="hover-opacity-80 color-primary text-14px transition-opacity-02 hover-underline">
               {{ t('Manage Private Gateways →') }}
             </a>
@@ -59,18 +59,18 @@
 
         <div v-if="hasProfile">
           <div class="flex-align-center-justify-space-between">
-            <h2 class="color-text-primary txt-weight-light m-0px text-20px">{{ t('DAO Gateways') }}</h2>
+            <h2 class="color-text-primary txt-weight-light m-0px text-20px">{{ t('DAO gateways') }}</h2>
           </div>
         </div>
 
-        <UiEmptyState v-if="!hasProfile" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" :title="t('No active profile')" :description="t('Select or create a profile to manage gateways.')" />
+        <UiEmptyState v-if="!hasProfile" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" :title="t('No active profile.')" :description="t('Select or create a profile first.')" />
 
         <div v-else class="flex flex-column gap-16px">
           <UiEmptyState v-if="gatewaysLoading" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" :description="t('Loading gateways…')">
             <UiSpinner size="lg" />
           </UiEmptyState>
 
-          <UiEmptyState v-else-if="gatewaysError" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" :title="t('Unable to load gateways')" :description="gatewaysError">
+          <UiEmptyState v-else-if="gatewaysError" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" :title="t('Failed to load gateways.')" :description="gatewaysError">
             <template #actions>
               <UiButton variant="secondary" @click="refreshManage">{{ t('Try again') }}</UiButton>
             </template>
@@ -83,8 +83,8 @@
               <header class="flex-align-center-justify-space-between">
                 <div class="flex-align-center gap-10px min-w-0">
                   <div class="w-10px h-10px bg-text-tertiary" :class="{ 'bg-success': gw.active }"></div>
-                  <span class="color-text-primary truncate max-w-520px" :title="gw.endpoint || `Gateway #${gw.id}`">
-                    {{ gw.endpoint || `Gateway #${gw.id}` }}
+                  <span class="color-text-primary truncate max-w-520px" :title="gw.endpoint || t('Gateway #{id}', { id: gw.id })">
+                    {{ gw.endpoint || t('Gateway #{id}', { id: gw.id }) }}
                   </span>
                   <span class="mono color-text-tertiary text-12px">#{{ gw.id }}</span>
                 </div>
@@ -288,7 +288,7 @@ async function loadGateways() {
     const gwApi = getGwApi();
     if (!gwApi || !gwApi.listGateways) {
       gateways.value = [];
-      gatewaysError.value = t('Gateway registry API unavailable.');
+      gatewaysError.value = t('Gateway registry API not available.');
       return;
     }
     const res: any = await gwApi
@@ -296,7 +296,7 @@ async function loadGateways() {
       .catch(() => null);
     if (!res || res.ok === false) {
       gateways.value = [];
-      gatewaysError.value = normalizeError(res?.error || errorMessage(res, t('Unable to load gateways.')));
+      gatewaysError.value = normalizeError(res?.error || errorMessage(res, t('Failed to load gateways.')));
       return;
     }
     const list = Array.isArray(res?.gateways) ? res.gateways : [];
@@ -304,7 +304,7 @@ async function loadGateways() {
     syncEditMap();
   } catch (e) {
     gateways.value = [];
-    gatewaysError.value = errorMessage(e, t('Unable to load gateways.'));
+    gatewaysError.value = errorMessage(e, t('Failed to load gateways.'));
   } finally {
     gatewaysLoading.value = false;
   }
@@ -454,7 +454,7 @@ async function registerGateway(form: GatewayRegisterForm) {
   try {
     const gwApi = getGwApi();
     if (!gwApi || !gwApi.registerGateway) {
-      throw new Error(t('Gateway register API unavailable.'));
+      throw new Error(t('Gateway register API not available.'));
     }
     const result: any = await gwApi.registerGateway({
       profileId: activeProfileId.value,
@@ -465,7 +465,7 @@ async function registerGateway(form: GatewayRegisterForm) {
       memo: form.memo || undefined
     });
     if (!result || result.ok === false) {
-      const message = normalizeError(result?.error || errorMessage(result, t('Registration failed.')));
+      const message = normalizeError(result?.error || errorMessage(result, t('Registration failed')));
       registerState.error = message;
       notify(message, 'error');
       return;
@@ -489,7 +489,7 @@ async function updateGateway(id: string) {
   if (!state || !gateway || state.busy || !hasProfile.value) return;
   const gatewayId = Number(id);
   if (!gatewayId) {
-    state.error = t('Gateway identifier missing.');
+    state.error = t('Gateway ID missing.');
     notify(state.error, 'error');
     return;
   }
@@ -505,7 +505,7 @@ async function updateGateway(id: string) {
   try {
     const gwApi = getGwApi();
     if (!gwApi || !gwApi.updateGateway) {
-      throw new Error(t('Gateway update API unavailable.'));
+      throw new Error(t('Gateway update API not available.'));
     }
     const payload: any = {
       profileId: activeProfileId.value,
@@ -519,7 +519,7 @@ async function updateGateway(id: string) {
     };
     const result: any = await gwApi.updateGateway(payload);
     if (!result || result.ok === false) {
-      const message = normalizeError(result?.error || errorMessage(result, t('Update failed.')));
+      const message = normalizeError(result?.error || errorMessage(result, t('Update failed')));
       state.error = message;
       notify(message, 'error');
       return;
@@ -550,19 +550,19 @@ function normalizeError(value: any): string {
   const message = String(raw || '').replace(/\s+/g, ' ').trim();
   if (!message) return t('Operation failed. Please try again.');
   const low = message.toLowerCase();
-  if (low.includes('password_required')) return t('Unlock your wallet (password required) and try again.');
-  if (low.includes('invalid_password')) return t('Invalid password. Unlock your wallet and try again.');
-  if (low.includes('wallet_unavailable')) return t('Select an active profile with a wallet first.');
+  if (low.includes('password_required')) return t('Unlock your wallet and try again.');
+  if (low.includes('invalid_password')) return t('Unlock your wallet and try again.');
+  if (low.includes('wallet_unavailable')) return t('Select or create a profile with a wallet first.');
   if (low.includes('guest_profile')) return t('Guest profiles cannot submit on-chain transactions.');
-  if (low.includes('missing_profileid')) return t('Select a profile before submitting.');
-  if (low.includes('missing_gatewayid')) return t('Gateway identifier missing.');
+  if (low.includes('missing_profileid')) return t('Select or create a profile first.');
+  if (low.includes('missing_gatewayid')) return t('Gateway ID missing.');
   if (low.includes('missing_endpoint')) return t('Endpoint is required.');
-  if (low.includes(t('invalid endpoint: format')))
+  if (low.includes('invalid endpoint: format'))
     return t('Invalid endpoint. Use a valid domain or subdomain (e.g. gateway.city or gtw.gateway.city).');
-  if (low.includes(t('invalid endpoint: domain format'))) return t('Domain can include letters, numbers, or hyphens only.');
-  if (low.includes(t('invalid endpoint: extension format'))) return t('Extension must be 2-14 lowercase letters.');
-  if (low.includes(t('invalid endpoint: characters'))) return t('Endpoint may only contain letters, numbers, dots, and hyphens.');
-  if (low.includes(t('invalid endpoint: empty label'))) return t('Endpoint labels cannot be empty.');
+  if (low.includes('invalid endpoint: domain format')) return t('Domain can include letters, numbers, or hyphens only.');
+  if (low.includes('invalid endpoint: extension format')) return t('Extension must be 2-14 lowercase letters.');
+  if (low.includes('invalid endpoint: characters')) return t('Endpoint may only contain letters, numbers, dots, and hyphens.');
+  if (low.includes('invalid endpoint: empty label')) return t('Endpoint labels cannot be empty.');
   if (low.includes('keystore')) return t('Unlock your wallet and try again.');
   return message;
 }

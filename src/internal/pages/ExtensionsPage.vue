@@ -46,7 +46,7 @@
 
     <footer class="flex-align-center flex-wrap-wrap text-11px gap-12px line-height-14 color-store-footnote mt-0px mx-24px mb-18px">
       <span><strong class="txt-weight-light color-store-strong">{{ t('Official listing:') }}</strong> {{ t('Chrome Web Store content is provided by Google.') }}</span>
-      <span><strong class="txt-weight-light color-store-strong">{{ t('Lumen install:') }}</strong> {{ t('installation is handled by Lumen.') }}</span>
+      <span><strong class="txt-weight-light color-store-strong">{{ t('Lumen install:') }}</strong> {{ t('Installation is handled by Lumen.') }}</span>
       <span><strong class="txt-weight-light color-store-strong">{{ t('Affiliation:') }}</strong> {{ t('Lumen is independent and is not affiliated with Google.') }}</span>
     </footer>
   </div>
@@ -75,7 +75,7 @@ const DEFAULT_STORE_URL = "https://chromewebstore.google.com/category/extensions
 const STORE_SEARCH_BASE_URL = "https://chromewebstore.google.com/search/";
 const CRX_DOWNLOAD_MARKER = "clients2.google.com/service/update2/crx";
 const FALLBACK_STORE_USER_AGENT =
-  t("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
 const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
 const { navigate, openInNewTab } = useTabNavigation();
@@ -235,7 +235,7 @@ function describeStoreTarget(raw: string) {
       return {
         kind: "detail",
         extensionId,
-        title: slug || t("Chrome Extension"),
+        title: slug || t("Chrome extension"),
         subtitle: t("Official listing open in Lumen. Installation is performed by Lumen after CRX verification and permission review."),
       };
     }
@@ -245,7 +245,7 @@ function describeStoreTarget(raw: string) {
       return {
         kind: "search",
         extensionId: "",
-        title: query ? `Search: ${query}` : t("Search Extensions"),
+        title: query ? `Search: ${query}` : t("Search extensions"),
         subtitle: t("Search the official Chrome Web Store inside Lumen, then install compatible extensions with Lumen's native flow."),
       };
     }

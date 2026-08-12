@@ -1,7 +1,7 @@
 <template>
   <!-- ####### lumen://network/address/<addr> ADDRESS DETAIL (embedded sub-view of NetworkPage) ####### -->
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
-    <UiLoadingState v-if="loading" :message="t('Loading address data...')" />
+    <UiLoadingState v-if="loading" :message="t('Loading address data…')" />
 
     <UiErrorState v-else-if="error" :message="error" />
 
@@ -9,13 +9,13 @@
 
     <div v-else-if="address" class="flex flex-column gap-24px">
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="t('Address Overview')" />
+        <UiCardHeader :title="t('Address overview')" />
         <div class="p-24px">
-          <UiDetailRow :label="t('Address:')">
+          <UiDetailRow :label="t('Address')">
             <UiCopyField :value="address.address" :title="t('Copy address')" />
           </UiDetailRow>
-          <UiDetailRow :label="t('Account Number:')" :value="address.accountNumber" />
-          <UiDetailRow :label="t('Sequence:')" :value="address.sequence" />
+          <UiDetailRow :label="t('Account Number')" :value="address.accountNumber" />
+          <UiDetailRow :label="t('Sequence')" :value="address.sequence" />
         </div>
       </UiCard>
 
@@ -62,7 +62,7 @@
       </UiCard>
 
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="t('Recent Transactions')" />
+        <UiCardHeader :title="t('Recent transactions')" />
         <div class="p-24px">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-16px">
             <UiCard class="flex-align-center gap-16px" bg-class="bg-primary" border-class="border-1" radius="8px" :shadow="false" hoverable hover-class="transition-all-02 hover-lift-2 hover-shadow-md" v-for="(tx, index) in address.transactions" :key="index">
@@ -152,7 +152,7 @@ function getValidatorColor(validator: string): string {
   const colors = [
     'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    t('linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'),
+    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
     'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
   ];
@@ -175,7 +175,7 @@ async function loadAddressData() {
     // Thrown rather than optional-chained: without the bridge there is nothing
     // to show, and the catch below turns this into a visible message instead of
     // a page that silently stays empty.
-    if (!lumen) throw new Error(t('Lumen API unavailable'));
+    if (!lumen) throw new Error(t('Lumen API not available.'));
 
     const accountResponse = await lumen.net.restGet(
       `/cosmos/auth/v1beta1/accounts/${accountAddress.value}`

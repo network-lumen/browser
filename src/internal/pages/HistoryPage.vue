@@ -70,7 +70,7 @@
               <div class="flex-inline-align-center flex-0-0-auto gap-8px ml-8px">
                 <span class="color-text-tertiary text-12px txt-weight-medium">{{ formatTime(entry.lastVisitedAt) }}</span>
                 <span v-if="entry.visitCount > 1" class="color-text-tertiary text-12px txt-weight-medium">
-                  {{ entry.visitCount }} visits
+                  {{ t('{count} visits', { count: entry.visitCount }) }}
                 </span>
                 <UiButton
                   variant="icon"

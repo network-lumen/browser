@@ -16,12 +16,12 @@
       </button>
 
       <ul class="divide-y-mt6px list-style-none m-0px color-text-secondary text-11px line-height-12 p-0px">
-        <li><strong>{{ t('Platform:') }}</strong> {{ latest.platform }}</li>
-        <li><strong>{{ t('Channel:') }}</strong> {{ latest.channel }}</li>
-        <li><strong>{{ t('Artifact:') }}</strong> {{ latest.artifact.kind }}</li>
-        <li v-if="sizeLabel"><strong>{{ t('Size:') }}</strong> ~{{ sizeLabel }}</li>
+        <li><strong>{{ t('Platform') }}</strong> {{ latest.platform }}</li>
+        <li><strong>{{ t('Channel') }}</strong> {{ latest.channel }}</li>
+        <li><strong>{{ t('Artifact') }}</strong> {{ latest.artifact.kind }}</li>
+        <li v-if="sizeLabel"><strong>{{ t('Size') }}</strong> ~{{ sizeLabel }}</li>
         <li v-if="shaFull">
-          <strong>{{ t('SHA256:') }}</strong>
+          <strong>{{ t('SHA256') }}</strong>
           <button type="button" class="hover-opacity-85 bg-transparent border-none cursor-pointer p-0px ml-4px" @click.stop="copySha" :aria-label="t('Copy SHA-256')">
             <code class="color-text-primary bg-fill-tertiary border-light border-radius-8px mono py-0px px-8px">{{ shaShort }}</code>
           </button>
@@ -117,7 +117,7 @@ async function copySha() {
   const value = shaFull.value;
   if (!value) return;
   const ok = await copyToClipboard(value);
-  addToast(ok ? 'success' : 'error', ok ? t('SHA-256 copied') : t('Copy failed'));
+  addToast(ok ? 'success' : 'error', ok ? t('SHA-256 copied') : t('Failed to copy'));
 }
 
 function onUpdate() {

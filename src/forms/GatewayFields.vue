@@ -51,7 +51,7 @@
         bg-class="bg-secondary"
         :focus-ring="false"
         v-model="form.memo"
-        :placeholder="t('Optional memo')"
+        :placeholder="t('Memo (optional)')"
         class="focus-ring focus-outline-none focus-shadow placeholder-tertiary"
       />
     </UiFormField>

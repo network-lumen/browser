@@ -49,7 +49,25 @@ the extractor sees it, and `t()` where the value is drawn.
 npm run i18n:extract        # refresh src/locales/*.json from the source
 npm run check:i18n          # same, read-only
 npm run check:i18n-strings  # fails on user-visible English not going through t()
+npm run check:wording       # fails on two strings saying the same thing
 ```
+
+### The wording rules `check:wording` enforces
+
+Each was written after finding the drift it now blocks. The counts came out near
+50/50 every time, so these are choices, not a majority followed.
+
+| | |
+|---|---|
+| `…`, never `...` | |
+| A detail-row label carries no colon | `Time`, not `Time:` — the layout supplies punctuation. A lead-in that introduces prose keeps it (`Note:`). |
+| A sentence ends with a full stop; a label or noun phrase does not | `Failed to load gateways.` but `Backup failed`, `Password required` |
+| One verb for failure: `Failed to …` | not `Unable to`, not `Could not` |
+| `not available`, never `unavailable` | |
+| Sentence case | Title Case only for the name of a page, as the route table spells it |
+| `Delete` destroys, `Remove` takes out of a list | delete a contact, remove a row |
+| A number the code enforces goes in as `{placeholder}` | `Password must be at least {min} characters.` reads `MIN_PASSWORD_LENGTH` |
+| Nothing shouts | the explorer's header row is uppercased by CSS; an ALL-CAPS source loses accents to `text-transform` |
 
 Both checks are wired into `npm test`. All ~1 850 strings go through `t()`; the four that
 deliberately do not are named in `scripts/check-untranslated.mjs`. **Translating** them is separate
@@ -144,8 +162,9 @@ the top of its own check in `scripts/check-conventions.mjs`. Read it there rathe
 | 15 | No dead CSS custom property |
 | 16 | No function-typed prop |
 
-Two more checks run beside it: `check:i18n` (locale catalogues in step with the source) and
-`check:i18n-strings` (no user-visible English outside `t()`).
+Three more checks run beside it: `check:i18n` (locale catalogues in step with the source),
+`check:i18n-strings` (no user-visible English outside `t()`) and `check:wording` (no two strings
+saying the same thing).
 
 **Known blind spots.** Rules 4 and 5 compare tokens where a class can actually be applied (`*class`
 attributes, string literals). They do not see a class passed inside an object (`:handlers="{ … }"`)

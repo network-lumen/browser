@@ -124,7 +124,7 @@ function toPinItem(job: RawPinJob): ActivityItem | null {
   const detail =
     String(job?.error || '') ||
     String(job?.progressText || '') ||
-    (retries > 0 ? `Retried ${retries}×` : t('Saving content from the network'));
+    (retries > 0 ? `Retried ${retries}×` : t('Saving content from the network…'));
   return {
     id: `pin:${id}`,
     kind: 'pin',

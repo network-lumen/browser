@@ -8,7 +8,7 @@
     </div>
 
     <ActiveProfileCard v-if="activeProfile" :profile="activeProfile" />
-    <UiNoticeCard v-else :title="t('No active profile')" :description="t('Create or import one from the navbar.')" class="mb-16px" />
+    <UiNoticeCard v-else :title="t('No active profile.')" :description="t('Create or import one from the navbar.')" class="mb-16px" />
 
     <div class="flex-1 min-h-0 overflow-y-auto pr-4px overflow-x-hidden">
       <slot />
@@ -46,7 +46,7 @@
     <div class="flex flex-column pt-12px gap-6px border-top-05-border-light">
       <slot name="footer" />
       <div class="color-text-tertiary text-center text-10px py-2px px-8px">
-        Lumen v{{ appVersion }}
+        {{ t('Lumen v{version}', { version: appVersion }) }}
       </div>
     </div>
   </aside>

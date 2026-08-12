@@ -71,8 +71,8 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         if(!result.ok && result.error === "cancelled")
             throw new Error(t("Upload cancelled"));
         if (!result?.cid)
-            throw new Error(t("Failed to add ") + fileType + t(" to IPFS"));
-        if (result?.cid && String(result.error || "").includes(t("closed network connection")))
+            throw new Error(fileType === "dir" ? t("Failed to add the folder to IPFS") : t("Failed to add the file to IPFS"));
+        if (result?.cid && String(result.error || "").includes("closed network connection"))
             console.warn("Kubo stream closed but CID exists → treating as success");
         else if(!result.ok && result.error)
             throw new Error(result.error)
@@ -85,7 +85,7 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
 
         const pid = String(activeProfileId.value || "").trim();
         if (!pid) 
-          throw new Error(t("No active profile found"));
+          throw new Error(t("No active profile."));
         writeJson(driveLocalNamesKey(pid), localNames);
 
         loadFiles();

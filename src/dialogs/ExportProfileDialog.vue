@@ -2,7 +2,7 @@
     <UiDialog
     :error="error"
     :model-value="modelValue"
-    :title="t('Export Profile')"
+    :title="t('Export profile')"
     panel-class="min-w-360px max-w-90vw"
     @update:model-value="$emit('update:modelValue', false)"
     @confirm="$emit('submit')"
@@ -20,7 +20,7 @@
 
           <!-- Password required for decryption notice -->
           <div v-if="requiresPassword" class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-            <UiFormGroup :label="t('Wallet Password')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+            <UiFormGroup :label="t('Wallet password')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
               <UiInput
                 type="password"
                 :model-value="password" @update:model-value="$emit('update:password', $event)"
@@ -43,7 +43,7 @@
           <!-- Optional encryption for non-protected wallets -->
           <template v-if="!requiresPassword">
             <div class="hover-bg-hover border-radius-10px py-8px px-10px transition-bg-fast">
-              <UiCheckbox :model-value="encrypted" @update:model-value="$emit('update:encrypted', $event)">{{ t('Encrypt backup with password') }}</UiCheckbox>
+              <UiCheckbox :model-value="encrypted" @update:model-value="$emit('update:encrypted', $event)">{{ t('Also encrypt the backup file with this password') }}</UiCheckbox>
             </div>
 
             <div v-if="encrypted" class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
@@ -51,7 +51,7 @@
                 <UiInput
                   type="password"
                   :model-value="password" @update:model-value="$emit('update:password', $event)"
-                  :placeholder="t('Enter password (min 6 characters)')"
+                  :placeholder="t('Enter a password ({min} characters minimum)', { min: MIN_PASSWORD_LENGTH })"
                   radius-class="border-radius-10px"
                   font-size-class="text-13px"
                   padding-class="py-8px px-10px"
@@ -60,7 +60,7 @@
                   class="focus-shadow"
                 />
               </UiFormGroup>
-              <UiFormGroup :label="t('Confirm Password')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <UiFormGroup :label="t('Confirm password')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <UiInput
                   type="password"
                   :model-value="passwordConfirm" @update:model-value="$emit('update:passwordConfirm', $event)"
@@ -78,11 +78,12 @@
           </template>
 
 
-    <template #confirm>Export {{ encrypted ? '(Encrypted)' : '' }}</template>
+    <template #confirm>{{ encrypted ? t('Export (encrypted)') : t('Export') }}</template>
   </UiDialog>
 </template>
 
 <script setup lang="ts">
+import { MIN_PASSWORD_LENGTH } from '../internal/services/passwordPolicy';
 import { t } from '../stores/i18nStore';
 import UiDialog from '../ui/UiDialog.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';

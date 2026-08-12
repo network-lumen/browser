@@ -19,21 +19,21 @@
             </p>
             <UiButton variant="primary" @click="initializeScanner">
               <RefreshCw :size="16" />
-              <span>{{ t('Try Again') }}</span>
+              <span>{{ t('Try again') }}</span>
             </UiButton>
           </div>
 
           <div v-if="scannedData" class="text-center py-40px px-20px">
             <CheckCircle :size="48" class="color-success mb-16px" />
-            <h4 class="color-text-primary text-20px txt-weight-light m-0px mb-8px">{{ t('QR Code Scanned') }}</h4>
+            <h4 class="color-text-primary text-20px txt-weight-light m-0px mb-8px">{{ t('QR code scanned') }}</h4>
 
             <div class="text-left bg-secondary border-radius-8px p-16px m-0px mt-24px mb-24px">
               <div class="mb-12px">
-                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">{{ t('Type:') }}</span>
+                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">{{ t('Type') }}</span>
                 <span class="color-text-primary text-14px fw-500">{{ detectedType }}</span>
               </div>
               <div>
-                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">{{ t('Content:') }}</span>
+                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">{{ t('Content') }}</span>
                 <div class="bg-card color-text-primary text-13px border-1 border-radius-6px p-12px break-all overflow-y-auto mono max-h-120px">{{ scannedData }}</div>
               </div>
             </div>
@@ -41,11 +41,11 @@
             <div class="flex-justify-center gap-12px">
               <UiButton variant="secondary" @click="scanAgain" >
                 <QrCode :size="16" />
-                <span>{{ t('Scan Again') }}</span>
+                <span>{{ t('Scan again') }}</span>
               </UiButton>
               <UiButton variant="primary" @click="handleUseScannedData" >
                 <Check :size="16" />
-                <span>{{ t('Use This') }}</span>
+                <span>{{ t('Use this') }}</span>
               </UiButton>
             </div>
           </div>
@@ -63,7 +63,7 @@ import { AlertCircle, CheckCircle, RefreshCw, QrCode, Check } from 'lucide-vue-n
 import type { QrScannerProps } from '../types/qrScanner';
 
 withDefaults(defineProps<QrScannerProps>(), {
-  title: t('Scan QR Code'),
+  title: t('Scan QR code'),
   acceptedTypes: () => ['address', 'payment', 'walletconnect']
 });
 
@@ -158,12 +158,12 @@ function detectQRType(data: string): string {
   
   // Payment request detection (common formats)
   if (data.includes('amount=') || data.includes('payment') || data.startsWith('lumen:')) {
-    return t('Payment Request');
+    return t('Payment request');
   }
   
   // Address detection (simple heuristic - adjust based on your address format)
   if (/^[a-zA-Z0-9]{32,}$/.test(data) || data.startsWith('lmn1') || data.startsWith('cosmos1')) {
-    return t('Wallet Address');
+    return t('Wallet address');
   }
   
   // URL detection

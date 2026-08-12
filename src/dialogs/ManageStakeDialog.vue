@@ -1,12 +1,12 @@
 <template>
-  <UiModal :model-value="modelValue" :title="`Manage Stake with ${selectedValidator?.moniker}`" panel-class="shadow-lg animate-modal-slide-in w-90pct max-w-420px" @update:model-value="$emit('update:modelValue', false)">
+  <UiModal :model-value="modelValue" :title="t('Manage stake with {validator}', { validator: selectedValidator?.moniker || '' })" panel-class="shadow-lg animate-modal-slide-in w-90pct max-w-420px" @update:model-value="$emit('update:modelValue', false)">
         <div class="flex gap-16px mb-24px p-16px bg-secondary border-radius-8px">
           <div class="flex flex-column flex-1 gap-4px">
-            <span class="text-12px color-text-secondary fw-500">{{ t('Staked:') }}</span>
+            <span class="text-12px color-text-secondary fw-500">{{ t('Staked') }}</span>
             <span class="color-text-primary txt-weight-medium text-14px">{{ stakedBalance }} LMN</span>
           </div>
           <div class="flex flex-column flex-1 gap-4px">
-            <span class="text-12px color-text-secondary fw-500">{{ t('Balance:') }}</span>
+            <span class="text-12px color-text-secondary fw-500">{{ t('Balance') }}</span>
             <span class="color-text-primary txt-weight-medium text-14px">{{ availableBalance }} LMN</span>
           </div>
         </div>
@@ -19,7 +19,7 @@
             :class="{ 'active bg-accent color-white': action === act }"
             @click="action = act"
           >
-            {{ act }}
+            {{ actionLabel(act) }}
           </button>
         </div>
 
@@ -37,7 +37,7 @@
 
           <!-- Amount Input - Not for Withdraw -->
           <div v-else class="flex flex-column gap-8px">
-            <label class="text-14px txt-weight-light color-text-primary">Amount to {{ action.toLowerCase() }}</label>
+            <label class="text-14px txt-weight-light color-text-primary">{{ amountLabel }}</label>
             <div class="flex-align-center relative">
               <UiInput bg-class="bg-secondary" font-size-class="txt-weight-light" padding-class="pt-12px pr-64px pb-12px pl-16px" :focus-ring="false" type="number"
                 v-model="amount"
@@ -69,9 +69,9 @@
           </div>
 
           <div v-if="action === 'Redelegate'" class="flex flex-column gap-8px">
-            <label class="text-14px txt-weight-light color-text-primary">{{ t('Select New Validator') }}</label>
+            <label class="text-14px txt-weight-light color-text-primary">{{ t('Select new validator') }}</label>
             <select v-model="target" class="w-full color-text-primary cursor-pointer py-12px px-16px bg-secondary border-1 border-radius-8px text-14px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
-              <option value="">{{ t('Choose validator...') }}</option>
+              <option value="">{{ t('Choose validator…') }}</option>
               <option v-for="val in validators.filter(v => v.address !== selectedValidator?.address)" :key="val.address" :value="val.address">
                 {{ val.moniker }}
               </option>
@@ -84,11 +84,11 @@
                 <template #icon><UiSpinner size="lg" /></template>
               </UiResultState>
 
-              <UiResultState v-else-if="txStatus === 'success'" :title="t('Transaction Successful!')" :description="txMessage">
+              <UiResultState v-else-if="txStatus === 'success'" :title="t('Transaction successful')" :description="txMessage">
                 <template #icon><CircleCheckBig class="animate-icon-bounce" :size="48" color="rgba(var(--color-success-rgb), 0.7)" /></template>
                 <template #action>
                   <div v-if="txHash" class="w-full mt-12px p-12px bg-secondary border-radius-8px border-1">
-                    <small class="block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">{{ t('Transaction Hash:') }}</small>
+                    <small class="block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">{{ t('Transaction hash') }}</small>
                     <UiButton variant="none" @click="$emit('view-transaction')" class="reveal-on-hover hover-translate-x-2px flex-align-center gap-8px cursor-pointer w-full">
                       <code class="flex-1 mono text-12px color-primary break-all txt-weight-light">{{ txHash }}</code>
                       <ExternalLink class="reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" :size="16" />
@@ -98,10 +98,10 @@
                 </template>
               </UiResultState>
 
-              <UiResultState v-else-if="txStatus === 'error'" :title="t('Transaction Failed')" :description="txMessage">
+              <UiResultState v-else-if="txStatus === 'error'" :title="t('Transaction failed')" :description="txMessage">
                 <template #icon><CircleAlert class="animate-icon-bounce" :size="48" color="var(--color-error)" /></template>
                 <template #action>
-                  <UiButton variant="primary" class="mt-8px" @click="$emit('reset')">{{ t('Try Again') }}</UiButton>
+                  <UiButton variant="primary" class="mt-8px" @click="$emit('reset')">{{ t('Try again') }}</UiButton>
                 </template>
               </UiResultState>
             </div>
@@ -113,14 +113,15 @@
             @click="$emit('confirm')"
             :disabled="!canConfirm || isProcessingTx"
           >
-            <span v-if="!isProcessingTx">Confirm {{ action }}</span>
-            <span v-else>{{ t('Processing...') }}</span>
+            <span v-if="!isProcessingTx">{{ confirmLabel }}</span>
+            <span v-else>{{ t('Processing…') }}</span>
           </UiButton>
         </div>
   </UiModal>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiButton from '../ui/UiButton.vue';
@@ -170,6 +171,40 @@ defineEmits<{
 }>();
 
 const action = defineModel<StakeAction>('action', { required: true });
+
+/**
+ * One whole sentence per action rather than "Amount to " + the verb lowercased.
+ * A verb spliced into a frame only works in a language that puts it in the same
+ * place, and lowercasing it is an English rule, not a universal one.
+ */
+const AMOUNT_LABELS: Record<StakeAction, () => string> = {
+  Delegate: () => t('Amount to delegate'),
+  Undelegate: () => t('Amount to undelegate'),
+  Redelegate: () => t('Amount to redelegate'),
+  Withdraw: () => t('Amount to withdraw')
+};
+
+/** The four actions are enum values from the chain; these are what a user reads. */
+const ACTION_LABELS: Record<StakeAction, () => string> = {
+  Delegate: () => t('Delegate'),
+  Undelegate: () => t('Undelegate'),
+  Redelegate: () => t('Redelegate'),
+  Withdraw: () => t('Withdraw')
+};
+
+const CONFIRM_LABELS: Record<StakeAction, () => string> = {
+  Delegate: () => t('Confirm delegation'),
+  Undelegate: () => t('Confirm undelegation'),
+  Redelegate: () => t('Confirm redelegation'),
+  Withdraw: () => t('Confirm withdrawal')
+};
+
+const amountLabel = computed(() => AMOUNT_LABELS[action.value]?.() ?? t('Amount'));
+const confirmLabel = computed(() => CONFIRM_LABELS[action.value]?.() ?? t('Confirm'));
+
+function actionLabel(act: StakeAction): string {
+  return ACTION_LABELS[act]?.() ?? act;
+}
 const amount = defineModel<string>('amount', { required: true });
 const percentage = defineModel<number>('percentage', { required: true });
 const target = defineModel<string>('target', { required: true });

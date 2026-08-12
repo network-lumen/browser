@@ -29,8 +29,8 @@
             <template #description>
               <p class="m-0px max-w-520px text-14px line-height-15">{{ t('The content couldn\'t be found. Please try again later.') }}</p>
               <p class="m-0px max-w-520px text-14px line-height-15">
-                {{ t('If this is your site,') }}
-                <UiButton variant="none" type="button" @click="goToCreateWebsiteDocs" class="underline color-primary cursor-pointer">{{ t('read the setup guide') }}</UiButton>.
+                {{ t('Is this your site?') }}
+                <UiButton variant="none" type="button" @click="goToCreateWebsiteDocs" class="underline color-primary cursor-pointer">{{ t('Read the setup guide') }}</UiButton>
               </p>
             </template>
           </UiEmptyState>

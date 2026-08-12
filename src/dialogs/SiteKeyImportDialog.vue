@@ -16,9 +16,8 @@
     </UiBanner>
     <UiBanner variant="warning" class="mt-12px" v-if="hasExisting">
       <span class="overflow-wrap-anywhere">
-        {{ t('This site already has an identity. Importing a key file') }} <strong>{{ t('replaces it') }}</strong>
-{{ t(': from now on this site publishes as the imported identity, and the current one stops being used here.') }}
-</span>
+        {{ t('This site already has an identity. Importing a key file replaces it: from now on this site publishes as the imported identity, and the current one stops being used here.') }}
+      </span>
     </UiBanner>
     <UiDetailRow v-if="ipnsName" :label="t('Current identity')" :flex="true" class="mt-12px">
       <span class="mono text-12px overflow-wrap-anywhere">{{ ipnsName }}</span>

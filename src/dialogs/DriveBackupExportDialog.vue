@@ -20,7 +20,7 @@
                 class="w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-primary focus-ring focus-bg-primary focus-shadow"
                 :type="showPassword ? 'text' : 'password'"
                 :model-value="password" @update:model-value="$emit('update:password', $event)"
-                :placeholder="t('Min 8 characters (recommended: long passphrase)')"
+                :placeholder="t('{min} characters minimum - a long passphrase is best', { min: MIN_PASSWORD_LENGTH })"
                 :disabled="busy"
               />
             </UiFormGroup>
@@ -60,7 +60,7 @@ import UiDialog from '../ui/UiDialog.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';
 import UiCheckbox from '../ui/UiCheckbox.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
-import { isPasswordLongEnough } from '../internal/services/passwordPolicy';
+import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from '../internal/services/passwordPolicy';
 
 /** Encrypting a Drive snapshot before it leaves the machine. */
 defineProps<{

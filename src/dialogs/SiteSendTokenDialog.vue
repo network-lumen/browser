@@ -33,8 +33,8 @@
             <span class="text-12px color-text-secondary absolute top-half translate-y-center right-12px">{{ t('LMN') }}</span>
             <template #hint>
               <div v-if="balanceUlmn !== null">Available: {{ balanceLmnDisplay }} LMN</div>
-              <div v-else class="color-error">{{ t('Balance unavailable') }}</div>
-              <div v-if="insufficientFunds" class="color-error mt-8px">{{ t('not enough funds') }}</div>
+              <div v-else class="color-error">{{ t('Balance not available') }}</div>
+              <div v-if="insufficientFunds" class="color-error mt-8px">{{ t('Not enough funds') }}</div>
             </template>
           </UiFormGroup>
 
@@ -43,7 +43,7 @@
           </UiFormGroup>
 
     <template #confirm><UiSpinnerRing v-if="sending" />
-        <span>{{ sending ? t('Sending...') : t('Send') }}</span></template>
+        <span>{{ sending ? t('Sending…') : t('Send') }}</span></template>
   </UiDialog>
 </template>
 

@@ -130,7 +130,7 @@
             v-model="searchQuery"
             type="text"
             class="flex-1 border-none bg-transparent text-14px color-text-primary outline-none min-w-0 placeholder-tertiary"
-            :placeholder="t('Search files...')"
+            :placeholder="t('Search files…')"
             @input="currentPage = 1"
           />
           <UiButton variant="icon" v-if="searchQuery" @click="searchQuery = ''; currentPage = 1" class="color-error hover-bg-error-a10-color-error">
@@ -138,7 +138,7 @@
           </UiButton>
         </div>
         <div class="flex-align-center gap-12px">
-          <span class="color-text-secondary text-13px nowrap">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? t('file') : t('files') }}</span>
+          <span class="color-text-secondary text-13px nowrap">{{ filteredFiles.length === 1 ? t('1 file') : t('{count} files', { count: filteredFiles.length }) }}</span>
           <select v-model="itemsPerPage" class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-primary focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
             <option :value="10">{{ t('10 per page') }}</option>
             <option :value="20">{{ t('20 per page') }}</option>
@@ -151,9 +151,11 @@
       <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="bg-gradient-panel flex-align-center flex-wrap-wrap mb-16px gap-12px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'ring-primary-a10 border-color-primary-a30': selectedLocalCount > 0 }">
         <UiCheckbox boxed :title="t('Select visible entries')" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
         <div class="flex flex-column gap-2px min-w-0">
-          <strong class="text-14px color-text-primary">{{ selectedLocalCount }} selected</strong>
+          <strong class="text-14px color-text-primary">{{ t('{count} selected', { count: selectedLocalCount }) }}</strong>
           <span class="text-12px color-text-secondary" v-if="canBulkConvertSelectedLocal">
-            {{ selectedLocalConvertibleCount }} video{{ selectedLocalConvertibleCount === 1 ? "" : "s" }} ready for HLS
+            {{ selectedLocalConvertibleCount === 1
+              ? t('1 video ready for HLS')
+              : t('{count} videos ready for HLS', { count: selectedLocalConvertibleCount }) }}
           </span>
         </div>
         <div class="flex-align-center flex-wrap-wrap gap-8px">
@@ -209,7 +211,7 @@
         <div class="flex-align-center gap-16px" >
           <UiSpinner size="sm" />
           <div class="flex flex-column gap-4px">
-            <span class="text-12px line-height-12 txt-weight-strong">Uploading {{ upload?.uploadingFile }} </span>
+            <span class="text-12px line-height-12 txt-weight-strong">{{ t('Uploading {name}', { name: upload?.uploadingFile || '' }) }}</span>
             <span class="text-11px line-height-12 color-text-tertiary">
               <template v-if="upload?.uploadingPercent != null">
                 ({{ upload?.uploadingPercent }}%)
@@ -238,7 +240,7 @@
           <UiSpinner size="sm" />
           <div class="flex flex-column gap-4px">
             <span class="text-12px line-height-12 txt-weight-strong"
-              >Converting {{ convertingFile }}</span
+              >{{ t('Converting {name}', { name: convertingFile }) }}</span
             >
             <span class="text-11px line-height-12 color-text-tertiary"
               >{{ t('Warning: this can take a while.') }}</span
@@ -319,7 +321,9 @@
         </div>
 
         <div v-if="hlsQueue.length > visibleHlsQueueItems.length" class="color-text-secondary text-12px">
-          +{{ hlsQueue.length - visibleHlsQueueItems.length }} more item{{ hlsQueue.length - visibleHlsQueueItems.length === 1 ? "" : "s" }}
+          {{ hlsQueue.length - visibleHlsQueueItems.length === 1
+            ? t('+1 more item')
+            : t('+{count} more items', { count: hlsQueue.length - visibleHlsQueueItems.length }) }}
         </div>
       </div>
 
@@ -328,7 +332,7 @@
           <UiSpinner size="sm" />
           <div class="flex flex-column gap-4px">
             <span class="text-12px line-height-12 txt-weight-strong">
-              Downloading {{ archiveDownloadFile }}
+              {{ t('Downloading {name}', { name: archiveDownloadFile }) }}
             </span>
             <span class="text-11px line-height-12 color-text-tertiary">
               {{ archiveDownloadStatusText }}
@@ -364,7 +368,7 @@
           <div class="size-32px flex-shrink-0"></div>
           <span class="flex-1 min-w-0">{{ t('Name') }}</span>
           <span class="w-80px text-right min-w-80px">{{ t('Size') }}</span>
-          <span class="text-right truncate min-w-180px w-180px">{{ t('Date Added') }}</span>
+          <span class="text-right truncate min-w-180px w-180px">{{ t('Date added') }}</span>
           <div class="min-w-160px w-160px"></div>
         </div>
         <!-- List Items -->
@@ -2170,7 +2174,7 @@ async function refreshGatewayDetailsData(gatewayId: string) {
 
     const profileId = await getActiveProfileId();
     if (!profileId) {
-      gatewayDetailsUsageError.value = t("No active profile");
+      gatewayDetailsUsageError.value = t("No active profile.");
       return;
     }
 
@@ -2335,7 +2339,7 @@ async function openPlansModal() {
 
     const profileId = await getActiveProfileId();
     if (!profileId) {
-      plansError.value = t("No active profile");
+      plansError.value = t("No active profile.");
       plansLoading.value = false;
       return;
     }
@@ -2344,7 +2348,7 @@ async function openPlansModal() {
       .getPlansOverview(profileId, { includePricing: true, timeoutMs: 2500 })
       .catch(() => null);
     if (!res || res.ok === false) {
-      plansError.value = String(res?.error || t("Unable to load plans."));
+      plansError.value = String(res?.error || t("Failed to load plans."));
       plansLoading.value = false;
       return;
     }
@@ -2413,7 +2417,7 @@ async function openPlansModal() {
       metadata: typeof s?.metadata === "object" ? s.metadata : undefined,
     }));
   } catch (e) {
-    plansError.value = errorMessage(e, t("Unable to load plans."));
+    plansError.value = errorMessage(e, t("Failed to load plans."));
   } finally {
     plansLoading.value = false;
   }
@@ -2545,13 +2549,13 @@ async function confirmSubscribe() {
     subscribeError.value = "";
 
     if (!gateway_lumen_api.subscribePlan) {
-      subscribeError.value = t("Subscription API unavailable");
+      subscribeError.value = t("Subscription API not available.");
       return;
     }
 
     const profileId = await getActiveProfileId();
     if (!profileId) {
-      subscribeError.value = t("No active profile");
+      subscribeError.value = t("No active profile.");
       return;
     }
 
@@ -2713,7 +2717,7 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
     gatewayPinnedNames.value = {};
     const msg = errorMessage(e, t("Pinned CIDs fetch failed"));
     gatewayPinnedError.value =
-      msg === t("Error: kyber_pubkey_http_unavailable") ? "" : msg;
+      msg === "Error: kyber_pubkey_http_unavailable" ? "" : msg;
   } finally {
     if (seq === gatewayPinnedSeq) gatewayPinnedLoading.value = false;
   }
@@ -2905,7 +2909,7 @@ async function confirmDriveBackupExport() {
   const pid = String(activeProfileId.value || "").trim();
   const snapshot = makeDriveBackupSnapshot();
   if (!pid || !snapshot) {
-    driveBackupError.value = t("No active profile");
+    driveBackupError.value = t("No active profile.");
     return;
   }
 
@@ -2955,7 +2959,7 @@ async function handleImportDriveBackupFile(e: Event) {
   driveBackupError.value = "";
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) {
-    driveBackupError.value = t("No active profile");
+    driveBackupError.value = t("No active profile.");
     return;
   }
 
@@ -3005,7 +3009,7 @@ async function decryptDriveBackupImport() {
   driveBackupError.value = "";
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) {
-    driveBackupError.value = t("No active profile");
+    driveBackupError.value = t("No active profile.");
     return;
   }
 
@@ -3163,12 +3167,12 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
   if (hosting.value.kind !== "gateway") return { ok: true as const };
 
   if (!gateway_lumen_api.pinCid) {
-    return { ok: false as const, error: t("Gateway upload unavailable") };
+    return { ok: false as const, error: t("Gateway upload not available.") };
   }
 
   const profileId = await getActiveProfileId();
   if (!profileId) {
-    return { ok: false as const, error: t("No active profile") };
+    return { ok: false as const, error: t("No active profile.") };
   }
 
   const gid = hosting.value.gatewayId;
@@ -3427,7 +3431,7 @@ async function convertToHls(file: DriveFile) {
   if (isDirEntry(file)) return;
   if (!isVideoFile(file.name)) return;
   if (!ipfsConnected.value) {
-    showToast(t("IPFS not connected"), "error");
+    showToast(t("IPFS is not connected"), "error");
     return;
   }
   if (uploading.value) {
@@ -3451,7 +3455,7 @@ async function convertToHls(file: DriveFile) {
 async function convertSelectedLocalToHls() {
   if (!canUseLocalMultiSelect.value) return;
   if (!ipfsConnected.value) {
-    showToast(t("IPFS not connected"), "error");
+    showToast(t("IPFS is not connected"), "error");
     return;
   }
   if (uploading.value) {
@@ -3671,7 +3675,7 @@ async function downloadFile(file: DriveFile) {
       showToast(t("Download failed"), "error");
     }
   } catch {
-    showToast(t("Download error"), "error");
+    showToast(t("Download failed"), "error");
   } finally {
     resetArchiveDownloadState();
   }
@@ -4157,7 +4161,7 @@ async function saveSelectedName() {
     try {
       const profileId = await getActiveProfileId();
       if (!profileId) {
-        showToast(t("No active profile"), "error");
+        showToast(t("No active profile."), "error");
         return;
       }
 
@@ -4303,13 +4307,13 @@ async function removeFile(file: DriveFile) {
   if (hosting.value.kind === "gateway") {
     try {
       if (!gateway_lumen_api.unpinCid) {
-        showToast(t("Gateway removal unavailable"), "error");
+        showToast(t("Gateway removal not available."), "error");
         return;
       }
 
       const profileId = await getActiveProfileId();
       if (!profileId) {
-        showToast(t("No active profile"), "error");
+        showToast(t("No active profile."), "error");
         return;
       }
 

@@ -4,7 +4,7 @@
     {{ t('Add an external private gateway (e.g., your VPS or company server). For local embedded server, use the "Start Embedded Server" button instead.') }}
   </p>
 
-  <UiFormField class="mb-20px" :label="t('Gateway Name')" label-class="block fw-500 color-text-secondary text-14px">
+  <UiFormField class="mb-20px" :label="t('Gateway name')" label-class="block fw-500 color-text-secondary text-14px">
     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.name"
       :placeholder="t('My Private Gateway')" class="focus-outline-none focus-ring-blue" />
   </UiFormField>
@@ -14,7 +14,7 @@
       placeholder="https://gateway.example.com" class="focus-outline-none focus-ring-blue" />
   </UiFormField>
 
-  <UiFormField class="mb-20px" :label="t('API Key')" label-class="block fw-500 color-text-secondary text-14px">
+  <UiFormField class="mb-20px" :label="t('API key')" label-class="block fw-500 color-text-secondary text-14px">
     <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary" :focus-ring="false" v-model="form.apiKey"
       :placeholder="t('Your gateway API key')" class="focus-outline-none focus-ring-blue" />
   </UiFormField>

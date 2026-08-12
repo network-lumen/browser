@@ -1,7 +1,7 @@
 <template>
   <!-- ####### lumen://network/tx/<hash> TRANSACTION DETAIL (embedded sub-view of NetworkPage) ####### -->
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
-    <UiLoadingState v-if="loading" :message="t('Loading transaction data...')" />
+    <UiLoadingState v-if="loading" :message="t('Loading transaction data…')" />
 
     <div v-else-if="pending" class="flex flex-column flex-align-justify-center gap-16px min-h-300px text-center">
       <Clock :size="32" class="color-warning" />
@@ -13,24 +13,24 @@
 
     <div v-else-if="transaction" class="flex flex-column gap-24px">
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="t('Transaction Overview')" title-class="text-16px letter-spacing-0025em txt-weight-light" />
+        <UiCardHeader :title="t('Transaction overview')" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="p-24px">
-          <UiDetailRow :label="t('Transaction Hash:')">
+          <UiDetailRow :label="t('Transaction hash')">
             <UiCopyField :value="transaction.hash" :title="t('Copy hash')" code-class="bg-secondary color-text-primary flex-1 py-8px px-12px border-1 border-radius-6px mono text-12px break-all" />
           </UiDetailRow>
-          <UiDetailRow :label="t('Status:')">
+          <UiDetailRow :label="t('Status')">
             <span class="color-text-primary text-14px break-all">
               <TxStatusPill :success="transaction.success" />
 
             </span>
           </UiDetailRow>
-          <UiDetailRow :label="t('Block Height:')">
+          <UiDetailRow :label="t('Block Height')">
             <BlockHeightLink :height="transaction.height" size-class="text-14px" @open="navigateToBlock(transaction.height)" />
           </UiDetailRow>
-          <UiDetailRow :label="t('Time:')" :value="transaction.time" />
-          <UiDetailRow :label="t('Gas Used:')" :value="formatNumber(transaction.gasUsed)" />
-          <UiDetailRow :label="t('Gas Wanted:')" :value="formatNumber(transaction.gasWanted)" />
-          <UiDetailRow :label="t('Fee:')" :value="transaction.fee" />
+          <UiDetailRow :label="t('Time')" :value="transaction.time" />
+          <UiDetailRow :label="t('Gas Used')" :value="formatNumber(transaction.gasUsed)" />
+          <UiDetailRow :label="t('Gas Wanted')" :value="formatNumber(transaction.gasWanted)" />
+          <UiDetailRow :label="t('Fee')" :value="transaction.fee" />
         </div>
       </UiCard>
 
@@ -67,7 +67,7 @@
       </UiCard>
 
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="t('Raw Transaction Data')" title-class="text-16px letter-spacing-0025em txt-weight-light" />
+        <UiCardHeader :title="t('Raw transaction data')" title-class="text-16px letter-spacing-0025em txt-weight-light" />
         <div class="p-24px">
           <pre class="bg-primary color-text-primary p-16px m-0px word-wrap-break border-1 border-radius-6px mono text-12px pre-wrap overflow-x-auto">{{ JSON.stringify(transaction.raw, null, 2) }}</pre>
         </div>
@@ -143,19 +143,19 @@ async function loadTransactionData() {
 
     // Surfaced through the catch below rather than optional-chained: there is
     // no transaction to render without the bridge.
-    if (!lumen) throw new Error(t('Lumen API unavailable'));
+    if (!lumen) throw new Error(t('Lumen API not available.'));
 
     const response = await lumen.net.rpcGet(`/tx?hash=0x${upperHash}`);
 
     if (!response.ok) {
       if (response.json && response.json.error) {
         const rpcError = response.json.error;
-        if (rpcError.data && rpcError.data.includes(t('transaction indexing is disabled'))) {
+        if (rpcError.data && rpcError.data.includes('transaction indexing is disabled')) {
           pending.value = true;
           loading.value = false;
           return;
         }
-        if (rpcError.data && rpcError.data.includes(t('not found'))) {
+        if (rpcError.data && rpcError.data.includes('not found')) {
           throw new Error(`Transaction not found: ${txHash.value}\n\nThis transaction may not exist on the blockchain or hasn't been indexed yet.`);
         }
         throw new Error(`RPC Error: ${errorMessage(rpcError, t('Unknown error'))}`);
@@ -167,12 +167,12 @@ async function loadTransactionData() {
     const data = response.json;
 
     if (data.error) {
-      if (data.error.data && data.error.data.includes(t('transaction indexing is disabled'))) {
+      if (data.error.data && data.error.data.includes('transaction indexing is disabled')) {
         pending.value = true;
         loading.value = false;
         return;
       }
-      if (data.error.data && data.error.data.includes(t('not found'))) {
+      if (data.error.data && data.error.data.includes('not found')) {
         throw new Error(`Transaction not found: ${txHash.value}\n\nThis transaction may not exist on the blockchain or hasn't been indexed yet.`);
       }
       throw new Error(`RPC Error: ${data.errorMessage(error, t('Unknown error'))}`);

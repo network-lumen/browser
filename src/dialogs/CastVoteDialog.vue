@@ -1,5 +1,5 @@
 <template>
-  <UiModal :model-value="modelValue" :title="t('Cast Your Vote')" panel-class="w-full max-w-520px" @update:model-value="$emit('update:modelValue', false)">
+  <UiModal :model-value="modelValue" :title="t('Cast your vote')" panel-class="w-full max-w-520px" @update:model-value="$emit('update:modelValue', false)">
     <div class="flex-align-center flex-justify-space-between mb-24px border-radius-12px p-24px bg-gradient-primary">
       <h4 class="m-0px txt-weight-light text-18px color-white">{{ selectedProposal?.title || 'Proposal' }}</h4>
       <span class="border-radius-20px fw-500 text-12px py-4px px-12px color-text-primary bg-primary border-1">#{{ selectedProposal?.id }}</span>
@@ -61,7 +61,7 @@
 
     <UiButton variant="primary" @click="$emit('submit')" :disabled="!option || isVoting">
       <Vote :size="18" />
-      {{ isVoting ? t('Casting…') : t('Cast Vote') }}
+      {{ isVoting ? t('Casting…') : t('Cast vote') }}
     </UiButton>
   </UiModal>
 </template>

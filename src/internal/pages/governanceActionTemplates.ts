@@ -76,7 +76,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     label: markForTranslation('Community pool spend'),
     summary: markForTranslation('Send funds from the community pool to a recipient address.'),
     fields: [
-      { key: 'recipient', label: markForTranslation('Recipient address'), type: 'text', placeholder: markForTranslation('lmn1...') },
+      { key: 'recipient', label: markForTranslation('Recipient address'), type: 'text', placeholder: 'lmn1...' },
       { key: 'amountLmn', label: markForTranslation('Amount (LMN)'), type: 'text', placeholder: '1000' }
     ]
   },
@@ -115,7 +115,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     label: markForTranslation('Add IBC relayer'),
     summary: markForTranslation('Add an address to the PQC IBC relayer allowlist.'),
     fields: [
-      { key: 'relayer', label: markForTranslation('Relayer address'), type: 'text', placeholder: markForTranslation('lmn1...') }
+      { key: 'relayer', label: markForTranslation('Relayer address'), type: 'text', placeholder: 'lmn1...' }
     ]
   },
   {
@@ -124,7 +124,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     label: markForTranslation('Remove IBC relayer'),
     summary: markForTranslation('Remove an address from the PQC IBC relayer allowlist.'),
     fields: [
-      { key: 'relayer', label: markForTranslation('Relayer address'), type: 'text', placeholder: markForTranslation('lmn1...') }
+      { key: 'relayer', label: markForTranslation('Relayer address'), type: 'text', placeholder: 'lmn1...' }
     ]
   },
   {
@@ -151,7 +151,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     label: markForTranslation('Publishers, channels, fees & limits'),
     summary: markForTranslation('Update allowed publishers/channels, anti-spam fees, and per-release artifact limits. Leave a field blank to keep it unchanged.'),
     fields: [
-      { key: 'allowedPublishers', label: markForTranslation('Allowed publishers'), type: 'textarea', placeholder: markForTranslation('lmn1...\nlmn1...'), hint: markForTranslation('One bech32 address per line') },
+      { key: 'allowedPublishers', label: markForTranslation('Allowed publishers'), type: 'textarea', placeholder: 'lmn1...\nlmn1...', hint: markForTranslation('One bech32 address per line') },
       { key: 'channels', label: markForTranslation('Channels'), type: 'textarea', placeholder: markForTranslation('stable\nbeta\nnightly'), hint: markForTranslation('One channel per line') },
       { key: 'maxArtifacts', label: markForTranslation('Max artifacts'), type: 'number', placeholder: '8' },
       { key: 'maxUrlsPerArt', label: markForTranslation('Max URLs per artifact'), type: 'number', placeholder: '4' },
@@ -180,7 +180,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     fields: [
       { key: 'name', label: markForTranslation('Upgrade name'), type: 'text', placeholder: 'v2' },
       { key: 'height', label: markForTranslation('Target height'), type: 'number', placeholder: '1000000' },
-      { key: 'info', label: markForTranslation('Info (optional)'), type: 'textarea', placeholder: markForTranslation('Upgrade handler metadata / binary URLs...') }
+      { key: 'info', label: markForTranslation('Info (optional)'), type: 'textarea', placeholder: markForTranslation('Upgrade handler metadata / binary URLs…') }
     ]
   }
 ];

@@ -19,17 +19,17 @@
     </template>
           <div v-if="step === 'intro'" class="animate-walletonboard-fade-in">
             <UiWarningBox>
-              <p class="text-14px txt-weight-medium m-0px">{{ t('Important: No one can recover your wallet') }}</p>
+              <p class="text-14px txt-weight-medium m-0px">{{ t('Important: no one can recover your wallet') }}</p>
               <p class="text-13px line-height-15 color-text-tertiary mt-4px m-0px">
                 {{ t('Lumen is a self-custodial wallet. If you lose access to your wallet without backing it up, your funds are permanently lost. We cannot help you recover them.') }}
               </p>
             </UiWarningBox>
 
             <div class="gap-16px grid grid-cols-1fr-1fr">
-              <UiCenteredInfoCard :title="t('Set a Password')" :description="t('Protect your wallet with a strong password')">
+              <UiCenteredInfoCard :title="t('Set a password')" :description="t('Protect your wallet with a strong password')">
                 <template #icon><Lock :size="20" class="color-primary" /></template>
               </UiCenteredInfoCard>
-              <UiCenteredInfoCard :title="t('Backup Your Wallet')" :description="t('Export and save your wallet backup file securely')">
+              <UiCenteredInfoCard :title="t('Back up your wallet')" :description="t('Export and save your wallet backup file securely')">
                 <template #icon><Download :size="20" class="color-primary" /></template>
               </UiCenteredInfoCard>
             </div>
@@ -40,13 +40,13 @@
               {{ t("Create a strong password to protect your wallet. You'll need it to unlock Lumen - when you start the app, and again if your session times out from inactivity.") }}
             </p>
 
-            <UiFormGroup :label="t('Password (minimum 8 characters)')" wrapper-class="mb-24px">
+            <UiFormGroup :label="t('Password ({min} characters minimum)', { min: MIN_PASSWORD_LENGTH })" wrapper-class="mb-24px">
               <UiInput type="password" bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="password"
                 :placeholder="t('Enter password')"
                 @keyup.enter="handlePasswordSubmit" class="border-default focus-ring-blue placeholder-tertiary" />
             </UiFormGroup>
 
-            <UiFormGroup :label="t('Confirm Password')" wrapper-class="mb-24px">
+            <UiFormGroup :label="t('Confirm password')" wrapper-class="mb-24px">
               <UiInput type="password" bg-class="bg-card" padding-class="p-12px" :focus-ring="false" v-model="confirmPassword"
                 :placeholder="t('Confirm password')"
                 @keyup.enter="handlePasswordSubmit" class="border-default focus-ring-blue placeholder-tertiary" />
@@ -56,7 +56,7 @@
           </div>
 
           <div v-else-if="step === 'profile-name'" class="animate-walletonboard-fade-in">
-            <UiSuccessBanner v-if="passwordSet" :message="t('Password set successfully!')" />
+            <UiSuccessBanner v-if="passwordSet" :message="t('Password set successfully.')" />
 
             <p class="text-14px line-height-15 color-text-tertiary mt-16px mb-16px">
               {{ t('Choose a name for your first profile before creating your wallet.') }}
@@ -73,22 +73,22 @@
           </div>
 
           <div v-else-if="step === 'creating-wallet'" class="animate-walletonboard-fade-in">
-            <UiSuccessBanner v-if="passwordSet" :message="t('Password set successfully!')" />
+            <UiSuccessBanner v-if="passwordSet" :message="t('Password set successfully.')" />
 
             <div>
-              <UiResultState v-if="creatingWallet" :title="t('Creating Your Wallet')" :description="t('Generating secure keys and wallet address...')">
+              <UiResultState v-if="creatingWallet" :title="t('Creating your wallet')" :description="t('Generating secure keys and wallet address…')">
                 <template #icon><UiSpinner size="lg" /></template>
               </UiResultState>
 
-              <UiResultState v-else-if="walletCreated" :title="t('Wallet Created!')" :description="t('Your wallet is ready. Let\'s back it up to keep it safe.')">
+              <UiResultState v-else-if="walletCreated" :title="t('Wallet created')" :description="t('Your wallet is ready. Let\'s back it up to keep it safe.')">
                 <template #icon><CheckCircle :size="48" class="color-success" /></template>
               </UiResultState>
 
-              <UiResultState v-else-if="walletError" :title="t('Wallet Creation Failed')" :description="walletError">
+              <UiResultState v-else-if="walletError" :title="t('Wallet creation failed')" :description="walletError">
                 <template #icon><AlertCircle :size="48" class="color-error" /></template>
                 <template #action>
                   <UiButton variant="secondary" @click="createWallet" class="hover-bg-secondary">
-                    {{ t('Try Again') }}
+                    {{ t('Try again') }}
                   </UiButton>
                 </template>
               </UiResultState>
@@ -96,7 +96,7 @@
           </div>
 
           <div v-else-if="step === 'backup'" class="animate-walletonboard-fade-in">
-            <UiSuccessBanner v-if="passwordSet" :message="t('Password set successfully!')" />
+            <UiSuccessBanner v-if="passwordSet" :message="t('Password set successfully.')" />
 
             <p class="text-14px line-height-15 color-text-tertiary mt-16px mb-16px">
               {{ t("Now, backup your wallet to a secure location. Keep this backup file safe - you'll need it to restore your wallet if you lose access.") }}
@@ -114,7 +114,7 @@
           </div>
 
           <div v-else-if="step === 'complete'" class="animate-walletonboard-fade-in">
-            <UiResultState :title="t('All Set!')" :description="t('Your wallet is now protected. Remember to keep your password and backup file safe.')" wrapper-class="py-32px px-16px">
+            <UiResultState :title="t('All set')" :description="t('Your wallet is now protected. Remember to keep your password and backup file safe.')" wrapper-class="py-32px px-16px">
               <template #icon><CheckCircle :size="48" class="color-success" /></template>
             </UiResultState>
 
@@ -135,7 +135,7 @@
       </UiButton>
       <UiButton variant="primary" v-if="step === 'intro'"
         @click="step = 'password'" class="disabled-fade-50">
-        {{ t('Get Started') }}
+        {{ t('Get started') }}
       </UiButton>
 
       <UiButton variant="secondary" v-if="step === 'password'"
@@ -146,7 +146,7 @@
         :disabled="settingPassword"
         @click="handlePasswordSubmit" class="disabled-fade-50">
         <UiSpinner v-if="settingPassword" size="sm" />
-        <span>{{ settingPassword ? t('Setting Password...') : t('Set Password') }}</span>
+        <span>{{ settingPassword ? t('Setting password…') : t('Set a password') }}</span>
       </UiButton>
 
       <UiButton variant="primary" v-if="step === 'profile-name'"
@@ -156,18 +156,18 @@
 
       <UiButton variant="secondary" v-if="step === 'backup'"
         @click="handleSkipBackup" class="hover-bg-secondary">
-        {{ t('Skip Backup') }}
+        {{ t('Skip backup') }}
       </UiButton>
       <UiButton variant="primary" v-if="step === 'backup'"
         :disabled="exportingBackup"
         @click="handleExportBackup" class="disabled-fade-50">
         <UiSpinner v-if="exportingBackup" size="sm" />
-        <span>{{ exportingBackup ? t('Exporting...') : t('Export Backup') }}</span>
+        <span>{{ exportingBackup ? t('Exporting…') : t('Export backup') }}</span>
       </UiButton>
 
       <UiButton variant="primary" v-if="step === 'complete'"
         @click="handleComplete" class="disabled-fade-50">
-        {{ t('Start Using Lumen') }}
+        {{ t('Start using Lumen') }}
       </UiButton>
     </template>
   </UiModal>
@@ -193,7 +193,7 @@ import { useInternalLumen } from '../composables/useInternalLumen';
 import type { OnboardingStep } from '../types/walletOnboardingModal';
 
 import { errorMessage } from '../internal/services/coerce';
-import { isPasswordLongEnough } from '../internal/services/passwordPolicy';
+import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from '../internal/services/passwordPolicy';
 const completeReminders = [
   t('Never share your password or backup file'),
   t('Store your backup in multiple secure locations'),
@@ -240,7 +240,7 @@ async function handlePasswordSubmit() {
   passwordError.value = '';
 
   if (!isPasswordLongEnough(password.value)) {
-    passwordError.value = t('Password must be at least 8 characters.');
+    passwordError.value = t('Password must be at least {min} characters.', { min: MIN_PASSWORD_LENGTH });
     return;
   }
 
@@ -341,7 +341,7 @@ async function createWallet() {
 
     const profileId = String(profile.id || '').trim();
     if (!profileId) {
-      walletError.value = t('No active profile found.');
+      walletError.value = t('No active profile.');
       return;
     }
 
@@ -395,7 +395,7 @@ async function handleExportBackup() {
     const profileId = activeProfileId.value;
 
     if (!profileId) {
-      backupError.value = t('No active profile found.');
+      backupError.value = t('No active profile.');
       return;
     }
 
@@ -408,7 +408,7 @@ async function handleExportBackup() {
         'wallet_address_missing': t('No wallet found. Please create a wallet first.'),
         'keystore_missing': t('Wallet not fully created. Please complete wallet setup.'),
         'keystore_invalid': t('Wallet data is corrupted. Please create a new wallet.'),
-        'keystore_read_failed': t('Unable to read wallet data. Please try again.')
+        'keystore_read_failed': t('Failed to read wallet data. Please try again.')
       };
       
       backupError.value = errorMessages[walletCheck.error] || t('Wallet is not ready for backup.');
@@ -426,7 +426,7 @@ async function handleExportBackup() {
     if (result?.ok) {
       backupSuccess.value = result.path 
         ? `Backup saved to: ${result.path}`
-        : t('Backup exported successfully!');
+        : t('Backup exported successfully.');
       
       setTimeout(() => {
         step.value = 'complete';
@@ -443,11 +443,11 @@ async function handleExportBackup() {
           'password_required_for_export': t('Password is required to export backup.'),
           'canceled': t('Backup export was canceled.')
         };
-        backupError.value = errorMessages[result?.error] || t('Failed to export backup.');
+        backupError.value = errorMessages[result?.error] || t('Failed to export the backup.');
       }
     }
   } catch (e) {
-    backupError.value = errorMessage(e, t('Failed to export backup.'));
+    backupError.value = errorMessage(e, t('Failed to export the backup.'));
   } finally {
     exportingBackup.value = false;
   }

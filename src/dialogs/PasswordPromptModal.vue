@@ -1,7 +1,7 @@
 <template>
   <UiModal :model-value="visible" panel-class="pwd-modal w-full max-w-360px shadow-lg" :closable="false" @update:model-value="handleCancel">
     <template #header>
-      <UiModalHeader :title="t('Password Required')" badge-class="color-primary" title-class="text-18px">
+      <UiModalHeader :title="t('Password required')" badge-class="color-primary" title-class="text-18px">
         <template #icon><LockKeyhole :size="24" /></template>
       </UiModalHeader>
     </template>
@@ -29,7 +29,7 @@
       </UiButton>
       <UiButton variant="primary" @click="handleSubmit"
         :disabled="loading || !password" class="disabled-fade-50">
-        <span v-if="loading">{{ t('Verifying...') }}</span>
+        <span v-if="loading">{{ t('Verifying…') }}</span>
         <span v-else>{{ t('Confirm') }}</span>
       </UiButton>
     </template>

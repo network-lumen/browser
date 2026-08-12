@@ -126,7 +126,7 @@ import {
   pickManualPqcSource
 } from '../stores/profilesStore';
 import { errorMessage } from '../internal/services/coerce';
-import { isPasswordLongEnough } from '../internal/services/passwordPolicy';
+import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from '../internal/services/passwordPolicy';
 import { getProfileImportErrorMessage } from '../internal/services/profileImportErrors';
 import type { Ref } from 'vue';
 import type { NavBarImportMode, ManualImportForm } from '../types/navBar';
@@ -282,12 +282,12 @@ async function confirmExportProfile() {
   if (needsPassword) {
     if (!exportPassword.value) {
       exportError.value = exportRequiresPassword.value
-        ? t('Password is required to decrypt your wallet data for export.')
+        ? t('Password is required to decrypt your wallet data.')
         : t('Password is required for encrypted export.');
       return;
     }
     if (!isPasswordLongEnough(exportPassword.value)) {
-      exportError.value = t('Password must be at least 6 characters.');
+      exportError.value = t('Password must be at least {min} characters.', { min: MIN_PASSWORD_LENGTH });
       return;
     }
     if (exportEncrypted.value && !exportRequiresPassword.value && exportPassword.value !== exportPasswordConfirm.value) {
@@ -308,24 +308,26 @@ async function confirmExportProfile() {
         return;
       }
       if (res.error === 'password_required_for_export') {
-        exportError.value = t('Password is required to decrypt wallet data.');
+        exportError.value = t('Password is required to decrypt your wallet data.');
         exportRequiresPassword.value = true;
         return;
       }
       if (res.error === 'backup_api_unavailable') {
-        exportError.value = t('Export API not available');
+        exportError.value = t('Export API not available.');
         return;
       }
-      exportError.value = res.error || t('Backup export failed.');
+      exportError.value = res.error || t('Failed to export the backup.');
       return;
     }
 
     cancelExportModal();
     profileMessage.value = res.path
-      ? `Backup ${exportEncrypted.value ? t('(encrypted) ') : ''}created at: ${res.path}`
+      ? (exportEncrypted.value
+        ? t('Encrypted backup created at: {path}', { path: res.path })
+        : t('Backup created at: {path}', { path: res.path }))
       : t('Backup folder created for this profile.');
   } catch (e) {
-    exportError.value = errorMessage(e, t('Backup export failed.'));
+    exportError.value = errorMessage(e, t('Failed to export the backup.'));
   }
 }
 
@@ -478,7 +480,7 @@ function cancelImportPasswordModal() {
 
 async function confirmImportEncrypted() {
   if (!pendingEncryptedFile.value || !importPassword.value) {
-    importError.value = t('Password is required.');
+    importError.value = t('Password required');
     return;
   }
 
@@ -500,10 +502,10 @@ async function confirmImportEncrypted() {
     } else if (res?.error === 'invalid_password') {
       importError.value = t('Invalid password. Please try again.');
     } else {
-      importError.value = res?.error || t('Import failed.');
+      importError.value = res?.error || t('Import failed');
     }
   } catch (e) {
-    importError.value = errorMessage(e, t('Import failed.'));
+    importError.value = errorMessage(e, t('Import failed'));
   }
 }
 

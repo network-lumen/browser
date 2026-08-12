@@ -694,7 +694,7 @@ async function submitStableLink() {
       keyName = stableLinkKeyNameFromLabel(stableLinkNewLabel.value);
       const created = await api?.ipfsKeyGen?.(keyName);
       if (!created?.ok) {
-        stableLinkError.value = String(created?.error || t("Could not create stable link."));
+        stableLinkError.value = String(created?.error || t("Failed to create the stable link."));
         return;
       }
       keyName = String(created.name || keyName);
@@ -707,7 +707,7 @@ async function submitStableLink() {
 
     const saved = await publishStableLinkRecords(keyName);
     if (!saved.ok) {
-      stableLinkError.value = String(saved.error || t("Could not attach live records."));
+      stableLinkError.value = String(saved.error || t("Failed to attach the live records."));
       return;
     }
 

@@ -4,7 +4,7 @@
           <div class="mb-16px">
             <label class="color-text-secondary block mb-4px text-13px">{{ t('Record (cid)') }}</label>
             <div v-if="loading" class="color-text-tertiary text-13px mb-8px">
-              {{ t('Loading record...') }}
+              {{ t('Loading record…') }}
             </div>
             <UiInput v-else bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
               :model-value="cid" @update:model-value="$emit('update:cid', $event)"

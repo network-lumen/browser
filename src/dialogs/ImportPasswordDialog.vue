@@ -2,7 +2,7 @@
     <UiDialog
     :error="error"
     :model-value="modelValue"
-    :title="t('Encrypted Backup')"
+    :title="t('Encrypted backup')"
     panel-class="min-w-360px max-w-90vw"
     :confirm-label="t('Import')"
     @update:model-value="$emit('update:modelValue', false)"
@@ -14,7 +14,7 @@
           </p>
 
           <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-            <UiFormGroup :label="t('Backup Password')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+            <UiFormGroup :label="t('Backup password')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
               <UiInput
                 type="password"
                 :model-value="password" @update:model-value="$emit('update:password', $event)"

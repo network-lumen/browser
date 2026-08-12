@@ -11,7 +11,7 @@
           </div>
 
           <div class="mb-16px">
-            <label class="color-text-secondary block mb-4px text-13px">{{ t('New Owner Address') }}</label>
+            <label class="color-text-secondary block mb-4px text-13px">{{ t('New owner address') }}</label>
             <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" :focus-ring="false" type="text"
               :model-value="newOwner" @update:model-value="$emit('update:newOwner', $event)"
               placeholder="lmn1..." class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />

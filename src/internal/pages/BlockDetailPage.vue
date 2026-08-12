@@ -1,19 +1,19 @@
 <template>
   <!-- ####### lumen://network/block/<height> BLOCK DETAIL (embedded sub-view of NetworkPage) ####### -->
   <div class="w-full h-full overflow-y-auto bg-primary">
-    <UiLoadingState v-if="loading" :message="t('Loading block data...')" wrapper-class="py-64px px-32px" />
+    <UiLoadingState v-if="loading" :message="t('Loading block data…')" wrapper-class="py-64px px-32px" />
 
     <UiErrorState v-else-if="error" :message="error" wrapper-class="py-64px px-32px" message-class="" />
 
     <div v-else-if="block" class="flex flex-column gap-24px bg-secondary p-32px min-h-100vh-200px">
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="t('Block Overview')" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
+        <UiCardHeader :title="t('Block overview')" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="p-24px">
-          <UiDetailRow variant="flex" :label="t('Height:')" :value="block.height" />
-          <UiDetailRow variant="flex" :label="t('Hash:')">
+          <UiDetailRow variant="flex" :label="t('Height')" :value="block.height" />
+          <UiDetailRow variant="flex" :label="t('Hash')">
             <UiCopyField :value="block.hash" :title="t('Copy hash')" wrapper-class="flex-1 gap-12px" code-class="flex-1 py-8px px-12px border-1 border-radius-6px text-13px mono break-all" />
           </UiDetailRow>
-          <UiDetailRow variant="flex" :label="t('Proposer:')">
+          <UiDetailRow variant="flex" :label="t('Proposer')">
             <div class="flex-align-center gap-12px">
               <div class="flex-align-justify-center color-white size-32px border-radius-circle txt-weight-medium text-14px overflow-hidden min-w-32px" :style="{ background: block.proposerAvatar ? 'transparent' : getProposerColor(block.proposer) }">
                 <img class="w-full h-full object-fit-cover"
@@ -27,20 +27,20 @@
               <span class="color-text-primary text-15px txt-weight-light">{{ block.proposer }}</span>
             </div>
           </UiDetailRow>
-          <UiDetailRow variant="flex" :label="t('Time:')" :value="block.time" />
-          <UiDetailRow variant="flex" :label="t('Transactions:')" :value="block.txs" />
+          <UiDetailRow variant="flex" :label="t('Time')" :value="block.time" />
+          <UiDetailRow variant="flex" :label="t('Transactions')" :value="block.txs" />
         </div>
       </UiCard>
 
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="t('Block Data')" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
+        <UiCardHeader :title="t('Block data')" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="p-24px">
-          <UiDetailRow variant="flex" :label="t('Chain ID:')" :value="block.chainId || 'lumen'" />
-          <UiDetailRow variant="flex" :label="t('Block Size:')">
+          <UiDetailRow variant="flex" :label="t('Chain ID')" :value="block.chainId || 'lumen'" />
+          <UiDetailRow variant="flex" :label="t('Block Size')">
             <span class="color-text-primary flex-1 fw-500 text-15px">{{ calculateBlockSize(block) }} KB</span>
           </UiDetailRow>
-          <UiDetailRow variant="flex" :label="t('Gas Used:')" :value="formatNumber(block.gasUsed || 0)" />
-          <UiDetailRow variant="flex" :label="t('Gas Limit:')" :value="formatNumber(block.gasLimit || 0)" />
+          <UiDetailRow variant="flex" :label="t('Gas Used')" :value="formatNumber(block.gasUsed || 0)" />
+          <UiDetailRow variant="flex" :label="t('Gas Limit')" :value="formatNumber(block.gasLimit || 0)" />
         </div>
       </UiCard>
 
@@ -127,14 +127,14 @@ function getProposerColor(proposer: string): string {
   const colors = [
     'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    t('linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'),
+    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
     'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
     'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
-    t('linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'),
-    t('linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'),
-    t('linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'),
-    t('linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)')
+    'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+    'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+    'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)'
   ];
   let hash = 0;
   for (let i = 0; i < proposer.length; i++) {
@@ -169,7 +169,7 @@ async function loadBlockData() {
   }
   
   if (!lumen?.net?.rpcGet) {
-    error.value = t('HTTP service not available');
+    error.value = t('HTTP API not available.');
     loading.value = false;
     return;
   }

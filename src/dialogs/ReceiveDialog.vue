@@ -20,18 +20,18 @@
               <div v-else class="h-240px flex-align-justify-center color-text-tertiary bg-secondary border-radius-8px text-14px w-240px">
                 <div class="flex-align-center gap-8px color-text-secondary">
                   <span class="border-radius-full w-20px h-20px border-2-fill-secondary spinner-accent inline-block flex-shrink-0"></span>
-                  {{ t('Generating QR Code...') }}
+                  {{ t('Generating QR code…') }}
                 </div>
               </div>
             </div>
           </div>
 
           <div class="border-radius-12px p-20px border-2 bg-secondary mb-0px">
-            <div class="txt-weight-medium color-text-secondary text-uppercase text-14px mb-12px letter-spacing-005em">{{ t('Your Wallet Address') }}</div>
+            <div class="txt-weight-medium color-text-secondary text-uppercase text-14px mb-12px letter-spacing-005em">{{ t('Your wallet address') }}</div>
             <div class="mono p-14px text-15px color-text-primary break-all mb-16px bg-card border-1 border-radius-8px line-height-15">{{ address || '-' }}</div>
             <UiButton variant="secondary" type="button" @click="$emit('copy')" :disabled="!address" class="border-2-primary disabled-fade-50">
               <Copy :size="16" />
-              <span>{{ t('Copy Address') }}</span>
+              <span>{{ t('Copy address') }}</span>
             </UiButton>
           </div>
   </UiModal>

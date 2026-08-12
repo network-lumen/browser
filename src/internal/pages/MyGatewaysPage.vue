@@ -6,7 +6,7 @@
         <UiSidebarNavSection :title="t('Manage')">
           <UiSidebarNavItem active>
             <List :size="18" />
-            <span>{{ t('Gateway List') }}</span>
+            <span>{{ t('Gateway list') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -14,7 +14,7 @@
 
     <main class="flex-1 flex flex-column overflow-hidden bg-secondary py-32px px-40px">
       <UiPageHeader
-        :title="t('My Private Gateways')"
+        :title="t('My private gateways')"
         title-size="32px"
         :subtitle="t('Manage your private IPFS gateways for secure content delivery')"
       />
@@ -33,7 +33,7 @@
               <Server :size="24" />
             </div>
             <div class="flex-1">
-              <h3 class="text-18px txt-weight-light color-text-primary m-0px mb-4px">{{ t('Embedded Gateway Server') }}</h3>
+              <h3 class="text-18px txt-weight-light color-text-primary m-0px mb-4px">{{ t('Embedded gateway server') }}</h3>
               <p v-if="embeddedServerRunning" class="m-0px text-14px color-primary mono">{{ embeddedServerUrl }}</p>
               <p v-else class="color-text-secondary m-0px text-14px">{{ t('Start your personal gateway server') }}</p>
             </div>
@@ -48,7 +48,7 @@
               type="button"
               @click="viewApiKey">
               <Key :size="16" />
-              {{ t('Copy API Key') }}
+              {{ t('Copy API key') }}
             </UiButton>
             <UiButton
               variant="none"
@@ -61,21 +61,21 @@
             >
               <Pause v-if="embeddedServerRunning" :size="16" fill="currentColor" />
               <Play v-else :size="16" fill="currentColor" />
-              {{ embeddedServerRunning ? t('Stop Server') : t('Start Server') }}
+              {{ embeddedServerRunning ? t('Stop server') : t('Start server') }}
             </UiButton>
           </div>
         </UiCard>
 
         <div v-if="embeddedServerRunning" class="mb-32px border-top-1 pt-32px">
           <div class="flex-align-center flex-justify-space-between mb-24px">
-            <h2 class="txt-weight-light color-text-primary m-0px text-20px">{{ t('Whitelist Management') }}</h2>
+            <h2 class="txt-weight-light color-text-primary m-0px text-20px">{{ t('Whitelist management') }}</h2>
             <UiButton variant="primary" type="button" @click="openWhitelistModal">
               <Plus :size="18" />
-              {{ t('Add User') }}
+              {{ t('Add user') }}
             </UiButton>
           </div>
 
-          <UiEmptyState v-if="whitelistLoading" :description="t('Loading whitelist...')">
+          <UiEmptyState v-if="whitelistLoading" :description="t('Loading whitelist…')">
             <UiSpinner size="lg" />
           </UiEmptyState>
 
@@ -85,8 +85,8 @@
             <table class="w-full border-collapse-collapse">
               <thead class="bg-hover">
                 <tr>
-                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Display Name') }}</th>
-                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Wallet Address') }}</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Display name') }}</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Wallet address') }}</th>
                   <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Added') }}</th>
                   <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Actions') }}</th>
                 </tr>
@@ -119,30 +119,30 @@
         </div>
 
         <div class="flex-align-center flex-justify-space-between mb-24px">
-          <h2 class="txt-weight-light color-text-primary m-0px text-20px">{{ t('External Gateways') }}</h2>
+          <h2 class="txt-weight-light color-text-primary m-0px text-20px">{{ t('External gateways') }}</h2>
           <UiButton variant="primary" type="button" @click="openCreateModal">
             <Plus :size="18" />
-            {{ t('Add Gateway') }}
+            {{ t('Add gateway') }}
           </UiButton>
         </div>
 
-        <UiEmptyState v-if="loading" :description="t('Loading gateways...')">
+        <UiEmptyState v-if="loading" :description="t('Loading gateways…')">
           <UiSpinner size="lg" />
         </UiEmptyState>
 
-        <UiEmptyState v-else-if="error" :title="t('Error Loading Gateways')" :description="error">
+        <UiEmptyState v-else-if="error" :title="t('Failed to load gateways.')" :description="error">
           <AlertCircle :size="48" />
           <template #actions>
-            <UiButton variant="secondary" @click="loadGateways">{{ t('Try Again') }}</UiButton>
+            <UiButton variant="secondary" @click="loadGateways">{{ t('Try again') }}</UiButton>
           </template>
         </UiEmptyState>
 
-        <UiEmptyState v-else-if="gateways.length === 0" :title="t('No Gateways Yet')" :description="t('Create your first private gateway to get started')">
+        <UiEmptyState v-else-if="gateways.length === 0" :title="t('No gateways yet')" :description="t('Create your first private gateway to get started')">
           <Server :size="48" />
           <template #actions>
             <UiButton variant="primary" @click="openCreateModal" class="disabled-fade-50">
               <Plus :size="18" />
-              {{ t('Create Gateway') }}
+              {{ t('Create gateway') }}
             </UiButton>
           </template>
         </UiEmptyState>
@@ -171,15 +171,15 @@
 
             <div class="flex flex-column gap-8px mb-16px">
               <div class="flex gap-8px text-14px">
-                <span class="color-text-secondary fw-500 min-w-48px">{{ t('URL:') }}</span>
+                <span class="color-text-secondary fw-500 min-w-48px">{{ t('URL') }}</span>
                 <span class="mono break-all color-text-primary text-13px">{{ gateway.url }}</span>
               </div>
               <div class="flex gap-8px text-14px">
-                <span class="color-text-secondary fw-500 min-w-48px">{{ t('ID:') }}</span>
+                <span class="color-text-secondary fw-500 min-w-48px">{{ t('ID') }}</span>
                 <span class="mono break-all color-text-primary text-13px">{{ gateway.id }}</span>
               </div>
               <div class="flex gap-8px text-14px">
-                <span class="color-text-secondary fw-500 min-w-48px">{{ t('Created:') }}</span>
+                <span class="color-text-secondary fw-500 min-w-48px">{{ t('Created') }}</span>
                 <span class="break-all color-text-primary">{{ formatDate(gateway.createdAt) }}</span>
               </div>
             </div>
@@ -204,15 +204,15 @@
       <!-- Delete Confirmation Modal -->
       <ConfirmDialog
         :model-value="showDeleteConfirm"
-        :title="t('Delete Gateway')"
+        :title="t('Delete gateway')"
         consequence="This action cannot be undone."
         :confirm-label="t('Delete')"
-        :busy-label="t('Deleting...')"
+        :busy-label="t('Deleting…')"
         :busy="deleting"
         @update:model-value="closeDeleteConfirm"
         @confirm="deleteGateway"
       >
-        <p>{{ t('Are you sure you want to delete') }} <strong>{{ deletingGateway?.name }}</strong>?</p>
+        <p>{{ t('Are you sure you want to delete “{name}”?', { name: deletingGateway?.name || '' }) }}</p>
       </ConfirmDialog>
 
       <!-- Whitelist Add/Edit Modal -->
@@ -221,15 +221,15 @@
       <!-- Whitelist Remove Confirmation Modal -->
       <ConfirmDialog
         :model-value="showWhitelistDeleteConfirm"
-        :title="t('Remove User')"
+        :title="t('Remove user')"
         consequence="They will no longer be able to access your gateway."
         :confirm-label="t('Remove')"
-        :busy-label="t('Removing...')"
+        :busy-label="t('Removing…')"
         :busy="whitelistDeleting"
         @update:model-value="closeWhitelistDeleteConfirm"
         @confirm="removeFromWhitelist"
       >
-        <p>{{ t('Remove') }} <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> {{ t('from whitelist?') }}</p>
+        <p>{{ t('Remove {name} from the whitelist?', { name: getUserDisplayName(removingWhitelistEntry?.wallet_address) }) }}</p>
       </ConfirmDialog>
     </main>
   </div>
@@ -323,7 +323,7 @@ async function loadGateways() {
     const result = await useInternalLumen()?.settingsLoadGateways();
     gateways.value = result || [];
   } catch (e) {
-    error.value = errorMessage(e, t('Failed to load gateways'));
+    error.value = errorMessage(e, t('Failed to load gateways.'));
   } finally {
     loading.value = false;
   }
@@ -473,9 +473,9 @@ async function viewApiKey() {
       await copyToClipboardShared(result.apiKey);
 
       toast.success(
-        t('API Key copied to clipboard!'),
+        t('API key copied to clipboard.'),
         { 
-          title: t('API Key'),
+          title: t('API key'),
           duration: 5000 
         }
       );
@@ -515,16 +515,16 @@ async function toggleEmbeddedServer() {
           toast.success(
             `Server running at ${result.url}`,
             { 
-              title: t('Embedded Gateway Server Started'),
+              title: t('Embedded gateway server started'),
               duration: 8000 
             }
           );
           
           // Show API key copied notification
           toast.success(
-            t('API Key copied to clipboard!'),
+            t('API key copied to clipboard.'),
             { 
-              title: t('API Key Ready'),
+              title: t('API key ready'),
               duration: 6000 
             }
           );
@@ -533,7 +533,7 @@ async function toggleEmbeddedServer() {
           toast.success(
             `Server running at ${result.url}`,
             { 
-              title: t('Embedded Gateway Server Started'),
+              title: t('Embedded gateway server started'),
               duration: 8000 
             }
           );
@@ -541,7 +541,7 @@ async function toggleEmbeddedServer() {
           toast.info(
             `API Key: ${result.apiKey}`,
             { 
-              title: t('Save Your API Key'),
+              title: t('Save your API key'),
               duration: 15000 
             }
           );

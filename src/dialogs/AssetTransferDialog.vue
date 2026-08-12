@@ -1,7 +1,7 @@
 <template>
   <UiModal :model-value="modelValue" panel-class="asset-transfer-modal w-full max-w-500px" @update:model-value="$emit('update:modelValue', false)">
     <template #header>
-      <UiModalHeader :title="t('IBC Transfer')">
+      <UiModalHeader :title="t('IBC transfer')">
         <template #icon><ArrowLeftRight :size="20" /></template>
       </UiModalHeader>
     </template>
@@ -54,7 +54,7 @@
             <span class="txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ context.displaySymbol }}</span>
           </UiFormGroup>
 
-          <UiSummaryCard :title="t('Transfer Summary')">
+          <UiSummaryCard :title="t('Transfer summary')">
             <UiSummaryRow :label="t('Route')" :value="selectedTarget?.routeLabel || 'Select destination'" />
             <UiSummaryRow :label="t('Source chain')" :value="context.chainLabel" />
             <UiSummaryRow highlight :label="t('Destination chain')" :value="selectedTarget?.chainLabel || 'Unknown'" />
@@ -64,7 +64,7 @@
             :disabled="!canSubmit || sending" class="disabled-fade-50">
             <ArrowLeftRight :size="18" v-if="!sending" />
             <UiSpinner v-else size="sm" class="spinner-color-white" />
-            <span>{{ sending ? t('Transferring...') : t('IBC Transfer') }}</span>
+            <span>{{ sending ? t('Transferring…') : t('IBC transfer') }}</span>
           </UiButton>
         </template>
   </UiModal>

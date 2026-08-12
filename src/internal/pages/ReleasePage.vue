@@ -57,7 +57,7 @@
         <article class="overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-11-1-420px">
           <div class="flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
             <span>{{ t('Releases') }}</span>
-            <span class="color-text-tertiary fw-500">{{ filteredReleases.length }} total</span>
+            <span class="color-text-tertiary fw-500">{{ t('{count} total', { count: filteredReleases.length }) }}</span>
           </div>
 
           <div v-if="loading" class="flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">
@@ -95,7 +95,7 @@
 
         <article class="overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-1-1-380px" v-if="selectedRelease">
           <div class="flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
-            <span>Release #{{ selectedRelease.id }}</span>
+            <span>{{ t('Release #{id}', { id: selectedRelease.id }) }}</span>
             <span class="color-text-tertiary fw-500">{{ selectedRelease.version }} · {{ selectedRelease.channel }}</span>
           </div>
 
@@ -281,7 +281,7 @@ function mapRelease(raw: any): ReleaseRecord {
 
 async function restGet(path: string) {
   const api = useInternalLumen()?.net?.restGet;
-  if (typeof api !== 'function') throw new Error(t('Network API unavailable'));
+  if (typeof api !== 'function') throw new Error(t('Network API not available.'));
   const res = await api(path);
   if (!res?.ok) throw new Error(String(res?.error || `Request failed (${path})`));
   return res.json ?? null;
@@ -289,7 +289,7 @@ async function restGet(path: string) {
 
 async function httpGet(url: string, options: any = {}) {
   const api = useInternalLumen()?.httpGet || useInternalLumen()?.http?.get;
-  if (typeof api !== 'function') throw new Error(t('HTTP API unavailable'));
+  if (typeof api !== 'function') throw new Error(t('HTTP API not available.'));
   const res = await api(String(url || ''), options || {});
   if (!res) throw new Error(t('HTTP request failed'));
   if (!res.ok) {
@@ -327,7 +327,7 @@ async function refreshAll() {
   try {
     await Promise.all([fetchParams(), fetchReleases()]);
   } catch (e) {
-    addToast('error', errorMessage(e, t('Unable to fetch releases')));
+    addToast('error', errorMessage(e, t('Failed to load releases.')));
   } finally {
     loading.value = false;
   }
@@ -436,13 +436,13 @@ async function submitDaoProposal() {
   const profileId = String(active?.id || '').trim();
   const proposer = activeAddress.value;
   if (!profileId || !proposer) {
-    addToast('error', t('Select a profile with a wallet first.'));
+    addToast('error', t('Select or create a profile with a wallet first.'));
     return;
   }
 
   const api = useInternalLumen()?.release?.submitToDao;
   if (typeof api !== 'function') {
-    addToast('error', t('DAO submission API unavailable.'));
+    addToast('error', t('DAO submission API not available.'));
     return;
   }
 
@@ -735,7 +735,7 @@ async function submitRelease() {
   const active = getActiveProfile() as any;
   const profileId = String(active?.id || '').trim();
   if (!profileId || !activeAddress.value) {
-    addToast('error', t('Select a profile with a wallet first.'));
+    addToast('error', t('Select or create a profile with a wallet first.'));
     return;
   }
 
@@ -749,7 +749,7 @@ async function submitRelease() {
 
   const api = useInternalLumen()?.release?.publishRelease;
   if (typeof api !== 'function') {
-    addToast('error', t('Release publishing API unavailable.'));
+    addToast('error', t('Release publishing API not available.'));
     return;
   }
 

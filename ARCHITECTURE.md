@@ -146,6 +146,13 @@ differently; keying on the source means a missing translation renders the Englis
 the English orphans the translation - the extractor reports that rather than deleting it. Reasoning
 in `internal/services/i18n.ts`.
 
+**Some strings must never be translated.** `message.includes('failed to fetch')` compares against
+text the browser produced; wrap that in `t()` and the comparison stops matching the moment the app
+is not in English, and the offline path it guards silently never runs again. Nothing fails, in
+English, ever - which is why the twelve of them are named in `scripts/check-untranslated.mjs`
+rather than left to judgement. The same applies to a CSS selector, a CSS value and a
+`webpreferences` string.
+
 > The corollary is that a **sentence must be one string**. Half the work of the migration was
 > undoing sentences assembled from pieces - `{{ 'Delete' }} <strong>{{ name }}</strong> {{ '?' }}`,
 > or a template literal glueing three fragments - because word order is the first thing a language

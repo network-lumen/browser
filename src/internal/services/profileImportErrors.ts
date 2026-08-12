@@ -34,7 +34,7 @@ const MESSAGES: Record<string, () => string> = {
 
 export function getProfileImportErrorMessage(error?: string): string {
   const code = String(error || '').trim();
-  if (!code) return t('Import failed.');
+  if (!code) return t('Import failed');
   const message = MESSAGES[code];
   return message ? message() : code;
 }

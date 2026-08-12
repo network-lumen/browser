@@ -8,7 +8,7 @@
     <template #header>
       <h3 class="flex-align-center gap-8px color-text-primary m-0px text-18px">
         <History :size="20" />
-        <span>{{ t('Payment History') }}</span>
+        <span>{{ t('Payment history') }}</span>
       </h3>
     </template>
 

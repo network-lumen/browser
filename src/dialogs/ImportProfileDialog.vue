@@ -71,7 +71,7 @@
             </div>
 
             <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-              <UiFormGroup :label="t('Profile Name')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <UiFormGroup :label="t('Profile name')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <UiInput
                   :model-value="form.name" @update:model-value="$emit('update:field', 'name', $event)"
                   type="text"
@@ -81,7 +81,7 @@
                   border-class="border-default"
                   :focus-ring="false"
                   class="focus-shadow"
-                  :placeholder="t('Enter profile name')"
+                  :placeholder="t('Enter a profile name')"
                 />
               </UiFormGroup>
 

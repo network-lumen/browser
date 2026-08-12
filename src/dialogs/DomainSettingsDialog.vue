@@ -47,7 +47,7 @@
               <span class="txt-weight-light">{{ walletBalanceLabel }}</span>
             </div>
             <p class="text-12px color-text-tertiary mt-8px" v-if="insufficientBalance">
-              You need at least {{ costLabel }} available to keep your PQC link active.
+              {{ t('You need at least {amount} available to keep your PQC link active.', { amount: costLabel || '' }) }}
             </p>
           </UiCard>
 

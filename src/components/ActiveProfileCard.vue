@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<{
   label?: string;
   dense?: boolean;
 }>(), {
-  label: t('Active Profile'),
+  label: t('Active profile'),
   dense: false
 });
 

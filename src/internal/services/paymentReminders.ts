@@ -71,11 +71,11 @@ export async function payReminder(paymentId: string): Promise<ReminderPaymentRes
   const api: any = useInternalLumen();
   const walletApi = api?.wallet;
   if (!walletApi || typeof walletApi.sendTokens !== 'function') {
-    return { ok: false, error: t('Wallet bridge not available') };
+    return { ok: false, error: t('Wallet bridge not available.') };
   }
 
   const profileId = activeProfileId.value;
-  if (!profileId) return { ok: false, error: t('No active profile selected') };
+  if (!profileId) return { ok: false, error: t('No active profile.') };
 
   const profile: any = getActiveProfile();
   const from = String(profile?.address || profile?.walletAddress || '').trim();

@@ -42,7 +42,7 @@
                 <li class="flex gap-10px">
                   <span class="flex-inline-align-justify-center flex-0-0-auto w-24px h-24px border-radius-10px border-1-light bg-card color-text-tertiary txt-weight-strong text-12px mt-005rem">3</span>
                   <span class="min-w-0">
-                    {{ t('For websites: publish a folder with an') }} <code>{{ 'index.html' }}</code> {{ 'entrypoint.' }}
+                    {{ t('For websites: publish a folder with an {file} entrypoint.', { file: 'index.html' }) }}
                   </span>
                 </li>
               </ol>
@@ -57,8 +57,7 @@
                   {{ t('Very short queries can behave like “Explore” (show recent content) instead of strict keyword matching.') }}
                 </li>
                 <li class="m-0px mt-8px mb-8px">
-                  {{ t('Tabs switch mode:') }} <strong>{{ t('Sites') }}</strong>, <strong>{{ t('Images') }}</strong>{{ t(', or') }}
-                  <strong>{{ t('Explore everything') }}</strong>.
+                  {{ t('Tabs switch mode: {sites}, {images}, or {explore}.', { sites: t('Sites'), images: t('Images'), explore: t('Explore everything') }) }}
                 </li>
               </ul>
             </UiTitledCard>

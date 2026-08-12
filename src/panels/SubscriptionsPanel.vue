@@ -45,13 +45,13 @@
         <h3 class="color-text-primary m-0px text-18px">{{ t('Your reminders') }}</h3>
         <div class="flex gap-12px">
           <select v-model="filterStatus" class="bg-primary color-text-primary cursor-pointer text-14px border-1 border-radius-6px py-8px px-12px">
-            <option value="all">{{ t('All Status') }}</option>
+            <option value="all">{{ t('All statuses') }}</option>
             <option value="active">{{ t('Active') }}</option>
             <option value="paused">{{ t('Paused') }}</option>
             <option value="completed">{{ t('Completed') }}</option>
           </select>
           <select v-model="filterCategory" class="bg-primary color-text-primary cursor-pointer text-14px border-1 border-radius-6px py-8px px-12px">
-            <option value="all">{{ t('All Categories') }}</option>
+            <option value="all">{{ t('All categories') }}</option>
             <option value="subscription">{{ t('Subscriptions') }}</option>
             <option value="bill">{{ t('Bills') }}</option>
             <option value="donation">{{ t('Donations') }}</option>
@@ -104,11 +104,11 @@
           </div>
 
           <div class="mb-16px">
-            <UiDetailRow variant="compact" :label="t('Next due:')" :value="formatDate(payment.nextPaymentDate)" />
-            <UiDetailRow variant="compact" :label="t('Recipient:')">
+            <UiDetailRow variant="compact" :label="t('Next due')" :value="formatDate(payment.nextPaymentDate)" />
+            <UiDetailRow variant="compact" :label="t('Recipient')">
               <AddressLabel :address="payment.recipient" tone-class="color-text-primary text-12px fw-500" />
             </UiDetailRow>
-            <UiDetailRow variant="compact" :label="t('Sent so far:')" :value="String(payment.successfulPayments)" />
+            <UiDetailRow variant="compact" :label="t('Sent so far')" :value="String(payment.successfulPayments)" />
           </div>
 
           <div class="flex gap-8px pt-16px border-top-1">
@@ -158,7 +158,7 @@
       v-if="showScanner"
       @close="showScanner = false"
       @scan="handleQrScan"
-      :title="t('Scan Recipient Address')"
+      :title="t('Scan recipient address')"
     />
   </div>
 </template>
@@ -248,7 +248,7 @@ const monthlyTotal = computed(() => {
         p.frequency === 'daily' ? 30 : 1;
       return sum + (p.amount * multiplier);
     }, 0);
-  return total.toFixed(2) + t(' LMN');
+  return `${total.toFixed(2)} LMN`;
 });
 
 function savePayment(data: any) {

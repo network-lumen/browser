@@ -27,11 +27,11 @@
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'profiles'" @click="currentView = 'profiles'">
             <User :size="18" />
-            <span>{{ t('Profiles &amp; backups') }}</span>
+            <span>{{ t('Profiles & backups') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'privatecloud'" @click="currentView = 'privatecloud'">
             <Cloud :size="18" />
-            <span>{{ t('Private Cloud') }}</span>
+            <span>{{ t('Private cloud') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
 
@@ -60,7 +60,7 @@
       <!-- ####### lumen://settings APPEARANCE VIEW ####### -->
       <div v-if="currentView === 'appearance'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <UiOptionRow :label="t('Theme Preference')" :description="t('Choose your preferred color scheme')">
+          <UiOptionRow :label="t('Theme preference')" :description="t('Choose your preferred color scheme')">
             <div class="flex gap-8px border-radius-10px bg-secondary border-1 p-4px">
               <UiSegmentedButton :active="theme === 'light'" @click="setTheme('light')">
                 <Sun :size="18" />
@@ -85,7 +85,7 @@
               <option v-for="option in locales" :key="option.code" :value="option.code">{{ t(option.label) }}</option>
             </select>
           </UiOptionRow>
-          <UiOptionRow :label="t('Font Size')" :description="t('Adjust the default font size')">
+          <UiOptionRow :label="t('Font size')" :description="t('Adjust the default font size')">
             <select class="text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px" v-model="fontSize">
               <option value="small">{{ t('Small') }}</option>
               <option value="medium">{{ t('Medium') }}</option>
@@ -132,17 +132,16 @@
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow :label="t('Save browsing history')">
             <template #description>
-              Keep recent web, domain, IPFS, and IPNS pages for
-              {{ activeHistoryProfileDisplay }}. Internal pages like New Tab, Wallet, Settings,
-              and Extensions are excluded automatically.
+              {{ t('Keep recent web, domain, IPFS, and IPNS pages for {profile}. Internal pages like New Tab, Wallet, Settings, and Extensions are excluded automatically.', { profile: activeHistoryProfileDisplay }) }}
             </template>
             <UiToggle :model-value="historyEnabled" @update:model-value="onHistoryToggleChange" />
           </UiOptionRow>
 
           <UiOptionRow :label="t('Saved items')">
             <template #description>
-              {{ historyEntries.length }} history item{{ historyEntries.length === 1 ? '' : 's' }}
-              saved for {{ activeHistoryProfileDisplay }}.
+              {{ historyEntries.length === 1
+                ? t('1 history item saved for {profile}.', { profile: activeHistoryProfileDisplay })
+                : t('{count} history items saved for {profile}.', { count: historyEntries.length, profile: activeHistoryProfileDisplay }) }}
             </template>
             <UiButton variant="secondary" @click="open('lumen://history', { blank: true })" class="disabled-fade-50">
               {{ t('Open history') }}
@@ -197,7 +196,7 @@
       <!-- ####### lumen://settings SECURITY VIEW ####### -->
       <div v-else-if="currentView === 'security'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
-          <UiOptionRow :label="t('Password Protection')">
+          <UiOptionRow :label="t('Password protection')">
             <template #description>
               {{ securityStatus.enabled
                 ? t('Password is required to unlock the app and to sign wallet operations')
@@ -212,11 +211,11 @@
           </UiOptionRow>
 
           <!-- Session Status (only shown when password is enabled) -->
-          <UiOptionRow v-if="securityStatus.enabled" :label="t('Session Status')" :description="securitySessionStatusText">
+          <UiOptionRow v-if="securityStatus.enabled" :label="t('Session status')" :description="securitySessionStatusText">
             <UiButton variant="secondary" v-if="securitySessionActive"
               @click="lockSecuritySession" class="disabled-fade-50">
               <LockKeyhole :size="16" />
-              {{ t('Lock Now') }}
+              {{ t('Lock now') }}
             </UiButton>
             <span v-else class="bg-warning-a15 color-warning flex-inline-align-center gap-6px border-radius-20px fw-500 inline-flex py-4px px-12px">
               <LockKeyhole :size="14" />
@@ -224,7 +223,7 @@
             </span>
           </UiOptionRow>
 
-          <UiOptionRow v-if="securityStatus.enabled" :label="t('Password Cache Duration')" :description="t('Choose how long the password stays cached before the session locks.')">
+          <UiOptionRow v-if="securityStatus.enabled" :label="t('Password cache duration')" :description="t('Choose how long the password stays cached before the session locks.')">
             <select
               v-model="securitySessionTimeoutValue"
               class="text-14px color-text-primary cursor-pointer py-8px px-16px bg-secondary border-1 border-radius-8px"
@@ -241,21 +240,21 @@
             </select>
           </UiOptionRow>
 
-          <UiOptionRow v-if="!securityStatus.enabled" :label="t('Set Password')" :description="t('Create a password to lock the app and protect wallet signing operations. Your keys will be encrypted with this password.')" />
+          <UiOptionRow v-if="!securityStatus.enabled" :label="t('Set a password')" :description="t('Create a password to lock the app and protect wallet signing operations. Your keys will be encrypted with this password.')" />
 
           <div v-if="!securityStatus.enabled" class="flex flex-column gap-16px border-radius-12px py-16px px-20px bg-fill-tertiary mt-8px">
             <div class="flex flex-column gap-6px">
-              <label class="fw-500 color-text-secondary text-13px">{{ t('New Password') }}</label>
+              <label class="fw-500 color-text-secondary text-13px">{{ t('New password') }}</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
                 v-model="newPassword"
-                :placeholder="t('Enter password (min 8 characters)')"
+                :placeholder="t('Enter a password ({min} characters minimum)', { min: MIN_PASSWORD_LENGTH })"
                 :disabled="securityLoading"
               />
             </div>
             <div class="flex flex-column gap-6px">
-              <label class="fw-500 color-text-secondary text-13px">{{ t('Confirm Password') }}</label>
+              <label class="fw-500 color-text-secondary text-13px">{{ t('Confirm password') }}</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
@@ -270,16 +269,16 @@
             </div>
             <UiButton variant="primary" @click="setSecurityPassword"
               :disabled="securityLoading || !newPassword || !confirmPassword" class="disabled-fade-50">
-              {{ securityLoading ? t('Setting up...') : t('Enable Password Protection') }}
+              {{ securityLoading ? t('Setting up…') : t('Enable password protection') }}
             </UiButton>
           </div>
 
           <!-- Change/Remove Password (when password is set) -->
-          <UiOptionRow v-if="securityStatus.enabled" :label="t('Change Password')" :description="t('Update your security password. You\'ll need to enter your current password.')" />
+          <UiOptionRow v-if="securityStatus.enabled" :label="t('Change password')" :description="t('Update your security password. You\'ll need to enter your current password.')" />
 
           <div v-if="securityStatus.enabled" class="flex flex-column gap-16px border-radius-12px py-16px px-20px bg-fill-tertiary mt-8px">
             <div class="flex flex-column gap-6px">
-              <label class="fw-500 color-text-secondary text-13px">{{ t('Current Password') }}</label>
+              <label class="fw-500 color-text-secondary text-13px">{{ t('Current password') }}</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
@@ -289,17 +288,17 @@
               />
             </div>
             <div class="flex flex-column gap-6px">
-              <label class="fw-500 color-text-secondary text-13px">{{ t('New Password') }}</label>
+              <label class="fw-500 color-text-secondary text-13px">{{ t('New password') }}</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
                 v-model="newPassword"
-                :placeholder="t('Enter new password (min 8 characters)')"
+                :placeholder="t('Enter a new password ({min} characters minimum)', { min: MIN_PASSWORD_LENGTH })"
                 :disabled="securityLoading"
               />
             </div>
             <div class="flex flex-column gap-6px">
-              <label class="fw-500 color-text-secondary text-13px">{{ t('Confirm New Password') }}</label>
+              <label class="fw-500 color-text-secondary text-13px">{{ t('Confirm new password') }}</label>
               <UiInput
                 type="password"
                 font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-150px"
@@ -318,15 +317,15 @@
             <div class="flex gap-12px mt-8px">
               <UiButton variant="primary" @click="changeSecurityPassword"
                 :disabled="securityLoading || !currentPassword || !newPassword || !confirmPassword" class="disabled-fade-50">
-                {{ securityLoading ? t('Changing...') : t('Change Password') }}
+                {{ securityLoading ? t('Changing…') : t('Change password') }}
               </UiButton>
             </div>
           </div>
 
-          <UiOptionRow v-if="securityStatus.enabled" :label="t('Remove Password')" :description="t('Disable password protection. Your keys will be re-encrypted with app-level encryption only.')" class="mt-24px">
+          <UiOptionRow v-if="securityStatus.enabled" :label="t('Remove password')" :description="t('Disable password protection. Your keys will be re-encrypted with app-level encryption only.')" class="mt-24px">
             <UiButton variant="danger" @click="showRemovePasswordConfirm = true"
               :disabled="securityLoading" class="disabled-fade-50">
-              {{ t('Remove Password') }}
+              {{ t('Remove password') }}
             </UiButton>
           </UiOptionRow>
 
@@ -351,7 +350,7 @@
               </UiButton>
               <UiButton variant="danger" @click="removeSecurityPassword"
                 :disabled="securityLoading || !removePasswordInput" class="disabled-fade-50">
-                {{ securityLoading ? t('Removing...') : t('Confirm Remove') }}
+                {{ securityLoading ? t('Removing…') : t('Confirm remove') }}
               </UiButton>
             </div>
           </div>
@@ -451,7 +450,7 @@
             <UiButton variant="secondary" type="button"
               :disabled="profileRenameSaving || !renameProfileId"
               @click="saveProfileDisplayName" class="disabled-fade-50">
-              {{ profileRenameSaving ? t('Saving...') : t('Save') }}
+              {{ profileRenameSaving ? t('Saving…') : t('Save') }}
             </UiButton>
           </UiOptionRow>
           <UiHintText v-if="profileRenameError">
@@ -481,7 +480,7 @@
             <UiButton variant="secondary" type="button"
               :disabled="profileAvatarSaving || !avatarProfileId"
               @click="chooseProfileAvatar" class="disabled-fade-50">
-              {{ profileAvatarSaving ? t('Updating...') : t('Choose image') }}
+              {{ profileAvatarSaving ? t('Updating…') : t('Choose image') }}
             </UiButton>
             <UiButton variant="secondary" type="button"
               :disabled="profileAvatarSaving || !avatarProfileTarget?.avatarDataUrl"
@@ -511,7 +510,7 @@
             <span>{{ t('Network') }}</span>
           </div>
 
-          <UiOptionRow :label="t('Local IPFS Gateway')" :description="t('Used for loading IPFS content in the UI')">
+          <UiOptionRow :label="t('Local IPFS gateway')" :description="t('Used for loading IPFS content in the UI')">
             <UiInput
               font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-320px"
               v-model="localGatewayDraft"
@@ -524,7 +523,7 @@
             <span>{{ t('IPFS') }}</span>
           </div>
 
-          <UiOptionRow :label="t('IPFS API Endpoint')" :description="t('Used by the Electron backend (Kubo API)')">
+          <UiOptionRow :label="t('IPFS API endpoint')" :description="t('Used by the Electron backend (Kubo API)')">
             <UiInput
               font-size-class="text-14px" padding-class="py-8px px-16px" bg-class="bg-secondary" :focus-ring="false" class="w-320px"
               v-model="ipfsApiDraft"
@@ -557,7 +556,7 @@
             <UiButton variant="secondary" type="button"
               :disabled="devSettingsSaving"
               @click="saveDevSettings" class="disabled-fade-50">
-              {{ devSettingsSaving ? t('Saving...') : t('Save') }}
+              {{ devSettingsSaving ? t('Saving…') : t('Save') }}
             </UiButton>
           </div>
 
@@ -582,7 +581,7 @@
                 :disabled="lumenDataFolderBusy"
                 @click="browseLumenDataFolder" class="disabled-fade-50">
                 <FolderOpen :size="16" />
-                <span>{{ t('Browse...') }}</span>
+                <span>{{ t('Browse…') }}</span>
               </UiButton>
             </div>
           </UiOptionRow>
@@ -608,7 +607,7 @@
             <UiButton variant="secondary" type="button"
               :disabled="lumenDataFolderBusy"
               @click="saveLumenDataFolder" class="disabled-fade-50">
-              {{ lumenDataFolderSaving ? t('Applying...') : t('Apply') }}
+              {{ lumenDataFolderSaving ? t('Applying…') : t('Apply') }}
             </UiButton>
           </div>
 
@@ -628,21 +627,21 @@
             {{ t('Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.') }}
           </UiHintText>
 
-          <UiOptionRow :label="t('Copy Debug Report')" :description="t('Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.')">
+          <UiOptionRow :label="t('Copy debug report')" :description="t('Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.')">
             <UiButton variant="secondary" type="button"
               @click="copyDebugReport"
               :disabled="troubleshootingBusy" class="disabled-fade-50">
               <Copy :size="16" />
-              <span>{{ troubleshootingAction === 'copy' ? t('Copying...') : t('Copy Debug Report') }}</span>
+              <span>{{ troubleshootingAction === 'copy' ? t('Copying…') : t('Copy debug report') }}</span>
             </UiButton>
           </UiOptionRow>
 
-          <UiOptionRow :label="t('Open Logs Folder')" :description="t('Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.')">
+          <UiOptionRow :label="t('Open logs folder')" :description="t('Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.')">
             <UiButton variant="secondary" type="button"
               @click="openLogsFolderAction"
               :disabled="troubleshootingBusy" class="disabled-fade-50">
               <FolderOpen :size="16" />
-              <span>{{ troubleshootingAction === 'open' ? t('Opening...') : t('Open Logs Folder') }}</span>
+              <span>{{ troubleshootingAction === 'open' ? t('Opening…') : t('Open logs folder') }}</span>
             </UiButton>
           </UiOptionRow>
 
@@ -673,7 +672,7 @@
           <!-- Settings when enabled -->
           <template v-if="privateCloudEnabled">
             <div class="mt-16px">
-              <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">{{ t('Gateway Preferences') }}</h3>
+              <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">{{ t('Gateway preferences') }}</h3>
 
               <UiOptionRow :label="t('Prefer Private Gateways')" :description="t('Try private gateways first before DAO gateways')">
                 <UiToggle v-model="preferPrivateGateways" />
@@ -720,7 +719,7 @@
             </div>
 
             <div class="mt-16px">
-              <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">{{ t('Advanced Settings') }}</h3>
+              <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">{{ t('Advanced settings') }}</h3>
 
               <UiOptionRow :label="t('Request Timeout')" :description="`Maximum time to wait for gateway response (${gatewayTimeout / 1000}s)`">
                 <input
@@ -750,7 +749,10 @@
               <Info :size="20" class="flex-shrink-0 color-primary" />
               <div>
                 <strong class="block text-14px color-text-primary mb-4px">{{ t('Need to create a gateway?') }}</strong>
-                <p class="text-14px color-text-secondary m-0px line-height-15">{{ t('Visit') }} <a class="color-primary fw-500 hover-underline" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">{{ t('My Gateways') }}</a> {{ t('to set up your private gateway server.') }}</p>
+                <p class="text-14px color-text-secondary m-0px line-height-15">
+                  {{ t('Set up your private gateway server from the My Gateways page.') }}
+                  <a class="color-primary fw-500 hover-underline" href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })">{{ t('Open My Gateways') }}</a>
+                </p>
               </div>
             </div>
           </template>
@@ -766,7 +768,7 @@
             </div>
           </div>
           <h2 class="text-24px txt-weight-medium color-text-primary m-0px mb-8px">{{ t('Lumen Browser') }}</h2>
-          <p class="text-14px color-text-secondary m-0px mb-16px">Version {{ appVersion }}</p>
+          <p class="text-14px color-text-secondary m-0px mb-16px">{{ t('Version {version}', { version: appVersion }) }}</p>
           <p class="text-14px color-text-secondary m-0px mb-24px">{{ t('The Decentralized Internet Stack') }}</p>
           <div class="flex gap-16px">
             <a
@@ -868,7 +870,7 @@ import {
 import type { BootstrapPathState } from '../../types/settingsPage';
 
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
-import { isPasswordLongEnough } from '../services/passwordPolicy';
+import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from '../services/passwordPolicy';
 const toast = useToast();
 const appVersion = String((pkg as any)?.version || '0.0.0');
 
@@ -881,7 +883,7 @@ function onHistoryToggleChange(enabled: boolean) {
 
 function clearProfileHistory() {
   if (!historyEntries.value.length) return;
-  const confirmed = window.confirm(`Clear the saved history for ${activeHistoryProfileDisplay.value}?`);
+  const confirmed = window.confirm(t('Clear the saved history for {profile}?', { profile: activeHistoryProfileDisplay.value }));
   if (!confirmed) return;
   clearHistory();
   toast.success(t('Browsing history cleared'));
@@ -919,7 +921,7 @@ const profileAvatarError = ref('');
 const backupExportSummary = computed(() => {
   const res = lastBackupExport.value;
   if (!res) return '';
-  if (!res.ok) return t('Backup export failed.');
+  if (!res.ok) return t('Failed to export the backup.');
   const results = Array.isArray(res.results) ? res.results : [];
   const okCount = results.filter((r) => r && r.ok).length;
   const total = results.length || 0;
@@ -1065,15 +1067,14 @@ const securitySessionStatusText = computed(() => {
   if (!securitySessionActive.value) {
     return t('Session locked - password required to unlock the app');
   }
-  return `Session unlocked - password cached ${getSecuritySessionTimeoutCacheText(
-    appSettingsState.value.securitySessionTimeoutMs,
-  )}`;
+  return t('Session unlocked - password cached {duration}', {
+    duration: getSecuritySessionTimeoutCacheText(appSettingsState.value.securitySessionTimeoutMs)
+  });
 });
-const securitySessionHintText = computed(
-  () =>
-    `After entering the password, it stays cached ${getSecuritySessionTimeoutHelpText(
-      appSettingsState.value.securitySessionTimeoutMs,
-    )} for convenience.`,
+const securitySessionHintText = computed(() =>
+  t('After entering the password, it stays cached {duration} for convenience.', {
+    duration: getSecuritySessionTimeoutHelpText(appSettingsState.value.securitySessionTimeoutMs)
+  })
 );
 
 watch(
@@ -1121,7 +1122,7 @@ async function setSecurityPassword() {
   securitySuccess.value = '';
   
   if (!isPasswordLongEnough(newPassword.value)) {
-    securityError.value = t('Password must be at least 8 characters.');
+    securityError.value = t('Password must be at least {min} characters.', { min: MIN_PASSWORD_LENGTH });
     return;
   }
   
@@ -1138,15 +1139,15 @@ async function setSecurityPassword() {
       securitySessionActive.value = true;
       newPassword.value = '';
       confirmPassword.value = '';
-      securitySuccess.value = t('Password protection enabled successfully.');
-      toast.success(t('Password protection enabled'));
+      securitySuccess.value = t('Password protection enabled.');
+      toast.success(t('Password protection enabled.'));
     } else {
       securityError.value = result?.error || t('Failed to set password.');
-      toast.error(result?.error || t('Failed to set password'));
+      toast.error(result?.error || t('Failed to set password.'));
     }
   } catch (e) {
     securityError.value = errorMessage(e, t('Failed to set password.'));
-    toast.error(errorMessage(e, t('Failed to set password')));
+    toast.error(errorMessage(e, t('Failed to set password.')));
   } finally {
     securityLoading.value = false;
   }
@@ -1157,12 +1158,12 @@ async function changeSecurityPassword() {
   securitySuccess.value = '';
   
   if (!isPasswordLongEnough(newPassword.value)) {
-    securityError.value = t('New password must be at least 8 characters.');
+    securityError.value = t('Password must be at least {min} characters.', { min: MIN_PASSWORD_LENGTH });
     return;
   }
   
   if (newPassword.value !== confirmPassword.value) {
-    securityError.value = t('New passwords do not match.');
+    securityError.value = t('Passwords do not match.');
     return;
   }
   
@@ -1190,14 +1191,14 @@ async function changeSecurityPassword() {
       newPassword.value = '';
       confirmPassword.value = '';
       securitySuccess.value = t('Password changed successfully.');
-      toast.success(t('Password changed successfully'));
+      toast.success(t('Password changed successfully.'));
     } else {
       securityError.value = setResult?.error || t('Failed to set new password.');
-      toast.error(setResult?.error || t('Failed to set new password'));
+      toast.error(setResult?.error || t('Failed to set new password.'));
     }
   } catch (e) {
     securityError.value = errorMessage(e, t('Failed to change password.'));
-    toast.error(errorMessage(e, t('Failed to change password')));
+    toast.error(errorMessage(e, t('Failed to change password.')));
   } finally {
     securityLoading.value = false;
   }
@@ -1216,14 +1217,14 @@ async function removeSecurityPassword() {
       removePasswordInput.value = '';
       showRemovePasswordConfirm.value = false;
       securitySuccess.value = t('Password protection removed.');
-      toast.success(t('Password protection removed'));
+      toast.success(t('Password protection removed.'));
     } else {
       securityError.value = result?.error || t('Failed to remove password.');
-      toast.error(result?.error || t('Failed to remove password'));
+      toast.error(result?.error || t('Failed to remove password.'));
     }
   } catch (e) {
     securityError.value = errorMessage(e, t('Failed to remove password.'));
-    toast.error(errorMessage(e, t('Failed to remove password')));
+    toast.error(errorMessage(e, t('Failed to remove password.')));
   } finally {
     securityLoading.value = false;
   }
@@ -1350,7 +1351,7 @@ function applyBootstrapPathState(state: Partial<BootstrapPathState> | null | und
 async function loadBootstrapPathState() {
   const api = useInternalLumen();
   if (!api || typeof api.bootstrapPathGetState !== 'function') {
-    lumenDataFolderError.value = t('Lumen data folder controls are unavailable.');
+    lumenDataFolderError.value = t('Lumen data folder controls are not available.');
     return;
   }
   lumenDataFolderLoading.value = true;
@@ -1432,7 +1433,7 @@ function useDefaultLumenDataFolderDraft() {
 async function browseLumenDataFolder() {
   const api = useInternalLumen();
   if (!api || typeof api.dialogOpenFolder !== 'function') {
-    lumenDataFolderError.value = t('Folder picker is unavailable.');
+    lumenDataFolderError.value = t('Folder picker not available.');
     return;
   }
   lumenDataFolderError.value = '';
@@ -1458,7 +1459,7 @@ async function saveLumenDataFolder() {
     typeof api.bootstrapPathSetCustomUserDataPath !== 'function' ||
     typeof api.bootstrapPathResetCustomUserDataPath !== 'function'
   ) {
-    lumenDataFolderError.value = t('Lumen data folder controls are unavailable.');
+    lumenDataFolderError.value = t('Lumen data folder controls are not available.');
     return;
   }
 
@@ -1505,7 +1506,7 @@ async function copyDebugReport() {
   if (troubleshootingBusy.value) return;
   const api = useInternalLumen()?.troubleshooting;
   if (!api || typeof api.copyDebugReport !== 'function') {
-    toast.error(t('Troubleshooting tools are unavailable'));
+    toast.error(t('Troubleshooting tools are not available.'));
     return;
   }
 
@@ -1529,7 +1530,7 @@ async function openLogsFolderAction() {
   if (troubleshootingBusy.value) return;
   const api = useInternalLumen()?.troubleshooting;
   if (!api || typeof api.openLogsFolder !== 'function') {
-    toast.error(t('Troubleshooting tools are unavailable'));
+    toast.error(t('Troubleshooting tools are not available.'));
     return;
   }
 
@@ -1621,12 +1622,12 @@ watch([privateCloudEnabled, preferPrivateGateways, fallbackToDAO, gatewayTimeout
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     appearance: 'Appearance',
-    content: t('Content Settings'),
+    content: t('Content settings'),
     network: 'Network',
-    privacy: t('Privacy & Security'),
+    privacy: t('Privacy & security'),
     security: 'Security',
     profiles: t('Profiles & backups'),
-    privatecloud: t('Private Cloud'),
+    privatecloud: t('Private cloud'),
     advanced: t('Developer settings'),
     troubleshooting: 'Troubleshooting',
     about: t('About Lumen')
@@ -1672,7 +1673,7 @@ function resetProfileDisplayNameDraft() {
 function mapProfileAvatarError(error: string) {
   switch (String(error || '').trim()) {
     case 'missing_profile_id':
-      return t('Select a profile first.');
+      return t('Select or create a profile first.');
     case 'missing_avatar_path':
       return t('Select an image file first.');
     case 'avatar_file_not_found':
@@ -1680,13 +1681,13 @@ function mapProfileAvatarError(error: string) {
     case 'invalid_avatar_image':
       return t('Selected file is not a supported image.');
     case 'unsupported_environment':
-      return t('File picker is not available in this environment.');
+      return t('File picker not available.');
     case 'avatar_processing_failed':
-      return t('Could not generate the profile thumbnail.');
+      return t('Failed to generate the profile thumbnail.');
     case 'profile_not_found':
-      return t('Profile not found.');
+      return t('No profile found');
     case 'profiles_api_unavailable':
-      return t('Profile photo editing is unavailable in this build.');
+      return t('Profile photo editing is not available in this build.');
     default:
       return t('Failed to update the profile photo.');
   }
@@ -1697,7 +1698,7 @@ async function saveProfileDisplayName() {
   const profileId = String(renameProfileId.value || '').trim();
   const nextName = String(renameProfileDraft.value || '').trim();
   if (!profileId) {
-    profileRenameError.value = t('Select a profile first.');
+    profileRenameError.value = t('Select or create a profile first.');
     return;
   }
   if (!nextName) {
@@ -1730,13 +1731,13 @@ async function chooseProfileAvatar() {
   if (profileAvatarSaving.value) return;
   const profileId = String(avatarProfileId.value || '').trim();
   if (!profileId) {
-    profileAvatarError.value = t('Select a profile first.');
+    profileAvatarError.value = t('Select or create a profile first.');
     return;
   }
 
   const dialogApi = useInternalLumen()?.dialogOpenFiles;
   if (typeof dialogApi !== 'function') {
-    profileAvatarError.value = t('File picker unavailable.');
+    profileAvatarError.value = t('File picker not available.');
     return;
   }
 
@@ -1774,7 +1775,7 @@ async function chooseProfileAvatar() {
     toast.success(t('Profile photo updated'));
   } catch {
     profileAvatarError.value = t('Failed to update the profile photo.');
-    toast.error(t('Failed to update the profile photo'));
+    toast.error(t('Failed to update the profile photo.'));
   } finally {
     profileAvatarSaving.value = false;
   }
@@ -1784,7 +1785,7 @@ async function resetProfileAvatar() {
   if (profileAvatarSaving.value) return;
   const profileId = String(avatarProfileId.value || '').trim();
   if (!profileId) {
-    profileAvatarError.value = t('Select a profile first.');
+    profileAvatarError.value = t('Select or create a profile first.');
     return;
   }
 
@@ -1803,7 +1804,7 @@ async function resetProfileAvatar() {
     toast.success(t('Profile photo reset'));
   } catch {
     profileAvatarError.value = t('Failed to reset the profile photo.');
-    toast.error(t('Failed to reset the profile photo'));
+    toast.error(t('Failed to reset the profile photo.'));
   } finally {
     profileAvatarSaving.value = false;
   }

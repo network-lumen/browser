@@ -38,15 +38,15 @@
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">{{ t('The decentralized web browser for the next generation of internet') }}</p>
             </div>
             <div class="flex flex-wrap-wrap flex-justify-center gap-24px">
-              <UiFeaturePoint icon="🌐" :title="t('Decentralized Storage')" :description="t('Store and share content without central servers')" />
-              <UiFeaturePoint icon="🔐" :title="t('Blockchain Domains')" :description="t('Own your identity with .lmn domains')" />
-              <UiFeaturePoint icon="⚡" :title="t('Secure by Design')" :description="t('Encrypted connections and local-first data')" />
+              <UiFeaturePoint icon="🌐" :title="t('Decentralized storage')" :description="t('Store and share content without central servers')" />
+              <UiFeaturePoint icon="🔐" :title="t('Blockchain domains')" :description="t('Own your identity with .lmn domains')" />
+              <UiFeaturePoint icon="⚡" :title="t('Secure by design')" :description="t('Encrypted connections and local-first data')" />
             </div>
           </section>
 
           <!-- Quick Actions -->
           <section class="flex flex-column gap-16px">
-            <h3 class="color-text-primary txt-weight-medium m-0px text-16px">{{ t('Get Started') }}</h3>
+            <h3 class="color-text-primary txt-weight-medium m-0px text-16px">{{ t('Get started') }}</h3>
             <div class="gap-12px grid grid-cols-2">
               <UiActionCard :title="t('Drive')" :description="t('Upload and manage your files')" icon-class="color-primary bg-fill-blue" @click="open('lumen://drive')">
                 <template #icon><FolderOpen :size="24" /></template>
@@ -72,17 +72,17 @@
           <!-- Hero -->
           <section class="bg-gradient-primary-a10-card border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="mb-24px">
-              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">{{ t('Create Your') }} <span class="gradient-text-clip bg-gradient-primary">{{ t('First Website') }}</span></h2>
+              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">{{ t('Create your') }} <span class="gradient-text-clip bg-gradient-primary">{{ t('First website') }}</span></h2>
               <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">{{ t('Publish a site on the decentralized web in four simple steps — no server required.') }}</p>
             </div>
           </section>
 
           <div class="flex flex-column gap-16px">
-            <UiTutorialStep :number="1" :title="t('Build Your Website')">
+            <UiTutorialStep :number="1" :title="t('Build your website')">
               {{ t('Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an {file} at its root.', { file: 'index.html' }) }}
             </UiTutorialStep>
 
-            <UiTutorialStep :number="2" :title="t('Upload It to Drive')">
+            <UiTutorialStep :number="2" :title="t('Upload it to Drive')">
               {{ t("Open Drive, upload that folder, then copy its Lumen link — that's your content's address.") }}
               <template #action>
                 <UiButton variant="primary" type="button" @click="open('lumen://drive')">
@@ -92,7 +92,7 @@
               </template>
             </UiTutorialStep>
 
-            <UiTutorialStep :number="3" :title="t('Get a Domain')">
+            <UiTutorialStep :number="3" :title="t('Get a domain')">
               {{ t("Open Domains and register a name for your site, like {example}, if you don't have one yet.", { example: 'yourname.lmn' }) }}
               <template #action>
                 <UiButton variant="primary" type="button" @click="open('lumen://domain')">
@@ -102,7 +102,7 @@
               </template>
             </UiTutorialStep>
 
-            <UiTutorialStep :number="4" :title="t('Link Your Domain to Your Content')">
+            <UiTutorialStep :number="4" :title="t('Link your domain to your content')">
               {{ t('Edit your domain, then add a new record: set {keyField} to {cid} and {valueField} to the link you copied in step 2. Save.', { keyField: 'Key', cid: 'cid', valueField: 'Value' }) }}
             </UiTutorialStep>
           </div>
@@ -127,7 +127,7 @@
           <!-- Contact Cards -->
           <div class="gap-16px grid grid-cols-1">
             <UiActionCard
-              :title="t('Discord Community')"
+              :title="t('Discord community')"
               :description="t('Join our active community, ask questions, and get help from other users.')"
               icon-class="color-purple bg-purple-a15"
               icon-size-class="size-64px"
@@ -159,7 +159,7 @@
             </UiActionCard>
 
             <UiActionCard
-              :title="t('Official Website')"
+              :title="t('Official website')"
               :description="t('Visit our website for documentation, news, and updates.')"
               icon-class="color-primary bg-fill-blue"
               icon-size-class="size-64px"
@@ -317,8 +317,8 @@ watch(
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     discover: t('What is Lumen?'),
-    publish: t('Publish My Site'),
-    contact: t('Contact Support'),
+    publish: t('Publish my site'),
+    contact: t('Contact support'),
     docs: 'Documentation',
   };
   return titles[currentView.value] || 'Help';

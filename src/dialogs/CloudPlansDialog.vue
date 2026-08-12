@@ -202,10 +202,11 @@
            <div v-if="planGroups.length" class="flex-align-center-justify-space-between flex-wrap-wrap gap-12px mt-16px">
              <div class="flex-align-center gap-8px">
                <span class="color-text-secondary text-13px nowrap">
-                 Showing {{ planPageStart + 1 }}-{{
-                   Math.min(planPageEnd, planGroups.length)
-                 }}
-                 of {{ planGroups.length }}
+                 {{ t('Showing {from}-{to} of {total}', {
+                   from: planPageStart + 1,
+                   to: Math.min(planPageEnd, planGroups.length),
+                   total: planGroups.length
+                 }) }}
                </span>
              </div>
              <div class="flex-align-justify-center flex-wrap-wrap gap-6px">
@@ -220,7 +221,7 @@
                  {{ t('Prev') }}
                </UiButton>
                <span class="color-text-secondary text-13px nowrap">
-                 Page {{ planPage }} / {{ planTotalPages || 1 }}
+                 {{ t('Page {page} of {total}', { page: planPage, total: planTotalPages || 1 }) }}
                </span>
                <UiButton variant="secondary" type="button"
                  :disabled="planPage === planTotalPages"
@@ -239,9 +240,9 @@
                  :aria-label="t('Rows per page')"
                  class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-primary focus-ring focus-outline-none focus-shadow"
                >
-                 <option :value="8">{{ t('8 / page') }}</option>
-                 <option :value="16">{{ t('16 / page') }}</option>
-                 <option :value="24">{{ t('24 / page') }}</option>
+                 <option :value="8">{{ t('8 per page') }}</option>
+                 <option :value="16">{{ t('16 per page') }}</option>
+                 <option :value="24">{{ t('24 per page') }}</option>
                </select>
              </div>
            </div>

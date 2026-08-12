@@ -11,7 +11,7 @@
           <UiSidebarNavItem :active="activeNameTab === 'stable'" @click="activeNameTab = 'stable'">
             <KeyRound :size="16" />
             <span>{{ t('Ugly domains') }}</span>
-            <UiTag variant="success">{{ t('free') }}</UiTag>
+            <UiTag variant="success">{{ t('Free') }}</UiTag>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
 
@@ -49,7 +49,7 @@
 
       <UiCard v-if="activeNameTab === 'lumen'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
         <UiErrorState v-if="error" :message="error" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
-        <UiLoadingBlock v-else-if="loading" :message="t('Loading your domains...')" wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
+        <UiLoadingBlock v-else-if="loading" :message="t('Loading your domains…')" wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
         <UiEmptyState v-else-if="!domains.length" :title="t('Get your name on Lumen')">
           <template #description>
             <p class="text-14px color-text-tertiary m-0px">
@@ -104,7 +104,7 @@
       </UiCard>
 
       <UiCard v-else border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
-        <UiLoadingBlock v-if="rawDomainsLoading" :message="t('Loading ugly domains...')" wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
+        <UiLoadingBlock v-if="rawDomainsLoading" :message="t('Loading ugly domains…')" wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
         <UiErrorState v-else-if="rawDomainsError" :message="rawDomainsError" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
         <UiEmptyState v-else-if="!rawDomains.length" :title="t('Generate an ugly domain')" :description="t('Ugly domains are cryptographic names backed by IPNS.')">
           <template #actions>
@@ -757,7 +757,7 @@ async function loadDomains() {
     const owner = (profileAddress.value || '').trim();
     if (!owner) {
       error.value =
-        t('No owner address available. Create or select a profile with a wallet first.');
+        t('Select or create a profile with a wallet first.');
       return;
     }
     const dnsApi = useInternalLumen()?.dns;
@@ -767,7 +767,7 @@ async function loadDomains() {
     }
     const res = await dnsApi.listByOwnerDetailed(owner);
     if (!res || res.ok === false) {
-      error.value = res?.error || t('Unable to load domains.');
+      error.value = res?.error || t('Failed to load domains.');
       return;
     }
     const list = Array.isArray(res.data) ? res.data : [];
@@ -898,14 +898,14 @@ async function confirmRegister() {
 
   const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.createDomain !== 'function') {
-    showToast(t('Domain registration bridge not available'), 'error');
+    showToast(t('Domain registration bridge not available.'), 'error');
     return;
   }
 
   const profileId = activeProfileId.value;
   const owner = (profileAddress.value || '').trim();
   if (!profileId || !owner) {
-    showToast(t('Select or create a profile with a wallet address first'), 'warning');
+    showToast(t('Select or create a profile with a wallet first.'), 'warning');
     return;
   }
 
@@ -968,7 +968,7 @@ async function openSettingsModal(d?: DomainRow) {
 function closeSettingsModal(force?: boolean) {
   const isForce = force === true;
   if (savingSettings.value && !isForce) {
-    showToast(t('Update in progress. Please wait...'), 'info');
+    showToast(t('Update in progress. Please wait…'), 'info');
     return;
   }
   showSettingsModal.value = false;
@@ -993,7 +993,7 @@ async function saveSettings() {
   const owner = (profileAddress.value || '').trim();
   const profileId = activeProfileId.value;
   if (!name || !owner || !profileId) {
-    showToast(t('Select an active profile with a wallet first.'), 'error');
+    showToast(t('Select or create a profile with a wallet first.'), 'error');
     return;
   }
   const cleaned = settingsRecords.value
@@ -1048,7 +1048,7 @@ async function saveSettings() {
     }
     
     if (!res || res.ok === false) {
-      const msg = res && res.error ? String(res.error) : t('Domain update failed');
+      const msg = res && res.error ? String(res.error) : t('Failed to update the domain.');
       showToast(msg, 'error');
       return;
     }
@@ -1070,7 +1070,7 @@ function openTransferModal(d: DomainRow) {
 
 function closeTransferModal() {
   if (transferring.value) {
-    showToast(t('Transfer in progress. Please wait...'), 'info');
+    showToast(t('Transfer in progress. Please wait…'), 'info');
     return;
   }
   showTransferModal.value = false;
@@ -1093,7 +1093,7 @@ async function confirmTransfer() {
 
   const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.transferDomain !== 'function') {
-    showToast(t('Domain transfer bridge not available'), 'error');
+    showToast(t('Domain transfer bridge not available.'), 'error');
     return;
   }
 
@@ -1113,7 +1113,7 @@ async function confirmTransfer() {
     }
     
     if (!res || res.ok === false) {
-      const msg = res && res.error ? String(res.error) : t('Domain transfer failed');
+      const msg = res && res.error ? String(res.error) : t('Failed to transfer the domain.');
       showToast(msg, 'error');
       return;
     }
