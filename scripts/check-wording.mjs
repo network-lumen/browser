@@ -18,6 +18,13 @@ import { join } from 'node:path';
 const ROOT = new URL('..', import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, '$1');
 const keys = Object.keys(JSON.parse(readFileSync(join(ROOT, 'src/locales/fr.json'), 'utf8')));
 
+
+/** Every shipped catalogue, for the rules that are about a translation. */
+const CATALOGUES = Object.fromEntries(
+  ["fr","es","pt","de","it","ru","ar","hi","id","zh","ja","ko"]
+    .map((code) => [code, JSON.parse(readFileSync(join(ROOT, 'src/locales', code + '.json'), 'utf8'))])
+);
+
 const violations = [];
 const fail = (rule, detail, hint) => violations.push({ rule, detail, hint });
 
@@ -163,6 +170,47 @@ for (const key of keys) {
 }
 
 // ---------------------------------------------------------------------------
+// Rule 8: a term kept in English inside a translation is spelled one way.
+//
+// Some words stay English in every language - the name of a feature, a chain
+// term with no settled translation. What must not happen is the same word
+// capitalised one way in one sentence and another way in the next: the French
+// catalogue had "l'instantané du drive" beside "Enregistrer dans Drive", which
+// reads as two different things.
+//
+// Only occurrences away from the start of a string are compared. A capital at
+// the beginning is the sentence's, not the term's.
+// ---------------------------------------------------------------------------
+// Deliberately short. A word that is both the name of a page and an ordinary
+// noun - Wallet, Settings, Extensions - is legitimately spelled both ways in
+// one sentence and the next, and a rule that flags it cries wolf.
+const KEPT_IN_ENGLISH = ['Drive', 'Cloud', 'Live', 'Pool', 'Pools', 'Gas', 'Store', 'Testnet'];
+
+for (const [code, catalogue] of Object.entries(CATALOGUES)) {
+  for (const term of KEPT_IN_ENGLISH) {
+    const spellings = new Map();
+    for (const value of Object.values(catalogue)) {
+      const text = String(value);
+      if (!text.trim()) continue;
+      for (const m of text.matchAll(new RegExp(`\\b${term}\\b`, 'gi'))) {
+        // Skip the first word of the string, and the first word of a sentence.
+        const before = text.slice(0, m.index).replace(/\s+$/, '');
+        if (!before || /[.?!:—«"(]$/.test(before)) continue;
+        // Skip a multi-word proper noun: "Lumen Cloud", "Chrome Web Store".
+        // The capital there belongs to the name, not to the term on its own.
+        if (/(?:^|\s)[A-Z][\w-]*$/.test(before)) continue;
+        if (!spellings.has(m[0])) spellings.set(m[0], text);
+      }
+    }
+    if (spellings.size < 2) continue;
+    const shown = [...spellings.entries()]
+      .map(([spelling, example]) => `${spelling} (${JSON.stringify(example.slice(0, 60))})`)
+      .join('  vs  ');
+    fail('term-case', `${code}: ${shown}`, `spell "${term}" one way inside a sentence`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 const TITLES = {
@@ -173,6 +221,7 @@ const TITLES = {
   'hardcoded-minimum': 'A number the code enforces, written into a sentence',
   shouting: 'An ALL-CAPS string (the CSS already uppercases it)',
   'title-case': 'Title Case outside the name of a page',
+  'term-case': 'A term kept in English, spelled two ways inside one catalogue',
 };
 
 if (!violations.length) {
