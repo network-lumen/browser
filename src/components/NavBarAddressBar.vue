@@ -23,8 +23,8 @@
       icon-padding-class=""
       class="flex-inline-align-justify-center size-28px color-text-tertiary absolute top-half translate-y-center right-6px"
       :class="{ 'color-yellow-override': favourite }"
-      :title="favourite ? 'Remove from shortcuts' : 'Add to shortcuts'"
-      :aria-label="favourite ? 'Remove from shortcuts' : 'Add to shortcuts'"
+      :title="favourite ? t('Remove from shortcuts') : t('Add to shortcuts')"
+      :aria-label="favourite ? t('Remove from shortcuts') : t('Add to shortcuts')"
       :aria-pressed="favourite ? 'true' : 'false'"
       @mousedown.prevent
       @click="emit('toggle-favourite')"

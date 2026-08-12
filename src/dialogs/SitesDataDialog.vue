@@ -23,7 +23,7 @@
           <div class="flex-align-center-justify-space-between mt-8px mb-4px">
             <span class="text-11px color-text-tertiary">{{ t('Stored data') }}</span>
             <UiButton variant="none" type="button" @click="toggleRaw(record)" class="bg-transparent border-none cursor-pointer color-primary text-11px fw-500 p-0px">
-              {{ rawId === siteDataRowId(record) ? "Table view" : "View raw JSON" }}
+              {{ rawId === siteDataRowId(record) ? t('Table view') : t('View raw JSON') }}
             </UiButton>
           </div>
           <pre v-if="rawId === siteDataRowId(record)" class="text-11px color-text-secondary mono overflow-auto max-h-280px m-0px p-8px border-radius-8px bg-card">{{ siteDataJson(record) }}</pre>

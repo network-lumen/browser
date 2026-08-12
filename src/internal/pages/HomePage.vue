@@ -560,18 +560,18 @@ function getRouteDescription(key: string): string {
 
 function getCardTitle(key: string): string {
   const titles: Record<string, string> = {
-    network: 'Network',
-    search: 'Search',
-    history: 'History',
-    help: 'Help',
-    drive: 'Drive',
-    wallet: 'Wallet',
-    domain: 'Domains',
-    gateways: 'Gateways',
-    settings: 'Settings',
+    network: t('Network'),
+    search: t('Search'),
+    history: t('History'),
+    help: t('Help'),
+    drive: t('Drive'),
+    wallet: t('Wallet'),
+    domain: t('Domains'),
+    gateways: t('Gateways'),
+    settings: t('Settings'),
     ipfs: 'IPFS',
-    release: 'Release',
-    home: 'Home'
+    release: t('Release'),
+    home: t('Home')
   };
   return titles[key] || formatRouteName(key);
 }

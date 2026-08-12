@@ -69,12 +69,7 @@
 
             <UiFormGroup required :label="t('Frequency')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
               <select v-model="form.frequency" class="w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
-                <option value="daily">{{ t('Daily') }}</option>
-                <option value="weekly">{{ t('Weekly') }}</option>
-                <option value="biweekly">{{ t('Bi-weekly') }}</option>
-                <option value="monthly">{{ t('Monthly') }}</option>
-                <option value="quarterly">{{ t('Quarterly') }}</option>
-                <option value="yearly">{{ t('Yearly') }}</option>
+                <option v-for="value in FREQUENCY_ORDER" :key="value" :value="value">{{ t(FREQUENCY_LABELS[value]) }}</option>
               </select>
             </UiFormGroup>
           </div>
@@ -99,7 +94,7 @@
             </UiFormGroup>
           </div>
 
-          <UiFormGroup :label="t('Maximum payments (optional)')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px" hint="Payment will stop after this many successful transactions" hint-class="color-text-secondary text-12px">
+          <UiFormGroup :label="t('Maximum payments (optional)')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px" :hint="t('Payment will stop after this many successful transactions')" hint-class="color-text-secondary text-12px">
             <UiInput v-model="form.maxPayments"
               min="1"
               :placeholder="t('Leave empty for unlimited')" class="placeholder-tertiary" />
@@ -121,8 +116,7 @@
             <select v-model="form.reminderDaysBefore" class="w-full bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary color-scheme-light-dark bg-image-none">
               <option :value="0">{{ t('On the same day') }}</option>
               <option :value="1">{{ t('1 day before') }}</option>
-              <option :value="2">{{ t('2 days before') }}</option>
-              <option :value="3">{{ t('3 days before') }}</option>
+              <option v-for="days in [2, 3]" :key="days" :value="days">{{ t('{count} days before', { count: days }) }}</option>
               <option :value="7">{{ t('1 week before') }}</option>
             </select>
           </UiFormGroup>
@@ -154,6 +148,7 @@
 </template>
 
 <script setup lang="ts">
+import { FREQUENCY_LABELS, FREQUENCY_ORDER, frequencyLabelKey } from '../internal/services/paymentFrequency';
 import { t } from '../stores/i18nStore';
 import UiButton from '../ui/UiButton.vue';
 import UiDialog from '../ui/UiDialog.vue';
@@ -215,17 +210,7 @@ watch(() => props.payment, (payment) => {
   }
 }, { immediate: true });
 
-const frequencyLabel = computed(() => {
-  const labels: Record<PaymentFrequency, string> = {
-    daily: t('Every day'),
-    weekly: t('Every week'),
-    biweekly: t('Every 2 weeks'),
-    monthly: t('Every month'),
-    quarterly: t('Every 3 months'),
-    yearly: t('Every year'),
-  };
-  return labels[form.value.frequency];
-});
+const frequencyLabel = computed(() => t(frequencyLabelKey(form.value.frequency)));
 
 /**
  * Calculate the number of payments based on date range, frequency, and max payments

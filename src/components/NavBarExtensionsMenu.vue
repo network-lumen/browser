@@ -42,7 +42,7 @@
 
             <UiToggle
               size="sm"
-              :title="ext.enabled ? 'Disable extension' : 'Enable extension'"
+              :title="ext.enabled ? t('Disable extension') : t('Enable extension')"
               :model-value="ext.enabled"
               :disabled="busy"
               @update:model-value="toggleExtensionEnabled(ext)"

@@ -34,7 +34,7 @@
       <UiStatIconTile :label="t('Paused')" :value="pausedCount" icon-class="bg-warning-a15 color-warning">
         <template #icon><PauseCircle :size="20" /></template>
       </UiStatIconTile>
-      <UiStatIconTile :label="t('Monthly Total')" :value="monthlyTotal" icon-class="color-accent-secondary bg-fill-blue">
+      <UiStatIconTile :label="t('Monthly total')" :value="monthlyTotal" icon-class="color-accent-secondary bg-fill-blue">
         <template #icon><DollarSign :size="20" /></template>
       </UiStatIconTile>
     </div>
@@ -118,7 +118,7 @@
               <span>{{ t('Pay now') }}</span>
             </UiButton>
             <UiButton variant="secondary" @click="viewHistory(payment)"
-              :title="t('View History')">
+              :title="t('View history')">
               <History :size="16" />
             </UiButton>
             <UiButton variant="secondary" @click="editPayment(payment)"
@@ -164,6 +164,7 @@
 </template>
 
 <script setup lang="ts">
+import { frequencyPerMonth, frequencyRateKey } from '../internal/services/paymentFrequency';
 import { t } from '../stores/i18nStore';
 import UiButton from '../ui/UiButton.vue';
 import UiEmptyState from '../ui/UiEmptyState.vue';
@@ -240,13 +241,7 @@ const monthlyTotal = computed(() => {
   const total = payments.value
     .filter(p => p.status === 'active')
     .reduce((sum, p) => {
-      const multiplier = p.frequency === 'monthly' ? 1 :
-        p.frequency === 'weekly' ? 4 :
-        p.frequency === 'biweekly' ? 2 :
-        p.frequency === 'quarterly' ? 0.33 :
-        p.frequency === 'yearly' ? 0.08 :
-        p.frequency === 'daily' ? 30 : 1;
-      return sum + (p.amount * multiplier);
+      return sum + p.amount * frequencyPerMonth(p.frequency);
     }, 0);
   return `${total.toFixed(2)} LMN`;
 });
@@ -346,15 +341,7 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
 }
 
 function getFrequencyLabel(frequency: string): string {
-  const labels: Record<string, string> = {
-    daily: t('/ day'),
-    weekly: t('/ week'),
-    biweekly: t('/ 2 weeks'),
-    monthly: t('/ month'),
-    quarterly: t('/ quarter'),
-    yearly: t('/ year'),
-  };
-  return labels[frequency] || '';
+  return t(frequencyRateKey(frequency));
 }
 
 function paymentCardStyle(status: string): Record<string, string> {

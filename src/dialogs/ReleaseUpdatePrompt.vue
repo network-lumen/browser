@@ -8,7 +8,7 @@
         <h4 class="m-0px text-15px line-height-12 txt-weight-light">
           {{ (latest.release && latest.release.version) || latest.version }}
         </h4>
-        <p class="color-text-secondary text-11px line-height-12 m-0px">Current version: {{ currentVersion || 'n/a' }}</p>
+        <p class="color-text-secondary text-11px line-height-12 m-0px">{{ t('Current version: {version}', { version: currentVersion || 'n/a' }) }}</p>
       </header>
 
       <button v-if="hasNotes" class="hover-opacity-85 bg-transparent border-none cursor-pointer underline mt-4px p-0px text-14px color-text-link text-underline-offset-2px" type="button" @click="notesOpen = true">

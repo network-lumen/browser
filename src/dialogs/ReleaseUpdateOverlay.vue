@@ -3,7 +3,7 @@
     <div class="flex-align-start flex-justify-space-between gap-16px mb-16px">
       <div>
         <div class="text-12px letter-spacing-008em text-uppercase color-primary">{{ t('Updating Lumen') }}</div>
-        <div class="text-20px txt-weight-medium">{{ latest?.version || 'Preparing update' }}</div>
+        <div class="text-20px txt-weight-medium">{{ latest?.version || t('Preparing update') }}</div>
       </div>
     </div>
 

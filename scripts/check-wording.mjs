@@ -104,6 +104,65 @@ for (const key of keys) {
 }
 
 // ---------------------------------------------------------------------------
+// Rule 7: sentence case. Title Case belongs to the name of a page, as the route
+// table spells it, and nowhere else - "Wallet Overview" beside "Domain
+// settings" is two conventions in one app, and which one a string got depended
+// on who wrote it.
+//
+// The list below is what legitimately carries a capital mid-sentence: proper
+// nouns, acronyms, page names, and the words of a keyboard shortcut.
+// ---------------------------------------------------------------------------
+const PROPER = new Set(`Lumen IPFS IPNS CID CIDs LMN DAO PQC IBC QR API APIs URL URLs JSON
+GitHub Chrome Web Store Google Dilithium Kubo Electron HLS EPUB DEX DEXs RPC SHA SHA256
+ID IDs TTL GB HTML HTM ZIP CSV Esc Enter Shift Ctrl Alt I Netflix Doe VPS CRX USB
+Drive Wallet Settings Extensions Domains Explorer Network Gateways Tab Cloud Space
+Testnet BeeZee WalletConnect Amino Direct Veto Browser Decentralized Internet Stack
+Subscription Light Normal High New All Pages Explore Create Send Other Chain Via Save My Upload
+Français English`.split(/\s+/));
+
+/**
+ * The word a capital has to be judged on: leading punctuation dropped, an
+ * English contraction reduced to its stem ("Lumen's" is Lumen), and a
+ * hyphenated or plus-joined compound reduced to its first part, so
+ * "IPNS-backed" is judged as IPNS and "Shift+Enter" as Shift.
+ */
+function headWord(token) {
+  return token
+    .replace(/^[^A-Za-z]+/, '')
+    .replace(/'(?:s|m|t|ll|re|ve|d)\b.*$/i, '')
+    .split(/[-+/]/)[0]
+    .replace(/[^A-Za-z]/g, '');
+}
+
+for (const key of keys) {
+  if (/^[^A-Za-z]/.test(key)) continue;
+  const offenders = [];
+  let startOfSentence = true;
+  for (const token of key.split(/\s+/)) {
+    const bare = headWord(token);
+    // A token that opens with a quote or a bracket starts a quotation, which
+    // starts a sentence.
+    const opensQuote = /^[“("']/.test(token);
+    if (
+      bare &&
+      !startOfSentence &&
+      !opensQuote &&
+      /^[A-Z]/.test(bare) &&
+      bare !== bare.toUpperCase() &&
+      !PROPER.has(bare)
+    ) {
+      offenders.push(token);
+    }
+    if (bare) startOfSentence = false;
+    // A new sentence starts after . ? ! : — and after a separator like ·.
+    if (/[.?!:—·…]$|[“("]$/.test(token)) startOfSentence = true;
+  }
+  if (offenders.length) {
+    fail('title-case', key, `sentence case: ${offenders.join(', ')}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 const TITLES = {
@@ -113,6 +172,7 @@ const TITLES = {
   duplicate: 'Two keys saying the same thing',
   'hardcoded-minimum': 'A number the code enforces, written into a sentence',
   shouting: 'An ALL-CAPS string (the CSS already uppercases it)',
+  'title-case': 'Title Case outside the name of a page',
 };
 
 if (!violations.length) {

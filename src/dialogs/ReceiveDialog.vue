@@ -14,7 +14,7 @@
               <img 
                 v-if="qrDataUrl" 
                 :src="qrDataUrl"
-                :alt="t('QR Code')"
+                :alt="t('QR code')"
                 class="h-240px block border-radius-8px w-240px"
               />
               <div v-else class="h-240px flex-align-justify-center color-text-tertiary bg-secondary border-radius-8px text-14px w-240px">

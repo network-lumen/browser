@@ -14,7 +14,7 @@
     <template v-if="!hideFooter" #footer>
       <slot name="footer">
         <UiButton variant="secondary" type="button" :class="buttonClass" :disabled="busy" @click="close">
-          {{ cancelLabel }}
+          {{ t(cancelLabel) }}
         </UiButton>
         <slot name="footer-extra" />
         <UiButton
@@ -26,7 +26,7 @@
         >
           <slot name="confirm">
             <UiSpinnerRing v-if="busy && spinner" />
-            <span>{{ busy && busyLabel ? busyLabel : confirmLabel }}</span>
+            <span>{{ t(busy && busyLabel ? busyLabel : confirmLabel) }}</span>
           </slot>
         </UiButton>
       </slot>
@@ -35,6 +35,8 @@
 </template>
 
 <script setup lang="ts">
+import { markForTranslation } from '../internal/services/i18n';
+import { t } from '../stores/i18nStore';
 import UiModal from './UiModal.vue';
 import UiButton from './UiButton.vue';
 import UiSpinnerRing from './UiSpinnerRing.vue';
@@ -93,12 +95,12 @@ withDefaults(
     panelClass: 'w-min-520px-92vw',
     closable: true,
     busy: false,
-    confirmLabel: 'Confirm',
+    confirmLabel: markForTranslation('Confirm'),
     busyLabel: '',
     spinner: true,
     confirmDisabled: false,
     confirmVariant: 'primary',
-    cancelLabel: 'Cancel',
+    cancelLabel: markForTranslation('Cancel'),
     buttonClass: '',
     hideFooter: false
   }

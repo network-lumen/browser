@@ -12,7 +12,7 @@
         v-if="activeProfile"
         :profile="activeProfile"
         dense
-        :label="isGuestOnly ? 'Guest mode' : 'Active profile'"
+        :label="isGuestOnly ? t('Guest mode') : t('Active profile')"
       />
 
       <div v-if="hasProfiles && !isGuestOnly">
@@ -39,8 +39,8 @@
 
       <div v-else class="text-12px color-text-tertiary text-center p-0px pt-12px pr-8px pb-12px pl-8px">
         {{ isGuestOnly
-          ? 'Guest mode active. Create or import a profile to get started.'
-          : 'No profiles yet.' }}
+          ? t('Guest mode active. Create or import a profile to get started.')
+          : t('No profiles yet.') }}
       </div>
 
       <div class="flex flex-column gap-2px mt-8px pt-8px border-top-05-border-light">
@@ -525,7 +525,7 @@ async function confirmCreateProfile() {
       console.error('[NavBar] Failed to create profile: createProfile returned null or undefined');
     }
   } catch (e) {
-    profileMessage.value = t('Error creating profile: ') + errorMessage(e, t('Unknown error'));
+    profileMessage.value = t('Error creating profile: {reason}', { reason: errorMessage(e, t('Unknown error')) });
     console.error('[NavBar] Error creating profile:', e);
   }
 }

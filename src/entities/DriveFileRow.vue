@@ -100,9 +100,9 @@ const availableActions = computed(() => {
   }> = [];
 
   if (!props.browsing && props.isDirectory) {
-    actions.push({ kind: 'details', title: 'Details', icon: TableProperties, class: 'active-scale-98' });
+    actions.push({ kind: 'details', title: t('Details'), icon: TableProperties, class: 'active-scale-98' });
   }
-  actions.push({ kind: 'download', title: 'Download', icon: Download, class: 'active-scale-98' });
+  actions.push({ kind: 'download', title: t('Download'), icon: Download, class: 'active-scale-98' });
   if (!props.isDirectory && isVideoFile(props.file.name)) {
     actions.push({
       kind: 'convert',
@@ -112,10 +112,10 @@ const availableActions = computed(() => {
       class: 'active-scale-98',
     });
   }
-  actions.push({ kind: 'share', title: 'Share', icon: Share2, class: 'active-scale-98' });
+  actions.push({ kind: 'share', title: t('Share'), icon: Share2, class: 'active-scale-98' });
   actions.push({
     kind: 'remove',
-    title: 'Remove',
+    title: t('Remove'),
     icon: Trash2,
     class: 'active-scale-98 hover-bg-error bg-error-a08 color-error',
   });

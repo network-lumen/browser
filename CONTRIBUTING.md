@@ -65,6 +65,7 @@ Each was written after finding the drift it now blocks. The counts came out near
 | One verb for failure: `Failed to …` | not `Unable to`, not `Could not` |
 | `not available`, never `unavailable` | |
 | Sentence case | Title Case only for the name of a page, as the route table spells it |
+| A number that varies goes in a `{placeholder}` | one `{count} per page`, not one key per size |
 | `Delete` destroys, `Remove` takes out of a list | delete a contact, remove a row |
 | A number the code enforces goes in as `{placeholder}` | `Password must be at least {min} characters.` reads `MIN_PASSWORD_LENGTH` |
 | Nothing shouts | the explorer's header row is uppercased by CSS; an ALL-CAPS source loses accents to `text-transform` |

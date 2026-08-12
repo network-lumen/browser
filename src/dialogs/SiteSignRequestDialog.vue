@@ -17,7 +17,7 @@
       {{ t('Signing authorises this action with your keys. Only approve it if you started it yourself, on a site you trust.') }}
     </UiBanner>
 
-    <UiDetailRow variant="modal" :label="t('Site')" :value="siteLabel || 'Unknown site'" />
+    <UiDetailRow variant="modal" :label="t('Site')" :value="siteLabel || t('Unknown site')" />
     <UiDetailRow variant="modal" :label="t('Requested')" :value="operationLabel" />
     <UiDetailRow v-if="chainId" variant="modal" :label="t('Chain')" :value="chainId" />
     <UiDetailRow v-if="signerAddress" variant="modal" :label="t('Signing as')">

@@ -64,7 +64,7 @@
 
       <div class="gap-16px mb-32px grid grid-cols-auto-fit-200">
         <UiStatTile :label="t('Latest block')" :value="formatNumber(latestBlock)" />
-        <UiStatTile :label="`Txs (last ${txHistoryWindow} blocks)`" :value="formatNumber(txHistoryTotal)" />
+        <UiStatTile :label="t('Txs (last {count} blocks)', { count: txHistoryWindow })" :value="formatNumber(txHistoryTotal)" />
         <UiStatTile :label="t('Validators')" :value="String(validatorCount)" />
         <UiStatTile :label="t('Avg block time')" :value="avgBlockTimeLabel" />
       </div>
@@ -88,7 +88,7 @@
               <canvas ref="txHistoryChart" class="w-full h-120px"></canvas>
             </UiChartCard>
 
-            <UiChartCard :title="t('Bonded / Supply')">
+            <UiChartCard :title="t('Bonded / supply')">
               <div class="relative m-0px mx-auto mb-12px w-140px h-140px">
                 <canvas ref="bondedSupplyChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
                 <div class="text-center absolute cursor-events-none top-half left-half translate-center">
@@ -158,7 +158,7 @@
                Power chart above and the Validator Participation meter below,
                and the dedicated Validators tab covers the full list. -->
           <div class="mb-0px gap-12px grid mt-12px grid-cols-auto-fit-200">
-            <UiStatCard :label="t('Throughput')" :detail="`Peak: ${networkMaxTps.toFixed(1)} tx/s`">
+            <UiStatCard :label="t('Throughput')" :detail="t('Peak: {rate} tx/s', { rate: networkMaxTps.toFixed(1) })">
               {{ networkTps.toFixed(1) }} <span class="color-text-secondary txt-weight-normal text-18px ml-4px">{{ t('tx/s') }}</span>
             </UiStatCard>
 
@@ -205,7 +205,7 @@
             <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
               <div class="flex-align-center-justify-space-between mb-12px">
                 <h3 class="text-16px txt-weight-light color-text-primary">{{ t('Latest blocks') }}</h3>
-                <UiButton variant="primary" @click="goToView('blocks')">{{ t('View All →') }}</UiButton>
+                <UiButton variant="primary" @click="goToView('blocks')">{{ t('View all →') }}</UiButton>
               </div>
               <div class="flex flex-column gap-12px">
                 <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
@@ -230,7 +230,7 @@
             <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
               <div class="flex-align-center-justify-space-between mb-12px">
                 <h3 class="text-16px txt-weight-light color-text-primary">{{ t('Latest transactions') }}</h3>
-                <UiButton variant="primary" @click="goToView('transactions')">{{ t('View All →') }}</UiButton>
+                <UiButton variant="primary" @click="goToView('transactions')">{{ t('View all →') }}</UiButton>
               </div>
               <div class="flex flex-column gap-12px">
                 <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
@@ -542,6 +542,7 @@
 </template>
 
 <script setup lang="ts">
+import { markForTranslation } from '../services/i18n';
 import { t } from '../../stores/i18nStore';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
@@ -805,7 +806,7 @@ const othersPercentage = computed(() => {
   const top5Total = topValidatorsPower.value.slice(0, 5).reduce((sum, vp) => sum + parseFloat(vp.percentage), 0);
   return (100 - top5Total).toFixed(2);
 });
-const latestProposer = ref({ moniker: 'Unknown', avatar: '', blockHeight: 0 });
+const latestProposer = ref({ moniker: markForTranslation('Unknown'), avatar: '', blockHeight: 0 });
 const txHistoryChart = ref<HTMLCanvasElement | null>(null);
 const bondedSupplyChart = ref<HTMLCanvasElement | null>(null);
 const votingPowerChart = ref<HTMLCanvasElement | null>(null);
@@ -1545,7 +1546,7 @@ async function confirmStakeAction() {
         if (typeof walletApi.delegate === 'function') {
           result = await walletApi.delegate(baseParams);
         } else {
-          throw new Error(t('Delegate function not available'));
+          throw new Error(t('Staking is not available.'));
         }
         break;
         
@@ -1553,7 +1554,7 @@ async function confirmStakeAction() {
         if (typeof walletApi.undelegate === 'function') {
           result = await walletApi.undelegate(baseParams);
         } else {
-          throw new Error(t('Undelegate function not available'));
+          throw new Error(t('Staking is not available.'));
         }
         break;
         
@@ -1567,7 +1568,7 @@ async function confirmStakeAction() {
             amount: { amount: amountInUlmn, denom: 'ulmn' },
           });
         } else {
-          throw new Error(t('Redelegate function not available'));
+          throw new Error(t('Staking is not available.'));
         }
         break;
         
@@ -1579,7 +1580,7 @@ async function confirmStakeAction() {
             validatorAddress: selectedValidator.value.address,
           });
         } else {
-          throw new Error(t('WithdrawRewards function not available'));
+          throw new Error(t('Staking is not available.'));
         }
         break;
     }

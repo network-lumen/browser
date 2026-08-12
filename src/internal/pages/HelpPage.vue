@@ -183,7 +183,7 @@
           <iframe
             class="w-full h-full border-radius-16px block border-default shadow-sm bg-card min-h-520px"
             :src="lumenDocFrameSrc"
-            :title="t('window.lumen API Reference')"
+            :title="t('window.lumen API reference')"
             loading="lazy"
           ></iframe>
         </div>
@@ -319,7 +319,7 @@ function getViewTitle(): string {
     discover: t('What is Lumen?'),
     publish: t('Publish my site'),
     contact: t('Contact support'),
-    docs: 'Documentation',
+    docs: t('Documentation'),
   };
   return titles[currentView.value] || 'Help';
 }

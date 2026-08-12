@@ -165,7 +165,7 @@ async function uploadCancelUpload(key: string) {
     activity.uploadingCanceling = 2;
     delete uploadActivities[key];
     let cancel = await api.ipfsCancelAdd({ uploadId: activity.uploadId });
-    if(!cancel.ok) throw new Error("Failed to cancel upload: " + cancel.error);
+    if(!cancel.ok) throw new Error(t("Failed to cancel the upload: {reason}", { reason: cancel.error }));
     return "ok";
   } catch (error) {
     console.error(error);

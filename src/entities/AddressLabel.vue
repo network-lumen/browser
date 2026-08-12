@@ -2,12 +2,13 @@
   <span
     class="mono"
     :class="[toneClass, copyable ? 'cursor-pointer transition-color-02 hover-color-primary' : '']"
-    :title="copyable ? `${address} — click to copy` : address"
+    :title="copyable ? t('{address} — click to copy', { address }) : address"
     @click="copyable ? $emit('copy') : undefined"
   >{{ shortened }}</span>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed } from 'vue';
 import { shortenAddress } from '../internal/services/format';
 

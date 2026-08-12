@@ -152,7 +152,7 @@
                   <img
                     v-if="asset.iconUrl"
                     :src="asset.iconUrl"
-                    :alt="`${asset.displayName} icon`"
+                    :alt="t('{name} icon', { name: asset.displayName })"
                     class="w-full h-full object-fit-cover block bg-white"
                     @error="handleAssetIconError(asset)"
                   />
@@ -230,7 +230,7 @@
                   <img
                     v-if="dex.logoUrl"
                     :src="dex.logoUrl"
-                    :alt="`${dex.name} logo`"
+                    :alt="t('{name} logo', { name: dex.name })"
                     class="h-74pct block bg-transparent w-74pct object-fit-contain object-position-center"
                     @error="handleDexLogoError(dex)"
                   />
@@ -557,6 +557,7 @@
 </template>
 
 <script setup lang="ts">
+import { markForTranslation } from '../services/i18n';
 import { t } from '../../stores/i18nStore';
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import ConfirmDialog from '../../dialogs/ConfirmDialog.vue';
@@ -718,7 +719,7 @@ const DEX_LISTINGS: DexListingConfig[] = [
     key: 'beezee',
     name: t('BeeZee DEX'),
     chainId: 'beezee-1',
-    chainLabel: 'BeeZee',
+    chainLabel: markForTranslation('BeeZee'),
     restEndpoint: 'https://rest.getbze.com',
     baseUrl: 'https://dex.getbze.com/',
     openUrl: 'https://dex.getbze.com/',
@@ -727,11 +728,11 @@ const DEX_LISTINGS: DexListingConfig[] = [
     iconText: 'BZE',
     description: t('Browse mainnet markets and pools before jumping into the BeeZee DEX.'),
     fallbackLinks: [
-      { label: 'Swap', url: 'https://dex.getbze.com/' },
-      { label: 'Exchange', url: 'https://dex.getbze.com/exchange' },
-      { label: 'Pools', url: 'https://dex.getbze.com/pools' },
-      { label: 'Staking', url: 'https://staking.getbze.com/' },
-      { label: 'Website', url: 'https://getbze.com/' }
+      { label: t('Swap'), url: 'https://dex.getbze.com/' },
+      { label: t('Exchange'), url: 'https://dex.getbze.com/exchange' },
+      { label: t('Pools'), url: 'https://dex.getbze.com/pools' },
+      { label: t('Staking'), url: 'https://staking.getbze.com/' },
+      { label: t('Website'), url: 'https://getbze.com/' }
     ]
   }
 ];
@@ -876,7 +877,7 @@ const sendRecipientPlaceholder = computed(() =>
 );
 const sendPrimaryActionLabel = computed(() => {
   if (sendingTransaction.value) return isIbcSend.value ? 'Transferring...' : 'Sending...';
-  return isIbcSend.value ? t('Preview Transfer') : t('Preview Send');
+  return isIbcSend.value ? t('Preview transfer') : t('Preview send');
 });
 
 function autoSelectIbcChannel(force = false) {
@@ -2107,7 +2108,7 @@ async function createAssetRow(input: {
     sendButtonLabel,
     transferTargets: input.transferTargets,
     transferEnabled,
-    transferButtonLabel: input.transferTargets.length ? t('To Other Chain') : t('No route'),
+    transferButtonLabel: input.transferTargets.length ? t('To other chain') : t('No route'),
     rpcEndpoint: String(input.rpcEndpoint || ''),
     restEndpoint: String(input.restEndpoint || ''),
     feeDenom: String(input.feeDenom || 'ulmn')

@@ -2,12 +2,13 @@
   <span
     class="color-primary cursor-pointer hover-underline transition-color-02"
     :class="sizeClass"
-    :title="`Block ${formatted}`"
+    :title="t('Block {height}', { height: formatted })"
     @click="$emit('open')"
   >{{ prefixed ? `#${formatted}` : formatted }}</span>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed } from 'vue';
 import { formatNumber } from '../internal/services/format';
 

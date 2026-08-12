@@ -205,7 +205,7 @@
       <ConfirmDialog
         :model-value="showDeleteConfirm"
         :title="t('Delete gateway')"
-        consequence="This action cannot be undone."
+        :consequence="t('This action cannot be undone.')"
         :confirm-label="t('Delete')"
         :busy-label="t('Deleting…')"
         :busy="deleting"
@@ -222,7 +222,7 @@
       <ConfirmDialog
         :model-value="showWhitelistDeleteConfirm"
         :title="t('Remove user')"
-        consequence="They will no longer be able to access your gateway."
+        :consequence="t('They will no longer be able to access your gateway.')"
         :confirm-label="t('Remove')"
         :busy-label="t('Removing…')"
         :busy="whitelistDeleting"
@@ -496,7 +496,7 @@ async function toggleEmbeddedServer() {
         embeddedServerRunning.value = false;
         embeddedServerPort.value = null;
         embeddedServerUrl.value = null;
-        toast.success(t('Embedded Gateway Server stopped'));
+        toast.success(t('Embedded gateway server stopped'));
       } else {
         toast.error(result.error || t('Failed to stop embedded server'));
       }

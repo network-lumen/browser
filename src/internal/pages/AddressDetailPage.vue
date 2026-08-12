@@ -14,7 +14,7 @@
           <UiDetailRow :label="t('Address')">
             <UiCopyField :value="address.address" :title="t('Copy address')" />
           </UiDetailRow>
-          <UiDetailRow :label="t('Account Number')" :value="address.accountNumber" />
+          <UiDetailRow :label="t('Account number')" :value="address.accountNumber" />
           <UiDetailRow :label="t('Sequence')" :value="address.sequence" />
         </div>
       </UiCard>
@@ -40,7 +40,7 @@
       </UiCard>
 
       <UiCard v-if="address.delegations && address.delegations.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="`Delegations (${address.delegations.length})`" />
+        <UiCardHeader :title="t('Delegations ({count})', { count: address.delegations.length })" />
         <div class="p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard class="flex-align-center flex-justify-space-between" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(delegation, index) in address.delegations" :key="index">

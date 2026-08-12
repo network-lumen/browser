@@ -49,7 +49,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'gateways-update-params',
-    module: 'Gateways',
+    module: markForTranslation('Gateways'),
     label: markForTranslation('Commission, pricing & timing'),
     summary: markForTranslation('Update gateway contract commission, minimum price, action fee, and finalize delay. Leave a field blank to keep it unchanged.'),
     fields: [
@@ -63,7 +63,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'tokenomics-tax-rate',
-    module: 'Tokenomics',
+    module: markForTranslation('Tokenomics'),
     label: markForTranslation('Transaction tax rate'),
     summary: markForTranslation('Tax rate applied to transactions, as a decimal (e.g. 0.01 = 1%).'),
     fields: [
@@ -72,7 +72,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'tokenomics-community-pool-spend',
-    module: 'Tokenomics',
+    module: markForTranslation('Tokenomics'),
     label: markForTranslation('Community pool spend'),
     summary: markForTranslation('Send funds from the community pool to a recipient address.'),
     fields: [
@@ -82,7 +82,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'tokenomics-gov-min-deposit',
-    module: 'Tokenomics',
+    module: markForTranslation('Tokenomics'),
     label: markForTranslation('Governance minimum deposit'),
     summary: markForTranslation('Minimum deposit (in LMN) required for a proposal to enter voting.'),
     fields: [
@@ -91,7 +91,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'tokenomics-slashing-downtime',
-    module: 'Slashing',
+    module: markForTranslation('Slashing'),
     label: markForTranslation('Downtime penalties'),
     summary: markForTranslation('Slash fraction and jail duration applied for validator downtime.'),
     fields: [
@@ -101,7 +101,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'tokenomics-slashing-liveness',
-    module: 'Slashing',
+    module: markForTranslation('Slashing'),
     label: markForTranslation('Liveness window'),
     summary: markForTranslation('Signed-blocks window and minimum signed ratio for validator liveness.'),
     fields: [
@@ -129,7 +129,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'release-validate',
-    module: 'Release',
+    module: markForTranslation('Release'),
     label: markForTranslation('Validate release'),
     summary: markForTranslation('Mark a pending release as validated.'),
     fields: [
@@ -138,7 +138,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'release-reject',
-    module: 'Release',
+    module: markForTranslation('Release'),
     label: markForTranslation('Reject release'),
     summary: markForTranslation('Reject a pending release.'),
     fields: [
@@ -147,12 +147,12 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'release-update-params',
-    module: 'Release',
+    module: markForTranslation('Release'),
     label: markForTranslation('Publishers, channels, fees & limits'),
     summary: markForTranslation('Update allowed publishers/channels, anti-spam fees, and per-release artifact limits. Leave a field blank to keep it unchanged.'),
     fields: [
       { key: 'allowedPublishers', label: markForTranslation('Allowed publishers'), type: 'textarea', placeholder: 'lmn1...\nlmn1...', hint: markForTranslation('One bech32 address per line') },
-      { key: 'channels', label: markForTranslation('Channels'), type: 'textarea', placeholder: markForTranslation('stable\nbeta\nnightly'), hint: markForTranslation('One channel per line') },
+      { key: 'channels', label: markForTranslation('Channels'), type: 'textarea', placeholder: 'stable\nbeta\nnightly', hint: markForTranslation('One channel per line') },
       { key: 'maxArtifacts', label: markForTranslation('Max artifacts'), type: 'number', placeholder: '8' },
       { key: 'maxUrlsPerArt', label: markForTranslation('Max URLs per artifact'), type: 'number', placeholder: '4' },
       { key: 'maxSigsPerArt', label: markForTranslation('Max signatures per artifact'), type: 'number', placeholder: '4' },
@@ -174,7 +174,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'upgrade-software',
-    module: 'Chain',
+    module: markForTranslation('Chain'),
     label: markForTranslation('Software upgrade'),
     summary: markForTranslation('Schedule a coordinated chain upgrade at a target block height.'),
     fields: [

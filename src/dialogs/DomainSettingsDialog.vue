@@ -4,7 +4,7 @@
           <div class="border-radius-10px color-white mb-16px bg-gradient-primary py-12px px-16px">
             <div class="txt-weight-light text-15px">{{ domain?.name || 'mydomain.lmn' }}</div>
             <div class="text-13px mt-4px">
-              {{ domain ? expiryLabel : 'Expires: unknown' }}
+              {{ domain ? expiryLabel : t('Expires: unknown') }}
             </div>
           </div>
 

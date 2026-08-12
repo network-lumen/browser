@@ -20,7 +20,7 @@
     <UiCard class="mb-24px" padding="md" radius="10px" border-class="border-1-primary-a30" :shadow="false">
       <div class="flex-align-center gap-12px color-text-secondary text-13px">
         <Info :size="16" class="flex-shrink-0 color-primary" />
-        <span>Minimum deposit to enter voting: {{ governanceMinDepositLmn }} LMN</span>
+        <span>{{ t('Minimum deposit to enter voting: {amount} LMN', { amount: governanceMinDepositLmn }) }}</span>
       </div>
     </UiCard>
 
@@ -39,7 +39,7 @@
       <div v-for="draft in actionDrafts" :key="draft.id" class="bg-secondary border-1-light border-radius-10px p-16px mb-12px">
         <div class="flex-align-center gap-10px mb-12px">
           <select v-model="draft.templateId" @change="resetActionDraftValues(draft)" class="flex-1 hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
-            <option v-for="tpl in templates" :key="tpl.id" :value="tpl.id">{{ tpl.module }} — {{ t(tpl.label) }}</option>
+            <option v-for="tpl in templates" :key="tpl.id" :value="tpl.id">{{ t(tpl.module) }} — {{ t(tpl.label) }}</option>
           </select>
           <UiButton variant="icon" icon-radius-class="border-radius-8px" class="hover-bg-error-a08 hover-color-error size-32px flex-shrink-0" :title="t('Remove action')" @click="$emit('remove-action', draft.id)">
             <X :size="16" />

@@ -36,16 +36,16 @@
         <UiCardHeader :title="t('Block data')" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="p-24px">
           <UiDetailRow variant="flex" :label="t('Chain ID')" :value="block.chainId || 'lumen'" />
-          <UiDetailRow variant="flex" :label="t('Block Size')">
+          <UiDetailRow variant="flex" :label="t('Block size')">
             <span class="color-text-primary flex-1 fw-500 text-15px">{{ calculateBlockSize(block) }} KB</span>
           </UiDetailRow>
-          <UiDetailRow variant="flex" :label="t('Gas Used')" :value="formatNumber(block.gasUsed || 0)" />
-          <UiDetailRow variant="flex" :label="t('Gas Limit')" :value="formatNumber(block.gasLimit || 0)" />
+          <UiDetailRow variant="flex" :label="t('Gas used')" :value="formatNumber(block.gasUsed || 0)" />
+          <UiDetailRow variant="flex" :label="t('Gas limit')" :value="formatNumber(block.gasLimit || 0)" />
         </div>
       </UiCard>
 
       <UiCard v-if="block.txs > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader :title="`Transactions (${block.txs})`" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
+        <UiCardHeader :title="t('Transactions ({count})', { count: block.txs })" bg-class="bg-primary" padding-class="py-20px px-24px" title-class="text-18px letter-spacing-n001 txt-weight-medium" />
         <div class="p-24px">
           <div class="flex flex-column gap-16px">
             <UiCard padding="none" :shadow="false" radius="md" v-for="(tx, index) in blockTransactions" :key="index" @click="navigateToTransaction(tx.hash)" class="flex gap-16px cursor-pointer flex-align-start py-16px px-20px shadow-xs transition-smooth-all hover-border-accent hover-lift-1 hover-shadow-primary">
@@ -56,7 +56,7 @@
                 <UiCopyField :value="tx.hash" :title="t('Copy hash')" wrapper-class="gap-8px mb-8px" code-class="flex-1 border-radius-10px py-8px px-10px bg-card border-default text-12px mono break-all" :icon-size="12" />
                 <div class="flex-align-center gap-16px text-13px">
                   <TxTypeBadge :type="tx.type" />
-                  <span class="flex-align-center gap-4px color-success txt-weight-light bg-fill-success border-radius-4px py-4px px-6px">{{ t('✓ Success') }}</span>
+                  <span class="flex-align-center gap-4px color-success txt-weight-light bg-fill-success border-radius-4px py-4px px-6px">{{ t('Success') }}</span>
                 </div>
               </div>
             </UiCard>
@@ -118,7 +118,7 @@ const blockTransactions = computed(() => {
   if (!block.value || !block.value.txHashes || block.value.txHashes.length === 0) return [];
   return block.value.txHashes.map((hash: string) => ({
     hash: hash,
-    type: 'Transfer',
+    type: t('Transfer'),
     status: 'success'
   }));
 });

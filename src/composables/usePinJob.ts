@@ -1,3 +1,4 @@
+import { t } from '../stores/i18nStore';
 import { computed, ref } from 'vue';
 import { useInternalLumen } from './useInternalLumen';
 import { readPinJobSnapshot } from '../internal/services/pinJobs';
@@ -48,13 +49,13 @@ export function usePinJob(options: PinJobOptions): PinJobHandle {
   );
 
   const STATUS_LABELS: Record<string, string> = {
-    queued: 'Queued',
-    running: 'Saving',
-    retry_waiting: 'Retrying',
-    paused: 'Paused',
-    failed: 'Failed',
-    completed: 'Completed',
-    cancelled: 'Stopped',
+    queued: t('Queued'),
+    running: t('Saving…'),
+    retry_waiting: t('Retrying'),
+    paused: t('Paused'),
+    failed: t('Failed'),
+    completed: t('Completed'),
+    cancelled: t('Stopped'),
   };
 
   /** Falls back to the caller's own busy flag: a job exists before it has a status. */

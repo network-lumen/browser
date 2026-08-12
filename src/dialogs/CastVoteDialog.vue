@@ -39,7 +39,7 @@
             <CircleAlert :size="20" />
           </div>
           <div>
-            <div class="color-text-primary txt-weight-light text-15px mb-4px">{{ t('No With Veto') }}</div>
+            <div class="color-text-primary txt-weight-light text-15px mb-4px">{{ t('No with veto') }}</div>
             <div class="color-text-secondary text-13px">{{ t('Oppose strongly, flag as spam/harmful') }}</div>
           </div>
         </UiCard>

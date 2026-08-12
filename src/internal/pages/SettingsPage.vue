@@ -92,7 +92,7 @@
               <option value="large">{{ t('Large') }}</option>
             </select>
           </UiOptionRow>
-          <UiOptionRow :label="t('Brightness')" :description="`Adjust screen brightness (${brightness}%)`" control-class="gap-16px w-full max-w-320px">
+          <UiOptionRow :label="t('Brightness')" :description="t('Adjust screen brightness ({percent}%)', { percent: brightness })" control-class="gap-16px w-full max-w-320px">
             <Sun :size="16" class="color-text-secondary flex-shrink-0" />
             <input
               type="range"
@@ -615,7 +615,7 @@
             {{ t('Restart Lumen after changing this target. Existing files are not moved automatically.') }}
           </UiHintText>
           <UiHintText v-if="bootstrapRestartRequired">
-            {{ t('Restart required: the running app is still using') }} <span class="break-all mono">{{ activeUserDataPath }}</span>.
+            {{ t('Restart required: the running app is still using {path}.', { path: activeUserDataPath }) }}
           </UiHintText>
         </div>
       </div>
@@ -649,10 +649,10 @@
             {{ t('The logs folder is regenerated on demand so people can inspect the current support snapshot and share relevant log excerpts.') }}
           </UiHintText>
           <p v-if="troubleshootingDir" class="border-radius-12px color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
-            Logs folder: {{ troubleshootingDir }}
+            {{ t('Logs folder: {path}', { path: troubleshootingDir }) }}
           </p>
           <p v-if="troubleshootingReportPath" class="border-radius-12px color-text-secondary mt-4px py-12px px-16px bg-card border-default text-12px break-all">
-            Debug report: {{ troubleshootingReportPath }}
+            {{ t('Debug report: {path}', { path: troubleshootingReportPath }) }}
           </p>
         </div>
       </div>
@@ -664,7 +664,7 @@
           <UiOptionRow :class="{ 'border-color-success bg-gradient-success-soft': privateCloudEnabled }" class="border-width-2px" :description="t('Use your own private IPFS gateways for content delivery')">
             <template #label>
               <Cloud :size="18" class="inline-block align-middle mr-8px" />
-              {{ t('Enable Private Cloud') }}
+              {{ t('Enable private cloud') }}
             </template>
             <UiToggle v-model="privateCloudEnabled" />
           </UiOptionRow>
@@ -674,7 +674,7 @@
             <div class="mt-16px">
               <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">{{ t('Gateway preferences') }}</h3>
 
-              <UiOptionRow :label="t('Prefer Private Gateways')" :description="t('Try private gateways first before DAO gateways')">
+              <UiOptionRow :label="t('Prefer private gateways')" :description="t('Try private gateways first before DAO gateways')">
                 <UiToggle v-model="preferPrivateGateways" />
               </UiOptionRow>
 
@@ -721,7 +721,7 @@
             <div class="mt-16px">
               <h3 class="txt-weight-light color-text-primary text-15px m-0px mb-12px">{{ t('Advanced settings') }}</h3>
 
-              <UiOptionRow :label="t('Request Timeout')" :description="`Maximum time to wait for gateway response (${gatewayTimeout / 1000}s)`">
+              <UiOptionRow :label="t('Request timeout')" :description="t('Maximum time to wait for a gateway response ({seconds}s)', { seconds: gatewayTimeout / 1000 })">
                 <input
                   type="range"
                   min="1000"
@@ -733,7 +733,7 @@
                 <span class="text-right text-14px txt-weight-light color-text-secondary min-w-48px">{{ gatewayTimeout / 1000 }}s</span>
               </UiOptionRow>
 
-              <UiOptionRow :label="t('Max Retries')" :description="t('Maximum retry attempts per gateway')">
+              <UiOptionRow :label="t('Max retries')" :description="t('Maximum retry attempts per gateway')">
                 <UiInput
                   type="number"
                   min="1"
@@ -1385,7 +1385,7 @@ async function saveDevSettings() {
   const ipfsApiBase = normalizeHttpBaseUrl(ipfsApiDraft.value);
   const localDriveMaxUploadSizeGb = validatePositiveInteger(localDriveMaxUploadSizeDraft.value);
   if (!localGatewayBase) {
-    devSettingsError.value = t('Invalid Local IPFS Gateway URL.');
+    devSettingsError.value = t('Invalid local IPFS gateway URL.');
     return;
   }
   if (!ipfsApiBase) {
@@ -1621,15 +1621,15 @@ watch([privateCloudEnabled, preferPrivateGateways, fallbackToDAO, gatewayTimeout
 
 function getViewTitle(): string {
   const titles: Record<string, string> = {
-    appearance: 'Appearance',
+    appearance: t('Appearance'),
     content: t('Content settings'),
-    network: 'Network',
+    network: t('Network'),
     privacy: t('Privacy & security'),
-    security: 'Security',
+    security: t('Security'),
     profiles: t('Profiles & backups'),
     privatecloud: t('Private cloud'),
     advanced: t('Developer settings'),
-    troubleshooting: 'Troubleshooting',
+    troubleshooting: t('Troubleshooting'),
     about: t('About Lumen')
   };
   return titles[currentView.value] || 'Settings';
@@ -1748,7 +1748,7 @@ async function chooseProfileAvatar() {
       title: t('Select profile photo'),
       multi: false,
       filters: [
-        { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'avif'] },
+        { name: t('Images'), extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'avif'] },
       ],
     });
     if (!pick?.ok) {
