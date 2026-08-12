@@ -50,7 +50,18 @@ npm run i18n:extract        # refresh src/locales/*.json from the source
 npm run check:i18n          # same, read-only
 npm run check:i18n-strings  # fails on user-visible English not going through t()
 npm run check:wording       # fails on two strings saying the same thing
+
+# Filling a catalogue, a batch at a time. Only adds the keys the batch names,
+# refuses a key the source does not ask for, and refuses a translation that
+# has lost or invented a {placeholder}.
+node scripts/merge-locale.mjs fr batch.json
 ```
+
+**Adding a language**: a new `src/locales/<code>.json`, its code and endonym in
+`LOCALES` (`src/internal/services/i18n.ts`), `TARGET_LOCALES` in
+`scripts/extract-strings.mjs`, and the import in `src/stores/i18nStore.ts`. The
+picker in `lumen://settings` and the onboarding step both read `LOCALES`, so
+neither needs editing. Set `rtl: true` if the script runs right to left.
 
 ### The wording rules `check:wording` enforces
 
