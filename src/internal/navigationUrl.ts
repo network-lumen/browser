@@ -1,3 +1,4 @@
+import { t } from '../stores/i18nStore';
 import { safeDecodeUriComponent } from './services/coerce';
 
 const LUMEN_URL_RE = /^\s*lumen:\/\//i;
@@ -137,14 +138,14 @@ export function normalizeAddressInput(
 
 export function getFileUrlTitle(raw: string): string {
   const value = String(raw || "").trim();
-  if (!value) return "Local file";
+  if (!value) return t("Local file");
 
   try {
     const url = new URL(value);
     let pathname = safeDecodeUriComponent(String(url.pathname || ""));
     if (/^\/[a-zA-Z]:\//.test(pathname)) pathname = pathname.slice(1);
     const trimmed = pathname.replace(/\/+$/, "");
-    if (!trimmed) return url.host || "Local file";
+    if (!trimmed) return url.host || t("Local file");
     const segments = trimmed.split("/").filter(Boolean);
     return segments[segments.length - 1] || trimmed;
   } catch {

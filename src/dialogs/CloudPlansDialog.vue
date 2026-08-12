@@ -1,5 +1,5 @@
 <template>
-  <UiModal :model-value="modelValue" title="Cloud plans" panel-class="drivepage-plans-modal w-full max-w-860px" @update:model-value="$emit('close')">
+  <UiModal :model-value="modelValue" :title="t('Cloud plans')" panel-class="drivepage-plans-modal w-full max-w-860px" @update:model-value="$emit('close')">
         <div class="p-24px">
 
           <UiLoadingBlock v-if="plansLoading" wrapper-class="flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-220px" spinner-class="" />
@@ -9,7 +9,7 @@
           </div>
 
           <div v-else-if="!plans.length">
-            <p>No plans available at the moment.</p>
+            <p>{{ t('No plans available at the moment.') }}</p>
           </div>
 
           <div v-else class="flex flex-column flex-wrap-wrap gap-12px">
@@ -22,19 +22,19 @@
                      <input
                        v-model.trim="planFilter"
                        type="search"
-                       placeholder="Search gateways or plans"
+                       :placeholder="t('Search gateways or plans')"
                        class="flex-1 min-w-0 outline-none color-text-primary h-full text-14px bg-secondary border-none bg-transparent py-12px px-16px focus-outline-none focus-border-primary focus-bg-primary focus-ring focus-shadow"
                        @keydown.stop
-                       aria-label="Search gateways"
+                       :aria-label="t('Search gateways')"
                      />
                    </div>
 
                    <select
                      v-model="planRegion"
                      class="hover-border-accent size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-primary focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
-                     aria-label="Region filter"
+                     :aria-label="t('Region filter')"
                    >
-                     <option value="">All regions</option>
+                     <option value="">{{ t('All regions') }}</option>
                      <option v-for="r in planRegions" :key="r" :value="r">
                        {{ r }}
                      </option>
@@ -45,34 +45,34 @@
                    <select
                      v-model="planSortBy"
                      class="hover-border-accent size-40px border-radius-10px color-text-primary cursor-pointer outline-none border-1 bg-primary text-14px min-w-180px focus-border-primary focus-ring focus-outline-none focus-shadow p-0px pr-12px pl-12px"
-                     aria-label="Sort by"
+                     :aria-label="t('Sort by')"
                    >
-                     <option value="score-desc">Sort: Score (high-low)</option>
-                     <option value="name-asc">Sort: Name (A-Z)</option>
-                     <option value="name-desc">Sort: Name (Z-A)</option>
+                     <option value="score-desc">{{ t('Sort: Score (high-low)') }}</option>
+                     <option value="name-asc">{{ t('Sort: Name (A-Z)') }}</option>
+                     <option value="name-desc">{{ t('Sort: Name (Z-A)') }}</option>
                    </select>
                  </div>
                </div>
 
                <div class="flex-align-center-justify-space-between gap-12px w-full flex-justify-end flex-wrap-nowrap">
-                 <UiCheckbox v-model="planOnlineOnly">Online only</UiCheckbox>
+                 <UiCheckbox v-model="planOnlineOnly">{{ t('Online only') }}</UiCheckbox>
                </div>
              </div>
 
-             <UiEmptyState v-if="!planGroups.length" title="No gateways match your filters" description="Try clearing filters or search.">
+             <UiEmptyState v-if="!planGroups.length" :title="t('No gateways match your filters')" :description="t('Try clearing filters or search.')">
                <template #actions>
                  <UiButton variant="secondary" v-if="planFilter"
                    type="button"
                    @click="planFilter = ''">
-                   Clear search
+                   {{ t('Clear search') }}
                  </UiButton>
                  <UiButton variant="secondary" v-if="hasPlanFilters"
                    type="button"
                    @click="$emit('reset-filters')">
-                   Reset filters
+                   {{ t('Reset filters') }}
                  </UiButton>
                  <UiButton variant="secondary" type="button" @click="$emit('retry')">
-                   Reload
+                   {{ t('Reload') }}
                  </UiButton>
                </template>
              </UiEmptyState>
@@ -153,7 +153,7 @@
                       </div>
                       <div class="flex flex-column gap-4px min-w-170px">
                         <div class="flex-justify-space-between text-12px">
-                          <span class="color-text-secondary">Storage</span>
+                          <span class="color-text-secondary">{{ t('Storage') }}</span>
                           <span class="fw-500 color-text-primary">
                             {{
                               plan.storageGbPerMonth
@@ -163,7 +163,7 @@
                           </span>
                         </div>
                         <div class="flex-justify-space-between text-12px">
-                          <span class="color-text-secondary">Egress</span>
+                          <span class="color-text-secondary">{{ t('Egress') }}</span>
                           <span class="fw-500 color-text-primary">
                             {{
                               plan.networkGbPerMonth
@@ -173,7 +173,7 @@
                           </span>
                         </div>
                         <div class="flex-justify-space-between text-12px">
-                          <span class="color-text-secondary">Price</span>
+                          <span class="color-text-secondary">{{ t('Price') }}</span>
                           <span class="fw-500 color-text-primary">
                             {{ formatPlanPrice(plan.priceUlmn) }}
                           </span>
@@ -217,7 +217,7 @@
                <UiButton variant="secondary" type="button"
                  :disabled="planPage === 1"
                  @click="planPage--" class="disabled-fade-50">
-                 Prev
+                 {{ t('Prev') }}
                </UiButton>
                <span class="color-text-secondary text-13px nowrap">
                  Page {{ planPage }} / {{ planTotalPages || 1 }}
@@ -225,7 +225,7 @@
                <UiButton variant="secondary" type="button"
                  :disabled="planPage === planTotalPages"
                  @click="planPage++" class="disabled-fade-50">
-                 Next
+                 {{ t('Next') }}
                </UiButton>
                <UiButton variant="secondary" type="button"
                  :disabled="planPage === planTotalPages"
@@ -236,12 +236,12 @@
              <div class="flex-align-center gap-8px">
                <select
                  v-model.number="planPageSize"
-                 aria-label="Rows per page"
+                 :aria-label="t('Rows per page')"
                  class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-primary focus-ring focus-outline-none focus-shadow"
                >
-                 <option :value="8">8 / page</option>
-                 <option :value="16">16 / page</option>
-                 <option :value="24">24 / page</option>
+                 <option :value="8">{{ t('8 / page') }}</option>
+                 <option :value="16">{{ t('16 / page') }}</option>
+                 <option :value="24">{{ t('24 / page') }}</option>
                </select>
              </div>
            </div>
@@ -251,6 +251,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiLoadingBlock from '../ui/UiLoadingBlock.vue';
 import UiEmptyState from '../ui/UiEmptyState.vue';

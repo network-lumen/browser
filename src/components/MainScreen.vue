@@ -312,8 +312,8 @@ watch(
   }
 );
 
-function currentTitle(t: Tab): string {
-  return tabCurrentTitle(t, { fallback: 'New tab' });
+function currentTitle(tab: Tab): string {
+  return tabCurrentTitle(tab, { fallback: t('New tab') });
 }
 
 function currentUrlForTab(t: Tab | null | undefined): string {

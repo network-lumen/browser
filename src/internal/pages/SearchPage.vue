@@ -7,14 +7,14 @@
     @keydown="onSlashShortcut"
   >
           <UiButton variant="none" type="button"
-        title="How search works"
-        aria-label="How search works"
+        :title="t('How search works')"
+        :aria-label="t('How search works')"
         @click="openHowSearchWorks" class="border-radius-circle border-1 bg-secondary color-text-primary hover-bg-hover cursor-pointer flex-inline-align-justify-center active-translate-y-0 size-36px">
         <HelpCircle :size="18" />
       </UiButton>
     <section class="mt-15vh flex-column flex-inline-align-center gap-24px w-full relative flex z-1">
-      <div class="bg-gradient-primary letter-spacing-n002 fw-900 text-56px gradient-text-clip">Lumen</div>
-      <div class="text-14px txt-weight-light letter-spacing-015em text-uppercase color-text-tertiary">Search</div>
+      <div class="bg-gradient-primary letter-spacing-n002 fw-900 text-56px gradient-text-clip">{{ t('Lumen') }}</div>
+      <div class="text-14px txt-weight-light letter-spacing-015em text-uppercase color-text-tertiary">{{ t('Search') }}</div>
 
       <div class="flex-justify-center w-full">
         <div class="focus-within-lift-2px flex-align-center gap-12px border-radius-full bg-card shadow-md transition-all-03 pt-14px pr-16px pb-14px pl-20px w-min-820px-full border-color-primary-focus-within border-2-transparent shadow-shadow-focus-focus-within">
@@ -24,7 +24,7 @@
             v-model="q"
             type="text"
             class="flex-1-1-auto outline-none color-text-primary min-w-0 border-none bg-transparent text-16px"
-            placeholder="Search the network"
+            :placeholder="t('Search the network')"
             @keydown.enter.prevent="submit"
           />
           <UiButton
@@ -34,7 +34,7 @@
             @click="submit"
             :disabled="loading"
           >
-            Search
+            {{ t('Search') }}
           </UiButton>
         </div>
       </div>
@@ -48,7 +48,7 @@
           @click="setType('site')"
         >
           <Globe :size="16" class="flex-shrink-0 transition-transform-02" />
-          Sites
+          {{ t('Sites') }}
         </UiButton>
         <UiButton
           variant="tag"
@@ -58,7 +58,7 @@
           @click="setType('image')"
         >
           <Image :size="16" class="flex-shrink-0 transition-transform-02" />
-          Images
+          {{ t('Images') }}
         </UiButton>
         <UiButton
           variant="tag"
@@ -68,7 +68,7 @@
           @click="setType('all')"
         >
           <Compass :size="16" class="flex-shrink-0 transition-transform-02" />
-          Explore everything
+          {{ t('Explore everything') }}
         </UiButton>
       </div>
 
@@ -84,8 +84,8 @@
         <UiButton variant="primary" type="button"
           :disabled="loadingPrevious"
           @click="loadPrevious" class="disabled-fade-50">
-          <template v-if="loadingPrevious">Loading previous…</template>
-          <template v-else>Previous results</template>
+          <template v-if="loadingPrevious">{{ t('Loading previous…') }}</template>
+          <template v-else>{{ t('Previous results') }}</template>
         </UiButton>
       </div>
 
@@ -100,32 +100,32 @@
         </li>
       </ul>
 
-      <UiEmptyState v-else-if="!results.length" class="border-radius-20px bg-card border-2-dashed-color" icon-size="80px" title="No results found">
+      <UiEmptyState v-else-if="!results.length" class="border-radius-20px bg-card border-2-dashed-color" icon-size="80px" :title="t('No results found')">
         <Search :size="48" />
         <template #description>
           <p class="m-0px max-w-520px text-14px line-height-15">
             <template v-if="q.trim()">
-              We couldn't find anything matching "<strong>{{ q }}</strong>"
+              {{ t('We couldn\'t find anything matching “{query}”', { query: q }) }}
             </template>
             <template v-else-if="selectedType === 'site'">
-              We couldn't find any sites yet.
+              {{ t("We couldn't find any sites yet.") }}
             </template>
             <template v-else-if="selectedType === 'image'">
-              We couldn't find any images yet.
+              {{ t("We couldn't find any images yet.") }}
             </template>
             <template v-else-if="selectedType === 'all'">
-              We couldn't find any content yet.
+              {{ t("We couldn't find any content yet.") }}
             </template>
             <template v-else>
-              We couldn't find anything.
+              {{ t("We couldn't find anything.") }}
             </template>
           </p>
           <div class="text-left border-radius-12px py-16px px-20px bg-secondary">
-            <span class="txt-weight-light color-text-secondary text-13px block mb-8px">Try:</span>
+            <span class="txt-weight-light color-text-secondary text-13px block mb-8px">{{ t('Try:') }}</span>
             <ul class="line-height-15 m-0px color-text-secondary text-14px pl-20px">
-              <li>Using different keywords</li>
-              <li>Searching for a domain (e.g., <code class="text-13px bg-primary-a10 border-radius-4px color-primary py-4px px-6px">example.lmn</code>)</li>
-              <li>Entering a CID, transaction hash, or address directly</li>
+              <li>{{ t('Using different keywords') }}</li>
+              <li>{{ t('Searching for a domain (e.g.,') }} <code class="text-13px bg-primary-a10 border-radius-4px color-primary py-4px px-6px">{{ 'example.lmn' }}</code>)</li>
+              <li>{{ t('Entering a CID, transaction hash, or address directly') }}</li>
             </ul>
           </div>
         </template>
@@ -139,7 +139,7 @@
             type="button"
             class="hover-scale-106 top-50-bg-primary-a80-blur6 flex-align-justify-center size-28px border-radius-full color-text-secondary cursor-pointer absolute border-1 transition-all-02 z-1 right-8px hover-color-accent hover-border-primary-a30"
             :class="{ 'bg-accent border-color-primary color-white hover-bg-border-color-error': isPinnedImage(r) }"
-            :title="isPinnedImage(r) ? 'Remove from local save' : 'Save to local'"
+            :title="isPinnedImage(r) ? t('Remove from local save') : t('Save to local')"
             @click.stop="togglePinImage(r)"
           >
             <Bookmark
@@ -164,7 +164,7 @@
                   v-if="showHideIcon(r)"
                   type="button"
                   class="top-6px left-8px right-auto z-1 flex-inline-align-justify-center h-32px border-radius-full cursor-pointer absolute border-none bg-black-a35 w-32px backdrop-blur-8 color-white-a92 hover-bg-black-a50"
-                  title="Hide content"
+                  :title="t('Hide content')"
                   @click.stop.prevent="hideThumb(r)"
                 >
                   <EyeOff :size="16" />
@@ -255,7 +255,7 @@
                   v-if="showHideIcon(r)"
                   type="button"
                   class="top-6px right-4px z-1 h-24px flex-inline-align-justify-center border-radius-full cursor-pointer absolute border-none bg-black-a35 backdrop-blur-8 color-white-a92 w-24px hover-bg-black-a50"
-                  title="Hide content"
+                  :title="t('Hide content')"
                   @click.stop.prevent="hideThumb(r)"
                 >
                   <EyeOff :size="14" />
@@ -345,8 +345,8 @@
         <UiButton variant="primary" type="button"
           :disabled="loadingMore || loadingPrevious"
           @click="loadMore" class="disabled-fade-50">
-          <template v-if="loadingMore">Loading…</template>
-          <template v-else>More results</template>
+          <template v-if="loadingMore">{{ t('Loading…') }}</template>
+          <template v-else>{{ t('More results') }}</template>
         </UiButton>
       </div>
 
@@ -359,6 +359,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
@@ -688,26 +689,26 @@ function shouldMountImageThumb(idx: number): boolean {
 function blockedCatLabel(cat: ThumbSafetyBlockedCategory): string {
   switch (cat) {
     case "sexual":
-      return "sexual content";
+      return t("sexual content");
     case "violence":
-      return "violence / gore";
+      return t("violence / gore");
     case "disturbing":
-      return "disturbing imagery";
+      return t("disturbing imagery");
   }
 }
 
 function thumbBlurNoticeText(r: ResultItem): string {
   if (!isSearchImageThumb(r)) {
-    return "This image may contain sensitive content. Click to reveal.";
+    return t("This image may contain sensitive content. Click to reveal.");
   }
   const url = r.thumbUrl || "";
   const fromId = thumbSafetyById.value[r.id]?.scores || null;
   const fromCache = url ? thumbSafety.getCachedScoresByUrl(url)?.scores || null : null;
   const scores = fromId || fromCache;
-  if (!scores) return "This image may contain sensitive content. Click to reveal.";
+  if (!scores) return t("This image may contain sensitive content. Click to reveal.");
 
   const cats = blockedCategories(scores, appSettingsState.value);
-  if (!cats.length) return "This image may contain sensitive content. Click to reveal.";
+  if (!cats.length) return t("This image may contain sensitive content. Click to reveal.");
   const labels = cats.map(blockedCatLabel);
   if (labels.length === 1) {
     return `This image may contain ${labels[0]}. Click to reveal.`;
@@ -1309,7 +1310,7 @@ async function togglePinImage(result: ResultItem) {
             : null;
 
       if (!unpinFn) {
-        const msg = "Local save API unavailable (missing ipfsUnpin)";
+        const msg = t("Local save API unavailable (missing ipfsUnpin)");
         console.error("[search][local-save] unpin missing API:", { cid });
         toast.error(msg);
         return;
@@ -1318,16 +1319,16 @@ async function togglePinImage(result: ResultItem) {
       const res = await unpinFn(cid).catch(() => null);
       if (res?.ok) {
         pinnedCids.value = pinnedCids.value.filter((c) => c !== cid);
-        toast.success("Removed from local save");
+        toast.success(t("Removed from local save"));
         void refreshPinnedCids();
       } else {
         const err = String(res?.error || "").trim();
         console.warn("[search][local-save] unpin failed:", { cid, res });
-        toast.error(err ? `Failed to remove from local save: ${err}` : "Failed to remove from local save");
+        toast.error(err ? `Failed to remove from local save: ${err}` : t("Failed to remove from local save"));
       }
     } else {
       if (typeof api?.ipfsPinAdd !== "function") {
-        const msg = "Local save API unavailable (missing ipfsPinAdd)";
+        const msg = t("Local save API unavailable (missing ipfsPinAdd)");
         console.error("[search][local-save] pin missing API:", { cid });
         toast.error(msg);
         return;
@@ -1336,16 +1337,16 @@ async function togglePinImage(result: ResultItem) {
       const res = await api.ipfsPinAdd(cid).catch(() => null);
       if (res?.ok) {
         pinnedCids.value = [...pinnedCids.value, cid];
-        toast.success("Saved to local");
+        toast.success(t("Saved to local"));
         void refreshPinnedCids();
       } else {
         const err = String(res?.error || "").trim();
         console.warn("[search][local-save] pin failed:", { cid, res });
-        toast.error(err ? `Failed to save to local: ${err}` : "Failed to save to local");
+        toast.error(err ? `Failed to save to local: ${err}` : t("Failed to save to local"));
       }
     }
   } catch (e) {
-    toast.error(errorMessage(e, "Operation failed"));
+    toast.error(errorMessage(e, t("Operation failed")));
   }
 }
 
@@ -1435,26 +1436,26 @@ function typeBadgeLabel(r: ResultItem): string {
 
 function resultAccentGradient(r: ResultItem): string {
   if (!r) return "var(--gradient-brand)";
-  if (r.kind === "tx") return "linear-gradient(180deg, var(--color-warning) 0%, rgba(var(--color-warning-rgb), 0.5) 100%)";
-  if (r.kind === "block") return "linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)";
-  if (r.kind === "address") return "linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)";
+  if (r.kind === "tx") return t("linear-gradient(180deg, var(--color-warning) 0%, rgba(var(--color-warning-rgb), 0.5) 100%)");
+  if (r.kind === "block") return t("linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)");
+  if (r.kind === "address") return t("linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)");
   if (r.kind === "ipfs") {
     switch (r.fileKind) {
-      case "epub": return "linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)";
-      case "docx": return "linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)";
-      case "html": return "linear-gradient(180deg, var(--color-primary) 0%, rgba(var(--color-primary-rgb), 0.5) 100%)";
-      case "pdf": return "linear-gradient(180deg, var(--color-error) 0%, rgba(var(--color-error-rgb), 0.5) 100%)";
-      case "txt": return "linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%)";
-      default: return "linear-gradient(180deg, var(--color-success) 0%, rgba(var(--color-success-rgb), 0.5) 100%)";
+      case "epub": return t("linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)");
+      case "docx": return t("linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)");
+      case "html": return t("linear-gradient(180deg, var(--color-primary) 0%, rgba(var(--color-primary-rgb), 0.5) 100%)");
+      case "pdf": return t("linear-gradient(180deg, var(--color-error) 0%, rgba(var(--color-error-rgb), 0.5) 100%)");
+      case "txt": return t("linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%)");
+      default: return t("linear-gradient(180deg, var(--color-success) 0%, rgba(var(--color-success-rgb), 0.5) 100%)");
     }
   }
   return "var(--gradient-brand)";
 }
 
 function thumbFilterStyle(r: ResultItem): Record<string, string> {
-  const transition = "filter 180ms ease, transform 180ms ease";
+  const transition = t("filter 180ms ease, transform 180ms ease");
   if (shouldBlurThumb(r)) {
-    return { filter: "blur(14px) saturate(0.85) brightness(0.85)", transform: "scale(1.06)", transition };
+    return { filter: t("blur(14px) saturate(0.85) brightness(0.85)"), transform: "scale(1.06)", transition };
   }
   return { filter: "none", transform: "none", transition };
 }
@@ -1648,7 +1649,7 @@ function displayTextPreviewList(r: ResultItem): string | null {
   const raw = String(r.description || "");
   const formatted = formatCodePreviewList(raw);
   if (formatted) return formatted;
-  return "No preview available";
+  return t("No preview available");
 }
 
 // undefined rather than null: both fall through v-if and render as nothing,
@@ -1658,7 +1659,7 @@ function displayTextPreviewHover(r: ResultItem): string | undefined {
   const raw = String(r.description || "");
   const formatted = formatCodePreviewHover(raw);
   if (formatted) return formatted;
-  return "No preview available";
+  return t("No preview available");
 }
 
 function displayDescription(r: ResultItem): string | undefined {
@@ -1666,7 +1667,7 @@ function displayDescription(r: ResultItem): string | undefined {
   if (isExploreTextPreviewResult(r)) return undefined;
   const raw = String(r.description || "").trim();
   if (raw) return formatResultDescription(raw);
-  if (r.kind === "site") return "No description available";
+  if (r.kind === "site") return t("No description available");
   return undefined;
 }
 
@@ -2378,7 +2379,7 @@ async function openResult(r: ResultItem) {
           return;
         }
         if (resolved.isDir && !resolved.entryPath) {
-          toast.error("No HTML/HTM page found in this CID");
+          toast.error(t("No HTML/HTM page found in this CID"));
         }
       }
     }
@@ -3922,7 +3923,7 @@ function buildFastResults(query: string): ResultItem[] {
   if (/^lumen:\/\//i.test(s) && !(ipfsLike && ipfsCidOk)) {
     list.push({
       id: `link:${s}`,
-      title: "Open Lumen link",
+      title: t("Open Lumen link"),
       url: s,
       description: s,
       kind: "link",
@@ -3934,21 +3935,21 @@ function buildFastResults(query: string): ResultItem[] {
     const url = encoded
       ? `lumen://ipfs/${ipfsCid}/${encoded}`
       : `lumen://ipfs/${ipfsCid}`;
-    const title = ipfsLike.subpath ? "IPFS path" : "IPFS content";
+    const title = ipfsLike.subpath ? t("IPFS path") : t("IPFS content");
     list.push({
       id: `ipfs:${ipfsCid}`,
       title,
       url,
-      description: ipfsLike.subpath ? "Open IPFS path" : "Open content by CID",
+      description: ipfsLike.subpath ? t("Open IPFS path") : t("Open content by CID"),
       kind: "ipfs",
       badges: ["IPFS"],
     });
   } else if (isCidLike(s)) {
     list.push({
       id: `ipfs:${s}`,
-      title: "IPFS content",
+      title: t("IPFS content"),
       url: `lumen://ipfs/${s}`,
-      description: "Open content by CID",
+      description: t("Open content by CID"),
       kind: "ipfs",
       badges: ["IPFS"],
     });
@@ -3959,7 +3960,7 @@ function buildFastResults(query: string): ResultItem[] {
       id: `tx:${s}`,
       title: "Transaction",
       url: explorerTransactionUrl(s),
-      description: "View transaction details",
+      description: t("View transaction details"),
       kind: "tx",
       badges: ["Explorer"],
     });
@@ -3968,9 +3969,9 @@ function buildFastResults(query: string): ResultItem[] {
   if (isAddress(s)) {
     list.push({
       id: `addr:${s}`,
-      title: "Wallet address",
+      title: t("Wallet address"),
       url: explorerAddressUrl(s),
-      description: "View address activity",
+      description: t("View address activity"),
       kind: "address",
       badges: ["Explorer"],
     });
@@ -3981,7 +3982,7 @@ function buildFastResults(query: string): ResultItem[] {
       id: `block:${s}`,
       title: "Block",
       url: explorerBlockUrl(s),
-      description: "View block details",
+      description: t("View block details"),
       kind: "block",
       badges: ["Explorer"],
     });
@@ -4132,9 +4133,9 @@ async function runSearch(
     if (includePageOneDecorations && !profileId && type === "all") {
       base.push({
         id: `hint:profile`,
-        title: "Create a profile to enable gateway search",
+        title: t("Create a profile to enable gateway search"),
         url: "lumen://home",
-        description: "Gateway search requires a profile (wallet + signer).",
+        description: t("Gateway search requires a profile (wallet + signer)."),
         kind: "link",
       });
     }
@@ -4142,9 +4143,9 @@ async function runSearch(
     if (includePageOneDecorations && !profileId && type === "site") {
       base.push({
         id: `hint:profile`,
-        title: "Create a profile to enable gateway site search",
+        title: t("Create a profile to enable gateway site search"),
         url: "lumen://home",
-        description: "Gateway site search requires a profile (wallet + signer).",
+        description: t("Gateway site search requires a profile (wallet + signer)."),
         kind: "link",
       });
     }

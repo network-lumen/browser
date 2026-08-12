@@ -121,7 +121,7 @@ function normalizePayload(payload: any): NavBarExtensionSummary[] {
   return items
     .map((entry: any) => ({
       id: String(entry?.id || '').trim(),
-      name: String(entry?.name || 'Unnamed extension').trim() || 'Unnamed extension',
+      name: String(entry?.name || t('Unnamed extension')).trim() || t('Unnamed extension'),
       version: String(entry?.version || '').trim(),
       enabled: !!entry?.enabled,
       loaded: !!entry?.loaded,
@@ -138,12 +138,12 @@ async function refreshExtensions() {
     if (!api || typeof api.listExtensions !== 'function') return;
     const result = await api.listExtensions();
     if (result?.ok === false) {
-      message.value = result?.error || 'Failed to load extensions.';
+      message.value = result?.error || t('Failed to load extensions.');
       return;
     }
     extensions.value = normalizePayload(result);
   } catch {
-    message.value = 'Failed to load extensions.';
+    message.value = t('Failed to load extensions.');
   }
 }
 
@@ -189,23 +189,23 @@ async function loadUnpackedExtension() {
     // A cancelled picker is not a failure, and an empty message renders nothing.
     if (result?.canceled) return { ok: false, error: '' };
     return result;
-  }, 'Extension loaded.');
+  }, t('Extension loaded.'));
 }
 
 async function toggleExtensionEnabled(ext: NavBarExtensionSummary) {
   const api = useInternalLumen()?.extensions;
   if (!api) return;
   if (ext.enabled) {
-    await runExtensionAction(() => api.disableExtension(ext.id), 'Extension disabled.');
+    await runExtensionAction(() => api.disableExtension(ext.id), t('Extension disabled.'));
   } else {
-    await runExtensionAction(() => api.enableExtension(ext.id), 'Extension enabled.');
+    await runExtensionAction(() => api.enableExtension(ext.id), t('Extension enabled.'));
   }
 }
 
 async function reloadExtension(id: string) {
   const api = useInternalLumen()?.extensions;
   if (!api || typeof api.reloadExtension !== 'function') return;
-  await runExtensionAction(() => api.reloadExtension(id), 'Extension reloaded.');
+  await runExtensionAction(() => api.reloadExtension(id), t('Extension reloaded.'));
 }
 
 async function removeExtension(id: string) {
@@ -215,7 +215,7 @@ async function removeExtension(id: string) {
     const result = await api.removeExtension(id);
     if (result?.ok) extensions.value = extensions.value.filter((entry) => entry.id !== id);
     return result;
-  }, 'Extension removed.');
+  }, t('Extension removed.'));
 }
 
 async function openExtension(ext: NavBarExtensionSummary) {

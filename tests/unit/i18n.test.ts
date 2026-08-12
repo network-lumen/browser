@@ -77,19 +77,29 @@ describe('translation', () => {
 
 describe('the shipped French catalogue', () => {
   const catalog = fr as Record<string, string>;
+  const translated = Object.entries(catalog).filter(([, value]) => value.trim());
 
-  it('has no empty entry, which would silently fall back to English', () => {
-    const empty = Object.entries(catalog).filter(([, value]) => !String(value).trim());
-    expect(empty).toEqual([]);
+  // An empty entry is the normal state of a string nobody has translated yet -
+  // `translate` falls back to the key, which is the English. What must not
+  // happen is an entry that *looks* translated and is not, so the assertions
+  // below only cover the entries that carry a value.
+
+  it('has entries to check', () => {
+    expect(translated.length).toBeGreaterThan(0);
   });
 
   it('keeps every placeholder its English source declares', () => {
     const placeholders = (s: string) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
-    for (const [key, value] of Object.entries(catalog)) {
+    for (const [key, value] of translated) {
       expect(placeholders(value), `placeholders drifted in ${JSON.stringify(key)}`).toEqual(
         placeholders(key)
       );
     }
+  });
+
+  it('never holds a whitespace-only translation, which would render as a blank label', () => {
+    const blank = Object.entries(catalog).filter(([, v]) => v.length > 0 && !v.trim());
+    expect(blank).toEqual([]);
   });
 });
 

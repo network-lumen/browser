@@ -100,17 +100,17 @@ const payingId = isPaying;
 function lateBy(payment: RecurringPayment): string {
   const days = Math.floor((Date.now() - new Date(payment.nextPaymentDate).getTime()) / 86_400_000);
   if (days < 1) return '';
-  return days === 1 ? '1 day late' : `${days} days late`;
+  return days === 1 ? t('1 day late') : `${days} days late`;
 }
 
 async function confirmPay(payment: RecurringPayment) {
   const amount = formatDecimal(payment.amount, { decimals: 6 });
   const recipient = truncateMiddle(payment.recipient, { start: 12, end: 8 });
-  if (!window.confirm(`Send ${amount} LMN to ${recipient} for "${payment.name}"?`)) return;
+  if (!window.confirm(t('Send {amount} LMN to {recipient} for “{name}”?', { amount, recipient, name: payment.name }))) return;
 
   const result = await payReminder(payment.id);
   if (result.ok) {
-    toast.success(`Sent ${amount} LMN for "${payment.name}"`);
+    toast.success(t('Sent {amount} LMN for “{name}”', { amount, name: payment.name }));
     return;
   }
   if (result.locked) {

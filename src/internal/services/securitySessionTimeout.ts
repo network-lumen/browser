@@ -1,3 +1,5 @@
+import { t } from '../../stores/i18nStore';
+import { markForTranslation } from './i18n';
 import type { SecuritySessionTimeoutMs } from "../../types/settings";
 
 export type { SecuritySessionTimeoutMs };
@@ -21,26 +23,26 @@ export const SECURITY_SESSION_TIMEOUT_OPTIONS = Object.freeze([
   {
     value: 15 * 60 * 1000,
     serialized: "900000",
-    label: "15 min",
-    durationText: "15 minutes",
+    label: markForTranslation("15 min"),
+    durationText: markForTranslation("15 minutes"),
   },
   {
     value: 30 * 60 * 1000,
     serialized: "1800000",
-    label: "30 min",
-    durationText: "30 minutes",
+    label: markForTranslation("30 min"),
+    durationText: markForTranslation("30 minutes"),
   },
   {
     value: 2 * 60 * 60 * 1000,
     serialized: "7200000",
-    label: "2 hours",
-    durationText: "2 hours",
+    label: markForTranslation("2 hours"),
+    durationText: markForTranslation("2 hours"),
   },
   {
     value: null,
     serialized: "restart",
-    label: "Until restart",
-    durationText: "until restart",
+    label: markForTranslation("Until restart"),
+    durationText: markForTranslation("until restart"),
   },
 ] as const);
 
@@ -71,21 +73,24 @@ function getSecuritySessionTimeoutOption(value: SecuritySessionTimeoutMs) {
   );
 }
 
+// The duration goes in as a {placeholder} rather than being concatenated:
+// "for 15 minutes" is not "pour" + the same words in every language, and a
+// sentence assembled from fragments cannot be reordered by a translator.
 function getSecuritySessionTimeoutDurationText(value: SecuritySessionTimeoutMs): string {
-  return getSecuritySessionTimeoutOption(value).durationText;
+  return t(getSecuritySessionTimeoutOption(value).durationText);
 }
 
 export function getSecuritySessionTimeoutCacheText(value: SecuritySessionTimeoutMs): string {
-  if (normalizeSecuritySessionTimeoutMs(value) === null) return "until restart";
-  return `for ${getSecuritySessionTimeoutDurationText(value)}`;
+  if (normalizeSecuritySessionTimeoutMs(value) === null) return t('until restart');
+  return t('for {duration}', { duration: getSecuritySessionTimeoutDurationText(value) });
 }
 
 export function getSecuritySessionTimeoutHelpText(value: SecuritySessionTimeoutMs): string {
-  if (normalizeSecuritySessionTimeoutMs(value) === null) return "until the app restarts";
-  return `for ${getSecuritySessionTimeoutDurationText(value)}`;
+  if (normalizeSecuritySessionTimeoutMs(value) === null) return t('until the app restarts');
+  return t('for {duration}', { duration: getSecuritySessionTimeoutDurationText(value) });
 }
 
 export function getSecuritySessionTimeoutIdleText(value: SecuritySessionTimeoutMs): string | null {
   if (normalizeSecuritySessionTimeoutMs(value) === null) return null;
-  return `${getSecuritySessionTimeoutDurationText(value)} of inactivity`;
+  return t('{duration} of inactivity', { duration: getSecuritySessionTimeoutDurationText(value) });
 }

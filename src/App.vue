@@ -6,7 +6,7 @@
     />
     <SecurityGate v-else>
       <div v-if="fatalError">
-        <p>Fatal error:</p>
+        <p>{{ t('Fatal error:') }}</p>
         <pre>{{ fatalError.message }}</pre>
       </div>
       <MainScreen v-else />
@@ -15,6 +15,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from './stores/i18nStore';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import StartupScreen from './components/StartupScreen.vue';
 import MainScreen from './components/MainScreen.vue';

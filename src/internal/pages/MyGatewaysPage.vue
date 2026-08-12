@@ -1,12 +1,12 @@
 <template>
   <!-- ####### lumen://my-gateways MY GATEWAYS ####### -->
   <div class="internal-page flex">
-    <InternalSidebar title="My Gateways" :icon="Server" activeKey="my-gateways">
+    <InternalSidebar :title="t('My Gateways')" :icon="Server" activeKey="my-gateways">
       <nav class="flex flex-column gap-12px">
-        <UiSidebarNavSection title="Manage">
+        <UiSidebarNavSection :title="t('Manage')">
           <UiSidebarNavItem active>
             <List :size="18" />
-            <span>Gateway List</span>
+            <span>{{ t('Gateway List') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -14,9 +14,9 @@
 
     <main class="flex-1 flex flex-column overflow-hidden bg-secondary py-32px px-40px">
       <UiPageHeader
-        title="My Private Gateways"
+        :title="t('My Private Gateways')"
         title-size="32px"
-        subtitle="Manage your private IPFS gateways for secure content delivery"
+        :subtitle="t('Manage your private IPFS gateways for secure content delivery')"
       />
 
       <div class="pt-2px flex-1 min-h-0 overflow-y-auto">
@@ -33,13 +33,13 @@
               <Server :size="24" />
             </div>
             <div class="flex-1">
-              <h3 class="text-18px txt-weight-light color-text-primary m-0px mb-4px">Embedded Gateway Server</h3>
+              <h3 class="text-18px txt-weight-light color-text-primary m-0px mb-4px">{{ t('Embedded Gateway Server') }}</h3>
               <p v-if="embeddedServerRunning" class="m-0px text-14px color-primary mono">{{ embeddedServerUrl }}</p>
-              <p v-else class="color-text-secondary m-0px text-14px">Start your personal gateway server</p>
+              <p v-else class="color-text-secondary m-0px text-14px">{{ t('Start your personal gateway server') }}</p>
             </div>
             <div class="flex-align-center gap-8px fw-500 border-radius-20px py-8px px-16px text-14px transition-all-03" :class="embeddedServerRunning ? 'bg-fill-success color-success' : 'bg-fill-tertiary color-text-secondary'">
               <span class="border-radius-circle w-8px h-8px bg-text-tertiary animate-mygw-pulse" :class="{ 'bg-success': embeddedServerRunning }"></span>
-              {{ embeddedServerRunning ? 'Running' : 'Stopped' }}
+              {{ embeddedServerRunning ? t('Running') : t('Stopped') }}
             </div>
           </div>
 
@@ -48,7 +48,7 @@
               type="button"
               @click="viewApiKey">
               <Key :size="16" />
-              Copy API Key
+              {{ t('Copy API Key') }}
             </UiButton>
             <UiButton
               variant="none"
@@ -61,34 +61,34 @@
             >
               <Pause v-if="embeddedServerRunning" :size="16" fill="currentColor" />
               <Play v-else :size="16" fill="currentColor" />
-              {{ embeddedServerRunning ? 'Stop Server' : 'Start Server' }}
+              {{ embeddedServerRunning ? t('Stop Server') : t('Start Server') }}
             </UiButton>
           </div>
         </UiCard>
 
         <div v-if="embeddedServerRunning" class="mb-32px border-top-1 pt-32px">
           <div class="flex-align-center flex-justify-space-between mb-24px">
-            <h2 class="txt-weight-light color-text-primary m-0px text-20px">Whitelist Management</h2>
+            <h2 class="txt-weight-light color-text-primary m-0px text-20px">{{ t('Whitelist Management') }}</h2>
             <UiButton variant="primary" type="button" @click="openWhitelistModal">
               <Plus :size="18" />
-              Add User
+              {{ t('Add User') }}
             </UiButton>
           </div>
 
-          <UiEmptyState v-if="whitelistLoading" description="Loading whitelist...">
+          <UiEmptyState v-if="whitelistLoading" :description="t('Loading whitelist...')">
             <UiSpinner size="lg" />
           </UiEmptyState>
 
-          <UiEmptyState v-else-if="whitelist.length === 0" description="No users in whitelist yet. Add wallet addresses to grant access." />
+          <UiEmptyState v-else-if="whitelist.length === 0" :description="t('No users in whitelist yet. Add wallet addresses to grant access.')" />
 
           <UiCard v-else class="overflow-hidden" border-class="border-15" radius="14px" padding="none" :shadow="false">
             <table class="w-full border-collapse-collapse">
               <thead class="bg-hover">
                 <tr>
-                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Display Name</th>
-                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Wallet Address</th>
-                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Added</th>
-                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">Actions</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Display Name') }}</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Wallet Address') }}</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Added') }}</th>
+                  <th class="py-16px px-20px text-left text-14px txt-weight-light color-text-secondary border-bottom-1">{{ t('Actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -104,10 +104,10 @@
                   <td class="py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">{{ formatDate(entry.added_at) }}</td>
                   <td class="py-16px px-20px text-14px color-text-primary" :class="{ 'border-bottom-1': idx !== whitelist.length - 1 }">
                     <div class="flex gap-8px">
-                      <UiButton variant="secondary" @click="editWhitelistEntry(entry)" title="Edit display name" class="size-32px">
+                      <UiButton variant="secondary" @click="editWhitelistEntry(entry)" :title="t('Edit display name')" class="size-32px">
                         <Edit2 :size="14" />
                       </UiButton>
-                      <UiButton variant="danger" @click="confirmRemoveFromWhitelist(entry)" title="Remove" class="size-32px hover-bg-error-a08">
+                      <UiButton variant="danger" @click="confirmRemoveFromWhitelist(entry)" :title="t('Remove')" class="size-32px hover-bg-error-a08">
                         <Trash2 :size="14" />
                       </UiButton>
                     </div>
@@ -119,30 +119,30 @@
         </div>
 
         <div class="flex-align-center flex-justify-space-between mb-24px">
-          <h2 class="txt-weight-light color-text-primary m-0px text-20px">External Gateways</h2>
+          <h2 class="txt-weight-light color-text-primary m-0px text-20px">{{ t('External Gateways') }}</h2>
           <UiButton variant="primary" type="button" @click="openCreateModal">
             <Plus :size="18" />
-            Add Gateway
+            {{ t('Add Gateway') }}
           </UiButton>
         </div>
 
-        <UiEmptyState v-if="loading" description="Loading gateways...">
+        <UiEmptyState v-if="loading" :description="t('Loading gateways...')">
           <UiSpinner size="lg" />
         </UiEmptyState>
 
-        <UiEmptyState v-else-if="error" title="Error Loading Gateways" :description="error">
+        <UiEmptyState v-else-if="error" :title="t('Error Loading Gateways')" :description="error">
           <AlertCircle :size="48" />
           <template #actions>
-            <UiButton variant="secondary" @click="loadGateways">Try Again</UiButton>
+            <UiButton variant="secondary" @click="loadGateways">{{ t('Try Again') }}</UiButton>
           </template>
         </UiEmptyState>
 
-        <UiEmptyState v-else-if="gateways.length === 0" title="No Gateways Yet" description="Create your first private gateway to get started">
+        <UiEmptyState v-else-if="gateways.length === 0" :title="t('No Gateways Yet')" :description="t('Create your first private gateway to get started')">
           <Server :size="48" />
           <template #actions>
             <UiButton variant="primary" @click="openCreateModal" class="disabled-fade-50">
               <Plus :size="18" />
-              Create Gateway
+              {{ t('Create Gateway') }}
             </UiButton>
           </template>
         </UiEmptyState>
@@ -171,15 +171,15 @@
 
             <div class="flex flex-column gap-8px mb-16px">
               <div class="flex gap-8px text-14px">
-                <span class="color-text-secondary fw-500 min-w-48px">URL:</span>
+                <span class="color-text-secondary fw-500 min-w-48px">{{ t('URL:') }}</span>
                 <span class="mono break-all color-text-primary text-13px">{{ gateway.url }}</span>
               </div>
               <div class="flex gap-8px text-14px">
-                <span class="color-text-secondary fw-500 min-w-48px">ID:</span>
+                <span class="color-text-secondary fw-500 min-w-48px">{{ t('ID:') }}</span>
                 <span class="mono break-all color-text-primary text-13px">{{ gateway.id }}</span>
               </div>
               <div class="flex gap-8px text-14px">
-                <span class="color-text-secondary fw-500 min-w-48px">Created:</span>
+                <span class="color-text-secondary fw-500 min-w-48px">{{ t('Created:') }}</span>
                 <span class="break-all color-text-primary">{{ formatDate(gateway.createdAt) }}</span>
               </div>
             </div>
@@ -187,11 +187,11 @@
             <div class="flex gap-8px mt-16px">
               <UiButton variant="secondary" @click="openEditModal(gateway)">
                 <Edit2 :size="16" />
-                Edit
+                {{ t('Edit') }}
               </UiButton>
               <UiButton variant="danger" @click="confirmDelete(gateway)">
                 <Trash2 :size="16" />
-                Delete
+                {{ t('Delete') }}
               </UiButton>
             </div>
           </UiCard>
@@ -204,15 +204,15 @@
       <!-- Delete Confirmation Modal -->
       <ConfirmDialog
         :model-value="showDeleteConfirm"
-        title="Delete Gateway"
+        :title="t('Delete Gateway')"
         consequence="This action cannot be undone."
-        confirm-label="Delete"
-        busy-label="Deleting..."
+        :confirm-label="t('Delete')"
+        :busy-label="t('Deleting...')"
         :busy="deleting"
         @update:model-value="closeDeleteConfirm"
         @confirm="deleteGateway"
       >
-        <p>Are you sure you want to delete <strong>{{ deletingGateway?.name }}</strong>?</p>
+        <p>{{ t('Are you sure you want to delete') }} <strong>{{ deletingGateway?.name }}</strong>?</p>
       </ConfirmDialog>
 
       <!-- Whitelist Add/Edit Modal -->
@@ -221,21 +221,22 @@
       <!-- Whitelist Remove Confirmation Modal -->
       <ConfirmDialog
         :model-value="showWhitelistDeleteConfirm"
-        title="Remove User"
+        :title="t('Remove User')"
         consequence="They will no longer be able to access your gateway."
-        confirm-label="Remove"
-        busy-label="Removing..."
+        :confirm-label="t('Remove')"
+        :busy-label="t('Removing...')"
         :busy="whitelistDeleting"
         @update:model-value="closeWhitelistDeleteConfirm"
         @confirm="removeFromWhitelist"
       >
-        <p>Remove <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> from whitelist?</p>
+        <p>{{ t('Remove') }} <strong>{{ getUserDisplayName(removingWhitelistEntry?.wallet_address) }}</strong> {{ t('from whitelist?') }}</p>
       </ConfirmDialog>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import ConfirmDialog from '../../dialogs/ConfirmDialog.vue';
@@ -322,7 +323,7 @@ async function loadGateways() {
     const result = await useInternalLumen()?.settingsLoadGateways();
     gateways.value = result || [];
   } catch (e) {
-    error.value = errorMessage(e, 'Failed to load gateways');
+    error.value = errorMessage(e, t('Failed to load gateways'));
   } finally {
     loading.value = false;
   }
@@ -376,11 +377,11 @@ async function saveGateway() {
       );
 
       if (!result.ok) {
-        modalError.value = result.error || 'Failed to update gateway';
+        modalError.value = result.error || t('Failed to update gateway');
         return;
       }
       
-      toast.success('Gateway updated successfully');
+      toast.success(t('Gateway updated successfully'));
     } else {
       // Create new gateway
       const newGateway: Gateway = {
@@ -397,17 +398,17 @@ async function saveGateway() {
       const result = await useInternalLumen()?.settingsAddGateway(newGateway);
 
       if (!result.ok) {
-        modalError.value = result.error || 'Failed to create gateway';
+        modalError.value = result.error || t('Failed to create gateway');
         return;
       }
       
-      toast.success('Gateway created successfully');
+      toast.success(t('Gateway created successfully'));
     }
 
     await loadGateways();
     closeModal();
   } catch (e) {
-    modalError.value = errorMessage(e, 'Failed to save gateway');
+    modalError.value = errorMessage(e, t('Failed to save gateway'));
   } finally {
     saving.value = false;
   }
@@ -433,15 +434,15 @@ async function deleteGateway() {
     const result = await useInternalLumen()?.settingsDeleteGateway(deletingGateway.value.id);
 
     if (!result.ok) {
-      toast.error(result.error || 'Failed to delete gateway');
+      toast.error(result.error || t('Failed to delete gateway'));
       return;
     }
 
-    toast.success('Gateway deleted successfully');
+    toast.success(t('Gateway deleted successfully'));
     await loadGateways();
     closeDeleteConfirm();
   } catch (e) {
-    toast.error(errorMessage(e, 'Failed to delete gateway'));
+    toast.error(errorMessage(e, t('Failed to delete gateway')));
   } finally {
     deleting.value = false;
   }
@@ -472,17 +473,17 @@ async function viewApiKey() {
       await copyToClipboardShared(result.apiKey);
 
       toast.success(
-        'API Key copied to clipboard!',
+        t('API Key copied to clipboard!'),
         { 
-          title: 'API Key',
+          title: t('API Key'),
           duration: 5000 
         }
       );
     } else {
-      toast.error('No API key found. Please start the server first.');
+      toast.error(t('No API key found. Please start the server first.'));
     }
   } catch (e) {
-    toast.error(errorMessage(e, 'Failed to get API key'));
+    toast.error(errorMessage(e, t('Failed to get API key')));
   }
 }
 
@@ -495,9 +496,9 @@ async function toggleEmbeddedServer() {
         embeddedServerRunning.value = false;
         embeddedServerPort.value = null;
         embeddedServerUrl.value = null;
-        toast.success('Embedded Gateway Server stopped');
+        toast.success(t('Embedded Gateway Server stopped'));
       } else {
-        toast.error(result.error || 'Failed to stop embedded server');
+        toast.error(result.error || t('Failed to stop embedded server'));
       }
     } else {
       const result = await useInternalLumen()?.gatewayServerStart({ port: 3100 });
@@ -514,16 +515,16 @@ async function toggleEmbeddedServer() {
           toast.success(
             `Server running at ${result.url}`,
             { 
-              title: 'Embedded Gateway Server Started',
+              title: t('Embedded Gateway Server Started'),
               duration: 8000 
             }
           );
           
           // Show API key copied notification
           toast.success(
-            `API Key copied to clipboard!`,
+            t('API Key copied to clipboard!'),
             { 
-              title: 'API Key Ready',
+              title: t('API Key Ready'),
               duration: 6000 
             }
           );
@@ -532,7 +533,7 @@ async function toggleEmbeddedServer() {
           toast.success(
             `Server running at ${result.url}`,
             { 
-              title: 'Embedded Gateway Server Started',
+              title: t('Embedded Gateway Server Started'),
               duration: 8000 
             }
           );
@@ -540,7 +541,7 @@ async function toggleEmbeddedServer() {
           toast.info(
             `API Key: ${result.apiKey}`,
             { 
-              title: 'Save Your API Key',
+              title: t('Save Your API Key'),
               duration: 15000 
             }
           );
@@ -549,11 +550,11 @@ async function toggleEmbeddedServer() {
         // Load whitelist after server starts
         await loadWhitelist();
       } else {
-        toast.error(result.error || 'Failed to start embedded server');
+        toast.error(result.error || t('Failed to start embedded server'));
       }
     }
   } catch (e) {
-    toast.error(errorMessage(e, 'Failed to toggle embedded server'));
+    toast.error(errorMessage(e, t('Failed to toggle embedded server')));
   } finally {
     serverLoading.value = false;
   }
@@ -654,7 +655,7 @@ async function saveWhitelistEntry() {
   try {
     const apiKey = await useInternalLumen()?.gatewayServerGetApiKey();
     if (!apiKey.ok || !apiKey.apiKey) {
-      whitelistModalError.value = 'No API key available';
+      whitelistModalError.value = t('No API key available');
       return;
     }
 
@@ -669,12 +670,12 @@ async function saveWhitelistEntry() {
         );
 
         if (!metadataResult.ok) {
-          whitelistModalError.value = metadataResult.error || 'Failed to save display name';
+          whitelistModalError.value = metadataResult.error || t('Failed to save display name');
           return;
         }
       }
 
-      toast.success('User updated successfully');
+      toast.success(t('User updated successfully'));
     } else {
       // Add new user to whitelist
       const response = await fetch(`http://127.0.0.1:${embeddedServerPort.value}/api/whitelist`, {
@@ -691,7 +692,7 @@ async function saveWhitelistEntry() {
 
       if (!response.ok) {
         const error = await response.json();
-        whitelistModalError.value = error.error || 'Failed to add user';
+        whitelistModalError.value = error.error || t('Failed to add user');
         return;
       }
 
@@ -705,13 +706,13 @@ async function saveWhitelistEntry() {
         );
       }
 
-      toast.success('User added to whitelist');
+      toast.success(t('User added to whitelist'));
     }
 
     await loadWhitelist();
     closeWhitelistModal();
   } catch (e) {
-    whitelistModalError.value = errorMessage(e, 'Failed to save user');
+    whitelistModalError.value = errorMessage(e, t('Failed to save user'));
   } finally {
     whitelistSaving.value = false;
   }
@@ -736,7 +737,7 @@ async function removeFromWhitelist() {
   try {
     const apiKey = await useInternalLumen()?.gatewayServerGetApiKey();
     if (!apiKey.ok || !apiKey.apiKey) {
-      toast.error('No API key available');
+      toast.error(t('No API key available'));
       return;
     }
 
@@ -752,15 +753,15 @@ async function removeFromWhitelist() {
 
     if (!response.ok) {
       const error = await response.json();
-      toast.error(error.error || 'Failed to remove user');
+      toast.error(error.error || t('Failed to remove user'));
       return;
     }
 
-    toast.success('User removed from whitelist');
+    toast.success(t('User removed from whitelist'));
     await loadWhitelist();
     closeWhitelistDeleteConfirm();
   } catch (e) {
-    toast.error(errorMessage(e, 'Failed to remove user'));
+    toast.error(errorMessage(e, t('Failed to remove user')));
   } finally {
     whitelistDeleting.value = false;
   }

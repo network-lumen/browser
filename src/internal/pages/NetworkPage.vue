@@ -12,32 +12,32 @@
     <!-- Show normal explorer/network view otherwise -->
     <template v-else>
     <!-- ####### lumen://network SIDEBAR ####### -->
-    <InternalSidebar title="Network" :icon="Network" activeKey="network">
+    <InternalSidebar :title="t('Network')" :icon="Network" activeKey="network">
       <nav class="flex flex-column gap-12px">
-        <UiSidebarNavSection title="Explorer">
+        <UiSidebarNavSection :title="t('Explorer')">
           <UiSidebarNavItem reveal :active="currentView === 'overview'" @click="goToView('overview')">
             <PanelsTopLeft class="reveal-target flex-shrink-0 opacity-85" :size="18" />
-            <span>Overview</span>
+            <span>{{ t('Overview') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'blocks'" @click="goToView('blocks')">
             <LayoutGrid class="reveal-target flex-shrink-0 opacity-85" :size="18" />
-            <span>Blocks</span>
+            <span>{{ t('Blocks') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'transactions'" @click="goToView('transactions')">
             <RotateCw class="reveal-target flex-shrink-0 opacity-85" :size="18" />
-            <span>Transactions</span>
+            <span>{{ t('Transactions') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'validators'" @click="goToView('validators')">
             <Users class="reveal-target flex-shrink-0 opacity-85" :size="18" />
-            <span>Validators</span>
+            <span>{{ t('Validators') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'params'" @click="goToView('params')">
             <SlidersHorizontal :size="18" />
-            <span>Params</span>
+            <span>{{ t('Params') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem reveal :active="currentView === 'governance'" @click="goToView('governance')">
             <Vote class="reveal-target flex-shrink-0 opacity-85" :size="18" />
-            <span>Governance</span>
+            <span>{{ t('Governance') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -54,22 +54,22 @@
             class="flex-1 outline-none color-text-primary border-none text-15px bg-transparent placeholder-tertiary"
             v-model="searchQuery"
             @keyup.enter="performSearch"
-            placeholder="Search by Block Height, Tx Hash, or Address..."
+            :placeholder="t('Search by Block Height, Tx Hash, or Address...')"
           />
           <UiButton variant="primary" @click="performSearch" :disabled="!searchQuery" class="disabled-fade-50">
-            Search
+            {{ t('Search') }}
           </UiButton>
         </div>
       </div>
 
       <div class="gap-16px mb-32px grid grid-cols-auto-fit-200">
-        <UiStatTile label="Latest Block" :value="formatNumber(latestBlock)" />
+        <UiStatTile :label="t('Latest Block')" :value="formatNumber(latestBlock)" />
         <UiStatTile :label="`Txs (last ${txHistoryWindow} blocks)`" :value="formatNumber(txHistoryTotal)" />
-        <UiStatTile label="Validators" :value="String(validatorCount)" />
-        <UiStatTile label="Avg Block Time" :value="avgBlockTimeLabel" />
+        <UiStatTile :label="t('Validators')" :value="String(validatorCount)" />
+        <UiStatTile :label="t('Avg Block Time')" :value="avgBlockTimeLabel" />
       </div>
 
-      <UiLoadingBlock v-if="isLoading" message="Loading blockchain data..." />
+      <UiLoadingBlock v-if="isLoading" :message="t('Loading blockchain data...')" />
 
       <template v-else>
         <!-- ####### EXPLORER: OVERVIEW VIEW ####### -->
@@ -88,27 +88,27 @@
               <canvas ref="txHistoryChart" class="w-full h-120px"></canvas>
             </UiChartCard>
 
-            <UiChartCard title="Bonded / Supply">
+            <UiChartCard :title="t('Bonded / Supply')">
               <div class="relative m-0px mx-auto mb-12px w-140px h-140px">
                 <canvas ref="bondedSupplyChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
                 <div class="text-center absolute cursor-events-none top-half left-half translate-center">
                   <div class="txt-weight-medium color-text-primary text-20px">{{ bondedRatioLabel }}</div>
-                  <div class="color-text-tertiary text-11px mt-0px">Bonded</div>
+                  <div class="color-text-tertiary text-11px mt-0px">{{ t('Bonded') }}</div>
                 </div>
               </div>
               <div class="flex flex-column gap-6px">
-                <UiLegendItem dot-class="bg-gradient-legend-bonded" label="Bonded" :value="`${formatNumber(bondedTokens)} LMN`" />
-                <UiLegendItem dot-class="bg-legend-unbonded" label="Unbonded" :value="`${formatNumber(unbondedTokens)} LMN`" />
-                <UiLegendItem label="Total Supply" :value="`${formatNumber(totalSupply)} LMN`" />
+                <UiLegendItem dot-class="bg-gradient-legend-bonded" :label="t('Bonded')" :value="`${formatNumber(bondedTokens)} LMN`" />
+                <UiLegendItem dot-class="bg-legend-unbonded" :label="t('Unbonded')" :value="`${formatNumber(unbondedTokens)} LMN`" />
+                <UiLegendItem :label="t('Total Supply')" :value="`${formatNumber(totalSupply)} LMN`" />
               </div>
             </UiChartCard>
 
-            <UiChartCard title="Voting Power">
+            <UiChartCard :title="t('Voting Power')">
               <div class="relative m-0px mx-auto mb-12px w-140px h-140px">
                 <canvas ref="votingPowerChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
                 <div class="text-center absolute cursor-events-none top-half left-half translate-center">
                   <div class="txt-weight-medium color-text-primary text-20px">{{ topValidatorsPower.length }}</div>
-                  <div class="color-text-tertiary text-11px mt-0px">Active</div>
+                  <div class="color-text-tertiary text-11px mt-0px">{{ t('Active') }}</div>
                 </div>
               </div>
               <div class="flex flex-column gap-6px">
@@ -119,15 +119,15 @@
                   :label="vp.moniker"
                   :value="`${vp.percentage}%`"
                 />
-                <UiLegendItem dot-class="bg-legend-others" label="Others" :value="`${othersPercentage}%`" />
+                <UiLegendItem dot-class="bg-legend-others" :label="t('Others')" :value="`${othersPercentage}%`" />
               </div>
             </UiChartCard>
 
-            <UiChartCard title="Block Production">
+            <UiChartCard :title="t('Block Production')">
               <template #header>
                 <div class="flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
                   <span class="animate-pulse-ring border-radius-circle w-8px h-8px bg-success"></span>
-                  <span>Live</span>
+                  <span>{{ t('Live') }}</span>
                 </div>
               </template>
               <div class="flex-align-justify-center flex-column gap-6px p-12px min-h-160px">
@@ -136,15 +136,15 @@
                   <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                 </div>
                 <div class="mt-0px txt-weight-medium color-text-primary text-center text-16px">{{ latestProposer.moniker }}</div>
-                <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">Latest Block Proposer</div>
+                <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">{{ t('Latest Block Proposer') }}</div>
                 <div class="w-full mt-8px">
                   <div class="gap-8px w-full grid grid-cols-1fr-1fr">
                     <div class="flex flex-column text-center gap-2px">
-                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">Block</span>
+                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">{{ t('Block') }}</span>
                       <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
                     </div>
                     <div class="flex flex-column text-center gap-2px">
-                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">Block Time</span>
+                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">{{ t('Block Time') }}</span>
                       <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
                     </div>
                   </div>
@@ -158,41 +158,41 @@
                Power chart above and the Validator Participation meter below,
                and the dedicated Validators tab covers the full list. -->
           <div class="mb-0px gap-12px grid mt-12px grid-cols-auto-fit-200">
-            <UiStatCard label="Throughput" :detail="`Peak: ${networkMaxTps.toFixed(1)} tx/s`">
-              {{ networkTps.toFixed(1) }} <span class="color-text-secondary txt-weight-normal text-18px ml-4px">tx/s</span>
+            <UiStatCard :label="t('Throughput')" :detail="`Peak: ${networkMaxTps.toFixed(1)} tx/s`">
+              {{ networkTps.toFixed(1) }} <span class="color-text-secondary txt-weight-normal text-18px ml-4px">{{ t('tx/s') }}</span>
             </UiStatCard>
 
-            <UiStatCard label="Blocks/Hour" detail="Estimated from recent block time">
+            <UiStatCard :label="t('Blocks/Hour')" detail="Estimated from recent block time">
               {{ networkBlocksPerHour }}
             </UiStatCard>
 
-            <UiStatCard label="24h Volume" detail="Estimated transaction count">
+            <UiStatCard :label="t('24h Volume')" detail="Estimated transaction count">
               {{ formatNumber(networkTxVolume24h) }}
             </UiStatCard>
           </div>
 
           <section class="bg-card border-1 border-radius-14px py-20px px-24px mt-12px">
-            <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">Network Health</h2>
+            <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">{{ t('Network Health') }}</h2>
             <div class="gap-12px grid grid-cols-2">
-              <UiMeterCard label="Chain Status" value="Synced">
+              <UiMeterCard :label="t('Chain Status')" value="Synced">
                 <template #fill>
                   <div class="h-full w-full border-radius-4px transition-width-03" :style="networkIndicatorFillStyle('excellent')"></div>
                 </template>
               </UiMeterCard>
 
-              <UiMeterCard label="Validator Participation" :value="`${networkValidatorPercent.toFixed(0)}%`">
+              <UiMeterCard :label="t('Validator Participation')" :value="`${networkValidatorPercent.toFixed(0)}%`">
                 <template #fill>
                   <div class="h-full border-radius-4px transition-width-03" :style="{ width: networkValidatorPercent + '%', ...networkIndicatorFillStyle(networkValidatorPercent > 80 ? 'excellent' : networkValidatorPercent > 60 ? 'good' : 'normal') }"></div>
                 </template>
               </UiMeterCard>
 
-              <UiMeterCard label="Block Production" :value="networkBlockTimeStatus">
+              <UiMeterCard :label="t('Block Production')" :value="networkBlockTimeStatus">
                 <template #fill>
                   <div class="h-full border-radius-4px transition-width-03 w-85pct" :style="networkIndicatorFillStyle(networkBlockTimeStatus === 'fast' ? 'excellent' : networkBlockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
                 </template>
               </UiMeterCard>
 
-              <UiMeterCard label="Peer Connections" :value="String(networkPeers)">
+              <UiMeterCard :label="t('Peer Connections')" :value="String(networkPeers)">
                 <template #fill>
                   <div class="h-full border-radius-4px transition-width-03 w-70pct" :style="networkIndicatorFillStyle('good')"></div>
                 </template>
@@ -204,8 +204,8 @@
           <div class="mb-0px gap-12px grid mt-12px grid-cols-2">
             <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
               <div class="flex-align-center-justify-space-between mb-12px">
-                <h3 class="text-16px txt-weight-light color-text-primary">Latest Blocks</h3>
-                <UiButton variant="primary" @click="goToView('blocks')">View All →</UiButton>
+                <h3 class="text-16px txt-weight-light color-text-primary">{{ t('Latest Blocks') }}</h3>
+                <UiButton variant="primary" @click="goToView('blocks')">{{ t('View All →') }}</UiButton>
               </div>
               <div class="flex flex-column gap-12px">
                 <div v-for="block in blocks.slice(0, 5)" :key="block.height" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToBlock(block.height)">
@@ -229,8 +229,8 @@
 
             <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
               <div class="flex-align-center-justify-space-between mb-12px">
-                <h3 class="text-16px txt-weight-light color-text-primary">Latest Transactions</h3>
-                <UiButton variant="primary" @click="goToView('transactions')">View All →</UiButton>
+                <h3 class="text-16px txt-weight-light color-text-primary">{{ t('Latest Transactions') }}</h3>
+                <UiButton variant="primary" @click="goToView('transactions')">{{ t('View All →') }}</UiButton>
               </div>
               <div class="flex flex-column gap-12px">
                 <div v-for="tx in transactions.slice(0, 5)" :key="tx.hash" class="hover-bg-primary-a10 cursor-pointer flex-align-center gap-12px p-12px bg-secondary border-radius-8px transition-bg-02" @click="navigateToTransaction(tx.hash)">
@@ -256,18 +256,18 @@
         <!-- ####### EXPLORER: BLOCKS VIEW ####### -->
         <div v-else-if="currentView === 'blocks'" class="border-radius-12px bg-transparent overflow-visible">
           <div class="flex-align-start flex-wrap-wrap gap-16px mb-16px flex-justify-space-between">
-            <h2 class="text-20px txt-weight-medium color-text-primary m-0px">Blocks</h2>
+            <h2 class="text-20px txt-weight-medium color-text-primary m-0px">{{ t('Blocks') }}</h2>
             <div class="flex-align-center flex-wrap-wrap gap-8px">
               <select v-model="blockFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
-                <option value="all">All Blocks</option>
-                <option value="recent">Recent (Last 20)</option>
-                <option value="with-txs">With Transactions</option>
-                <option value="empty">Empty Blocks</option>
+                <option value="all">{{ t('All Blocks') }}</option>
+                <option value="recent">{{ t('Recent (Last 20)') }}</option>
+                <option value="with-txs">{{ t('With Transactions') }}</option>
+                <option value="empty">{{ t('Empty Blocks') }}</option>
               </select>
               <input
                 v-model="blockHeightFilter"
                 type="number"
-                placeholder="Filter by height..."
+                :placeholder="t('Filter by height...')"
                 class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow min-w-150px placeholder-tertiary"
               />
             </div>
@@ -308,24 +308,24 @@
         <!-- ####### EXPLORER: TRANSACTIONS VIEW ####### -->
         <div v-else-if="currentView === 'transactions'" class="border-radius-12px bg-transparent bg-card overflow-visible">
           <div class="flex-align-start flex-wrap-wrap gap-16px border-bottom-1 flex-justify-space-between pt-24px pr-24px pb-16px pl-24px">
-            <h2 class="text-24px txt-weight-medium color-text-primary m-0px flex-1 min-w-200px">Transactions</h2>
+            <h2 class="text-24px txt-weight-medium color-text-primary m-0px flex-1 min-w-200px">{{ t('Transactions') }}</h2>
             <div class="flex-align-center flex-wrap-wrap gap-8px">
               <select v-model="txTypeFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
-                <option value="all">All Types</option>
-                <option value="send">Send</option>
-                <option value="delegate">Delegate</option>
-                <option value="vote">Vote</option>
-                <option value="other">Other</option>
+                <option value="all">{{ t('All Types') }}</option>
+                <option value="send">{{ t('Send') }}</option>
+                <option value="delegate">{{ t('Delegate') }}</option>
+                <option value="vote">{{ t('Vote') }}</option>
+                <option value="other">{{ t('Other') }}</option>
               </select>
               <select v-model="txStatusFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
-                <option value="all">All Status</option>
-                <option value="success">Success</option>
-                <option value="failed">Failed</option>
+                <option value="all">{{ t('All Status') }}</option>
+                <option value="success">{{ t('Success') }}</option>
+                <option value="failed">{{ t('Failed') }}</option>
               </select>
               <input
                 v-model="txHashFilter"
                 type="text"
-                placeholder="Filter by hash..."
+                :placeholder="t('Filter by hash...')"
                 class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow min-w-150px placeholder-tertiary"
               />
             </div>
@@ -333,28 +333,28 @@
 
           <div v-if="transactions.length === 0" class="flex-align-justify-center flex-column color-text-tertiary border-radius-12px bg-card border-1 py-64px px-32px">
             <RotateCw :size="64" stroke-width="1.5" class="mb-16px opacity-55" />
-            <p>No recent transactions</p>
+            <p>{{ t('No recent transactions') }}</p>
           </div>
 
           <div v-else class="w-full">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr">
-              <div>Transaction Hash</div>
-              <div>Type</div>
-              <div>Result</div>
-              <div>Height</div>
-              <div>Fee</div>
-              <div>Time</div>
+              <div>{{ t('Transaction Hash') }}</div>
+              <div>{{ t('Type') }}</div>
+              <div>{{ t('Result') }}</div>
+              <div>{{ t('Height') }}</div>
+              <div>{{ t('Fee') }}</div>
+              <div>{{ t('Time') }}</div>
             </div>
             
             <div class="max-h-600px flex flex-column overflow-y-auto">
               <div v-for="tx in filteredTransactions" :key="tx.hash" class="explorer-table-recipe explorer-table-row-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr active-scale-998 reveal-on-hover hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
                 <div class="reveal-on-hover flex-align-center gap-8px text-14px">
-                  <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" title="View transaction details">
+                  <div class="hover-color-accent reveal-on-hover flex-inline-align-center gap-8px cursor-pointer transition-all-02 pr-8px" @click="navigateToTransaction(tx.hash)" :title="t('View transaction details')">
                     <Activity class="animate-icon-bounce color-text-tertiary flex-shrink-0" :size="14" />
                     <TxHashLink :hash="tx.hash" wide @open="navigateToTransaction(tx.hash)" />
                     <Link class="opacity-40 reveal-opacity-color-accent-target color-text-tertiary flex-shrink-0 transition-opacity-02" :size="14" />
                   </div>
-                  <UiButton variant="icon" @click.stop="copyToClipboardWithToast(tx.hash)" title="Copy hash" class="size-24px">
+                  <UiButton variant="icon" @click.stop="copyToClipboardWithToast(tx.hash)" :title="t('Copy hash')" class="size-24px">
                     <Copy :size="14" />
                   </UiButton>
                 </div>
@@ -383,13 +383,13 @@
           <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-sm backdrop-blur">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-120-160-100-110-120">
               <div>#</div>
-              <div>VALIDATOR</div>
-              <div>VOTING POWER %</div>
-              <div>24H CHANGES</div>
-              <div>CUMULATIVE SHARE %</div>
-              <div>COMM. %</div>
-              <div>UPTIME %</div>
-              <div>ACTIONS</div>
+              <div>{{ t('VALIDATOR') }}</div>
+              <div>{{ t('VOTING POWER %') }}</div>
+              <div>{{ t('24H CHANGES') }}</div>
+              <div>{{ t('CUMULATIVE SHARE %') }}</div>
+              <div>{{ t('COMM. %') }}</div>
+              <div>{{ t('UPTIME %') }}</div>
+              <div>{{ t('ACTIONS') }}</div>
             </div>
             
             <div class="max-h-600px flex flex-column overflow-y-auto">
@@ -452,7 +452,7 @@
                     @click="openStakeModal(validator, 'Delegate')"
                   >
                     <CirclePlus :size="14" />
-                    Manage
+                    {{ t('Manage') }}
                   </UiButton>
                 </div>
               </div>
@@ -467,18 +467,18 @@
       <!-- ####### GOVERNANCE VIEW (real proposals/voting, ported from the working reference app - see git history for the old fake DaoPage) ####### -->
       <div v-else-if="currentView === 'governance'" class="border-radius-12px bg-transparent overflow-visible">
         <div class="flex-align-start flex-wrap-wrap gap-16px mb-16px flex-justify-space-between">
-          <h2 class="text-20px txt-weight-medium color-text-primary m-0px">Governance</h2>
+          <h2 class="text-20px txt-weight-medium color-text-primary m-0px">{{ t('Governance') }}</h2>
           <UiButton variant="primary" @click="openCreateProposalModal">
             <Plus :size="16" />
-            Create Proposal
+            {{ t('Create Proposal') }}
           </UiButton>
         </div>
 
-        <UiLoadingBlock v-if="governanceLoading && !governanceProposals.length" message="Loading proposals..." />
+        <UiLoadingBlock v-if="governanceLoading && !governanceProposals.length" :message="t('Loading proposals...')" />
 
         <template v-else>
           <template v-if="governanceVotingProposals.length">
-            <h3 class="text-16px txt-weight-light color-text-primary mb-12px">Active Votes</h3>
+            <h3 class="text-16px txt-weight-light color-text-primary mb-12px">{{ t('Active Votes') }}</h3>
             <div class="flex flex-column gap-12px mb-24px">
               <UiCard v-for="proposal in governanceVotingProposals" :key="proposal.id" padding="lg" border-class="border-1-primary-a30" radius="12px" :shadow="false">
                 <div class="flex-align-center flex-justify-space-between mb-12px">
@@ -497,14 +497,14 @@
                 </div>
                 <UiButton variant="primary" @click="openVoteModal(proposal)">
                   <Vote :size="16" />
-                  Vote
+                  {{ t('Vote') }}
                 </UiButton>
               </UiCard>
             </div>
           </template>
 
-          <h3 class="text-16px txt-weight-light color-text-primary mb-12px">All Proposals</h3>
-          <UiEmptyState v-if="!governanceProposals.length" description="No proposals found">
+          <h3 class="text-16px txt-weight-light color-text-primary mb-12px">{{ t('All Proposals') }}</h3>
+          <UiEmptyState v-if="!governanceProposals.length" :description="t('No proposals found')">
             <FileText :size="48" />
           </UiEmptyState>
           <div v-else class="flex flex-column gap-12px">
@@ -542,6 +542,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
@@ -568,7 +569,7 @@ import CreateProposalDialog from '../../dialogs/CreateProposalDialog.vue';
 import ManageStakeDialog from '../../dialogs/ManageStakeDialog.vue';
 import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl, openExplorerUrl } from '../services/explorerLinks';
 import InternalSidebar from '../../components/InternalSidebar.vue';
-import NetworkParamsPanel from '../../views/NetworkParamsPanel.vue';
+import NetworkParamsPanel from '../../panels/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus,  Activity, Network, SlidersHorizontal, FileText } from 'lucide-vue-next';
 import { GOVERNANCE_ACTION_TEMPLATES } from './governanceActionTemplates';
 import type { GovernanceActionDraft } from '../../types/networkGovernance';
@@ -1306,20 +1307,20 @@ function performSearch() {
   }
   else if (/^[A-Fa-f0-9]{64}$/.test(query)) {
     navigateToTransaction(query.toUpperCase());
-    toast.info('Navigating to transaction...');
+    toast.info(t('Navigating to transaction...'));
   }
   else if (/^lmn1[a-z0-9]{38,}$/.test(query)) {
     navigateToAddress(query);
-    toast.info('Navigating to address...');
+    toast.info(t('Navigating to address...'));
   }
   else {
-    toast.error('Invalid search query. Use block height, tx hash (64 hex), or address (lmn1...)');
+    toast.error(t('Invalid search query. Use block height, tx hash (64 hex), or address (lmn1...)'));
   }
 }
 
 function formatTimeAgo(timestamp: string): string {
   const diff = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
-  if (diff < 0) return 'just now';
+  if (diff < 0) return t('just now');
   if (diff < 60) return `${diff}s ago`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
@@ -1378,7 +1379,7 @@ function getCumulativeProgress(index: number): number {
 
 function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw' = 'Delegate') {
   if (!hasActiveProfile.value) {
-    toast.error('Create or select a wallet profile first');
+    toast.error(t('Create or select a wallet profile first'));
     return;
   }
 
@@ -1505,13 +1506,13 @@ async function confirmStakeAction() {
   
   if (!profileAddress) {
     txStatus.value = 'error';
-    txMessage.value = 'No wallet address found';
+    txMessage.value = t('No wallet address found');
     return;
   }
   
   if (!profileId) {
     txStatus.value = 'error';
-    txMessage.value = 'No profile ID found';
+    txMessage.value = t('No profile ID found');
     return;
   }
   
@@ -1527,7 +1528,7 @@ async function confirmStakeAction() {
     const walletApi = useInternalLumen()?.wallet;
     
     if (!walletApi) {
-      throw new Error('Wallet API not available');
+      throw new Error(t('Wallet API not available'));
     }
     
     let result;
@@ -1544,7 +1545,7 @@ async function confirmStakeAction() {
         if (typeof walletApi.delegate === 'function') {
           result = await walletApi.delegate(baseParams);
         } else {
-          throw new Error('Delegate function not available');
+          throw new Error(t('Delegate function not available'));
         }
         break;
         
@@ -1552,7 +1553,7 @@ async function confirmStakeAction() {
         if (typeof walletApi.undelegate === 'function') {
           result = await walletApi.undelegate(baseParams);
         } else {
-          throw new Error('Undelegate function not available');
+          throw new Error(t('Undelegate function not available'));
         }
         break;
         
@@ -1566,7 +1567,7 @@ async function confirmStakeAction() {
             amount: { amount: amountInUlmn, denom: 'ulmn' },
           });
         } else {
-          throw new Error('Redelegate function not available');
+          throw new Error(t('Redelegate function not available'));
         }
         break;
         
@@ -1578,7 +1579,7 @@ async function confirmStakeAction() {
             validatorAddress: selectedValidator.value.address,
           });
         } else {
-          throw new Error('WithdrawRewards function not available');
+          throw new Error(t('WithdrawRewards function not available'));
         }
         break;
     }
@@ -1599,12 +1600,12 @@ async function confirmStakeAction() {
       // Refresh validators in background
       fetchValidators();
     } else {
-      throw new Error(result?.error || 'Transaction failed');
+      throw new Error(result?.error || t('Transaction failed'));
     }
   } catch (error) {
     console.error(`${currentStakeAction.value} failed:`, error);
     txStatus.value = 'error';
-    const errorMsg = errorMessage(error, 'Unknown error');
+    const errorMsg = errorMessage(error, t('Unknown error'));
     txMessage.value = errorMsg;
   } finally {
     isProcessingTx.value = false;
@@ -2293,13 +2294,13 @@ async function submitProposal() {
   const profileId = activeProfileId.value;
   const address = activeGovernanceAddress.value;
   if (!profileId || !address) {
-    toast.error('Select a profile first.');
+    toast.error(t('Select a profile first.'));
     return;
   }
 
   const walletApi = lumen?.wallet;
   if (!walletApi?.govSubmitProposal) {
-    toast.error('Governance submission is not available.');
+    toast.error(t('Governance submission is not available.'));
     return;
   }
 
@@ -2315,12 +2316,12 @@ async function submitProposal() {
     });
 
     if (await handleGovernanceSigningError(result)) return;
-    if (!toast.fromResult(result, 'Proposal submitted on-chain.')) return;
+    if (!toast.fromResult(result, t('Proposal submitted on-chain.'))) return;
 
     closeCreateProposalModal();
     await fetchGovernanceProposals();
   } catch (err) {
-    toast.error(errorMessage(err, 'Failed to submit proposal.'));
+    toast.error(errorMessage(err, t('Failed to submit proposal.')));
   } finally {
     isSubmittingProposal.value = false;
   }
@@ -2349,13 +2350,13 @@ async function castVote() {
   const profileId = activeProfileId.value;
   const address = activeGovernanceAddress.value;
   if (!profileId || !address) {
-    toast.error('Select a profile first.');
+    toast.error(t('Select a profile first.'));
     return;
   }
 
   const walletApi = lumen?.wallet;
   if (!walletApi?.govVote) {
-    toast.error('Governance voting is not available.');
+    toast.error(t('Governance voting is not available.'));
     return;
   }
 
@@ -2369,12 +2370,12 @@ async function castVote() {
     });
 
     if (await handleGovernanceSigningError(result)) return;
-    if (!toast.fromResult(result, 'Vote broadcasted.')) return;
+    if (!toast.fromResult(result, t('Vote broadcasted.'))) return;
 
     closeVoteModal();
     await fetchGovernanceProposals();
   } catch (err) {
-    toast.error(errorMessage(err, 'Failed to cast vote.'));
+    toast.error(errorMessage(err, t('Failed to cast vote.')));
   } finally {
     isVoting.value = false;
   }

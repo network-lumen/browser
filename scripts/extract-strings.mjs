@@ -34,11 +34,13 @@ function walk(dir) {
   return out;
 }
 
-// t('…') / t("…") / t(`…`), with or without a params argument. A template
-// literal holding ${} is skipped: its key is not a constant, so it cannot be
-// looked up, and reporting it is more useful than extracting half of it.
-const CALL_RE = /\bt\(\s*(['"`])((?:\\.|(?!\1)[^\\])*)\1\s*[,)]/g;
-const DYNAMIC_RE = /\bt\(\s*`[^`]*\$\{/g;
+// t('…') / t("…") / t(`…`), with or without a params argument, plus
+// markForTranslation('…') for strings that sit in a data table and are
+// translated where they are drawn. A template literal holding ${} is skipped:
+// its key is not a constant, so it cannot be looked up, and reporting it is
+// more useful than extracting half of it.
+const CALL_RE = /\b(?:t|markForTranslation)\(\s*(['"`])((?:\\.|(?!\1)[^\\])*)\1\s*[,)]/g;
+const DYNAMIC_RE = /\b(?:t|markForTranslation)\(\s*`[^`]*\$\{/g;
 
 const keys = new Map(); // key -> [file:line]
 const dynamic = [];

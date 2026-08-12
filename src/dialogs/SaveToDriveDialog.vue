@@ -11,7 +11,7 @@
     <slot name="before-form" />
 
     <div class="flex flex-column gap-8px">
-      <label class="text-14px txt-weight-light color-text-primary" for="save-to-drive-name">Name</label>
+      <label class="text-14px txt-weight-light color-text-primary" for="save-to-drive-name">{{ t('Name') }}</label>
       <UiInput
         id="save-to-drive-name"
         radius-class="border-radius-12px"
@@ -37,7 +37,7 @@
         :counter="counter"
         :percent="percent"
         :indeterminate="percent == null && isRunning"
-        :text="progressText || (isRunning ? 'Saving content from the network…' : 'Waiting for action.')"
+        :text="progressText || (isRunning ? t('Saving content from the network…') : t('Waiting for action.'))"
         card-class="border-radius-12px mt-16px py-12px px-16px border-1-primary-a15"
         text-class="text-13px"
       />
@@ -45,16 +45,16 @@
 
     <template #footer>
       <UiButton variant="secondary" type="button" :disabled="isRunning" class="disabled-fade-50" @click="$emit('update:modelValue', false)">
-        Cancel
+        {{ t('Cancel') }}
       </UiButton>
       <UiButton v-if="canPause" variant="secondary" type="button" class="disabled-fade-50" @click="$emit('pause')">
-        Pause
+        {{ t('Pause') }}
       </UiButton>
       <UiButton v-if="canResume" variant="secondary" type="button" class="disabled-fade-50" @click="$emit('resume')">
-        Resume
+        {{ t('Resume') }}
       </UiButton>
       <UiButton v-if="canStop" variant="danger" type="button" class="disabled-fade-50" @click="$emit('stop')">
-        Stop
+        {{ t('Stop') }}
       </UiButton>
       <UiButton variant="primary" type="button" :disabled="preparing || isRunning || confirmDisabled" class="disabled-fade-50" @click="$emit('confirm')">
         {{ confirmLabel }}
@@ -64,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed } from 'vue';
 import UiModal from '../ui/UiModal.vue';
 import UiButton from '../ui/UiButton.vue';
@@ -108,7 +109,7 @@ const props = withDefaults(
     canStop?: boolean;
   }>(),
   {
-    title: 'Save to Drive',
+    title: t('Save to Drive'),
     placeholder: '',
     error: '',
     preparing: false,
@@ -137,7 +138,7 @@ defineEmits<{
 
 const confirmLabel = computed(() => {
   if (props.jobId) {
-    if (props.canResume) return 'Resume save';
+    if (props.canResume) return t('Resume save');
     return props.isRunning ? 'Saving...' : 'Save';
   }
   return props.saving ? 'Saving...' : 'Save';

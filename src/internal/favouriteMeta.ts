@@ -1,3 +1,4 @@
+import { t } from '../stores/i18nStore';
 import {
   canonicalizeLumenUrl,
   getFileUrlTitle,
@@ -15,7 +16,7 @@ function normalizePreferredTitle(rawTitle?: string): string {
 }
 
 const INTERNAL_TITLES: Record<string, string> = {
-  newtab: "New tab",
+  newtab: t("New tab"),
   home: "Home",
   search: "Search",
   settings: "Settings",
@@ -27,11 +28,11 @@ const INTERNAL_TITLES: Record<string, string> = {
   extension: "Extension",
   network: "Network",
   gateways: "Gateways",
-  "my-gateways": "My Gateways",
-  block: "Block Details",
-  transaction: "Transaction Details",
-  tx: "Transaction Details",
-  address: "Address Details",
+  "my-gateways": t("My Gateways"),
+  block: t("Block Details"),
+  transaction: t("Transaction Details"),
+  tx: t("Transaction Details"),
+  address: t("Address Details"),
   release: "Release",
   help: "Help",
 };
@@ -53,7 +54,7 @@ function humanizeSlug(value: string): string {
 
 function getInternalFavouriteTitle(host: string): string {
   const key = String(host || "").trim().toLowerCase();
-  return INTERNAL_TITLES[key] || humanizeSlug(key) || "Lumen page";
+  return INTERNAL_TITLES[key] || humanizeSlug(key) || t("Lumen page");
 }
 
 function buildMonogram(value: string): string {
@@ -86,7 +87,7 @@ function describeLumenUrl(rawUrl: string, preferredTitle?: string): FavouriteMet
       return {
         url,
         title: chosenTitle || title,
-        subtitle: "Lumen search",
+        subtitle: t("Lumen search"),
         monogram: buildMonogram(chosenTitle || title),
         kind: "search",
       };
@@ -103,11 +104,11 @@ function describeLumenUrl(rawUrl: string, preferredTitle?: string): FavouriteMet
       kind: "internal",
     };
   } catch {
-    const title = "Lumen page";
+    const title = t("Lumen page");
     return {
       url,
       title,
-      subtitle: "Lumen page",
+      subtitle: t("Lumen page"),
       monogram: buildMonogram(title || "Lumen"),
       kind: "internal",
     };
@@ -136,7 +137,7 @@ function describeHttpUrl(rawUrl: string, preferredTitle?: string): FavouriteMeta
     return {
       url: rawUrl,
       title: chosenTitle || rawUrl,
-      subtitle: "Website",
+      subtitle: t("Website"),
       monogram: buildMonogram(chosenTitle || rawUrl),
       kind: "web",
     };
@@ -148,7 +149,7 @@ function describeFileUrl(rawUrl: string, preferredTitle?: string): FavouriteMeta
   return {
     url: rawUrl,
     title,
-    subtitle: "Local file",
+    subtitle: t("Local file"),
     monogram: buildMonogram(title || "File"),
     kind: "file",
   };
@@ -177,8 +178,8 @@ export function describeFavouriteUrl(rawUrl: string, preferredTitle?: string): F
   if (!url) {
     return {
       url: "",
-      title: chosenTitle || "Saved page",
-      subtitle: "Shortcut",
+      title: chosenTitle || t("Saved page"),
+      subtitle: t("Shortcut"),
       monogram: buildMonogram(chosenTitle || "Lumen"),
       kind: "other",
     };
@@ -191,7 +192,7 @@ export function describeFavouriteUrl(rawUrl: string, preferredTitle?: string): F
   return {
     url,
     title: chosenTitle || url,
-    subtitle: "Shortcut",
+    subtitle: t("Shortcut"),
     monogram: buildMonogram(chosenTitle || url),
     kind: "other",
   };

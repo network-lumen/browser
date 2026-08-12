@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import { fromBech32, toBech32 } from '@cosmjs/encoding';
 import type { IbcChannelOption, KnownIbcChainMeta } from '../../types/walletPage';
 
@@ -28,7 +29,7 @@ export const KNOWN_IBC_CHAIN_METADATA: Record<string, KnownIbcChainMeta> = {
     chainRegistryName: 'beezee'
   },
   'bzetestnet-3': {
-    label: 'BeeZee Testnet',
+    label: t('BeeZee Testnet'),
     addressPrefix: 'bze',
     restEndpoint: 'https://testnet.getbze.com',
     rpcEndpoint: 'https://testnet-rpc.getbze.com',
@@ -123,7 +124,7 @@ export function pickIbcChannel(
 
 export function humanizeChainId(chainId: string): string {
   const raw = String(chainId || '').trim();
-  if (!raw) return 'Unknown chain';
+  if (!raw) return t('Unknown chain');
   const known = KNOWN_IBC_CHAIN_METADATA[raw];
   if (known?.label) return known.label;
   return raw.replace(/[-_]+/g, ' ').replace(/\b\w/g, (part) => part.toUpperCase());
@@ -139,7 +140,7 @@ export function resolveKnownChainMeta(
 
   const prefix = String(prefixHints[0] || '').trim().toLowerCase();
   return {
-    label: humanizeChainId(chainId || prefix || 'IBC chain'),
+    label: humanizeChainId(chainId || prefix || t('IBC chain')),
     addressPrefix: prefix,
     restEndpoint: '',
     rpcEndpoint: '',

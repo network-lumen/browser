@@ -1,26 +1,26 @@
 <template>
   <!-- ####### lumen://network/address/<addr> ADDRESS DETAIL (embedded sub-view of NetworkPage) ####### -->
   <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
-    <UiLoadingState v-if="loading" message="Loading address data..." />
+    <UiLoadingState v-if="loading" :message="t('Loading address data...')" />
 
     <UiErrorState v-else-if="error" :message="error" />
 
-    <UiEmptyState v-else-if="notFound" title="No activity found" description="This address is correctly formatted, but has never sent or received anything on this blockchain." />
+    <UiEmptyState v-else-if="notFound" :title="t('No activity found')" :description="t('This address is correctly formatted, but has never sent or received anything on this blockchain.')" />
 
     <div v-else-if="address" class="flex flex-column gap-24px">
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader title="Address Overview" />
+        <UiCardHeader :title="t('Address Overview')" />
         <div class="p-24px">
-          <UiDetailRow label="Address:">
-            <UiCopyField :value="address.address" title="Copy address" />
+          <UiDetailRow :label="t('Address:')">
+            <UiCopyField :value="address.address" :title="t('Copy address')" />
           </UiDetailRow>
-          <UiDetailRow label="Account Number:" :value="address.accountNumber" />
-          <UiDetailRow label="Sequence:" :value="address.sequence" />
+          <UiDetailRow :label="t('Account Number:')" :value="address.accountNumber" />
+          <UiDetailRow :label="t('Sequence:')" :value="address.sequence" />
         </div>
       </UiCard>
 
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader title="Balances" />
+        <UiCardHeader :title="t('Balances')" />
         <div class="p-24px">
           <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-16px">
             <UiCard class="flex-align-center gap-16px" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(balance, index) in address.balances" :key="index">
@@ -34,7 +34,7 @@
             </UiCard>
           </div>
           <div v-else class="color-text-tertiary p-32px text-center">
-            <p>No balances found</p>
+            <p>{{ t('No balances found') }}</p>
           </div>
         </div>
       </UiCard>
@@ -62,7 +62,7 @@
       </UiCard>
 
       <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
-        <UiCardHeader title="Recent Transactions" />
+        <UiCardHeader :title="t('Recent Transactions')" />
         <div class="p-24px">
           <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-16px">
             <UiCard class="flex-align-center gap-16px" bg-class="bg-primary" border-class="border-1" radius="8px" :shadow="false" hoverable hover-class="transition-all-02 hover-lift-2 hover-shadow-md" v-for="(tx, index) in address.transactions" :key="index">
@@ -85,7 +85,7 @@
             </UiCard>
           </div>
           <div v-else class="color-text-tertiary p-32px text-center">
-            <p>No recent transactions found</p>
+            <p>{{ t('No recent transactions found') }}</p>
           </div>
         </div>
       </UiCard>
@@ -94,6 +94,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiCard from '../../ui/UiCard.vue';
 import UiDetailRow from '../../ui/UiDetailRow.vue';
 import UiLoadingState from '../../ui/UiLoadingState.vue';
@@ -151,7 +152,7 @@ function getValidatorColor(validator: string): string {
   const colors = [
     'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    t('linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'),
     'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
   ];
@@ -161,7 +162,7 @@ function getValidatorColor(validator: string): string {
 
 async function loadAddressData() {
   if (!accountAddress.value) {
-    error.value = 'No address provided';
+    error.value = t('No address provided');
     loading.value = false;
     return;
   }
@@ -174,7 +175,7 @@ async function loadAddressData() {
     // Thrown rather than optional-chained: without the bridge there is nothing
     // to show, and the catch below turns this into a visible message instead of
     // a page that silently stays empty.
-    if (!lumen) throw new Error('Lumen API unavailable');
+    if (!lumen) throw new Error(t('Lumen API unavailable'));
 
     const accountResponse = await lumen.net.restGet(
       `/cosmos/auth/v1beta1/accounts/${accountAddress.value}`
@@ -223,7 +224,7 @@ async function loadAddressData() {
 
     loading.value = false;
   } catch (err) {
-    error.value = errorMessage(err, 'Failed to load address data');
+    error.value = errorMessage(err, t('Failed to load address data'));
     loading.value = false;
     console.error('Error loading address:', err);
   }

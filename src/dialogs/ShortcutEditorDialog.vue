@@ -9,27 +9,27 @@
 
     <template #header>
       <div>
-        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcut</div>
+        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">{{ t('Shortcut') }}</div>
         <h2 id="shortcut-modal-title" class="color-text-primary">
           {{ mode === "create" ? "Add shortcut" : "Edit shortcut" }}
         </h2>
       </div>
     </template>
         <div class="flex flex-column gap-12px">
-          <UiFormField label="Name" label-class="color-text-secondary text-14px txt-weight-light">
+          <UiFormField :label="t('Name')" label-class="color-text-secondary text-14px txt-weight-light">
             <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="draft.title"
-              placeholder="Optional custom title"
+              :placeholder="t('Optional custom title')"
               maxlength="60"
               @keydown.enter.prevent="$emit('submit')" class="border-1-light focus-ring" />
           </UiFormField>
 
-          <UiFormField label="URL or Lumen page" label-class="color-text-secondary text-14px txt-weight-light">
+          <UiFormField :label="t('URL or Lumen page')" label-class="color-text-secondary text-14px txt-weight-light">
             <UiInput bg-class="bg-black-a02" radius-class="border-radius-14px" padding-class="py-12px px-16px" focus-border-class="focus-border-primary-a50" :focus-ring="false" v-model="draft.url"
               placeholder="lumen://home or example.lmn"
               @keydown.enter.prevent="$emit('submit')" class="border-1-light focus-ring" />
           </UiFormField>
 
-          <UiCheckbox v-model="draft.pinned">Mark this shortcut as favourite</UiCheckbox>
+          <UiCheckbox v-model="draft.pinned">{{ t('Mark this shortcut as favourite') }}</UiCheckbox>
 
         </div>
 
@@ -38,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiDialog from '../ui/UiDialog.vue';
 import UiFormField from '../ui/UiFormField.vue';
 import UiInput from '../ui/UiInput.vue';

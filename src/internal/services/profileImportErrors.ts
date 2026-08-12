@@ -1,3 +1,5 @@
+import { t } from '../../stores/i18nStore';
+
 /**
  * The main process answers a failed profile import with a code, never a
  * sentence - see the "no raw error message back to a site" rule. This is the
@@ -7,26 +9,32 @@
  * "Import failed": a code on screen is ugly, but it is something the user can
  * quote in a bug report, where a generic message loses the only fact worth
  * having.
+ *
+ * The values are thunks, not strings, for two reasons: a module-level constant
+ * would freeze whatever language was active when this file first loaded, and
+ * `npm run i18n:extract` reads `t('…')` calls, so a table of bare strings would
+ * be invisible to it and silently ship untranslated.
  */
-const MESSAGES: Record<string, string> = {
-  backup_api_unavailable: 'Import API not available.',
-  missing_profile_name: 'Profile name is required.',
-  missing_mnemonic: 'Mnemonic is required.',
-  invalid_mnemonic: 'Invalid mnemonic. Check the words and try again.',
-  pqc_keys_incomplete: 'Enter both PQC public and private keys, or leave both empty.',
-  password_required: 'Unlock the app first to import PQC keys.',
-  invalid_password: 'Unlock the app with the correct password to import PQC keys.',
-  invalid_profile_backup: 'The selected profile backup file is invalid or unsupported.',
-  encrypted_backup_source_unsupported: 'Encrypted backups cannot prefill manual import. Use Via file instead.',
-  mnemonic_missing_in_selected_file: 'The selected file does not contain a mnemonic.',
-  pqc_missing_in_selected_file: 'The selected file does not contain Dilithium key material.',
-  invalid_pqc_backup: 'The selected Dilithium backup is invalid or unsupported.',
-  no_valid_backups_found: 'No valid backup file was found.',
-  profile_json_missing: 'No profile backup file was found.'
+const MESSAGES: Record<string, () => string> = {
+  backup_api_unavailable: () => t('Import API not available.'),
+  missing_profile_name: () => t('Profile name is required.'),
+  missing_mnemonic: () => t('Mnemonic is required.'),
+  invalid_mnemonic: () => t('Invalid mnemonic. Check the words and try again.'),
+  pqc_keys_incomplete: () => t('Enter both PQC public and private keys, or leave both empty.'),
+  password_required: () => t('Unlock the app first to import PQC keys.'),
+  invalid_password: () => t('Unlock the app with the correct password to import PQC keys.'),
+  invalid_profile_backup: () => t('The selected profile backup file is invalid or unsupported.'),
+  encrypted_backup_source_unsupported: () => t('Encrypted backups cannot prefill manual import. Use Via file instead.'),
+  mnemonic_missing_in_selected_file: () => t('The selected file does not contain a mnemonic.'),
+  pqc_missing_in_selected_file: () => t('The selected file does not contain Dilithium key material.'),
+  invalid_pqc_backup: () => t('The selected Dilithium backup is invalid or unsupported.'),
+  no_valid_backups_found: () => t('No valid backup file was found.'),
+  profile_json_missing: () => t('No profile backup file was found.')
 };
 
 export function getProfileImportErrorMessage(error?: string): string {
   const code = String(error || '').trim();
-  if (!code) return 'Import failed.';
-  return MESSAGES[code] || code;
+  if (!code) return t('Import failed.');
+  const message = MESSAGES[code];
+  return message ? message() : code;
 }

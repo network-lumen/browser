@@ -1,3 +1,4 @@
+import { markForTranslation } from './i18n';
 import {
   ArrowDownLeft,
   ArrowLeftRight,
@@ -36,19 +37,19 @@ function matchesType(action: string, type: string): boolean {
 
 
 const MESSAGES: ChainMessageEntry[] = [
-  { type: 'lumen.dns.v1.MsgUpdate', label: 'Dns update', tint: 'purple', icon: Edit, carriesDomainName: true },
-  { type: 'lumen.dns.v1.MsgTransfer', label: 'Dns transfer', tint: 'primary', icon: Users, carriesDomainName: true },
-  { type: 'lumen.dns.v1.MsgRegister', label: 'Dns register', tint: 'warning', icon: Plus, carriesDomainName: true },
+  { type: 'lumen.dns.v1.MsgUpdate', label: markForTranslation('Dns update'), tint: 'purple', icon: Edit, carriesDomainName: true },
+  { type: 'lumen.dns.v1.MsgTransfer', label: markForTranslation('Dns transfer'), tint: 'primary', icon: Users, carriesDomainName: true },
+  { type: 'lumen.dns.v1.MsgRegister', label: markForTranslation('Dns register'), tint: 'warning', icon: Plus, carriesDomainName: true },
   {
     type: 'cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-    label: 'Withdraw rewards',
+    label: markForTranslation('Withdraw rewards'),
     tint: 'yellow',
     icon: TrendingUp,
     carriesDomainName: true,
   },
   {
     type: 'lumen.release.v1.MsgPublishRelease',
-    label: 'Publish release',
+    label: markForTranslation('Publish release'),
     tint: 'indigo',
     icon: Upload,
     carriesDomainName: true,
@@ -57,7 +58,7 @@ const MESSAGES: ChainMessageEntry[] = [
   // by leaving it out of two long chains of ORs rather than stating it.
   {
     type: 'lumen.pqc.v1.MsgLinkAccountPQC',
-    label: 'PQC link',
+    label: markForTranslation('PQC link'),
     tint: 'pink',
     icon: ShieldCheck,
     carriesDomainName: false,
@@ -66,12 +67,12 @@ const MESSAGES: ChainMessageEntry[] = [
 
 /** For a plain transfer, which carries no message type worth naming. */
 const BY_DIRECTION: Record<string, Omit<ChainMessageEntry, 'type'>> = {
-  send: { label: 'Send', tint: 'error', icon: ArrowUpRight, carriesDomainName: false },
-  receive: { label: 'Receive', tint: 'success', icon: ArrowDownLeft, carriesDomainName: false },
+  send: { label: markForTranslation('Send'), tint: 'error', icon: ArrowUpRight, carriesDomainName: false },
+  receive: { label: markForTranslation('Receive'), tint: 'success', icon: ArrowDownLeft, carriesDomainName: false },
 };
 
 const UNKNOWN: Omit<ChainMessageEntry, 'type'> = {
-  label: 'Unknown',
+  label: markForTranslation('Unknown'),
   tint: '',
   icon: ArrowLeftRight,
   carriesDomainName: false,

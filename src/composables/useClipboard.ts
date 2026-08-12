@@ -1,3 +1,4 @@
+import { t } from '../stores/i18nStore';
 import { useInternalLumen } from './useInternalLumen';
 import { useToast } from './useToast';
 
@@ -40,6 +41,6 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 export async function copyToClipboardWithToast(text: string): Promise<boolean> {
   const toast = useToast();
   const ok = await copyToClipboard(text);
-  toast.show(ok ? 'Copied' : 'Failed to copy', ok ? 'success' : 'error');
+  toast.show(ok ? 'Copied' : t('Failed to copy'), ok ? 'success' : 'error');
   return ok;
 }

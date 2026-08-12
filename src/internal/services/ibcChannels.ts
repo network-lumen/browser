@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { derivePrefixHintsFromChainId } from './ibcChains';
 import type { IbcChannelOption, RawIbcChannel } from '../../types/walletPage';
@@ -79,7 +80,7 @@ export function readClientStateChainId(json: any): string {
 export async function fetchIbcTransferChannels(): Promise<IbcChannelOption[]> {
   const net = useInternalLumen()?.net;
   if (!net || typeof net.restGet !== 'function') {
-    throw new Error('Network API not available.');
+    throw new Error(t('Network API not available.'));
   }
 
   const readChannels = async (path: string): Promise<unknown[]> => {

@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import { computed, ref } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { activeProfileId, getActiveProfile } from '../../stores/profilesStore';
@@ -65,20 +66,20 @@ export function snoozeAllUntilRestart(): void {
  */
 export async function payReminder(paymentId: string): Promise<ReminderPaymentResult> {
   const payment = service().getRecurringPayment(paymentId);
-  if (!payment) return { ok: false, error: 'Reminder not found' };
+  if (!payment) return { ok: false, error: t('Reminder not found') };
 
   const api: any = useInternalLumen();
   const walletApi = api?.wallet;
   if (!walletApi || typeof walletApi.sendTokens !== 'function') {
-    return { ok: false, error: 'Wallet bridge not available' };
+    return { ok: false, error: t('Wallet bridge not available') };
   }
 
   const profileId = activeProfileId.value;
-  if (!profileId) return { ok: false, error: 'No active profile selected' };
+  if (!profileId) return { ok: false, error: t('No active profile selected') };
 
   const profile: any = getActiveProfile();
   const from = String(profile?.address || profile?.walletAddress || '').trim();
-  if (!from) return { ok: false, error: 'No sender address available' };
+  if (!from) return { ok: false, error: t('No sender address available') };
 
   paying.value = paymentId;
   try {
@@ -92,14 +93,14 @@ export async function payReminder(paymentId: string): Promise<ReminderPaymentRes
     });
 
     if (!res || res.ok === false) {
-      const error = String(res?.error || 'Transaction failed');
+      const error = String(res?.error || t('Transaction failed'));
       if (error === 'password_required' || error === 'invalid_password') {
         try {
           await api?.security?.lockSession?.();
         } catch {
           // Locking is best-effort; the caller still learns it needs a password.
         }
-        return { ok: false, error: 'Wallet locked. Unlock to continue.', locked: true };
+        return { ok: false, error: t('Wallet locked. Unlock to continue.'), locked: true };
       }
       return { ok: false, error };
     }
@@ -113,7 +114,7 @@ export async function payReminder(paymentId: string): Promise<ReminderPaymentRes
     refreshDuePayments();
     return { ok: true, txHash: res.txhash };
   } catch (e) {
-    return { ok: false, error: errorMessage(e, 'Unexpected error') };
+    return { ok: false, error: errorMessage(e, t('Unexpected error')) };
   } finally {
     paying.value = null;
   }

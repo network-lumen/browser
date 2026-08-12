@@ -8,15 +8,15 @@
             type="button"
             @click="openIndexHtml"
             :disabled="!navigate" class="disabled-fade-50">
-            <span>Open website</span>
+            <span>{{ t('Open website') }}</span>
           </UiButton>
           <UiButton variant="primary" v-if="isDir && masterM3u8Entry"
             type="button"
             @click="openMasterHls"
             :disabled="!navigate"
-            title="Play HLS video" class="disabled-fade-50">
+            :title="t('Play HLS video')" class="disabled-fade-50">
             <Play :size="16" />
-            <span>Play video</span>
+            <span>{{ t('Play video') }}</span>
           </UiButton>
           <UiButton
             variant="secondary"
@@ -26,7 +26,7 @@
             :class="{ 'bg-success-a12-override border-1-success-a38 color-success': saved }"
             :disabled="!canSaveToDrive || saving || saved"
             :title="
-              saved ? 'Saved to Drive' : saving ? 'Saving...' : 'Save to Drive'
+              saved ? 'Saved to Drive' : saving ? t('Saving...') : t('Save to Drive')
             "
           >
             <Check v-if="saved" :size="16" />
@@ -37,14 +37,14 @@
             @click="copyLink"
             :disabled="!rootCid" class="disabled-fade-50">
             <Copy :size="16" />
-            <span>Copy link</span>
+            <span>{{ t('Copy link') }}</span>
           </UiButton>
           <UiButton variant="primary" type="button"
             @click="download"
             v-if="!isPreviewUnavailable"
             :disabled="!canDownload" class="disabled-fade-50">
             <Download :size="16" />
-            <span>Download</span>
+            <span>{{ t('Download') }}</span>
           </UiButton>
         </template>
       </UiPageHeader>
@@ -60,16 +60,16 @@
       <template v-else>
         <div v-if="!rootCid" class="flex-align-justify-center py-48px px-32px">
           <div class="text-center max-w-600px">
-            <h2 class="text-28px txt-weight-light color-text-primary mb-12px">IPFS Content Viewer</h2>
-            <p class="color-text-secondary text-16px mb-32px">View and download content from IPFS using CIDs.</p>
+            <h2 class="text-28px txt-weight-light color-text-primary mb-12px">{{ t('IPFS Content Viewer') }}</h2>
+            <p class="color-text-secondary text-16px mb-32px">{{ t('View and download content from IPFS using CIDs.') }}</p>
             <UiCard padding="none" :shadow="false" class="p-24px mb-32px">
-              <p class="fw-500 color-text-secondary text-14px mb-12px">Example:</p>
+              <p class="fw-500 color-text-secondary text-14px mb-12px">{{ t('Example:') }}</p>
               <code class="block bg-card border-default border-radius-8px py-12px px-16px mono text-14px color-primary break-all"
                 >lumen://ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code
               >
             </UiCard>
             <p class="color-text-secondary text-16px mb-32px">
-              Enter an IPFS CID in the address bar to view content.
+              {{ t('Enter an IPFS CID in the address bar to view content.') }}
             </p>
           </div>
         </div>
@@ -91,7 +91,7 @@
             </template>
           </div>
 
-          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="p-16px color-text-secondary">Empty folder.</UiCard>
+          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="p-16px color-text-secondary">{{ t('Empty folder.') }}</UiCard>
 
           <div v-else class="border-radius-16px border-default overflow-hidden">
             <div
@@ -114,11 +114,11 @@
               <div class="flex-justify-end gap-8px">
                 <UiButton variant="primary" type="button"
                   @click.stop="copyLinkFor(it)">
-                  Copy link
+                  {{ t('Copy link') }}
                 </UiButton>
                 <UiButton variant="primary" type="button"
                   @click.stop="openEntry(it)">
-                  Open
+                  {{ t('Open') }}
                 </UiButton>
               </div>
             </div>
@@ -186,7 +186,7 @@
           <template v-else-if="viewKind === 'epub'">
             <UiCard v-if="epubReaderLoading" padding="none" :shadow="false" class="flex-align-center gap-12px p-16px">
               <UiSpinner size="md" />
-              <span>Preparing EPUB reader…</span>
+              <span>{{ t('Preparing EPUB reader…') }}</span>
             </UiCard>
             <div v-else-if="epubReaderError" class="p-16px border-radius-16px color-error bg-fill-error border-05-error-a35">
               {{ epubReaderError }}
@@ -217,8 +217,8 @@
 
           <div v-else class="flex-align-justify-center w-full">
             <div class="text-center p-32px max-w-500px">
-              <h3 class="text-20px txt-weight-light color-text-primary mb-12px">Preview not available</h3>
-              <p class="color-text-secondary mb-24px">This content type cannot be previewed directly.</p>
+              <h3 class="text-20px txt-weight-light color-text-primary mb-12px">{{ t('Preview not available') }}</h3>
+              <p class="color-text-secondary mb-24px">{{ t('This content type cannot be previewed directly.') }}</p>
             </div>
           </div>
         </div>
@@ -252,6 +252,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
@@ -440,7 +441,7 @@ let stopPinProgressListener: null | (() => void) = null;
 
 const saveNamePlaceholder = computed(() => {
   const name = inferDefaultName();
-  return name || "Enter a name";
+  return name || t("Enter a name");
 });
 
 
@@ -551,13 +552,13 @@ async function buildEpubReaderSrcDoc() {
     doc.head.insertBefore(baseEl, doc.head.firstChild);
 
     const bookDataEl = doc.getElementById("bibi-book-data");
-    if (!bookDataEl) throw new Error("EPUB reader template is missing its book-data element");
+    if (!bookDataEl) throw new Error(t("EPUB reader template is missing its book-data element"));
     bookDataEl.textContent = base64;
     bookDataEl.setAttribute("data-bibi-book-mimetype", "application/epub+zip");
 
     epubReaderSrcDoc.value = `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
   } catch (e) {
-    epubReaderError.value = errorMessage(e, "Failed to open EPUB");
+    epubReaderError.value = errorMessage(e, t("Failed to open EPUB"));
   } finally {
     epubReaderLoading.value = false;
   }
@@ -860,7 +861,7 @@ const markdownHtml = computed(() => {
     anchor.setAttribute("href", resolved.value);
     if (resolved.kind === "external") {
       anchor.setAttribute("target", "_blank");
-      anchor.setAttribute("rel", "noopener noreferrer");
+      anchor.setAttribute("rel", t("noopener noreferrer"));
     } else {
       anchor.removeAttribute("target");
       anchor.removeAttribute("rel");
@@ -1927,7 +1928,7 @@ function inferDefaultName(): string {
 }
 
 async function resolveCurrentItemCid(): Promise<string> {
-  if (!rootCid.value) throw new Error("Missing CID.");
+  if (!rootCid.value) throw new Error(t("Missing CID."));
   const p = String(relPath.value || "")
     .replace(/^\/+/, "")
     .replace(/\/+$/, "");
@@ -1948,7 +1949,7 @@ async function resolveCurrentItemCid(): Promise<string> {
 }
 
 async function resolveSaveTargetCid(): Promise<string> {
-  if (!rootCid.value) throw new Error("Missing CID.");
+  if (!rootCid.value) throw new Error(t("Missing CID."));
   // For HLS, pin the root directory CID so all playlists + segments stay available.
   if (isHlsManifest.value) return rootCid.value;
   return resolveCurrentItemCid();
@@ -1967,7 +1968,7 @@ async function openSaveModal() {
     const cid = await resolveSaveTargetCid();
     saveTargetCid.value = cid;
   } catch (e) {
-    saveModalError.value = errorMessage(e, "Unable to prepare save.");
+    saveModalError.value = errorMessage(e, t("Unable to prepare save."));
   } finally {
     savePreparing.value = false;
   }
@@ -2001,7 +2002,7 @@ async function waitForSavePinCompletion(jobId: string, cid: string, name: string
     }
 
     if (res?.cancelled || String(res?.error || "").trim().toLowerCase() === "user_cancelled") {
-      saveModalError.value = "Save cancelled.";
+      saveModalError.value = t("Save cancelled.");
       saving.value = false;
       return;
     }
@@ -2022,7 +2023,7 @@ async function confirmSaveToDrive() {
   if (!rootCid.value || savePinIsRunning.value) return;
   const name = String(saveNameDraft.value || "").trim();
   if (!name) {
-    saveModalError.value = "Please enter a name.";
+    saveModalError.value = t("Please enter a name.");
     return;
   }
 

@@ -1,27 +1,27 @@
 <template>
   <!-- ####### lumen://help HELP ####### -->
   <div class="internal-page flex">
-    <InternalSidebar title="Help" :icon="HelpCircle" activeKey="help">
+    <InternalSidebar :title="t('Help')" :icon="HelpCircle" activeKey="help">
       <nav class="flex flex-column gap-12px">
-        <UiSidebarNavSection title="Resources">
+        <UiSidebarNavSection :title="t('Resources')">
           <UiSidebarNavItem :active="currentView === 'discover'" @click="setView('discover')">
             <Sparkles :size="18" />
-            <span>Discover Lumen</span>
+            <span>{{ t('Discover Lumen') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
 
-        <UiSidebarNavSection title="Support">
+        <UiSidebarNavSection :title="t('Support')">
           <UiSidebarNavItem :active="currentView === 'publish'" @click="setView('publish')">
             <Rocket :size="18" />
-            <span>Publish my site</span>
+            <span>{{ t('Publish my site') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'contact'" @click="setView('contact')">
             <MessageCircle :size="18" />
-            <span>Support</span>
+            <span>{{ t('Support') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'docs'" @click="setView('docs')">
             <BookOpen :size="18"/>
-            <span>Documentation</span>
+            <span>{{ t('Documentation') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -34,30 +34,30 @@
           <!-- Hero Section -->
           <section class="bg-gradient-primary-a10-card p-32px border-radius-16px text-center border-default shadow-sm">
             <div class="mb-24px">
-              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Welcome to <span class="gradient-text-clip bg-gradient-primary">Lumen</span></h2>
-              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">The decentralized web browser for the next generation of internet</p>
+              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">{{ t('Welcome to') }} <span class="gradient-text-clip bg-gradient-primary">{{ t('Lumen') }}</span></h2>
+              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">{{ t('The decentralized web browser for the next generation of internet') }}</p>
             </div>
             <div class="flex flex-wrap-wrap flex-justify-center gap-24px">
-              <UiFeaturePoint icon="🌐" title="Decentralized Storage" description="Store and share content without central servers" />
-              <UiFeaturePoint icon="🔐" title="Blockchain Domains" description="Own your identity with .lmn domains" />
-              <UiFeaturePoint icon="⚡" title="Secure by Design" description="Encrypted connections and local-first data" />
+              <UiFeaturePoint icon="🌐" :title="t('Decentralized Storage')" :description="t('Store and share content without central servers')" />
+              <UiFeaturePoint icon="🔐" :title="t('Blockchain Domains')" :description="t('Own your identity with .lmn domains')" />
+              <UiFeaturePoint icon="⚡" :title="t('Secure by Design')" :description="t('Encrypted connections and local-first data')" />
             </div>
           </section>
 
           <!-- Quick Actions -->
           <section class="flex flex-column gap-16px">
-            <h3 class="color-text-primary txt-weight-medium m-0px text-16px">Get Started</h3>
+            <h3 class="color-text-primary txt-weight-medium m-0px text-16px">{{ t('Get Started') }}</h3>
             <div class="gap-12px grid grid-cols-2">
-              <UiActionCard title="Drive" description="Upload and manage your files" icon-class="color-primary bg-fill-blue" @click="open('lumen://drive')">
+              <UiActionCard :title="t('Drive')" :description="t('Upload and manage your files')" icon-class="color-primary bg-fill-blue" @click="open('lumen://drive')">
                 <template #icon><FolderOpen :size="24" /></template>
               </UiActionCard>
-              <UiActionCard title="Domains" description="Register your .lmn domain" icon-class="color-purple bg-purple-a15" @click="open('lumen://domain')">
+              <UiActionCard :title="t('Domains')" :description="t('Register your .lmn domain')" icon-class="color-purple bg-purple-a15" @click="open('lumen://domain')">
                 <template #icon><Link2 :size="24" /></template>
               </UiActionCard>
-              <UiActionCard title="Wallet" description="Manage your LMN tokens" icon-class="bg-fill-success color-success" @click="open('lumen://wallet')">
+              <UiActionCard :title="t('Wallet')" :description="t('Manage your LMN tokens')" icon-class="bg-fill-success color-success" @click="open('lumen://wallet')">
                 <template #icon><Wallet :size="24" /></template>
               </UiActionCard>
-              <UiActionCard title="Search" description="Discover decentralized content" icon-class="bg-warning-a15 color-warning" @click="open('lumen://search')">
+              <UiActionCard :title="t('Search')" :description="t('Discover decentralized content')" icon-class="bg-warning-a15 color-warning" @click="open('lumen://search')">
                 <template #icon><Search :size="24" /></template>
               </UiActionCard>
             </div>
@@ -72,45 +72,44 @@
           <!-- Hero -->
           <section class="bg-gradient-primary-a10-card border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="mb-24px">
-              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Create Your <span class="gradient-text-clip bg-gradient-primary">First Website</span></h2>
-              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Publish a site on the decentralized web in four simple steps — no server required.</p>
+              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">{{ t('Create Your') }} <span class="gradient-text-clip bg-gradient-primary">{{ t('First Website') }}</span></h2>
+              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">{{ t('Publish a site on the decentralized web in four simple steps — no server required.') }}</p>
             </div>
           </section>
 
           <div class="flex flex-column gap-16px">
-            <UiTutorialStep :number="1" title="Build Your Website">
-              Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an <code>index.html</code> at its root.
+            <UiTutorialStep :number="1" :title="t('Build Your Website')">
+              {{ t('Create it like you normally would — plain HTML/CSS/JS, or the export of any static site builder. All you need is a folder with an {file} at its root.', { file: 'index.html' }) }}
             </UiTutorialStep>
 
-            <UiTutorialStep :number="2" title="Upload It to Drive">
-              Open Drive, upload that folder, then copy its Lumen link — that's your content's address.
+            <UiTutorialStep :number="2" :title="t('Upload It to Drive')">
+              {{ t("Open Drive, upload that folder, then copy its Lumen link — that's your content's address.") }}
               <template #action>
                 <UiButton variant="primary" type="button" @click="open('lumen://drive')">
                   <FolderOpen :size="18" />
-                  <span>Open Drive</span>
+                  <span>{{ t('Open Drive') }}</span>
                 </UiButton>
               </template>
             </UiTutorialStep>
 
-            <UiTutorialStep :number="3" title="Get a Domain">
-              Open Domains and register a name for your site, like <code>yourname.lmn</code>, if you don't have one yet.
+            <UiTutorialStep :number="3" :title="t('Get a Domain')">
+              {{ t("Open Domains and register a name for your site, like {example}, if you don't have one yet.", { example: 'yourname.lmn' }) }}
               <template #action>
                 <UiButton variant="primary" type="button" @click="open('lumen://domain')">
                   <Link2 :size="18" />
-                  <span>Open Domains</span>
+                  <span>{{ t('Open Domains') }}</span>
                 </UiButton>
               </template>
             </UiTutorialStep>
 
-            <UiTutorialStep :number="4" title="Link Your Domain to Your Content">
-              Edit your domain, then add a new record: set <strong>Key</strong> to <code>cid</code> and <strong>Value</strong> to the link you copied in step 2. Save.
+            <UiTutorialStep :number="4" :title="t('Link Your Domain to Your Content')">
+              {{ t('Edit your domain, then add a new record: set {keyField} to {cid} and {valueField} to the link you copied in step 2. Save.', { keyField: 'Key', cid: 'cid', valueField: 'Value' }) }}
             </UiTutorialStep>
           </div>
 
           <div class="color-text-primary mt-16px border-radius-14px text-14px py-12px px-16px bg-fill-blue line-height-14 border-1-primary-a15">
-            <strong>That's it — you're live.</strong> Visit <code>lumen://yourname.lmn</code> to see your site.
-            If it still shows as unavailable, double-check that <code>index.html</code> sits at the root of the
-            uploaded folder, and give it a minute to propagate.
+            <strong>{{ t("That's it — you're live.") }}</strong>
+            {{ t('Visit {url} to see your site. If it still shows as unavailable, double-check that {file} sits at the root of the uploaded folder, and give it a minute to propagate.', { url: 'lumen://yourname.lmn', file: 'index.html' }) }}
           </div>
         </div>
       </div>
@@ -120,16 +119,16 @@
           <!-- Hero -->
           <section class="bg-gradient-primary-a10-card border-radius-16px text-center border-default shadow-sm p-24px">
             <div class="mb-24px">
-              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">Get <span class="gradient-text-clip bg-gradient-primary">Help</span></h2>
-              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">Connect with our community and get support</p>
+              <h2 class="color-text-primary txt-weight-strong m-0px text-28px letter-spacing-n002">{{ t('Get') }} <span class="gradient-text-clip bg-gradient-primary">{{ t('Help') }}</span></h2>
+              <p class="m-0px mt-8px color-text-secondary text-16px line-height-15">{{ t('Connect with our community and get support') }}</p>
             </div>
           </section>
 
           <!-- Contact Cards -->
           <div class="gap-16px grid grid-cols-1">
             <UiActionCard
-              title="Discord Community"
-              description="Join our active community, ask questions, and get help from other users."
+              :title="t('Discord Community')"
+              :description="t('Join our active community, ask questions, and get help from other users.')"
               icon-class="color-purple bg-purple-a15"
               icon-size-class="size-64px"
               card-class="gap-20px p-20px w-full"
@@ -144,8 +143,8 @@
             </UiActionCard>
 
             <UiActionCard
-              title="GitHub"
-              description="Report bugs, contribute to the codebase, or explore our open-source projects."
+              :title="t('GitHub')"
+              :description="t('Report bugs, contribute to the codebase, or explore our open-source projects.')"
               icon-class="color-text-primary bg-fill-tertiary"
               icon-size-class="size-64px"
               card-class="gap-20px p-20px w-full"
@@ -160,8 +159,8 @@
             </UiActionCard>
 
             <UiActionCard
-              title="Official Website"
-              description="Visit our website for documentation, news, and updates."
+              :title="t('Official Website')"
+              :description="t('Visit our website for documentation, news, and updates.')"
               icon-class="color-primary bg-fill-blue"
               icon-size-class="size-64px"
               card-class="gap-20px p-20px w-full"
@@ -184,7 +183,7 @@
           <iframe
             class="w-full h-full border-radius-16px block border-default shadow-sm bg-card min-h-520px"
             :src="lumenDocFrameSrc"
-            title="window.lumen API Reference"
+            :title="t('window.lumen API Reference')"
             loading="lazy"
           ></iframe>
         </div>
@@ -194,6 +193,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiButton from '../../ui/UiButton.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { computed, inject, ref, watch } from 'vue';
@@ -316,9 +316,9 @@ watch(
 
 function getViewTitle(): string {
   const titles: Record<string, string> = {
-    discover: 'What is Lumen?',
-    publish: 'Publish My Site',
-    contact: 'Contact Support',
+    discover: t('What is Lumen?'),
+    publish: t('Publish My Site'),
+    contact: t('Contact Support'),
     docs: 'Documentation',
   };
   return titles[currentView.value] || 'Help';
@@ -326,10 +326,10 @@ function getViewTitle(): string {
 
 function getViewDescription(): string {
   const descs: Record<string, string> = {
-    discover: 'A quick overview of the Lumen stack',
-    publish: 'Go from local files to a live .lmn site',
-    contact: 'Reach out to our team',
-    docs: 'Website developer docs for window.lumen'
+    discover: t('A quick overview of the Lumen stack'),
+    publish: t('Go from local files to a live .lmn site'),
+    contact: t('Reach out to our team'),
+    docs: t('Website developer docs for window.lumen')
   };
   return descs[currentView.value] || '';
 }

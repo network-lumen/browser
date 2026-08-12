@@ -1,24 +1,24 @@
 <template>
   <!-- ####### lumen://network NETWORK PARAMS ####### -->
   <section class="p-32px">
-    <UiPageHeader title="Params" title-size="24px" title-weight="strong">
+    <UiPageHeader :title="t('Params')" title-size="24px" title-weight="strong">
       <template #actions>
         <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="hover-border-primary-a15 disabled-fade-50">
           <Copy :size="16" />
-          Copy all
+          {{ t('Copy all') }}
         </UiButton>
       </template>
     </UiPageHeader>
 
     <div v-if="fatalError" class="color-text-primary p-20px border-radius-16px border-1-error-a25 bg-error-a08">
-      <p class="m-0px txt-weight-strong">Unable to fetch params</p>
+      <p class="m-0px txt-weight-strong">{{ t('Unable to fetch params') }}</p>
       <p class="color-text-secondary text-14px m-0px mt-8px">{{ fatalError }}</p>
     </div>
 
     <div v-else class="flex flex-column gap-12px">
       <div v-if="loadingAll && !hasAnyData" class="flex-align-center bg-primary color-text-secondary gap-12px p-16px border-1 border-radius-16px">
         <UiSpinner size="sm" />
-        <span>Loading params…</span>
+        <span>{{ t('Loading params…') }}</span>
       </div>
 
       <section v-for="s in sections" :key="s.id" class="bg-primary border-1 border-radius-16px overflow-hidden">
@@ -39,7 +39,7 @@
               icon-radius-class="border-radius-10px"
               icon-padding-class=""
               class="hover-border-primary-a15 disabled-fade-50 size-32px border-1-light transition-colors-015 hover-bg-primary-a10 hover-color-accent"
-              title="Copy JSON"
+              :title="t('Copy JSON')"
               :disabled="!s.data"
               @click.stop="copySection(s)"
             >
@@ -52,7 +52,7 @@
         <div v-if="s.open" class="bg-secondary border-top-1-light pt-14px pr-20px pb-20px pl-20px">
           <div v-if="s.loading" class="flex-align-center color-text-secondary gap-12px">
             <UiSpinner size="sm" />
-            <span>Loading…</span>
+            <span>{{ t('Loading…') }}</span>
           </div>
           <div v-else-if="s.error" class="color-error text-14px">
             {{ s.error }}
@@ -66,6 +66,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiButton from '../ui/UiButton.vue';
 import UiPageHeader from '../ui/UiPageHeader.vue';
 import { computed, onMounted, ref } from 'vue';
@@ -97,7 +98,7 @@ function extractModuleParams(json: any) {
 const sections = ref<ParamSection[]>([
   {
     id: 'gov-deposit',
-    title: 'Governance (deposit)',
+    title: t('Governance (deposit)'),
     path: '/cosmos/gov/v1/params/deposit',
     open: true,
     loading: false,
@@ -107,7 +108,7 @@ const sections = ref<ParamSection[]>([
   },
   {
     id: 'gov-voting',
-    title: 'Governance (voting)',
+    title: t('Governance (voting)'),
     path: '/cosmos/gov/v1/params/voting',
     open: false,
     loading: false,
@@ -117,7 +118,7 @@ const sections = ref<ParamSection[]>([
   },
   {
     id: 'gov-tallying',
-    title: 'Governance (tallying)',
+    title: t('Governance (tallying)'),
     path: '/cosmos/gov/v1/params/tallying',
     open: false,
     loading: false,
@@ -137,7 +138,7 @@ const sections = ref<ParamSection[]>([
   },
   {
     id: 'dns',
-    title: 'DNS (x/dns)',
+    title: t('DNS (x/dns)'),
     path: '/lumen/dns/v1/params',
     open: false,
     loading: false,
@@ -147,7 +148,7 @@ const sections = ref<ParamSection[]>([
   },
   {
     id: 'gateways',
-    title: 'Gateways (x/gateway)',
+    title: t('Gateways (x/gateway)'),
     path: '/lumen/gateway/v1/params',
     open: false,
     loading: false,
@@ -157,7 +158,7 @@ const sections = ref<ParamSection[]>([
   },
   {
     id: 'release',
-    title: 'Release (x/release)',
+    title: t('Release (x/release)'),
     path: '/lumen/release/params',
     open: false,
     loading: false,
@@ -167,7 +168,7 @@ const sections = ref<ParamSection[]>([
   },
   {
     id: 'tokenomics',
-    title: 'Tokenomics (x/tokenomics)',
+    title: t('Tokenomics (x/tokenomics)'),
     path: '/lumen/tokenomics/v1/params',
     open: false,
     loading: false,
@@ -177,7 +178,7 @@ const sections = ref<ParamSection[]>([
   },
   {
     id: 'pqc',
-    title: 'PQC (x/pqc)',
+    title: t('PQC (x/pqc)'),
     path: '/lumen/pqc/v1/params',
     open: false,
     loading: false,
@@ -226,7 +227,7 @@ function statusLabel(s: ParamSection): string {
 
 async function loadSection(s: ParamSection) {
   if (!lumen?.net?.restGet) {
-    throw new Error('Network client unavailable');
+    throw new Error(t('Network client unavailable'));
   }
   s.loading = true;
   s.error = '';
@@ -240,7 +241,7 @@ async function loadSection(s: ParamSection) {
     s.data = s.extract ? s.extract(raw) : raw;
   } catch (err) {
     s.data = null;
-    s.error = errorMessage(err, 'Unknown error');
+    s.error = errorMessage(err, t('Unknown error'));
   } finally {
     s.loading = false;
   }
@@ -249,7 +250,7 @@ async function loadSection(s: ParamSection) {
 async function refreshAll() {
   fatalError.value = '';
   if (!lumen?.net?.restGet && !lumen?.http?.get) {
-    fatalError.value = 'Lumen network bridge is not available in this context.';
+    fatalError.value = t('Lumen network bridge is not available in this context.');
     return;
   }
   await Promise.all(sections.value.map((s) => loadSection(s)));

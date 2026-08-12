@@ -1,3 +1,4 @@
+import { t } from '../stores/i18nStore';
 import { addToast, type ToastType, type Toast } from '../stores/toastStore';
 import type { ToastOptions } from '../types/toast';
 
@@ -29,9 +30,9 @@ export function useToast() {
   // Convenience method for API responses
   const fromResult = (result: { ok?: boolean; error?: string; message?: string }, successMsg?: string) => {
     if (result.ok) {
-      success(successMsg || errorMessage(result, 'Operation completed successfully'));
+      success(successMsg || errorMessage(result, t('Operation completed successfully')));
     } else {
-      error(result.error || errorMessage(result, 'Operation failed'));
+      error(result.error || errorMessage(result, t('Operation failed')));
     }
     return result.ok;
   };

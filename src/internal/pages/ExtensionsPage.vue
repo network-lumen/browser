@@ -45,14 +45,15 @@
     ></webview>
 
     <footer class="flex-align-center flex-wrap-wrap text-11px gap-12px line-height-14 color-store-footnote mt-0px mx-24px mb-18px">
-      <span><strong class="txt-weight-light color-store-strong">Official listing:</strong> Chrome Web Store content is provided by Google.</span>
-      <span><strong class="txt-weight-light color-store-strong">Lumen install:</strong> installation is handled by Lumen.</span>
-      <span><strong class="txt-weight-light color-store-strong">Affiliation:</strong> Lumen is independent and is not affiliated with Google.</span>
+      <span><strong class="txt-weight-light color-store-strong">{{ t('Official listing:') }}</strong> {{ t('Chrome Web Store content is provided by Google.') }}</span>
+      <span><strong class="txt-weight-light color-store-strong">{{ t('Lumen install:') }}</strong> {{ t('installation is handled by Lumen.') }}</span>
+      <span><strong class="txt-weight-light color-store-strong">{{ t('Affiliation:') }}</strong> {{ t('Lumen is independent and is not affiliated with Google.') }}</span>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
 import { isBrowserUrl } from "../navigationUrl";
 import { useTabLoadingSync } from "../useTabLoading";
@@ -74,7 +75,7 @@ const DEFAULT_STORE_URL = "https://chromewebstore.google.com/category/extensions
 const STORE_SEARCH_BASE_URL = "https://chromewebstore.google.com/search/";
 const CRX_DOWNLOAD_MARKER = "clients2.google.com/service/update2/crx";
 const FALLBACK_STORE_USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+  t("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
 
 const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
 const { navigate, openInNewTab } = useTabNavigation();
@@ -216,7 +217,7 @@ function describeStoreTarget(raw: string) {
   const fallback = {
     kind: "browse",
     title: "Extensions",
-    subtitle: "Browse official Chrome Web Store pages in Lumen. Discovery stays on the official listing while installation is handled by the browser.",
+    subtitle: t("Browse official Chrome Web Store pages in Lumen. Discovery stays on the official listing while installation is handled by the browser."),
   };
   const href = safeString(raw, 8192);
   if (!href) return fallback;
@@ -234,8 +235,8 @@ function describeStoreTarget(raw: string) {
       return {
         kind: "detail",
         extensionId,
-        title: slug || "Chrome Extension",
-        subtitle: "Official listing open in Lumen. Installation is performed by Lumen after CRX verification and permission review.",
+        title: slug || t("Chrome Extension"),
+        subtitle: t("Official listing open in Lumen. Installation is performed by Lumen after CRX verification and permission review."),
       };
     }
 
@@ -244,8 +245,8 @@ function describeStoreTarget(raw: string) {
       return {
         kind: "search",
         extensionId: "",
-        title: query ? `Search: ${query}` : "Search Extensions",
-        subtitle: "Search the official Chrome Web Store inside Lumen, then install compatible extensions with Lumen's native flow.",
+        title: query ? `Search: ${query}` : t("Search Extensions"),
+        subtitle: t("Search the official Chrome Web Store inside Lumen, then install compatible extensions with Lumen's native flow."),
       };
     }
   } catch {
@@ -322,20 +323,20 @@ const primaryActionKind = computed<"install" | "remove" | "update">(() => {
 });
 const primaryActionLabel = computed(() => {
   if (installInFlight.value) {
-    if (primaryActionKind.value === "remove") return "Removing…";
-    if (primaryActionKind.value === "update") return "Updating…";
-    return "Installing…";
+    if (primaryActionKind.value === "remove") return t("Removing…");
+    if (primaryActionKind.value === "update") return t("Updating…");
+    return t("Installing…");
   }
   if (primaryActionKind.value === "remove") return "Remove";
   if (primaryActionKind.value === "update") return "Update";
-  return "Install in Lumen";
+  return t("Install in Lumen");
 });
 const headerTitle = computed(() => {
   return stripStoreTitle(storePageTitle.value) || storeTargetInfo.value.title;
 });
 const headerDescription = computed(() => {
   if (storeInstallId.value) {
-    return "Official Chrome Web Store listing.";
+    return t("Official Chrome Web Store listing.");
   }
   return storeTargetInfo.value.subtitle;
 });
@@ -414,7 +415,7 @@ async function installChromeWebStoreExtension(input: string) {
   const id = extractChromeWebStoreId(input);
   if (!id) {
     statusError.value = true;
-    statusMessage.value = "This page does not expose a valid Chrome Web Store extension ID.";
+    statusMessage.value = t("This page does not expose a valid Chrome Web Store extension ID.");
     return;
   }
 
@@ -430,7 +431,7 @@ async function installChromeWebStoreExtension(input: string) {
     // No extension bridge at all: stay silent rather than surfacing an internal code.
     if (result.error === "extensions_unavailable") return;
     statusError.value = true;
-    statusMessage.value = result.error || "Lumen installation failed.";
+    statusMessage.value = result.error || t("Lumen installation failed.");
   } finally {
     installInFlight.value = false;
   }
@@ -448,13 +449,13 @@ async function removeCurrentExtension() {
     const result = await api.removeExtension(id);
     if (!result || result.ok === false) {
       statusError.value = true;
-      statusMessage.value = result?.error || "Extension removal failed.";
+      statusMessage.value = result?.error || t("Extension removal failed.");
       return;
     }
     await refreshInstalledExtensions();
   } catch (error) {
     statusError.value = true;
-    statusMessage.value = errorMessage(error, "Extension removal failed.");
+    statusMessage.value = errorMessage(error, t("Extension removal failed."));
   } finally {
     installInFlight.value = false;
   }
@@ -607,7 +608,7 @@ function onDidFailLoad(ev: any) {
   if (errorCode === -3) return;
 
   statusError.value = true;
-  statusMessage.value = safeString(ev?.errorDescription, 512) || "Store navigation failed.";
+  statusMessage.value = safeString(ev?.errorDescription, 512) || t("Store navigation failed.");
 }
 
 watch(

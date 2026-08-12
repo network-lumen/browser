@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { buildAbsoluteUrl, fetchAbsoluteJson, trimTrailingSlash } from './httpJson';
 import { STORAGE_KEYS, readString, writeJson } from './storage';
@@ -223,9 +224,9 @@ export async function resolveDenomTrace(
     let trace: any = null;
     if (isLocal) {
       const net = useInternalLumen()?.net;
-      if (!net || typeof net.restGet !== 'function') throw new Error('Network API not available.');
+      if (!net || typeof net.restGet !== 'function') throw new Error(t('Network API not available.'));
       const res = await net.restGet(path, { timeout: 10000 });
-      if (!res || res.ok === false) throw new Error(String(res?.error || 'Failed to resolve denom trace.'));
+      if (!res || res.ok === false) throw new Error(String(res?.error || t('Failed to resolve denom trace.')));
       trace = res?.json?.denom_trace || res?.json?.denomTrace || null;
     } else {
       const json = await fetchAbsoluteJson(buildAbsoluteUrl(restEndpoint, path), 10000);

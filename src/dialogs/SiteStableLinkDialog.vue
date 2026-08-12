@@ -11,46 +11,46 @@
   >
 
     <template #header>
-      <UiModalHeader title="Choose or create a stable link for your live" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
+      <UiModalHeader :title="t('Choose or create a stable link for your live')" badge-class="w-32px h-32px bg-fill-blue color-primary" gap-class="gap-10px">
         <template #icon><Link :size="18" /></template>
       </UiModalHeader>
     </template>
           <UiBanner variant="info" v-if="siteLabel">
-            <span class="overflow-wrap-anywhere">Requested by <span class="mono">{{ siteLabel }}</span></span>
+            <span class="overflow-wrap-anywhere">{{ t('Requested by') }} <span class="mono">{{ siteLabel }}</span></span>
           </UiBanner>
 
           <div class="border-radius-10px grid gap-4px p-4px mb-12px bg-fill-tertiary grid-cols-2-minmax0">
             <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'existing' }" @click="stableLinkMode = 'existing'">
-              Existing
+              {{ t('Existing') }}
             </button>
             <button type="button" class="color-text-secondary cursor-pointer txt-weight-medium border-radius-8px py-8px px-10px bg-transparent border-none" :class="{ 'bg-card color-text-primary shadow-sm': stableLinkMode === 'create' }" @click="stableLinkMode = 'create'">
-              Create new
+              {{ t('Create new') }}
             </button>
           </div>
 
-          <UiFormGroup v-if="stableLinkMode === 'existing'" label="Stable link" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+          <UiFormGroup v-if="stableLinkMode === 'existing'" :label="t('Stable link')" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <select class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSelectedName" :disabled="saving || loading">
-              <option value="">{{ loading ? 'Loading stable links...' : 'Select a stable link' }}</option>
+              <option value="">{{ loading ? t('Loading stable links...') : t('Select a stable link') }}</option>
               <option v-for="item in stableLinks" :key="item.name" :value="item.name">
                 {{ item.label }} — {{ shortStableIpns(item.id) }}
               </option>
             </select>
           </UiFormGroup>
 
-          <UiFormGroup v-else label="New stable link label" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
+          <UiFormGroup v-else :label="t('New stable link label')" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <input
               class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px"
               type="text"
               v-model="stableLinkNewLabel"
-              placeholder="my-live"
+              :placeholder="'my-live'"
               :disabled="saving"
               @keydown.enter.prevent="$emit('submit')"
             />
           </UiFormGroup>
 
           <div class="border-radius-10px border-default py-10px px-12px">
-            <UiDetailRow variant="baseline" label="Live" :value="liveTitle || 'Untitled live'" />
-            <UiDetailRow variant="baseline" label="Records">
+            <UiDetailRow variant="baseline" :label="t('Live')" :value="liveTitle || 'Untitled live'" />
+            <UiDetailRow variant="baseline" :label="t('Records')">
               <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
                 <span class="mono">{{ records.length }} record{{ records.length === 1 ? '' : 's' }}</span>
                 <ChevronDown :size="14" class="transition-transform-02" :class="{ 'rotate-180': stableLinkRecordsExpanded }" />
@@ -65,17 +65,18 @@
           </div>
 
           <p class="text-12px color-text-secondary mt-8px">
-            The stable link URL will be copied after it is attached to this live.
+            {{ t('The stable link URL will be copied after it is attached to this live.') }}
           </p>
 
     <template #confirm><UiSpinnerRing v-if="saving" />
         <Plus v-else-if="stableLinkMode === 'create'" :size="16" />
         <Save v-else :size="16" />
-        <span>{{ saving ? 'Saving...' : (stableLinkMode === 'create' ? 'Create and copy link' : 'Use and copy link') }}</span></template>
+        <span>{{ saving ? 'Saving...' : (stableLinkMode === 'create' ? t('Create and copy link') : t('Use and copy link')) }}</span></template>
   </UiDialog>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { ref } from 'vue';
 import UiDialog from '../ui/UiDialog.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';

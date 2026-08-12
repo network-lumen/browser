@@ -2,9 +2,9 @@
   <!-- ####### lumen://extension EXTENSION POPUP ####### -->
   <div class="absolute inset-0 flex min-h-0 min-w-0 bg-dark-111">
     <UiExtensionStatus v-if="error" error>{{ error }}</UiExtensionStatus>
-    <UiExtensionStatus v-else-if="guestPreloadLoading">Preparing extension host…</UiExtensionStatus>
-    <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error>Extension guest preload is unavailable.</UiExtensionStatus>
-    <UiExtensionStatus v-else-if="loading && !webviewMountUrl">Loading extension…</UiExtensionStatus>
+    <UiExtensionStatus v-else-if="guestPreloadLoading">{{ t('Preparing extension host…') }}</UiExtensionStatus>
+    <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error>{{ t('Extension guest preload is unavailable.') }}</UiExtensionStatus>
+    <UiExtensionStatus v-else-if="loading && !webviewMountUrl">{{ t('Loading extension…') }}</UiExtensionStatus>
     <webview
       v-else-if="webviewMountUrl"
       ref="webviewRef"
@@ -23,11 +23,12 @@
       @did-stop-loading="onDidStopLoading"
       @dom-ready="onDomReady"
     ></webview>
-    <UiExtensionStatus v-else>Preparing extension…</UiExtensionStatus>
+    <UiExtensionStatus v-else>{{ t('Preparing extension…') }}</UiExtensionStatus>
   </div>
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import UiExtensionStatus from '../../ui/UiExtensionStatus.vue';
 import {
@@ -413,22 +414,22 @@ function formatPrepareError(rawError: unknown) {
     (rawError as any)?.message || (rawError as any)?.error || rawError || "extension_open_failed",
   ).trim();
 
-  if (code === "extension_not_found") return "This extension could not be found.";
-  if (code === "extension_disabled") return "This extension is disabled.";
-  if (code === "extension_launch_url_missing") return "This extension does not expose an entry page.";
-  return "Failed to open this extension.";
+  if (code === "extension_not_found") return t("This extension could not be found.");
+  if (code === "extension_disabled") return t("This extension is disabled.");
+  if (code === "extension_launch_url_missing") return t("This extension does not expose an entry page.");
+  return t("Failed to open this extension.");
 }
 
 async function resolveCurrentExtensionTab() {
   const info = routeInfo.value;
   if (!info?.extensionId) {
-    error.value = "This extension could not be found.";
+    error.value = t("This extension could not be found.");
     resolvedExtension.value = null;
     resolvedExtensionUrl.value = "";
     return;
   }
   if (!(await ensureGuestPreloadUrl())) {
-    error.value = "Extension guest preload is unavailable.";
+    error.value = t("Extension guest preload is unavailable.");
     return;
   }
 

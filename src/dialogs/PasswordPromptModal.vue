@@ -1,7 +1,7 @@
 <template>
   <UiModal :model-value="visible" panel-class="pwd-modal w-full max-w-360px shadow-lg" :closable="false" @update:model-value="handleCancel">
     <template #header>
-      <UiModalHeader title="Password Required" badge-class="color-primary" title-class="text-18px">
+      <UiModalHeader :title="t('Password Required')" badge-class="color-primary" title-class="text-18px">
         <template #icon><LockKeyhole :size="24" /></template>
       </UiModalHeader>
     </template>
@@ -13,7 +13,7 @@
             <UiInput bg-class="bg-fill-tertiary" radius-class="border-radius-10px" font-size-class="text-16px" padding-class="py-12px px-16px" :focus-ring="false" ref="passwordInput"
               type="password"
               v-model="password"
-              placeholder="Enter password"
+              :placeholder="t('Enter password')"
               :disabled="loading"
               @keyup.enter="handleSubmit"
               @keyup.escape="handleCancel" class="focus-border-primary border-default disabled-fade-50 transition-colors-015 placeholder-tertiary" />
@@ -25,18 +25,19 @@
       <UiButton variant="secondary" v-if="cancelable !== false"
         @click="handleCancel"
         :disabled="loading" class="disabled-fade-50">
-        Cancel
+        {{ t('Cancel') }}
       </UiButton>
       <UiButton variant="primary" @click="handleSubmit"
         :disabled="loading || !password" class="disabled-fade-50">
-        <span v-if="loading">Verifying...</span>
-        <span v-else>Confirm</span>
+        <span v-if="loading">{{ t('Verifying...') }}</span>
+        <span v-else>{{ t('Confirm') }}</span>
       </UiButton>
     </template>
   </UiModal>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiInput from '../ui/UiInput.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
@@ -88,13 +89,13 @@ async function handleSubmit() {
       emit('confirm', password.value);
       password.value = '';
     } else {
-      error.value = 'Incorrect password. Please try again.';
+      error.value = t('Incorrect password. Please try again.');
       password.value = '';
       await nextTick();
       passwordInput.value?.focus();
     }
   } catch (e) {
-    error.value = errorMessage(e, 'Failed to verify password.');
+    error.value = errorMessage(e, t('Failed to verify password.'));
   } finally {
     loading.value = false;
   }

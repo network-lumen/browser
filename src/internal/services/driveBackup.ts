@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import type {
   DriveBackupReadResult,
   DriveBackupShortcutEntry,
@@ -179,11 +180,11 @@ export function summarizeDriveBackupSnapshot(
 
 export function driveBackupFriendlyError(code: string): string {
   const raw = String(code || '').trim();
-  if (!raw) return 'Backup failed';
-  if (raw === 'missing_password') return 'Password required.';
-  if (raw === 'weak_password') return 'Password too short (min 8 characters).';
-  if (raw === 'decrypt_failed') return 'Wrong password or corrupted backup file.';
-  if (raw === 'invalid_envelope') return 'Invalid backup file.';
-  if (raw === 'invalid_snapshot') return 'Invalid snapshot.';
+  if (!raw) return t('Backup failed');
+  if (raw === 'missing_password') return t('Password required.');
+  if (raw === 'weak_password') return t('Password too short (min 8 characters).');
+  if (raw === 'decrypt_failed') return t('Wrong password or corrupted backup file.');
+  if (raw === 'invalid_envelope') return t('Invalid backup file.');
+  if (raw === 'invalid_snapshot') return t('Invalid snapshot.');
   return raw.replace(/_/g, ' ');
 }

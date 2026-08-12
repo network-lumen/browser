@@ -3,8 +3,8 @@
     :model-value="modelValue"
     panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-544px-full"
     :closable="false"
-    cancel-label="Skip"
-    confirm-label="Learn Lumen"
+    :cancel-label="t('Skip')"
+    :confirm-label="t('Learn Lumen')"
     @update:model-value="$emit('dismiss')"
     @confirm="$emit('learn')"
   >
@@ -14,10 +14,10 @@
         <Hexagon :size="22" />
       </div>
       <div>
-        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Welcome</div>
-        <h2 id="lumen-onboarding-title" class="color-text-primary">Learn what Lumen is</h2>
+        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">{{ t('Welcome') }}</div>
+        <h2 id="lumen-onboarding-title" class="color-text-primary">{{ t('Learn what Lumen is') }}</h2>
         <p id="lumen-onboarding-desc" class="color-text-secondary mt-8px line-height-15">
-          Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.
+          {{ t('Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.') }}
         </p>
       </div>
     </div>
@@ -25,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiDialog from '../ui/UiDialog.vue';
 import { Hexagon } from 'lucide-vue-next';
 

@@ -8,11 +8,11 @@
     <template #header>
       <h3 class="flex-align-center gap-8px color-text-primary m-0px text-18px">
         <History :size="20" />
-        <span>Payment History</span>
+        <span>{{ t('Payment History') }}</span>
       </h3>
     </template>
 
-    <UiEmptyState v-if="records.length === 0" description="No payment history yet" />
+    <UiEmptyState v-if="records.length === 0" :description="t('No payment history yet')" />
     <div v-else class="flex flex-column gap-12px">
       <div
         v-for="record in records"
@@ -44,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { History, Check, X, Clock } from 'lucide-vue-next';
 import UiDialog from '../ui/UiDialog.vue';
 import UiEmptyState from '../ui/UiEmptyState.vue';

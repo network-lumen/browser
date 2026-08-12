@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   REQUIRED_FUNCTIONS,
@@ -20,7 +21,7 @@ import {
  */
 
 const FATAL_ERROR_MAP: Record<string, string | ((name: string) => string)> = {
-  FATAL000001: 'Lumen API not found',
+  FATAL000001: t('Lumen API not found'),
   FATAL000002: (name: string) => `Missing API namespace '${name}'`,
   FATAL000004: (name: string) => `Missing function '${name}'`
 };

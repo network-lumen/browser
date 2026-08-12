@@ -15,33 +15,33 @@
               </template>
             </span>
             <span v-else>
-              💡 Your first transaction may take up to 60 seconds. <br>
-              After that, transactions are confirmed within ~6 seconds.</span>
+              {{ t('💡 Your first transaction may take up to 60 seconds.') }} <br>
+              {{ t('After that, transactions are confirmed within ~6 seconds.') }}</span>
           </UiBanner>
 
-          <UiFormGroup label="From" dimmed :hint="`Chain: ${sourceChainLabel}`">
+          <UiFormGroup :label="t('From')" dimmed :hint="`Chain: ${sourceChainLabel}`">
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="sourceAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
           </UiFormGroup>
 
-          <UiFormGroup label="Asset" dimmed>
+          <UiFormGroup :label="t('Asset')" dimmed>
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="`${assetName} (${assetSymbol})`" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
           </UiFormGroup>
 
-          <UiFormGroup v-if="!assetContext" label="Send to">
+          <UiFormGroup v-if="!assetContext" :label="t('Send to')">
             <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="targetMode">
-              <option value="lumen">On the current chain</option>
-              <option value="ibc">Across IBC to another chain</option>
+              <option value="lumen">{{ t('On the current chain') }}</option>
+              <option value="ibc">{{ t('Across IBC to another chain') }}</option>
             </select>
           </UiFormGroup>
 
-          <UiFormGroup v-if="isIbcSend" required label="IBC route">
+          <UiFormGroup v-if="isIbcSend" required :label="t('IBC route')">
             <select
               class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none"
               v-model="ibcForm.sourceChannel"
               :disabled="ibcChannelsLoading || !ibcChannels.length"
             >
               <option value="" disabled>
-                {{ ibcChannelsLoading ? 'Loading IBC channels...' : 'Select an IBC route' }}
+                {{ ibcChannelsLoading ? t('Loading IBC channels...') : t('Select an IBC route') }}
               </option>
               <option
                 v-for="channel in ibcChannels"
@@ -60,7 +60,7 @@
             </template>
           </UiFormGroup>
 
-          <UiFormGroup required :label="isIbcSend ? 'Destination address' : 'Recipient'">
+          <UiFormGroup required :label="isIbcSend ? t('Destination address') : t('Recipient')">
             <div class="relative">
               <div class="relative">
                 <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
@@ -68,7 +68,7 @@
                   :placeholder="recipientPlaceholder" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
                 <UiButton variant="secondary" @click="$emit('scan-qr')"
                   type="button"
-                  title="Scan QR Code" class="hover-bg-accent-color-white absolute top-half translate-y-center right-12px">
+                  :title="t('Scan QR Code')" class="hover-bg-accent-color-white absolute top-half translate-y-center right-12px">
                   <QrCode :size="16" />
                 </UiButton>
                 <button
@@ -76,14 +76,14 @@
                   class="hover-bg-accent-color-white flex-align-justify-center color-text-secondary cursor-pointer absolute p-8px border-none bg-hover border-radius-6px transition-all-02 top-half translate-y-center right-3-5rem"
                   @click="showContactPicker = !showContactPicker"
                   type="button"
-                  title="Select from contacts"
+                  :title="t('Select from contacts')"
                 >
                   <Users :size="16" />
                 </button>
               </div>
               <div v-if="showContactPicker" class="border-radius-12px absolute top-full mt-8px bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-md">
                 <div class="flex-align-center-justify-space-between txt-weight-light color-text-primary py-12px px-16px bg-secondary border-bottom-1 text-14px">
-                  <span>Select Contact</span>
+                  <span>{{ t('Select Contact') }}</span>
                   <UiButton variant="icon" @click="showContactPicker = false">
                     <X :size="14" />
                   </UiButton>
@@ -115,13 +115,13 @@
             <span class="txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ assetSymbol }}</span>
           </UiFormGroup>
 
-          <UiSummaryCard :title="isIbcSend ? 'Transfer Summary' : 'Transaction Summary'">
-            <UiSummaryRow :label="isIbcSend ? 'Transfer amount' : 'Amount debited'" :value="`${summary.amount} ${assetSymbol}`" />
-            <UiSummaryRow v-if="!isIbcSend" label="Chain" :value="sourceChainLabel" />
-            <UiSummaryRow v-if="showTaxBreakdown" label="Tax" :value="summary.taxLabel" value-class="color-warning" />
-            <UiSummaryRow v-if="showTaxBreakdown" highlight label="Receiver net" :value="`${summary.receiver} ${assetSymbol}`" />
-            <UiSummaryRow v-if="isIbcSend" label="Route" :value="summary.routeLabel" />
-            <UiSummaryRow v-if="isIbcSend" highlight label="Destination chain" :value="summary.destinationChain" />
+          <UiSummaryCard :title="isIbcSend ? t('Transfer Summary') : t('Transaction Summary')">
+            <UiSummaryRow :label="isIbcSend ? t('Transfer amount') : t('Amount debited')" :value="`${summary.amount} ${assetSymbol}`" />
+            <UiSummaryRow v-if="!isIbcSend" :label="t('Chain')" :value="sourceChainLabel" />
+            <UiSummaryRow v-if="showTaxBreakdown" :label="t('Tax')" :value="summary.taxLabel" value-class="color-warning" />
+            <UiSummaryRow v-if="showTaxBreakdown" highlight :label="t('Receiver net')" :value="`${summary.receiver} ${assetSymbol}`" />
+            <UiSummaryRow v-if="isIbcSend" :label="t('Route')" :value="summary.routeLabel" />
+            <UiSummaryRow v-if="isIbcSend" highlight :label="t('Destination chain')" :value="summary.destinationChain" />
           </UiSummaryCard>
 
           <UiButton variant="primary" @click="$emit('submit')" :disabled="!canSend || sending" class="disabled-fade-50">
@@ -133,6 +133,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiBanner from '../ui/UiBanner.vue';
