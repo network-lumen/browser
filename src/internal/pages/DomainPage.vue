@@ -1,24 +1,24 @@
 <template>
   <!-- ####### lumen://domain DOMAIN ####### -->
   <div class="internal-page flex">
-    <InternalSidebar title="Domains" :icon="Globe" activeKey="domain">
+    <InternalSidebar :title="t('Domains')" :icon="Globe" activeKey="domain">
       <nav class="flex flex-column gap-12px mb-16px">
         <UiSidebarNavSection>
           <UiSidebarNavItem :active="activeNameTab === 'lumen'" @click="activeNameTab = 'lumen'">
             <Globe :size="16" />
-            <span>Lumen Domains</span>
+            <span>{{ t('Lumen Domains') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="activeNameTab === 'stable'" @click="activeNameTab = 'stable'">
             <KeyRound :size="16" />
-            <span>Ugly domains</span>
-            <UiTag variant="success">free</UiTag>
+            <span>{{ t('Ugly domains') }}</span>
+            <UiTag variant="success">{{ t('free') }}</UiTag>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
 
-        <UiSidebarNavSection title="Help">
+        <UiSidebarNavSection :title="t('Help')">
           <UiSidebarNavItem reveal @click="openInNewTab?.('lumen://help/publish')">
             <Rocket class="reveal-target flex-shrink-0 opacity-85" :size="16" />
-            <span>Publish my site</span>
+            <span>{{ t('Publish my site') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -31,17 +31,17 @@
           <template v-if="activeNameTab === 'lumen'">
             <UiButton variant="primary" type="button" @click="openRegisterModal" class="outline-none">
               <Plus :size="16" />
-              <span>Buy domain</span>
+              <span>{{ t('Buy domain') }}</span>
             </UiButton>
           </template>
           <template v-else>
             <UiButton variant="secondary" type="button" @click="importStableLink" class="outline-none">
               <Upload :size="16" />
-              <span>Import</span>
+              <span>{{ t('Import') }}</span>
             </UiButton>
             <UiButton variant="primary" type="button" @click="createStableLink" class="outline-none">
               <Plus :size="16" />
-              <span>Generate</span>
+              <span>{{ t('Generate') }}</span>
             </UiButton>
           </template>
         </template>
@@ -49,18 +49,18 @@
 
       <UiCard v-if="activeNameTab === 'lumen'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
         <UiErrorState v-if="error" :message="error" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
-        <UiLoadingBlock v-else-if="loading" message="Loading your domains..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
-        <UiEmptyState v-else-if="!domains.length" title="Get your name on Lumen">
+        <UiLoadingBlock v-else-if="loading" :message="t('Loading your domains...')" wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
+        <UiEmptyState v-else-if="!domains.length" :title="t('Get your name on Lumen')">
           <template #description>
             <p class="text-14px color-text-tertiary m-0px">
-              Register a new domain and open it as
+              {{ t('Register a new domain and open it as') }}
               <span class="mono">lumen://your-name.lmn</span>
             </p>
           </template>
           <template #actions>
             <UiButton variant="primary" type="button" @click="openRegisterModal" class="outline-none">
               <Plus :size="16" />
-              <span>Buy domain</span>
+              <span>{{ t('Buy domain') }}</span>
             </UiButton>
           </template>
         </UiEmptyState>
@@ -79,22 +79,22 @@
                 {{ expiryText(d) }}
               </span>
               <UiButton variant="icon" type="button"
-                title="Open lumen URL"
+                :title="t('Open lumen URL')"
                 @click="openDomain(d)">
                 <ExternalLink :size="16" />
               </UiButton>
               <UiButton variant="icon" type="button"
-                title="Copy lumen URL"
+                :title="t('Copy lumen URL')"
                 @click="copyDomainUrl(d)">
                 <Copy :size="16" />
               </UiButton>
               <UiButton variant="icon" type="button"
-                title="Settings (preview only)"
+                :title="t('Settings (preview only)')"
                 @click="openSettingsModal(d)">
                 <Settings :size="16" />
               </UiButton>
               <UiButton variant="icon" type="button"
-                title="Transfer domain"
+                :title="t('Transfer domain')"
                 @click="openTransferModal(d)">
                 <Send :size="16" />
               </UiButton>
@@ -104,13 +104,13 @@
       </UiCard>
 
       <UiCard v-else border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
-        <UiLoadingBlock v-if="rawDomainsLoading" message="Loading ugly domains..." wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
+        <UiLoadingBlock v-if="rawDomainsLoading" :message="t('Loading ugly domains...')" wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
         <UiErrorState v-else-if="rawDomainsError" :message="rawDomainsError" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
-        <UiEmptyState v-else-if="!rawDomains.length" title="Generate an ugly domain" description="Ugly domains are cryptographic names backed by IPNS.">
+        <UiEmptyState v-else-if="!rawDomains.length" :title="t('Generate an ugly domain')" :description="t('Ugly domains are cryptographic names backed by IPNS.')">
           <template #actions>
             <UiButton variant="primary" type="button" @click="createStableLink" class="outline-none">
               <Plus :size="16" />
-              <span>Generate</span>
+              <span>{{ t('Generate') }}</span>
             </UiButton>
           </template>
         </UiEmptyState>
@@ -123,7 +123,7 @@
                   type="text"
                   :value="stableLinkDisplayName(d.name)"
                   :disabled="renamingStableLinkName === d.name"
-                  title="Local ugly domain label"
+                  :title="t('Local ugly domain label')"
                   @keydown.enter.prevent="renameStableLinkFromEvent(d, $event)"
                   @blur="renameStableLinkFromEvent(d, $event)"
                 />
@@ -137,31 +137,31 @@
             </div>
             <div class="flex-align-center gap-6px">
               <UiButton variant="icon" type="button"
-                title="Open ugly domain"
+                :title="t('Open ugly domain')"
                 :disabled="!d.id"
                 @click="openRawDomain(d)">
                 <ExternalLink :size="16" />
               </UiButton>
               <UiButton variant="icon" type="button"
-                title="Copy ugly domain URL"
+                :title="t('Copy ugly domain URL')"
                 :disabled="!d.id"
                 @click="copyRawDomainUrl(d)">
                 <Copy :size="16" />
               </UiButton>
               <UiButton variant="icon" type="button"
-                title="Edit record"
+                :title="t('Edit record')"
                 :disabled="!d.name"
                 @click="openStableSettingsModal(d)">
                 <Settings :size="16" />
               </UiButton>
               <UiButton variant="icon" type="button"
-                title="Export private key"
+                :title="t('Export private key')"
                 :disabled="!d.name"
                 @click="exportStableLink(d)">
                 <Download :size="16" />
               </UiButton>
               <UiButton variant="danger" type="button"
-                title="Delete ugly domain"
+                :title="t('Delete ugly domain')"
                 :disabled="!d.name"
                 @click="deleteStableLink(d)">
                 <Trash2 :size="16" />
@@ -186,6 +186,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiButton from '../../ui/UiButton.vue';
 import UiLoadingBlock from '../../ui/UiLoadingBlock.vue';
 import UiErrorState from '../../ui/UiErrorState.vue';
@@ -247,7 +248,7 @@ const rawDomainsLoading = ref(false);
 const rawDomainsError = ref('');
 
 const pageTitle = computed(() =>
-  activeNameTab.value === 'stable' ? 'Ugly domains' : 'Lumen Domains'
+  activeNameTab.value === 'stable' ? t('Ugly domains') : t('Lumen Domains')
 );
 
 useTabLoadingSync(loading);
@@ -382,13 +383,13 @@ async function loadRawDomains() {
   try {
     const api = useInternalLumen();
     if (!api?.ipfsKeyList) {
-      rawDomainsError.value = 'Ugly domain bridge not available.';
+      rawDomainsError.value = t('Ugly domain bridge not available.');
       rawDomains.value = [];
       return;
     }
     const res = await api.ipfsKeyList();
     if (!res?.ok) {
-      rawDomainsError.value = String(res?.error || 'Failed to load ugly domains.');
+      rawDomainsError.value = String(res?.error || t('Failed to load ugly domains.'));
       rawDomains.value = [];
       return;
     }
@@ -404,7 +405,7 @@ async function loadRawDomains() {
       })
       .filter((key: RawDomainRow) => key.name && key.name !== 'self');
   } catch (e) {
-    rawDomainsError.value = errorMessage(e, 'Failed to load ugly domains.');
+    rawDomainsError.value = errorMessage(e, t('Failed to load ugly domains.'));
     rawDomains.value = [];
   } finally {
     rawDomainsLoading.value = false;
@@ -447,15 +448,15 @@ async function confirmStableLinkModal() {
   // Checked before the two mode-specific guards below: those only cover one
   // mode each, so neither on its own establishes that the bridge is there.
   if (!api) {
-    showToast('Ugly domain bridge not available.', 'error');
+    showToast(t('Ugly domain bridge not available.'), 'error');
     return;
   }
   if (mode === 'generate' && !api.ipfsKeyGen) {
-    showToast('Ugly domain bridge not available.', 'error');
+    showToast(t('Ugly domain bridge not available.'), 'error');
     return;
   }
   if (mode === 'import' && !api.ipfsKeyImport) {
-    showToast('Ugly domain import is not available.', 'error');
+    showToast(t('Ugly domain import is not available.'), 'error');
     return;
   }
 
@@ -467,14 +468,14 @@ async function confirmStableLinkModal() {
     if (res?.canceled) return;
     if (!res?.ok) {
       showToast(
-        String(res?.error || (mode === 'import' ? 'Failed to import ugly domain.' : 'Failed to generate ugly domain.')),
+        String(res?.error || (mode === 'import' ? t('Failed to import ugly domain.') : t('Failed to generate ugly domain.'))),
         'error'
       );
       return;
     }
-    showToast(mode === 'import' ? 'Ugly domain imported.' : 'Ugly domain generated.', 'success');
+    showToast(mode === 'import' ? t('Ugly domain imported.') : t('Ugly domain generated.'), 'success');
     if (mode === 'generate') {
-      showToast('Export this ugly domain private key so you can import it again later.', 'warning');
+      showToast(t('Export this ugly domain private key so you can import it again later.'), 'warning');
     }
     stableLinkModalMode.value = null;
     stableLinkNameDraft.value = '';
@@ -490,17 +491,17 @@ async function renameStableLink(d: RawDomainRow, nextLabelRaw: string) {
   if (!currentName || !nextName || currentName === nextName) return;
   const api = useInternalLumen();
   if (!api?.ipfsKeyRename) {
-    showToast('Ugly domain rename is not available.', 'error');
+    showToast(t('Ugly domain rename is not available.'), 'error');
     return;
   }
   renamingStableLinkName.value = currentName;
   try {
     const res = await api.ipfsKeyRename(currentName, nextName);
     if (!res?.ok) {
-      showToast(String(res?.error || 'Failed to rename ugly domain.'), 'error');
+      showToast(String(res?.error || t('Failed to rename ugly domain.')), 'error');
       return;
     }
-    showToast('Ugly domain label updated.', 'success');
+    showToast(t('Ugly domain label updated.'), 'success');
     await loadRawDomains();
   } finally {
     renamingStableLinkName.value = '';
@@ -532,36 +533,36 @@ async function copyRawDomainUrl(d: RawDomainRow) {
 async function exportStableLink(d: RawDomainRow) {
   const api = useInternalLumen();
   if (!api?.ipfsKeyExport) {
-    showToast('Ugly domain export is not available.', 'error');
+    showToast(t('Ugly domain export is not available.'), 'error');
     return;
   }
   const res = await api.ipfsKeyExport(d.name);
   if (res?.canceled) return;
   if (!res?.ok) {
-    showToast(String(res?.error || 'Failed to export ugly domain.'), 'error');
+    showToast(String(res?.error || t('Failed to export ugly domain.')), 'error');
     return;
   }
-  showToast('Ugly domain private key exported.', 'success');
+  showToast(t('Ugly domain private key exported.'), 'success');
 }
 
 async function deleteStableLink(d: RawDomainRow) {
   const api = useInternalLumen();
   if (!api?.ipfsKeyRm) {
-    showToast('Ugly domain delete is not available.', 'error');
+    showToast(t('Ugly domain delete is not available.'), 'error');
     return;
   }
   const confirmed = window.confirm(
-    `Delete ugly domain "${d.name}"?\n\nExport it first if you need to restore this IPNS name later.`
+    t('Delete ugly domain “{name}”?\n\nExport it first if you need to restore this IPNS name later.', { name: d.name })
   );
   if (!confirmed) return;
   rawDomainsLoading.value = true;
   try {
     const res = await api.ipfsKeyRm(d.name);
     if (!res?.ok) {
-      showToast(String(res?.error || 'Failed to delete ugly domain.'), 'error');
+      showToast(String(res?.error || t('Failed to delete ugly domain.')), 'error');
       return;
     }
-    showToast('Ugly domain deleted.', 'success');
+    showToast(t('Ugly domain deleted.'), 'success');
     await loadRawDomains();
   } finally {
     rawDomainsLoading.value = false;
@@ -579,7 +580,7 @@ async function openStableSettingsModal(d: RawDomainRow) {
     stableSettingsCidValue.value = String(cidRecord?.value || '').trim();
   } catch (e) {
     console.error('[domains] load stable link record error', e);
-    showToast('Failed to load ugly domain record.', 'error');
+    showToast(t('Failed to load ugly domain record.'), 'error');
   } finally {
     stableSettingsLoading.value = false;
   }
@@ -597,19 +598,19 @@ async function saveStableSettings() {
   if (stableSettingsSaving.value) return;
   const stable = selectedStableLink.value;
   if (!stable?.name) {
-    showToast('Select an ugly domain first.', 'error');
+    showToast(t('Select an ugly domain first.'), 'error');
     return;
   }
   const cidValue = stableSettingsCidValue.value.trim();
   if (!cidValue) {
-    showToast('Add a CID or lumen:// link before saving.', 'error');
+    showToast(t('Add a CID or lumen:// link before saving.'), 'error');
     return;
   }
   const records = [{ key: 'cid', value: cidValue }];
 
   const api = useInternalLumen();
   if (!api?.ipfsAdd || !api?.ipfsPublishToIPNS) {
-    showToast('Ugly domain publish bridge not available.', 'error');
+    showToast(t('Ugly domain publish bridge not available.'), 'error');
     return;
   }
 
@@ -624,15 +625,15 @@ async function saveStableSettings() {
     const bodyBytes = Array.from(new TextEncoder().encode(body));
     const add = await api.ipfsAdd(bodyBytes, `${stableLinkDisplayName(stable.name) || 'stable-link'}.lumen-records.json`);
     if (!add?.ok || !add.cid) {
-      showToast(String(add?.error || 'Failed to publish ugly domain record.'), 'error');
+      showToast(String(add?.error || t('Failed to publish ugly domain record.')), 'error');
       return;
     }
     const published = await api.ipfsPublishToIPNS(add.cid, stable.name);
     if (!published?.ok) {
-      showToast(String(published?.error || 'Failed to update ugly domain.'), 'error');
+      showToast(String(published?.error || t('Failed to update ugly domain.')), 'error');
       return;
     }
-    showToast('Ugly domain record saved.', 'success');
+    showToast(t('Ugly domain record saved.'), 'success');
     showStableSettingsModal.value = false;
     selectedStableLink.value = null;
     stableSettingsCidValue.value = '';
@@ -733,7 +734,7 @@ function expiryClass(d: DomainRow): string {
 }
 
 function expiryText(d: DomainRow): string {
-  if (!d.expireAtSeconds) return 'Expires: unknown';
+  if (!d.expireAtSeconds) return t('Expires: unknown');
   const ms = d.expireAtSeconds * 1000;
   const days = Math.floor((ms - Date.now()) / 86_400_000);
   if (days < 0) return `Expired ${prettyDate(ms)}`;
@@ -756,17 +757,17 @@ async function loadDomains() {
     const owner = (profileAddress.value || '').trim();
     if (!owner) {
       error.value =
-        'No owner address available. Create or select a profile with a wallet first.';
+        t('No owner address available. Create or select a profile with a wallet first.');
       return;
     }
     const dnsApi = useInternalLumen()?.dns;
     if (!dnsApi || typeof dnsApi.listByOwnerDetailed !== 'function') {
-      error.value = 'DNS bridge not available.';
+      error.value = t('DNS bridge not available.');
       return;
     }
     const res = await dnsApi.listByOwnerDetailed(owner);
     if (!res || res.ok === false) {
-      error.value = res?.error || 'Unable to load domains.';
+      error.value = res?.error || t('Unable to load domains.');
       return;
     }
     const list = Array.isArray(res.data) ? res.data : [];
@@ -783,7 +784,7 @@ async function loadDomains() {
       .filter((d: DomainRow | null): d is DomainRow => !!d);
   } catch (e) {
     console.error('[domains] loadDomains error', e);
-    error.value = 'Unexpected error while loading domains.';
+    error.value = t('Unexpected error while loading domains.');
   } finally {
     loading.value = false;
   }
@@ -897,14 +898,14 @@ async function confirmRegister() {
 
   const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.createDomain !== 'function') {
-    showToast('Domain registration bridge not available', 'error');
+    showToast(t('Domain registration bridge not available'), 'error');
     return;
   }
 
   const profileId = activeProfileId.value;
   const owner = (profileAddress.value || '').trim();
   if (!profileId || !owner) {
-    showToast('Select or create a profile with a wallet address first', 'warning');
+    showToast(t('Select or create a profile with a wallet address first'), 'warning');
     return;
   }
 
@@ -923,16 +924,16 @@ async function confirmRegister() {
     }
     
     if (!res || res.ok === false) {
-      const msg = res && res.error ? String(res.error) : 'Registration failed';
+      const msg = res && res.error ? String(res.error) : t('Registration failed');
       showToast(msg, 'error');
       return;
     }
-    showToast('Domain registration submitted successfully', 'success');
+    showToast(t('Domain registration submitted successfully'), 'success');
     closeRegisterModal();
     await loadDomains();
   } catch (e) {
     console.error('[domains] confirmRegister error', e);
-    showToast('Unexpected error while submitting registration', 'error');
+    showToast(t('Unexpected error while submitting registration'), 'error');
   } finally {
     registering.value = false;
   }
@@ -967,7 +968,7 @@ async function openSettingsModal(d?: DomainRow) {
 function closeSettingsModal(force?: boolean) {
   const isForce = force === true;
   if (savingSettings.value && !isForce) {
-    showToast('Update in progress. Please wait...', 'info');
+    showToast(t('Update in progress. Please wait...'), 'info');
     return;
   }
   showSettingsModal.value = false;
@@ -992,7 +993,7 @@ async function saveSettings() {
   const owner = (profileAddress.value || '').trim();
   const profileId = activeProfileId.value;
   if (!name || !owner || !profileId) {
-    showToast('Select an active profile with a wallet first.', 'error');
+    showToast(t('Select an active profile with a wallet first.'), 'error');
     return;
   }
   const cleaned = settingsRecords.value
@@ -1003,7 +1004,7 @@ async function saveSettings() {
     .filter((r) => r.key || r.value);
 
   if (!cleaned.length) {
-    showToast('Add at least one record (key + value) before saving.', 'error');
+    showToast(t('Add at least one record (key + value) before saving.'), 'error');
     return;
   }
 
@@ -1011,7 +1012,7 @@ async function saveSettings() {
     (r) => !r.key && !!r.value
   );
   if (hasEmptyKeyWithValue) {
-    showToast('Each record needs a non-empty key when a value is set.', 'error');
+    showToast(t('Each record needs a non-empty key when a value is set.'), 'error');
     return;
   }
 
@@ -1021,13 +1022,13 @@ async function saveSettings() {
   }));
 
   if (!hasFundsForSettings.value) {
-    showToast('Not enough balance to update this domain.', 'error');
+    showToast(t('Not enough balance to update this domain.'), 'error');
     return;
   }
 
   const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.updateDomain !== 'function') {
-    showToast('Domain update bridge not available.', 'error');
+    showToast(t('Domain update bridge not available.'), 'error');
     return;
   }
 
@@ -1042,20 +1043,20 @@ async function saveSettings() {
     
     if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
       try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
-      showToast('Wallet locked. Unlock to continue.', 'warning');
+      showToast(t('Wallet locked. Unlock to continue.'), 'warning');
       return;
     }
     
     if (!res || res.ok === false) {
-      const msg = res && res.error ? String(res.error) : 'Domain update failed';
+      const msg = res && res.error ? String(res.error) : t('Domain update failed');
       showToast(msg, 'error');
       return;
     }
-    showToast('Domain settings updated.', 'success');
+    showToast(t('Domain settings updated.'), 'success');
     closeSettingsModal(true);
   } catch (e) {
     console.error('[domains] saveSettings error', e);
-    showToast('Unexpected error while updating domain.', 'error');
+    showToast(t('Unexpected error while updating domain.'), 'error');
   } finally {
     savingSettings.value = false;
   }
@@ -1069,7 +1070,7 @@ function openTransferModal(d: DomainRow) {
 
 function closeTransferModal() {
   if (transferring.value) {
-    showToast('Transfer in progress. Please wait...', 'info');
+    showToast(t('Transfer in progress. Please wait...'), 'info');
     return;
   }
   showTransferModal.value = false;
@@ -1086,13 +1087,13 @@ async function confirmTransfer() {
   const profileId = activeProfileId.value;
   
   if (!name || !newOwner || !currentOwner || !profileId) {
-    showToast('Missing required information for transfer', 'error');
+    showToast(t('Missing required information for transfer'), 'error');
     return;
   }
 
   const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.transferDomain !== 'function') {
-    showToast('Domain transfer bridge not available', 'error');
+    showToast(t('Domain transfer bridge not available'), 'error');
     return;
   }
 
@@ -1107,12 +1108,12 @@ async function confirmTransfer() {
     
     if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
       try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
-      showToast('Wallet locked. Unlock to continue.', 'warning');
+      showToast(t('Wallet locked. Unlock to continue.'), 'warning');
       return;
     }
     
     if (!res || res.ok === false) {
-      const msg = res && res.error ? String(res.error) : 'Domain transfer failed';
+      const msg = res && res.error ? String(res.error) : t('Domain transfer failed');
       showToast(msg, 'error');
       return;
     }
@@ -1122,7 +1123,7 @@ async function confirmTransfer() {
     await loadDomains();
   } catch (e) {
     console.error('[domains] confirmTransfer error', e);
-    showToast('Unexpected error while transferring domain', 'error');
+    showToast(t('Unexpected error while transferring domain'), 'error');
   } finally {
     transferring.value = false;
   }

@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import { getLocalGatewayBase } from './appSettings';
 import { bytesToText } from './coerce';
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -211,7 +212,7 @@ export async function resolveDomainTarget(
 
   if (isCidLike(baseDomain)) return { target: await normalizeIpfsTarget({ proto: 'ipfs', id: baseDomain }), baseDomain };
 
-  throw new Error('Domain is not linked to any IPFS/IPNS content.');
+  throw new Error(t('Domain is not linked to any IPFS/IPNS content.'));
 }
 
 export function buildCandidateUrl(base: string, target: DomainTarget, path: string, suffix: string): string {
@@ -321,15 +322,15 @@ export async function pickFastestSource(
   ];
 
   const localP = (async () => {
-    opts.onStatus?.('Trying IPFS peer-to-peer…');
+    opts.onStatus?.(t('Trying IPFS peer-to-peer…'));
     const base = localIpfsGatewayBase();
     const ok = await probeUrl(buildCandidateUrl(base, target, path, suffix), 2000);
     if (!ok) throw new Error('local_unavailable');
-    return { base, label: 'Local IPFS' };
+    return { base, label: t('Local IPFS') };
   })();
 
   const gatewaysP = (async () => {
-    opts.onStatus?.('Querying whitelisted gateways…');
+    opts.onStatus?.(t('Querying whitelisted gateways…'));
     const bases = await loadWhitelistedGatewayBases();
     if (!bases.length) throw new Error('no_gateways');
     const probes = bases.map((b) =>
@@ -347,7 +348,7 @@ export async function pickFastestSource(
   } catch (_e) {
     // Last-resort fallbacks: public gateways are slower and less private, so only use them
     // once local/whitelisted sources have all failed.
-    opts.onStatus?.("Trying public IPFS gateways…");
+    opts.onStatus?.(t("Trying public IPFS gateways…"));
     const probes = publicGatewayBases.map((b) =>
       (async () => {
         const ok = await probeUrl(buildCandidateUrl(b, target, path, suffix), 4000);

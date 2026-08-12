@@ -1,28 +1,28 @@
 <template>
   <UiModal :model-value="modelValue" panel-class="asset-transfer-modal w-full max-w-500px" @update:model-value="$emit('update:modelValue', false)">
     <template #header>
-      <UiModalHeader title="IBC Transfer">
+      <UiModalHeader :title="t('IBC Transfer')">
         <template #icon><ArrowLeftRight :size="20" /></template>
       </UiModalHeader>
     </template>
         <template v-if="context">
           <UiBanner class="mb-24px">
             <span>
-              Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.
+              {{ t('Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.') }}
             </span>
           </UiBanner>
 
-          <UiFormGroup label="Asset" dimmed>
+          <UiFormGroup :label="t('Asset')" dimmed>
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
               :value="`${context.displayName} (${context.displaySymbol})`"
               readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
           </UiFormGroup>
 
           <div class="gap-16px grid grid-cols-2-minmax0">
-            <UiFormGroup label="From chain" dimmed>
+            <UiFormGroup :label="t('From chain')" dimmed>
               <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="context.chainLabel" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
             </UiFormGroup>
-            <UiFormGroup label="To chain">
+            <UiFormGroup :label="t('To chain')">
               <select class="w-full border-radius-10px color-text-primary cursor-pointer py-12px px-16px border-2 text-15px bg-card transition-all-02 mono focus-outline-none focus-border-primary focus-ring focus-shadow bg-secondary-read-only appearance-none" v-model="form.destinationKey">
                 <option
                   v-for="target in context.transferTargets"
@@ -35,17 +35,17 @@
             </UiFormGroup>
           </div>
 
-          <UiFormGroup label="From address" dimmed>
+          <UiFormGroup :label="t('From address')" dimmed>
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text" :value="context.ownerAddress" readonly class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
           </UiFormGroup>
 
-          <UiFormGroup required label="Recipient" :hint="selectedTarget ? `Default wallet on destination: ${selectedTarget.defaultRecipient}` : ''">
+          <UiFormGroup required :label="t('Recipient')" :hint="selectedTarget ? `Default wallet on destination: ${selectedTarget.defaultRecipient}` : ''">
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
               v-model="form.recipient"
               :placeholder="selectedTarget?.defaultRecipient || 'Destination address'" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
           </UiFormGroup>
 
-          <UiFormGroup required label="Amount" :hint="`Available: ${context.displayAmount} ${context.displaySymbol}`">
+          <UiFormGroup required :label="t('Amount')" :hint="`Available: ${context.displayAmount} ${context.displaySymbol}`">
             <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
               inputmode="decimal"
               v-model="form.amount"
@@ -54,23 +54,24 @@
             <span class="txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ context.displaySymbol }}</span>
           </UiFormGroup>
 
-          <UiSummaryCard title="Transfer Summary">
-            <UiSummaryRow label="Route" :value="selectedTarget?.routeLabel || 'Select destination'" />
-            <UiSummaryRow label="Source chain" :value="context.chainLabel" />
-            <UiSummaryRow highlight label="Destination chain" :value="selectedTarget?.chainLabel || 'Unknown'" />
+          <UiSummaryCard :title="t('Transfer Summary')">
+            <UiSummaryRow :label="t('Route')" :value="selectedTarget?.routeLabel || 'Select destination'" />
+            <UiSummaryRow :label="t('Source chain')" :value="context.chainLabel" />
+            <UiSummaryRow highlight :label="t('Destination chain')" :value="selectedTarget?.chainLabel || 'Unknown'" />
           </UiSummaryCard>
 
           <UiButton variant="primary" @click="$emit('submit')"
             :disabled="!canSubmit || sending" class="disabled-fade-50">
             <ArrowLeftRight :size="18" v-if="!sending" />
             <UiSpinner v-else size="sm" class="spinner-color-white" />
-            <span>{{ sending ? 'Transferring...' : 'IBC Transfer' }}</span>
+            <span>{{ sending ? t('Transferring...') : t('IBC Transfer') }}</span>
           </UiButton>
         </template>
   </UiModal>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiBanner from '../ui/UiBanner.vue';

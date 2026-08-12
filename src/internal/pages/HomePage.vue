@@ -1,9 +1,9 @@
 <template>
   <!-- ####### lumen://home HOME ####### -->
   <div class="internal-page flex">
-    <InternalSidebar title="Lumen" :icon="Home" activeKey="home" :showAllPages="false">
+    <InternalSidebar :title="t('Lumen')" :icon="Home" activeKey="home" :showAllPages="false">
       <UiButton variant="secondary" type="button" :block="true" @click="showAllPages = !showAllPages" class="flex-justify-space-between">
-        <span>All pages</span>
+        <span>{{ t('All pages') }}</span>
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />
       </UiButton>
 
@@ -33,13 +33,13 @@
     <main class="flex-1 flex flex-column m-0px min-w-0 overflow-y-auto py-20px px-24px bg-secondary border-radius-0">
       <UiWarningBox v-if="!hasProfiles" box-class="mb-16px">
         <template #icon></template>
-        <div class="txt-weight-light text-13px">No profile found</div>
-        <div class="text-12px mt-4px opacity-85">Create one using the button in the top right.</div>
+        <div class="txt-weight-light text-13px">{{ t('No profile found') }}</div>
+        <div class="text-12px mt-4px opacity-85">{{ t('Create one using the button in the top right.') }}</div>
       </UiWarningBox>
 
       <!-- Quick Actions -->
       <section class="mb-20px">
-        <h2 class="flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">My Space</h2>
+        <h2 class="flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">{{ t('My Space') }}</h2>
         <div
           class="gap-10px grid grid-cols-auto-fill-220"
           @dragover.prevent="onMySpaceDragOver"
@@ -52,10 +52,10 @@
             :class="{ 'is-drag-over-zone': dragOverMySpace }"
             @click="showAllPages = true"
           >
-            <div class="color-text-primary txt-weight-light text-13px">No cards yet</div>
-            <div class="text-center color-text-secondary text-12px">Drag a page from “All Pages” to add it here.</div>
+            <div class="color-text-primary txt-weight-light text-13px">{{ t('No cards yet') }}</div>
+            <div class="text-center color-text-secondary text-12px">{{ t('Drag a page from “All Pages” to add it here.') }}</div>
             <UiButton variant="primary" type="button" @click.stop="restoreMySpaceDefaults">
-              Restore defaults
+              {{ t('Restore defaults') }}
             </UiButton>
           </div>
           <button
@@ -75,7 +75,7 @@
             <div
               class="reveal-actions-target hover-bg-border-color-error flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-fast h-24px border-radius-full opacity-0 hover-scale-105 w-24px top-6px right-6px z-1"
               @click.stop="removeMySpaceCard(key)"
-              title="Remove card"
+              :title="t('Remove card')"
             >
               <X :size="14" />
             </div>
@@ -92,7 +92,7 @@
       </section>
 
       <section class="mb-20px">
-        <h2 class="flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">Lumen</h2>
+        <h2 class="flex-align-center-justify-space-between color-text-primary text-15px txt-weight-light mb-12px pb-8px letter-spacing-n001 border-bottom-05-light">{{ t('Lumen') }}</h2>
         <div
           class="gap-10px grid grid-cols-auto-fill-220"
           @dragover.prevent="onLumenDragOver"
@@ -105,10 +105,10 @@
             :class="{ 'is-drag-over-zone': dragOverLumen }"
             @click="showAllPages = true"
           >
-            <div class="color-text-primary txt-weight-light text-13px">No cards yet</div>
-            <div class="text-center color-text-secondary text-12px">Drag a page from “All Pages” to add it here.</div>
+            <div class="color-text-primary txt-weight-light text-13px">{{ t('No cards yet') }}</div>
+            <div class="text-center color-text-secondary text-12px">{{ t('Drag a page from “All Pages” to add it here.') }}</div>
             <UiButton variant="primary" type="button" @click.stop="restoreLumenDefaults">
-              Restore defaults
+              {{ t('Restore defaults') }}
             </UiButton>
           </div>
           <button
@@ -127,7 +127,7 @@
             <div
               class="reveal-actions-target hover-bg-border-color-error flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-fast h-24px border-radius-full opacity-0 hover-scale-105 w-24px top-6px right-6px z-1"
               @click.stop="removeLumenCard(key)"
-              title="Remove card"
+              :title="t('Remove card')"
             >
               <X :size="14" />
             </div>
@@ -149,6 +149,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiButton from '../../ui/UiButton.vue';
 import UiWarningBox from '../../ui/UiWarningBox.vue';
 import { computed, ref } from 'vue';
@@ -541,18 +542,18 @@ function formatRouteName(key: string): string {
 
 function getRouteDescription(key: string): string {
   const descriptions: Record<string, string> = {
-    network: 'Browse the blockchain & view network status',
-    search: 'Find content quickly',
-    history: 'Review recent browsing',
-    help: 'Documentation & support',
-    drive: 'Store & share files',
-    wallet: 'Manage crypto assets',
-    domain: 'Manage your domains',
-    gateways: 'IPFS gateway management',
-    settings: 'Configure preferences',
-    ipfs: 'IPFS operations',
-    release: 'Release notes',
-    home: 'Back to home'
+    network: t('Browse the blockchain & view network status'),
+    search: t('Find content quickly'),
+    history: t('Review recent browsing'),
+    help: t('Documentation & support'),
+    drive: t('Store & share files'),
+    wallet: t('Manage crypto assets'),
+    domain: t('Manage your domains'),
+    gateways: t('IPFS gateway management'),
+    settings: t('Configure preferences'),
+    ipfs: t('IPFS operations'),
+    release: t('Release notes'),
+    home: t('Back to home')
   };
   return descriptions[key] || '';
 }

@@ -373,22 +373,22 @@ function onIpcMessage(ev: any) {
 
 function formatPrepareError(rawError: unknown) {
   const code = safeString((rawError as any)?.message || (rawError as any)?.error || rawError);
-  if (code === "extension_not_found") return "This extension could not be found.";
-  if (code === "extension_disabled") return "This extension is disabled.";
-  if (code === "extension_launch_url_missing") return "This extension does not expose an entry page.";
-  return "Failed to open this extension.";
+  if (code === "extension_not_found") return t("This extension could not be found.");
+  if (code === "extension_disabled") return t("This extension is disabled.");
+  if (code === "extension_launch_url_missing") return t("This extension does not expose an entry page.");
+  return t("Failed to open this extension.");
 }
 
 async function resolvePopupTarget() {
   const extensionId = safeString(props.extensionId);
   if (!extensionId) {
-    error.value = "This extension could not be found.";
+    error.value = t("This extension could not be found.");
     resolvedExtension.value = null;
     resolvedExtensionUrl.value = "";
     return;
   }
   if (!(await ensureGuestPreloadUrl())) {
-    error.value = "Extension guest preload is unavailable.";
+    error.value = t("Extension guest preload is unavailable.");
     return;
   }
 

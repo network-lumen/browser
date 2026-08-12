@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed } from 'vue';
 import ProfileAvatar from './ProfileAvatar.vue';
 import type { ProfileLike } from '../types/profile';
@@ -22,7 +23,7 @@ const props = withDefaults(defineProps<{
   label?: string;
   dense?: boolean;
 }>(), {
-  label: 'Active Profile',
+  label: t('Active Profile'),
   dense: false
 });
 

@@ -2,7 +2,7 @@
   <UiModal :model-value="active" panel-class="w-min-520px-92vw color-text-primary" :closable="false" @update:model-value="() => {}">
     <div class="flex-align-start flex-justify-space-between gap-16px mb-16px">
       <div>
-        <div class="text-12px letter-spacing-008em text-uppercase color-primary">Updating Lumen</div>
+        <div class="text-12px letter-spacing-008em text-uppercase color-primary">{{ t('Updating Lumen') }}</div>
         <div class="text-20px txt-weight-medium">{{ latest?.version || 'Preparing update' }}</div>
       </div>
     </div>
@@ -15,12 +15,13 @@
 
     <div v-if="errorLabel" class="mt-16px p-12px border-radius-12px bg-fill-error color-text-primary flex-align-center flex-justify-space-between gap-12px">
       {{ errorLabel }}
-      <UiButton variant="secondary" type="button" @click="clearError">Close</UiButton>
+      <UiButton variant="secondary" type="button" @click="clearError">{{ t('Close') }}</UiButton>
     </div>
   </UiModal>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiProgressBar from '../ui/UiProgressBar.vue';
@@ -43,7 +44,7 @@ const errorLabel = computed(() => {
   const p: any = updateProgress.value;
   if (!p) return '';
   if (String(p.stage || '').toLowerCase() !== 'error') return '';
-  return String(p.error || 'Update failed');
+  return String(p.error || t('Update failed'));
 });
 
 const receivedBytes = computed(() => Number((updateProgress.value as any)?.receivedBytes || 0));

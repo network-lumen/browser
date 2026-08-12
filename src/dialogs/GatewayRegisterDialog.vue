@@ -12,8 +12,8 @@
 
     <template #header>
       <div>
-        <h2 class="color-text-primary text-16px">Create gateway</h2>
-        <p class="color-text-secondary m-0px mt-4px">Register a new gateway for the active profile.</p>
+        <h2 class="color-text-primary text-16px">{{ t('Create gateway') }}</h2>
+        <p class="color-text-secondary m-0px mt-4px">{{ t('Register a new gateway for the active profile.') }}</p>
       </div>
     </template>
 
@@ -21,12 +21,13 @@
       <div v-if="txhash" class="mono mt-12px p-12px bg-success-a08 border-1-success-a25">tx: {{ txhash }}</div>
     </GatewayFields>
 
-    <template #confirm><span v-if="!busy">Create</span>
-        <span v-else>Submitting…</span></template>
+    <template #confirm><span v-if="!busy">{{ t('Create') }}</span>
+        <span v-else>{{ t('Submitting…') }}</span></template>
   </UiDialog>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed, reactive, watch } from 'vue';
 import UiDialog from '../ui/UiDialog.vue';
 import GatewayFields from '../forms/GatewayFields.vue';

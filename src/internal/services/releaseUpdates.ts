@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import { computed, ref } from 'vue';
 import pkg from '../../../package.json';
 import { addToast } from '../../stores/toastStore';
@@ -131,7 +132,7 @@ function maybeToastBlocked(info: LatestPayload | null) {
   if (key === lastBlockedToastKey) return;
   lastBlockedToastKey = key;
 
-  const msg = String((info as any).blockedMessage || '').trim() || 'This version seems unstable on your system. Please try again later.';
+  const msg = String((info as any).blockedMessage || '').trim() || t('This version seems unstable on your system. Please try again later.');
   try {
     addToast('warning', msg);
   } catch {
@@ -212,7 +213,7 @@ async function openExternalAndSnooze(url: string) {
       // Fallback: open inside the app (useful in headless/container environments where openExternal fails).
       window.open(url, '_blank', 'noopener');
       opened = true;
-      addToast('info', 'Opened download link in-app.');
+      addToast('info', t('Opened download link in-app.'));
     } catch {
       opened = false;
     }
@@ -220,7 +221,7 @@ async function openExternalAndSnooze(url: string) {
 
   if (!opened) {
     const copied = await copyToClipboard(url);
-    addToast('warning', copied ? 'Could not open download link. URL copied to clipboard.' : 'Could not open download link.');
+    addToast('warning', copied ? t('Could not open download link. URL copied to clipboard.') : t('Could not open download link.'));
   }
 
   // External/manual install flow: avoid re-prompting immediately, but don't permanently skip.
@@ -247,7 +248,7 @@ async function updateNow() {
           await openExternalAndSnooze(url);
           return;
         }
-        throw new Error(err || 'Update failed');
+        throw new Error(err || t('Update failed'));
       }
       // If we reach here, the installer was launched; the app will quit shortly.
       shouldPrompt.value = false;
@@ -257,7 +258,7 @@ async function updateNow() {
       await openExternalAndSnooze(url);
     }
   } catch (e) {
-    updateProgress.value = { stage: 'error', error: errorMessage(e, 'Update failed') };
+    updateProgress.value = { stage: 'error', error: errorMessage(e, t('Update failed')) };
   } finally {
     busy.value = false;
   }

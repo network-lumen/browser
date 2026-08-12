@@ -29,7 +29,9 @@ This starts the Vite dev server and opens the Electron window.
 ## Translations
 
 The interface is written in English and translated through `t()`, keyed on the English text itself.
-Catalogues live in `src/locales/<code>.json`.
+Catalogues live in `src/locales/<code>.json`. Every user-visible string already goes through `t()`
+(`npm test` fails if a new one does not), so adding a language is only translation work — and an
+empty entry renders the English, so a half-filled catalogue ships fine.
 
 ```bash
 npm run i18n:extract   # add every new t('…') to each catalogue, report orphans

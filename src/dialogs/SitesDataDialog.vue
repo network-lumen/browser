@@ -1,10 +1,10 @@
 <template>
-  <UiModal :model-value="modelValue" title="Sites data" panel-class="w-full max-w-560px" @update:model-value="$emit('close')">
+  <UiModal :model-value="modelValue" :title="t('Sites data')" panel-class="w-full max-w-560px" @update:model-value="$emit('close')">
     <p class="text-13px color-text-tertiary m-0px mb-16px">
-      Data a site created for itself, one dedicated key per site - separate from the ugly domains you create yourself in Domains. Deleting one makes that site see you as a brand new visitor next time.
+      {{ t('Data a site created for itself, one dedicated key per site - separate from the ugly domains you create yourself in Domains. Deleting one makes that site see you as a brand new visitor next time.') }}
     </p>
     <UiLoadingBlock v-if="loading" wrapper-class="flex-column gap-12px fw-500 color-text-primary w-full align-middle min-h-140px" spinner-class="" />
-    <UiEmptyState v-else-if="!records.length" title="No sites data yet" description="Sites that create a data record for themselves will show up here." />
+    <UiEmptyState v-else-if="!records.length" :title="t('No sites data yet')" :description="t('Sites that create a data record for themselves will show up here.')" />
     <div v-else class="flex flex-column gap-4px">
       <div v-for="record in records" :key="siteDataRowId(record)" class="border-radius-10px">
         <div class="reveal-on-hover hover-bg-primary-a10 flex-align-center gap-12px border-radius-10px py-10px px-12px">
@@ -12,16 +12,16 @@
             <div class="text-14px fw-500 color-text-primary truncate mono">{{ siteDataSiteLabel(record) }}</div>
             <div class="text-12px color-text-tertiary truncate">{{ record.updatedAt ? formatDateTime(record.updatedAt) : "—" }}</div>
           </UiButton>
-          <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" title="Delete this site's data"
+          <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="p-4px" :title="t('Delete this site\'s data')"
             :disabled="removingId === siteDataRowId(record)"
             @click="$emit('remove', record)" class="reveal-actions-target active-scale-98 hover-bg-error bg-error-a08 color-error">
             <Trash2 :size="14" />
           </UiButton>
         </div>
         <div v-if="expandedId === siteDataRowId(record)" class="border-radius-10px mt-4px py-10px px-12px bg-secondary">
-          <UiDetailRow variant="modal" label="Profile" :value="record.profileId || '—'" />
+          <UiDetailRow variant="modal" :label="t('Profile')" :value="record.profileId || '—'" />
           <div class="flex-align-center-justify-space-between mt-8px mb-4px">
-            <span class="text-11px color-text-tertiary">Stored data</span>
+            <span class="text-11px color-text-tertiary">{{ t('Stored data') }}</span>
             <UiButton variant="none" type="button" @click="toggleRaw(record)" class="bg-transparent border-none cursor-pointer color-primary text-11px fw-500 p-0px">
               {{ rawId === siteDataRowId(record) ? "Table view" : "View raw JSON" }}
             </UiButton>
@@ -32,7 +32,7 @@
               <span class="text-11px color-text-tertiary mono truncate">{{ field.key }}</span>
               <span class="text-11px color-text-primary overflow-wrap-anywhere">{{ field.value }}</span>
             </div>
-            <div v-if="!siteDataFields(record).length" class="text-11px color-text-tertiary py-8px px-8px">Empty.</div>
+            <div v-if="!siteDataFields(record).length" class="text-11px color-text-tertiary py-8px px-8px">{{ t('Empty.') }}</div>
           </div>
         </div>
       </div>
@@ -41,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { ref, watch } from 'vue';
 import UiModal from '../ui/UiModal.vue';
 import UiLoadingBlock from '../ui/UiLoadingBlock.vue';

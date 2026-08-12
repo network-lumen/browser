@@ -211,7 +211,7 @@ const activeProfileDisplay = computed(
 
 const pqcLinkedProfileDisplay = computed(() => {
   const id = String(pqcLinkedProfileId.value || '').trim();
-  if (!id) return 'your profile';
+  if (!id) return t('your profile');
   const p = profiles.value.find((x) => String(x?.id || '') === id) || null;
   return String(p?.name || p?.id || id);
 });
@@ -282,16 +282,16 @@ async function confirmExportProfile() {
   if (needsPassword) {
     if (!exportPassword.value) {
       exportError.value = exportRequiresPassword.value
-        ? 'Password is required to decrypt your wallet data for export.'
-        : 'Password is required for encrypted export.';
+        ? t('Password is required to decrypt your wallet data for export.')
+        : t('Password is required for encrypted export.');
       return;
     }
     if (!isPasswordLongEnough(exportPassword.value)) {
-      exportError.value = 'Password must be at least 6 characters.';
+      exportError.value = t('Password must be at least 6 characters.');
       return;
     }
     if (exportEncrypted.value && !exportRequiresPassword.value && exportPassword.value !== exportPasswordConfirm.value) {
-      exportError.value = 'Passwords do not match.';
+      exportError.value = t('Passwords do not match.');
       return;
     }
   }
@@ -304,28 +304,28 @@ async function confirmExportProfile() {
 
     if (!res.ok) {
       if (res.error === 'invalid_password') {
-        exportError.value = 'Incorrect password. Please try again.';
+        exportError.value = t('Incorrect password. Please try again.');
         return;
       }
       if (res.error === 'password_required_for_export') {
-        exportError.value = 'Password is required to decrypt wallet data.';
+        exportError.value = t('Password is required to decrypt wallet data.');
         exportRequiresPassword.value = true;
         return;
       }
       if (res.error === 'backup_api_unavailable') {
-        exportError.value = 'Export API not available';
+        exportError.value = t('Export API not available');
         return;
       }
-      exportError.value = res.error || 'Backup export failed.';
+      exportError.value = res.error || t('Backup export failed.');
       return;
     }
 
     cancelExportModal();
     profileMessage.value = res.path
-      ? `Backup ${exportEncrypted.value ? '(encrypted) ' : ''}created at: ${res.path}`
-      : 'Backup folder created for this profile.';
+      ? `Backup ${exportEncrypted.value ? t('(encrypted) ') : ''}created at: ${res.path}`
+      : t('Backup folder created for this profile.');
   } catch (e) {
-    exportError.value = errorMessage(e, 'Backup export failed.');
+    exportError.value = errorMessage(e, t('Backup export failed.'));
   }
 }
 
@@ -373,10 +373,10 @@ async function startFileImport() {
     }
 
     if (result.error !== 'canceled') {
-      importModalError.value = getProfileImportErrorMessage(result.error || 'Backup import failed.');
+      importModalError.value = getProfileImportErrorMessage(result.error || t('Backup import failed.'));
     }
   } catch {
-    importModalError.value = 'Backup import failed.';
+    importModalError.value = t('Backup import failed.');
   } finally {
     importBusy.value = false;
   }
@@ -401,9 +401,9 @@ async function loadManualProfileSourceIntoForm() {
     manualImportPqcPrivateKey.value = result.pqcPrivateKey;
     manualImportPqcSourceName.value = result.fileName
       ? `${result.fileName} (embedded PQC)`
-      : 'Embedded PQC';
+      : t('Embedded PQC');
   }
-  manualImportProfileSourceName.value = result.fileName || 'Loaded profile backup';
+  manualImportProfileSourceName.value = result.fileName || t('Loaded profile backup');
 }
 
 async function loadManualPqcSourceIntoForm() {
@@ -420,7 +420,7 @@ async function loadManualPqcSourceIntoForm() {
 
   manualImportPqcPublicKey.value = String(result.pqcPublicKey || '');
   manualImportPqcPrivateKey.value = String(result.pqcPrivateKey || '');
-  manualImportPqcSourceName.value = result.fileName || 'Loaded Dilithium backup';
+  manualImportPqcSourceName.value = result.fileName || t('Loaded Dilithium backup');
 }
 
 async function confirmManualImport() {
@@ -432,17 +432,17 @@ async function confirmManualImport() {
   const pqcPrivateKey = manualImportPqcPrivateKey.value.trim();
 
   if (!name) {
-    importModalError.value = 'Profile name is required.';
+    importModalError.value = t('Profile name is required.');
     return;
   }
 
   if (!mnemonic) {
-    importModalError.value = 'Mnemonic is required.';
+    importModalError.value = t('Mnemonic is required.');
     return;
   }
 
   if ((pqcPublicKey && !pqcPrivateKey) || (!pqcPublicKey && pqcPrivateKey)) {
-    importModalError.value = 'Enter both PQC public and private keys, or leave both empty.';
+    importModalError.value = t('Enter both PQC public and private keys, or leave both empty.');
     return;
   }
 
@@ -460,10 +460,10 @@ async function confirmManualImport() {
     cancelImportModal();
     profileMessage.value =
       pqcPublicKey && pqcPrivateKey
-        ? 'Profile imported manually.'
-        : 'Profile imported manually. PQC keys will be generated automatically when needed.';
+        ? t('Profile imported manually.')
+        : t('Profile imported manually. PQC keys will be generated automatically when needed.');
   } catch {
-    importModalError.value = 'Manual import failed.';
+    importModalError.value = t('Manual import failed.');
   } finally {
     importBusy.value = false;
   }
@@ -478,7 +478,7 @@ function cancelImportPasswordModal() {
 
 async function confirmImportEncrypted() {
   if (!pendingEncryptedFile.value || !importPassword.value) {
-    importError.value = 'Password is required.';
+    importError.value = t('Password is required.');
     return;
   }
 
@@ -487,7 +487,7 @@ async function confirmImportEncrypted() {
   try {
     const api = useInternalLumen()?.profiles;
     if (!api || typeof api.importEncryptedBackup !== 'function') {
-      importError.value = 'Import API not available.';
+      importError.value = t('Import API not available.');
       return;
     }
 
@@ -496,34 +496,34 @@ async function confirmImportEncrypted() {
     if (res && res.ok) {
       cancelImportPasswordModal();
       await initProfiles();
-      profileMessage.value = 'Encrypted profile imported successfully.';
+      profileMessage.value = t('Encrypted profile imported successfully.');
     } else if (res?.error === 'invalid_password') {
-      importError.value = 'Invalid password. Please try again.';
+      importError.value = t('Invalid password. Please try again.');
     } else {
-      importError.value = res?.error || 'Import failed.';
+      importError.value = res?.error || t('Import failed.');
     }
   } catch (e) {
-    importError.value = errorMessage(e, 'Import failed.');
+    importError.value = errorMessage(e, t('Import failed.'));
   }
 }
 
 async function confirmCreateProfile() {
   const name = newProfileName.value.trim();
   if (!name) {
-    profileMessage.value = 'Profile name is required.';
+    profileMessage.value = t('Profile name is required.');
     return;
   }
   try {
     const created = await createProfile(name);
     if (created) {
       creatingProfile.value = false;
-      profileMessage.value = 'Profile created.';
+      profileMessage.value = t('Profile created.');
     } else {
-      profileMessage.value = 'Failed to create profile. (No profile returned)';
+      profileMessage.value = t('Failed to create profile. (No profile returned)');
       console.error('[NavBar] Failed to create profile: createProfile returned null or undefined');
     }
   } catch (e) {
-    profileMessage.value = 'Error creating profile: ' + errorMessage(e, 'Unknown error');
+    profileMessage.value = t('Error creating profile: ') + errorMessage(e, t('Unknown error'));
     console.error('[NavBar] Error creating profile:', e);
   }
 }
@@ -555,13 +555,13 @@ async function confirmDeleteProfile() {
   if (!res || res.ok !== true) {
     const err = String((res as any)?.error || 'delete_failed');
     profileMessage.value = err === 'password_required'
-      ? 'Unlock your wallet to delete this profile.'
-      : 'Failed to delete profile.';
+      ? t('Unlock your wallet to delete this profile.')
+      : t('Failed to delete profile.');
     return;
   }
 
   cancelDeleteProfileModal();
-  profileMessage.value = 'Profile deleted.';
+  profileMessage.value = t('Profile deleted.');
 }
 
 function dismissPqcLinkedModal() {

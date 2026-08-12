@@ -8,14 +8,14 @@
 
       <div v-else-if="domainNotFound" class="flex-1 flex-align-justify-center bg-primary p-32px">
         <UiCard padding="none" :shadow="false" class="shadow-md max-w-380px">
-          <UiEmptyState title="This domain belongs to no one">
+          <UiEmptyState :title="t('This domain belongs to no one')">
             <Tag :size="26" />
             <template #description>
-              <p class="m-0px max-w-520px text-14px line-height-15"><strong class="color-text-primary">{{ requestedHost }}</strong> hasn't been registered yet. You can buy it if you'd like.</p>
+              <p class="m-0px max-w-520px text-14px line-height-15">{{ t('{domain} hasn\'t been registered yet. You can buy it if you\'d like.', { domain: requestedHost }) }}</p>
             </template>
             <template #actions>
               <UiButton variant="primary" type="button" @click="goToBuyDomain">
-                <span>Buy this domain</span>
+                <span>{{ t('Buy this domain') }}</span>
               </UiButton>
             </template>
           </UiEmptyState>
@@ -24,13 +24,13 @@
 
       <div v-else-if="error" class="flex-1 flex-align-justify-center bg-primary p-32px">
         <UiCard padding="none" :shadow="false" class="shadow-md max-w-380px">
-          <UiEmptyState title="This content isn't available right now">
+          <UiEmptyState :title="t('This content isn\'t available right now')">
             <FileQuestion :size="26" />
             <template #description>
-              <p class="m-0px max-w-520px text-14px line-height-15">The content couldn't be found. Please try again later.</p>
+              <p class="m-0px max-w-520px text-14px line-height-15">{{ t('The content couldn\'t be found. Please try again later.') }}</p>
               <p class="m-0px max-w-520px text-14px line-height-15">
-                If this is your site,
-                <UiButton variant="none" type="button" @click="goToCreateWebsiteDocs" class="underline color-primary cursor-pointer">read the setup guide</UiButton>.
+                {{ t('If this is your site,') }}
+                <UiButton variant="none" type="button" @click="goToCreateWebsiteDocs" class="underline color-primary cursor-pointer">{{ t('read the setup guide') }}</UiButton>.
               </p>
             </template>
           </UiEmptyState>
@@ -78,6 +78,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
@@ -424,7 +425,7 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
       }
     }
 
-    if (!resolvedUrl) throw new Error("No source could serve this content.");
+    if (!resolvedUrl) throw new Error(t("No source could serve this content."));
 
     // Prefer the lumen://<domain> origin over the gateway URL: the gateway host
     // carries the CID, so the site would lose all of its browser storage on

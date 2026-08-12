@@ -2,7 +2,7 @@
     <UiDialog
     :error="error"
     :model-value="modelValue"
-    :title="editing ? 'Edit User' : 'Add User to Whitelist'"
+    :title="editing ? t('Edit User') : t('Add User to Whitelist')"
     panel-class="max-w-500px w-90pct"
     :busy="saving"
     :confirm-disabled="saving || !form.address.trim()"
@@ -10,11 +10,12 @@
     @confirm="$emit('submit')"
   >
     <WhitelistEntryFields :form="form" :editing="editing" />
-    <template #confirm>{{ saving ? 'Saving...' : (editing ? 'Update' : 'Add') }}</template>
+    <template #confirm>{{ saving ? 'Saving...' : (editing ? t('Update') : t('Add')) }}</template>
 </UiDialog>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiDialog from '../ui/UiDialog.vue';
 import WhitelistEntryFields from '../forms/WhitelistEntryFields.vue';
 import type { WhitelistEntryForm } from '../types/myGatewaysPage';

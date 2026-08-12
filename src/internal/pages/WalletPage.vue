@@ -2,32 +2,32 @@
   <!-- ####### lumen://wallet WALLET ####### -->
   <div class="internal-page flex">
     <!-- ####### lumen://wallet SIDEBAR ####### -->
-    <InternalSidebar title="Wallet" :icon="Wallet" activeKey="wallet">
+    <InternalSidebar :title="t('Wallet')" :icon="Wallet" activeKey="wallet">
       <nav class="flex flex-column gap-12px">
-        <UiSidebarNavSection title="Activity">
+        <UiSidebarNavSection :title="t('Activity')">
           <UiSidebarNavItem :active="currentView === 'overview'" @click="currentView = 'overview'">
             <Wallet :size="18" />
-            <span>Wallet</span>
+            <span>{{ t('Wallet') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'assets'" @click="currentView = 'assets'">
             <Coins :size="18" />
-            <span>Assets</span>
+            <span>{{ t('Assets') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'dex'" @click="currentView = 'dex'">
             <LayoutDashboard :size="18" />
-            <span>DEX</span>
+            <span>{{ t('DEX') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'transactions'" @click="currentView = 'transactions'">
             <ArrowLeftRight :size="18" />
-            <span>Transactions</span>
+            <span>{{ t('Transactions') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'recurring'" @click="currentView = 'recurring'">
             <Calendar :size="18" />
-            <span>Reminders</span>
+            <span>{{ t('Reminders') }}</span>
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'addressbook'" @click="currentView = 'addressbook'">
             <Users :size="18" />
-            <span>Address Book</span>
+            <span>{{ t('Address Book') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -39,19 +39,19 @@
         <template v-if="currentView !== 'dex'" #actions>
           <UiButton variant="primary" @click="connectWallet" v-if="!isConnected">
             <Link :size="16" />
-            <span>Connect Wallet</span>
+            <span>{{ t('Connect Wallet') }}</span>
           </UiButton>
           <UiButton variant="primary" @click="subscriptionsRef?.openCreateModal()" v-else-if="currentView === 'recurring'">
             <Plus :size="16" />
-            <span>New Payment</span>
+            <span>{{ t('New Payment') }}</span>
           </UiButton>
           <UiButton variant="primary" @click="openAddContactModal" v-else-if="currentView === 'addressbook'">
             <Plus :size="16" />
-            <span>Add Contact</span>
+            <span>{{ t('Add Contact') }}</span>
           </UiButton>
           <UiButton variant="primary" @click="sendTransaction" v-else>
             <Send :size="16" />
-            <span>Send</span>
+            <span>{{ t('Send') }}</span>
           </UiButton>
         </template>
       </UiPageHeader>
@@ -60,23 +60,23 @@
       <div v-if="currentView === 'overview'" class="flex flex-column gap-24px">
         <div class="border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 shadow-glow-primary-lg">
           <div class="flex-align-center-justify-space-between mb-16px">
-            <span class="text-uppercase txt-weight-light text-13px letter-spacing-008em color-white-a85">Total Balance</span>
+            <span class="text-uppercase txt-weight-light text-13px letter-spacing-008em color-white-a85">{{ t('Total Balance') }}</span>
             <UiButton variant="icon" icon-padding-class="" @click="showBalance = !showBalance" class="hover-bg-card flex-inline-align-justify-center size-32px color-white backdrop-blur-10">
               <Eye v-if="showBalance" :size="18" />
               <EyeOff v-else :size="18" />
             </UiButton>
           </div>
           <div class="flex gap-12px flex-align-baseline mb-12px">
-            <span class="txt-weight-light text-18px color-white-a90">LMN</span>
+            <span class="txt-weight-light text-18px color-white-a90">{{ t('LMN') }}</span>
             <span class="txt-weight-strong letter-spacing-n002 text-48px text-shadow-soft">
               {{ showBalance ? balanceLabel : '••••••' }}
             </span>
           </div>
           <div class="flex-align-center gap-8px fw-500 text-14px color-white-a85">
             <TrendingUp :size="14" />
-            <span v-if="isConnected && !balanceError">On-chain balance</span>
-            <span v-else-if="balanceError">Error loading balance</span>
-            <span v-else>Connect a wallet to view balance</span>
+            <span v-if="isConnected && !balanceError">{{ t('On-chain balance') }}</span>
+            <span v-else-if="balanceError">{{ t('Error loading balance') }}</span>
+            <span v-else>{{ t('Connect a wallet to view balance') }}</span>
           </div>
         </div>
 
@@ -86,32 +86,32 @@
             <div class="flex-align-justify-center size-64px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-primary">
               <ArrowUpRight :size="20" />
             </div>
-            <span>Send</span>
+            <span>{{ t('Send') }}</span>
           </UiButton>
           <UiButton variant="cta" @click="openReceiveModal" class="hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
             <div class="flex-align-justify-center size-64px border-radius-14px transition-all-03 color-white bg-gradient-primary shadow-primary">
               <ArrowDownLeft :size="20" />
             </div>
-            <span>Receive</span>
+            <span>{{ t('Receive') }}</span>
           </UiButton>
           <UiButton variant="cta" disabled class="hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
             <div class="flex-align-justify-center size-64px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-primary">
               <ArrowLeftRight :size="20" />
             </div>
-            <span>Swap (soon)</span>
+            <span>{{ t('Swap (soon)') }}</span>
           </UiButton>
           <UiButton variant="cta" disabled class="hover-lift-6-border-primary-a50 disabled-fade-50 flex-column">
             <div class="flex-align-justify-center size-64px border-radius-14px transition-all-03 color-white bg-gradient-gray opacity-55 shadow-primary">
               <CreditCard :size="20" />
             </div>
-            <span>Buy (soon)</span>
+            <span>{{ t('Buy (soon)') }}</span>
           </UiButton>
         </div>
 
         <!-- Address + summary -->
         <div class="flex flex-wrap-wrap gap-16px">
           <div class="flex-1 bg-card border-radius-16px py-16px px-20px border-1 min-w-260px">
-            <div class="text-uppercase color-text-tertiary text-13px letter-spacing-008em mb-4px">Address</div>
+            <div class="text-uppercase color-text-tertiary text-13px letter-spacing-008em mb-4px">{{ t('Address') }}</div>
             <div class="mono break-all color-text-primary text-14px" :title="address || '-'">
               {{ address || '-' }}
             </div>
@@ -121,20 +121,20 @@
 
       <!-- ####### lumen://wallet ASSETS VIEW ####### -->
       <div v-else-if="currentView === 'assets'" class="flex flex-column gap-24px w-full max-w-full">
-        <UiChartHeader title="Cross-chain Assets" />
-        <UiEmptyState v-if="!isConnected" class="mt-32px" title="Connect Your Wallet" description="Connect a wallet to view your assets across linked IBC chains.">
+        <UiChartHeader :title="t('Cross-chain Assets')" />
+        <UiEmptyState v-if="!isConnected" class="mt-32px" :title="t('Connect Your Wallet')" :description="t('Connect a wallet to view your assets across linked IBC chains.')">
           <Coins :size="32" />
           <template #actions>
             <UiButton variant="primary" @click="connectWallet">
               <Link :size="16" />
-              <span>Connect Wallet</span>
+              <span>{{ t('Connect Wallet') }}</span>
             </UiButton>
           </template>
         </UiEmptyState>
-        <UiEmptyState v-else-if="assetsLoading && !assetRows.length" class="mt-32px" title="Loading assets…" description="Fetching balances on Lumen and linked IBC chains.">
+        <UiEmptyState v-else-if="assetsLoading && !assetRows.length" class="mt-32px" :title="t('Loading assets…')" :description="t('Fetching balances on Lumen and linked IBC chains.')">
           <Coins :size="32" />
         </UiEmptyState>
-        <UiEmptyState v-else-if="assetsError && !assetRows.length" class="mt-32px" title="Unable to load assets" :description="assetsError">
+        <UiEmptyState v-else-if="assetsError && !assetRows.length" class="mt-32px" :title="t('Unable to load assets')" :description="assetsError">
           <AlertCircle :size="32" />
         </UiEmptyState>
         <div v-else>
@@ -178,13 +178,13 @@
                 <div class="flex-align-center flex-wrap-wrap gap-8px">
                   <UiButton variant="secondary" @click="refreshAssetRow(asset)"
                     :disabled="assetRowRefreshingId === asset.id"
-                    title="Refresh this asset"
-                    aria-label="Refresh this asset" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
+                    :title="t('Refresh this asset')"
+                    :aria-label="t('Refresh this asset')" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                     <RefreshCw :size="14" :class="{ spinning: assetRowRefreshingId === asset.id }" />
                   </UiButton>
                   <UiButton variant="secondary" @click="copyToClipboardWithToast(asset.ownerAddress)"
-                    title="Copy chain address"
-                    aria-label="Copy chain address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
+                    :title="t('Copy chain address')"
+                    :aria-label="t('Copy chain address')" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                     <Copy :size="14" />
                   </UiButton>
                   <UiButton variant="secondary" @click="openAssetSendModal(asset)"
@@ -201,7 +201,7 @@
               </div>
             </div>
           </div>
-          <UiEmptyState v-else class="mt-32px" title="No assets yet" description="No balances were found on Lumen or the linked IBC chains.">
+          <UiEmptyState v-else class="mt-32px" :title="t('No assets yet')" :description="t('No balances were found on Lumen or the linked IBC chains.')">
             <Coins :size="32" />
           </UiEmptyState>
         </div>
@@ -259,12 +259,12 @@
                       class="transition-transform-02"
                       :class="{ 'rotate-180': isDexExpanded(dex.key) }"
                     />
-                    <span>{{ isDexExpanded(dex.key) ? 'Hide details' : 'Details' }}</span>
+                    <span>{{ isDexExpanded(dex.key) ? t('Hide details') : t('Details') }}</span>
                   </UiButton>
                   <UiButton variant="primary" type="button"
                     @click="openDexTab(dex.openUrl || dex.baseUrl)">
                     <ExternalLink :size="16" />
-                    <span>Open DEX</span>
+                    <span>{{ t('Open DEX') }}</span>
                   </UiButton>
                 </div>
               </div>
@@ -273,22 +273,22 @@
             <div v-if="isDexExpanded(dex.key)" class="bg-secondary border-top-1-light pt-16px pr-20px pb-20px pl-20px">
               <div class="gap-12px flex flex-wrap-wrap">
                 <div class="flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
-                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">Trading pairs</span>
+                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">{{ t('Trading pairs') }}</span>
                   <span class="txt-weight-medium color-text-primary text-15px truncate">{{ formatDexCount(dex.tradingPairsCount) }}</span>
                 </div>
 
                 <div class="flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
-                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">Liquidity pools</span>
+                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">{{ t('Liquidity pools') }}</span>
                   <span class="txt-weight-medium color-text-primary text-15px truncate">{{ formatDexCount(dex.liquidityPoolsCount) }}</span>
                 </div>
 
                 <div class="flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
-                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">24h price</span>
+                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">{{ t('24h price') }}</span>
                   <span class="txt-weight-medium color-text-primary text-15px truncate">{{ getDexPriceLabel(dex) }}</span>
                 </div>
 
                 <div class="flex flex-column gap-6px min-w-0 border-radius-14px border-1 bg-card py-12px px-16px flex-1-1-140px">
-                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">24h volume</span>
+                  <span class="txt-weight-medium color-text-tertiary text-uppercase text-12px letter-spacing-004em">{{ t('24h volume') }}</span>
                   <span class="txt-weight-medium color-text-primary text-15px truncate">{{ getDexVolumeLabel(dex) }}</span>
                 </div>
               </div>
@@ -310,74 +310,73 @@
         <!-- ####### lumen://wallet TRANSACTIONS VIEW ####### -->
         <div v-else-if="currentView === 'transactions'" class="flex flex-column gap-24px w-full max-w-full">
 
-        <UiChartHeader v-if="activities.length > 0" title="Recent Transactions">
+        <UiChartHeader v-if="activities.length > 0" :title="t('Recent Transactions')">
           <div class="flex-align-center flex-wrap-wrap gap-12px">
             <div class="flex-align-center gap-8px">
               <select v-model="txFilterStatus" class="hover-border-accent focus-border-primary color-text-primary cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card text-14px transition-all-02 focus-outline-none focus-ring focus-shadow">
-                <option value="all">All Status</option>
-                <option value="success">Success</option>
-                <option value="failed">Failed</option>
+                <option value="all">{{ t('All Status') }}</option>
+                <option value="success">{{ t('Success') }}</option>
+                <option value="failed">{{ t('Failed') }}</option>
               </select>
               <input
                 v-model="txSearchQuery"
                 type="text"
-                placeholder="Search by hash..."
+                :placeholder="t('Search by hash...')"
                 class="hover-border-accent focus-border-primary color-text-primary py-8px px-12px border-1 border-radius-8px bg-card text-14px transition-all-02 focus-outline-none focus-ring focus-shadow min-w-200px placeholder-tertiary"
               />
             </div>
             <UiButton variant="secondary" @click="exportTransactions">
               <Download :size="16" />
-              <span>Export CSV</span>
+              <span>{{ t('Export CSV') }}</span>
             </UiButton>
           </div>
         </UiChartHeader>
 
-        <UiEmptyState v-if="!isConnected || !address" class="mt-32px" title="No wallet connected" description="Connect a wallet to see your recent transactions.">
+        <UiEmptyState v-if="!isConnected || !address" class="mt-32px" :title="t('No wallet connected')" :description="t('Connect a wallet to see your recent transactions.')">
           <ArrowLeftRight :size="32" />
         </UiEmptyState>
 
-        <UiEmptyState v-else-if="activitiesLoading" class="mt-32px" title="Loading transactions…" description="Please wait while we fetch your recent activity from the indexer.">
+        <UiEmptyState v-else-if="activitiesLoading" class="mt-32px" :title="t('Loading transactions…')" :description="t('Please wait while we fetch your recent activity from the indexer.')">
           <ArrowLeftRight :size="32" />
         </UiEmptyState>
 
-        <UiEmptyState v-else-if="activitiesError" class="mt-32px" title="Unable to load transactions">
+        <UiEmptyState v-else-if="activitiesError" class="mt-32px" :title="t('Unable to load transactions')">
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="m-0px max-w-520px text-14px line-height-15">{{ activitiesError }}</p>
             <UiBanner variant="warning" class="mt-16px max-w-500px">
               <span>
-                💡 If transaction indexing is disabled on the node, transactions cannot be queried via API.
-                Your balance is still accurate and transactions are recorded on-chain.
+                {{ t('💡 If transaction indexing is disabled on the node, transactions cannot be queried via API. Your balance is still accurate and transactions are recorded on-chain.') }}
               </span>
             </UiBanner>
           </template>
         </UiEmptyState>
 
-        <UiEmptyState v-else-if="!activities.length" class="mt-32px" title="No recent transactions">
+        <UiEmptyState v-else-if="!activities.length" class="mt-32px" :title="t('No recent transactions')">
           <ArrowLeftRight :size="32" />
           <template #description>
-            <p class="m-0px max-w-520px text-14px line-height-15">Transaction history is not available because indexing is disabled on all RPC nodes.</p>
+            <p class="m-0px max-w-520px text-14px line-height-15">{{ t('Transaction history is not available because indexing is disabled on all RPC nodes.') }}</p>
             <UiBanner variant="warning" class="mt-16px max-w-600px">
               <div class="mb-12px">
-                <strong>💡 Why can't I see my transactions?</strong>
+                <strong>{{ t('💡 Why can\'t I see my transactions?') }}</strong>
               </div>
               <div class="mb-8px">
-                All Lumen Network RPC nodes currently have transaction indexing disabled. This means:
+                {{ t('All Lumen Network RPC nodes currently have transaction indexing disabled. This means:') }}
               </div>
               <ul class="text-left mt-8px mb-12px ml-24px list-style-disc pl-24px">
-                <li class="m-0px mt-4px mb-4px">Your balance is still accurate and updated</li>
-                <li class="m-0px mt-4px mb-4px">All transactions are recorded on-chain</li>
-                <li class="m-0px mt-4px mb-4px">Transaction history cannot be queried via API</li>
+                <li class="m-0px mt-4px mb-4px">{{ t('Your balance is still accurate and updated') }}</li>
+                <li class="m-0px mt-4px mb-4px">{{ t('All transactions are recorded on-chain') }}</li>
+                <li class="m-0px mt-4px mb-4px">{{ t('Transaction history cannot be queried via API') }}</li>
               </ul>
               <div class="mt-12px">
-                <strong>Alternative:</strong> Use a block explorer to view your transaction history:
+                <strong>{{ t('Alternative:') }}</strong> {{ t('Use a block explorer to view your transaction history:') }}
                 <br>
                 <a
                   :href="`https://explorer.lumen.network/account/${address}`"
                   target="_blank"
                   class="mt-4px inline-block color-primary underline"
                 >
-                  View on Lumen Explorer →
+                  {{ t('View on Lumen Explorer →') }}
                 </a>
               </div>
             </UiBanner>
@@ -386,13 +385,13 @@
 
         <div v-else class="flex flex-column border-radius-12px w-full border-1 overflow-hidden bg-card">
           <div class="grid-cols-170-1fr-12fr-12fr-15fr-100-120 gap-16px text-12px txt-weight-medium color-text-secondary text-uppercase w-full grid bg-secondary letter-spacing-005em py-12px px-20px border-bottom-2-color">
-            <div class="min-w-0">Type</div>
-            <div class="min-w-0">Amount</div>
-            <div class="flex-align-center gap-8px min-w-0">From</div>
-            <div class="flex-align-center gap-8px min-w-0">To</div>
-            <div class="flex-align-center gap-8px min-w-0">Hash</div>
-            <div class="min-w-0">Status</div>
-            <div class="min-w-0">Time</div>
+            <div class="min-w-0">{{ t('Type') }}</div>
+            <div class="min-w-0">{{ t('Amount') }}</div>
+            <div class="flex-align-center gap-8px min-w-0">{{ t('From') }}</div>
+            <div class="flex-align-center gap-8px min-w-0">{{ t('To') }}</div>
+            <div class="flex-align-center gap-8px min-w-0">{{ t('Hash') }}</div>
+            <div class="min-w-0">{{ t('Status') }}</div>
+            <div class="min-w-0">{{ t('Time') }}</div>
           </div>
 
           <div
@@ -404,7 +403,7 @@
               <div class="inline-flex text-12px txt-weight-light flex-align-start gap-6px border-radius-6px nowrap py-8px px-10px" :style="activityBadgeStyle(tx)">
                 <component :is="describeActivity(tx).icon" :size="14" />
                 <div class="flex flex-column gap-2px min-w-0 line-height-12">
-                  <span>{{ describeActivity(tx).label }}</span>
+                  <span>{{ t(describeActivity(tx).label) }}</span>
                   <span
                     v-if="describeActivity(tx).carriesDomainName && tx.dnsName"
                     class="fw-500 color-text-tertiary text-11px truncate max-w-140px"
@@ -439,8 +438,8 @@
               </span>
               <UiButton variant="icon" icon-radius-class="border-radius-10px" v-if="tx.from"
                 @click.stop="copyToClipboardWithToast(tx.from)"
-                title="Copy address"
-                aria-label="Copy from address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
+                :title="t('Copy address')"
+                :aria-label="t('Copy from address')" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                 <Copy :size="14" />
               </UiButton>
             </div>
@@ -459,8 +458,8 @@
               </span>
               <UiButton variant="icon" icon-radius-class="border-radius-10px" v-if="tx.to"
                 @click.stop="copyToClipboardWithToast(tx.to)"
-                title="Copy address"
-                aria-label="Copy to address" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
+                :title="t('Copy address')"
+                :aria-label="t('Copy to address')" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                 <Copy :size="14" />
               </UiButton>
             </div>
@@ -470,11 +469,11 @@
                 {{ tx.txhash.slice(0, 8) }}…{{ tx.txhash.slice(-6) }}
               </span>
               <UiButton variant="icon" icon-radius-class="border-radius-10px" @click.stop="openTransactionTab(tx.txhash)"
-                title="Open in explorer"
-                aria-label="Open transaction in new tab" class="disabled-opacity-60-not-allowed-no-transform bg-card-disabled-hover">
+                :title="t('Open in explorer')"
+                :aria-label="t('Open transaction in new tab')" class="disabled-opacity-60-not-allowed-no-transform bg-card-disabled-hover">
                 <ExternalLink :size="14" />
               </UiButton>
-              <UiButton variant="icon" icon-radius-class="border-radius-10px" @click.stop="copyToClipboardWithToast(tx.txhash)" title="Copy hash" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
+              <UiButton variant="icon" icon-radius-class="border-radius-10px" @click.stop="copyToClipboardWithToast(tx.txhash)" :title="t('Copy hash')" class="disabled-opacity-60-not-allowed-no-transform hover-border-accent hover-color-accent bg-card-disabled-hover">
                 <Copy :size="14" />
               </UiButton>
             </div>
@@ -493,8 +492,8 @@
         </div>
       </div>
 
-      <!-- ####### lumen://wallet ADDRESS BOOK VIEW ####### -->
-      <AddressBookView
+      <!-- ####### lumen://wallet ADDRESS BOOK PANEL ####### -->
+      <AddressBookPanel
         v-else-if="currentView === 'addressbook'"
         :contacts="contacts"
         :loading="contactsLoading"
@@ -504,9 +503,9 @@
         @delete="deleteContact"
       />
 
-      <!-- ####### lumen://wallet RECURRING PAYMENTS VIEW ####### -->
+      <!-- ####### lumen://wallet RECURRING PAYMENTS PANEL ####### -->
       <div v-else-if="currentView === 'recurring'" class="flex flex-column gap-24px w-full p-0px gap-0px max-w-full">
-        <SubscriptionsView 
+        <SubscriptionsPanel 
           ref="subscriptionsRef"
           @execute-payment="executeRecurringPayment"
           @toast="showToast"
@@ -538,26 +537,27 @@
     <!-- ####### lumen://wallet DELETE CONFIRMATION MODAL ####### -->
     <ConfirmDialog
       v-model="showDeleteConfirmModal"
-      title="Delete Contact"
+      :title="t('Delete Contact')"
       panel-class=""
       @update:model-value="cancelDeleteContact"
       @confirm="confirmDeleteContact"
     >
       <p class="color-text-primary text-15px mb-8px line-height-15">
-        Are you sure you want to delete <strong>{{ contactToDelete?.name }}</strong>?
+        {{ t('Are you sure you want to delete') }} <strong>{{ contactToDelete?.name }}</strong>?
       </p>
       <p class="color-text-tertiary text-14px">
-        This action cannot be undone.
+        {{ t('This action cannot be undone.') }}
       </p>
       <template #confirm>
         <Trash2 :size="18" />
-        <span>Delete</span>
+        <span>{{ t('Delete') }}</span>
       </template>
     </ConfirmDialog>
   </div>
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import ConfirmDialog from '../../dialogs/ConfirmDialog.vue';
 import ContactEditorDialog from '../../dialogs/ContactEditorDialog.vue';
@@ -624,8 +624,8 @@ import { fetchActivities, type Activity, type ActivityType, clearActivitiesCache
 import QRCode from 'qrcode';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import QrScanner from '../../dialogs/QrScanner.vue';
-import SubscriptionsView from '../../views/SubscriptionsView.vue';
-import AddressBookView from '../../views/AddressBookView.vue';
+import SubscriptionsPanel from '../../panels/SubscriptionsPanel.vue';
+import AddressBookPanel from '../../panels/AddressBookPanel.vue';
 import { payReminder } from '../services/paymentReminders';
 import { formatDenom as formatDenomValue, truncateMiddle } from '../services/format';
 import { downloadTextFile } from '../services/download';
@@ -716,7 +716,7 @@ const txSearchQuery = ref('');
 const DEX_LISTINGS: DexListingConfig[] = [
   {
     key: 'beezee',
-    name: 'BeeZee DEX',
+    name: t('BeeZee DEX'),
     chainId: 'beezee-1',
     chainLabel: 'BeeZee',
     restEndpoint: 'https://rest.getbze.com',
@@ -725,7 +725,7 @@ const DEX_LISTINGS: DexListingConfig[] = [
     logoUrl: 'https://dex.getbze.com/images/beezee_light.svg',
     logoTheme: 'dark',
     iconText: 'BZE',
-    description: 'Browse mainnet markets and pools before jumping into the BeeZee DEX.',
+    description: t('Browse mainnet markets and pools before jumping into the BeeZee DEX.'),
     fallbackLinks: [
       { label: 'Swap', url: 'https://dex.getbze.com/' },
       { label: 'Exchange', url: 'https://dex.getbze.com/exchange' },
@@ -789,7 +789,7 @@ const dexLastLoadedAt = ref(0);
 const DEX_REFRESH_TTL_MS = 60_000;
 
 const showQrScanner = ref(false);
-const qrScannerTitle = ref('Scan QR Code');
+const qrScannerTitle = ref(t('Scan QR Code'));
 
 // Recurring Payments
 const subscriptionsRef = ref<any>(null);
@@ -813,8 +813,8 @@ onBeforeUnmount(() => {
 });
 
 const balanceLabel = computed(() => {
-  if (!isConnected.value) return 'Not connected';
-  if (balanceLoading.value) return 'Loading...';
+  if (!isConnected.value) return t('Not connected');
+  if (balanceLoading.value) return t('Loading...');
   if (balanceError.value) return 'Error';
   if (balanceLmn.value == null) return '0.000000 LMN';
   return `${balanceLmn.value.toFixed(6)} LMN`;
@@ -871,12 +871,12 @@ const sendModalTitle = computed(() => {
 });
 const sendRecipientPlaceholder = computed(() =>
   isIbcSend.value
-    ? 'Enter recipient address on the other chain'
+    ? t('Enter recipient address on the other chain')
     : `Enter recipient address (${sendSourcePrefix.value}1...)`
 );
 const sendPrimaryActionLabel = computed(() => {
   if (sendingTransaction.value) return isIbcSend.value ? 'Transferring...' : 'Sending...';
-  return isIbcSend.value ? 'Preview Transfer' : 'Preview Send';
+  return isIbcSend.value ? t('Preview Transfer') : t('Preview Send');
 });
 
 function autoSelectIbcChannel(force = false) {
@@ -909,7 +909,7 @@ async function loadIbcChannels(force = false) {
     ibcChannelsLoaded.value = true;
 
     if (!ibcChannels.value.length) {
-      ibcChannelsError.value = 'No open IBC transfer channels found on this network.';
+      ibcChannelsError.value = t('No open IBC transfer channels found on this network.');
       ibcForm.value.sourceChannel = '';
       return;
     }
@@ -919,7 +919,7 @@ async function loadIbcChannels(force = false) {
     ibcChannels.value = [];
     ibcChannelsLoaded.value = false;
     ibcForm.value.sourceChannel = '';
-    ibcChannelsError.value = errorMessage(error, 'Failed to load IBC channels.');
+    ibcChannelsError.value = errorMessage(error, t('Failed to load IBC channels.'));
   } finally {
     ibcChannelsLoading.value = false;
   }
@@ -1236,24 +1236,24 @@ async function hydrateTxMeta(list: Activity[]) {
 
 function getViewTitle(): string {
   const titles: Record<string, string> = {
-    overview: 'Wallet Overview',
-    assets: 'Assets',
-    dex: 'DEX',
-    transactions: 'Transactions',
-    addressbook: 'Address Book',
-    recurring: 'Payment Reminders'
+    overview: t('Wallet Overview'),
+    assets: t('Assets'),
+    dex: t('DEX'),
+    transactions: t('Transactions'),
+    addressbook: t('Address Book'),
+    recurring: t('Payment Reminders')
   };
   return titles[currentView.value] || 'Wallet';
 }
 
 function getViewDescription(): string {
   const descs: Record<string, string> = {
-    overview: 'Manage your Lumen address and on-chain balance (read-only).',
-    assets: 'View balances and move assets across linked IBC chains.',
-    dex: 'Inspect linked DEXs, check their current state, and open them in a new tab.',
-    transactions: 'Recent on-chain transactions for this wallet.',
-    addressbook: 'Save frequently used addresses for quick access.',
-    recurring: 'Schedule and manage automatic payments and subscriptions.'
+    overview: t('Manage your Lumen address and on-chain balance (read-only).'),
+    assets: t('View balances and move assets across linked IBC chains.'),
+    dex: t('Inspect linked DEXs, check their current state, and open them in a new tab.'),
+    transactions: t('Recent on-chain transactions for this wallet.'),
+    addressbook: t('Save frequently used addresses for quick access.'),
+    recurring: t('Schedule and manage automatic payments and subscriptions.')
   };
   return descs[currentView.value] || '';
 }
@@ -1270,7 +1270,7 @@ async function refreshActivities() {
     activities.value = list;
     void hydrateTxMeta(list);
   } catch (e) {
-    activitiesError.value = errorMessage(e, 'Failed to load activities');
+    activitiesError.value = errorMessage(e, t('Failed to load activities'));
     activities.value = [];
   } finally {
     activitiesLoading.value = false;
@@ -1279,7 +1279,7 @@ async function refreshActivities() {
 
 function connectWallet() {
   if (!address.value) {
-    showToast('Create or select a profile first in the top navigation.', 'error');
+    showToast(t('Create or select a profile first in the top navigation.'), 'error');
     return;
   }
   manualDisconnected.value = false;
@@ -1376,13 +1376,13 @@ async function refreshWallet() {
   try {
     const walletApi = useInternalLumen()?.wallet;
     if (!walletApi || typeof walletApi.getBalance !== 'function') {
-      balanceError.value = 'Wallet bridge not available';
+      balanceError.value = t('Wallet bridge not available');
       balanceLmn.value = null;
       return;
     }
     const res = await walletApi.getBalance(address.value, { denom: 'ulmn' });
     if (!res || res.ok === false) {
-      balanceError.value = res?.error || 'Unable to load balance';
+      balanceError.value = res?.error || t('Unable to load balance');
       balanceLmn.value = null;
       return;
     }
@@ -1402,7 +1402,7 @@ async function refreshWallet() {
     }
   } catch (e) {
     console.error('[wallet] refreshWallet error', e);
-    balanceError.value = 'Unexpected error';
+    balanceError.value = t('Unexpected error');
     balanceLmn.value = null;
   } finally {
     balanceLoading.value = false;
@@ -1459,7 +1459,7 @@ function schedulePostTransactionRefresh(options: { includeSubscriptions?: boolea
 
 function sendTransaction() {
   if (!isConnected.value || !address.value) {
-    showToast('Connect a wallet first.', 'error');
+    showToast(t('Connect a wallet first.'), 'error');
     return;
   }
   void refreshActivities();
@@ -1473,7 +1473,7 @@ function sendTransaction() {
 
 function closeSendModal() {
   if (sendingTransaction.value) {
-    showToast('Transaction in progress. Please wait...', 'info');
+    showToast(t('Transaction in progress. Please wait...'), 'info');
     return;
   }
   showSendModal.value = false;
@@ -1485,7 +1485,7 @@ function closeSendModal() {
 }
 
 function openQrScanner() {
-  qrScannerTitle.value = 'Scan Wallet Address or Payment';
+  qrScannerTitle.value = t('Scan Wallet Address or Payment');
   showQrScanner.value = true;
 }
 
@@ -1500,7 +1500,7 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
   
   // WalletConnect is not supported: say so rather than pretending to pair.
   if (type === 'walletconnect' || raw.startsWith('wc:')) {
-    showToast('WalletConnect is not supported yet', 'warning');
+    showToast(t('WalletConnect is not supported yet'), 'warning');
     return;
   }
   
@@ -1523,14 +1523,14 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
         showSendModal.value = true;
       }
       
-      showToast('Payment request scanned successfully', 'success');
+      showToast(t('Payment request scanned successfully'), 'success');
     } catch {
       // If not a valid URL, treat as simple address
       sendForm.value.recipient = content;
       if (!showSendModal.value) {
         showSendModal.value = true;
       }
-      showToast('Address scanned successfully', 'success');
+      showToast(t('Address scanned successfully'), 'success');
     }
     return;
   }
@@ -1541,24 +1541,24 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
     if (!showSendModal.value) {
       showSendModal.value = true;
     }
-    showToast('Wallet address scanned successfully', 'success');
+    showToast(t('Wallet address scanned successfully'), 'success');
     return;
   }
   
   // A plain URL in a QR code has no wallet action attached to it.
   if (type === 'url') {
-    showToast('This QR code holds a link, not a wallet action', 'warning');
+    showToast(t('This QR code holds a link, not a wallet action'), 'warning');
     return;
   }
   
-  showToast('QR code scanned', 'success');
+  showToast(t('QR code scanned'), 'success');
 }
 
 
 async function executeRecurringPayment(paymentId: string) {
   const result = await payReminder(paymentId);
   if (result.ok) {
-    showToast(`Reminder paid`, 'success');
+    showToast(t('Reminder paid'), 'success');
     schedulePostTransactionRefresh({ includeSubscriptions: true });
     return;
   }
@@ -1618,7 +1618,7 @@ function buildAbsoluteHref(baseUrl: string, href: string): string {
 async function fetchAbsoluteTextViaBridge(url: string, timeout = 15000): Promise<string> {
   const httpGet = useInternalLumen()?.http?.get || useInternalLumen()?.httpGet;
   if (typeof httpGet !== 'function') {
-    throw new Error('HTTP bridge not available.');
+    throw new Error(t('HTTP bridge not available.'));
   }
 
   const res = await httpGet(String(url || ''), {
@@ -1670,9 +1670,9 @@ function extractDexQuickLinks(doc: Document | null, config: DexListingConfig): D
     'assets',
     'burner',
     'website',
-    'factory (coming soon)'
+    t('factory (coming soon)')
   ]);
-  const preferredOrder = ['swap', 'exchange', 'pools', 'staking', 'assets', 'burner', 'website', 'factory (coming soon)'];
+  const preferredOrder = ['swap', 'exchange', 'pools', 'staking', 'assets', 'burner', 'website', t('factory (coming soon)')];
   const deduped = new Map<string, DexQuickLink>();
 
   for (const anchor of Array.from(doc.querySelectorAll('a[href]'))) {
@@ -1706,7 +1706,7 @@ function extractDexQuickLinks(doc: Document | null, config: DexListingConfig): D
 function extractDexMarketPreview(doc: Document | null): DexMarketPreview | null {
   if (!doc?.body) return null;
 
-  const candidates = Array.from(doc.body.querySelectorAll('a, button, article, section, div'))
+  const candidates = Array.from(doc.body.querySelectorAll(t('a, button, article, section, div')))
     .map((element) => normalizeWhitespace(element.textContent || ''))
     .filter((text) => text.length >= 8 && text.length <= 260);
 
@@ -1752,7 +1752,7 @@ function buildDexPairLabel(baseDenom: string, quoteDenom: string): string {
   const base = getDexDenomLabel(baseDenom);
   const quote = getDexDenomLabel(quoteDenom);
   if (base && quote) return `${base}/${quote}`;
-  return normalizeWhitespace([base, quote].filter(Boolean).join('/')) || 'Unknown pair';
+  return normalizeWhitespace([base, quote].filter(Boolean).join('/')) || t('Unknown pair');
 }
 
 async function fetchDexChainOverview(config: DexListingConfig): Promise<{
@@ -1848,7 +1848,7 @@ async function fetchDexSnapshot(config: DexListingConfig): Promise<DexRow> {
     chainOverview.liquidityPoolsCount != null ? chainOverview.liquidityPoolsCount : htmlLiquidityPoolsCount;
   const pageErrors = pages
     .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
-    .map((result) => String(result.reason?.message || result.reason || 'Request failed'));
+    .map((result) => String(result.reason?.message || result.reason || t('Request failed')));
 
   let status: DexStatus = 'error';
   if (successCount === pages.length) status = 'online';
@@ -1887,17 +1887,17 @@ async function refreshDexListings() {
     dexLastLoadedAt.value = Date.now();
 
     if (nextRows.some((row) => row.status === 'error')) {
-      dexError.value = 'Some DEX snapshots could not be loaded.';
+      dexError.value = t('Some DEX snapshots could not be loaded.');
     } else if (nextRows.some((row) => row.status === 'degraded')) {
-      dexError.value = 'Some DEX details are partial right now, but the listings remain usable.';
+      dexError.value = t('Some DEX details are partial right now, but the listings remain usable.');
     }
   } catch (error) {
     dexRows.value = dexRows.value.map((row) => ({
       ...row,
       status: 'error',
-      error: errorMessage(error, 'Failed to load DEX snapshot')
+      error: errorMessage(error, t('Failed to load DEX snapshot'))
     }));
-    dexError.value = errorMessage(error, 'Failed to load DEX snapshot');
+    dexError.value = errorMessage(error, t('Failed to load DEX snapshot'));
   } finally {
     dexLoading.value = false;
   }
@@ -1993,13 +1993,13 @@ function getDexVolumeLabel(dex: DexRow): string {
 async function fetchLocalBalances(ownerAddress: string): Promise<Array<{ denom: string; amount: string }>> {
   const net = useInternalLumen()?.net;
   if (!net || typeof net.restGet !== 'function') {
-    throw new Error('Network API not available.');
+    throw new Error(t('Network API not available.'));
   }
   const res = await net.restGet(`/cosmos/bank/v1beta1/balances/${encodeURIComponent(ownerAddress)}`, {
     timeout: 15000
   });
   if (!res || res.ok === false) {
-    throw new Error(String(res?.error || 'Failed to fetch balances on Lumen.'));
+    throw new Error(String(res?.error || t('Failed to fetch balances on Lumen.')));
   }
   const balances = Array.isArray(res?.json?.balances) ? res.json.balances : [];
   return balances.map((coin: any) => ({
@@ -2107,7 +2107,7 @@ async function createAssetRow(input: {
     sendButtonLabel,
     transferTargets: input.transferTargets,
     transferEnabled,
-    transferButtonLabel: input.transferTargets.length ? 'To Other Chain' : 'No route',
+    transferButtonLabel: input.transferTargets.length ? t('To Other Chain') : t('No route'),
     rpcEndpoint: String(input.rpcEndpoint || ''),
     restEndpoint: String(input.restEndpoint || ''),
     feeDenom: String(input.feeDenom || 'ulmn')
@@ -2150,7 +2150,7 @@ function refreshAssetRow(asset: AssetRow) {
 
 function openAssetSendModal(asset: AssetRow) {
   if (!asset.sendEnabled) {
-    showToast('No balance available for this asset.', 'warning');
+    showToast(t('No balance available for this asset.'), 'warning');
     return;
   }
   void refreshActivities();
@@ -2179,7 +2179,7 @@ const sendSummary = computed(() => {
     taxLabel,
     routeLabel: selectedIbcChannel.value
       ? `${selectedIbcChannel.value.portId}/${selectedIbcChannel.value.channelId}`
-      : 'Select an IBC route',
+      : t('Select an IBC route'),
     destinationChain: selectedIbcChannel.value?.chainId || 'Unknown'
   };
 });
@@ -2188,7 +2188,7 @@ async function confirmSendPreview() {
   if (sendingTransaction.value) return;
   
   if (!sendSourceAddress.value) {
-    showToast('No sender address available', 'error');
+    showToast(t('No sender address available'), 'error');
     return;
   }
   const from = sendSourceAddress.value;
@@ -2198,17 +2198,17 @@ async function confirmSendPreview() {
   const amountMicro = decimalToMicroUnits(sendForm.value.amount);
   
   if (!to) {
-    showToast('Please enter recipient address', 'error');
+    showToast(t('Please enter recipient address'), 'error');
     return;
   }
   
   if (!(amountNum > 0)) {
-    showToast('Please enter a valid amount', 'error');
+    showToast(t('Please enter a valid amount'), 'error');
     return;
   }
 
   if (amountMicro == null || amountMicro <= 0n) {
-    showToast('Please enter a valid amount', 'error');
+    showToast(t('Please enter a valid amount'), 'error');
     return;
   }
 
@@ -2220,7 +2220,7 @@ async function confirmSendPreview() {
   const walletApi = useInternalLumen()?.wallet;
   const activeId = activeProfileId.value;
   if (!activeId) {
-    showToast('No active profile selected', 'error');
+    showToast(t('No active profile selected'), 'error');
     return;
   }
 
@@ -2239,12 +2239,12 @@ async function confirmSendPreview() {
       }
 
       if (!walletApi || typeof walletApi.ibcTransfer !== 'function') {
-        showToast('Wallet IBC bridge not available', 'error');
+        showToast(t('Wallet IBC bridge not available'), 'error');
         return;
       }
 
       if (!selectedIbcChannel.value) {
-        showToast('Please select an IBC route', 'error');
+        showToast(t('Please select an IBC route'), 'error');
         return;
       }
 
@@ -2259,12 +2259,12 @@ async function confirmSendPreview() {
         sourcePort: selectedIbcChannel.value.portId,
         timeoutSeconds: 600
       };
-      successLabel = 'IBC transfer';
-      failureLabel = 'IBC transfer';
+      successLabel = t('IBC transfer');
+      failureLabel = t('IBC transfer');
       sendOperation = async (params: Record<string, any>) => {
         const sendPromise = walletApi.ibcTransfer(params);
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Transaction timeout after 2 minutes')), 120000)
+          setTimeout(() => reject(new Error(t('Transaction timeout after 2 minutes'))), 120000)
         );
         return Promise.race([sendPromise, timeoutPromise]);
       };
@@ -2275,7 +2275,7 @@ async function confirmSendPreview() {
       }
 
       if (!walletApi || typeof walletApi.sendTokens !== 'function') {
-        showToast('Wallet send bridge not available', 'error');
+        showToast(t('Wallet send bridge not available'), 'error');
         return;
       }
 
@@ -2299,7 +2299,7 @@ async function confirmSendPreview() {
       sendOperation = async (params: Record<string, any>) => {
         const sendPromise = walletApi.sendTokens(params);
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Transaction timeout after 2 minutes')), 120000)
+          setTimeout(() => reject(new Error(t('Transaction timeout after 2 minutes'))), 120000)
         );
         return Promise.race([sendPromise, timeoutPromise]);
       };
@@ -2308,22 +2308,22 @@ async function confirmSendPreview() {
     const res = await sendOperation(sendParams);
 
     if (!res || res.ok === false) {
-      const err = String(res?.error || 'unknown error');
+      const err = String(res?.error || t('unknown error'));
       if (err === 'password_required' || err === 'invalid_password') {
         try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
-        showToast('Wallet locked. Unlock to continue.', 'warning');
+        showToast(t('Wallet locked. Unlock to continue.'), 'warning');
         return;
       }
       
       // Handle indexing disabled error
       if (err === 'indexing_disabled') {
-        showToast(errorMessage(res, 'Transaction may have been sent but node indexing is disabled. Check your balance in a moment.'), 'warning');
+        showToast(errorMessage(res, t('Transaction may have been sent but node indexing is disabled. Check your balance in a moment.')), 'warning');
         closeSendModal();
         schedulePostTransactionRefresh();
         return;
       }
       
-      showToast(`${failureLabel} failed: ${res?.error || 'unknown error'}`, 'error');
+      showToast(`${failureLabel} failed: ${res?.error || t('unknown error')}`, 'error');
       return;
     }
     
@@ -2331,7 +2331,7 @@ async function confirmSendPreview() {
     closeSendModal();
     schedulePostTransactionRefresh();
   } catch (e) {
-    showToast(errorMessage(e, 'Unexpected error while sending transaction'), 'error');
+    showToast(errorMessage(e, t('Unexpected error while sending transaction')), 'error');
   } finally {
     sendingTransaction.value = false;
   }
@@ -2420,7 +2420,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
           transferTargets: outboundTargets,
           routeLabel: outboundTargets.length
             ? `Destinations: ${outboundTargets.map((target) => target.chainLabel).join(', ')}`
-            : 'No linked IBC destination available.',
+            : t('No linked IBC destination available.'),
           feeDenom: 'ulmn',
           isLocal: true
         })
@@ -2462,11 +2462,11 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
               iconClass: 'remote',
               chainRegistryName: entry.meta.chainRegistryName,
               transferTargets: [],
-              routeLabel: 'Unable to derive destination address.',
+              routeLabel: t('Unable to derive destination address.'),
               restEndpoint: entry.meta.restEndpoint,
               rpcEndpoint: entry.meta.rpcEndpoint,
               feeDenom: entry.meta.feeDenom,
-              error: 'Unable to derive an address for this chain.'
+              error: t('Unable to derive an address for this chain.')
             })
           ];
         }
@@ -2484,11 +2484,11 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
               transferTargets: returnTargets,
               routeLabel: returnTargets.length
                 ? `Return route: ${returnTargets[0].routeLabel}`
-                : 'No return route configured.',
+                : t('No return route configured.'),
               restEndpoint: entry.meta.restEndpoint,
               rpcEndpoint: entry.meta.rpcEndpoint,
               feeDenom: entry.meta.feeDenom,
-              error: 'REST endpoint not configured for this chain.'
+              error: t('REST endpoint not configured for this chain.')
             })
           ];
         }
@@ -2509,7 +2509,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
                 transferTargets: returnTargets,
                 routeLabel: returnTargets.length
                   ? `Return route: ${returnTargets[0].routeLabel}`
-                  : 'No return route configured.',
+                  : t('No return route configured.'),
                 restEndpoint: entry.meta.restEndpoint,
                 rpcEndpoint: entry.meta.rpcEndpoint,
                 feeDenom: entry.meta.feeDenom
@@ -2517,7 +2517,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
             )
           );
         } catch (error) {
-          remoteErrors.push(`${entry.meta.label}: ${errorMessage(error, 'Failed to load balances')}`);
+          remoteErrors.push(`${entry.meta.label}: ${errorMessage(error, t('Failed to load balances'))}`);
           return [
             await createAssetRow({
               chainId: entry.channel.chainId || entry.channel.channelId,
@@ -2530,11 +2530,11 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
               transferTargets: returnTargets,
               routeLabel: returnTargets.length
                 ? `Return route: ${returnTargets[0].routeLabel}`
-                : 'No return route configured.',
+                : t('No return route configured.'),
               restEndpoint: entry.meta.restEndpoint,
               rpcEndpoint: entry.meta.rpcEndpoint,
               feeDenom: entry.meta.feeDenom,
-              error: errorMessage(error, 'Failed to load balances')
+              error: errorMessage(error, t('Failed to load balances'))
             })
           ];
         }
@@ -2568,7 +2568,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
     if (!hadRows) {
       assetRows.value = [];
     }
-    assetsError.value = errorMessage(error, 'Failed to load assets.');
+    assetsError.value = errorMessage(error, t('Failed to load assets.'));
   } finally {
     if (!silent && requestId === assetRefreshRequestId) {
       assetsLoading.value = false;
@@ -2581,7 +2581,7 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
 
 function openAssetTransferModal(asset: AssetRow) {
   if (!asset.transferTargets.length) {
-    showToast('No IBC route available for this asset.', 'warning');
+    showToast(t('No IBC route available for this asset.'), 'warning');
     return;
   }
   assetTransferContext.value = asset;
@@ -2595,7 +2595,7 @@ function openAssetTransferModal(asset: AssetRow) {
 
 function closeAssetTransferModal() {
   if (assetTransferSending.value) {
-    showToast('Transfer in progress. Please wait...', 'info');
+    showToast(t('Transfer in progress. Please wait...'), 'info');
     return;
   }
   showAssetTransferModal.value = false;
@@ -2628,7 +2628,7 @@ async function confirmAssetTransfer() {
   const context = assetTransferContext.value;
   const target = selectedAssetTransferTarget.value;
   if (!context || !target) {
-    showToast('No asset transfer context available.', 'error');
+    showToast(t('No asset transfer context available.'), 'error');
     return;
   }
 
@@ -2638,15 +2638,15 @@ async function confirmAssetTransfer() {
   const availableMicro = BigInt(context.microAmount || '0');
 
   if (!recipient) {
-    showToast('Please enter a destination address.', 'error');
+    showToast(t('Please enter a destination address.'), 'error');
     return;
   }
   if (amountMicro == null || amountMicro <= 0n) {
-    showToast('Please enter a valid amount.', 'error');
+    showToast(t('Please enter a valid amount.'), 'error');
     return;
   }
   if (amountMicro > availableMicro) {
-    showToast('Insufficient balance for this transfer.', 'error');
+    showToast(t('Insufficient balance for this transfer.'), 'error');
     return;
   }
 
@@ -2658,13 +2658,13 @@ async function confirmAssetTransfer() {
 
   const activeId = activeProfileId.value;
   if (!activeId) {
-    showToast('No active profile selected.', 'error');
+    showToast(t('No active profile selected.'), 'error');
     return;
   }
 
   const walletApi = useInternalLumen()?.wallet;
   if (!walletApi || typeof walletApi.ibcTransfer !== 'function') {
-    showToast('Wallet IBC bridge not available.', 'error');
+    showToast(t('Wallet IBC bridge not available.'), 'error');
     return;
   }
 
@@ -2695,20 +2695,20 @@ async function confirmAssetTransfer() {
 
     const sendPromise = walletApi.ibcTransfer(params);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Transaction timeout after 2 minutes')), 120000)
+      setTimeout(() => reject(new Error(t('Transaction timeout after 2 minutes'))), 120000)
     );
     const res = await Promise.race([sendPromise, timeoutPromise]);
 
     if (!res || res.ok === false) {
-      const err = String(res?.error || 'unknown error');
+      const err = String(res?.error || t('unknown error'));
       if (err === 'password_required' || err === 'invalid_password') {
         try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
-        showToast('Wallet locked. Unlock to continue.', 'warning');
+        showToast(t('Wallet locked. Unlock to continue.'), 'warning');
         return;
       }
       if (err === 'indexing_disabled') {
         showToast(
-          errorMessage(res, 'Transfer may have been broadcast but node indexing is disabled. Check balances shortly.'),
+          errorMessage(res, t('Transfer may have been broadcast but node indexing is disabled. Check balances shortly.')),
           'warning'
         );
         closeAssetTransferModal();
@@ -2723,7 +2723,7 @@ async function confirmAssetTransfer() {
     closeAssetTransferModal();
     schedulePostTransactionRefresh();
   } catch (error) {
-    showToast(errorMessage(error, 'Unexpected error while transferring asset'), 'error');
+    showToast(errorMessage(error, t('Unexpected error while transferring asset')), 'error');
   } finally {
     assetTransferSending.value = false;
   }
@@ -2841,25 +2841,25 @@ async function saveContact() {
         plainContact
       );
       if (result.ok) {
-        showToast('Contact updated!', 'success');
+        showToast(t('Contact updated!'), 'success');
         await loadContacts();
         closeContactModal();
       } else {
-        showToast(result.error || 'Failed to update contact', 'error');
+        showToast(result.error || t('Failed to update contact'), 'error');
       }
     } else {
       // Add new contact
       const result = await useInternalLumen()?.addressBook.add(plainContact);
       if (result.ok) {
-        showToast('Contact added!', 'success');
+        showToast(t('Contact added!'), 'success');
         await loadContacts();
         closeContactModal();
       } else {
-        showToast(result.error || 'Failed to add contact', 'error');
+        showToast(result.error || t('Failed to add contact'), 'error');
       }
     }
   } catch (err) {
-    showToast(errorMessage(err, 'Failed to save contact'), 'error');
+    showToast(errorMessage(err, t('Failed to save contact')), 'error');
   } finally {
     savingContact.value = false;
   }
@@ -2876,13 +2876,13 @@ async function confirmDeleteContact() {
   try {
     const result = await useInternalLumen()?.addressBook.delete(contactToDelete.value.id);
     if (result.ok) {
-      showToast('Contact deleted', 'success');
+      showToast(t('Contact deleted'), 'success');
       await loadContacts();
     } else {
-      showToast(result.error || 'Failed to delete contact', 'error');
+      showToast(result.error || t('Failed to delete contact'), 'error');
     }
   } catch (err) {
-    showToast(errorMessage(err, 'Failed to delete contact'), 'error');
+    showToast(errorMessage(err, t('Failed to delete contact')), 'error');
   } finally {
     showDeleteConfirmModal.value = false;
     contactToDelete.value = null;
@@ -2912,7 +2912,7 @@ function exportTransactions() {
   if (!activities.value.length) return;
 
   // CSV header
-  const headers = ['Date', 'Time', 'Type', 'From', 'To', 'Amount (LMN)', 'Status', 'Hash'];
+  const headers = ['Date', 'Time', 'Type', 'From', 'To', t('Amount (LMN)'), 'Status', 'Hash'];
   
   // CSV rows
   const rows = enhancedActivities.value.map(tx => {
@@ -2944,6 +2944,6 @@ function exportTransactions() {
     'text/csv;charset=utf-8;'
   );
   
-  showToast('Transactions exported!', 'success');
+  showToast(t('Transactions exported!'), 'success');
 }
 </script>

@@ -3,13 +3,12 @@
   <div class="w-full h-full min-h-0 bg-primary overflow-hidden" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
     <div v-if="isChromeWebStorePage" class="w-full h-full flex-align-justify-center p-32px bg-primary">
       <div class="flex flex-column gap-12px text-center p-24px border-radius-20px border-1 bg-card shadow-xl max-w-520px">
-        <h3 class="m-0px text-18px color-text-primary">Chrome Web Store opens in Lumen Extensions</h3>
+        <h3 class="m-0px text-18px color-text-primary">{{ t('Chrome Web Store opens in Lumen Extensions') }}</h3>
         <p class="m-0px color-text-secondary line-height-15">
-          Lumen fetches Chrome Web Store metadata directly and imports extensions
-          from the internal Extensions page.
+          {{ t('Lumen fetches Chrome Web Store metadata directly and imports extensions from the internal Extensions page.') }}
         </p>
         <button type="button" class="border-none color-white cursor-pointer border-radius-full txt-weight-light bg-accent py-12px px-16px align-self-center" @click="openChromeWebStoreImport">
-          Open Extensions
+          {{ t('Open Extensions') }}
         </button>
       </div>
     </div>
@@ -40,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
  import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
  import { buildExtensionTabUrl, isBrowserUrl, isExtensionUrl } from "../navigationUrl";
  import { useTabLoadingSync } from "../useTabLoading";

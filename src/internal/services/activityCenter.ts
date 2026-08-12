@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import { computed, ref } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { uploadActivities } from '../common/upload';
@@ -93,7 +94,7 @@ function readUploads(): void {
       kind: 'upload',
       status,
       title: String(activity.uploadingFile || 'Upload'),
-      detail: cancelling === 1 ? 'Cancelling…' : 'Uploading to your local node',
+      detail: cancelling === 1 ? 'Cancelling…' : t('Uploading to your local node'),
       percent: percentOrNull(activity.uploadingPercent),
       startedAt: now,
       updatedAt: now,
@@ -123,12 +124,12 @@ function toPinItem(job: RawPinJob): ActivityItem | null {
   const detail =
     String(job?.error || '') ||
     String(job?.progressText || '') ||
-    (retries > 0 ? `Retried ${retries}×` : 'Saving content from the network');
+    (retries > 0 ? `Retried ${retries}×` : t('Saving content from the network'));
   return {
     id: `pin:${id}`,
     kind: 'pin',
     status,
-    title: String(job?.name || job?.target || 'Pinned content'),
+    title: String(job?.name || job?.target || t('Pinned content')),
     detail,
     percent: percentOrNull(job?.progressPercent),
     startedAt: Number(job?.createdAt || 0) || Date.now(),
@@ -171,7 +172,7 @@ function toPropagationItem(payload: RawPropagationProgress): ActivityItem | null
     title: cid,
     detail: total
       ? `${Number(payload?.succeeded || 0)}/${total} public gateways`
-      : 'Contacting public gateways…',
+      : t('Contacting public gateways…'),
     percent: total > 0 ? percentOrNull((completed / total) * 100) : null,
     startedAt: now,
     updatedAt: now,

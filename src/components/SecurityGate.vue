@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { appSettingsState } from "../internal/services/appSettings";
 import { getSecuritySessionTimeoutIdleText } from "../internal/services/securitySessionTimeout";
@@ -37,11 +38,11 @@ const unlockMessage = computed(() => {
   if (!mustUnlock.value) return "";
   if (lockReason.value === "idle") {
     if (!idleLockText.value) {
-      return "Session locked. Enter your password to continue.";
+      return t("Session locked. Enter your password to continue.");
     }
     return `Session locked after ${idleLockText.value}. Enter your password to continue.`;
   }
-  return "Enter your password to unlock the app.";
+  return t("Enter your password to unlock the app.");
 });
 
 async function refreshSecurityStatus() {

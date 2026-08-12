@@ -269,7 +269,7 @@ async function submitSend() {
   if (!canSend.value) return;
   const api: any = useInternalLumen();
   if (!api?.wallet?.sendTokens) {
-    sendError.value = "Wallet API not available.";
+    sendError.value = t("Wallet API not available.");
     return;
   }
   sending.value = true;
@@ -458,12 +458,12 @@ async function submitPin() {
 
   const name = String(saveNameDraft.value || "").trim();
   if (!name) {
-    pinError.value = "Please enter a name.";
+    pinError.value = t("Please enter a name.");
     return;
   }
 
   if (!api?.ipfsPinStart || !api?.ipfsPinWait) {
-    pinError.value = "IPFS API not available.";
+    pinError.value = t("IPFS API not available.");
     return;
   }
   pinning.value = true;
@@ -694,7 +694,7 @@ async function submitStableLink() {
       keyName = stableLinkKeyNameFromLabel(stableLinkNewLabel.value);
       const created = await api?.ipfsKeyGen?.(keyName);
       if (!created?.ok) {
-        stableLinkError.value = String(created?.error || "Could not create stable link.");
+        stableLinkError.value = String(created?.error || t("Could not create stable link."));
         return;
       }
       keyName = String(created.name || keyName);
@@ -707,7 +707,7 @@ async function submitStableLink() {
 
     const saved = await publishStableLinkRecords(keyName);
     if (!saved.ok) {
-      stableLinkError.value = String(saved.error || "Could not attach live records.");
+      stableLinkError.value = String(saved.error || t("Could not attach live records."));
       return;
     }
 
@@ -738,7 +738,7 @@ async function submitStableLinkSetup() {
   try {
     const selected = stableLinks.value.find((item) => item.name === keyName);
     if (!selected?.id) {
-      stableLinkSetupError.value = "Select a live link first.";
+      stableLinkSetupError.value = t("Select a live link first.");
       return;
     }
     const records = await loadStableLinkSetupRecords(selected.id);

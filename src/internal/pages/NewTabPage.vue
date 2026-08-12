@@ -12,7 +12,7 @@
 
     <div class="flex flex-column my-0px mx-auto gap-16px relative z-1 w-min-1040px-full">
       <section class="bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
-        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Search Lumen</div>
+        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">{{ t('Search Lumen') }}</div>
 
         <form class="bg-card-a90 focus-within-shadow-ring-primary-a10 flex-align-center gap-12px border-radius-full border-1-light w-full py-12px px-16px border-color-primary-a50-focus-within mt-12px mx-auto mb-0px" @submit.prevent="submitOmnibox">
           <Search :size="18" class="color-text-tertiary flex-0-0-auto" />
@@ -20,49 +20,48 @@
             v-model="commandInput"
             type="text"
             class="flex-1 border-none outline-none bg-transparent color-text-primary min-w-0 text-16px placeholder-tertiary"
-            placeholder="Search Lumen or enter a URL"
+            :placeholder="t('Search Lumen or enter a URL')"
             spellcheck="false"
             autocapitalize="off"
             autocomplete="off"
-            aria-label="Search Lumen or enter a URL"
+            :aria-label="t('Search Lumen or enter a URL')"
           />
           <UiButton variant="primary" type="submit" class="transition-lift-015">
             <ArrowUpRight :size="15" />
-            <span>Go</span>
+            <span>{{ t('Go') }}</span>
           </UiButton>
         </form>
 
         <div v-if="!hasProfiles" class="color-text-secondary border-radius-16px text-center line-height-14 py-12px px-16px w-full m-0px mt-16px">
-          Create a profile from the top-right menu to unlock Drive, Wallet, and your personal
-          Lumen space.
+          {{ t('Create a profile from the top-right menu to unlock Drive, Wallet, and your personal Lumen space.') }}
         </div>
       </section>
 
       <section class="bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
-        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Discover</div>
+        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">{{ t('Discover') }}</div>
         <div class="flex flex-wrap-wrap gap-12px mt-16px">
           <button type="button" disabled class="disabled-fade-50 flex-align-center gap-8px border-1-light border-radius-full bg-transparent color-text-tertiary text-13px fw-500 py-8px px-16px cursor-not-allowed">
             <Sparkles :size="15" />
-            <span>Recently created (soon)</span>
+            <span>{{ t('Recently created (soon)') }}</span>
           </button>
           <button type="button" disabled class="disabled-fade-50 flex-align-center gap-8px border-1-light border-radius-full bg-transparent color-text-tertiary text-13px fw-500 py-8px px-16px cursor-not-allowed">
             <Flame :size="15" />
-            <span>Trending (soon)</span>
+            <span>{{ t('Trending (soon)') }}</span>
           </button>
           <UiButton variant="primary" type="button" @click="open('lumen://web.lmn/')" class="outline-none border-radius-full">
             <Globe :size="15" />
-            <span>All known websites</span>
+            <span>{{ t('All known websites') }}</span>
           </UiButton>
         </div>
       </section>
 
       <section class="bg-card-a94-shadow-soft border-1-light relative flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
         <div class="flex-align-center flex-justify-space-between gap-16px">
-          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Shortcuts</div>
+          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">{{ t('Shortcuts') }}</div>
 
           <UiButton variant="primary" type="button" @click="beginCreateShortcut" class="outline-none">
             <Plus :size="15" />
-            <span>Add shortcut</span>
+            <span>{{ t('Add shortcut') }}</span>
           </UiButton>
         </div>
 
@@ -90,7 +89,7 @@
             </UiButton>
 
             <div class="absolute top-8px right-8px">
-              <UiButton variant="icon" type="button" title="More actions"
+              <UiButton variant="icon" type="button" :title="t('More actions')"
                 class="newtab-shortcut-menu-trigger bg-card-a92"
                 @click.stop="toggleShortcutMenu(entry.id)">
                 <MoreHorizontal :size="14" />
@@ -100,11 +99,11 @@
                 class="newtab-shortcut-menu absolute p-4px shadow-xl z-100 right-0 top-full mt-4px w-160px">
                 <UiMenuItem @click.stop="beginEditShortcut(entry); openShortcutMenuId = ''">
                   <Pencil :size="14" />
-                  <span>Edit shortcut</span>
+                  <span>{{ t('Edit shortcut') }}</span>
                 </UiMenuItem>
                 <UiMenuItem @click.stop="removeFavouriteById(entry.id); openShortcutMenuId = ''">
                   <Trash2 :size="14" />
-                  <span>Remove shortcut</span>
+                  <span>{{ t('Remove shortcut') }}</span>
                 </UiMenuItem>
               </UiCard>
             </div>
@@ -114,10 +113,9 @@
 
         <div v-if="!renderedFavouriteEntries.length" class="mt-16px border-radius-20px py-12px px-16px bg-black-a02 border-1-dashed-color">
           <div>
-            <h3 class="color-text-primary mt-4px letter-spacing-n002">No shortcuts yet</h3>
+            <h3 class="color-text-primary mt-4px letter-spacing-n002">{{ t('No shortcuts yet') }}</h3>
             <p class="color-text-secondary mt-8px line-height-15">
-              Star a page from the address bar or create a custom shortcut here. Favourite
-              shortcuts stay first.
+              {{ t('Star a page from the address bar or create a custom shortcut here. Favourite shortcuts stay first.') }}
             </p>
           </div>
         </div>
@@ -128,11 +126,11 @@
         class="bg-card-a94-shadow-soft pt-16px pb-16px border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16"
       >
         <div class="flex-align-center flex-justify-space-between gap-16px">
-          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">Recent</div>
+          <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">{{ t('Recent') }}</div>
 
           <UiButton variant="primary" type="button" @click="open('lumen://history')" class="outline-none">
             <History :size="15" />
-            <span>Open history</span>
+            <span>{{ t('Open history') }}</span>
           </UiButton>
         </div>
 
@@ -154,6 +152,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiMenuItem from '../../ui/UiMenuItem.vue';
@@ -292,7 +291,7 @@ function normalizeShortcutUrl(rawUrl: string): string {
 function submitShortcutModal() {
   const nextUrl = normalizeShortcutUrl(shortcutDraft.url);
   if (!String(nextUrl || "").trim()) {
-    shortcutError.value = "Please enter a valid URL or Lumen page.";
+    shortcutError.value = t("Please enter a valid URL or Lumen page.");
     return;
   }
 
@@ -303,7 +302,7 @@ function submitShortcutModal() {
       pinned: shortcutDraft.pinned,
     });
     if (!result.ok) {
-      shortcutError.value = "Unable to add this shortcut.";
+      shortcutError.value = t("Unable to add this shortcut.");
       return;
     }
     closeShortcutModal();
@@ -317,14 +316,14 @@ function submitShortcutModal() {
   if (!updateResult.ok) {
     shortcutError.value =
       updateResult.error === "duplicate_url"
-        ? "A shortcut with this URL already exists."
-        : "Unable to update this shortcut.";
+        ? t("A shortcut with this URL already exists.")
+        : t("Unable to update this shortcut.");
     return;
   }
 
   const pinResult = setFavouritePinned(editingShortcutId.value, shortcutDraft.pinned);
   if (!pinResult.ok) {
-    shortcutError.value = "Unable to update the favourite state.";
+    shortcutError.value = t("Unable to update the favourite state.");
     return;
   }
 

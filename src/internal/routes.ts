@@ -1,3 +1,4 @@
+import { t } from '../stores/i18nStore';
 import HomePage from './pages/HomePage.vue';
 import SearchPage from './pages/SearchPage.vue';
 import SettingsPage from './pages/SettingsPage.vue';
@@ -24,7 +25,7 @@ import { truncateMiddle } from './services/format';
 import type { InternalRoute } from '../types/routes';
 
 const INTERNAL_ROUTES: Record<string, InternalRoute> = {
-  newtab: { component: NewTabPage, title: 'New tab' },
+  newtab: { component: NewTabPage, title: t('New tab') },
   history: { component: HistoryPage, title: 'History' },
   home: { component: HomePage, title: 'Home' },
   search: { component: SearchPage, title: 'Search' },
@@ -39,11 +40,11 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   extension: { component: ExtensionPage, title: 'Extension' },
   network: { component: NetworkPage, title: 'Network' },
   gateways: { component: GatewaysPage, title: 'Gateways' },
-  'my-gateways': { component: MyGatewaysPage, title: 'My Gateways' },
-  block: { component: BlockDetailPage, title: 'Block Details' },
-  transaction: { component: TransactionDetailPage, title: 'Transaction Details' },
-  tx: { component: TransactionDetailPage, title: 'Transaction Details' },
-  address: { component: AddressDetailPage, title: 'Address Details' },
+  'my-gateways': { component: MyGatewaysPage, title: t('My Gateways') },
+  block: { component: BlockDetailPage, title: t('Block Details') },
+  transaction: { component: TransactionDetailPage, title: t('Transaction Details') },
+  tx: { component: TransactionDetailPage, title: t('Transaction Details') },
+  address: { component: AddressDetailPage, title: t('Address Details') },
   release: { component: ReleasePage, title: 'Release' },
   help: { component: HelpPage, title: 'Help' }
 };
@@ -114,7 +115,7 @@ export function getInternalTitle(rawUrl: string): string {
       const u = new URL(asString);
       return (u.hostname || asString).trim();
     } catch {
-      return asString || 'New tab';
+      return asString || t('New tab');
     }
   }
   const key = parseInternalKey(rawUrl);

@@ -1,38 +1,38 @@
 <template>
   <UiDialog
     :model-value="modelValue"
-    confirm-label="Approve and sign"
+    :confirm-label="t('Approve and sign')"
     confirm-variant="danger"
-    cancel-label="Reject"
+    :cancel-label="t('Reject')"
     @update:model-value="$emit('close')"
     @confirm="$emit('confirm')"
   >
     <template #header>
-      <UiModalHeader title="A site is asking your wallet to sign" badge-class="bg-fill-error color-error size-32px">
+      <UiModalHeader :title="t('A site is asking your wallet to sign')" badge-class="bg-fill-error color-error size-32px">
         <template #icon><ShieldAlert :size="18" /></template>
       </UiModalHeader>
     </template>
 
     <UiBanner variant="error" class="mb-16px">
-      Signing authorises this action with your keys. Only approve it if you started it yourself, on a
-      site you trust.
+      {{ t('Signing authorises this action with your keys. Only approve it if you started it yourself, on a site you trust.') }}
     </UiBanner>
 
-    <UiDetailRow variant="modal" label="Site" :value="siteLabel || 'Unknown site'" />
-    <UiDetailRow variant="modal" label="Requested" :value="operationLabel" />
-    <UiDetailRow v-if="chainId" variant="modal" label="Chain" :value="chainId" />
-    <UiDetailRow v-if="signerAddress" variant="modal" label="Signing as">
+    <UiDetailRow variant="modal" :label="t('Site')" :value="siteLabel || 'Unknown site'" />
+    <UiDetailRow variant="modal" :label="t('Requested')" :value="operationLabel" />
+    <UiDetailRow v-if="chainId" variant="modal" :label="t('Chain')" :value="chainId" />
+    <UiDetailRow v-if="signerAddress" variant="modal" :label="t('Signing as')">
       <AddressLabel :address="signerAddress" tone-class="color-text-primary text-12px" />
     </UiDetailRow>
 
     <div v-if="details" class="mt-12px">
-      <span class="text-11px color-text-tertiary">What will be signed</span>
+      <span class="text-11px color-text-tertiary">{{ t('What will be signed') }}</span>
       <pre class="text-11px color-text-secondary mono overflow-auto max-h-200px m-0px mt-4px p-8px border-radius-8px bg-card">{{ details }}</pre>
     </div>
   </UiDialog>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed } from 'vue';
 import { ShieldAlert } from 'lucide-vue-next';
 import UiDialog from '../ui/UiDialog.vue';
@@ -67,11 +67,11 @@ const props = defineProps<{
 defineEmits<{ (e: 'close'): void; (e: 'confirm'): void }>();
 
 const OPERATION_LABELS: Record<string, string> = {
-  signAmino: 'Sign a transaction (Amino)',
-  signDirect: 'Sign a transaction (Direct)',
-  signArbitrary: 'Sign a message',
-  sendTx: 'Broadcast a signed transaction',
-  sendTransaction: 'Send tokens',
+  signAmino: t('Sign a transaction (Amino)'),
+  signDirect: t('Sign a transaction (Direct)'),
+  signArbitrary: t('Sign a message'),
+  sendTx: t('Broadcast a signed transaction'),
+  sendTransaction: t('Send tokens'),
 };
 
 const operationLabel = computed(

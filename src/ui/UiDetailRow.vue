@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<{
   /**
    * grid: Address/TransactionDetailPage's grid-cols-180-1fr style (default).
    * flex: BlockDetailPage's flex/fixed-180px style.
-   * compact: SubscriptionsView's tight, borderless, no-hover style.
+   * compact: SubscriptionsPanel's tight, borderless, no-hover style.
    * baseline: LumenSiteModalHost's small permission-summary rows (11px/12px
    * label, baseline-aligned, no border/hover - a modal detail, not a list row).
    * modal: DrivePage's info-modal rows (Local/Gateway details, backup

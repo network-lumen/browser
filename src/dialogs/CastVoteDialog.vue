@@ -1,5 +1,5 @@
 <template>
-  <UiModal :model-value="modelValue" title="Cast Your Vote" panel-class="w-full max-w-520px" @update:model-value="$emit('update:modelValue', false)">
+  <UiModal :model-value="modelValue" :title="t('Cast Your Vote')" panel-class="w-full max-w-520px" @update:model-value="$emit('update:modelValue', false)">
     <div class="flex-align-center flex-justify-space-between mb-24px border-radius-12px p-24px bg-gradient-primary">
       <h4 class="m-0px txt-weight-light text-18px color-white">{{ selectedProposal?.title || 'Proposal' }}</h4>
       <span class="border-radius-20px fw-500 text-12px py-4px px-12px color-text-primary bg-primary border-1">#{{ selectedProposal?.id }}</span>
@@ -13,8 +13,8 @@
             <ThumbsUp :size="20" />
           </div>
           <div>
-            <div class="color-text-primary txt-weight-light text-15px mb-4px">Yes</div>
-            <div class="color-text-secondary text-13px">Support this proposal</div>
+            <div class="color-text-primary txt-weight-light text-15px mb-4px">{{ t('Yes') }}</div>
+            <div class="color-text-secondary text-13px">{{ t('Support this proposal') }}</div>
           </div>
         </UiCard>
       </label>
@@ -26,8 +26,8 @@
             <ThumbsDown :size="20" />
           </div>
           <div>
-            <div class="color-text-primary txt-weight-light text-15px mb-4px">No</div>
-            <div class="color-text-secondary text-13px">Oppose this proposal</div>
+            <div class="color-text-primary txt-weight-light text-15px mb-4px">{{ t('No') }}</div>
+            <div class="color-text-secondary text-13px">{{ t('Oppose this proposal') }}</div>
           </div>
         </UiCard>
       </label>
@@ -39,8 +39,8 @@
             <CircleAlert :size="20" />
           </div>
           <div>
-            <div class="color-text-primary txt-weight-light text-15px mb-4px">No With Veto</div>
-            <div class="color-text-secondary text-13px">Oppose strongly, flag as spam/harmful</div>
+            <div class="color-text-primary txt-weight-light text-15px mb-4px">{{ t('No With Veto') }}</div>
+            <div class="color-text-secondary text-13px">{{ t('Oppose strongly, flag as spam/harmful') }}</div>
           </div>
         </UiCard>
       </label>
@@ -52,8 +52,8 @@
             <Circle :size="20" />
           </div>
           <div>
-            <div class="color-text-primary txt-weight-light text-15px mb-4px">Abstain</div>
-            <div class="color-text-secondary text-13px">No preference</div>
+            <div class="color-text-primary txt-weight-light text-15px mb-4px">{{ t('Abstain') }}</div>
+            <div class="color-text-secondary text-13px">{{ t('No preference') }}</div>
           </div>
         </UiCard>
       </label>
@@ -61,12 +61,13 @@
 
     <UiButton variant="primary" @click="$emit('submit')" :disabled="!option || isVoting">
       <Vote :size="18" />
-      {{ isVoting ? 'Casting…' : 'Cast Vote' }}
+      {{ isVoting ? t('Casting…') : t('Cast Vote') }}
     </UiButton>
   </UiModal>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiCard from '../ui/UiCard.vue';
 import UiButton from '../ui/UiButton.vue';

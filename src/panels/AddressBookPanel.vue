@@ -1,20 +1,20 @@
 <template>
   <div class="flex flex-column gap-24px w-full max-w-full">
-    <UiEmptyState v-if="loading" class="mt-32px" title="Loading contacts…">
+    <UiEmptyState v-if="loading" class="mt-32px" :title="t('Loading contacts…')">
       <Users :size="32" />
     </UiEmptyState>
 
     <UiEmptyState
       v-else-if="!contacts.length"
       class="mt-32px"
-      title="No Contacts Yet"
-      description="Add addresses you frequently send to for quick access."
+      :title="t('No Contacts Yet')"
+      :description="t('Add addresses you frequently send to for quick access.')"
     >
       <Users :size="32" />
       <template #actions>
         <UiButton variant="primary" @click="$emit('add')">
           <Plus :size="16" />
-          <span>Add First Contact</span>
+          <span>{{ t('Add First Contact') }}</span>
         </UiButton>
       </template>
     </UiEmptyState>
@@ -38,19 +38,19 @@
         <div class="flex flex-wrap-wrap gap-8px">
           <UiButton variant="secondary" @click="$emit('send', contact)">
             <Send :size="16" />
-            <span>Send</span>
+            <span>{{ t('Send') }}</span>
           </UiButton>
           <UiButton variant="secondary" @click="copyToClipboardWithToast(contact.address)">
             <Copy :size="16" />
-            <span>Copy</span>
+            <span>{{ t('Copy') }}</span>
           </UiButton>
           <UiButton variant="secondary" @click="$emit('edit', contact)">
             <Edit :size="16" />
-            <span>Edit</span>
+            <span>{{ t('Edit') }}</span>
           </UiButton>
           <UiButton variant="secondary" @click="$emit('delete', contact)" class="hover-bg-fill-error">
             <Trash2 :size="16" />
-            <span>Delete</span>
+            <span>{{ t('Delete') }}</span>
           </UiButton>
         </div>
       </div>
@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { Copy, Edit, Plus, Send, Trash2, Users } from 'lucide-vue-next';
 import UiButton from '../ui/UiButton.vue';
 import UiEmptyState from '../ui/UiEmptyState.vue';

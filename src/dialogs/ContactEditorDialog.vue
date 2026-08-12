@@ -1,7 +1,7 @@
 <template>
   <UiModal :model-value="modelValue" panel-class="walletpage-contact-modal w-full max-w-500px" @update:model-value="$emit('update:modelValue', false)">
     <template #header>
-      <UiModalHeader :title="editing ? 'Edit Contact' : 'Add Contact'">
+      <UiModalHeader :title="editing ? t('Edit Contact') : t('Add Contact')">
         <template #icon><Users :size="20" /></template>
       </UiModalHeader>
     </template>
@@ -11,12 +11,13 @@
     <UiButton variant="primary" class="disabled-fade-50 mt-12px" :disabled="!form.name || !form.address || saving" @click="$emit('submit')">
       <Check v-if="!saving" :size="18" />
       <UiSpinner v-else size="sm" class="spinner-color-white" />
-      <span>{{ saving ? 'Saving...' : (editing ? 'Update Contact' : 'Add Contact') }}</span>
+      <span>{{ saving ? 'Saving...' : (editing ? t('Update Contact') : t('Add Contact')) }}</span>
     </UiButton>
   </UiModal>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiButton from '../ui/UiButton.vue';

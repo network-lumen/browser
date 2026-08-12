@@ -1,7 +1,7 @@
 <template>
     <UiDialog
     :model-value="modelValue"
-    title="Send to DAO"
+    :title="t('Send to DAO')"
     panel-class="w-min-900px-96vw"
     :busy="busy"
     :confirm-disabled="busy"
@@ -9,12 +9,13 @@
     @confirm="$emit('submit')"
   >
     <DaoProposalFields :form="form" />
-    <template #confirm><span v-if="busy" class="flex-inline-align-center gap-8px"><UiSpinner size="sm" /> Sending…</span>
-          <span v-else>Broadcast proposal</span></template>
+    <template #confirm><span v-if="busy" class="flex-inline-align-center gap-8px"><UiSpinner size="sm" /> {{ t('Sending…') }}</span>
+          <span v-else>{{ t('Broadcast proposal') }}</span></template>
 </UiDialog>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiDialog from '../ui/UiDialog.vue';
 import DaoProposalFields from '../forms/DaoProposalFields.vue';
 import UiSpinner from '../ui/UiSpinner.vue';

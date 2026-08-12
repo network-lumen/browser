@@ -77,7 +77,7 @@ async function bootSequence() {
 
   phase.value = 'error';
   if (!errorText.value) {
-    errorText.value = 'IPFS daemon not reachable.';
+    errorText.value = t('IPFS daemon not reachable.');
   }
 }
 

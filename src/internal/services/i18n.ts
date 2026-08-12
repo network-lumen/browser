@@ -62,6 +62,23 @@ export function interpolate(text: string, params?: MessageParams): string {
   );
 }
 
+/**
+ * Marks a string in a data table as translatable without translating it here.
+ *
+ * A module-level `const` is built once, at import, so calling `t()` in one
+ * freezes whatever language was active then - the table would keep its first
+ * language for the rest of the session. The fix is to translate where the value
+ * is rendered, but then the English never appears inside a `t()` and
+ * `npm run i18n:extract` cannot see it, so it ships untranslated instead.
+ *
+ * This is the gettext `N_()` idiom: it returns its argument unchanged and
+ * exists only so the extractor has something to find. Use it in the table, and
+ * `t()` at the point of display.
+ */
+export function markForTranslation(text: string): string {
+  return text;
+}
+
 export function translate(catalog: MessageCatalog, key: string, params?: MessageParams): string {
   const source = String(key ?? '');
   const translated = catalog?.[source];

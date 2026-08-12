@@ -1,12 +1,12 @@
 <template>
   <!-- ####### lumen://history HISTORY ####### -->
   <div class="internal-page flex">
-    <InternalSidebar title="History" :icon="HistoryIcon" activeKey="history" />
+    <InternalSidebar :title="t('History')" :icon="HistoryIcon" activeKey="history" />
 
     <main class="flex-1 min-w-0 min-h-0 p-20px flex flex-column gap-16px overflow-y-auto">
       <header class="flex-align-center-justify-space-between gap-16px flex-justify-space-between border-default bg-card shadow-sm border-radius-24px py-20px px-20px">
         <div>
-          <h1 class="color-text-primary m-0px text-clamp-18-4vw-28rem">History</h1>
+          <h1 class="color-text-primary m-0px text-clamp-18-4vw-28rem">{{ t('History') }}</h1>
         </div>
 
         <div class="flex-align-center gap-10px flex-wrap-wrap">
@@ -27,7 +27,7 @@
             @click="clearAllHistory"
           >
             <Trash2 :size="15" />
-            <span>Clear history</span>
+            <span>{{ t('Clear history') }}</span>
           </button>
         </div>
       </header>
@@ -38,7 +38,7 @@
           <input
             v-model="query"
             type="text"
-            placeholder="Search history"
+            :placeholder="t('Search history')"
             spellcheck="false"
             autocomplete="off"
             class="flex-1 min-w-0 border-none outline-none bg-transparent color-text-primary text-15px placeholder-tertiary"
@@ -47,7 +47,7 @@
       </section>
 
       <div v-if="!historyEnabled" class="color-text-secondary border-radius-16px py-12px px-16px bg-warning-a08 border-1-warning-a15">
-        New pages are no longer saved for this profile. Existing history stays available until you clear it.
+        {{ t('New pages are no longer saved for this profile. Existing history stays available until you clear it.') }}
       </div>
 
       <div v-if="groupedEntries.length" class="flex flex-column gap-12px">
@@ -77,7 +77,7 @@
                   icon-radius-class="border-radius-10px"
                   icon-padding-class=""
                   class="color-text-tertiary h-32px w-32px flex-inline-align-justify-center transition-all-fast hover-color-error hover-bg-fill-error"
-                  title="Remove from history"
+                  :title="t('Remove from history')"
                   @click.stop="removeHistoryEntry(entry.id)"
                 >
                   <Trash2 :size="14" />
@@ -97,11 +97,11 @@
                 type="button"
                 @click="setHistoryEnabled(true)" class="border-radius-10px border-1 bg-fill-success color-success text-12px line-height-12 py-12px px-20px hover-bg-hover">
                 <Power :size="15" />
-                <span>Turn on history</span>
+                <span>{{ t('Turn on history') }}</span>
               </UiButton>
               <UiButton variant="primary" type="button" @click="openNewTab">
                 <ArrowUpRight :size="14" />
-                <span>Open new tab</span>
+                <span>{{ t('Open new tab') }}</span>
               </UiButton>
             </template>
           </UiEmptyState>
@@ -112,6 +112,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
@@ -178,19 +179,19 @@ const groupedEntries = computed(() => {
 });
 
 const emptyTitle = computed(() => {
-  if (!historyEnabled.value) return "History is off";
-  if (query.value.trim()) return "No matching history";
-  return "No history yet";
+  if (!historyEnabled.value) return t("History is off");
+  if (query.value.trim()) return t("No matching history");
+  return t("No history yet");
 });
 
 const emptyCopy = computed(() => {
   if (!historyEnabled.value) {
-    return "Turn history back on for this profile when you want Lumen to remember recent pages again.";
+    return t("Turn history back on for this profile when you want Lumen to remember recent pages again.");
   }
   if (query.value.trim()) {
-    return "Try a broader term or clear the current search.";
+    return t("Try a broader term or clear the current search.");
   }
-  return "Visited web pages, domains, IPFS, and IPNS content will appear here automatically.";
+  return t("Visited web pages, domains, IPFS, and IPNS content will appear here automatically.");
 });
 
 function openEntry(url: string) {
@@ -207,7 +208,7 @@ function toggleHistoryMode() {
 
 function clearAllHistory() {
   if (!historyEntries.value.length) return;
-  const confirmed = window.confirm("Clear the saved browsing history for this profile?");
+  const confirmed = window.confirm(t("Clear the saved browsing history for this profile?"));
   if (!confirmed) return;
   clearHistory();
 }

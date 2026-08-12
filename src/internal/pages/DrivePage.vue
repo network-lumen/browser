@@ -2,12 +2,12 @@
   <!-- ####### lumen://drive DRIVE ####### -->
   <div class="internal-page flex">
     <!-- ####### lumen://drive SIDEBAR ####### -->
-    <InternalSidebar title="Drive" :icon="Cloud" activeKey="drive">
+    <InternalSidebar :title="t('Drive')" :icon="Cloud" activeKey="drive">
       <!-- Hosting -->
       <div class="flex flex-column gap-6px mt-12px">
         <div class="flex-align-center gap-8px color-text-secondary text-uppercase mb-12px text-11px letter-spacing-005em">
           <Database :size="14" />
-          <span>Storage</span>
+          <span>{{ t('Storage') }}</span>
         </div>
 
         <div class="hover-active-bg-primary-a10-border-a20 transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent" :class="{ active: hosting.kind === 'local' }">
@@ -17,11 +17,11 @@
               class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-error shadow-0-0-0-error-a0"
               :class="ipfsConnected ? 'status-dot-ok' : 'status-dot-off'"
             ></span>
-            <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary truncate">Local</span>
+            <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary truncate">{{ t('Local') }}</span>
           </UiButton>
           <UiButton variant="icon" icon-radius-class="border-radius-10px"
             @click.stop="openLocalDetails"
-            title="Local details" class="hover-border-primary-a15 flex-inline-align-justify-center size-32px">
+            :title="t('Local details')" class="hover-border-primary-a15 flex-inline-align-justify-center size-32px">
             <TableProperties :size="16" />
           </UiButton>
         </div>
@@ -29,15 +29,15 @@
         <div class="h-1px bg-border m-0px mt-16px mr-4px mb-12px ml-4px"></div>
 
         <div class="flex-align-center-justify-space-between mt-4px">
-          <span class="txt-weight-medium color-text-tertiary text-uppercase text-11px letter-spacing-005em">Subscriptions</span>
+          <span class="txt-weight-medium color-text-tertiary text-uppercase text-11px letter-spacing-005em">{{ t('Subscriptions') }}</span>
           <UiButton variant="none" type="button"
             @click="openPlansModal" class="bg-transparent border-none cursor-pointer color-primary text-11px fw-500 py-4px px-8px border-radius-10px hover-bg-primary-a15">
-            Cloud
+            {{ t('Cloud') }}
           </UiButton>
         </div>
 
         <div v-if="!subscriptionRows.length" class="border-radius-12px text-12px color-text-tertiary mt-8px bg-transparent py-12px px-16px border-1-dashed-light">
-          No active subscriptions yet.
+          {{ t('No active subscriptions yet.') }}
         </div>
 
         <div
@@ -67,7 +67,7 @@
           </UiButton>
           <UiButton variant="icon" icon-radius-class="border-radius-10px"
             @click.stop="openGatewayDetails(sub.gatewayId)"
-            title="Subscription details" class="hover-border-primary-a15 flex-inline-align-justify-center size-32px">
+            :title="t('Subscription details')" class="hover-border-primary-a15 flex-inline-align-justify-center size-32px">
             <TableProperties :size="16" />
           </UiButton>
         </div>
@@ -79,7 +79,7 @@
           @click="openSiteDataModal" class="flex-align-center-justify-space-between gap-8px bg-transparent border-none cursor-pointer text-left py-4px px-0px hover-color-primary">
           <span class="flex-align-center gap-8px color-text-secondary text-uppercase text-11px letter-spacing-005em">
             <Globe :size="14" />
-            <span>Sites data</span>
+            <span>{{ t('Sites data') }}</span>
           </span>
           <UiTag v-if="siteDataRecords.length" variant="neutral">{{ siteDataRecords.length }}</UiTag>
         </UiButton>
@@ -92,20 +92,20 @@
         <template #actions>
           <UiButton variant="secondary" type="button" @click="openPlansModal">
             <Database :size="16" />
-            <span>Cloud</span>
+            <span>{{ t('Cloud') }}</span>
           </UiButton>
 
           <div class="inline-flex relative" @click.stop>
             <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="hover-bg-gradient-accent-secondary-lift shadow-primary">
               <Plus :size="18" />
-              <span>Upload</span>
+              <span>{{ t('Upload') }}</span>
             </UiButton>
             <div v-if="showUploadMenu" class="top-calc-100pct-05rem border-radius-12px absolute bg-primary border-1 p-4px z-100 right-0 min-w-190px shadow-lg" @click.stop>
               <UiMenuItem @click="openFilePicker">
-                Upload files
+                {{ t('Upload files') }}
               </UiMenuItem>
               <UiMenuItem @click="openFolderPicker">
-                Upload folder
+                {{ t('Upload folder') }}
               </UiMenuItem>
             </div>
           </div>
@@ -117,8 +117,8 @@
           <AlertTriangle :size="20" />
         </div>
         <div class="flex flex-column flex-1 gap-4px">
-          <strong class="text-14px txt-weight-light color-text-primary">Privacy Notice:</strong>
-          <span class="text-14px color-text-secondary line-height-14">Everything uploaded on Lumen is public. Don't upload personal files.</span>
+          <strong class="text-14px txt-weight-light color-text-primary">{{ t('Privacy Notice:') }}</strong>
+          <span class="text-14px color-text-secondary line-height-14">{{ t('Everything uploaded on Lumen is public. Don\'t upload personal files.') }}</span>
         </div>
       </div>
 
@@ -130,7 +130,7 @@
             v-model="searchQuery"
             type="text"
             class="flex-1 border-none bg-transparent text-14px color-text-primary outline-none min-w-0 placeholder-tertiary"
-            placeholder="Search files..."
+            :placeholder="t('Search files...')"
             @input="currentPage = 1"
           />
           <UiButton variant="icon" v-if="searchQuery" @click="searchQuery = ''; currentPage = 1" class="color-error hover-bg-error-a10-color-error">
@@ -138,18 +138,18 @@
           </UiButton>
         </div>
         <div class="flex-align-center gap-12px">
-          <span class="color-text-secondary text-13px nowrap">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? 'file' : 'files' }}</span>
+          <span class="color-text-secondary text-13px nowrap">{{ filteredFiles.length }} {{ filteredFiles.length === 1 ? t('file') : t('files') }}</span>
           <select v-model="itemsPerPage" class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-primary focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
-            <option :value="10">10 per page</option>
-            <option :value="20">20 per page</option>
-            <option :value="50">50 per page</option>
-            <option :value="100">100 per page</option>
+            <option :value="10">{{ t('10 per page') }}</option>
+            <option :value="20">{{ t('20 per page') }}</option>
+            <option :value="50">{{ t('50 per page') }}</option>
+            <option :value="100">{{ t('100 per page') }}</option>
           </select>
         </div>
       </div>
 
       <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="bg-gradient-panel flex-align-center flex-wrap-wrap mb-16px gap-12px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'ring-primary-a10 border-color-primary-a30': selectedLocalCount > 0 }">
-        <UiCheckbox boxed title="Select visible entries" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
+        <UiCheckbox boxed :title="t('Select visible entries')" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
         <div class="flex flex-column gap-2px min-w-0">
           <strong class="text-14px color-text-primary">{{ selectedLocalCount }} selected</strong>
           <span class="text-12px color-text-secondary" v-if="canBulkConvertSelectedLocal">
@@ -160,18 +160,18 @@
           <UiButton variant="secondary" type="button"
             :disabled="!selectedLocalCount"
             @click="clearLocalSelection" class="disabled-fade-50">
-            Clear
+            {{ t('Clear') }}
           </UiButton>
           <UiButton variant="primary" v-if="canBulkConvertSelectedLocal"
             type="button"
             @click="convertSelectedLocalToHls" class="disabled-fade-50">
-            Convert to HLS
+            {{ t('Convert to HLS') }}
             <UiCountPill v-if="selectedLocalConvertibleCount" :count="selectedLocalConvertibleCount" pill-class="h-24px color-white txt-weight-medium text-12px bg-black-a35 p-0px pr-4px pl-4px min-w-24px" />
           </UiButton>
           <UiButton variant="danger" type="button"
             :disabled="!canBulkRemoveSelectedLocal"
             @click="removeSelectedLocalFiles" class="disabled-fade-50">
-            Remove selected
+            {{ t('Remove selected') }}
           </UiButton>
         </div>
       </div>
@@ -179,7 +179,7 @@
       <!-- Breadcrumb (folders) -->
       <div v-if="isBrowsing" class="flex-align-center gap-12px mb-12px p-0px pt-8px pb-8px">
         <UiButton variant="secondary" type="button" @click="exitBrowse">
-          Back
+          {{ t('Back') }}
         </UiButton>
         <div class="flex-align-center flex-wrap-wrap gap-6px min-w-0">
           <UiButton variant="ghost" type="button" @click="exitBrowse" class="hover-color-accent nowrap">
@@ -241,7 +241,7 @@
               >Converting {{ convertingFile }}</span
             >
             <span class="text-11px line-height-12 color-text-tertiary"
-              >Warning: this can take a while.</span
+              >{{ t('Warning: this can take a while.') }}</span
             >
             <span class="text-11px line-height-12 color-text-tertiary">
               {{ convertingStatusText }}
@@ -273,7 +273,7 @@
       <div v-if="hlsQueueVisible" class="bg-gradient-panel flex flex-column gap-12px mb-16px p-16px border-radius-14px border-1 shadow-sm">
         <div class="flex-align-start gap-16px flex-justify-space-between">
           <div class="flex flex-column gap-2px min-w-0">
-            <strong class="text-14px color-text-primary">HLS queue</strong>
+            <strong class="text-14px color-text-primary">{{ t('HLS queue') }}</strong>
             <span class="text-12px color-text-secondary">{{ hlsQueueSummary() }}</span>
           </div>
           <div class="flex-inline-align-center flex-wrap-wrap gap-8px flex-justify-end">
@@ -288,7 +288,7 @@
               type="button"
               @click="resumeHlsQueue" class="hover-border-color-accent-enabled disabled-fade-50">
               <Play :size="14" />
-              <span>Resume</span>
+              <span>{{ t('Resume') }}</span>
             </UiButton>
             <UiButton variant="secondary" type="button"
               @click="clearHlsQueue"
@@ -359,12 +359,12 @@
         <!-- List Header -->
         <div class="sticky flex-align-center gap-12px txt-weight-light text-uppercase color-text-secondary py-12px px-16px bg-secondary border-bottom-1 text-11px letter-spacing-005em top-0 z-1">
           <div v-if="canUseLocalMultiSelect" class="flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px">
-            <UiCheckbox boxed title="Select visible entries" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
+            <UiCheckbox boxed :title="t('Select visible entries')" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
           </div>
           <div class="size-32px flex-shrink-0"></div>
-          <span class="flex-1 min-w-0">Name</span>
-          <span class="w-80px text-right min-w-80px">Size</span>
-          <span class="text-right truncate min-w-180px w-180px">Date Added</span>
+          <span class="flex-1 min-w-0">{{ t('Name') }}</span>
+          <span class="w-80px text-right min-w-80px">{{ t('Size') }}</span>
+          <span class="text-right truncate min-w-180px w-180px">{{ t('Date Added') }}</span>
           <div class="min-w-160px w-160px"></div>
         </div>
         <!-- List Items -->
@@ -391,12 +391,12 @@
       <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="flex-align-justify-center flex-wrap-wrap gap-8px mt-8px p-0px pt-16px pb-16px">
         <UiButton variant="none" :disabled="currentPage === 1"
           @click="currentPage = 1"
-          title="First page" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
+          :title="t('First page')" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
           <ChevronsLeft :size="16" />
         </UiButton>
         <UiButton variant="none" :disabled="currentPage === 1"
           @click="currentPage--"
-          title="Previous page" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
+          :title="t('Previous page')" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
           <ChevronLeft :size="16" />
         </UiButton>
 
@@ -416,12 +416,12 @@
 
         <UiButton variant="none" :disabled="currentPage === totalPages"
           @click="currentPage++"
-          title="Next page" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
+          :title="t('Next page')" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
           <ChevronRight :size="16" />
         </UiButton>
         <UiButton variant="none" :disabled="currentPage === totalPages"
           @click="currentPage = totalPages"
-          title="Last page" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
+          :title="t('Last page')" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
           <ChevronsRight :size="16" />
         </UiButton>
 
@@ -434,14 +434,14 @@
         v-else-if="!showSavedListSpinner && !browseLoading && filteredFiles.length === 0"
         class="flex-1"
         icon-size="80px"
-        :title="isBrowsing ? 'Empty folder' : 'No saved content'"
-        :description="isBrowsing ? 'This folder has no entries.' : 'Click Upload to add files'"
+        :title="isBrowsing ? t('Empty folder') : t('No saved content')"
+        :description="isBrowsing ? t('This folder has no entries.') : t('Click Upload to add files')"
       >
         <Cloud :size="64" stroke-width="1" />
         <template #actions>
           <UiButton variant="primary" type="button" @click="openFilePicker" class="hover-bg-gradient-accent-secondary-lift shadow-primary">
             <Upload :size="20" />
-            <span>Choose files to upload</span>
+            <span>{{ t('Choose files to upload') }}</span>
           </UiButton>
         </template>
       </UiEmptyState>
@@ -468,20 +468,20 @@
 
       <div class="flex flex-column gap-16px mb-20px">
         <div class="flex flex-column gap-4px">
-          <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">Name</span>
+          <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Name') }}</span>
           <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" padding-class="py-8px px-10px" :focus-ring="false" v-if="canRenameSelected"
             v-model.trim="renameDraft"
-            placeholder="Unknown"
+            :placeholder="t('Unknown')"
             @keyup.enter="saveSelectedName"
             @blur="saveSelectedName" class="fw-500 text-13px focus-outline-none focus-ring focus-bg-primary focus-shadow" />
           <span v-else class="color-text-primary fw-500 text-13px">{{ selectedFile.name }}</span>
         </div>
         <div class="flex flex-column gap-4px">
-          <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">Size</span>
+          <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Size') }}</span>
           <span class="color-text-primary fw-500 text-13px">{{ formatSize(selectedFile.size) }}</span>
         </div>
         <div class="flex flex-column gap-4px" v-if="selectedFile.uploadedAt">
-          <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">Added</span>
+          <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Added') }}</span>
           <span class="color-text-primary fw-500 text-13px">{{
             formatDate(selectedFile.uploadedAt)
           }}</span>
@@ -492,22 +492,22 @@
         <UiButton variant="primary" v-if="!isDirEntry(selectedFile)"
           @click="downloadFile(selectedFile)">
           <Download :size="16" />
-          Download
+          {{ t('Download') }}
         </UiButton>
         <UiButton variant="secondary" v-if="!isDirEntry(selectedFile) && isVideoFile(selectedFile.name)"
           :disabled="converting || uploading"
           @click="convertSelectedToHls"
-          title="Convert to HLS (creates a new CID)">
+          :title="t('Convert to HLS (creates a new CID)')">
           <Clapperboard :size="16" />
-          Convert to HLS
+          {{ t('Convert to HLS') }}
         </UiButton>
         <UiButton variant="secondary" @click="copyLumenLinkFor(selectedFile)">
           <Share2 :size="16" />
-          Share
+          {{ t('Share') }}
         </UiButton>
         <UiButton variant="secondary" @click="openInIpfs(selectedFile)">
           <ExternalLink :size="16" />
-          Open
+          {{ t('Open') }}
         </UiButton>
       </div>
     </aside>
@@ -537,6 +537,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 
@@ -757,16 +758,16 @@ const showUploadMenu = ref(false);
 const toastApi = useToast();
 
 const convertingStatusLabel = computed(() => {
-  if (convertingPauseRequested.value) return "Pausing…";
-  if (convertingCanceling.value) return "Cancelling…";
+  if (convertingPauseRequested.value) return t("Pausing…");
+  if (convertingCanceling.value) return t("Cancelling…");
   if (convertingStage.value === "downloading")
-    return "Downloading source video from IPFS…";
-  if (convertingStage.value === "probing") return "Inspecting source video…";
+    return t("Downloading source video from IPFS…");
+  if (convertingStage.value === "probing") return t("Inspecting source video…");
   if (convertingStage.value === "extracting-audio")
-    return "Preparing audio track…";
-  if (convertingStage.value === "adding") return "Adding HLS files to IPFS…";
-  if (convertingStage.value === "done") return "Finalizing…";
-  return "Building an HLS ladder locally…";
+    return t("Preparing audio track…");
+  if (convertingStage.value === "adding") return t("Adding HLS files to IPFS…");
+  if (convertingStage.value === "done") return t("Finalizing…");
+  return t("Building an HLS ladder locally…");
 });
 
 const convertingStatusText = computed(() => {
@@ -790,14 +791,14 @@ const convertingStatusText = computed(() => {
 });
 
 const archiveDownloadStatusLabel = computed(() => {
-  if (archiveDownloadCanceling.value) return "Cancelling…";
+  if (archiveDownloadCanceling.value) return t("Cancelling…");
   if (archiveDownloadStage.value === "selecting-path")
-    return "Waiting for save location…";
+    return t("Waiting for save location…");
   if (archiveDownloadStage.value === "fetching")
-    return "Collecting HLS files from local IPFS…";
-  if (archiveDownloadStage.value === "zipping") return "Creating ZIP archive…";
-  if (archiveDownloadStage.value === "done") return "Finalizing…";
-  return "Preparing HLS archive export…";
+    return t("Collecting HLS files from local IPFS…");
+  if (archiveDownloadStage.value === "zipping") return t("Creating ZIP archive…");
+  if (archiveDownloadStage.value === "done") return t("Finalizing…");
+  return t("Preparing HLS archive export…");
 });
 
 const archiveDownloadStatusText = computed(() => {
@@ -1136,7 +1137,7 @@ async function collectIpfsFilesRecursively(
   const target = relPath ? `${rootCid}/${relPath}` : rootCid;
   const res = await lumen_api?.ipfsLs?.(target).catch(() => null);
   if (!res?.ok || !Array.isArray(res.entries)) {
-    throw new Error(String(res?.error || "Failed to list HLS directory"));
+    throw new Error(String(res?.error || t("Failed to list HLS directory")));
   }
 
   const out: Array<{ archivePath: string; target: string }> = [];
@@ -1458,7 +1459,7 @@ const browseRootName = computed(() => {
 });
 
 const browseHostingLabel = computed(() => {
-  return hosting.value.kind === "gateway" ? hostingLabel.value : "Local drive";
+  return hosting.value.kind === "gateway" ? hostingLabel.value : t("Local drive");
 });
 
 const browseRootLabel = computed(() => {
@@ -1487,8 +1488,8 @@ const headerSubtitle = computed(() => {
     return `Browsing: ${browseRootName.value}${suffix}`;
   }
   return hosting.value.kind === "gateway"
-    ? "Saved files on your cloud plan"
-    : "Saved files on your local drive";
+    ? t("Saved files on your cloud plan")
+    : t("Saved files on your local drive");
 });
 
 const subscribedGatewayIds = computed(() => {
@@ -2169,7 +2170,7 @@ async function refreshGatewayDetailsData(gatewayId: string) {
 
     const profileId = await getActiveProfileId();
     if (!profileId) {
-      gatewayDetailsUsageError.value = "No active profile";
+      gatewayDetailsUsageError.value = t("No active profile");
       return;
     }
 
@@ -2200,7 +2201,7 @@ async function refreshGatewayDetailsData(gatewayId: string) {
         } catch {}
       }
       if (code !== "kyber_pubkey_http_unavailable") {
-        gatewayDetailsUsageError.value = code || "Usage fetch failed";
+        gatewayDetailsUsageError.value = code || t("Usage fetch failed");
       }
     } else {
       gatewayDetailsUsage.value = usageRes.data ?? null;
@@ -2214,7 +2215,7 @@ async function refreshGatewayDetailsData(gatewayId: string) {
         } catch {}
       }
       if (code !== "kyber_pubkey_http_unavailable") {
-        gatewayDetailsPinnedError.value = code || "Pinned CIDs fetch failed";
+        gatewayDetailsPinnedError.value = code || t("Pinned CIDs fetch failed");
       }
     } else {
       const data = pinnedRes.data ?? null;
@@ -2227,7 +2228,7 @@ async function refreshGatewayDetailsData(gatewayId: string) {
     }
   } catch (e) {
     if (seq !== gatewayDetailsLoadSeq) return;
-    gatewayDetailsUsageError.value = errorMessage(e, "Usage fetch failed");
+    gatewayDetailsUsageError.value = errorMessage(e, t("Usage fetch failed"));
   } finally {
     if (seq === gatewayDetailsLoadSeq) gatewayDetailsLoading.value = false;
   }
@@ -2334,7 +2335,7 @@ async function openPlansModal() {
 
     const profileId = await getActiveProfileId();
     if (!profileId) {
-      plansError.value = "No active profile";
+      plansError.value = t("No active profile");
       plansLoading.value = false;
       return;
     }
@@ -2343,7 +2344,7 @@ async function openPlansModal() {
       .getPlansOverview(profileId, { includePricing: true, timeoutMs: 2500 })
       .catch(() => null);
     if (!res || res.ok === false) {
-      plansError.value = String(res?.error || "Unable to load plans.");
+      plansError.value = String(res?.error || t("Unable to load plans."));
       plansLoading.value = false;
       return;
     }
@@ -2412,7 +2413,7 @@ async function openPlansModal() {
       metadata: typeof s?.metadata === "object" ? s.metadata : undefined,
     }));
   } catch (e) {
-    plansError.value = errorMessage(e, "Unable to load plans.");
+    plansError.value = errorMessage(e, t("Unable to load plans."));
   } finally {
     plansLoading.value = false;
   }
@@ -2468,9 +2469,9 @@ let profileReloadSeq = 0;
 
 function normalizeSubscribeError(raw: string): string {
   const msg = String(raw || "").trim();
-  if (!msg) return "Subscription failed";
+  if (!msg) return t("Subscription failed");
   if (/insufficient funds/i.test(msg) || /spendable balance/i.test(msg)) {
-    return "Insufficient funds.";
+    return t("Insufficient funds.");
   }
   return msg;
 }
@@ -2544,13 +2545,13 @@ async function confirmSubscribe() {
     subscribeError.value = "";
 
     if (!gateway_lumen_api.subscribePlan) {
-      subscribeError.value = "Subscription API unavailable";
+      subscribeError.value = t("Subscription API unavailable");
       return;
     }
 
     const profileId = await getActiveProfileId();
     if (!profileId) {
-      subscribeError.value = "No active profile";
+      subscribeError.value = t("No active profile");
       return;
     }
 
@@ -2651,7 +2652,7 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
       }
       gatewayPinned.value = [];
       gatewayPinnedNames.value = {};
-      gatewayPinnedError.value = code || "Pinned CIDs fetch failed";
+      gatewayPinnedError.value = code || t("Pinned CIDs fetch failed");
       return;
     }
 
@@ -2710,9 +2711,9 @@ async function refreshGatewayPinned(baseUrlHint?: string) {
     if (seq !== gatewayPinnedSeq) return;
     gatewayPinned.value = [];
     gatewayPinnedNames.value = {};
-    const msg = errorMessage(e, "Pinned CIDs fetch failed");
+    const msg = errorMessage(e, t("Pinned CIDs fetch failed"));
     gatewayPinnedError.value =
-      msg === "Error: kyber_pubkey_http_unavailable" ? "" : msg;
+      msg === t("Error: kyber_pubkey_http_unavailable") ? "" : msg;
   } finally {
     if (seq === gatewayPinnedSeq) gatewayPinnedLoading.value = false;
   }
@@ -2904,7 +2905,7 @@ async function confirmDriveBackupExport() {
   const pid = String(activeProfileId.value || "").trim();
   const snapshot = makeDriveBackupSnapshot();
   if (!pid || !snapshot) {
-    driveBackupError.value = "No active profile";
+    driveBackupError.value = t("No active profile");
     return;
   }
 
@@ -2915,7 +2916,7 @@ async function confirmDriveBackupExport() {
     return;
   }
   if (password !== confirm) {
-    driveBackupError.value = "Passwords do not match.";
+    driveBackupError.value = t("Passwords do not match.");
     return;
   }
 
@@ -2935,7 +2936,7 @@ async function confirmDriveBackupExport() {
     const filename = `lumen-drive-backup-${nameSeg}-${stamp}.enc.json`;
     downloadTextFile(filename, JSON.stringify(res.encrypted, null, 2));
     setDriveBackupMeta("export", Date.now());
-    showToast("Drive snapshot exported", "success");
+    showToast(t("Drive snapshot exported"), "success");
     shouldClose = true;
   } catch (e) {
     driveBackupError.value = errorMessage(e, "export_failed");
@@ -2954,7 +2955,7 @@ async function handleImportDriveBackupFile(e: Event) {
   driveBackupError.value = "";
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) {
-    driveBackupError.value = "No active profile";
+    driveBackupError.value = t("No active profile");
     return;
   }
 
@@ -2966,7 +2967,7 @@ async function handleImportDriveBackupFile(e: Event) {
   if (!file) return;
 
   if (file.size > 5 * 1024 * 1024) {
-    driveBackupError.value = "Backup file too large (max 5 MB).";
+    driveBackupError.value = t("Backup file too large (max 5 MB).");
     return;
   }
 
@@ -3004,13 +3005,13 @@ async function decryptDriveBackupImport() {
   driveBackupError.value = "";
   const pid = String(activeProfileId.value || "").trim();
   if (!pid) {
-    driveBackupError.value = "No active profile";
+    driveBackupError.value = t("No active profile");
     return;
   }
 
   const pending = pendingDriveBackupImport.value;
   if (!pending) {
-    driveBackupError.value = "No backup file selected";
+    driveBackupError.value = t("No backup file selected");
     return;
   }
 
@@ -3058,7 +3059,7 @@ function confirmDriveBackupRestore() {
     return;
   }
   closeDriveBackupImportModal();
-  showToast("Drive snapshot imported", "success");
+  showToast(t("Drive snapshot imported"), "success");
 }
 
 function normalizeCidKey(cid: string): string {
@@ -3162,12 +3163,12 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
   if (hosting.value.kind !== "gateway") return { ok: true as const };
 
   if (!gateway_lumen_api.pinCid) {
-    return { ok: false as const, error: "Gateway upload unavailable" };
+    return { ok: false as const, error: t("Gateway upload unavailable") };
   }
 
   const profileId = await getActiveProfileId();
   if (!profileId) {
-    return { ok: false as const, error: "No active profile" };
+    return { ok: false as const, error: t("No active profile") };
   }
 
   const gid = hosting.value.gatewayId;
@@ -3191,7 +3192,7 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
     .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
 
   if (!res || res.ok === false) {
-    const err = String(res?.error || "Gateway pin failed");
+    const err = String(res?.error || t("Gateway pin failed"));
     const lower = err.toLowerCase();
     if (
       lower.includes("cancel") ||
@@ -3256,10 +3257,10 @@ async function performHlsConversion(
     });
 
     if (!res?.ok || !res?.cid) {
-      const err = String(res?.error || "HLS conversion failed");
+      const err = String(res?.error || t("HLS conversion failed"));
       const cancelled = err.toLowerCase().includes("cancel");
       if (!opts.silentErrorToast) {
-        if (cancelled) showToast("Conversion cancelled.", "success");
+        if (cancelled) showToast(t("Conversion cancelled."), "success");
         else showToast(err, "error");
       }
       return { ok: false, cancelled, error: err };
@@ -3290,7 +3291,7 @@ async function performHlsConversion(
         return {
           ok: false,
           cancelled: !!pinned.cancelled,
-          error: String(pinned.error || "Gateway pin failed"),
+          error: String(pinned.error || t("Gateway pin failed")),
         };
       }
       if (!opts.silentSuccessToast) {
@@ -3307,10 +3308,10 @@ async function performHlsConversion(
     return { ok: true, newName };
   } catch (e) {
     console.error("HLS conversion error:", e);
-    const err = errorMessage(e, "HLS conversion error");
+    const err = errorMessage(e, t("HLS conversion error"));
     const cancelled = err.toLowerCase().includes("cancel");
     if (!opts.silentErrorToast) {
-      if (cancelled) showToast("Conversion cancelled.", "success");
+      if (cancelled) showToast(t("Conversion cancelled."), "success");
       else showToast(err, "error");
     }
     return { ok: false, cancelled, error: err };
@@ -3426,22 +3427,22 @@ async function convertToHls(file: DriveFile) {
   if (isDirEntry(file)) return;
   if (!isVideoFile(file.name)) return;
   if (!ipfsConnected.value) {
-    showToast("IPFS not connected", "error");
+    showToast(t("IPFS not connected"), "error");
     return;
   }
   if (uploading.value) {
-    showToast("Another task is already running. Please wait…", "error");
+    showToast(t("Another task is already running. Please wait…"), "error");
     return;
   }
 
   const { added, status } = enqueueHlsConversions([file]);
   if (!added) {
-    showToast("This video is already in the HLS queue.", "error");
+    showToast(t("This video is already in the HLS queue."), "error");
     return;
   }
 
   showToast(
-    status === "paused" ? "Added 1 video to paused HLS queue" : "Queued 1 video for HLS",
+    status === "paused" ? t("Added 1 video to paused HLS queue") : t("Queued 1 video for HLS"),
     "success",
   );
   if (status === "queued") void ensureHlsQueueProcessing();
@@ -3450,11 +3451,11 @@ async function convertToHls(file: DriveFile) {
 async function convertSelectedLocalToHls() {
   if (!canUseLocalMultiSelect.value) return;
   if (!ipfsConnected.value) {
-    showToast("IPFS not connected", "error");
+    showToast(t("IPFS not connected"), "error");
     return;
   }
   if (uploading.value) {
-    showToast("Another task is already running. Please wait…", "error");
+    showToast(t("Another task is already running. Please wait…"), "error");
     return;
   }
 
@@ -3465,14 +3466,14 @@ async function convertSelectedLocalToHls() {
     (entry) => !isDirEntry(entry) && isVideoFile(entry.name),
   );
   if (!convertible.length) {
-    showToast("Select at least one video file to convert.", "error");
+    showToast(t("Select at least one video file to convert."), "error");
     return;
   }
 
   const skipped = selected.length - convertible.length;
   const { added, duplicates, status } = enqueueHlsConversions(convertible);
   if (!added) {
-    showToast("Selected videos are already in the HLS queue.", "error");
+    showToast(t("Selected videos are already in the HLS queue."), "error");
     return;
   }
 
@@ -3483,10 +3484,10 @@ async function convertSelectedLocalToHls() {
   const label =
     status === "paused"
       ? added === 1
-        ? "Added 1 video to paused HLS queue"
+        ? t("Added 1 video to paused HLS queue")
         : `Added ${added} videos to paused HLS queue`
       : added === 1
-        ? "Queued 1 video for HLS"
+        ? t("Queued 1 video for HLS")
         : `Queued ${added} videos for HLS`;
   showToast(notes.length ? `${label} (${notes.join(", ")})` : label, "success");
   if (status === "queued") void ensureHlsQueueProcessing();
@@ -3501,7 +3502,7 @@ async function cancelUpload(key: any) {
   try {
     uploadCancelUpload(key);
   } catch (e) {
-    showToast(errorMessage(e, "Cancel failed"), "error");
+    showToast(errorMessage(e, t("Cancel failed")), "error");
   }
 }
 
@@ -3512,12 +3513,12 @@ async function cancelHlsConversion() {
   try {
     const res = await lumen_api.driveCancelHlsConvert().catch(() => null);
     if (!res?.ok) {
-      showToast(String(res?.error || "Cancel failed"), "error");
+      showToast(String(res?.error || t("Cancel failed")), "error");
       convertingCanceling.value = false;
       convertingStage.value = "transcoding";
     }
   } catch (e) {
-    showToast(errorMessage(e, "Cancel failed"), "error");
+    showToast(errorMessage(e, t("Cancel failed")), "error");
     convertingCanceling.value = false;
     convertingStage.value = "transcoding";
   }
@@ -3552,7 +3553,7 @@ async function pauseHlsQueue(options: { silent?: boolean } = {}) {
   if (!hasRunning) {
     hlsQueuePauseRequested.value = false;
     convertingPauseRequested.value = false;
-    if (!options.silent) showToast("HLS queue paused.", "success");
+    if (!options.silent) showToast(t("HLS queue paused."), "success");
     return;
   }
 
@@ -3562,10 +3563,10 @@ async function pauseHlsQueue(options: { silent?: boolean } = {}) {
   try {
     const res = await lumen_api.driveCancelHlsConvert().catch(() => null);
     if (!res?.ok) {
-      throw new Error(String(res?.error || "Pause failed"));
+      throw new Error(String(res?.error || t("Pause failed")));
     }
     await waitForHlsConversionToSettle();
-    if (!options.silent) showToast("HLS queue paused.", "success");
+    if (!options.silent) showToast(t("HLS queue paused."), "success");
   } catch (e) {
     const previous = new Map(queueSnapshot.map((item) => [item.id, item]));
     hlsQueue.value = hlsQueue.value.map((item) => {
@@ -3576,7 +3577,7 @@ async function pauseHlsQueue(options: { silent?: boolean } = {}) {
     convertingPauseRequested.value = false;
     convertingStage.value = "transcoding";
     if (!options.silent) {
-      showToast(errorMessage(e, "Pause failed"), "error");
+      showToast(errorMessage(e, t("Pause failed")), "error");
     }
   }
 }
@@ -3586,7 +3587,7 @@ async function resumeHlsQueue() {
   hlsQueue.value = hlsQueue.value.map((item) =>
     item.status === "paused" ? { ...item, status: "queued", error: undefined } : item,
   );
-  showToast("Resumed HLS queue.", "success");
+  showToast(t("Resumed HLS queue."), "success");
   void ensureHlsQueueProcessing();
 }
 
@@ -3608,12 +3609,12 @@ async function cancelHlsArchiveDownload() {
   try {
     const res = await lumen_api.driveCancelHlsArchiveDownload().catch(() => null);
     if (!res?.ok) {
-      showToast(String(res?.error || "Cancel failed"), "error");
+      showToast(String(res?.error || t("Cancel failed")), "error");
       archiveDownloadCanceling.value = false;
       archiveDownloadStage.value = prevStage;
     }
   } catch (e) {
-    showToast(errorMessage(e, "Cancel failed"), "error");
+    showToast(errorMessage(e, t("Cancel failed")), "error");
     archiveDownloadCanceling.value = false;
     archiveDownloadStage.value = prevStage;
   }
@@ -3624,7 +3625,7 @@ async function downloadFile(file: DriveFile) {
     if (isHlsEntry(file)) {
       if (isWindowsAppPlatform()) {
           if (archiveDownloading.value) {
-            showToast("Another HLS archive download is already running.", "error");
+            showToast(t("Another HLS archive download is already running."), "error");
             return;
           }
           archiveDownloading.value = true;
@@ -3640,22 +3641,22 @@ async function downloadFile(file: DriveFile) {
             expectedSizeBytes: Number(file?.size || 0) || 0,
           });
           if (res?.ok) {
-            showToast("Downloaded!", "success");
+            showToast(t("Downloaded!"), "success");
             return;
           }
           if (String(res?.error || "").toLowerCase().includes("cancel")) {
             return;
           }
           if (String(res?.error || "") === "download_in_progress") {
-            showToast("Another HLS archive download is already running.", "error");
+            showToast(t("Another HLS archive download is already running."), "error");
             return;
           }
-          showToast(String(res?.error || "Download failed"), "error");
+          showToast(String(res?.error || t("Download failed")), "error");
           return;
         }
 
         await downloadHlsAsZip(file);
-        showToast("Downloaded!", "success");
+        showToast(t("Downloaded!"), "success");
         return;
     }
 
@@ -3665,12 +3666,12 @@ async function downloadFile(file: DriveFile) {
 
     if (result?.ok && result.data) {
       downloadBytes(result.data, file.name);
-      showToast("Downloaded!", "success");
+      showToast(t("Downloaded!"), "success");
     } else {
-      showToast("Download failed", "error");
+      showToast(t("Download failed"), "error");
     }
   } catch {
-    showToast("Download error", "error");
+    showToast(t("Download error"), "error");
   } finally {
     resetArchiveDownloadState();
   }
@@ -3810,7 +3811,7 @@ async function loadBrowseEntries() {
     if (seq !== browseLoadSeq) return;
     if (!res || res.ok === false) {
       browseEntries.value = [];
-      browseError.value = String(res?.error || "Failed to list folder");
+      browseError.value = String(res?.error || t("Failed to list folder"));
       return;
     }
     const list = Array.isArray(res.entries) ? res.entries : [];
@@ -3838,7 +3839,7 @@ async function loadBrowseEntries() {
   } catch (e) {
     if (seq !== browseLoadSeq) return;
     browseEntries.value = [];
-    browseError.value = errorMessage(e, "Failed to list folder");
+    browseError.value = errorMessage(e, t("Failed to list folder"));
   } finally {
     if (seq === browseLoadSeq) browseLoading.value = false;
   }
@@ -4156,7 +4157,7 @@ async function saveSelectedName() {
     try {
       const profileId = await getActiveProfileId();
       if (!profileId) {
-        showToast("No active profile", "error");
+        showToast(t("No active profile"), "error");
         return;
       }
 
@@ -4264,7 +4265,7 @@ async function removeLocalRootEntries(entries: DriveFile[]) {
   const total = cidSet.size;
   if (total === 1) {
     showToast(
-      unpinFailed ? "Removed (couldn't unpin local data)" : "Removed",
+      unpinFailed ? t("Removed (couldn't unpin local data)") : "Removed",
       "success",
     );
     return;
@@ -4290,7 +4291,7 @@ async function removeFile(file: DriveFile) {
   const cid = String(file?.cid || "").trim();
   if (!cid) return;
   if (!isRootSavedEntry(file)) {
-    showToast("Remove is only available on root saved entries", "error");
+    showToast(t("Remove is only available on root saved entries"), "error");
     return;
   }
 
@@ -4302,13 +4303,13 @@ async function removeFile(file: DriveFile) {
   if (hosting.value.kind === "gateway") {
     try {
       if (!gateway_lumen_api.unpinCid) {
-        showToast("Gateway removal unavailable", "error");
+        showToast(t("Gateway removal unavailable"), "error");
         return;
       }
 
       const profileId = await getActiveProfileId();
       if (!profileId) {
-        showToast("No active profile", "error");
+        showToast(t("No active profile"), "error");
         return;
       }
 
@@ -4316,7 +4317,7 @@ async function removeFile(file: DriveFile) {
         .unpinCid({ profileId, cid, baseUrl: activeGatewayHint.value })
         .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
       if (!res || res.ok === false) {
-        showToast(String(res?.error || "Gateway unpin failed"), "error");
+        showToast(String(res?.error || t("Gateway unpin failed")), "error");
         return;
       }
 
@@ -4330,12 +4331,12 @@ async function removeFile(file: DriveFile) {
       showToast("Removed", "success");
       return;
     } catch (e) {
-      showToast(errorMessage(e, "Gateway unpin failed"), "error");
+      showToast(errorMessage(e, t("Gateway unpin failed")), "error");
       return;
     }
   }
 
-  showToast("Remove failed", "error");
+  showToast(t("Remove failed"), "error");
 }
 
 

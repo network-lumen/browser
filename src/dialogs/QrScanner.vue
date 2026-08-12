@@ -8,32 +8,32 @@
             <div class="border-radius-12px absolute top-half left-half translate-center border-2-white-a50 w-250px h-250px">
               <div v-for="corner in QR_CORNERS" :key="corner.key" class="absolute w-32px h-32px border-3-primary" :class="corner.class"></div>
             </div>
-            <p class="color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half translate-x-center backdrop-blur-8 bg-black-a60">Position QR code within the frame</p>
+            <p class="color-white m-0px border-radius-20px text-14px absolute py-8px px-16px bottom-20px left-half translate-x-center backdrop-blur-8 bg-black-a60">{{ t('Position QR code within the frame') }}</p>
           </div>
 
           <div v-if="error" class="text-center py-40px px-20px">
             <AlertCircle :size="48" class="color-error mb-16px" />
             <h4 class="color-text-primary text-20px txt-weight-light m-0px mb-8px">{{ error }}</h4>
             <p v-if="error.includes('permission')" class="color-text-secondary text-14px m-0px mb-24px">
-              Please allow camera access in your browser settings
+              {{ t('Please allow camera access in your browser settings') }}
             </p>
             <UiButton variant="primary" @click="initializeScanner">
               <RefreshCw :size="16" />
-              <span>Try Again</span>
+              <span>{{ t('Try Again') }}</span>
             </UiButton>
           </div>
 
           <div v-if="scannedData" class="text-center py-40px px-20px">
             <CheckCircle :size="48" class="color-success mb-16px" />
-            <h4 class="color-text-primary text-20px txt-weight-light m-0px mb-8px">QR Code Scanned</h4>
+            <h4 class="color-text-primary text-20px txt-weight-light m-0px mb-8px">{{ t('QR Code Scanned') }}</h4>
 
             <div class="text-left bg-secondary border-radius-8px p-16px m-0px mt-24px mb-24px">
               <div class="mb-12px">
-                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Type:</span>
+                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">{{ t('Type:') }}</span>
                 <span class="color-text-primary text-14px fw-500">{{ detectedType }}</span>
               </div>
               <div>
-                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">Content:</span>
+                <span class="color-text-secondary block text-12px txt-weight-light text-uppercase mb-4px letter-spacing-005em">{{ t('Content:') }}</span>
                 <div class="bg-card color-text-primary text-13px border-1 border-radius-6px p-12px break-all overflow-y-auto mono max-h-120px">{{ scannedData }}</div>
               </div>
             </div>
@@ -41,11 +41,11 @@
             <div class="flex-justify-center gap-12px">
               <UiButton variant="secondary" @click="scanAgain" >
                 <QrCode :size="16" />
-                <span>Scan Again</span>
+                <span>{{ t('Scan Again') }}</span>
               </UiButton>
               <UiButton variant="primary" @click="handleUseScannedData" >
                 <Check :size="16" />
-                <span>Use This</span>
+                <span>{{ t('Use This') }}</span>
               </UiButton>
             </div>
           </div>
@@ -54,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiButton from '../ui/UiButton.vue';
 import UiModal from '../ui/UiModal.vue';
 import { ref, onMounted, onUnmounted } from 'vue';
@@ -62,7 +63,7 @@ import { AlertCircle, CheckCircle, RefreshCw, QrCode, Check } from 'lucide-vue-n
 import type { QrScannerProps } from '../types/qrScanner';
 
 withDefaults(defineProps<QrScannerProps>(), {
-  title: 'Scan QR Code',
+  title: t('Scan QR Code'),
   acceptedTypes: () => ['address', 'payment', 'walletconnect']
 });
 
@@ -129,11 +130,11 @@ async function initializeScanner() {
     // the error's name, so it is read here rather than the message.
     const name = err instanceof Error ? err.name : '';
     if (name === 'NotAllowedError') {
-      error.value = 'Camera permission denied';
+      error.value = t('Camera permission denied');
     } else if (name === 'NotFoundError') {
-      error.value = 'No camera found on this device';
+      error.value = t('No camera found on this device');
     } else {
-      error.value = 'Failed to access camera';
+      error.value = t('Failed to access camera');
     }
     console.error('Scanner initialization error:', err);
   }
@@ -157,12 +158,12 @@ function detectQRType(data: string): string {
   
   // Payment request detection (common formats)
   if (data.includes('amount=') || data.includes('payment') || data.startsWith('lumen:')) {
-    return 'Payment Request';
+    return t('Payment Request');
   }
   
   // Address detection (simple heuristic - adjust based on your address format)
   if (/^[a-zA-Z0-9]{32,}$/.test(data) || data.startsWith('lmn1') || data.startsWith('cosmos1')) {
-    return 'Wallet Address';
+    return t('Wallet Address');
   }
   
   // URL detection

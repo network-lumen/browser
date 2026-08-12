@@ -10,7 +10,7 @@ arbitrary.
 ## Before you open a PR
 
 ```bash
-npm test          # conventions, IPC contract, test reachability, locale catalogues, eslint (src + electron), vue-tsc, unit tests
+npm test          # conventions, IPC contract, test reachability, locale catalogues + untranslated strings, eslint (src + electron), vue-tsc, unit tests
 npm run test:e2e  # Playwright, needs `npx playwright install chromium` once
 ```
 
@@ -27,7 +27,9 @@ the questions to ask are in [ARCHITECTURE.md](./ARCHITECTURE.md#the-layout). The
 |---|---|
 | A primitive that knows nothing about Lumen | `src/ui/` |
 | One domain value, drawn (hash, address, status) | `src/entities/` — **check it does not already exist** |
-| A modal | `src/dialogs/`, built on `UiDialog` |
+| A modal ending in Cancel + one action | `src/dialogs/`, built on `UiDialog` |
+| Any other modal | `src/dialogs/`, built on `UiModal` |
+| A chunk of one page, extracted | `src/panels/`, named `…Panel.vue` |
 | Logic with no view state | `src/internal/services/` |
 | Reactive state shared by two components | `src/composables/` |
 | A type or interface | `src/types/` — always |
@@ -39,13 +41,20 @@ the questions to ask are in [ARCHITECTURE.md](./ARCHITECTURE.md#the-layout). The
 do not build a key by interpolation (`t(\`Delete ${n}\`)` cannot be looked up; write
 `t('Delete {n}', { n })`). Placeholder examples that are not English (`lmn1…`, a URL) stay plain.
 
+For a string in a **module-level table** - a const array of labels, a code→message map - `t()` at
+the definition would freeze whatever language was loaded first. Use `markForTranslation()` there so
+the extractor sees it, and `t()` where the value is drawn.
+
 ```bash
-npm run i18n:extract   # refresh src/locales/*.json from the source
-npm run check:i18n     # same, read-only - wired into `npm test`
+npm run i18n:extract        # refresh src/locales/*.json from the source
+npm run check:i18n          # same, read-only
+npm run check:i18n-strings  # fails on user-visible English not going through t()
 ```
 
-Roughly 2 000 strings are still untranslated, mostly in `src/internal/pages/`. Migrating a screen is
-mechanical and can be done a screen at a time.
+Both checks are wired into `npm test`. All ~1 850 strings go through `t()`; the four that
+deliberately do not are named in `scripts/check-untranslated.mjs`. **Translating** them is separate
+work - an empty catalogue entry renders the English, so a language can be filled in a screen at a
+time without ever showing a hole.
 
 ---
 
@@ -134,6 +143,9 @@ the top of its own check in `scripts/check-conventions.mjs`. Read it there rathe
 | 14 | No class repeated twice in one attribute |
 | 15 | No dead CSS custom property |
 | 16 | No function-typed prop |
+
+Two more checks run beside it: `check:i18n` (locale catalogues in step with the source) and
+`check:i18n-strings` (no user-visible English outside `t()`).
 
 **Known blind spots.** Rules 4 and 5 compare tokens where a class can actually be applied (`*class`
 attributes, string literals). They do not see a class passed inside an object (`:handlers="{ … }"`)

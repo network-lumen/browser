@@ -1,71 +1,71 @@
 <template>
   <!-- ####### lumen://release RELEASE ####### -->
   <div class="internal-page flex">
-    <InternalSidebar title="Releases" :icon="Rocket" activeKey="release">
+    <InternalSidebar :title="t('Releases')" :icon="Rocket" activeKey="release">
       <nav class="flex flex-column gap-12px">
-        <UiSidebarNavSection title="Manage">
+        <UiSidebarNavSection :title="t('Manage')">
           <UiSidebarNavItem active>
             <Rocket :size="18" />
-            <span>Publisher</span>
+            <span>{{ t('Publisher') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
     </InternalSidebar>
 
     <main class="flex-1 min-w-0 flex flex-column overflow-hidden bg-secondary py-32px px-40px">
-      <UiPageHeader title="Releases" title-weight="strong">
-        <p class="color-text-secondary text-14px m-0px mt-8px" v-if="allowed">Publisher access enabled for the active profile.</p>
-        <p class="color-text-secondary text-14px m-0px mt-8px" v-else-if="loading">Checking publisher permissions…</p>
-        <p class="color-text-secondary text-14px m-0px mt-8px" v-else>Publisher access required.</p>
+      <UiPageHeader :title="t('Releases')" title-weight="strong">
+        <p class="color-text-secondary text-14px m-0px mt-8px" v-if="allowed">{{ t('Publisher access enabled for the active profile.') }}</p>
+        <p class="color-text-secondary text-14px m-0px mt-8px" v-else-if="loading">{{ t('Checking publisher permissions…') }}</p>
+        <p class="color-text-secondary text-14px m-0px mt-8px" v-else>{{ t('Publisher access required.') }}</p>
         <p v-if="pendingTtlSeconds" class="color-text-tertiary text-13px m-0px mt-8px">
           Pending TTL: {{ formatDuration(pendingTtlSeconds) }}
         </p>
         <template #actions>
           <UiButton variant="secondary" type="button" :disabled="loading" @click="refreshAll">
             <RefreshCw :size="18" />
-            <span>{{ loading ? 'Refreshing…' : 'Refresh' }}</span>
+            <span>{{ loading ? t('Refreshing…') : t('Refresh') }}</span>
           </UiButton>
           <UiButton variant="primary" type="button" :disabled="loading || !allowed" @click="openPublishModal">
             <Plus :size="18" />
-            <span>Publish release</span>
+            <span>{{ t('Publish release') }}</span>
           </UiButton>
         </template>
       </UiPageHeader>
 
-      <section class="flex flex-wrap-wrap mb-16px flex-align-end gap-y-14px gap-x-16px" aria-label="Filters">
+      <section class="flex flex-wrap-wrap mb-16px flex-align-end gap-y-14px gap-x-16px" :aria-label="t('Filters')">
         <div class="flex flex-column gap-6px min-w-220px">
-          <label class="txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Channel</label>
+          <label class="txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">{{ t('Channel') }}</label>
           <select v-model="channelFilter" class="w-full text-14px color-text-primary border-radius-12px border-1 bg-primary py-10px px-12px focus-outline-none focus-border-primary focus-ring focus-shadow" :disabled="loading">
-            <option value="all">All</option>
+            <option value="all">{{ t('All') }}</option>
             <option v-for="c in channelOptions" :key="c" :value="c">{{ c }}</option>
           </select>
         </div>
 
         <div class="flex flex-column gap-6px min-w-260px flex-1-1-320px">
-          <label class="txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">Search</label>
+          <label class="txt-weight-strong color-text-tertiary text-uppercase text-12px letter-spacing-006em">{{ t('Search') }}</label>
           <UiInput radius-class="border-radius-12px" font-size-class="text-14px" :focus-ring="false" v-model.trim="searchTerm"
-            placeholder="Version, publisher, ID…"
+            :placeholder="t('Version, publisher, ID…')"
             :disabled="loading" class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
         </div>
       </section>
 
       <section v-if="!allowed && !loading">
-        <p>Redirecting…</p>
+        <p>{{ t('Redirecting…') }}</p>
       </section>
 
       <section v-else class="flex-1 overflow-hidden gap-16px flex min-h-0">
         <article class="overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-11-1-420px">
           <div class="flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
-            <span>Releases</span>
+            <span>{{ t('Releases') }}</span>
             <span class="color-text-tertiary fw-500">{{ filteredReleases.length }} total</span>
           </div>
 
           <div v-if="loading" class="flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">
             <UiSpinner size="sm" />
-            <span>Loading releases…</span>
+            <span>{{ t('Loading releases…') }}</span>
           </div>
 
-          <div v-else-if="!filteredReleases.length" class="flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">No releases found.</div>
+          <div v-else-if="!filteredReleases.length" class="flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">{{ t('No releases found.') }}</div>
 
           <button
             v-for="r in filteredReleases"
@@ -101,24 +101,24 @@
 
           <div v-if="selectedRelease.status === 'PENDING'" class="flex flex-wrap-wrap gap-12px m-0px mt-8px mb-16px">
             <UiButton variant="primary" type="button" :disabled="submittingDao" @click="openDaoModal('validate')">
-              Send to DAO (validate)
+              {{ t('Send to DAO (validate)') }}
             </UiButton>
             <UiButton variant="secondary" type="button" :disabled="submittingDao" @click="openDaoModal('reject')">
-              Send to DAO (reject)
+              {{ t('Send to DAO (reject)') }}
             </UiButton>
           </div>
 
           <div class="gap-12px mb-16px grid grid-cols-1fr-1fr">
-            <UiKeyValue label="Status">
+            <UiKeyValue :label="t('Status')">
               <span class="bg-transparent border-radius-full txt-weight-strong text-12px border-1-light py-4px px-6px" :class="statusClass(selectedRelease)">{{ selectedRelease.status }}</span>
             </UiKeyValue>
-            <UiKeyValue label="Publisher" :value="selectedRelease.publisher || '-'" value-class="mono" />
-            <UiKeyValue label="Created" :value="formatDate(selectedRelease.createdAt)" />
-            <UiKeyValue v-if="selectedRelease.supersedes.length" label="Supersedes" :value="selectedRelease.supersedes.join(', ')" value-class="mono" />
+            <UiKeyValue :label="t('Publisher')" :value="selectedRelease.publisher || '-'" value-class="mono" />
+            <UiKeyValue :label="t('Created')" :value="formatDate(selectedRelease.createdAt)" />
+            <UiKeyValue v-if="selectedRelease.supersedes.length" :label="t('Supersedes')" :value="selectedRelease.supersedes.join(', ')" value-class="mono" />
           </div>
 
           <div class="pt-12px mt-12px border-top-1-light" v-if="selectedRelease.notes">
-            <div class="txt-weight-medium color-text-primary mb-8px">Release notes</div>
+            <div class="txt-weight-medium color-text-primary mb-8px">{{ t('Release notes') }}</div>
             <div class="color-text-secondary pre-wrap">{{ selectedRelease.notes }}</div>
           </div>
 
@@ -130,9 +130,9 @@
                 <div class="color-text-tertiary fw-500">{{ formatBytes(a.size) }}</div>
               </div>
               <div>
-                <UiKeyValue label="SHA-256" :value="a.sha256Hex || '-'" value-class="mono break-word" />
-                <UiKeyValue v-if="a.cid" label="CID" :value="a.cid" value-class="mono break-word" />
-                <UiKeyValue v-if="a.urls.length" label="URLs">
+                <UiKeyValue :label="t('SHA-256')" :value="a.sha256Hex || '-'" value-class="mono break-word" />
+                <UiKeyValue v-if="a.cid" :label="t('CID')" :value="a.cid" value-class="mono break-word" />
+                <UiKeyValue v-if="a.urls.length" :label="t('URLs')">
                   <div v-for="(u, uIdx) in a.urls" :key="uIdx" class="mono break-word">{{ u }}</div>
                 </UiKeyValue>
               </div>
@@ -142,10 +142,10 @@
 
         <article class="overflow-auto bg-primary border-1 border-radius-16px shadow-primary p-12px min-h-0 flex-1-1-380px" v-else>
           <div class="flex-align-baseline flex-justify-space-between txt-weight-medium color-text-primary gap-12px pt-4px pr-4px pb-12px pl-4px">
-            <span>Details</span>
-            <span class="color-text-tertiary fw-500">Select a release</span>
+            <span>{{ t('Details') }}</span>
+            <span class="color-text-tertiary fw-500">{{ t('Select a release') }}</span>
           </div>
-          <div class="flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">Pick a release from the list.</div>
+          <div class="flex-align-justify-center gap-8px color-text-secondary py-24px px-8px">{{ t('Pick a release from the list.') }}</div>
         </article>
       </section>
     </main>
@@ -157,6 +157,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../../stores/i18nStore';
 import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
@@ -280,7 +281,7 @@ function mapRelease(raw: any): ReleaseRecord {
 
 async function restGet(path: string) {
   const api = useInternalLumen()?.net?.restGet;
-  if (typeof api !== 'function') throw new Error('Network API unavailable');
+  if (typeof api !== 'function') throw new Error(t('Network API unavailable'));
   const res = await api(path);
   if (!res?.ok) throw new Error(String(res?.error || `Request failed (${path})`));
   return res.json ?? null;
@@ -288,9 +289,9 @@ async function restGet(path: string) {
 
 async function httpGet(url: string, options: any = {}) {
   const api = useInternalLumen()?.httpGet || useInternalLumen()?.http?.get;
-  if (typeof api !== 'function') throw new Error('HTTP API unavailable');
+  if (typeof api !== 'function') throw new Error(t('HTTP API unavailable'));
   const res = await api(String(url || ''), options || {});
-  if (!res) throw new Error('HTTP request failed');
+  if (!res) throw new Error(t('HTTP request failed'));
   if (!res.ok) {
     const status = Number(res.status || 0);
     const msg = safeString(res.error || res.text || '', 256);
@@ -326,7 +327,7 @@ async function refreshAll() {
   try {
     await Promise.all([fetchParams(), fetchReleases()]);
   } catch (e) {
-    addToast('error', errorMessage(e, 'Unable to fetch releases'));
+    addToast('error', errorMessage(e, t('Unable to fetch releases')));
   } finally {
     loading.value = false;
   }
@@ -435,13 +436,13 @@ async function submitDaoProposal() {
   const profileId = String(active?.id || '').trim();
   const proposer = activeAddress.value;
   if (!profileId || !proposer) {
-    addToast('error', 'Select a profile with a wallet first.');
+    addToast('error', t('Select a profile with a wallet first.'));
     return;
   }
 
   const api = useInternalLumen()?.release?.submitToDao;
   if (typeof api !== 'function') {
-    addToast('error', 'DAO submission API unavailable.');
+    addToast('error', t('DAO submission API unavailable.'));
     return;
   }
 
@@ -461,12 +462,12 @@ async function submitDaoProposal() {
       summary,
       depositLmn: daoForm.depositLmn.trim() || '0'
     });
-    if (!res?.ok) throw new Error(String(res?.error || 'Broadcast failed'));
+    if (!res?.ok) throw new Error(String(res?.error || t('Broadcast failed')));
     addToast('success', `Proposal broadcasted${res?.txhash ? ` (${res.txhash})` : ''}`);
     daoModalOpen.value = false;
     await fetchReleases();
   } catch (e) {
-    addToast('error', errorMessage(e, 'Broadcast failed'));
+    addToast('error', errorMessage(e, t('Broadcast failed')));
   } finally {
     submittingDao.value = false;
   }
@@ -599,7 +600,7 @@ function sortArtifactsByPlatform(a: ArtifactDraft, b: ArtifactDraft) {
 async function importFromGithubRelease() {
   const parsed = parseGithubReleaseUrl(githubReleaseUrl.value);
   if (!parsed) {
-    addToast('error', 'Paste a valid GitHub release URL (…/releases/tag/vX.Y.Z).');
+    addToast('error', t('Paste a valid GitHub release URL (…/releases/tag/vX.Y.Z).'));
     return;
   }
 
@@ -632,7 +633,7 @@ async function importFromGithubRelease() {
     }
 
     const assetsRaw = Array.isArray(release?.assets) ? release.assets : [];
-    if (!assetsRaw.length) throw new Error('No assets found on this GitHub release.');
+    if (!assetsRaw.length) throw new Error(t('No assets found on this GitHub release.'));
 
     const shaAsset =
       assetsRaw.find((a: any) => String(a?.name || '').toLowerCase() === 'sha256sums.txt') ||
@@ -643,7 +644,7 @@ async function importFromGithubRelease() {
       const shaRes = await httpGet(String(shaAsset.browser_download_url), { timeout: 30_000 });
       shaMap = parseSha256Sums(String(shaRes.text || ''));
     } else {
-      addToast('warning', 'SHA256SUMS.txt not found in assets; SHA fields will be empty.');
+      addToast('warning', t('SHA256SUMS.txt not found in assets; SHA fields will be empty.'));
     }
 
     const next: ArtifactDraft[] = [];
@@ -671,7 +672,7 @@ async function importFromGithubRelease() {
       });
     }
 
-    if (!next.length) throw new Error('No compatible artifacts found on this release.');
+    if (!next.length) throw new Error(t('No compatible artifacts found on this release.'));
 
     const missingSha = next
       .filter((a) => !/^[0-9a-f]{64}$/i.test(String(a.sha256Hex || '').trim()))
@@ -687,7 +688,7 @@ async function importFromGithubRelease() {
     draft.artifacts.splice(0, draft.artifacts.length, ...next);
     addToast('success', `Imported ${next.length} artifact(s) from ${owner}/${repo}@${tagName}.`);
   } catch (e) {
-    addToast('error', errorMessage(e, 'Import failed'));
+    addToast('error', errorMessage(e, t('Import failed')));
   } finally {
     importingGithub.value = false;
   }
@@ -695,9 +696,9 @@ async function importFromGithubRelease() {
 
 function buildReleasePayload() {
   const version = draft.version.trim();
-  if (!version) throw new Error('Version is required');
+  if (!version) throw new Error(t('Version is required'));
   const channel = draft.channel.trim();
-  if (!channel) throw new Error('Channel is required');
+  if (!channel) throw new Error(t('Channel is required'));
   const maxNotes = params.value?.maxNotesLen || 0;
   if (maxNotes && draft.notes.length > maxNotes) throw new Error(`Notes exceed ${maxNotes} characters`);
 
@@ -734,7 +735,7 @@ async function submitRelease() {
   const active = getActiveProfile() as any;
   const profileId = String(active?.id || '').trim();
   if (!profileId || !activeAddress.value) {
-    addToast('error', 'Select a profile with a wallet first.');
+    addToast('error', t('Select a profile with a wallet first.'));
     return;
   }
 
@@ -748,19 +749,19 @@ async function submitRelease() {
 
   const api = useInternalLumen()?.release?.publishRelease;
   if (typeof api !== 'function') {
-    addToast('error', 'Release publishing API unavailable.');
+    addToast('error', t('Release publishing API unavailable.'));
     return;
   }
 
   submitting.value = true;
   try {
     const res = await api({ profileId, creator: activeAddress.value, release: payload });
-    if (!res?.ok) throw new Error(String(res?.error || 'Publish failed'));
-    addToast('success', 'Release broadcasted');
+    if (!res?.ok) throw new Error(String(res?.error || t('Publish failed')));
+    addToast('success', t('Release broadcasted'));
     closePublishModal();
     await fetchReleases();
   } catch (e) {
-    addToast('error', errorMessage(e, 'Publish failed'));
+    addToast('error', errorMessage(e, t('Publish failed')));
   } finally {
     submitting.value = false;
   }

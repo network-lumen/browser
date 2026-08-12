@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import type { SiteDataRecord } from '../../types/drivePage';
 
 /**
@@ -30,7 +31,7 @@ export function siteDataSiteLabel(record: SiteDataRecord): string {
   if (key.startsWith('domain:')) return key.slice('domain:'.length);
   if (key.startsWith('ipfs:')) return `ipfs:${shortId(key.slice('ipfs:'.length))}`;
   if (key.startsWith('ipns:')) return `ipns:${shortId(key.slice('ipns:'.length))}`;
-  return key || 'Unknown site';
+  return key || t('Unknown site');
 }
 
 /**

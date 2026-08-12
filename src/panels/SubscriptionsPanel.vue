@@ -4,7 +4,7 @@
     <div v-if="activeReminders.length > 0" class="border-radius-12px p-20px mb-24px bg-warning-a15">
       <h3 class="flex-align-center gap-8px color-text-primary text-16px m-0px mb-16px">
         <Bell :size="18" />
-        <span>Due soon</span>
+        <span>{{ t('Due soon') }}</span>
       </h3>
       <div class="flex flex-column gap-12px">
         <div
@@ -28,13 +28,13 @@
 
     <!-- Filter and Stats -->
     <div class="mb-32px grid gap-16px grid-cols-auto-fit-200">
-      <UiStatIconTile label="Active" :value="activeCount" icon-class="bg-fill-success color-success">
+      <UiStatIconTile :label="t('Active')" :value="activeCount" icon-class="bg-fill-success color-success">
         <template #icon><PlayCircle :size="20" /></template>
       </UiStatIconTile>
-      <UiStatIconTile label="Paused" :value="pausedCount" icon-class="bg-warning-a15 color-warning">
+      <UiStatIconTile :label="t('Paused')" :value="pausedCount" icon-class="bg-warning-a15 color-warning">
         <template #icon><PauseCircle :size="20" /></template>
       </UiStatIconTile>
-      <UiStatIconTile label="Monthly Total" :value="monthlyTotal" icon-class="color-accent-secondary bg-fill-blue">
+      <UiStatIconTile :label="t('Monthly Total')" :value="monthlyTotal" icon-class="color-accent-secondary bg-fill-blue">
         <template #icon><DollarSign :size="20" /></template>
       </UiStatIconTile>
     </div>
@@ -42,31 +42,31 @@
     <!-- Payments List -->
     <UiCard radius="12px" border-class="border-1" padding="lg" :shadow="false">
       <div class="flex-align-center-justify-space-between mb-24px">
-        <h3 class="color-text-primary m-0px text-18px">Your reminders</h3>
+        <h3 class="color-text-primary m-0px text-18px">{{ t('Your reminders') }}</h3>
         <div class="flex gap-12px">
           <select v-model="filterStatus" class="bg-primary color-text-primary cursor-pointer text-14px border-1 border-radius-6px py-8px px-12px">
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="paused">Paused</option>
-            <option value="completed">Completed</option>
+            <option value="all">{{ t('All Status') }}</option>
+            <option value="active">{{ t('Active') }}</option>
+            <option value="paused">{{ t('Paused') }}</option>
+            <option value="completed">{{ t('Completed') }}</option>
           </select>
           <select v-model="filterCategory" class="bg-primary color-text-primary cursor-pointer text-14px border-1 border-radius-6px py-8px px-12px">
-            <option value="all">All Categories</option>
-            <option value="subscription">Subscriptions</option>
-            <option value="bill">Bills</option>
-            <option value="donation">Donations</option>
-            <option value="rent">Rent</option>
-            <option value="other">Other</option>
+            <option value="all">{{ t('All Categories') }}</option>
+            <option value="subscription">{{ t('Subscriptions') }}</option>
+            <option value="bill">{{ t('Bills') }}</option>
+            <option value="donation">{{ t('Donations') }}</option>
+            <option value="rent">{{ t('Rent') }}</option>
+            <option value="other">{{ t('Other') }}</option>
           </select>
         </div>
       </div>
 
-      <UiEmptyState v-if="filteredPayments.length === 0" title="No payment reminders" description="Keep track of subscriptions, bills and regular transfers. Lumen reminds you when one is due - it does not send it for you.">
+      <UiEmptyState v-if="filteredPayments.length === 0" :title="t('No payment reminders')" :description="t('Keep track of subscriptions, bills and regular transfers. Lumen reminds you when one is due - it does not send it for you.')">
         <Calendar :size="48" />
         <template #actions>
           <UiButton variant="primary" @click="showCreateModal = true" class="outline-none">
             <Plus :size="16" />
-            <span>Create your first reminder</span>
+            <span>{{ t('Create your first reminder') }}</span>
           </UiButton>
         </template>
       </UiEmptyState>
@@ -104,39 +104,39 @@
           </div>
 
           <div class="mb-16px">
-            <UiDetailRow variant="compact" label="Next due:" :value="formatDate(payment.nextPaymentDate)" />
-            <UiDetailRow variant="compact" label="Recipient:">
+            <UiDetailRow variant="compact" :label="t('Next due:')" :value="formatDate(payment.nextPaymentDate)" />
+            <UiDetailRow variant="compact" :label="t('Recipient:')">
               <AddressLabel :address="payment.recipient" tone-class="color-text-primary text-12px fw-500" />
             </UiDetailRow>
-            <UiDetailRow variant="compact" label="Sent so far:" :value="String(payment.successfulPayments)" />
+            <UiDetailRow variant="compact" :label="t('Sent so far:')" :value="String(payment.successfulPayments)" />
           </div>
 
           <div class="flex gap-8px pt-16px border-top-1">
             <UiButton variant="primary" v-if="payment.status === 'active' && isDue(payment)"
               @click="payNow(payment)"
-              title="Send this payment now">
-              <span>Pay now</span>
+              :title="t('Send this payment now')">
+              <span>{{ t('Pay now') }}</span>
             </UiButton>
             <UiButton variant="secondary" @click="viewHistory(payment)"
-              title="View History">
+              :title="t('View History')">
               <History :size="16" />
             </UiButton>
             <UiButton variant="secondary" @click="editPayment(payment)"
-              title="Edit">
+              :title="t('Edit')">
               <Edit :size="16" />
             </UiButton>
             <UiButton variant="secondary" v-if="payment.status === 'active'"
               @click="pausePayment(payment.id)"
-              title="Pause" class="hover-bg-warning-a15">
+              :title="t('Pause')" class="hover-bg-warning-a15">
               <PauseCircle :size="16" />
             </UiButton>
             <UiButton variant="secondary" v-else-if="payment.status === 'paused'"
               @click="resumePayment(payment.id)"
-              title="Resume" class="hover-bg-fill-success">
+              :title="t('Resume')" class="hover-bg-fill-success">
               <PlayCircle :size="16" />
             </UiButton>
             <UiButton variant="secondary" @click="confirmDelete(payment)"
-              title="Delete" class="hover-bg-fill-error">
+              :title="t('Delete')" class="hover-bg-fill-error">
               <Trash2 :size="16" />
             </UiButton>
           </div>
@@ -158,12 +158,13 @@
       v-if="showScanner"
       @close="showScanner = false"
       @scan="handleQrScan"
-      title="Scan Recipient Address"
+      :title="t('Scan Recipient Address')"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiButton from '../ui/UiButton.vue';
 import UiEmptyState from '../ui/UiEmptyState.vue';
 import UiCard from '../ui/UiCard.vue';
@@ -247,7 +248,7 @@ const monthlyTotal = computed(() => {
         p.frequency === 'daily' ? 30 : 1;
       return sum + (p.amount * multiplier);
     }, 0);
-  return total.toFixed(2) + ' LMN';
+  return total.toFixed(2) + t(' LMN');
 });
 
 function savePayment(data: any) {
@@ -261,7 +262,7 @@ function savePayment(data: any) {
         ...data,
         nextPaymentDate,
       });
-      emit('toast', 'Reminder updated', 'success');
+      emit('toast', t('Reminder updated'), 'success');
     } else {
       const nextPaymentDate = service.calculateNextPaymentDate(
         data.startDate,
@@ -273,12 +274,12 @@ function savePayment(data: any) {
         lastPaymentDate: undefined,
         status: 'active',
       });
-      emit('toast', 'Reminder saved', 'success');
+      emit('toast', t('Reminder saved'), 'success');
     }
     loadData();
     closeModal();
   } catch (e) {
-    emit('toast', errorMessage(e, 'Failed to save payment'), 'error');
+    emit('toast', errorMessage(e, t('Failed to save payment')), 'error');
   }
 }
 
@@ -289,20 +290,20 @@ function editPayment(payment: RecurringPayment) {
 function pausePayment(id: string) {
   service.pauseRecurringPayment(id);
   loadData();
-  emit('toast', 'Reminder paused', 'success');
+  emit('toast', t('Reminder paused'), 'success');
 }
 
 function resumePayment(id: string) {
   service.resumeRecurringPayment(id);
   loadData();
-  emit('toast', 'Reminder resumed', 'success');
+  emit('toast', t('Reminder resumed'), 'success');
 }
 
 function confirmDelete(payment: RecurringPayment) {
-  if (confirm(`Are you sure you want to delete "${payment.name}"?`)) {
+  if (confirm(t('Are you sure you want to delete “{name}”?', { name: payment.name }))) {
     service.deleteRecurringPayment(payment.id);
     loadData();
-    emit('toast', 'Reminder deleted', 'success');
+    emit('toast', t('Reminder deleted'), 'success');
   }
 }
 
@@ -324,7 +325,7 @@ function isDue(payment: RecurringPayment): boolean {
 function payNow(payment: RecurringPayment) {
   const amount = formatAmount(payment.amount);
   const recipient = formatAddress(payment.recipient);
-  if (!window.confirm(`Send ${amount} LMN to ${recipient} for "${payment.name}"?`)) return;
+  if (!window.confirm(t('Send {amount} LMN to {recipient} for “{name}”?', { amount, recipient, name: payment.name }))) return;
   emit('execute-payment', payment.id);
 }
 
@@ -346,12 +347,12 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
 
 function getFrequencyLabel(frequency: string): string {
   const labels: Record<string, string> = {
-    daily: '/ day',
-    weekly: '/ week',
-    biweekly: '/ 2 weeks',
-    monthly: '/ month',
-    quarterly: '/ quarter',
-    yearly: '/ year',
+    daily: t('/ day'),
+    weekly: t('/ week'),
+    biweekly: t('/ 2 weeks'),
+    monthly: t('/ month'),
+    quarterly: t('/ quarter'),
+    yearly: t('/ year'),
   };
   return labels[frequency] || '';
 }

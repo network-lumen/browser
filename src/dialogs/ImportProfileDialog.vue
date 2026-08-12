@@ -2,7 +2,7 @@
     <UiDialog
     :error="error"
     :model-value="modelValue"
-    title="Import profile"
+    :title="t('Import profile')"
     panel-class="min-w-360px max-w-90vw w-min-560px-92vw"
     :confirm-disabled="busy"
     @update:model-value="$emit('update:modelValue', false)"
@@ -10,7 +10,7 @@
   >
 
           <p class="text-13px color-text-secondary line-height-15 m-0px mb-16px">
-            Choose how you want to import your profile.
+            {{ t('Choose how you want to import your profile.') }}
           </p>
 
           <div class="gap-8px mb-16px grid grid-cols-2-minmax0">
@@ -20,7 +20,7 @@
               :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': mode === 'file' }"
               @click="$emit('update:mode', 'file')"
             >
-              Via file
+              {{ t('Via file') }}
             </button>
             <button
               type="button"
@@ -28,13 +28,13 @@
               :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': mode === 'manual' }"
               @click="$emit('update:mode', 'manual')"
             >
-              Manual
+              {{ t('Manual') }}
             </button>
           </div>
 
           <div v-if="mode === 'file'" class="flex flex-column gap-12px">
             <p class="m-0px border-radius-12px color-text-secondary text-13px p-14px bg-secondary line-height-15 border-05-light">
-              Keep the current workflow and select a full profile backup file or folder.
+              {{ t('Keep the current workflow and select a full profile backup file or folder.') }}
             </p>
           </div>
 
@@ -46,7 +46,7 @@
                 :disabled="busy"
                 @click="$emit('pick-profile-source')"
               >
-                Load profile backup…
+                {{ t('Load profile backup…') }}
               </UiButton>
               <UiButton
                 variant="secondary"
@@ -54,7 +54,7 @@
                 :disabled="busy"
                 @click="$emit('pick-pqc-source')"
               >
-                Load Dilithium backup…
+                {{ t('Load Dilithium backup…') }}
               </UiButton>
             </div>
 
@@ -71,7 +71,7 @@
             </div>
 
             <div class="flex flex-column gap-10px border-radius-12px mt-12px p-14px bg-secondary border-05-light">
-              <UiFormGroup label="Profile Name" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <UiFormGroup :label="t('Profile Name')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <UiInput
                   :model-value="form.name" @update:model-value="$emit('update:field', 'name', $event)"
                   type="text"
@@ -81,11 +81,11 @@
                   border-class="border-default"
                   :focus-ring="false"
                   class="focus-shadow"
-                  placeholder="Enter profile name"
+                  :placeholder="t('Enter profile name')"
                 />
               </UiFormGroup>
 
-              <UiFormGroup label="Mnemonic" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <UiFormGroup :label="t('Mnemonic')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <UiInput
                   :model-value="form.mnemonic" @update:model-value="$emit('update:field', 'mnemonic', $event)"
                   type="textarea"
@@ -95,11 +95,11 @@
                   border-class="border-default"
                   :focus-ring="false"
                   class="focus-shadow resize-vertical min-h-84px"
-                  placeholder="Enter wallet mnemonic"
+                  :placeholder="t('Enter wallet mnemonic')"
                 />
               </UiFormGroup>
 
-              <UiFormGroup label="PQC Public Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <UiFormGroup :label="t('PQC Public Key')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <UiInput
                   :model-value="form.pqcPublicKey" @update:model-value="$emit('update:field', 'pqcPublicKey', $event)"
                   type="textarea"
@@ -109,11 +109,11 @@
                   border-class="border-default"
                   :focus-ring="false"
                   class="focus-shadow mono resize-vertical min-h-84px"
-                  placeholder="Optional"
+                  :placeholder="t('Optional')"
                 />
               </UiFormGroup>
 
-              <UiFormGroup label="PQC Private Key" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
+              <UiFormGroup :label="t('PQC Private Key')" wrapper-class="gap-4px" label-class="text-11px txt-weight-light color-text-tertiary text-uppercase letter-spacing-003em">
                 <UiInput
                   :model-value="form.pqcPrivateKey" @update:model-value="$emit('update:field', 'pqcPrivateKey', $event)"
                   type="textarea"
@@ -123,27 +123,28 @@
                   border-class="border-default"
                   :focus-ring="false"
                   class="focus-shadow mono resize-vertical min-h-84px"
-                  placeholder="Optional"
+                  :placeholder="t('Optional')"
                 />
               </UiFormGroup>
             </div>
 
             <p class="m-0px text-12px color-text-tertiary line-height-15">
-              You can paste values manually or load `profile.json` and `lumen_pqc_*.json` to prefill the form.
+              {{ t('You can paste values manually or load `profile.json` and `lumen_pqc_*.json` to prefill the form.') }}
             </p>
 
             <p class="m-0px text-12px color-text-tertiary line-height-15">
-              If you do not have PQC keys yet, leave both fields empty: they will be generated automatically.
+              {{ t('If you do not have PQC keys yet, leave both fields empty: they will be generated automatically.') }}
             </p>
           </div>
 
 
-    <template #confirm><span v-if="!busy">{{ mode === 'file' ? 'Choose file…' : 'Import' }}</span>
-        <span v-else class="flex-inline-align-justify-center gap-8px"><UiSpinner size="sm" /> Importing…</span></template>
+    <template #confirm><span v-if="!busy">{{ mode === 'file' ? t('Choose file…') : t('Import') }}</span>
+        <span v-else class="flex-inline-align-justify-center gap-8px"><UiSpinner size="sm" /> {{ t('Importing…') }}</span></template>
   </UiDialog>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiDialog from '../ui/UiDialog.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiFormGroup from '../ui/UiFormGroup.vue';

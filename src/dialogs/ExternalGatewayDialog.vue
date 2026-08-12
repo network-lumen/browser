@@ -2,7 +2,7 @@
     <UiDialog
     :error="error"
     :model-value="modelValue"
-    :title="editing ? 'Edit External Gateway' : 'Add External Gateway'"
+    :title="editing ? t('Edit External Gateway') : t('Add External Gateway')"
     panel-class="max-w-500px w-90pct"
     :busy="saving"
     :confirm-disabled="saving || !valid"
@@ -10,11 +10,12 @@
     @confirm="$emit('submit')"
   >
     <ExternalGatewayFields :form="form" />
-    <template #confirm>{{ saving ? 'Saving...' : (editing ? 'Update' : 'Create') }}</template>
+    <template #confirm>{{ saving ? 'Saving...' : (editing ? t('Update') : t('Create')) }}</template>
 </UiDialog>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiDialog from '../ui/UiDialog.vue';
 import ExternalGatewayFields from '../forms/ExternalGatewayFields.vue';
 import type { ExternalGatewayForm } from '../types/myGatewaysPage';

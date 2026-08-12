@@ -11,12 +11,12 @@
   >
 
           <p class="color-text-secondary mb-24px text-14px">
-            Review the plan details and confirm your subscription.
+            {{ t('Review the plan details and confirm your subscription.') }}
           </p>
 
           <div v-if="plan">
             <div class="flex-justify-space-between text-12px">
-              <span class="color-text-secondary">Gateway</span>
+              <span class="color-text-secondary">{{ t('Gateway') }}</span>
               <span class="fw-500 color-text-primary">
                 {{ plan.gatewayName }}
                 <template v-if="plan.gatewayEndpoint">
@@ -25,13 +25,13 @@
               </span>
             </div>
             <div class="flex-justify-space-between text-12px">
-              <span class="color-text-secondary">Price / month</span>
+              <span class="color-text-secondary">{{ t('Price / month') }}</span>
               <span class="fw-500 color-text-primary">
                 {{ formatPlanPrice(plan.priceUlmn) }}
               </span>
             </div>
             <div class="flex-justify-space-between text-12px">
-              <span class="color-text-secondary">Storage</span>
+              <span class="color-text-secondary">{{ t('Storage') }}</span>
               <span class="fw-500 color-text-primary">
                 {{
                   plan.storageGbPerMonth
@@ -41,7 +41,7 @@
               </span>
             </div>
             <div class="flex-justify-space-between text-12px">
-              <span class="color-text-secondary">Egress</span>
+              <span class="color-text-secondary">{{ t('Egress') }}</span>
               <span class="fw-500 color-text-primary">
                 {{
                   plan.networkGbPerMonth
@@ -51,7 +51,7 @@
               </span>
             </div>
             <div class="flex-justify-space-between text-12px">
-              <span class="color-text-secondary">Duration</span>
+              <span class="color-text-secondary">{{ t('Duration') }}</span>
               <span class="fw-500 color-text-primary">
                 {{ subscribeMonths }} month{{
                   subscribeMonths > 1 ? "s" : ""
@@ -59,7 +59,7 @@
               </span>
             </div>
             <div class="flex-justify-space-between text-12px">
-              <span class="color-text-secondary">Total</span>
+              <span class="color-text-secondary">{{ t('Total') }}</span>
               <span class="fw-500 color-text-primary">
                 {{
                   subscribeTotalPrice.toFixed(
@@ -70,7 +70,7 @@
               </span>
             </div>
             <div class="flex-justify-space-between text-12px">
-              <span class="color-text-secondary">Balance</span>
+              <span class="color-text-secondary">{{ t('Balance') }}</span>
               <span class="fw-500 color-text-primary">
                 <template v-if="balance !== null">
                   {{
@@ -79,7 +79,7 @@
                   LMN
                 </template>
                 <template v-else-if="balanceLoading">
-                  Loading...
+                  {{ t('Loading...') }}
                 </template>
                 <template v-else> — </template>
               </span>
@@ -88,14 +88,13 @@
               v-if="insufficientFunds"
               class="text-11px line-height-12 color-error mt-8px"
             >
-              You can't subscribe because your wallet balance is too low.
+              {{ t("You can't subscribe because your wallet balance is too low.") }}
             </p>
           </div>
 
 
           <p v-if="busy" class="text-11px line-height-12 color-text-tertiary mt-4px">
-            Submitting on-chain transaction… This can take ~1–2 minutes the
-            first time (PQC setup + block confirmation).
+            {{ t('Submitting on-chain transaction… This can take ~1–2 minutes the first time (PQC setup + block confirmation).') }}
           </p>
 
     <template #confirm><UiSpinner v-if="busy" size="sm" />
@@ -104,6 +103,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import UiDialog from '../ui/UiDialog.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { formatPlanPrice, planDisplayName } from '../internal/services/plans';

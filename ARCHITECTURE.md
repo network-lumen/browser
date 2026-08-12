@@ -17,7 +17,7 @@ src/
 ├── entities/      (7)  One domain value, drawn canonically.         → ui, services, types
 ├── forms/         (5)  Reusable groups of form fields.              → ui, types
 ├── dialogs/      (46)  Modals. One file per modal.                  → ui, forms, services, types
-├── views/         (3)  A sub-view of a page, extracted.             → ui, entities, services
+├── panels/        (3)  A chunk of a page, extracted. Not a modal.   → ui, entities, services
 ├── layouts/       (3)  Tab bar, tab pane, nav bar.                  → ui, services, components
 ├── components/   (15)  App shell pieces that are none of the above. → anything below pages
 ├── composables/   (6)  Injection, and shared reactive state.        → types, stores
@@ -39,7 +39,7 @@ src/
 ```
         internal/pages
               ↓
-  dialogs · views · layouts · components
+  dialogs · panels · layouts · components
               ↓
        entities · forms
               ↓
@@ -82,8 +82,24 @@ Do not add a fifth without saying why in the PR.
 > not three stylings, three different *values* for the same number. If you are about to write a
 > `<code>` for a hash or slice an address by hand, stop and use the entity.
 
-**Is it a modal?** → `src/dialogs/`, one file per modal, built on `UiDialog` (which already gives
-you the footer, the busy state, the error banner and dismiss-blocking while busy).
+**Is it a modal?** → `src/dialogs/`, one file per modal. Two shells, and which one is not a
+preference:
+
+- **`UiDialog`** if it ends in Cancel beside one action - it gives you that footer, the busy state,
+  the error banner and dismiss-blocking while the action runs. 24 dialogs.
+- **`UiModal`** if it has no footer, or puts its action in the body. 24 dialogs, and
+  `UiModalHeader` covers the icon-and-title header most of them want.
+
+> They are not two ways of saying the same thing, and merging them makes the common case worse.
+> `UiDialog` *is* `UiModal` plus a footer: fold them together and every footerless dialog carries
+> `confirmLabel`, `busyLabel`, `spinner`, `confirmVariant`, `cancelLabel`, `buttonClass`,
+> `confirmDisabled` and `error` - ten props inert for half the callers - plus a `hide-footer` it has
+> to remember to pass. A four-prop component would become a fourteen-prop one to save an import.
+
+**Is it a chunk of one page, big enough to live on its own?** → `src/panels/`, named `…Panel.vue`.
+This folder was called `views/` until it was pointed out that in every other Vue codebase `views/`
+means *the routed pages* - which here are `internal/pages/`. The name meant the opposite of what it
+usually does, on the one folder a newcomer is most likely to guess at.
 
 **Is it logic with no view state?** → `src/internal/services/`. This is the default answer for
 anything that is not markup.
@@ -124,11 +140,18 @@ which calls the Electron bridge as its module loads. Import `tabHistory` from a 
 before the test runs. Keep the read side dependency-free.
 
 **Translation is keyed on the English text, not on an invented id.** `t('Save')`, not
-`t('dialogs.drive.save')`. Naming ~2 000 strings is work nobody would finish and two people would do
+`t('dialogs.drive.save')`. Naming ~1 850 strings is work nobody would finish and two people would do
 differently; keying on the source means a missing translation renders the English, and
 `npm run i18n:extract` reads the whole catalogue straight out of `src/`. The cost is that rewording
 the English orphans the translation - the extractor reports that rather than deleting it. Reasoning
 in `internal/services/i18n.ts`.
+
+> The corollary is that a **sentence must be one string**. Half the work of the migration was
+> undoing sentences assembled from pieces - `{{ 'Delete' }} <strong>{{ name }}</strong> {{ '?' }}`,
+> or a template literal glueing three fragments - because word order is the first thing a language
+> changes and a fragment cannot be reordered. Those became one `t()` with a `{placeholder}`. This is
+> also why `markForTranslation()` exists: a table built at module load cannot call `t()` without
+> freezing the language it was first imported in.
 
 **`window.lumen` means two different objects.** The renderer's (via `useInternalLumen()`) is the
 full trusted bridge. The one inside a `<webview>` is a restricted, site-facing API in a different

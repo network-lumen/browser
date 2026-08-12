@@ -1,3 +1,4 @@
+import { t } from '../../stores/i18nStore';
 import { activeProfileId } from "../../stores/profilesStore";
 import { checkIpfsStatus } from "./ipfs";
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -45,7 +46,7 @@ function loadLocalNames() {
 
 async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir"): Promise<UploadPathResult> {
     const rootPath = String(dirPath || "").trim();
-    if (!rootPath) throw new Error("Invalid folder path");
+    if (!rootPath) throw new Error(t("Invalid folder path"));
 
     // Normalize the name by taking the last part of the path
     const s = String(rootPath || "").replace(/\\/g, "/").trim();
@@ -68,10 +69,10 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
             ? await api.ipfsAddDirectoryFromPathWithProgress({ rootPath, rootName: name, uploadId }, { signal: controller.signal })
             : await api.ipfsAddPathWithProgress({ filePath: dirPath, filename: name, uploadId }, { signal: controller.signal });
         if(!result.ok && result.error === "cancelled")
-            throw new Error("Upload cancelled");
+            throw new Error(t("Upload cancelled"));
         if (!result?.cid)
-            throw new Error("Failed to add " + fileType + " to IPFS");
-        if (result?.cid && String(result.error || "").includes("closed network connection"))
+            throw new Error(t("Failed to add ") + fileType + t(" to IPFS"));
+        if (result?.cid && String(result.error || "").includes(t("closed network connection")))
             console.warn("Kubo stream closed but CID exists → treating as success");
         else if(!result.ok && result.error)
             throw new Error(result.error)
@@ -84,7 +85,7 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
 
         const pid = String(activeProfileId.value || "").trim();
         if (!pid) 
-          throw new Error("No active profile found");
+          throw new Error(t("No active profile found"));
         writeJson(driveLocalNamesKey(pid), localNames);
 
         loadFiles();
@@ -103,7 +104,7 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
         return { ok: true, cid, rootName: name, rootPath, totalBytes };
     } catch (err) {
         console.error(err);
-        return { ok: false, error: errorMessage(err, "Failed to upload"), rootName: name, rootPath };
+        return { ok: false, error: errorMessage(err, t("Failed to upload")), rootName: name, rootPath };
     } finally {
         setTimeout(() => {
             delete uploadActivities[dirPath];
@@ -114,11 +115,11 @@ async function uploadFromPath(dirPath: string, fileType: "file" | "dir" = "dir")
 
 async function uploadFolderToLocal(): Promise<UploadPathResult[]> { // Upload a local folder to an IPFS local CID
     try {
-        const res = await api.dialogOpenFolder({ title: "Select folder to upload", multi: true });
+        const res = await api.dialogOpenFolder({ title: t("Select folder to upload"), multi: true });
         const paths = Array.isArray(res.paths) ? res.paths : [];
         const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean) as string[];
-        if (!selected.length) throw new Error("No folder selected");
-        if (!await checkIpfsStatus()) throw new Error("IPFS is not connected");
+        if (!selected.length) throw new Error(t("No folder selected"));
+        if (!await checkIpfsStatus()) throw new Error(t("IPFS is not connected"));
         loadLocalNames();
         loadFiles();
         const results: UploadPathResult[] = [];
@@ -133,11 +134,11 @@ async function uploadFolderToLocal(): Promise<UploadPathResult[]> { // Upload a 
 
 async function uploadFileToLocal(): Promise<UploadPathResult[]> { // Upload a local file to an IPFS local CID
     try { 
-        const res = await api.dialogOpenFiles({ title: "Select file to upload", multi: true });
+        const res = await api.dialogOpenFiles({ title: t("Select file to upload"), multi: true });
         const paths = Array.isArray(res.paths) ? res.paths : [];
         const selected = paths.map((p: any) => String(p || "").trim()).filter(Boolean) as string[];
-        if (!selected.length) throw new Error("No file selected");
-        if (!await checkIpfsStatus()) throw new Error("IPFS is not connected");
+        if (!selected.length) throw new Error(t("No file selected"));
+        if (!await checkIpfsStatus()) throw new Error(t("IPFS is not connected"));
         loadLocalNames();
         loadFiles();
         const results: UploadPathResult[] = [];
@@ -153,8 +154,8 @@ async function uploadFileToLocal(): Promise<UploadPathResult[]> { // Upload a lo
 async function uploadCancelUpload(key: string) {
   try {
     const activity = uploadActivities[key];
-    if (!activity) throw new Error("File not found in upload activities");
-    if(activity.uploadingCanceling !== 0) throw new Error("Upload is already being canceled");
+    if (!activity) throw new Error(t("File not found in upload activities"));
+    if(activity.uploadingCanceling !== 0) throw new Error(t("Upload is already being canceled"));
     activity.uploadingCanceling = 1;
     const controller = uploadControllers[key];
     if (controller) {

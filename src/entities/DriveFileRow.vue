@@ -52,6 +52,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
 import { computed } from 'vue';
 import { Clapperboard, Download, Share2, TableProperties, Trash2 } from 'lucide-vue-next';
 import UiButton from '../ui/UiButton.vue';
@@ -105,7 +106,7 @@ const availableActions = computed(() => {
   if (!props.isDirectory && isVideoFile(props.file.name)) {
     actions.push({
       kind: 'convert',
-      title: 'Convert to HLS',
+      title: t('Convert to HLS'),
       icon: Clapperboard,
       disabled: props.busy,
       class: 'active-scale-98',
