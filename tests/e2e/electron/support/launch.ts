@@ -114,12 +114,19 @@ export async function launchApp(
   delete env.ELECTRON_RUN_AS_NODE;
 
   const app = await electron.launch({
-    args: ['.'],
+    // `--lang` pins Chromium's own locale, which is what `navigator.languages`
+    // reports. LUMEN_SYSTEM_LANGUAGES below covers the other half - what the
+    // main process reports the OS is set to - and the renderer consults both.
+    args: ['.', '--lang=en-US'],
     env: {
       ...env,
       LUMEN_USER_DATA_DIR: profileDir,
       VITE_DEV_SERVER_URL: 'http://127.0.0.1:5173',
       LUMEN_GATEWAY_HEALTH_MONITOR: '0',
+      // A profile that has never chosen a language follows the OS, so on a
+      // French machine every assertion about an English label fails - and the
+      // suite's result would depend on whose laptop it ran on.
+      LUMEN_SYSTEM_LANGUAGES: 'en',
       ...(opts.env || {})
     }
   });

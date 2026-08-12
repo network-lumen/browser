@@ -84,8 +84,14 @@ Each was written after finding the drift it now blocks. The counts came out near
 
 Both checks are wired into `npm test`. All ~1 950 strings go through `t()`; the handful that
 deliberately do not are named in `scripts/check-untranslated.mjs`, each with the reason.
-**Translating** them is separate work - an empty catalogue entry renders the English, so a language
-can be filled in a screen at a time without ever showing a hole.
+All twelve catalogues beside English are complete. An empty entry renders the English, so a
+language added later can be filled a screen at a time without ever showing a hole.
+
+**The end-to-end suite pins the language.** A profile that has never chosen one follows the OS, so
+on a French machine every assertion about an English label fails. `tests/e2e/electron/support/launch.ts`
+passes `--lang=en-US` (Chromium's own locale, which `navigator.languages` reports) and
+`LUMEN_SYSTEM_LANGUAGES=en` (what the main process reports the OS is set to). The renderer consults
+both, so both are needed.
 
 **The trap `markForTranslation()` exists for.** A `const` table at the top of a module - the route
 names, the fatal-error map, a DEX listing - is built when the module is *imported*, which happens

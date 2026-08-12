@@ -341,9 +341,21 @@ ipcMain.on('app:reportRendererError', (evt, payload) => {
  * single locale the OS reports, kept as a fallback for the platforms where the
  * list comes back empty.
  */
+// LUMEN_SYSTEM_LANGUAGES pins what the app believes the OS is set to.
+//
+// On a fresh profile the interface follows the system language, which is the
+// behaviour people expect and exactly what breaks a test asserting English
+// button labels on a French machine. The end-to-end harness sets this to "en"
+// so a run says the same thing wherever it happens; by hand it is also the
+// quickest way to see a screen in another language without changing anything.
 ipcMain.on('app:systemLanguages', (evt) => {
   evt.returnValue = [];
   if (!ensureUiSender(evt).ok) return;
+  const forced = String(process.env.LUMEN_SYSTEM_LANGUAGES || '').trim();
+  if (forced) {
+    evt.returnValue = forced.split(',').map((entry) => entry.trim()).filter(Boolean);
+    return;
+  }
   try {
     const preferred = typeof app.getPreferredSystemLanguages === 'function'
       ? app.getPreferredSystemLanguages()

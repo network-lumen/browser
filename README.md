@@ -37,9 +37,10 @@ empty entry renders the English, so a half-filled catalogue ships fine.
 npm run i18n:extract   # add every new t('…') to each catalogue, report orphans
 ```
 
-Thirteen languages ship. English and French are complete; the other eleven have their catalogue in
-place and are being filled — an untranslated entry renders the English, so a partial catalogue is a
-normal state rather than a broken one.
+Thirteen languages ship, all complete: English, French, Spanish, Portuguese, German, Italian,
+Russian, Arabic, Hindi, Indonesian, Chinese, Japanese and Korean — 1 951 strings each. An
+untranslated entry renders the English, so a language added later can be filled a screen at a time
+without ever showing a hole.
 
 The language is asked once, during first-run onboarding, pre-selected from what the OS reports. After
 that it belongs to the **profile**: switching profile switches language, and a profile created from
