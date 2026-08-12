@@ -65,10 +65,17 @@ const ALLOWED = new Set([
   // The product name. It is the same word in every language.
   'Lumen',
 
-  // A language picker names each language in that language, so its own label is
-  // the one string in the app that must not follow the active locale.
+  // A language picker names each language in that language, so these labels are
+  // the one set of strings in the app that must not follow the active locale.
+  // Only the Latin-script ones need naming: the rest carry no ASCII letters and
+  // the scan never looks at them.
   'English',
   'Français',
+  'Español',
+  'Português',
+  'Deutsch',
+  'Italiano',
+  'Bahasa Indonesia',
 ]);
 
 function walk(dir) {
