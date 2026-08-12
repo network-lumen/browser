@@ -57,8 +57,8 @@ npm run check:wording       # fails on two strings saying the same thing
 node scripts/merge-locale.mjs fr batch.json
 ```
 
-**Adding a language**: a new `src/locales/<code>.json`, its code and endonym in
-`LOCALES` (`src/internal/services/i18n.ts`), `TARGET_LOCALES` in
+**Adding a language**: a new `src/locales/<code>.json`, its code, endonym and
+flag in `LOCALES` (`src/internal/services/i18n.ts`), `TARGET_LOCALES` in
 `scripts/extract-strings.mjs`, and the import in `src/stores/i18nStore.ts`. The
 picker in `lumen://settings` and the onboarding step both read `LOCALES`, so
 neither needs editing. Set `rtl: true` if the script runs right to left.
@@ -82,10 +82,18 @@ Each was written after finding the drift it now blocks. The counts came out near
 | Nothing shouts | the explorer's header row is uppercased by CSS; an ALL-CAPS source loses accents to `text-transform` |
 | A term kept in English is spelled one way inside a translation | "l'instantané du drive" beside "Enregistrer dans Drive" reads as two different things |
 
-Both checks are wired into `npm test`. All ~1 850 strings go through `t()`; the four that
-deliberately do not are named in `scripts/check-untranslated.mjs`. **Translating** them is separate
-work - an empty catalogue entry renders the English, so a language can be filled in a screen at a
-time without ever showing a hole.
+Both checks are wired into `npm test`. All ~1 950 strings go through `t()`; the handful that
+deliberately do not are named in `scripts/check-untranslated.mjs`, each with the reason.
+**Translating** them is separate work - an empty catalogue entry renders the English, so a language
+can be filled in a screen at a time without ever showing a hole.
+
+**The trap `markForTranslation()` exists for.** A `const` table at the top of a module - the route
+names, the fatal-error map, a DEX listing - is built when the module is *imported*, which happens
+long before a profile's locale is read. `t()` there returns English and keeps returning it for the
+whole session, however many times the value is drawn. Nothing fails; the page is simply in the
+wrong language, and only in the places that used a table. If a string is written down anywhere
+other than where it is displayed, it wants `markForTranslation()` at the definition and `t()` at
+the draw site.
 
 ---
 
