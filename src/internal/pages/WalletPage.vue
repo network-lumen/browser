@@ -27,7 +27,7 @@
           </UiSidebarNavItem>
           <UiSidebarNavItem :active="currentView === 'addressbook'" @click="currentView = 'addressbook'">
             <Users :size="18" />
-            <span>{{ t('Address Book') }}</span>
+            <span>{{ t('Address book') }}</span>
           </UiSidebarNavItem>
         </UiSidebarNavSection>
       </nav>
@@ -39,15 +39,15 @@
         <template v-if="currentView !== 'dex'" #actions>
           <UiButton variant="primary" @click="connectWallet" v-if="!isConnected">
             <Link :size="16" />
-            <span>{{ t('Connect Wallet') }}</span>
+            <span>{{ t('Connect wallet') }}</span>
           </UiButton>
           <UiButton variant="primary" @click="subscriptionsRef?.openCreateModal()" v-else-if="currentView === 'recurring'">
             <Plus :size="16" />
-            <span>{{ t('New Payment') }}</span>
+            <span>{{ t('New payment') }}</span>
           </UiButton>
           <UiButton variant="primary" @click="openAddContactModal" v-else-if="currentView === 'addressbook'">
             <Plus :size="16" />
-            <span>{{ t('Add Contact') }}</span>
+            <span>{{ t('Add contact') }}</span>
           </UiButton>
           <UiButton variant="primary" @click="sendTransaction" v-else>
             <Send :size="16" />
@@ -60,7 +60,7 @@
       <div v-if="currentView === 'overview'" class="flex flex-column gap-24px">
         <div class="border-radius-20px p-32px bg-gradient-primary color-white relative overflow-hidden border-1-white-a1 shadow-glow-primary-lg">
           <div class="flex-align-center-justify-space-between mb-16px">
-            <span class="text-uppercase txt-weight-light text-13px letter-spacing-008em color-white-a85">{{ t('Total Balance') }}</span>
+            <span class="text-uppercase txt-weight-light text-13px letter-spacing-008em color-white-a85">{{ t('Total balance') }}</span>
             <UiButton variant="icon" icon-padding-class="" @click="showBalance = !showBalance" class="hover-bg-card flex-inline-align-justify-center size-32px color-white backdrop-blur-10">
               <Eye v-if="showBalance" :size="18" />
               <EyeOff v-else :size="18" />
@@ -75,7 +75,7 @@
           <div class="flex-align-center gap-8px fw-500 text-14px color-white-a85">
             <TrendingUp :size="14" />
             <span v-if="isConnected && !balanceError">{{ t('On-chain balance') }}</span>
-            <span v-else-if="balanceError">{{ t('Error loading balance') }}</span>
+            <span v-else-if="balanceError">{{ t('Failed to load balance.') }}</span>
             <span v-else>{{ t('Connect a wallet to view balance') }}</span>
           </div>
         </div>
@@ -121,20 +121,20 @@
 
       <!-- ####### lumen://wallet ASSETS VIEW ####### -->
       <div v-else-if="currentView === 'assets'" class="flex flex-column gap-24px w-full max-w-full">
-        <UiChartHeader :title="t('Cross-chain Assets')" />
-        <UiEmptyState v-if="!isConnected" class="mt-32px" :title="t('Connect Your Wallet')" :description="t('Connect a wallet to view your assets across linked IBC chains.')">
+        <UiChartHeader :title="t('Cross-chain assets')" />
+        <UiEmptyState v-if="!isConnected" class="mt-32px" :title="t('Connect your wallet')" :description="t('Connect a wallet to view your assets across linked IBC chains.')">
           <Coins :size="32" />
           <template #actions>
             <UiButton variant="primary" @click="connectWallet">
               <Link :size="16" />
-              <span>{{ t('Connect Wallet') }}</span>
+              <span>{{ t('Connect wallet') }}</span>
             </UiButton>
           </template>
         </UiEmptyState>
         <UiEmptyState v-else-if="assetsLoading && !assetRows.length" class="mt-32px" :title="t('Loading assets…')" :description="t('Fetching balances on Lumen and linked IBC chains.')">
           <Coins :size="32" />
         </UiEmptyState>
-        <UiEmptyState v-else-if="assetsError && !assetRows.length" class="mt-32px" :title="t('Unable to load assets')" :description="assetsError">
+        <UiEmptyState v-else-if="assetsError && !assetRows.length" class="mt-32px" :title="t('Failed to load assets.')" :description="assetsError">
           <AlertCircle :size="32" />
         </UiEmptyState>
         <div v-else>
@@ -310,18 +310,18 @@
         <!-- ####### lumen://wallet TRANSACTIONS VIEW ####### -->
         <div v-else-if="currentView === 'transactions'" class="flex flex-column gap-24px w-full max-w-full">
 
-        <UiChartHeader v-if="activities.length > 0" :title="t('Recent Transactions')">
+        <UiChartHeader v-if="activities.length > 0" :title="t('Recent transactions')">
           <div class="flex-align-center flex-wrap-wrap gap-12px">
             <div class="flex-align-center gap-8px">
               <select v-model="txFilterStatus" class="hover-border-accent focus-border-primary color-text-primary cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card text-14px transition-all-02 focus-outline-none focus-ring focus-shadow">
-                <option value="all">{{ t('All Status') }}</option>
+                <option value="all">{{ t('All statuses') }}</option>
                 <option value="success">{{ t('Success') }}</option>
                 <option value="failed">{{ t('Failed') }}</option>
               </select>
               <input
                 v-model="txSearchQuery"
                 type="text"
-                :placeholder="t('Search by hash...')"
+                :placeholder="t('Search by hash…')"
                 class="hover-border-accent focus-border-primary color-text-primary py-8px px-12px border-1 border-radius-8px bg-card text-14px transition-all-02 focus-outline-none focus-ring focus-shadow min-w-200px placeholder-tertiary"
               />
             </div>
@@ -340,7 +340,7 @@
           <ArrowLeftRight :size="32" />
         </UiEmptyState>
 
-        <UiEmptyState v-else-if="activitiesError" class="mt-32px" :title="t('Unable to load transactions')">
+        <UiEmptyState v-else-if="activitiesError" class="mt-32px" :title="t('Failed to load transactions.')">
           <ArrowLeftRight :size="32" />
           <template #description>
             <p class="m-0px max-w-520px text-14px line-height-15">{{ activitiesError }}</p>
@@ -537,13 +537,13 @@
     <!-- ####### lumen://wallet DELETE CONFIRMATION MODAL ####### -->
     <ConfirmDialog
       v-model="showDeleteConfirmModal"
-      :title="t('Delete Contact')"
+      :title="t('Delete contact')"
       panel-class=""
       @update:model-value="cancelDeleteContact"
       @confirm="confirmDeleteContact"
     >
       <p class="color-text-primary text-15px mb-8px line-height-15">
-        {{ t('Are you sure you want to delete') }} <strong>{{ contactToDelete?.name }}</strong>?
+        {{ t('Are you sure you want to delete “{name}”?', { name: contactToDelete?.name || '' }) }}
       </p>
       <p class="color-text-tertiary text-14px">
         {{ t('This action cannot be undone.') }}
@@ -789,7 +789,7 @@ const dexLastLoadedAt = ref(0);
 const DEX_REFRESH_TTL_MS = 60_000;
 
 const showQrScanner = ref(false);
-const qrScannerTitle = ref(t('Scan QR Code'));
+const qrScannerTitle = ref(t('Scan QR code'));
 
 // Recurring Payments
 const subscriptionsRef = ref<any>(null);
@@ -814,7 +814,7 @@ onBeforeUnmount(() => {
 
 const balanceLabel = computed(() => {
   if (!isConnected.value) return t('Not connected');
-  if (balanceLoading.value) return t('Loading...');
+  if (balanceLoading.value) return t('Loading…');
   if (balanceError.value) return 'Error';
   if (balanceLmn.value == null) return '0.000000 LMN';
   return `${balanceLmn.value.toFixed(6)} LMN`;
@@ -1236,12 +1236,12 @@ async function hydrateTxMeta(list: Activity[]) {
 
 function getViewTitle(): string {
   const titles: Record<string, string> = {
-    overview: t('Wallet Overview'),
+    overview: t('Wallet overview'),
     assets: t('Assets'),
     dex: t('DEX'),
     transactions: t('Transactions'),
-    addressbook: t('Address Book'),
-    recurring: t('Payment Reminders')
+    addressbook: t('Address book'),
+    recurring: t('Payment reminders')
   };
   return titles[currentView.value] || 'Wallet';
 }
@@ -1279,7 +1279,7 @@ async function refreshActivities() {
 
 function connectWallet() {
   if (!address.value) {
-    showToast(t('Create or select a profile first in the top navigation.'), 'error');
+    showToast(t('Select or create a profile first.'), 'error');
     return;
   }
   manualDisconnected.value = false;
@@ -1376,13 +1376,13 @@ async function refreshWallet() {
   try {
     const walletApi = useInternalLumen()?.wallet;
     if (!walletApi || typeof walletApi.getBalance !== 'function') {
-      balanceError.value = t('Wallet bridge not available');
+      balanceError.value = t('Wallet bridge not available.');
       balanceLmn.value = null;
       return;
     }
     const res = await walletApi.getBalance(address.value, { denom: 'ulmn' });
     if (!res || res.ok === false) {
-      balanceError.value = res?.error || t('Unable to load balance');
+      balanceError.value = res?.error || t('Failed to load balance.');
       balanceLmn.value = null;
       return;
     }
@@ -1473,7 +1473,7 @@ function sendTransaction() {
 
 function closeSendModal() {
   if (sendingTransaction.value) {
-    showToast(t('Transaction in progress. Please wait...'), 'info');
+    showToast(t('Transaction in progress. Please wait…'), 'info');
     return;
   }
   showSendModal.value = false;
@@ -1485,7 +1485,7 @@ function closeSendModal() {
 }
 
 function openQrScanner() {
-  qrScannerTitle.value = t('Scan Wallet Address or Payment');
+  qrScannerTitle.value = t('Scan wallet address or payment');
   showQrScanner.value = true;
 }
 
@@ -1530,7 +1530,7 @@ function handleQrScan(data: { type: string; content: string; raw: string }) {
       if (!showSendModal.value) {
         showSendModal.value = true;
       }
-      showToast(t('Address scanned successfully'), 'success');
+      showToast(t('Wallet address scanned successfully'), 'success');
     }
     return;
   }
@@ -1706,7 +1706,7 @@ function extractDexQuickLinks(doc: Document | null, config: DexListingConfig): D
 function extractDexMarketPreview(doc: Document | null): DexMarketPreview | null {
   if (!doc?.body) return null;
 
-  const candidates = Array.from(doc.body.querySelectorAll(t('a, button, article, section, div')))
+  const candidates = Array.from(doc.body.querySelectorAll('a, button, article, section, div'))
     .map((element) => normalizeWhitespace(element.textContent || ''))
     .filter((text) => text.length >= 8 && text.length <= 260);
 
@@ -2198,17 +2198,17 @@ async function confirmSendPreview() {
   const amountMicro = decimalToMicroUnits(sendForm.value.amount);
   
   if (!to) {
-    showToast(t('Please enter recipient address'), 'error');
+    showToast(t('Please enter recipient address.'), 'error');
     return;
   }
   
   if (!(amountNum > 0)) {
-    showToast(t('Please enter a valid amount'), 'error');
+    showToast(t('Please enter a valid amount.'), 'error');
     return;
   }
 
   if (amountMicro == null || amountMicro <= 0n) {
-    showToast(t('Please enter a valid amount'), 'error');
+    showToast(t('Please enter a valid amount.'), 'error');
     return;
   }
 
@@ -2220,7 +2220,7 @@ async function confirmSendPreview() {
   const walletApi = useInternalLumen()?.wallet;
   const activeId = activeProfileId.value;
   if (!activeId) {
-    showToast(t('No active profile selected'), 'error');
+    showToast(t('No active profile.'), 'error');
     return;
   }
 
@@ -2239,12 +2239,12 @@ async function confirmSendPreview() {
       }
 
       if (!walletApi || typeof walletApi.ibcTransfer !== 'function') {
-        showToast(t('Wallet IBC bridge not available'), 'error');
+        showToast(t('Wallet IBC bridge not available.'), 'error');
         return;
       }
 
       if (!selectedIbcChannel.value) {
-        showToast(t('Please select an IBC route'), 'error');
+        showToast(t('Select an IBC route'), 'error');
         return;
       }
 
@@ -2275,7 +2275,7 @@ async function confirmSendPreview() {
       }
 
       if (!walletApi || typeof walletApi.sendTokens !== 'function') {
-        showToast(t('Wallet send bridge not available'), 'error');
+        showToast(t('Wallet send bridge not available.'), 'error');
         return;
       }
 
@@ -2308,7 +2308,7 @@ async function confirmSendPreview() {
     const res = await sendOperation(sendParams);
 
     if (!res || res.ok === false) {
-      const err = String(res?.error || t('unknown error'));
+      const err = String(res?.error || t('Unknown error'));
       if (err === 'password_required' || err === 'invalid_password') {
         try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
         showToast(t('Wallet locked. Unlock to continue.'), 'warning');
@@ -2323,7 +2323,7 @@ async function confirmSendPreview() {
         return;
       }
       
-      showToast(`${failureLabel} failed: ${res?.error || t('unknown error')}`, 'error');
+      showToast(`${failureLabel} failed: ${res?.error || t('Unknown error')}`, 'error');
       return;
     }
     
@@ -2462,11 +2462,11 @@ async function refreshAssets(options: { force?: boolean; silent?: boolean; conte
               iconClass: 'remote',
               chainRegistryName: entry.meta.chainRegistryName,
               transferTargets: [],
-              routeLabel: t('Unable to derive destination address.'),
+              routeLabel: t('Failed to derive the destination address.'),
               restEndpoint: entry.meta.restEndpoint,
               rpcEndpoint: entry.meta.rpcEndpoint,
               feeDenom: entry.meta.feeDenom,
-              error: t('Unable to derive an address for this chain.')
+              error: t('Failed to derive an address for this chain.')
             })
           ];
         }
@@ -2595,7 +2595,7 @@ function openAssetTransferModal(asset: AssetRow) {
 
 function closeAssetTransferModal() {
   if (assetTransferSending.value) {
-    showToast(t('Transfer in progress. Please wait...'), 'info');
+    showToast(t('Transfer in progress. Please wait…'), 'info');
     return;
   }
   showAssetTransferModal.value = false;
@@ -2658,7 +2658,7 @@ async function confirmAssetTransfer() {
 
   const activeId = activeProfileId.value;
   if (!activeId) {
-    showToast(t('No active profile selected.'), 'error');
+    showToast(t('No active profile.'), 'error');
     return;
   }
 
@@ -2700,7 +2700,7 @@ async function confirmAssetTransfer() {
     const res = await Promise.race([sendPromise, timeoutPromise]);
 
     if (!res || res.ok === false) {
-      const err = String(res?.error || t('unknown error'));
+      const err = String(res?.error || t('Unknown error'));
       if (err === 'password_required' || err === 'invalid_password') {
         try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
         showToast(t('Wallet locked. Unlock to continue.'), 'warning');
@@ -2841,7 +2841,7 @@ async function saveContact() {
         plainContact
       );
       if (result.ok) {
-        showToast(t('Contact updated!'), 'success');
+        showToast(t('Contact updated.'), 'success');
         await loadContacts();
         closeContactModal();
       } else {
@@ -2851,7 +2851,7 @@ async function saveContact() {
       // Add new contact
       const result = await useInternalLumen()?.addressBook.add(plainContact);
       if (result.ok) {
-        showToast(t('Contact added!'), 'success');
+        showToast(t('Contact added.'), 'success');
         await loadContacts();
         closeContactModal();
       } else {
@@ -2944,6 +2944,6 @@ function exportTransactions() {
     'text/csv;charset=utf-8;'
   );
   
-  showToast(t('Transactions exported!'), 'success');
+  showToast(t('Transactions exported.'), 'success');
 }
 </script>

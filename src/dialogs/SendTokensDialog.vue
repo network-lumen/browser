@@ -8,10 +8,10 @@
           <UiBanner class="mb-24px">
             <span v-if="assetContext">
               <template v-if="isIbcSend">
-                Move this asset from {{ sourceChainLabel }} to another linked chain over IBC.
+                {{ t('Move this asset from {chain} to another linked chain over IBC.', { chain: sourceChainLabel }) }}
               </template>
               <template v-else>
-                Send this asset on {{ sourceChainLabel }} to any {{ sourcePrefix }}1... address. Use “To Other Chain” only when you want to bridge it.
+                {{ t('Send this asset on {chain} to any {prefix}1… address. Use “To Other Chain” only when you want to bridge it.', { chain: sourceChainLabel, prefix: sourcePrefix || '' }) }}
               </template>
             </span>
             <span v-else>
@@ -41,7 +41,7 @@
               :disabled="ibcChannelsLoading || !ibcChannels.length"
             >
               <option value="" disabled>
-                {{ ibcChannelsLoading ? t('Loading IBC channels...') : t('Select an IBC route') }}
+                {{ ibcChannelsLoading ? t('Loading IBC channels…') : t('Select an IBC route') }}
               </option>
               <option
                 v-for="channel in ibcChannels"
@@ -68,7 +68,7 @@
                   :placeholder="recipientPlaceholder" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
                 <UiButton variant="secondary" @click="$emit('scan-qr')"
                   type="button"
-                  :title="t('Scan QR Code')" class="hover-bg-accent-color-white absolute top-half translate-y-center right-12px">
+                  :title="t('Scan QR code')" class="hover-bg-accent-color-white absolute top-half translate-y-center right-12px">
                   <QrCode :size="16" />
                 </UiButton>
                 <button
@@ -83,7 +83,7 @@
               </div>
               <div v-if="showContactPicker" class="border-radius-12px absolute top-full mt-8px bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-md">
                 <div class="flex-align-center-justify-space-between txt-weight-light color-text-primary py-12px px-16px bg-secondary border-bottom-1 text-14px">
-                  <span>{{ t('Select Contact') }}</span>
+                  <span>{{ t('Select contact') }}</span>
                   <UiButton variant="icon" @click="showContactPicker = false">
                     <X :size="14" />
                   </UiButton>
@@ -115,7 +115,7 @@
             <span class="txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ assetSymbol }}</span>
           </UiFormGroup>
 
-          <UiSummaryCard :title="isIbcSend ? t('Transfer Summary') : t('Transaction Summary')">
+          <UiSummaryCard :title="isIbcSend ? t('Transfer summary') : t('Transaction summary')">
             <UiSummaryRow :label="isIbcSend ? t('Transfer amount') : t('Amount debited')" :value="`${summary.amount} ${assetSymbol}`" />
             <UiSummaryRow v-if="!isIbcSend" :label="t('Chain')" :value="sourceChainLabel" />
             <UiSummaryRow v-if="showTaxBreakdown" :label="t('Tax')" :value="summary.taxLabel" value-class="color-warning" />

@@ -52,7 +52,7 @@
             :class="{ 'is-drag-over-zone': dragOverMySpace }"
             @click="showAllPages = true"
           >
-            <div class="color-text-primary txt-weight-light text-13px">{{ t('No cards yet') }}</div>
+            <div class="color-text-primary txt-weight-light text-13px">{{ t('No pages yet') }}</div>
             <div class="text-center color-text-secondary text-12px">{{ t('Drag a page from “All Pages” to add it here.') }}</div>
             <UiButton variant="primary" type="button" @click.stop="restoreMySpaceDefaults">
               {{ t('Restore defaults') }}
@@ -75,7 +75,7 @@
             <div
               class="reveal-actions-target hover-bg-border-color-error flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-fast h-24px border-radius-full opacity-0 hover-scale-105 w-24px top-6px right-6px z-1"
               @click.stop="removeMySpaceCard(key)"
-              :title="t('Remove card')"
+              :title="t('Remove page')"
             >
               <X :size="14" />
             </div>
@@ -105,7 +105,7 @@
             :class="{ 'is-drag-over-zone': dragOverLumen }"
             @click="showAllPages = true"
           >
-            <div class="color-text-primary txt-weight-light text-13px">{{ t('No cards yet') }}</div>
+            <div class="color-text-primary txt-weight-light text-13px">{{ t('No pages yet') }}</div>
             <div class="text-center color-text-secondary text-12px">{{ t('Drag a page from “All Pages” to add it here.') }}</div>
             <UiButton variant="primary" type="button" @click.stop="restoreLumenDefaults">
               {{ t('Restore defaults') }}
@@ -127,7 +127,7 @@
             <div
               class="reveal-actions-target hover-bg-border-color-error flex-align-justify-center cursor-pointer color-text-tertiary absolute bg-primary border-default cursor-events-none transition-all-fast h-24px border-radius-full opacity-0 hover-scale-105 w-24px top-6px right-6px z-1"
               @click.stop="removeLumenCard(key)"
-              :title="t('Remove card')"
+              :title="t('Remove page')"
             >
               <X :size="14" />
             </div>

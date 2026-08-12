@@ -34,7 +34,7 @@
     "dist": "npm run build && electron-builder --publish=never",
     "dist:win": "npm run build && electron-builder --win nsis --publish=never",
     "electron": "electron .",
-    "test": "npm run check:conventions && npm run check:ipc && npm run check:tests && npm run check:i18n && npm run check:i18n-strings && npm run lint && npm run typecheck && npm run test:unit",
+    "test": "npm run check:conventions && npm run check:ipc && npm run check:tests && npm run check:i18n && npm run check:i18n-strings && npm run check:wording && npm run lint && npm run typecheck && npm run test:unit",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "check:conventions": "node scripts/check-conventions.mjs",
@@ -51,7 +51,8 @@
     "test:e2e:chain": "node scripts/run-chain-e2e.mjs",
     "i18n:extract": "node scripts/extract-strings.mjs",
     "check:i18n": "node scripts/extract-strings.mjs --check",
-    "check:i18n-strings": "node scripts/check-untranslated.mjs"
+    "check:i18n-strings": "node scripts/check-untranslated.mjs",
+    "check:wording": "node scripts/check-wording.mjs"
   },
   "dependencies": {
     "@cosmjs/crypto": "^0.36.0",

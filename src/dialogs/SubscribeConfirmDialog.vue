@@ -53,9 +53,9 @@
             <div class="flex-justify-space-between text-12px">
               <span class="color-text-secondary">{{ t('Duration') }}</span>
               <span class="fw-500 color-text-primary">
-                {{ subscribeMonths }} month{{
-                  subscribeMonths > 1 ? "s" : ""
-                }}
+                {{ subscribeMonths > 1
+                  ? t('{count} months', { count: subscribeMonths })
+                  : t('1 month') }}
               </span>
             </div>
             <div class="flex-justify-space-between text-12px">
@@ -79,7 +79,7 @@
                   LMN
                 </template>
                 <template v-else-if="balanceLoading">
-                  {{ t('Loading...') }}
+                  {{ t('Loading…') }}
                 </template>
                 <template v-else> — </template>
               </span>

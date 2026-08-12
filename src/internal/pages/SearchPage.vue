@@ -124,7 +124,7 @@
             <span class="txt-weight-light color-text-secondary text-13px block mb-8px">{{ t('Try:') }}</span>
             <ul class="line-height-15 m-0px color-text-secondary text-14px pl-20px">
               <li>{{ t('Using different keywords') }}</li>
-              <li>{{ t('Searching for a domain (e.g.,') }} <code class="text-13px bg-primary-a10 border-radius-4px color-primary py-4px px-6px">{{ 'example.lmn' }}</code>)</li>
+              <li>{{ t('Searching for a domain, for example {domain}', { domain: 'example.lmn' }) }}</li>
               <li>{{ t('Entering a CID, transaction hash, or address directly') }}</li>
             </ul>
           </div>
@@ -1310,7 +1310,7 @@ async function togglePinImage(result: ResultItem) {
             : null;
 
       if (!unpinFn) {
-        const msg = t("Local save API unavailable (missing ipfsUnpin)");
+        const msg = t("Local save is not available.");
         console.error("[search][local-save] unpin missing API:", { cid });
         toast.error(msg);
         return;
@@ -1328,7 +1328,7 @@ async function togglePinImage(result: ResultItem) {
       }
     } else {
       if (typeof api?.ipfsPinAdd !== "function") {
-        const msg = t("Local save API unavailable (missing ipfsPinAdd)");
+        const msg = t("Local save is not available.");
         console.error("[search][local-save] pin missing API:", { cid });
         toast.error(msg);
         return;
@@ -1436,26 +1436,26 @@ function typeBadgeLabel(r: ResultItem): string {
 
 function resultAccentGradient(r: ResultItem): string {
   if (!r) return "var(--gradient-brand)";
-  if (r.kind === "tx") return t("linear-gradient(180deg, var(--color-warning) 0%, rgba(var(--color-warning-rgb), 0.5) 100%)");
-  if (r.kind === "block") return t("linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)");
-  if (r.kind === "address") return t("linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)");
+  if (r.kind === "tx") return "linear-gradient(180deg, var(--color-warning) 0%, rgba(var(--color-warning-rgb), 0.5) 100%)";
+  if (r.kind === "block") return "linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)";
+  if (r.kind === "address") return "linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)";
   if (r.kind === "ipfs") {
     switch (r.fileKind) {
-      case "epub": return t("linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)");
-      case "docx": return t("linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)");
-      case "html": return t("linear-gradient(180deg, var(--color-primary) 0%, rgba(var(--color-primary-rgb), 0.5) 100%)");
-      case "pdf": return t("linear-gradient(180deg, var(--color-error) 0%, rgba(var(--color-error-rgb), 0.5) 100%)");
-      case "txt": return t("linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%)");
-      default: return t("linear-gradient(180deg, var(--color-success) 0%, rgba(var(--color-success-rgb), 0.5) 100%)");
+      case "epub": return "linear-gradient(180deg, var(--color-purple) 0%, rgba(var(--color-purple-rgb), 0.5) 100%)";
+      case "docx": return "linear-gradient(180deg, var(--color-secondary) 0%, rgba(var(--color-secondary-rgb), 0.5) 100%)";
+      case "html": return "linear-gradient(180deg, var(--color-primary) 0%, rgba(var(--color-primary-rgb), 0.5) 100%)";
+      case "pdf": return "linear-gradient(180deg, var(--color-error) 0%, rgba(var(--color-error-rgb), 0.5) 100%)";
+      case "txt": return "linear-gradient(180deg, var(--text-tertiary) 0%, var(--fill-tertiary) 100%)";
+      default: return "linear-gradient(180deg, var(--color-success) 0%, rgba(var(--color-success-rgb), 0.5) 100%)";
     }
   }
   return "var(--gradient-brand)";
 }
 
 function thumbFilterStyle(r: ResultItem): Record<string, string> {
-  const transition = t("filter 180ms ease, transform 180ms ease");
+  const transition = "filter 180ms ease, transform 180ms ease";
   if (shouldBlurThumb(r)) {
-    return { filter: t("blur(14px) saturate(0.85) brightness(0.85)"), transform: "scale(1.06)", transition };
+    return { filter: "blur(14px) saturate(0.85) brightness(0.85)", transform: "scale(1.06)", transition };
   }
   return { filter: "none", transform: "none", transition };
 }

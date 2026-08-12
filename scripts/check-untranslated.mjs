@@ -23,15 +23,47 @@ import { join, extname, relative } from 'node:path';
 const ROOT = new URL('..', import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, '$1');
 const SRC = join(ROOT, 'src');
 
-/** Strings that are deliberately not translated. */
+/**
+ * Strings that are deliberately not translated, because something other than a
+ * person reads them.
+ *
+ * The first group is the dangerous one. `message.includes('failed to fetch')`
+ * matches text produced by the browser or by a node; wrap it in `t()` and the
+ * comparison stops matching the moment the app is not in English, and the path
+ * it guards silently never runs again. Nothing fails, in English, ever - which
+ * is why they are named here rather than left to judgement.
+ */
 const ALLOWED = new Set([
+  // Compared against text from the network, from Kubo or from Electron.
+  'closed network connection',
+  'failed to fetch',
+  'fetch failed',
+  'not found',
+  'transaction indexing is disabled',
+  'invalid endpoint: format',
+  'invalid endpoint: domain format',
+  'invalid endpoint: extension format',
+  'invalid endpoint: characters',
+  'invalid endpoint: empty label',
+  'Error: kyber_pubkey_http_unavailable',
+
+  // A CSS selector list, a CSS transition, an HTTP header, a link relationship.
+  'a, button, article, section, div',
+  'filter 180ms ease, transform 180ms ease',
+  'noopener noreferrer',
+
   // Passed to <webview webpreferences>, parsed by Electron.
   'contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no',
+
   // A zero balance, already in the app's number format.
   '0.000 LMN',
   '0.000000 LMN',
+
   // The record-type placeholder in the domain settings form: literal key names.
   'cid | ipns | txt | ...',
+
+  // The product name. It is the same word in every language.
+  'Lumen',
 ]);
 
 function walk(dir) {
@@ -67,10 +99,24 @@ function isCode(text) {
   return /!==|===|=>|\|\||&&|\breturn\b|\bconst\b|\bfunction\b|[(){}[\]]/.test(text);
 }
 
-function isProse(text) {
+// A ticker or an acronym beside a separator - "LMN ·", "CID:" - is a value,
+// not a sentence. Nothing all-caps needs translating.
+function isAcronymOnly(text) {
+  const words = text.match(/[A-Za-z]+/g) || [];
+  return words.length > 0 && words.every((w) => w === w.toUpperCase());
+}
+
+/**
+ * A single word in a template text node is still on screen - `>Confirm {{ action }}<`
+ * is a button caption. A single word in a *script* is almost always an
+ * identifier, a key or an enum value, so the two are held to different bars.
+ */
+function isProse(text, { singleWordCounts = false } = {}) {
+  if (singleWordCounts && /^[A-Za-z][a-z]{2,}$/.test(text.trim())) return true;
   return (
     /[A-Za-z]{3}/.test(text) &&
     / /.test(text) &&
+    !isAcronymOnly(text) &&
     // Mostly digits is a formatted value, not a sentence.
     text.replace(/[^A-Za-z]/g, '').length > text.length / 2 &&
     !/^(?:https?|lumen|file|ipfs|chrome-extension|data):/i.test(text) &&
@@ -95,9 +141,9 @@ for (const file of walk(SRC)) {
   const text = readFileSync(file, 'utf8');
   const rel = relative(ROOT, file);
 
-  const record = (value, line) => {
+  const record = (value, line, opts) => {
     const s = value.replace(/\s+/g, ' ').trim();
-    if (!s || ALLOWED.has(s) || !isProse(s)) return;
+    if (!s || ALLOWED.has(s) || !isProse(s, opts)) return;
     seen.add(s);
     violations.push({ file: rel, line, detail: JSON.stringify(s.slice(0, 90)) });
   };
@@ -111,8 +157,19 @@ for (const file of walk(SRC)) {
       const tpl = match[1]
         .replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ' '))
         .replace(TRANSLATED, (m) => m.replace(/[^\n]/g, ' '));
-      for (const m of tpl.matchAll(/>([^<>{}]+)</g)) record(m[1], lineAt(offset + m.index));
+      // A text node ends at the next tag *or* the next interpolation. Only
+      // looking for '<' missed every sentence wrapped around a {{ … }} - which
+      // is precisely the shape that cannot be translated and most needs
+      // catching.
+      const inTemplate = { singleWordCounts: true };
+      for (const m of tpl.matchAll(/>([^<>{}]+)(?=<|\{\{)/g)) record(m[1], lineAt(offset + m.index), inTemplate);
+      for (const m of tpl.matchAll(/\}\}([^<>{}]+)(?=<|\{\{)/g)) record(m[1], lineAt(offset + m.index), inTemplate);
       for (const m of tpl.matchAll(TEXT_ATTRS)) record(m[1], lineAt(offset + m.index));
+      // A bound attribute holding a template literal: `Manage stake with ${x}`.
+      // The expression is code, but the words inside the backticks are not.
+      for (const m of tpl.matchAll(/`([^`$]*[A-Za-z]{3}[^`]*)`/g)) {
+        record(m[1].replace(/\$\{[^}]*\}/g, ' '), lineAt(offset + m.index));
+      }
     }
   }
 

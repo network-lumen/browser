@@ -54,7 +54,7 @@
             class="flex-1 outline-none color-text-primary border-none text-15px bg-transparent placeholder-tertiary"
             v-model="searchQuery"
             @keyup.enter="performSearch"
-            :placeholder="t('Search by Block Height, Tx Hash, or Address...')"
+            :placeholder="t('Search by block height, tx hash, or address…')"
           />
           <UiButton variant="primary" @click="performSearch" :disabled="!searchQuery" class="disabled-fade-50">
             {{ t('Search') }}
@@ -63,13 +63,13 @@
       </div>
 
       <div class="gap-16px mb-32px grid grid-cols-auto-fit-200">
-        <UiStatTile :label="t('Latest Block')" :value="formatNumber(latestBlock)" />
+        <UiStatTile :label="t('Latest block')" :value="formatNumber(latestBlock)" />
         <UiStatTile :label="`Txs (last ${txHistoryWindow} blocks)`" :value="formatNumber(txHistoryTotal)" />
         <UiStatTile :label="t('Validators')" :value="String(validatorCount)" />
-        <UiStatTile :label="t('Avg Block Time')" :value="avgBlockTimeLabel" />
+        <UiStatTile :label="t('Avg block time')" :value="avgBlockTimeLabel" />
       </div>
 
-      <UiLoadingBlock v-if="isLoading" :message="t('Loading blockchain data...')" />
+      <UiLoadingBlock v-if="isLoading" :message="t('Loading blockchain data…')" />
 
       <template v-else>
         <!-- ####### EXPLORER: OVERVIEW VIEW ####### -->
@@ -99,11 +99,11 @@
               <div class="flex flex-column gap-6px">
                 <UiLegendItem dot-class="bg-gradient-legend-bonded" :label="t('Bonded')" :value="`${formatNumber(bondedTokens)} LMN`" />
                 <UiLegendItem dot-class="bg-legend-unbonded" :label="t('Unbonded')" :value="`${formatNumber(unbondedTokens)} LMN`" />
-                <UiLegendItem :label="t('Total Supply')" :value="`${formatNumber(totalSupply)} LMN`" />
+                <UiLegendItem :label="t('Total supply')" :value="`${formatNumber(totalSupply)} LMN`" />
               </div>
             </UiChartCard>
 
-            <UiChartCard :title="t('Voting Power')">
+            <UiChartCard :title="t('Voting power')">
               <div class="relative m-0px mx-auto mb-12px w-140px h-140px">
                 <canvas ref="votingPowerChart" width="140" height="140" class="chart-canvas-fixed-140px"></canvas>
                 <div class="text-center absolute cursor-events-none top-half left-half translate-center">
@@ -123,7 +123,7 @@
               </div>
             </UiChartCard>
 
-            <UiChartCard :title="t('Block Production')">
+            <UiChartCard :title="t('Block production')">
               <template #header>
                 <div class="flex-align-center gap-8px border-radius-20px color-success txt-weight-light bg-fill-success text-13px py-8px px-12px">
                   <span class="animate-pulse-ring border-radius-circle w-8px h-8px bg-success"></span>
@@ -136,7 +136,7 @@
                   <span v-else>{{ latestProposer.moniker.charAt(0).toUpperCase() }}</span>
                 </div>
                 <div class="mt-0px txt-weight-medium color-text-primary text-center text-16px">{{ latestProposer.moniker }}</div>
-                <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">{{ t('Latest Block Proposer') }}</div>
+                <div class="letter-spacing-0025em color-text-tertiary text-center text-11px">{{ t('Latest block proposer') }}</div>
                 <div class="w-full mt-8px">
                   <div class="gap-8px w-full grid grid-cols-1fr-1fr">
                     <div class="flex flex-column text-center gap-2px">
@@ -144,7 +144,7 @@
                       <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">#{{ formatNumber(latestProposer.blockHeight) }}</span>
                     </div>
                     <div class="flex flex-column text-center gap-2px">
-                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">{{ t('Block Time') }}</span>
+                      <span class="color-text-tertiary text-uppercase fw-500 text-13px">{{ t('Block time') }}</span>
                       <span class="bg-gradient-accent-text txt-weight-medium color-text-primary text-24px gradient-text-clip">{{ avgBlockTimeLabelShort }}</span>
                     </div>
                   </div>
@@ -166,33 +166,33 @@
               {{ networkBlocksPerHour }}
             </UiStatCard>
 
-            <UiStatCard :label="t('24h Volume')" detail="Estimated transaction count">
+            <UiStatCard :label="t('24h volume')" detail="Estimated transaction count">
               {{ formatNumber(networkTxVolume24h) }}
             </UiStatCard>
           </div>
 
           <section class="bg-card border-1 border-radius-14px py-20px px-24px mt-12px">
-            <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">{{ t('Network Health') }}</h2>
+            <h2 class="color-text-primary txt-weight-light text-18px m-0px mb-16px">{{ t('Network health') }}</h2>
             <div class="gap-12px grid grid-cols-2">
-              <UiMeterCard :label="t('Chain Status')" value="Synced">
+              <UiMeterCard :label="t('Chain status')" value="Synced">
                 <template #fill>
                   <div class="h-full w-full border-radius-4px transition-width-03" :style="networkIndicatorFillStyle('excellent')"></div>
                 </template>
               </UiMeterCard>
 
-              <UiMeterCard :label="t('Validator Participation')" :value="`${networkValidatorPercent.toFixed(0)}%`">
+              <UiMeterCard :label="t('Validator participation')" :value="`${networkValidatorPercent.toFixed(0)}%`">
                 <template #fill>
                   <div class="h-full border-radius-4px transition-width-03" :style="{ width: networkValidatorPercent + '%', ...networkIndicatorFillStyle(networkValidatorPercent > 80 ? 'excellent' : networkValidatorPercent > 60 ? 'good' : 'normal') }"></div>
                 </template>
               </UiMeterCard>
 
-              <UiMeterCard :label="t('Block Production')" :value="networkBlockTimeStatus">
+              <UiMeterCard :label="t('Block production')" :value="networkBlockTimeStatus">
                 <template #fill>
                   <div class="h-full border-radius-4px transition-width-03 w-85pct" :style="networkIndicatorFillStyle(networkBlockTimeStatus === 'fast' ? 'excellent' : networkBlockTimeStatus === 'normal' ? 'good' : 'normal')"></div>
                 </template>
               </UiMeterCard>
 
-              <UiMeterCard :label="t('Peer Connections')" :value="String(networkPeers)">
+              <UiMeterCard :label="t('Peer connections')" :value="String(networkPeers)">
                 <template #fill>
                   <div class="h-full border-radius-4px transition-width-03 w-70pct" :style="networkIndicatorFillStyle('good')"></div>
                 </template>
@@ -204,7 +204,7 @@
           <div class="mb-0px gap-12px grid mt-12px grid-cols-2">
             <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
               <div class="flex-align-center-justify-space-between mb-12px">
-                <h3 class="text-16px txt-weight-light color-text-primary">{{ t('Latest Blocks') }}</h3>
+                <h3 class="text-16px txt-weight-light color-text-primary">{{ t('Latest blocks') }}</h3>
                 <UiButton variant="primary" @click="goToView('blocks')">{{ t('View All →') }}</UiButton>
               </div>
               <div class="flex flex-column gap-12px">
@@ -220,7 +220,7 @@
                     </div>
                   </div>
                   <div class="flex-align-end flex-column gap-4px">
-                    <div class="txt-weight-light color-text-primary text-14px">{{ block.txCount }} txs</div>
+                    <div class="txt-weight-light color-text-primary text-14px">{{ t('{count} txs', { count: block.txCount }) }}</div>
                     <div class="text-12px color-text-tertiary">{{ formatTimeAgo(block.time) }}</div>
                   </div>
                 </div>
@@ -229,7 +229,7 @@
 
             <UiCard padding="none" :shadow="false" class="p-20px shadow-sm backdrop-blur">
               <div class="flex-align-center-justify-space-between mb-12px">
-                <h3 class="text-16px txt-weight-light color-text-primary">{{ t('Latest Transactions') }}</h3>
+                <h3 class="text-16px txt-weight-light color-text-primary">{{ t('Latest transactions') }}</h3>
                 <UiButton variant="primary" @click="goToView('transactions')">{{ t('View All →') }}</UiButton>
               </div>
               <div class="flex flex-column gap-12px">
@@ -259,15 +259,15 @@
             <h2 class="text-20px txt-weight-medium color-text-primary m-0px">{{ t('Blocks') }}</h2>
             <div class="flex-align-center flex-wrap-wrap gap-8px">
               <select v-model="blockFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
-                <option value="all">{{ t('All Blocks') }}</option>
-                <option value="recent">{{ t('Recent (Last 20)') }}</option>
-                <option value="with-txs">{{ t('With Transactions') }}</option>
-                <option value="empty">{{ t('Empty Blocks') }}</option>
+                <option value="all">{{ t('All blocks') }}</option>
+                <option value="recent">{{ t('Recent (last 20)') }}</option>
+                <option value="with-txs">{{ t('With transactions') }}</option>
+                <option value="empty">{{ t('Empty blocks') }}</option>
               </select>
               <input
                 v-model="blockHeightFilter"
                 type="number"
-                :placeholder="t('Filter by height...')"
+                :placeholder="t('Filter by height…')"
                 class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow min-w-150px placeholder-tertiary"
               />
             </div>
@@ -298,7 +298,7 @@
                 </div>
               </div>
               <div class="flex-align-end flex-column gap-4px flex-shrink-0">
-                <div class="txt-weight-light color-text-primary text-14px">{{ block.txCount }} txs</div>
+                <div class="txt-weight-light color-text-primary text-14px">{{ t('{count} txs', { count: block.txCount }) }}</div>
                 <div class="text-12px color-text-tertiary">{{ formatTimeAgo(block.time) }}</div>
               </div>
             </UiCard>
@@ -311,21 +311,21 @@
             <h2 class="text-24px txt-weight-medium color-text-primary m-0px flex-1 min-w-200px">{{ t('Transactions') }}</h2>
             <div class="flex-align-center flex-wrap-wrap gap-8px">
               <select v-model="txTypeFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
-                <option value="all">{{ t('All Types') }}</option>
+                <option value="all">{{ t('All types') }}</option>
                 <option value="send">{{ t('Send') }}</option>
                 <option value="delegate">{{ t('Delegate') }}</option>
                 <option value="vote">{{ t('Vote') }}</option>
                 <option value="other">{{ t('Other') }}</option>
               </select>
               <select v-model="txStatusFilter" class="hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 min-w-120px focus-outline-none focus-border-primary focus-ring focus-shadow">
-                <option value="all">{{ t('All Status') }}</option>
+                <option value="all">{{ t('All statuses') }}</option>
                 <option value="success">{{ t('Success') }}</option>
                 <option value="failed">{{ t('Failed') }}</option>
               </select>
               <input
                 v-model="txHashFilter"
                 type="text"
-                :placeholder="t('Filter by hash...')"
+                :placeholder="t('Filter by hash…')"
                 class="hover-border-accent py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow min-w-150px placeholder-tertiary"
               />
             </div>
@@ -338,7 +338,7 @@
 
           <div v-else class="w-full">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr">
-              <div>{{ t('Transaction Hash') }}</div>
+              <div>{{ t('Transaction hash') }}</div>
               <div>{{ t('Type') }}</div>
               <div>{{ t('Result') }}</div>
               <div>{{ t('Height') }}</div>
@@ -383,13 +383,13 @@
           <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-sm backdrop-blur">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-120-160-100-110-120">
               <div>#</div>
-              <div>{{ t('VALIDATOR') }}</div>
-              <div>{{ t('VOTING POWER %') }}</div>
-              <div>{{ t('24H CHANGES') }}</div>
-              <div>{{ t('CUMULATIVE SHARE %') }}</div>
-              <div>{{ t('COMM. %') }}</div>
-              <div>{{ t('UPTIME %') }}</div>
-              <div>{{ t('ACTIONS') }}</div>
+              <div>{{ t('Validator') }}</div>
+              <div>{{ t('Voting power %') }}</div>
+              <div>{{ t('24h changes') }}</div>
+              <div>{{ t('Cumulative share %') }}</div>
+              <div>{{ t('Commission %') }}</div>
+              <div>{{ t('Uptime %') }}</div>
+              <div>{{ t('Actions') }}</div>
             </div>
             
             <div class="max-h-600px flex flex-column overflow-y-auto">
@@ -470,15 +470,15 @@
           <h2 class="text-20px txt-weight-medium color-text-primary m-0px">{{ t('Governance') }}</h2>
           <UiButton variant="primary" @click="openCreateProposalModal">
             <Plus :size="16" />
-            {{ t('Create Proposal') }}
+            {{ t('Create proposal') }}
           </UiButton>
         </div>
 
-        <UiLoadingBlock v-if="governanceLoading && !governanceProposals.length" :message="t('Loading proposals...')" />
+        <UiLoadingBlock v-if="governanceLoading && !governanceProposals.length" :message="t('Loading proposals…')" />
 
         <template v-else>
           <template v-if="governanceVotingProposals.length">
-            <h3 class="text-16px txt-weight-light color-text-primary mb-12px">{{ t('Active Votes') }}</h3>
+            <h3 class="text-16px txt-weight-light color-text-primary mb-12px">{{ t('Active votes') }}</h3>
             <div class="flex flex-column gap-12px mb-24px">
               <UiCard v-for="proposal in governanceVotingProposals" :key="proposal.id" padding="lg" border-class="border-1-primary-a30" radius="12px" :shadow="false">
                 <div class="flex-align-center flex-justify-space-between mb-12px">
@@ -490,10 +490,10 @@
                 <h3 class="color-text-primary text-16px txt-weight-light m-0px mb-4px">{{ proposal.title }}</h3>
                 <p v-if="proposal.summary" class="color-text-secondary text-13px m-0px mb-16px">{{ proposal.summary.substring(0, 150) }}{{ proposal.summary.length > 150 ? '…' : '' }}</p>
                 <div class="flex-align-center flex-wrap-wrap gap-16px mb-16px text-12px">
-                  <span class="color-success">Yes {{ governanceTallyPercent(proposal.tally, 'yes').toFixed(1) }}%</span>
-                  <span class="color-error">No {{ governanceTallyPercent(proposal.tally, 'no').toFixed(1) }}%</span>
-                  <span class="color-warning">Veto {{ governanceTallyPercent(proposal.tally, 'noWithVeto').toFixed(1) }}%</span>
-                  <span class="color-text-tertiary">Abstain {{ governanceTallyPercent(proposal.tally, 'abstain').toFixed(1) }}%</span>
+                  <span class="color-success">{{ t('Yes {percent}%', { percent: governanceTallyPercent(proposal.tally, 'yes').toFixed(1) }) }}</span>
+                  <span class="color-error">{{ t('No {percent}%', { percent: governanceTallyPercent(proposal.tally, 'no').toFixed(1) }) }}</span>
+                  <span class="color-warning">{{ t('Veto {percent}%', { percent: governanceTallyPercent(proposal.tally, 'noWithVeto').toFixed(1) }) }}</span>
+                  <span class="color-text-tertiary">{{ t('Abstain {percent}%', { percent: governanceTallyPercent(proposal.tally, 'abstain').toFixed(1) }) }}</span>
                 </div>
                 <UiButton variant="primary" @click="openVoteModal(proposal)">
                   <Vote :size="16" />
@@ -503,7 +503,7 @@
             </div>
           </template>
 
-          <h3 class="text-16px txt-weight-light color-text-primary mb-12px">{{ t('All Proposals') }}</h3>
+          <h3 class="text-16px txt-weight-light color-text-primary mb-12px">{{ t('All proposals') }}</h3>
           <UiEmptyState v-if="!governanceProposals.length" :description="t('No proposals found')">
             <FileText :size="48" />
           </UiEmptyState>
@@ -1307,11 +1307,11 @@ function performSearch() {
   }
   else if (/^[A-Fa-f0-9]{64}$/.test(query)) {
     navigateToTransaction(query.toUpperCase());
-    toast.info(t('Navigating to transaction...'));
+    toast.info(t('Navigating to transaction…'));
   }
   else if (/^lmn1[a-z0-9]{38,}$/.test(query)) {
     navigateToAddress(query);
-    toast.info(t('Navigating to address...'));
+    toast.info(t('Navigating to address…'));
   }
   else {
     toast.error(t('Invalid search query. Use block height, tx hash (64 hex), or address (lmn1...)'));
@@ -1379,7 +1379,7 @@ function getCumulativeProgress(index: number): number {
 
 function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' | 'Redelegate' | 'Withdraw' = 'Delegate') {
   if (!hasActiveProfile.value) {
-    toast.error(t('Create or select a wallet profile first'));
+    toast.error(t('Select or create a profile with a wallet first.'));
     return;
   }
 
@@ -1528,7 +1528,7 @@ async function confirmStakeAction() {
     const walletApi = useInternalLumen()?.wallet;
     
     if (!walletApi) {
-      throw new Error(t('Wallet API not available'));
+      throw new Error(t('Wallet API not available.'));
     }
     
     let result;
@@ -2294,7 +2294,7 @@ async function submitProposal() {
   const profileId = activeProfileId.value;
   const address = activeGovernanceAddress.value;
   if (!profileId || !address) {
-    toast.error(t('Select a profile first.'));
+    toast.error(t('Select or create a profile first.'));
     return;
   }
 
@@ -2350,7 +2350,7 @@ async function castVote() {
   const profileId = activeProfileId.value;
   const address = activeGovernanceAddress.value;
   if (!profileId || !address) {
-    toast.error(t('Select a profile first.'));
+    toast.error(t('Select or create a profile first.'));
     return;
   }
 

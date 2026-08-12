@@ -20,7 +20,7 @@
           </UiBanner>
           <UiFormGroup :label="t('Live link')" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <select class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSetupSelectedName" :disabled="loading">
-              <option value="">{{ loading ? t('Loading live links...') : t('Select a live link') }}</option>
+              <option value="">{{ loading ? t('Loading live links…') : t('Select a live link') }}</option>
               <option v-for="item in stableLinks" :key="item.name" :value="item.name">
                 {{ item.label }} — {{ shortStableIpns(item.id) }}
               </option>
@@ -32,7 +32,7 @@
 
     <template #confirm><UiSpinnerRing v-if="loading" />
         <Link v-else :size="16" />
-        <span>{{ loading ? t('Loading...') : t('Load previous settings') }}</span></template>
+        <span>{{ loading ? t('Loading…') : t('Load previous settings') }}</span></template>
   </UiDialog>
 </template>
 

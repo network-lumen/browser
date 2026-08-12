@@ -9,8 +9,8 @@ describe('profile import error codes', () => {
   });
 
   it('falls back to a generic message when there is no code at all', () => {
-    expect(getProfileImportErrorMessage('')).toBe('Import failed.');
-    expect(getProfileImportErrorMessage(undefined)).toBe('Import failed.');
+    expect(getProfileImportErrorMessage('')).toBe('Import failed');
+    expect(getProfileImportErrorMessage(undefined)).toBe('Import failed');
   });
 
   it('returns an unknown code unchanged rather than hiding it', () => {

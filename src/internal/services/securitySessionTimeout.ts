@@ -86,7 +86,7 @@ export function getSecuritySessionTimeoutCacheText(value: SecuritySessionTimeout
 }
 
 export function getSecuritySessionTimeoutHelpText(value: SecuritySessionTimeoutMs): string {
-  if (normalizeSecuritySessionTimeoutMs(value) === null) return t('until the app restarts');
+  if (normalizeSecuritySessionTimeoutMs(value) === null) return t('until restart');
   return t('for {duration}', { duration: getSecuritySessionTimeoutDurationText(value) });
 }
 

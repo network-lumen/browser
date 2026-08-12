@@ -30,7 +30,7 @@
 
           <UiFormGroup v-if="stableLinkMode === 'existing'" :label="t('Stable link')" wrapper-class="mb-12px" label-class="text-12px color-text-secondary block mb-4px">
             <select class="w-full border-radius-10px color-text-primary text-14px border-default bg-card py-10px px-12px" v-model="stableLinkSelectedName" :disabled="saving || loading">
-              <option value="">{{ loading ? t('Loading stable links...') : t('Select a stable link') }}</option>
+              <option value="">{{ loading ? t('Loading stable links…') : t('Select a stable link') }}</option>
               <option v-for="item in stableLinks" :key="item.name" :value="item.name">
                 {{ item.label }} — {{ shortStableIpns(item.id) }}
               </option>
@@ -52,7 +52,7 @@
             <UiDetailRow variant="baseline" :label="t('Live')" :value="liveTitle || 'Untitled live'" />
             <UiDetailRow variant="baseline" :label="t('Records')">
               <UiButton variant="primary" type="button" @click="stableLinkRecordsExpanded = !stableLinkRecordsExpanded">
-                <span class="mono">{{ records.length }} record{{ records.length === 1 ? '' : 's' }}</span>
+                <span class="mono">{{ records.length === 1 ? t('1 record') : t('{count} records', { count: records.length }) }}</span>
                 <ChevronDown :size="14" class="transition-transform-02" :class="{ 'rotate-180': stableLinkRecordsExpanded }" />
               </UiButton>
             </UiDetailRow>

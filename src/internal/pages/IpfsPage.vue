@@ -26,7 +26,7 @@
             :class="{ 'bg-success-a12-override border-1-success-a38 color-success': saved }"
             :disabled="!canSaveToDrive || saving || saved"
             :title="
-              saved ? 'Saved to Drive' : saving ? t('Saving...') : t('Save to Drive')
+              saved ? 'Saved to Drive' : saving ? t('Saving…') : t('Save to Drive')
             "
           >
             <Check v-if="saved" :size="16" />
@@ -91,7 +91,7 @@
             </template>
           </div>
 
-          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="p-16px color-text-secondary">{{ t('Empty folder.') }}</UiCard>
+          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="p-16px color-text-secondary">{{ t('Empty folder') }}</UiCard>
 
           <div v-else class="border-radius-16px border-default overflow-hidden">
             <div
@@ -217,7 +217,7 @@
 
           <div v-else class="flex-align-justify-center w-full">
             <div class="text-center p-32px max-w-500px">
-              <h3 class="text-20px txt-weight-light color-text-primary mb-12px">{{ t('Preview not available') }}</h3>
+              <h3 class="text-20px txt-weight-light color-text-primary mb-12px">{{ t('No preview available') }}</h3>
               <p class="color-text-secondary mb-24px">{{ t('This content type cannot be previewed directly.') }}</p>
             </div>
           </div>
@@ -861,7 +861,7 @@ const markdownHtml = computed(() => {
     anchor.setAttribute("href", resolved.value);
     if (resolved.kind === "external") {
       anchor.setAttribute("target", "_blank");
-      anchor.setAttribute("rel", t("noopener noreferrer"));
+      anchor.setAttribute("rel", "noopener noreferrer");
     } else {
       anchor.removeAttribute("target");
       anchor.removeAttribute("rel");
@@ -1968,7 +1968,7 @@ async function openSaveModal() {
     const cid = await resolveSaveTargetCid();
     saveTargetCid.value = cid;
   } catch (e) {
-    saveModalError.value = errorMessage(e, t("Unable to prepare save."));
+    saveModalError.value = errorMessage(e, t("Failed to prepare the save."));
   } finally {
     savePreparing.value = false;
   }

@@ -3,7 +3,7 @@
   <div class="absolute inset-0 flex min-h-0 min-w-0 bg-dark-111">
     <UiExtensionStatus v-if="error" error>{{ error }}</UiExtensionStatus>
     <UiExtensionStatus v-else-if="guestPreloadLoading">{{ t('Preparing extension host…') }}</UiExtensionStatus>
-    <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error>{{ t('Extension guest preload is unavailable.') }}</UiExtensionStatus>
+    <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error>{{ t('Extension guest preload is not available.') }}</UiExtensionStatus>
     <UiExtensionStatus v-else-if="loading && !webviewMountUrl">{{ t('Loading extension…') }}</UiExtensionStatus>
     <webview
       v-else-if="webviewMountUrl"
@@ -429,7 +429,7 @@ async function resolveCurrentExtensionTab() {
     return;
   }
   if (!(await ensureGuestPreloadUrl())) {
-    error.value = t("Extension guest preload is unavailable.");
+    error.value = t("Extension guest preload is not available.");
     return;
   }
 

@@ -32,8 +32,8 @@ export function isTransientFetchError(error: unknown): boolean {
   const message = String((error as any)?.message || error || '').toLowerCase();
   if (!message) return false;
   return (
-    message.includes(t('failed to fetch')) ||
-    message.includes(t('fetch failed')) ||
+    message.includes('failed to fetch') ||
+    message.includes('fetch failed') ||
     message.includes('network') ||
     message.includes('timeout') ||
     message.includes('aborted') ||

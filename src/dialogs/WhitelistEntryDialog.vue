@@ -2,7 +2,7 @@
     <UiDialog
     :error="error"
     :model-value="modelValue"
-    :title="editing ? t('Edit User') : t('Add User to Whitelist')"
+    :title="editing ? t('Edit user') : t('Add user to whitelist')"
     panel-class="max-w-500px w-90pct"
     :busy="saving"
     :confirm-disabled="saving || !form.address.trim()"

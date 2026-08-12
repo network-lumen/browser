@@ -1,5 +1,5 @@
 <template>
-  <UiModal :model-value="modelValue" :title="mode === 'import' ? t('Import ugly domain') : t('Generate ugly domain')" panel-class="max-w-500px" @update:model-value="$emit('update:modelValue', false)">
+  <UiModal :model-value="modelValue" :title="mode === 'import' ? t('Import ugly domain') : t('Generate an ugly domain')" panel-class="max-w-500px" @update:model-value="$emit('update:modelValue', false)">
         <form class="overflow-y-auto flex-1 min-h-0 pt-16px pr-20px pb-20px pl-20px" @submit.prevent="$emit('submit')">
           <p class="text-14px color-text-tertiary m-0px mb-12px">
             {{ mode === 'import'

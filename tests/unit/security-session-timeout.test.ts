@@ -94,9 +94,11 @@ describe('the three wordings', () => {
     expect(getSecuritySessionTimeoutIdleText(THIRTY_MIN)).toBe('30 minutes of inactivity');
   });
 
+  // Both sentences used to say it differently - "until restart" beside "until
+  // the app restarts" - for the same setting.
   it('read differently for until-restart, which has no duration to state', () => {
     expect(getSecuritySessionTimeoutCacheText(null)).toBe('until restart');
-    expect(getSecuritySessionTimeoutHelpText(null)).toBe('until the app restarts');
+    expect(getSecuritySessionTimeoutHelpText(null)).toBe('until restart');
     // null, so the caller can drop the line rather than print a contradiction.
     expect(getSecuritySessionTimeoutIdleText(null)).toBeNull();
   });

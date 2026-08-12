@@ -15,9 +15,9 @@
     </template>
         <!-- Basic Information -->
         <div class="mb-32px">
-          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light gap-8px m-0px mb-16px">{{ t('Payment Details') }}</h3>
+          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light gap-8px m-0px mb-16px">{{ t('Payment details') }}</h3>
 
-          <UiFormGroup required :label="t('Payment Name')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
+          <UiFormGroup required :label="t('Payment name')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
             <UiInput v-model="form.name" :placeholder="t('e.g., Netflix Subscription')" />
           </UiFormGroup>
 
@@ -41,9 +41,9 @@
         </div>
 
         <div class="mb-32px">
-          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light gap-8px m-0px mb-16px">{{ t('Payment Configuration') }}</h3>
+          <h3 class="flex-align-center color-text-primary text-16px txt-weight-light gap-8px m-0px mb-16px">{{ t('Payment configuration') }}</h3>
 
-          <UiFormGroup required :label="t('Recipient Address')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
+          <UiFormGroup required :label="t('Recipient address')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
             <div class="flex gap-8px">
               <input
                 v-model="form.recipient"
@@ -52,7 +52,7 @@
                 class="flex-1 bg-primary color-text-primary outline-none text-14px border-1 border-radius-8px transition-all-02 py-10px px-12px font-inherit focus-border-primary focus-ring-blue placeholder-tertiary"
               />
               <UiButton variant="primary" @click="$emit('scan-address')"
-                :title="t('Scan QR Code')">
+                :title="t('Scan QR code')">
                 <QrCode :size="16" />
               </UiButton>
             </div>
@@ -80,7 +80,7 @@
           </div>
 
           <div class="grid gap-16px grid-cols-1fr-1fr">
-            <UiFormGroup required :label="t('Start Date')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
+            <UiFormGroup required :label="t('Start date')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
               <input
                 v-model="form.startDate"
                 type="date"
@@ -89,7 +89,7 @@
               />
             </UiFormGroup>
 
-            <UiFormGroup :label="t('End Date (Optional)')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
+            <UiFormGroup :label="t('End date (optional)')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px">
               <input
                 v-model="form.endDate"
                 type="date"
@@ -99,7 +99,7 @@
             </UiFormGroup>
           </div>
 
-          <UiFormGroup :label="t('Maximum Payments (Optional)')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px" hint="Payment will stop after this many successful transactions" hint-class="color-text-secondary text-12px">
+          <UiFormGroup :label="t('Maximum payments (optional)')" wrapper-class="mb-16px" label-class="block color-text-primary mb-4px" hint="Payment will stop after this many successful transactions" hint-class="color-text-secondary text-12px">
             <UiInput v-model="form.maxPayments"
               min="1"
               :placeholder="t('Leave empty for unlimited')" class="placeholder-tertiary" />
@@ -110,7 +110,7 @@
         <div class="mb-32px">
           <h3 class="flex-align-center color-text-primary text-16px txt-weight-light gap-8px m-0px mb-16px">
             <Bell :size="18" />
-            <span>{{ t('Payment Reminders') }}</span>
+            <span>{{ t('Payment reminders') }}</span>
           </h3>
 
           <div class="mb-16px">
@@ -129,17 +129,17 @@
         </div>
 
         <div class="border-radius-12px p-20px color-white bg-gradient-brand">
-          <h4 class="m-0px text-16px txt-weight-light mb-16px">{{ t('Payment Summary') }}</h4>
+          <h4 class="m-0px text-16px txt-weight-light mb-16px">{{ t('Payment summary') }}</h4>
           <div class="last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
-            <span>{{ t('Amount per payment:') }}</span>
+            <span>{{ t('Amount per payment') }}</span>
             <strong class="txt-weight-light">{{ formatAmount(form.amount) }} LMN</strong>
           </div>
           <div class="last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px">
-            <span>{{ t('Frequency:') }}</span>
+            <span>{{ t('Frequency') }}</span>
             <strong class="txt-weight-light">{{ frequencyLabel }}</strong>
           </div>
           <div class="last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="form.startDate">
-            <span>{{ t('First payment:') }}</span>
+            <span>{{ t('First payment') }}</span>
             <strong class="txt-weight-light">{{ formatDate(form.startDate) }}</strong>
           </div>
           <div class="last-border-bottom-none flex-align-center-justify-space-between border-bottom-1-white-a20 p-0px pt-8px pb-8px" v-if="estimatedTotal">
@@ -149,7 +149,7 @@
         </div>
 
     <template #confirm><Check :size="16" />
-        <span>{{ isEditing ? t('Update Payment') : t('Schedule Payment') }}</span></template>
+        <span>{{ isEditing ? t('Update payment') : t('Schedule payment') }}</span></template>
   </UiDialog>
 </template>
 

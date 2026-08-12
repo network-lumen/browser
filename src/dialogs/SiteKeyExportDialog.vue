@@ -16,11 +16,9 @@
     </UiBanner>
     <UiBanner variant="warning" class="mt-12px">
       <span class="overflow-wrap-anywhere">
-        {{ t('This downloads the') }} <strong>{{ t('private key') }}</strong>
-{{ t('of your identity on this site — the key to the vault. Anyone who holds that file') }}
-<strong>{{ t('is you') }}</strong>
-{{ t('on this site, permanently: an identity key cannot be revoked or reissued. Keep it like a password, and never send it to anyone.') }}
-</span>
+        {{ t('This downloads the private key of your identity on this site — the key to the vault.') }}
+        {{ t('Anyone who holds that file is you on this site, permanently: an identity key cannot be revoked or reissued. Keep it like a password, and never send it to anyone.') }}
+      </span>
     </UiBanner>
     <UiDetailRow v-if="ipnsName" :label="t('Identity')" :flex="true" class="mt-12px">
       <span class="mono text-12px overflow-wrap-anywhere">{{ ipnsName }}</span>

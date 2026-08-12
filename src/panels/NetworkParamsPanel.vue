@@ -11,7 +11,7 @@
     </UiPageHeader>
 
     <div v-if="fatalError" class="color-text-primary p-20px border-radius-16px border-1-error-a25 bg-error-a08">
-      <p class="m-0px txt-weight-strong">{{ t('Unable to fetch params') }}</p>
+      <p class="m-0px txt-weight-strong">{{ t('Failed to load params.') }}</p>
       <p class="color-text-secondary text-14px m-0px mt-8px">{{ fatalError }}</p>
     </div>
 
@@ -227,7 +227,7 @@ function statusLabel(s: ParamSection): string {
 
 async function loadSection(s: ParamSection) {
   if (!lumen?.net?.restGet) {
-    throw new Error(t('Network client unavailable'));
+    throw new Error(t('Network client not available.'));
   }
   s.loading = true;
   s.error = '';

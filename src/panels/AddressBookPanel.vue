@@ -7,14 +7,14 @@
     <UiEmptyState
       v-else-if="!contacts.length"
       class="mt-32px"
-      :title="t('No Contacts Yet')"
+      :title="t('No contacts yet')"
       :description="t('Add addresses you frequently send to for quick access.')"
     >
       <Users :size="32" />
       <template #actions>
         <UiButton variant="primary" @click="$emit('add')">
           <Plus :size="16" />
-          <span>{{ t('Add First Contact') }}</span>
+          <span>{{ t('Add first contact') }}</span>
         </UiButton>
       </template>
     </UiEmptyState>

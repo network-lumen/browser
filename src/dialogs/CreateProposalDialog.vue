@@ -1,15 +1,15 @@
 <template>
-  <UiModal :model-value="modelValue" :title="t('Create Proposal')" panel-class="w-full max-w-640px" @update:model-value="$emit('update:modelValue', false)">
+  <UiModal :model-value="modelValue" :title="t('Create proposal')" panel-class="w-full max-w-640px" @update:model-value="$emit('update:modelValue', false)">
     <p class="color-text-secondary mb-24px text-14px">{{ t('Submit a text proposal for on-chain governance.') }}</p>
 
     <div class="mb-20px">
       <label class="txt-weight-light color-text-primary block text-13px mb-8px">{{ t('Title') }}</label>
-      <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="form.title" :placeholder="t('Enter proposal title...')" class="focus-outline-none focus-ring focus-shadow bg-primary" />
+      <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="form.title" :placeholder="t('Enter proposal title…')" class="focus-outline-none focus-ring focus-shadow bg-primary" />
     </div>
 
     <div class="mb-20px">
       <label class="txt-weight-light color-text-primary block text-13px mb-8px">{{ t('Summary') }}</label>
-      <UiInput type="textarea" radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" v-model="form.summary" rows="6" :placeholder="t('Describe your proposal in detail...')" class="resize-vertical focus-outline-none focus-ring focus-shadow bg-primary"></UiInput>
+      <UiInput type="textarea" radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" v-model="form.summary" rows="6" :placeholder="t('Describe your proposal in detail…')" class="resize-vertical focus-outline-none focus-ring focus-shadow bg-primary"></UiInput>
     </div>
 
     <div class="mb-20px">
@@ -71,7 +71,7 @@
 
     <UiButton variant="primary" @click="$emit('submit')" :disabled="!submissionEnabled || !canSubmit || isSubmitting">
       <Plus :size="18" />
-      {{ isSubmitting ? t('Submitting…') : t('Submit Proposal') }}
+      {{ isSubmitting ? t('Submitting…') : t('Submit proposal') }}
     </UiButton>
     <p v-if="!submissionEnabled" class="color-text-tertiary text-12px mt-8px">
       {{ t('Proposal submission is temporarily disabled while the action builders above are being verified on testnet.') }}

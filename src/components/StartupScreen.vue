@@ -12,7 +12,7 @@
         <UiLoadingSpinner v-if="phase !== 'error'" :aria-label="t('Loading')" />
         <div v-else>
           <div class="color-text-secondary text-13px">
-            Unable to start - {{ errorText || 'IPFS daemon did not respond.' }}
+            {{ t('Failed to start - {reason}', { reason: errorText || t('IPFS daemon did not respond.') }) }}
           </div>
           <UiButton variant="primary" type="button" :disabled="busy" @click="restartAll" class="active-not-disabled-lift-1px disabled-opacity-60-cursor-default transition-lift-015">
             {{ t('Retry') }}

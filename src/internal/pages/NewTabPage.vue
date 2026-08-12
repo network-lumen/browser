@@ -20,11 +20,11 @@
             v-model="commandInput"
             type="text"
             class="flex-1 border-none outline-none bg-transparent color-text-primary min-w-0 text-16px placeholder-tertiary"
-            :placeholder="t('Search Lumen or enter a URL')"
+            :placeholder="t('Search or enter a URL')"
             spellcheck="false"
             autocapitalize="off"
             autocomplete="off"
-            :aria-label="t('Search Lumen or enter a URL')"
+            :aria-label="t('Search or enter a URL')"
           />
           <UiButton variant="primary" type="submit" class="transition-lift-015">
             <ArrowUpRight :size="15" />
@@ -302,7 +302,7 @@ function submitShortcutModal() {
       pinned: shortcutDraft.pinned,
     });
     if (!result.ok) {
-      shortcutError.value = t("Unable to add this shortcut.");
+      shortcutError.value = t("Failed to add this shortcut.");
       return;
     }
     closeShortcutModal();
@@ -317,13 +317,13 @@ function submitShortcutModal() {
     shortcutError.value =
       updateResult.error === "duplicate_url"
         ? t("A shortcut with this URL already exists.")
-        : t("Unable to update this shortcut.");
+        : t("Failed to update this shortcut.");
     return;
   }
 
   const pinResult = setFavouritePinned(editingShortcutId.value, shortcutDraft.pinned);
   if (!pinResult.ok) {
-    shortcutError.value = t("Unable to update the favourite state.");
+    shortcutError.value = t("Failed to update the favourite state.");
     return;
   }
 

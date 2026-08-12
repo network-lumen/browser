@@ -3,7 +3,7 @@
     <UiFormGroup required :label="t('Name')">
       <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
         v-model="form.name"
-        :placeholder="t('Enter contact name')" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
+        :placeholder="t('Enter a contact name')" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
     </UiFormGroup>
 
     <UiFormGroup required :label="t('Address')">

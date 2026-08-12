@@ -41,10 +41,10 @@ const INTERNAL_ROUTES: Record<string, InternalRoute> = {
   network: { component: NetworkPage, title: 'Network' },
   gateways: { component: GatewaysPage, title: 'Gateways' },
   'my-gateways': { component: MyGatewaysPage, title: t('My Gateways') },
-  block: { component: BlockDetailPage, title: t('Block Details') },
-  transaction: { component: TransactionDetailPage, title: t('Transaction Details') },
-  tx: { component: TransactionDetailPage, title: t('Transaction Details') },
-  address: { component: AddressDetailPage, title: t('Address Details') },
+  block: { component: BlockDetailPage, title: t('Block details') },
+  transaction: { component: TransactionDetailPage, title: t('Transaction details') },
+  tx: { component: TransactionDetailPage, title: t('Transaction details') },
+  address: { component: AddressDetailPage, title: t('Address details') },
   release: { component: ReleasePage, title: 'Release' },
   help: { component: HelpPage, title: 'Help' }
 };

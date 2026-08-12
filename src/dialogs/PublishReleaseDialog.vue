@@ -56,7 +56,7 @@
 
           <div v-for="(a, idx) in draft.artifacts" :key="a.id" class="border-radius-12px border-1-light p-12px mt-12px bg-primary">
             <div class="flex-align-center flex-justify-space-between mb-8px">
-              <div class="color-text-tertiary fw-500">Artifact #{{ idx + 1 }}</div>
+              <div class="color-text-tertiary fw-500">{{ t('Artifact #{number}', { number: idx + 1 }) }}</div>
               <UiButton
                 v-if="draft.artifacts.length > 1"
                 variant="secondary"

@@ -7,7 +7,7 @@
 
       <UiExtensionStatus v-if="error" error extra-class="h-full">{{ error }}</UiExtensionStatus>
       <UiExtensionStatus v-else-if="guestPreloadLoading" extra-class="h-full">{{ t('Preparing extension…') }}</UiExtensionStatus>
-      <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error extra-class="h-full">{{ t('Extension guest preload is unavailable.') }}</UiExtensionStatus>
+      <UiExtensionStatus v-else-if="!extensionGuestPreloadUrl" error extra-class="h-full">{{ t('Extension guest preload is not available.') }}</UiExtensionStatus>
       <UiExtensionStatus v-else-if="loading && !webviewMountUrl" extra-class="h-full">{{ t('Loading extension…') }}</UiExtensionStatus>
       <webview
         v-else-if="webviewMountUrl"
@@ -388,7 +388,7 @@ async function resolvePopupTarget() {
     return;
   }
   if (!(await ensureGuestPreloadUrl())) {
-    error.value = t("Extension guest preload is unavailable.");
+    error.value = t("Extension guest preload is not available.");
     return;
   }
 
