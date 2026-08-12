@@ -140,7 +140,7 @@ which calls the Electron bridge as its module loads. Import `tabHistory` from a 
 before the test runs. Keep the read side dependency-free.
 
 **Translation is keyed on the English text, not on an invented id.** `t('Save')`, not
-`t('dialogs.drive.save')`. Naming ~1 850 strings is work nobody would finish and two people would do
+`t('dialogs.drive.save')`. Naming ~1 950 strings is work nobody would finish and two people would do
 differently; keying on the source means a missing translation renders the English, and
 `npm run i18n:extract` reads the whole catalogue straight out of `src/`. The cost is that rewording
 the English orphans the translation - the extractor reports that rather than deleting it. Reasoning
