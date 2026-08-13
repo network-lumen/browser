@@ -719,9 +719,21 @@ const warnings = [];
       }
     }
 
+    // Comments and string literals are stripped before asking whether the
+    // script resolves a name. Without that, `t('Vote broadcasted.')` counted as
+    // an import of <Vote> - which is exactly how a missing icon survived this
+    // rule. Fourth time a scanner here has been fooled by the contents of a
+    // string; strip them first.
+    const code = script
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ')
+      .replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
+      .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
+      .replace(/`(?:[^`\\]|\\.)*`/g, '``');
+
     for (const [name, index] of used) {
       if (BUILTIN_COMPONENTS.has(name)) continue;
-      if (new RegExp(`\\b${name}\\b`).test(script)) continue;
+      if (new RegExp(`\\b${name}\\b`).test(code)) continue;
       violations.push({
         rule: 'no-unresolved-component',
         file: relative(ROOT, file),

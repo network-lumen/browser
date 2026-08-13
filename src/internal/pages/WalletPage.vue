@@ -760,6 +760,31 @@ const DEX_LISTINGS: DexListingConfig[] = [
       { label: markForTranslation('Staking'), url: 'https://staking.getbze.com/' },
       { label: markForTranslation('Website'), url: 'https://getbze.com/' }
     ]
+  },
+  {
+    key: 'osmosis',
+    name: markForTranslation('Osmosis'),
+    chainId: 'osmosis-1',
+    chainLabel: markForTranslation('Osmosis'),
+    // No REST endpoint: the chain overview below reads BeeZee's tradebin
+    // module, which Osmosis does not have. It lists as a link, with its own
+    // page supplying the title and description.
+    restEndpoint: '',
+    baseUrl: 'https://app.osmosis.zone/',
+    openUrl: 'https://app.osmosis.zone/assets/ibc/88DBE57372690630D2DD9779C247479CE124E777C5D695FA90699F3140CEC59F',
+    logoUrl: '',
+    iconText: 'OSMO',
+    description: markForTranslation('Trade LMN against the wider Cosmos market, and look at its pools.'),
+    probePaths: ['/', '/pools'],
+    fallbackLinks: [
+      {
+        label: markForTranslation('LMN on Osmosis'),
+        url: 'https://app.osmosis.zone/assets/ibc/88DBE57372690630D2DD9779C247479CE124E777C5D695FA90699F3140CEC59F'
+      },
+      { label: markForTranslation('Swap'), url: 'https://app.osmosis.zone/' },
+      { label: markForTranslation('Pools'), url: 'https://app.osmosis.zone/pools' },
+      { label: markForTranslation('Website'), url: 'https://osmosis.zone/' }
+    ]
   }
 ];
 
@@ -1823,12 +1848,13 @@ function updateDexRow(key: string, updater: (row: DexRow) => DexRow) {
 }
 
 async function fetchDexSnapshot(config: DexListingConfig): Promise<DexRow> {
+  const probePaths = config.probePaths?.length ? config.probePaths : ['/', '/exchange', '/pools'];
   const [pages, chainOverview] = await Promise.all([
-    Promise.allSettled([
-      fetchAbsoluteTextViaBridge(config.baseUrl, 15000),
-      fetchAbsoluteTextViaBridge(buildAbsoluteUrl(config.baseUrl, '/exchange'), 15000),
-      fetchAbsoluteTextViaBridge(buildAbsoluteUrl(config.baseUrl, '/pools'), 15000)
-    ]),
+    Promise.allSettled(
+      probePaths.map((probePath) =>
+        fetchAbsoluteTextViaBridge(buildAbsoluteUrl(config.baseUrl, probePath), 15000),
+      ),
+    ),
     fetchDexChainOverview(config).catch(() => ({
       tradingPairsCount: null,
       liquidityPoolsCount: null,
@@ -1837,9 +1863,18 @@ async function fetchDexSnapshot(config: DexListingConfig): Promise<DexRow> {
     }))
   ]);
 
-  const homeHtml = pages[0].status === 'fulfilled' ? pages[0].value : '';
-  const exchangeHtml = pages[1].status === 'fulfilled' ? pages[1].value : '';
-  const poolsHtml = pages[2].status === 'fulfilled' ? pages[2].value : '';
+  // Indexed by what each probe was for, not by position, so a DEX that probes
+  // two pages does not read the pools document as its exchange one.
+  const htmlFor = (probePath: string) => {
+    const index = probePaths.indexOf(probePath);
+    if (index < 0) return '';
+    const result = pages[index];
+    return result?.status === 'fulfilled' ? result.value : '';
+  };
+
+  const homeHtml = htmlFor(probePaths[0]);
+  const exchangeHtml = htmlFor('/exchange');
+  const poolsHtml = htmlFor('/pools');
   const successCount = pages.filter((result) => result.status === 'fulfilled').length;
 
   const homeDoc = parseHtmlDocument(homeHtml);

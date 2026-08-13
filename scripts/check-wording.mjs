@@ -123,7 +123,7 @@ const PROPER = new Set(`Lumen IPFS IPNS CID CIDs LMN DAO PQC IBC QR API APIs URL
 GitHub Chrome Web Store Google Dilithium Kubo Electron HLS EPUB DEX DEXs RPC SHA SHA256
 ID IDs TTL GB HTML HTM ZIP CSV Esc Enter Shift Ctrl Alt I Netflix Doe VPS CRX USB
 Drive Wallet Settings Extensions Domains Explorer Network Gateways Tab Cloud Space
-Testnet BeeZee WalletConnect Amino Direct Veto Browser Decentralized Internet Stack
+Testnet BeeZee Osmosis Cosmos WalletConnect Amino Direct Veto Browser Decentralized Internet Stack
 Subscription Light Normal High New All Pages Explore Create Send Other Chain Via Save My Upload
 Français English`.split(/\s+/));
 

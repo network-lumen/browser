@@ -66,6 +66,8 @@
 .pr-48px { padding-right: 3rem; }
 .pr-64px { padding-right: 4rem; }
 .pr-76px { padding-right: 4.75rem; }
+/* Clears the macOS traffic lights, which sit over the start of the tab strip. */
+.pl-80px { padding-left: 5rem; }
 .pr-116px { padding-right: 7.25rem; }
 
 .pb-4px { padding-bottom: 0.25rem; }

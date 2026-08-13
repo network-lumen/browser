@@ -1,7 +1,7 @@
 <template>
   <!-- ####### lumen://home HOME ####### -->
   <div class="internal-page flex">
-    <InternalSidebar :title="t('Lumen')" :icon="Home" activeKey="home" :showAllPages="false">
+    <InternalSidebar :title="t('Lumen')" :icon="Home" activeKey="home">
       <UiButton variant="secondary" type="button" :block="true" @click="showAllPages = !showAllPages" class="flex-justify-space-between">
         <span>{{ t('All pages') }}</span>
         <component :is="showAllPages ? ChevronUp : ChevronDown" :size="16" />

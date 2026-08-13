@@ -220,7 +220,7 @@ import { loadStableLinkRecords } from '../services/contentResolver';
 import type { DomainRow, RawDomainRow, SettingsRecord , DomainRegisterForm } from '../../types/domainPage';
 
 import { errorMessage } from '../services/coerce';
-import { sanitizeStableLinkLabel, stableLinkDisplayName, stableLinkKeyNameFromLabel } from '../services/stableLinks';
+import { isUserFacingKeyName, sanitizeStableLinkLabel, stableLinkDisplayName, stableLinkKeyNameFromLabel } from '../services/stableLinks';
 import UglyDomainNameDialog from '../../dialogs/UglyDomainNameDialog.vue';
 import UglyDomainRecordDialog from '../../dialogs/UglyDomainRecordDialog.vue';
 import RegisterDomainDialog from '../../dialogs/RegisterDomainDialog.vue';
@@ -402,7 +402,7 @@ async function loadRawDomains() {
           id,
         };
       })
-      .filter((key: RawDomainRow) => key.name && key.name !== 'self');
+      .filter((key: RawDomainRow) => isUserFacingKeyName(key.name));
   } catch (e) {
     rawDomainsError.value = errorMessage(e, t('Failed to load ugly domains.'));
     rawDomains.value = [];

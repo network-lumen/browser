@@ -1088,7 +1088,14 @@ const avatarProfileTarget = computed(
 const localGatewayDraft = ref('');
 const ipfsApiDraft = ref('');
 const localDriveMaxUploadSizeDraft = ref(String(DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB));
-const ipfsConnectivityMode = ref<IpfsConnectivityMode>('normal');
+// Seeded from the loaded settings, like the content toggles below it. It used
+// to start on a literal 'normal' and wait for the watcher, which only fires
+// when the settings *change* - and they are loaded once at app start, long
+// before this page mounts. So a saved "High connectivity" came back as Normal
+// on every restart, and looked like it had not been saved at all.
+const ipfsConnectivityMode = ref<IpfsConnectivityMode>(
+  appSettingsState.value.ipfsConnectivityMode || 'normal',
+);
 const networkSettingsSaving = ref(false);
 const networkSettingsError = ref('');
 const devSettingsSaving = ref(false);
@@ -1136,7 +1143,7 @@ watch(
     showViolentContent.value = !!next.showViolentContent;
     showDisturbingImagery.value = !!next.showDisturbingImagery;
   },
-  { deep: true },
+  { deep: true, immediate: true },
 );
 
 const networkModeSummary = computed(() => {

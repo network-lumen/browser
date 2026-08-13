@@ -12,6 +12,34 @@
 /** Marks a Kubo key as site-managed. Changing this orphans every existing key. */
 const STABLE_KEY_PREFIX = 'stable:';
 
+/**
+ * Key names other parts of the app own, which must never be offered as a
+ * domain of the user's.
+ *
+ * `sitedata:` is one key per (site, profile) - the identity a site publishes
+ * its own record under, created without the user ever naming it. They were
+ * listed in Domains beside the names the user made by hand, where renaming one
+ * breaks that site's data and the list itself says which sites have stored
+ * anything. Kept in step with `RESERVED_KEY_PREFIXES` in
+ * `electron/sites/ipns_ownership.cjs`, which refuses the same names from the
+ * publish side.
+ */
+const RESERVED_KEY_PREFIXES = ['sitedata:', 'siteidentity:'];
+
+/** The node's own key, which is not a name at all. */
+const SELF_KEY_NAME = 'self';
+
+/**
+ * Whether a Kubo key is one of the user's own names, rather than one the app
+ * created and manages on their behalf.
+ */
+export function isUserFacingKeyName(name: string): boolean {
+  const raw = String(name || '').trim();
+  if (!raw || raw === SELF_KEY_NAME) return false;
+  const lowered = raw.toLowerCase();
+  return !RESERVED_KEY_PREFIXES.some((prefix) => lowered.startsWith(prefix));
+}
+
 /** Longest label kept, so a pasted essay cannot become a key name. */
 const MAX_LABEL_LENGTH = 96;
 

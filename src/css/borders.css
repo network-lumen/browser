@@ -72,7 +72,6 @@
 .border-top-1-separator { border-top: 1px solid var(--separator); }
 .border-top-2-border-color { border-top: 2px solid var(--border-color); }
 .border-top-default { border-top: var(--border-width) solid var(--border-color); }
-.border-top-light { border-top: var(--border-width) solid var(--border-light); }
 .border-top-none { border-top: none; }
 .border-width-2px { border-width: 2px; }
 .border-05-primary-a18 { border: var(--border-width) solid rgba(var(--color-primary-rgb), 0.18); }

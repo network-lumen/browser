@@ -8,11 +8,13 @@
 
     <ContactFields :form="form" :editing="editing" />
 
-    <UiButton variant="primary" class="disabled-fade-50 mt-12px" :disabled="!form.name || !form.address || saving" @click="$emit('submit')">
-      <Check v-if="!saving" :size="18" />
-      <UiSpinner v-else size="sm" class="spinner-color-white" />
-      <span>{{ saving ? 'Saving...' : (editing ? t('Update contact') : t('Add contact')) }}</span>
-    </UiButton>
+    <div class="flex flex-justify-end mt-12px">
+      <UiButton variant="primary" class="disabled-fade-50" :disabled="!form.name || !form.address || saving" @click="$emit('submit')">
+        <Check v-if="!saving" :size="18" />
+        <UiSpinner v-else size="sm" class="spinner-color-white" />
+        <span>{{ saving ? t('Saving…') : (editing ? t('Update contact') : t('Add contact')) }}</span>
+      </UiButton>
+    </div>
   </UiModal>
 </template>
 
