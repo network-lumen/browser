@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "चढ़ाना पहले से रद्द हो रहा है",
   "Upload it to Drive": "इसे Drive में चढ़ाएँ",
   "Upload your content to the cloud (Drive / cloud upload).": "अपनी सामग्री बादल पर चढ़ाएँ (Drive या cloud पर)।",
+  "Uploaded {count} entries to {gateway}": "{gateway} पर {count} प्रविष्टियाँ अपलोड कीं",
+  "Uploaded to {gateway}: {name}": "{gateway} पर अपलोड किया: {name}",
   "Uploading {name}": "{name} चढ़ाया जा रहा है",
   "Uploading to your local node": "आपके अपने नोड पर चढ़ाया जा रहा है",
   "Uptime %": "चालू रहने का %",

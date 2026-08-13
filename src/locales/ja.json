@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "アップロードはすでに中止処理中です",
   "Upload it to Drive": "Drive にアップロードする",
   "Upload your content to the cloud (Drive / cloud upload).": "コンテンツをクラウドにアップロードします（Drive / cloud へのアップロード）。",
+  "Uploaded {count} entries to {gateway}": "{count} 件を {gateway} にアップロードしました",
+  "Uploaded to {gateway}: {name}": "{gateway} にアップロードしました: {name}",
   "Uploading {name}": "{name} をアップロードしています",
   "Uploading to your local node": "自分のローカルノードにアップロードしています",
   "Uptime %": "稼働率 %",

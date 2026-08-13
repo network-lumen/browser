@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "La subida ya se está cancelando",
   "Upload it to Drive": "Súbelo a Drive",
   "Upload your content to the cloud (Drive / cloud upload).": "Sube tu contenido a la nube (Drive / subida a la nube).",
+  "Uploaded {count} entries to {gateway}": "{count} entradas subidas a {gateway}",
+  "Uploaded to {gateway}: {name}": "Subido a {gateway}: {name}",
   "Uploading {name}": "Subiendo {name}",
   "Uploading to your local node": "Subiendo a tu nodo local",
   "Uptime %": "Tiempo activo %",

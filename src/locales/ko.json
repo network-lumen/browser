@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "올리기를 이미 취소하고 있습니다",
   "Upload it to Drive": "Drive에 올리기",
   "Upload your content to the cloud (Drive / cloud upload).": "콘텐츠를 클라우드에 올립니다(Drive / cloud 올리기).",
+  "Uploaded {count} entries to {gateway}": "{count}개 항목을 {gateway}에 업로드했습니다",
+  "Uploaded to {gateway}: {name}": "{gateway}에 업로드했습니다: {name}",
   "Uploading {name}": "{name}을(를) 올리고 있습니다",
   "Uploading to your local node": "내 로컬 노드에 올리고 있습니다",
   "Uptime %": "가동률 %",

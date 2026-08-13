@@ -236,7 +236,7 @@
             <div class="flex gap-8px mt-8px">
               <UiButton variant="secondary" type="button"
                 @click="cancelUpload(key)"
-                :disabled="upload?.uploadingCanceling" class="disabled-fade-50">
+                :disabled="!!upload?.uploadingCanceling" class="disabled-fade-50">
                 {{ upload?.uploadingCanceling ? t('Cancelling…') : t('Cancel') }}
               </UiButton>
             </div>
@@ -636,7 +636,7 @@ import {
 } from "../../stores/favouritesStore";
 import JSZip from "jszip";
 import { useToast } from "../../composables/useToast";
-import type { DriveFile } from "../../types/upload";
+import type { DriveFile, UploadPathResult } from "../../types/upload";
 import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
 import DriveFileRow from "../../entities/DriveFileRow.vue";
 import { planDisplayName } from "../services/plans";
@@ -2043,16 +2043,63 @@ function toggleUploadMenu() {
   showUploadMenu.value = !showUploadMenu.value;
 }
 
-async function openFilePicker() {
+/**
+ * Everything is added to the local node first - that is what produces the CID -
+ * and then pinned to the gateway being browsed, if that is where the upload was
+ * aimed. Without this second half, uploading while a cloud was selected only
+ * ever wrote to the local node, and the file never appeared in the gateway's
+ * list because it was never sent there.
+ */
+async function uploadThenPinToActiveGateway(
+  upload: () => Promise<UploadPathResult[]>,
+) {
   showUploadMenu.value = false;
   uploading.value = true;
-  uploadFileToLocal();
+
+  let results: UploadPathResult[] = [];
+  try {
+    results = await upload();
+  } catch (e) {
+    // Closing the picker rejects with "No file selected"; that is not a failure.
+    const message = errorMessage(e, "");
+    if (message && !/no (file|folder) selected/i.test(message)) {
+      showToast(message, "error");
+    }
+    return;
+  }
+
+  if (hosting.value.kind !== "gateway") return;
+
+  const uploaded = results.filter((result): result is Extract<UploadPathResult, { ok: true }> =>
+    result.ok === true && !!result.cid,
+  );
+  if (!uploaded.length) return;
+
+  let failed = 0;
+  for (const result of uploaded) {
+    const pinned = await pinCidToActiveGateway(result.cid, result.rootName);
+    if (pinned.ok) continue;
+    if (pinned.cancelled) return;
+    failed += 1;
+    showToast(pinned.error, "error");
+  }
+
+  if (failed) return;
+  const gateway = activeGatewayLabel.value;
+  showToast(
+    uploaded.length === 1
+      ? t('Uploaded to {gateway}: {name}', { gateway, name: uploaded[0].rootName })
+      : t('Uploaded {count} entries to {gateway}', { count: uploaded.length, gateway }),
+    "success",
+  );
+}
+
+async function openFilePicker() {
+  await uploadThenPinToActiveGateway(uploadFileToLocal);
 }
 
 async function openFolderPicker() {
-  showUploadMenu.value = false;
-  uploading.value = true;
-  uploadFolderToLocal();
+  await uploadThenPinToActiveGateway(uploadFolderToLocal);
 }
 
 const uploadActivitiesComputed = ref<any>();
