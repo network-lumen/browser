@@ -1,5 +1,8 @@
 const { ipcMain, dialog } = require('electron');
 const path = require('path');
+const { isWebviewSender } = require('../utils/sender.cjs');
+const { claimKeyForSite } = require('../sites/ipns_ownership.cjs');
+const { senderSiteContext } = require('../sites/actions.cjs');
 
 const {
   checkIpfsStatus,
@@ -273,8 +276,26 @@ function registerIpfsIpc() {
     return ipfsStats();
   });
 
-  ipcMain.handle('ipfs:publishToIPNS', async (_evt, cid, key, options) => {
+  ipcMain.handle('ipfs:publishToIPNS', async (evt, cid, key, options) => {
     console.log('[electron][ipc] ipfs:publishToIPNS requested:', cid, 'key:', key);
+
+    // A site may publish under a name, but only under one that is its own. The
+    // keys live on the single local node every site shares, and this channel
+    // takes the name from the page - so without this, publishing under another
+    // site's name was a matter of knowing it.
+    if (isWebviewSender(evt)) {
+      const ctx = senderSiteContext(evt);
+      if (!ctx.ok) return { ok: false, error: 'forbidden' };
+      const claim = claimKeyForSite(key, ctx.siteKey);
+      if (!claim.ok) {
+        console.warn('[electron][ipc] ipfs:publishToIPNS refused', {
+          reason: claim.error,
+          siteKey: ctx.siteKey,
+        });
+        return { ok: false, error: claim.error };
+      }
+    }
+
     const timeoutMs = Number(options && options.timeoutMs);
     const res = await ipfsPublishToIPNS(cid, key, {
       timeoutMs: Number.isFinite(timeoutMs) && timeoutMs > 0 ? Math.floor(timeoutMs) : 60000,
