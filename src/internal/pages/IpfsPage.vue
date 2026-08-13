@@ -1,7 +1,7 @@
 <template>
   <!-- ####### lumen://ipfs IPFS / IPNS ####### -->
-  <div class="flex w-full h-full bg-primary">
-    <main class="flex flex-column flex-1" :class="isBareHtmlView ? 'p-0px overflow-hidden' : 'p-24px overflow-auto'">
+  <div class="flex w-full h-full bg-primary" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
+    <main class="fullscreen-target flex flex-column flex-1" :class="isBareHtmlView ? 'p-0px overflow-hidden' : 'p-24px overflow-auto'">
       <UiPageHeader v-if="!isBareHtmlView">
         <template #actions>
           <UiButton variant="primary" v-if="isDir && indexHtmlEntry"
@@ -162,11 +162,19 @@
              v-else-if="viewKind === 'html'"
              ref="siteWebview"
              :src="contentUrl"
-             class="w-full"
-             :class="isBareHtmlView ? 'h-full border-none border-radius-0 bg-transparent' : 'h-75vh border-radius-12px border-1 bg-primary'"
+             class="fullscreen-target w-full"
+             :class="webviewHtmlFullscreen
+               ? 'h-full border-none border-radius-0 bg-black'
+               : isBareHtmlView
+                 ? 'h-full border-none border-radius-0 bg-transparent'
+                 : 'h-75vh border-radius-12px border-1 bg-primary'"
              partition="persist:lumen"
              allowpopups
+             allowfullscreen
+             allow="fullscreen"
              :webpreferences="webprefs"
+             @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
+             @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
              @will-navigate="onWebviewWillNavigate"
              @did-navigate="onWebviewDidNavigate"
              @did-navigate-in-page="onWebviewDidNavigateInPage"
@@ -385,6 +393,26 @@ function onWebviewDidStartLoading() {
 
 function onWebviewDidStopLoading() {
   webviewLoading.value = false;
+}
+
+/**
+ * A video going fullscreen inside the guest page.
+ *
+ * The window itself is put into fullscreen by the main process, but the webview
+ * element keeps whatever box the viewer drew it in - which here is a 75vh panel
+ * with a rounded 1px border. That border stayed visible around the video as a
+ * white outline. WebPage and SitePage already do this; this page did not.
+ */
+const webviewHtmlFullscreen = ref(false);
+
+function onWebviewEnterHtmlFullscreen() {
+  webviewHtmlFullscreen.value = true;
+  document.body.classList.add("lumen-webview-html-fullscreen");
+}
+
+function onWebviewLeaveHtmlFullscreen() {
+  webviewHtmlFullscreen.value = false;
+  document.body.classList.remove("lumen-webview-html-fullscreen");
 }
 
 const rootCid = ref("");
@@ -2134,6 +2162,9 @@ onDeactivated(() => {
   pageActive.value = false;
   webviewLoading.value = false;
   stopUrlWatch();
+  // The class is on <body>, so a tab left in fullscreen would keep the whole
+  // app in it after switching away.
+  onWebviewLeaveHtmlFullscreen();
   try {
     const tabId = String(currentTabId?.value || "").trim();
     if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
