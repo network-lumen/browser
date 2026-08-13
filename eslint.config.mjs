@@ -1,6 +1,6 @@
-// Deliberately minimal: only the rules below, chosen because they have a
-// real AST behind them (unlike scripts/check-conventions.mjs's regex-based
-// checks) and each one caught an actual bug found by hand this session:
+// Deliberately minimal: only the rules below, each chosen because it has a
+// real AST behind it (unlike scripts/check-conventions.mjs's regex-based
+// checks) and each one caught an actual bug when it was added:
 //   - no-console          -> 8 debug console.log()s left in SettingsPage.vue
 //   - no-empty-function   -> DrivePage.vue's handleDrop(e) { } (wired to a
 //                            real addEventListener, did nothing on drop)
@@ -12,16 +12,39 @@
 //                            modifier Vue doesn't support (key modifiers
 //                            match event.key, and "/" produces key === "/",
 //                            not "Slash") - the shortcut silently never fired
+//   - no-unsafe-finally   -> three `return`s inside a `finally` in SearchPage,
+//                            each discarding whatever the block was carrying.
+//                            Benign only for as long as nobody rethrows from
+//                            the `catch` above them.
+//   - no-case-declarations-> three `const`s in bare `case` bodies in
+//                            RecurringPaymentModal, scoped to the whole switch
+//                            and therefore present, uninitialised, in every
+//                            other branch.
 //   - no-restricted-syntax (TSInterfaceDeclaration/TSTypeAliasDeclaration)
 //                         -> enforces the src/types/ centralization convention
 //                            (see CONTRIBUTING.md) - added 2026-07-29 after a
 //                            real DriveFile interface had silently drifted
 //                            into 3 separate copies across the codebase.
-// Not a general "eslint:recommended" sweep on purpose - that would surface a
-// wave of unrelated pre-existing findings across ~90 files with no bearing
-// on this cleanup pass. The project's own CSS-utility-system rules (dead/
-// undefined classes, cascade conflicts, no raw <svg>, etc.) have no generic
-// linter equivalent and stay in scripts/check-conventions.mjs.
+//
+// Still not a general `eslint:recommended` sweep, and now with numbers rather
+// than a hunch. Running the recommended set over src, electron, tests and
+// scripts reports 543 findings, of which:
+//
+//   466  no-empty              the deliberate `catch {}` idiom - a decision
+//                              about a value (the page is navigating, the
+//                              element is gone), documented in ARCHITECTURE.md
+//    30  no-useless-assignment dead stores, real but cosmetic
+//    23  no-useless-escape     redundant backslashes in regex literals
+//    11  no-inner-declarations function declarations inside blocks, legal since
+//                              ES2015 and used on purpose here
+//     7  no-control-regex      deliberate: stripping control characters out of
+//                              a filename needs to match them
+//
+// Enabling `no-empty` would mean 466 disable comments over an idiom this
+// project chose; the other four are worth a pass of their own rather than a
+// wave of noise on top of unrelated work. The project's own CSS-utility-system
+// rules (dead/undefined classes, cascade conflicts, no raw <svg>) have no
+// generic linter equivalent and stay in scripts/check-conventions.mjs.
 import vuePlugin from 'eslint-plugin-vue';
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
@@ -56,6 +79,8 @@ export default [
       // rule caught - DrivePage's dead handleDrop) are still flagged.
       'no-empty-function': ['error', { allow: ['arrowFunctions'] }],
       'no-unreachable': 'error',
+      'no-unsafe-finally': 'error',
+      'no-case-declarations': 'error',
       'vue/valid-v-on': 'error',
       'no-unused-vars': 'off',
       // Respects this codebase's existing "leading underscore = intentionally
@@ -74,10 +99,13 @@ export default [
     // `extensions:disable`, in a file that `npm test` never opens. `no-undef`
     // is the whole point of this block; the other two come free.
     //
-    // Deliberately narrower than the src rules: no-console is off (the main
-    // process logs to a real log file on purpose) and unused vars are a
-    // warning, because a preload that keeps a reference for clarity is not a
-    // bug worth failing a build over.
+    // Deliberately narrower than the src rules: no-console is off, because the
+    // main process logs to a real log file on purpose.
+    //
+    // Unused vars were a warning here, on the grounds that a preload keeping a
+    // reference for clarity is not worth failing a build over. There are none
+    // left, and a warning nobody fails on is a warning nobody reads - the wall
+    // of five that main.cjs grew while being split is what made the point.
     files: ['electron/**/*.cjs'],
     languageOptions: {
       ecmaVersion: 2022,
@@ -114,7 +142,9 @@ export default [
     rules: {
       'no-undef': 'error',
       'no-unreachable': 'error',
-      'no-unused-vars': ['warn', {
+      'no-unsafe-finally': 'error',
+      'no-case-declarations': 'error',
+      'no-unused-vars': ['error', {
         args: 'none',
         varsIgnorePattern: '^_',
         caughtErrors: 'none',
