@@ -1,6 +1,7 @@
 const { safeString } = require('./utils/strings.cjs');
 const { app, BrowserWindow, ipcMain, session, dialog, desktopCapturer } = require('electron');
 const path = require('path');
+const { fileURLToPath } = require('node:url');
 const {
   APP_NAME,
   resolveStartupUserDataPath,
@@ -178,6 +179,31 @@ addPinJobListener((payload) => {
 
 const LUMEN_SESSION_PARTITION = 'persist:lumen';
 const LUMEN_SESSION_PRELOAD_ID = 'lumen-extension-preload';
+/** The only directory a guest page may load a preload from. */
+const PRELOADS_DIR = path.join(__dirname, 'preloads');
+
+/**
+ * Whether a preload a `<webview>` asked for is one of the app's own.
+ *
+ * The value arrives as a `file://` URL from `extensions:getGuestPreloadUrl`,
+ * and as a plain path from anything else, so both are reduced to a path before
+ * being compared. Anything outside the preloads directory is refused: a preload
+ * runs with more than the page does, and the attribute naming it lives in
+ * renderer markup.
+ */
+function isAppPreload(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  try {
+    const resolved = raw.toLowerCase().startsWith('file:')
+      ? fileURLToPath(raw)
+      : raw;
+    const normalized = path.resolve(resolved);
+    return normalized === PRELOADS_DIR || normalized.startsWith(PRELOADS_DIR + path.sep);
+  } catch {
+    return false;
+  }
+}
 
 function listSessionPreloadScripts(ses) {
   try {
@@ -483,6 +509,30 @@ app.whenReady().then(async () => {
   try {
     app.on('web-contents-created', (_event, contents) => {
       if (!contents) return;
+
+      // What a <webview> is allowed to be, decided here rather than in the
+      // markup that creates it. The tags do set `webpreferences`, but that is
+      // an attribute on an element in a renderer: anything that can write to
+      // the DOM can write a different one. Node stays off, isolation stays on,
+      // and the only preload a guest may load is one of ours.
+      try {
+        contents.on('will-attach-webview', (_evt2, webPreferences, params) => {
+          webPreferences.nodeIntegration = false;
+          webPreferences.nodeIntegrationInSubFrames = false;
+          webPreferences.contextIsolation = true;
+          webPreferences.webSecurity = true;
+          webPreferences.allowRunningInsecureContent = false;
+
+          const preload = String(webPreferences.preload || params?.preload || '');
+          if (preload && !isAppPreload(preload)) {
+            console.warn('[electron] refused a webview preload outside the app', {
+              preload: preload.slice(0, 200),
+            });
+            delete webPreferences.preload;
+            if (params) delete params.preload;
+          }
+        });
+      } catch {}
 
       try {
         contents.on('console-message', (_evt, level, message, line, sourceId) => {

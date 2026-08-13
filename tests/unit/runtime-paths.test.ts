@@ -108,9 +108,13 @@ describe('paths built with __dirname', () => {
     // Named individually: a preload that stops being referenced at all is as
     // broken as one pointing at the wrong file, and an existence check alone
     // would not notice.
+    //
+    // Files only. The preloads *directory* is also built this way, by the
+    // check that refuses a webview a preload from anywhere else, and it is not
+    // one of the four.
     const attached = found
       .map(({ parts }) => parts[parts.length - 1])
-      .filter((p) => p.includes('preload'));
+      .filter((p) => p.includes('preload') && p.endsWith('.cjs'));
 
     expect(new Set(attached)).toEqual(
       new Set(['preload.cjs', 'webview-preload.cjs', 'extension-preload.cjs', 'store-preload.cjs'])
