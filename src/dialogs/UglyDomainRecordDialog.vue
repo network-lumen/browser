@@ -38,7 +38,7 @@ import UiModal from '../ui/UiModal.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiInput from '../ui/UiInput.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
-import { Check } from 'lucide-vue-next';
+import { Check, HelpCircle } from 'lucide-vue-next';
 
 /** The CID an ugly domain points at. */
 defineProps<{

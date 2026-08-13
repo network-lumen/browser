@@ -85,7 +85,7 @@ import UiModal from '../ui/UiModal.vue';
 import UiCard from '../ui/UiCard.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiInput from '../ui/UiInput.vue';
-import { Info, Plus } from 'lucide-vue-next';
+import { Info, Plus, X } from 'lucide-vue-next';
 import { findGovernanceActionTemplate } from '../internal/pages/governanceActionTemplates';
 import type { GovernanceActionDraft, GovernanceActionTemplate } from '../types/networkGovernance';
 import type { ProposalForm } from '../types/networkPage';

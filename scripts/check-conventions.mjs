@@ -683,6 +683,56 @@ const warnings = [];
 }
 
 // ---------------------------------------------------------------------------
+// Rule 14b: every PascalCase component a template draws must be resolvable
+// from the file's own <script setup> - i.e. imported, or declared there.
+//
+// Vue answers a missing one with a console warning at runtime and renders
+// nothing where the element was, so the failure is a silently absent icon or
+// panel that only shows up if someone happens to be reading the console. Five
+// were sitting in the app when this rule was written, the oldest of them the
+// close button of the send dialog's contact picker.
+// ---------------------------------------------------------------------------
+{
+  // Resolved by the runtime itself, not by an import.
+  const BUILTIN_COMPONENTS = new Set([
+    'Teleport', 'Transition', 'TransitionGroup', 'KeepAlive', 'Suspense', 'Fragment',
+  ]);
+
+  for (const file of vueFiles) {
+    const text = readFileSync(file, 'utf8');
+    const templateEnd = text.lastIndexOf('</template>');
+    if (templateEnd < 0) continue;
+    // Blanked rather than removed, so offsets still address the real file.
+    const tpl = text
+      .slice(0, templateEnd)
+      .replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ' '));
+    const script = text.slice(templateEnd);
+
+    const used = new Map();
+    for (const m of tpl.matchAll(/<([A-Z][A-Za-z0-9]*)[\s/>]/g)) {
+      if (!used.has(m[1])) used.set(m[1], m.index);
+    }
+    // `:is="Foo"`, including the ternary form both this app's pages use.
+    for (const m of tpl.matchAll(/:is="([^"]+)"/g)) {
+      for (const id of m[1].matchAll(/\b([A-Z][A-Za-z0-9]*)\b/g)) {
+        if (!used.has(id[1])) used.set(id[1], m.index);
+      }
+    }
+
+    for (const [name, index] of used) {
+      if (BUILTIN_COMPONENTS.has(name)) continue;
+      if (new RegExp(`\\b${name}\\b`).test(script)) continue;
+      violations.push({
+        rule: 'no-unresolved-component',
+        file: relative(ROOT, file),
+        line: text.slice(0, index).split('\n').length,
+        detail: `<${name}> is drawn but never imported - Vue renders nothing for it`,
+      });
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Rule 15: no CSS custom property (--foo) defined in src/css/theme.css but
 // never referenced anywhere via var(--foo). The variable-level equivalent of
 // rule 4 (dead utility class) - found a real instance this session
@@ -836,6 +886,7 @@ const titles = {
   'no-conflicting-classes': 'Two classes on one element silently fight over the same CSS property',
   'no-unused-import': 'Imported but never used anywhere in the file',
   'no-unused-top-level-declaration': 'Top-level const/let/function declared but never used anywhere in the file',
+  'no-unresolved-component': 'Component used in a template but never imported (Vue warns at runtime and draws nothing)',
   'no-blank-line-in-tag': 'Blank line inside a multi-line HTML tag (leftover from a removed attribute)',
   'no-literal-vif': 'Literal v-if="true"/"false" (dead code or forgotten debug toggle)',
   'no-duplicate-class-token': 'Same class listed twice in one class="..." attribute',
