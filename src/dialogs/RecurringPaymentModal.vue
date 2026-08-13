@@ -249,23 +249,27 @@ function calculatePaymentCount(
       case 'biweekly':
         countByDate = Math.floor(daysDiff / 14) + 1;
         break;
-      case 'monthly':
-        // Calculate months between dates
-        const months = (endDate.getFullYear() - startDate.getFullYear()) * 12 
+      // Braced: a `const` in a bare case is scoped to the whole switch, so it
+      // exists - uninitialised - in every other branch too.
+      case 'monthly': {
+        const months = (endDate.getFullYear() - startDate.getFullYear()) * 12
           + (endDate.getMonth() - startDate.getMonth());
         countByDate = Math.max(1, months + 1);
         break;
-      case 'quarterly':
+      }
+      case 'quarterly': {
         const quarters = Math.floor(
-          ((endDate.getFullYear() - startDate.getFullYear()) * 12 
+          ((endDate.getFullYear() - startDate.getFullYear()) * 12
           + (endDate.getMonth() - startDate.getMonth())) / 3
         );
         countByDate = Math.max(1, quarters + 1);
         break;
-      case 'yearly':
+      }
+      case 'yearly': {
         const years = endDate.getFullYear() - startDate.getFullYear();
         countByDate = Math.max(1, years + 1);
         break;
+      }
     }
   }
   

@@ -4224,11 +4224,15 @@ async function runSearch(
     clearPageCursorStates();
     toast.error(t('Search failed: {reason}', { reason: errMessage }));
   } finally {
-    if (seq !== searchSeq) return;
-    loading.value = false;
-    await nextTick();
-    refreshLoadMoreObserver();
-    scheduleScrollUpdate();
+    // Guarded, not returned from: a `return` in a `finally` discards whatever
+    // the block was already carrying, so the day someone rethrows from the
+    // `catch` above, this would swallow it without a trace.
+    if (seq === searchSeq) {
+      loading.value = false;
+      await nextTick();
+      refreshLoadMoreObserver();
+      scheduleScrollUpdate();
+    }
   }
 }
 
@@ -4350,11 +4354,12 @@ async function loadPrevious() {
     errorMsg.value = errMessage;
     toast.error(t('Failed to load previous results: {reason}', { reason: errMessage }));
   } finally {
-    if (seq !== searchSeq) return;
-    loadingPrevious.value = false;
-    await nextTick();
-    refreshLoadMoreObserver();
-    scheduleScrollUpdate();
+    if (seq === searchSeq) {
+      loadingPrevious.value = false;
+      await nextTick();
+      refreshLoadMoreObserver();
+      scheduleScrollUpdate();
+    }
   }
 }
 
@@ -4449,11 +4454,12 @@ async function loadMore() {
     errorMsg.value = errMessage;
     toast.error(t('Failed to load more results: {reason}', { reason: errMessage }));
   } finally {
-    if (seq !== searchSeq) return;
-    loadingMore.value = false;
-    await nextTick();
-    refreshLoadMoreObserver();
-    scheduleScrollUpdate();
+    if (seq === searchSeq) {
+      loadingMore.value = false;
+      await nextTick();
+      refreshLoadMoreObserver();
+      scheduleScrollUpdate();
+    }
   }
 }
 
