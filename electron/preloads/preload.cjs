@@ -255,6 +255,12 @@ contextBridge.exposeInMainWorld('lumen', {
     list: () => ipcRenderer.invoke('siteData:list'),
     delete: (siteKey, profileId) => ipcRenderer.invoke('siteData:delete', siteKey, profileId),
   },
+  sitePermissions: {
+    list: () => ipcRenderer.invoke('sitePermissions:list'),
+    setAction: (siteKey, actionKind, allowed) =>
+      ipcRenderer.invoke('sitePermissions:setAction', siteKey, actionKind, allowed),
+    revokeSite: (siteKey) => ipcRenderer.invoke('sitePermissions:revokeSite', siteKey),
+  },
   driveConvertToHls: (payload) => ipcRenderer.invoke('drive:convertToHls', payload || {}),
   driveDownloadHlsArchive: (payload) => ipcRenderer.invoke('drive:downloadHlsArchive', payload || {}),
   driveCancelHlsConvert: () => ipcRenderer.invoke('drive:cancelHlsConvert'),
