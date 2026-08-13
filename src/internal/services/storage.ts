@@ -24,6 +24,8 @@ export const STORAGE_KEYS = {
   favourites: 'lumen:favourites:v2',
   history: 'lumen:history:v1',
   historySettings: 'lumen:history:settings:v1',
+  /** host -> favicon URL, pinned so shortcut and history lists draw instantly. */
+  siteIcons: 'lumen:siteIcons:v1',
 
   // Home / new tab layout
   homeMySpaceCards: 'my_space_cards_order',

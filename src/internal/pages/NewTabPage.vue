@@ -26,7 +26,7 @@
             autocomplete="off"
             :aria-label="t('Search or enter a URL')"
           />
-          <UiButton variant="primary" type="submit" class="transition-lift-015">
+          <UiButton variant="primary" type="submit" size="sm" class="transition-lift-015 border-radius-full flex-0-0-auto">
             <ArrowUpRight :size="15" />
             <span>{{ t('Go') }}</span>
           </UiButton>
@@ -40,6 +40,10 @@
       <section class="bg-card-a94-shadow-soft border-1-light relative overflow-hidden flex-shrink-0 p-20px border-radius-24px backdrop-blur-16">
         <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">{{ t('Discover') }}</div>
         <div class="flex flex-wrap-wrap gap-12px mt-16px">
+          <UiButton variant="primary" type="button" @click="open('lumen://web.lmn/')" class="outline-none border-radius-full">
+            <Globe :size="15" />
+            <span>{{ t('All known websites') }}</span>
+          </UiButton>
           <button type="button" disabled class="disabled-fade-50 flex-align-center gap-8px border-1-light border-radius-full bg-transparent color-text-tertiary text-13px fw-500 py-8px px-16px cursor-not-allowed">
             <Sparkles :size="15" />
             <span>{{ t('Recently created (soon)') }}</span>
@@ -48,10 +52,6 @@
             <Flame :size="15" />
             <span>{{ t('Trending (soon)') }}</span>
           </button>
-          <UiButton variant="primary" type="button" @click="open('lumen://web.lmn/')" class="outline-none border-radius-full">
-            <Globe :size="15" />
-            <span>{{ t('All known websites') }}</span>
-          </UiButton>
         </div>
       </section>
 
@@ -82,9 +82,13 @@
             @dragend="onShortcutDragEnd"
           >
             <UiButton variant="none" type="button" @click="openTarget(entry.url, $event)" :title="entry.title" class="flex-align-center gap-12px cursor-pointer w-full bg-transparent border-none text-left">
-              <span class="flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
-                {{ entry.monogram }}
-              </span>
+              <UiSiteIcon
+                :url="entry.url"
+                :kind="entry.kind"
+                :monogram="entry.monogram"
+                image-class="size-24px border-radius-6px"
+                class="color-text-primary txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px"
+              />
               <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" gap-class="gap-4px" title-class="txt-weight-strong block text-15px" subtitle-class="block color-text-tertiary text-13px line-height-14" />
             </UiButton>
 
@@ -139,9 +143,13 @@
             :key="entry.id"
             type="button"
             @click="openTarget(entry.url, $event)" class="transition-transform-bg-border-015 flex-align-center gap-12px cursor-pointer w-full bg-transparent border-1-light border-radius-16px text-left p-14px hover-border-primary-a14">
-            <span class="flex-inline-align-justify-center color-text-primary flex-0-0-auto txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px" :style="avatarToneStyle(entry.kind)">
-              {{ entry.monogram }}
-            </span>
+            <UiSiteIcon
+              :url="entry.url"
+              :kind="entry.kind"
+              :monogram="entry.monogram"
+              image-class="size-24px border-radius-6px"
+              class="color-text-primary txt-weight-strong border-radius-16px text-13px letter-spacing-008em border-1-light bg-fill-tertiary size-48px"
+            />
             <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" wrapper-class="flex-1" title-class="block txt-weight-medium" subtitle-class="block color-text-tertiary text-13px" />
             <span class="flex-0-0-auto txt-weight-medium pl-8px color-text-tertiary text-13px">{{ formatPreviewTime(entry.lastVisitedAt) }}</span>
           </UiButton>
@@ -157,6 +165,7 @@ import UiButton from '../../ui/UiButton.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiMenuItem from '../../ui/UiMenuItem.vue';
 import UiTitleSubtitle from '../../ui/UiTitleSubtitle.vue';
+import UiSiteIcon from '../../ui/UiSiteIcon.vue';
 import { computed,  onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import {
   ArrowUpRight,
@@ -170,7 +179,7 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-vue-next";
-import { avatarToneStyle, describeFavouriteUrl } from "../favouriteMeta";
+import { describeFavouriteUrl } from "../favouriteMeta";
 import { FavouriteEntry, useFavourites } from "../../stores/favouritesStore";
 import { useHistory } from "../../stores/historyStore";
 import { profilesState } from "../../stores/profilesStore";

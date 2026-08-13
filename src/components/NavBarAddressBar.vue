@@ -50,12 +50,13 @@
         @mousedown.prevent="choose(item)"
         @mousemove="highlighted = index"
       >
-        <span
-          class="flex-inline-align-justify-center flex-shrink-0 color-text-primary txt-weight-strong border-radius-10px text-11px border-default bg-fill-secondary size-28px"
-          :style="avatarToneStyle(item.kind)"
-        >
-          {{ item.monogram }}
-        </span>
+        <UiSiteIcon
+          :url="item.url"
+          :kind="item.kind"
+          :monogram="item.monogram"
+          image-class="size-16px border-radius-4px"
+          class="color-text-primary txt-weight-strong border-radius-10px text-11px border-default bg-fill-secondary size-28px"
+        />
         <span class="flex flex-column flex-1 min-w-0">
           <span class="text-13px color-text-primary truncate">{{ item.title }}</span>
           <span class="text-11px color-text-tertiary truncate">{{ item.subtitle }}</span>
@@ -73,7 +74,7 @@ import { Search, Star } from 'lucide-vue-next';
 import UiCard from '../ui/UiCard.vue';
 import UiInput from '../ui/UiInput.vue';
 import UiButton from '../ui/UiButton.vue';
-import { avatarToneStyle } from '../internal/favouriteMeta';
+import UiSiteIcon from '../ui/UiSiteIcon.vue';
 import { rankAddressSuggestions } from '../internal/services/addressSuggestions';
 import { useFavourites } from '../stores/favouritesStore';
 import { useHistory } from '../stores/historyStore';

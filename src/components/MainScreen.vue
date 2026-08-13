@@ -116,16 +116,8 @@ import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
 import { isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
 import { normalizeHistoryUrlForComparison, useHistory } from '../stores/historyStore';
 import { activeProfileId, initProfiles, profilesState } from '../stores/profilesStore';
-import lumenFavicon from '../img/favicon.ico';
 import { useInternalLumen } from '../composables/useInternalLumen';
-  import {
-    buildCandidateUrl,
-    localIpfsGatewayBase,
-    loadWhitelistedGatewayBases,
-    probeUrl,
-    resolveDomainTarget,
-    resolveIpnsToCid,
-  } from '../internal/services/contentResolver';
+import { LUMEN_MARK, dropSiteIcon, resolveSiteIcon } from '../internal/services/siteIcons';
 import type { Tab } from '../types/tab';
 import type { TabStripSlot } from '../types/tabStrip';
 import {
@@ -607,81 +599,11 @@ async function openInNewTab(url: string) {
     return (withoutScheme.split(/[\/?#]/, 1)[0] || '').trim().toLowerCase();
   }
 
-  function isDomainHost(host: string): boolean {
-    const h = String(host || '').trim().toLowerCase();
-    if (!h) return false;
-    if (INTERNAL_KEYS.has(h)) return false;
-    return h.includes('.');
-  }
-
-  const faviconCacheByHost = new Map<string, string | null>();
-  const faviconInflightByHost = new Map<string, Promise<string | null>>();
-
-  async function resolveFaviconForHost(host: string): Promise<string | null> {
-    const h = String(host || '').trim().toLowerCase();
-    if (!isDomainHost(h)) return null;
-
-    try {
-      const { target } = await resolveDomainTarget(h);
-      const cid =
-        target.proto === 'ipfs'
-          ? String(target.id || '').trim()
-          : await resolveIpnsToCid(target.id).catch(() => null);
-
-      if (!cid) return null;
-
-      const path = '/favicon.ico';
-      const ipfsTarget = { proto: 'ipfs' as const, id: cid };
-
-      const localUrl = buildCandidateUrl(localIpfsGatewayBase(), ipfsTarget, path, '');
-      if (await probeUrl(localUrl, 1500)) return localUrl;
-
-      const bases = await loadWhitelistedGatewayBases().catch(() => [] as string[]);
-      if (!bases.length) return null;
-
-      const probes = bases.map((base) => {
-        const url = buildCandidateUrl(base, ipfsTarget, path, '');
-        return probeUrl(url, 1500).then((ok) => {
-          if (!ok) throw new Error('not_found');
-          return url;
-        });
-      });
-
-      return await Promise.any(probes);
-    } catch {
-      return null;
-    }
-  }
-
-  async function getFaviconForHost(host: string): Promise<string | null> {
-    const h = String(host || '').trim().toLowerCase();
-    if (!h) return null;
-    if (faviconCacheByHost.has(h)) return faviconCacheByHost.get(h) ?? null;
-    const inflight = faviconInflightByHost.get(h);
-    if (inflight) return await inflight;
-
-    const p = resolveFaviconForHost(h)
-      .then((res) => {
-        // Only cache successes. A failed probe (gateway not ready yet,
-        // transient timeout) must not permanently blacklist this host -
-        // the next navigation/tab to it should retry from scratch.
-        if (res) faviconCacheByHost.set(h, res);
-        faviconInflightByHost.delete(h);
-        return res ?? null;
-      })
-      .catch(() => {
-        faviconInflightByHost.delete(h);
-        return null;
-      });
-
-    faviconInflightByHost.set(h, p);
-    return await p;
-  }
-
   const tabHostById = new Map<string, string>();
 
   function onFaviconError(t: Tab) {
     t.favicon = null;
+    dropSiteIcon(currentUrlForTab(t));
   }
 
   function webHostOf(url: string): string {
@@ -708,11 +630,11 @@ async function openInNewTab(url: string) {
 
     if (lumenHost) {
       if (INTERNAL_KEYS.has(lumenHost)) {
-        t.favicon = lumenFavicon;
+        t.favicon = LUMEN_MARK;
         return;
       }
 
-      if (!isDomainHost(lumenHost)) {
+      if (!lumenHost.includes('.')) {
         t.favicon = null;
         return;
       }
@@ -720,7 +642,7 @@ async function openInNewTab(url: string) {
       // Clear immediately so a domain switch never shows the previous site's
       // icon while this one's favicon is still resolving.
       t.favicon = null;
-      const icon = await getFaviconForHost(lumenHost);
+      const icon = await resolveSiteIcon(url);
       if (tabHostById.get(t.id) !== trackKey) return;
       if (icon) t.favicon = icon;
       return;
@@ -736,7 +658,7 @@ async function openInNewTab(url: string) {
       return;
     }
 
-    t.favicon = lumenFavicon;
+    t.favicon = LUMEN_MARK;
   }
 
   watch(
