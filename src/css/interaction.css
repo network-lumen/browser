@@ -92,3 +92,19 @@
 .hover-translate-y4-x4:hover { transform: translateY(-4px) translateX(4px); }
 .hover-underline { text-decoration: none; }
 .hover-underline:where(:hover, :focus-visible) { text-decoration: underline; }
+
+/* A breadcrumb step: a line of text that happens to be clickable, not a
+   button. No border and no padding, so the trail is one line tall. */
+.drive-crumb {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  text-decoration: none;
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.drive-crumb:where(:hover, :focus-visible) { text-decoration: underline; color: var(--color-primary); }

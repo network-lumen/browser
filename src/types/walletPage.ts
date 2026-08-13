@@ -89,6 +89,12 @@ export type DexListingConfig = {
   iconText: string;
   description: string;
   fallbackLinks: DexQuickLink[];
+  /**
+   * The pages fetched to decide whether the DEX is up, relative to `baseUrl`.
+   * Defaults to BeeZee's `/`, `/exchange`, `/pools` - which is why it exists:
+   * another DEX that has no `/exchange` would report itself degraded forever.
+   */
+  probePaths?: string[];
 };
 
 export type DexStatus = 'idle' | 'loading' | 'online' | 'degraded' | 'error';

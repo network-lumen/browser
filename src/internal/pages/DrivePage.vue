@@ -194,26 +194,27 @@
         </div>
       </div>
 
-      <!-- Breadcrumb (folders) -->
-      <div v-if="isBrowsing" class="flex-align-center gap-12px mb-12px p-0px pt-8px pb-8px">
-        <UiButton variant="secondary" type="button" @click="exitBrowse">
-          {{ t('Back') }}
+      <!-- Breadcrumb (folders). Links, not buttons: a trail of bordered boxes
+           reads as a row of actions and takes three times the height of the
+           line of text it is. -->
+      <div v-if="isBrowsing" class="flex-align-center flex-wrap-wrap gap-6px mb-12px py-4px px-0px">
+        <UiButton variant="none" type="button" @click="exitBrowse" class="drive-crumb color-text-secondary">
+          {{ t('Previous') }}
         </UiButton>
-        <div class="flex-align-center flex-wrap-wrap gap-6px min-w-0">
-          <UiButton variant="ghost" type="button" @click="exitBrowse" class="hover-color-accent nowrap">
-            {{ browseHostingLabel }}
+        <span class="color-text-tertiary">/</span>
+        <UiButton variant="none" type="button" @click="exitBrowse" class="drive-crumb color-text-secondary">
+          {{ browseHostingLabel }}
+        </UiButton>
+        <span class="color-text-tertiary">/</span>
+        <UiButton variant="none" type="button" @click="openBrowseAt('')" class="drive-crumb color-text-secondary">
+          {{ browseRootLabel }}
+        </UiButton>
+        <template v-for="c in browseCrumbs" :key="c.path">
+          <span class="color-text-tertiary">/</span>
+          <UiButton variant="none" type="button" @click="openBrowseAt(c.path)" class="drive-crumb color-text-primary">
+            {{ c.label }}
           </UiButton>
-          <span class="color-text-secondary">/</span>
-          <UiButton variant="ghost" type="button" @click="openBrowseAt('')" class="hover-color-accent nowrap">
-            {{ browseRootLabel }}
-          </UiButton>
-          <template v-for="c in browseCrumbs" :key="c.path">
-            <span class="color-text-secondary">/</span>
-            <UiButton variant="ghost" type="button" @click="openBrowseAt(c.path)" class="hover-color-accent nowrap">
-              {{ c.label }}
-            </UiButton>
-          </template>
-        </div>
+        </template>
       </div>
 
       <UiLoadingBlock v-if="browseLoading" wrapper-class="flex-1 min-h-280px" spinner-class="" />
@@ -467,69 +468,22 @@
     </main>
 
     <!-- ####### lumen://drive FILE DETAIL PANEL ####### -->
-    <aside v-if="selectedFile" class="flex flex-column p-24px m-0px bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px max-w-280px border-left-1-border-color">
-      <div class="flex-align-center-justify-space-between mb-20px">
-        <h3 class="text-12px line-height-12 txt-weight-strong">
-          {{ isDirEntry(selectedFile) ? t('Folder details') : t('File details') }}
-        </h3>
-        <UiButton variant="icon" @click="selectedFile = null">
-          <X :size="18" />
-        </UiButton>
-      </div>
-
-      <DriveEntryThumbnail
-        :file="selectedFile"
-        variant="preview"
-        container-class="h-160px flex-align-justify-center border-radius-12px mb-20px color-text-tertiary bg-secondary overflow-hidden border-1-light"
-        v-bind="thumbnailFor(selectedFile)"
-        @image-error="selectedFile && onImageError(selectedFile)"
-      />
-
-      <div class="flex flex-column gap-16px mb-20px">
-        <div class="flex flex-column gap-4px">
-          <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Name') }}</span>
-          <UiInput bg-class="bg-secondary" radius-class="border-radius-10px" font-size-class="text-14px" padding-class="py-8px px-10px" :focus-ring="false" v-if="canRenameSelected"
-            v-model.trim="renameDraft"
-            :placeholder="t('Unknown')"
-            @keyup.enter="saveSelectedName"
-            @blur="saveSelectedName" class="fw-500 text-13px focus-outline-none focus-ring focus-bg-primary focus-shadow" />
-          <span v-else class="color-text-primary fw-500 text-13px">{{ selectedFile.name }}</span>
-        </div>
-        <div class="flex flex-column gap-4px">
-          <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Size') }}</span>
-          <span class="color-text-primary fw-500 text-13px">{{ formatSize(selectedFile.size) }}</span>
-        </div>
-        <div class="flex flex-column gap-4px" v-if="selectedFile.uploadedAt">
-          <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Added') }}</span>
-          <span class="color-text-primary fw-500 text-13px">{{
-            formatDate(selectedFile.uploadedAt)
-          }}</span>
-        </div>
-      </div>
-
-      <div class="flex flex-column gap-8px">
-        <UiButton variant="primary" v-if="!isDirEntry(selectedFile)"
-          @click="downloadFile(selectedFile)">
-          <Download :size="16" />
-          {{ t('Download') }}
-        </UiButton>
-        <UiButton variant="secondary" v-if="!isDirEntry(selectedFile) && isVideoFile(selectedFile.name)"
-          :disabled="converting || uploading"
-          @click="convertSelectedToHls"
-          :title="t('Convert to HLS (creates a new CID)')">
-          <Clapperboard :size="16" />
-          {{ t('Convert to HLS') }}
-        </UiButton>
-        <UiButton variant="secondary" @click="copyLumenLinkFor(selectedFile)">
-          <Share2 :size="16" />
-          {{ t('Share') }}
-        </UiButton>
-        <UiButton variant="secondary" @click="openInIpfs(selectedFile)">
-          <ExternalLink :size="16" />
-          {{ t('Open') }}
-        </UiButton>
-      </div>
-    </aside>
+    <DriveEntryDetailPanel
+      v-if="selectedFile"
+      :file="selectedFile"
+      :is-directory="isDirEntry(selectedFile)"
+      :can-rename="canRenameSelected"
+      :thumbnail="thumbnailFor(selectedFile)"
+      :busy="converting || uploading"
+      v-model:rename-draft="renameDraft"
+      @close="selectedFile = null"
+      @download="downloadFile(selectedFile)"
+      @convert-to-hls="convertSelectedToHls"
+      @share="copyLumenLinkFor(selectedFile)"
+      @open="openInIpfs(selectedFile)"
+      @save-name="saveSelectedName"
+      @image-error="selectedFile && onImageError(selectedFile)"
+    />
 
     <!-- ####### lumen://drive LOCAL DETAILS MODAL ####### -->
     <LocalDriveDialog :model-value="showLocalDetails" :stats="stats" :ipfs-connected="ipfsConnected" :drive-backup-last-export-at="driveBackupLastExportAt" :drive-backup-last-import-at="driveBackupLastImportAt" :local-saved-count="localSavedCount" :pinned-files="pinnedFiles" :busy="driveBackupBusy" :error="driveBackupError" @close="closeLocalDetails" @export="openDriveBackupExportModal" @import="triggerImportDriveBackup" @file-selected="handleImportDriveBackupFile" />
@@ -554,7 +508,6 @@
 
 <script setup lang="ts">
 import { t } from '../../stores/i18nStore';
-import UiInput from '../../ui/UiInput.vue';
 import UiButton from '../../ui/UiButton.vue';
 
 import { uploadFolderToLocal, uploadFileToLocal, uploadActivities, uploadCancelUpload } from "../common/upload";
@@ -581,14 +534,10 @@ const profiles_lumen_api = lumen_api?.profiles;
 import {
   Cloud,
   Search,
-  Download,
   Database,
   Plus,
   Upload,
-  Clapperboard,
-  ExternalLink,
   X,
-  Share2,
   Pause,
   Play,
   TableProperties,
@@ -637,7 +586,7 @@ import {
 import JSZip from "jszip";
 import { useToast } from "../../composables/useToast";
 import type { DriveFile, UploadPathResult } from "../../types/upload";
-import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
+import DriveEntryDetailPanel from "../../panels/DriveEntryDetailPanel.vue";
 import DriveFileRow from "../../entities/DriveFileRow.vue";
 import { planDisplayName } from "../services/plans";
 import {

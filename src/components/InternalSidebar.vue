@@ -13,9 +13,7 @@
     <div class="flex-1 min-h-0 overflow-y-auto pr-4px overflow-x-hidden">
       <slot />
 
-      <AllPagesDropdown v-if="showAllPages" :activeKey="activeKey" />
-
-      <div v-if="renderedFavouriteEntries.length" class="mt-16px pt-12px border-top-05-border-light">
+      <div v-if="isHome && renderedFavouriteEntries.length" class="mt-16px pt-12px border-top-05-border-light">
         <div class="flex-align-center-justify-space-between gap-8px mb-8px py-0px px-8px">
           <div class="color-text-tertiary text-11px txt-weight-light text-uppercase letter-spacing-005em">{{ t('Shortcuts') }}</div>
           <UiCountPill :count="renderedFavouriteEntries.length" />
@@ -70,21 +68,27 @@ import UiSiteIcon from '../ui/UiSiteIcon.vue';
  import { describeFavouriteUrl } from '../internal/services/favouriteMeta';
 
 import ActiveProfileCard from './ActiveProfileCard.vue';
-import AllPagesDropdown from './AllPagesDropdown.vue';
 import pkg from '../../package.json';
 
 import { useTabNavigation } from '../composables/useTabNavigation';
 const { favouriteEntries, removeFavouriteById } = useFavourites();
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   title: string;
   icon: any;
   activeKey?: string;
-  showAllPages?: boolean;
 }>(), {
   activeKey: undefined,
-  showAllPages: true
 });
+
+/**
+ * Shortcuts belong to the home page.
+ *
+ * They were drawn in every sidebar, under whatever that page's own navigation
+ * was - so Settings listed your bookmarks below its sections, and Drive below
+ * its subscriptions. They are a way in, not a tool for the page you are on.
+ */
+const isHome = computed(() => props.activeKey === 'home');
 
 const appVersion = String((pkg as any)?.version || '0.0.0');
 

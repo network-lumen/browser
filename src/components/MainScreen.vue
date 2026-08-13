@@ -2,8 +2,13 @@
   <section class="bg-gradient-shell flex flex-column w-full h-full relative min-h-100vh">
     <UiToast />
     <div class="overflow-hidden">
+      <!-- The window controls are not on the same side everywhere. Windows
+           puts them top-right, which is what the trailing padding is for;
+           macOS puts them top-left, where the first tab would otherwise sit
+           underneath them. There, the strip is inset from the left instead. -->
       <div
-        class="h-32px pr-24px text-11px line-height-12 overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
+        class="h-32px text-11px line-height-12 overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
+        :class="windowControlsOnLeft ? 'pl-80px pr-8px' : 'pr-24px'"
         ref="hdr"
       >
         <div
@@ -135,6 +140,23 @@ import {
 
 const tabs = ref<Tab[]>([]);
 const activeId = ref<string>('');
+
+/**
+ * Whether the OS draws its window buttons on the left of the title bar.
+ *
+ * macOS does, and the window is created with `titleBarStyle: 'hiddenInset'`,
+ * so the traffic lights sit on top of wherever the tab strip starts. Read from
+ * the bridge, with the user agent as the fallback for the mocked renderer.
+ */
+const windowControlsOnLeft = computed(() => {
+  const platform = String(useInternalLumen()?.appPlatform || '').trim().toLowerCase();
+  if (platform) return platform === 'darwin';
+  try {
+    return /mac/i.test(String(navigator.userAgent || ''));
+  } catch {
+    return false;
+  }
+});
 const { recordHistoryVisit } = useHistory();
 const lastHistoryKeyByTabId = new Map<string, string>();
 let historySyncSeq = 0;
