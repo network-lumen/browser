@@ -325,6 +325,7 @@ function ensureUiSender(evt) {
   return { ok: true };
 }
 
+
 /**
  * Active wallet profile id, read directly (no IPC round trip needed - this
  * runs in the main process already). Site-data records are scoped per
@@ -1134,8 +1135,8 @@ function registerSiteIpc() {
 module.exports = {
   registerSiteIpc,
   forgetSiteWebContents,
-  // Used by main.cjs for the channels that stayed there, and by the tests:
-  // these are the decisions, the handlers around them are plumbing.
+  // Used by the IPC modules and by the tests: these are the decisions, the
+  // handlers around them are plumbing.
   ensureUiSender,
   deriveSiteKeyFromHref,
   senderSiteContext,
