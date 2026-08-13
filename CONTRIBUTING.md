@@ -82,7 +82,7 @@ Each was written after finding the drift it now blocks. The counts came out near
 | Nothing shouts | the explorer's header row is uppercased by CSS; an ALL-CAPS source loses accents to `text-transform` |
 | A term kept in English is spelled one way inside a translation | "l'instantané du drive" beside "Enregistrer dans Drive" reads as two different things |
 
-Both checks are wired into `npm test`. All ~1 950 strings go through `t()`; the handful that
+Both checks are wired into `npm test`. All ~2 000 strings go through `t()`; the handful that
 deliberately do not are named in `scripts/check-untranslated.mjs`, each with the reason.
 All twelve catalogues beside English are complete. An empty entry renders the English, so a
 language added later can be filled a screen at a time without ever showing a hole.
@@ -127,10 +127,11 @@ or when it drives state rather than styling.
 
 - **No `<style>` blocks in `.vue` files**, and **no literal `style="…"`**. A computed `:style="…"`
   for a genuinely per-instance value (an avatar hue) is the only exception.
-- **Reuse before adding.** `src/css/scale.css` holds the spacing/radius/text scale (axis-composable:
-  `p-`, `px-`, `py-`, `pt-`/`pr-`/`pb-`/`pl-`, same for `m-`/`gap-`). `src/css/ui/*.css` holds
-  shared component classes. If nothing covers it, follow the same convention and snap values to the
-  existing scale rather than inventing a one-off pixel value.
+- **Reuse before adding.** Fourteen files, each holding one axis: `scale.css` is the
+  spacing/radius/text scale (axis-composable: `p-`, `px-`, `py-`, `pt-`/`pr-`/`pb-`/`pl-`, same for
+  `m-`/`gap-`), `colors.css` the palette, `flex.css`/`layout.css`/`sizing.css` the box, `theme.css`
+  the custom properties every other file reads. If nothing covers it, follow the same convention and
+  snap values to the existing scale rather than inventing a one-off pixel value.
 - **Opacity uses the two-digit `-aNN` suffix** (`bg-primary-a10` is 10%). Never the single-digit form.
 - **`@keyframes` live in `src/css/animation.css`.**
 - **No `@media` today** - fixed-size desktop app. A real breakpoint goes in a new
@@ -167,7 +168,7 @@ chose. The design adapts afterwards.
 
 ## The convention checker
 
-`npm run check:conventions` — sixteen rules, all blocking except #9. Each explains its reasoning at
+`npm run check:conventions` — seventeen rules, all blocking except #9. Each explains its reasoning at
 the top of its own check in `scripts/check-conventions.mjs`. Read it there rather than guessing.
 
 | # | Rule |
@@ -188,6 +189,7 @@ the top of its own check in `scripts/check-conventions.mjs`. Read it there rathe
 | 14 | No class repeated twice in one attribute |
 | 15 | No dead CSS custom property |
 | 16 | No function-typed prop |
+| 17 | No component drawn in a template but never imported |
 
 Three more checks run beside it: `check:i18n` (locale catalogues in step with the source),
 `check:i18n-strings` (no user-visible English outside `t()`) and `check:wording` (no two strings
@@ -204,7 +206,9 @@ anything that could be wrong without failing loudly.
 
 **Not worth one**: a pass-through, a wrapper carrying a constant, markup.
 
-**End-to-end**: `tests/e2e/` runs the renderer with a mock bridge. Stub a call by passing its path
+**End-to-end**: three projects, and `playwright.config.ts` says which is which — `renderer` (the Vue
+app with a mock bridge), `electron` (the real app, one spec at a time), and `chain` (real
+transactions, opt-in behind `LUMEN_E2E_CHAIN=1`). A `renderer` spec stubs a call by passing its path
 to `openApp` — overrides are **source strings**, because they are serialised into the page:
 
 ```ts
@@ -213,7 +217,7 @@ await openApp({
 });
 ```
 
-What the tests can and cannot reach, and what has no coverage at all, is in
+What the tests can and cannot reach, and what still has no coverage, is in
 [ARCHITECTURE.md](./ARCHITECTURE.md#testing-and-what-it-cannot-reach). Read it before assuming a
 green run means much.
 
@@ -221,14 +225,31 @@ green run means much.
 
 ## Release checklist
 
-Run these against a real build (`npm run pack`) before shipping. Each is a flow the automated tests
-deliberately stop short of, and none of them is optional.
+Most of what this list used to ask for by hand now has a test. Run those first — they are cheaper
+and they do not get bored:
 
-- [ ] **Send tokens** end to end on a testnet, and confirm the amount that arrives.
+```bash
+npm run test:e2e          # renderer (mocked) + electron (the real app)
+LUMEN_E2E_CHAIN=1 npm run test:e2e:chain   # real transactions, real money
+```
+
+| Covered by | What it proves |
+|---|---|
+| `chain/send.spec.ts` | A real send on the real chain, both directions, balances asserted — including that an unlinked account links its own Dilithium key by signing. |
+| `electron/profile-security.spec.ts` | No profile on first run, a wallet minted on creation, a password refused for being too short, lock and unlock, and that the password survives a restart while the session does not. |
+| `electron/profile-backup.spec.ts` | A profile exports, restores, and refuses a file that is not one; a wallet is recoverable from the backup after the profile is gone. |
+| `electron/site-bridge.spec.ts` | A site gets the site API and not the app one, a permission prompt appears, Deny is honoured, and "Always allow" is remembered. |
+| `electron/upload-folder.spec.ts` | A directory upload, its progress, its cancellation, and that a duplicate upload id is refused rather than racing. |
+| `electron/ipfs.spec.ts`, `electron/boot.spec.ts` | Add/pin/unpin/IPNS round trips; the app boots with its preload attached and its handlers registered. |
+
+What is still hands-on against a real build (`npm run pack`), because nothing covers it:
+
 - [ ] **Approve a signature from a site** — the Keplr/Leap shim must show the approval modal, and
-      **rejecting must actually stop the signature**.
-- [ ] **Save to Drive** from a site and from the IPFS viewer: pause, resume, cancel a pin job.
-- [ ] **Restore a Drive backup** exported by a previous version.
-- [ ] **Lock and unlock** the session; confirm the shortest timeout offered is 15 minutes.
+      **rejecting must actually stop the signature**. The site-bridge test covers the permission
+      prompt in front of a pin, not the signing modal.
+- [ ] **Pause and resume a pin job**, not just cancel it.
+- [ ] **Restore a Drive backup exported by a previous version** — the automated one round-trips a
+      backup written by the same build, which cannot notice a format that changed.
 - [ ] **Install an extension**, and confirm an injected wallet still works on an IPFS site.
-- [ ] **First run with no profile**: onboarding must appear and must not be skippable.
+- [ ] **Video fullscreen on an ordinary https page**, which no test drives and which a permission
+      handler silently broke once.
