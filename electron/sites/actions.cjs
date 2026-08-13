@@ -31,7 +31,15 @@ const {
 } = require('../ipfs.cjs');
 const { invalidateIpnsCache } = require('../daemons/ipfs_cache.cjs');
 const { loadProfilesFile } = require('../ipc/profiles.cjs');
-const { isAllowed: isLumenSiteAllowed, setAllowed: setLumenSiteAllowed } = require('./permissions.cjs');
+const {
+  isAllowed: isLumenSiteAllowed,
+  setAllowed: setLumenSiteAllowed,
+  isActionAllowed: isLumenSiteActionAllowed,
+  recordActionGrant: recordLumenSiteActionGrant,
+  setActionAllowed: setLumenSiteActionAllowed,
+  revokeSite: revokeLumenSite,
+  listSitePermissions
+} = require('./permissions.cjs');
 const siteData = require('./data.cjs');
 
 /**
@@ -276,12 +284,24 @@ function markSiteModalCooldown(siteKey, ms = 3000) {
 async function ensureLumenSitePermission(siteKey, meta, actionKind, actionDetails) {
   const key = safeString(siteKey, 256);
   if (!key) return { ok: false, error: 'missing_siteKey' };
-  if (isLumenSiteAllowed(key)) return { ok: true, decision: 'always' };
+  const kind = safeString(actionKind, 64);
+
+  // A right taken away by hand outranks the blanket grant, or revoking one
+  // would last exactly until the site asked for anything else and got
+  // "Always" again.
+  if (isLumenSiteActionAllowed(key, kind) === false) {
+    return { ok: false, error: 'user_denied' };
+  }
+
+  if (isLumenSiteAllowed(key)) {
+    recordLumenSiteActionGrant(key, kind);
+    return { ok: true, decision: 'always' };
+  }
 
   const res = await requestUi('permission', {
     siteKey: key,
     meta: meta ?? null,
-    actionKind: safeString(actionKind, 64),
+    actionKind: kind,
     actionDetails: actionDetails ?? null
   }, { timeoutMs: UI_INTERACTIVE_TIMEOUT_MS });
 
@@ -290,8 +310,10 @@ async function ensureLumenSitePermission(siteKey, meta, actionKind, actionDetail
   const decision = safeString(res.decision || '', 16).toLowerCase();
   if (decision === 'always') {
     setLumenSiteAllowed(key, true);
+    recordLumenSiteActionGrant(key, kind);
     return { ok: true, decision: 'always' };
   }
+  // "Once" is not a right the site holds afterwards, so nothing is recorded.
   if (decision === 'once') return { ok: true, decision: 'once' };
   return { ok: false, error: 'user_denied' };
 }
@@ -951,6 +973,29 @@ function registerSiteIpc() {
   // Internal/trusted only (main app window, e.g. Drive's "Sites data" section) -
   // no site permission gate, just the same ensureUiSender check other
   // UI-only channels use, since this isn't reachable from any <webview>.
+  ipcMain.handle('sitePermissions:list', async (evt) => {
+    const okUi = ensureUiSender(evt);
+    if (!okUi.ok) return okUi;
+    return { ok: true, sites: listSitePermissions() };
+  });
+
+  ipcMain.handle('sitePermissions:setAction', async (evt, siteKey, actionKind, allowed) => {
+    const okUi = ensureUiSender(evt);
+    if (!okUi.ok) return okUi;
+    const key = safeString(siteKey, 256);
+    const kind = safeString(actionKind, 64);
+    if (!key || !kind) return { ok: false, error: 'missing_site_or_action' };
+    return setLumenSiteActionAllowed(key, kind, allowed === true);
+  });
+
+  ipcMain.handle('sitePermissions:revokeSite', async (evt, siteKey) => {
+    const okUi = ensureUiSender(evt);
+    if (!okUi.ok) return okUi;
+    const key = safeString(siteKey, 256);
+    if (!key) return { ok: false, error: 'missing_siteKey' };
+    return revokeLumenSite(key);
+  });
+
   ipcMain.handle('siteData:list', async (evt) => {
     const okUi = ensureUiSender(evt);
     if (!okUi.ok) return okUi;

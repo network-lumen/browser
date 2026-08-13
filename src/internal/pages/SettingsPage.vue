@@ -165,6 +165,17 @@
             </UiButton>
           </UiOptionRow>
 
+          <UiOptionRow :label="t('Site permissions')">
+            <template #description>
+              {{ sitePermissionRecords.length === 1
+                ? t('1 site may ask Lumen to act on your behalf.')
+                : t('{count} sites may ask Lumen to act on your behalf.', { count: sitePermissionRecords.length }) }}
+            </template>
+            <UiButton variant="secondary" @click="openSitePermissionsModal" class="disabled-fade-50">
+              {{ t('Manage site permissions') }}
+            </UiButton>
+          </UiOptionRow>
+
           <UiHintText>
             {{ t('Turning history off stops new entries from being saved, but does not delete existing ones.') }}
           </UiHintText>
@@ -810,6 +821,16 @@
       @close="showSiteDataModal = false"
       @remove="removeSiteDataRecord"
     />
+
+    <SitePermissionsDialog
+      :model-value="showSitePermissionsModal"
+      :records="sitePermissionRecords"
+      :revoking-key="revokingSitePermissionKey"
+      :loading="sitePermissionsLoading"
+      @close="showSitePermissionsModal = false"
+      @revoke="revokeSitePermissions"
+      @set-action="setSitePermissionAction"
+    />
   </div>
 </template>
 
@@ -826,8 +847,11 @@ import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiHintText from '../../ui/UiHintText.vue';
 import SitesDataDialog from '../../dialogs/SitesDataDialog.vue';
+import SitePermissionsDialog from '../../dialogs/SitePermissionsDialog.vue';
 import { siteDataRowId, siteDataSiteLabel } from '../services/siteData';
+import { sitePermissionSiteLabel } from '../services/sitePermissions';
 import type { SiteDataRecord } from '../../types/drivePage';
+import type { SitePermissionAction, SitePermissionRecord } from '../../types/sitePermissions';
 import { ref, watch, computed, onMounted } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 
@@ -949,6 +973,59 @@ async function removeSiteDataRecord(record: SiteDataRecord) {
     siteDataRecords.value = siteDataRecords.value.filter((r) => siteDataRowId(r) !== rowId);
   } finally {
     removingSiteDataId.value = '';
+  }
+}
+
+// Site permissions - what each site may ask Lumen to do. Sits with sites data
+// because it answers the other half of the same question: what a site holds
+// on this device, and what it is allowed to do with it.
+const sitePermissionRecords = ref<SitePermissionRecord[]>([]);
+const sitePermissionsLoading = ref(false);
+const showSitePermissionsModal = ref(false);
+const revokingSitePermissionKey = ref('');
+
+async function loadSitePermissions() {
+  const api = useInternalLumen()?.sitePermissions;
+  if (!api?.list) return;
+  sitePermissionsLoading.value = true;
+  try {
+    const res = await api.list();
+    sitePermissionRecords.value = res?.ok && Array.isArray(res.sites) ? res.sites : [];
+  } catch {
+    sitePermissionRecords.value = [];
+  } finally {
+    sitePermissionsLoading.value = false;
+  }
+}
+
+function openSitePermissionsModal() {
+  showSitePermissionsModal.value = true;
+  void loadSitePermissions();
+}
+
+async function setSitePermissionAction(
+  record: SitePermissionRecord,
+  action: SitePermissionAction,
+  allowed: boolean,
+) {
+  const api = useInternalLumen()?.sitePermissions;
+  if (!api?.setAction) return;
+  await api.setAction(record.siteKey, action.kind, allowed);
+  await loadSitePermissions();
+}
+
+async function revokeSitePermissions(record: SitePermissionRecord) {
+  const api = useInternalLumen()?.sitePermissions;
+  if (!api?.revokeSite) return;
+  const label = sitePermissionSiteLabel(record);
+  const confirmed = window.confirm(t('Revoke every right granted to {label}?\n\nIt will have to ask again the next time it wants to act on your behalf.', { label }));
+  if (!confirmed) return;
+  revokingSitePermissionKey.value = record.siteKey;
+  try {
+    await api.revokeSite(record.siteKey);
+    await loadSitePermissions();
+  } finally {
+    revokingSitePermissionKey.value = '';
   }
 }
 
@@ -1344,6 +1421,7 @@ watch(
     }
     if (v === 'privacy') {
       void loadSiteDataRecords();
+      void loadSitePermissions();
     }
   },
 );

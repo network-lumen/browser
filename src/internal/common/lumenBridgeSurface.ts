@@ -57,6 +57,9 @@ export const REQUIRED_NAMESPACES = {
   siteData: [
     'list', 'delete'
   ],
+  sitePermissions: [
+    'list', 'setAction', 'revokeSite'
+  ],
   driveBackup: [
     'encryptSnapshot', 'decryptSnapshot'
   ],
