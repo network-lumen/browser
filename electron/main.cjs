@@ -1,14 +1,12 @@
 const { safeString } = require('./utils/strings.cjs');
-const { app, BrowserWindow, ipcMain, session, dialog, webContents, desktopCapturer, clipboard } = require('electron');
+const { app, BrowserWindow, ipcMain, session, dialog, desktopCapturer } = require('electron');
 const path = require('path');
 const {
   APP_NAME,
-  getBootstrapRuntimeState,
   resolveStartupUserDataPath,
-  resetCustomUserDataPath,
   setCustomUserDataPath,
 } = require('./bootstrap_paths.cjs');
-const { initializeMainLogger, appendRendererError } = require('./services/main_logger.cjs');
+const { initializeMainLogger } = require('./services/main_logger.cjs');
 const { applyAppIdentity } = require('./app_icon.cjs');
 
 function configureAppPaths() {
@@ -141,18 +139,11 @@ try {
 const { startIpfsDaemon, stopIpfsDaemon, prefetchPublicIpfsGateways, addPinJobListener } = require('./ipfs.cjs');
 const { startIpfsCache } = require('./daemons/ipfs_cache.cjs');
 const { startIpfsSeedBootstrapper } = require('./daemons/ipfs_seed.cjs');
-const { getSettings, setSettings, loadGateways, addGateway, updateGateway, deleteGateway, loadPrivateCloudConfig, savePrivateCloudConfig } = require('./settings.cjs');
-const { startGatewayServer, stopGatewayServer, getGatewayServerStatus, getStoredApiKey } = require('./gateways/server/index.cjs');
-const {
-  registerSiteSchemePrivileges,
-  installSiteProtocol,
-  registerSiteHost,
-  getSiteHostStatus
-} = require('./sites/protocol.cjs');
+const { registerSiteSchemePrivileges, installSiteProtocol } = require('./sites/protocol.cjs');
 
 // Has to happen before app 'ready', which is why it sits at module scope.
 registerSiteSchemePrivileges();
-const { registerHttpIpc, registerExtensionNetworkRequestGuard } = require('./ipc/http.cjs');
+const { registerExtensionNetworkRequestGuard } = require('./ipc/http.cjs');
 const {
   createSplashWindow,
   createMainWindow,
@@ -160,48 +151,14 @@ const {
   getSplashWindow,
   browserWindowForWebContents
 } = require('./windows.cjs');
-const { registerChainIpc } = require('./ipc/chain.cjs');
-const { registerNetworkIpc } = require('./ipc/network.cjs');
-const { registerIpfsIpc } = require('./ipc/ipfs.cjs');
-const { registerReleaseIpc } = require('./ipc/release.cjs');
-const { registerProfilesIpc } = require('./ipc/profiles.cjs');
-const { registerWalletIpc } = require('./ipc/wallet.cjs');
-const { registerGatewayIpc } = require('./ipc/gateway.cjs');
-const { registerHandlers: registerAddressBookIpc } = require('./ipc/addressbook.cjs');
-const { registerSecurityIpc, syncActiveSessionTimeout } = require('./ipc/security.cjs');
-const { registerIpfsPubsubIpc } = require('./ipc/ipfs_pubsub.cjs');
-const { registerHlsIpc } = require('./ipc/hls.cjs');
-const { registerFindIpc, resolveActiveTargetWebContents } = require('./ipc/find.cjs');
-const { registerDriveBackupIpc } = require('./ipc/drive_backup.cjs');
-const { registerTroubleshootingIpc } = require('./ipc/troubleshooting.cjs');
-const { registerExtensionsIpc } = require('./ipc/extensions.cjs');
+const { registerAllIpc } = require('./ipc/index.cjs');
+const { attachDevtoolsHotkeys } = require('./ipc/devtools.cjs');
 const { extensionManager } = require('./extensions/manager.cjs');
 const { startDaemons, stopDaemons } = require('./daemons/index.cjs');
 const { recordLaunchStart, markGracefulExit } = require('./services/startup_health.cjs');
-const {
-  registerSiteIpc,
-  forgetSiteWebContents,
-  ensureUiSender,
-  deriveSiteKeyFromHref
-} = require('./sites/actions.cjs');
+const { deriveSiteKeyFromHref } = require('./sites/actions.cjs');
 
-registerChainIpc();
-registerSiteIpc();
-registerProfilesIpc();
-registerHttpIpc();
-registerNetworkIpc();
-registerIpfsIpc();
-registerReleaseIpc();
-registerWalletIpc();
-registerGatewayIpc();
-registerAddressBookIpc();
-registerSecurityIpc();
-registerIpfsPubsubIpc();
-registerHlsIpc();
-registerFindIpc();
-registerDriveBackupIpc();
-registerTroubleshootingIpc();
-registerExtensionsIpc();
+registerAllIpc();
 
 
 function broadcastPinJobUpdate(payload) {
@@ -294,80 +251,36 @@ function registerLumenSessionPreload() {
 }
 
 /**
- * Points a Lumen domain at the ipfs/ipns target currently behind it, so the
- * local site-host server can serve it under a stable <domain>.localhost origin.
- * Resolution stays in SitePage - this only records the outcome.
- */
-ipcMain.handle('siteHost:register', async (evt, host, target) => {
-  const okUi = ensureUiSender(evt);
-  if (!okUi.ok) return okUi;
-  try {
-    return registerSiteHost(safeString(host, 256), {
-      proto: safeString(target?.proto, 16),
-      id: safeString(target?.id, 512),
-      basePath: safeString(target?.basePath, 1024)
-    });
-  } catch (e) {
-    return { ok: false, error: String(e?.message || e) };
-  }
-});
-
-ipcMain.handle('siteHost:status', async () => getSiteHostStatus());
-
-/**
- * An error the renderer could not handle itself, on its way to errors.log.
+ * Fullscreen is not a capability, it is a display mode.
  *
- * `ensureUiSender` is not optional here. This writes to a file on every call,
- * so a channel a page could reach is a way to fill the user's disk from a
- * tab - which is also why it is not exposed in webview-preload at all. Two
- * gates rather than one, because the cheap one can be forgotten.
+ * It was gated on `deriveSiteKeyFromHref`, which only answers for Lumen content
+ * - an ipfs/ipns path or a registered domain. Every ordinary https page
+ * therefore had its fullscreen request denied, and because the handler is
+ * installed on the default session too, that was every video in the browser,
+ * silently doing nothing when you pressed the button. Chromium only asks after
+ * a user gesture, and nothing here can be read or captured by granting it.
  */
-ipcMain.on('app:reportRendererError', (evt, payload) => {
-  if (!ensureUiSender(evt).ok) return;
+const ALWAYS_ALLOWED_PERMISSIONS = new Set(['fullscreen']);
+
+/** Capturing a screen or a camera stays with Lumen content, which is what asked for it. */
+const SITE_ONLY_PERMISSIONS = new Set(['display-capture', 'media']);
+
+const loggedPermissionDenials = new Set();
+
+function logPermissionDenial(label, permission, href) {
+  let origin = '';
   try {
-    appendRendererError(payload);
+    origin = href ? new URL(href).origin : '';
   } catch {
-    // A logger that throws is worse than a missing line.
+    origin = '';
   }
-});
-
-/**
- * The OS's language preferences, best first, for the renderer to pick a
- * starting language from.
- *
- * Synchronous on purpose - the renderer needs an answer before its first paint,
- * and this is a read of a value Electron already holds. `getPreferredSystemLanguages`
- * is the ordered list a user actually configured; `getSystemLocale` is the
- * single locale the OS reports, kept as a fallback for the platforms where the
- * list comes back empty.
- */
-// LUMEN_SYSTEM_LANGUAGES pins what the app believes the OS is set to.
-//
-// On a fresh profile the interface follows the system language, which is the
-// behaviour people expect and exactly what breaks a test asserting English
-// button labels on a French machine. The end-to-end harness sets this to "en"
-// so a run says the same thing wherever it happens; by hand it is also the
-// quickest way to see a screen in another language without changing anything.
-ipcMain.on('app:systemLanguages', (evt) => {
-  evt.returnValue = [];
-  if (!ensureUiSender(evt).ok) return;
-  const forced = String(process.env.LUMEN_SYSTEM_LANGUAGES || '').trim();
-  if (forced) {
-    evt.returnValue = forced.split(',').map((entry) => entry.trim()).filter(Boolean);
-    return;
-  }
-  try {
-    const preferred = typeof app.getPreferredSystemLanguages === 'function'
-      ? app.getPreferredSystemLanguages()
-      : [];
-    const fallback = typeof app.getSystemLocale === 'function' ? app.getSystemLocale() : '';
-    evt.returnValue = [...(Array.isArray(preferred) ? preferred : []), fallback, app.getLocale()]
-      .map((entry) => String(entry || '').trim())
-      .filter(Boolean);
-  } catch (e) {
-    console.warn('[electron] failed to read system languages:', String(e?.message || e));
-  }
-});
+  const key = `${label}|${permission}|${origin}`;
+  if (loggedPermissionDenials.has(key)) return;
+  loggedPermissionDenials.add(key);
+  // Once per origin and permission: a denial nobody can see is how the
+  // fullscreen bug above went unnoticed for as long as it did.
+  console.log('[main] permission denied', { label, permission, origin });
+}
 
 function configureDisplayMediaForSession(ses, label) {
   if (!ses) return;
@@ -376,12 +289,20 @@ function configureDisplayMediaForSession(ses, label) {
     if (typeof ses.setPermissionRequestHandler === 'function') {
       ses.setPermissionRequestHandler((webContentsRef, permission, callback) => {
         const perm = safeString(permission, 128);
-        if (perm === 'display-capture' || perm === 'media' || perm === 'fullscreen') {
-          const href = safeString(webContentsRef?.getURL?.(), 4096);
+        if (ALWAYS_ALLOWED_PERMISSIONS.has(perm)) {
+          callback(true);
+          return;
+        }
+
+        const href = safeString(webContentsRef?.getURL?.(), 4096);
+        if (SITE_ONLY_PERMISSIONS.has(perm)) {
           const siteKey = deriveSiteKeyFromHref(href);
+          if (!siteKey) logPermissionDenial(label, perm, href);
           callback(!!siteKey);
           return;
         }
+
+        logPermissionDenial(label, perm, href);
         callback(false);
       });
     }
@@ -488,435 +409,6 @@ function shouldIgnoreRendererConsoleMessage(contents, sourceId, message) {
     text.includes('Electron Security Warning (Insecure Resources)')
   );
 }
-
-function isDevtoolsToggle(input) {
-  const key = String(input && input.key ? input.key : '').toUpperCase();
-  const f12 = key === 'F12';
-  const ctrlOrMeta = !!(input && (input.control || input.meta));
-  const ctrlAltI = !!(input && input.control && input.alt) && key === 'I';
-  const ctrlShiftI = ctrlOrMeta && !!(input && input.shift) && key === 'I';
-  return f12 || ctrlAltI || ctrlShiftI;
-}
-
-function isF12Toggle(input) {
-  return String(input && input.key ? input.key : '').toUpperCase() === 'F12';
-}
-
-function resolveFocusedDevtoolsTarget(sourceContents) {
-  const fallback = resolveActiveTargetWebContents(sourceContents) || sourceContents;
-  let sourceOwner = null;
-  try {
-    sourceOwner =
-      sourceContents && typeof sourceContents.getOwnerBrowserWindow === 'function'
-        ? sourceContents.getOwnerBrowserWindow()
-        : sourceContents
-          ? BrowserWindow.fromWebContents(sourceContents)
-          : null;
-  } catch {
-    sourceOwner = null;
-  }
-
-  let focused = null;
-  try {
-    focused =
-      webContents && typeof webContents.getFocusedWebContents === 'function'
-        ? webContents.getFocusedWebContents()
-        : null;
-  } catch {
-    focused = null;
-  }
-
-  if (!focused || focused.isDestroyed?.()) return fallback;
-
-  let focusedOwner = null;
-  try {
-    focusedOwner =
-      typeof focused.getOwnerBrowserWindow === 'function'
-        ? focused.getOwnerBrowserWindow()
-        : BrowserWindow.fromWebContents(focused);
-  } catch {
-    focusedOwner = null;
-  }
-  if (!focusedOwner || (sourceOwner && focusedOwner !== sourceOwner)) return fallback;
-
-  return focused;
-}
-
-function focusDevToolsWindowForContents(targetContents) {
-  if (!targetContents || targetContents.isDestroyed?.()) return false;
-
-  try {
-    const devtoolsContents = targetContents.devToolsWebContents;
-    if (!devtoolsContents || devtoolsContents.isDestroyed?.()) return false;
-
-    const devtoolsWindow = BrowserWindow.fromWebContents(devtoolsContents);
-    if (devtoolsWindow && !devtoolsWindow.isDestroyed?.()) {
-      try { devtoolsWindow.show?.(); } catch {}
-      try { devtoolsWindow.restore?.(); } catch {}
-      try { devtoolsWindow.focus?.(); } catch {}
-      try { devtoolsWindow.moveTop?.(); } catch {}
-      return true;
-    }
-
-    try { devtoolsContents.focus?.(); } catch {}
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function openDevToolsForSourceContents(sourceContents, options = {}) {
-  const toggle = !!options.toggle;
-  const targetContents = resolveFocusedDevtoolsTarget(sourceContents);
-  if (!targetContents || targetContents.isDestroyed?.()) {
-    return { ok: false, error: 'target_missing' };
-  }
-
-  try {
-    targetContents.focus?.();
-  } catch {}
-
-  try {
-    if (toggle && typeof targetContents.isDevToolsOpened === 'function' && targetContents.isDevToolsOpened()) {
-      targetContents.closeDevTools?.();
-      return { ok: true, action: 'closed', targetWebContentsId: targetContents.id };
-    }
-
-    try {
-      targetContents.once?.('devtools-opened', () => {
-        setTimeout(() => {
-          focusDevToolsWindowForContents(targetContents);
-        }, 25);
-      });
-    } catch {}
-
-    targetContents.openDevTools?.({ mode: 'detach', activate: true });
-    setTimeout(() => {
-      focusDevToolsWindowForContents(targetContents);
-    }, 100);
-    return { ok: true, action: 'opened', targetWebContentsId: targetContents.id };
-  } catch (error) {
-    try {
-      if (toggle) {
-        targetContents.toggleDevTools?.();
-        return { ok: true, action: 'toggled', targetWebContentsId: targetContents.id };
-      }
-    } catch {}
-
-    return {
-      ok: false,
-      error: String(error && error.message ? error.message : error || 'open_devtools_failed'),
-      targetWebContentsId: targetContents.id,
-    };
-  }
-}
-
-
-ipcMain.handle('devtools:openActive', async (evt) => {
-  return openDevToolsForSourceContents(evt?.sender, { toggle: false });
-});
-
-// Personal-site <webview> pages (lumen://mysite.lmn) self-register their webContents id here so
-// F12 can toggle devtools for them even in packaged builds, without opening devtools access up to
-// every webview (extensions, plain IPFS/http content) in production - see the F12-only guard below.
-const siteDevtoolsTargetIds = new Set();
-
-function toWebContentsIdNumber(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
-ipcMain.on('devtools:registerSiteTarget', (_evt, targetWebContentsId) => {
-  const id = toWebContentsIdNumber(targetWebContentsId);
-  if (id != null) siteDevtoolsTargetIds.add(id);
-});
-
-ipcMain.on('devtools:unregisterSiteTarget', (_evt, targetWebContentsId) => {
-  const id = toWebContentsIdNumber(targetWebContentsId);
-  if (id != null) siteDevtoolsTargetIds.delete(id);
-});
-
-function sanitizeDialogOptions(input = {}) {
-  const o = input && typeof input === 'object' ? input : {};
-  const title = safeString(o.title, 256) || '';
-  const multi = !!o.multi;
-  const allowFiles = o.allowFiles !== false;
-  const allowDirs = !!o.allowDirs;
-  const filtersRaw = Array.isArray(o.filters) ? o.filters : [];
-  const filters = filtersRaw
-    .map((f) => ({
-      name: safeString(f && f.name, 64) || 'Files',
-      extensions: Array.isArray(f && f.extensions)
-        ? f.extensions
-            .map((x) => safeString(x, 16).replace(/^\./, '').toLowerCase())
-            .filter(Boolean)
-        : []
-    }))
-    .filter((f) => f.extensions.length > 0)
-    .slice(0, 10);
-  return { title, multi, allowFiles, allowDirs, filters };
-}
-
-function isLinuxDialogEnvironmentSupported() {
-  try {
-    if (process.platform !== 'linux') return true;
-    const isRoot = typeof process.getuid === 'function' && process.getuid() === 0;
-    const hasSessionBus = !!String(process.env.DBUS_SESSION_BUS_ADDRESS || '').trim();
-    const hasRuntimeDir = !!String(process.env.XDG_RUNTIME_DIR || '').trim();
-    return !isRoot && hasSessionBus && hasRuntimeDir;
-  } catch {
-    return true;
-  }
-}
-
-ipcMain.handle('dialog:openFiles', async (evt, options) => {
-  try {
-    console.log('[electron][ipc] dialog:openFiles requested');
-    if (!isLinuxDialogEnvironmentSupported()) {
-      console.log('[electron][ipc] dialog:openFiles unsupported_environment');
-      return { ok: false, error: 'unsupported_environment' };
-    }
-    const win = evt && evt.sender ? BrowserWindow.fromWebContents(evt.sender) : null;
-    try { win?.focus?.(); } catch {}
-    const o = sanitizeDialogOptions(options);
-    const properties = ['openFile'];
-    if (o.multi) properties.push('multiSelections');
-    const useParent = !!win && process.platform !== 'linux';
-    const res = useParent
-      ? await dialog.showOpenDialog(win, {
-          title: o.title || 'Select files',
-          properties,
-          ...(o.filters.length ? { filters: o.filters } : {})
-        })
-      : await dialog.showOpenDialog({
-          title: o.title || 'Select files',
-          properties,
-          ...(o.filters.length ? { filters: o.filters } : {})
-        });
-    if (res.canceled || !res.filePaths || !res.filePaths.length) {
-      return { ok: false, error: 'canceled' };
-    }
-    const paths = Array.from(
-      new Set(res.filePaths.map((p) => String(p || '').trim()).filter(Boolean)),
-    );
-    return { ok: true, paths };
-  } catch (e) {
-    console.warn('[electron][ipc] dialog:openFiles failed:', e);
-    return { ok: false, error: String(e?.message || e || 'dialog_failed') };
-  }
-});
-
-ipcMain.handle('dialog:openFolder', async (evt, options) => {
-  try {
-    console.log('[electron][ipc] dialog:openFolder requested');
-    if (!isLinuxDialogEnvironmentSupported()) {
-      console.log('[electron][ipc] dialog:openFolder unsupported_environment');
-      return { ok: false, error: 'unsupported_environment' };
-    }
-    const win = evt && evt.sender ? BrowserWindow.fromWebContents(evt.sender) : null;
-    try { win?.focus?.(); } catch {}
-    const o = sanitizeDialogOptions(options);
-    const properties = ['openDirectory'];
-    if (o.multi) properties.push('multiSelections');
-    const useParent = !!win && process.platform !== 'linux';
-    const res = useParent
-      ? await dialog.showOpenDialog(win, {
-          title: o.title || 'Select folder',
-          properties,
-        })
-      : await dialog.showOpenDialog({
-          title: o.title || 'Select folder',
-          properties,
-        });
-    if (res.canceled || !res.filePaths || !res.filePaths.length) {
-      return { ok: false, error: 'canceled' };
-    }
-    const paths = Array.from(
-      new Set(res.filePaths.map((p) => String(p || '').trim()).filter(Boolean)),
-    );
-    return { ok: true, paths };
-  } catch (e) {
-    console.warn('[electron][ipc] dialog:openFolder failed:', e);
-    return { ok: false, error: String(e?.message || e || 'dialog_failed') };
-  }
-});
-
-
-
-
-
-ipcMain.handle('clipboard:writeText', async (_evt, text) => {
-  try {
-    clipboard.writeText(String(text ?? ''));
-    return { ok: true };
-  } catch (e) {
-    return { ok: false, error: String(e?.message || e) };
-  }
-});
-
-ipcMain.handle('settings:getAll', async () => {
-  return { ok: true, settings: getSettings() };
-});
-
-ipcMain.handle('settings:set', async (_evt, partial) => {
-  const before = getSettings();
-  const res = setSettings(partial || {});
-  if (res?.ok && res?.settings) {
-    const after = res.settings;
-    if (before?.securitySessionTimeoutMs !== after?.securitySessionTimeoutMs) {
-      try { syncActiveSessionTimeout(after.securitySessionTimeoutMs); } catch {}
-    }
-    const changed =
-      String(before?.ipfsApiBase || '') !== String(after?.ipfsApiBase || '') ||
-      String(before?.localGatewayBase || '') !== String(after?.localGatewayBase || '') ||
-      String(before?.ipfsConnectivityMode || '') !== String(after?.ipfsConnectivityMode || '');
-
-    // Apply without prompting: restart the embedded IPFS daemon so endpoint/config changes take effect.
-    if (changed) {
-      try { stopIpfsDaemon(); } catch {}
-      setTimeout(() => {
-        try { startIpfsDaemon(); } catch {}
-      }, 250);
-    }
-  }
-  return res;
-});
-
-ipcMain.handle('bootstrapPath:getState', async () => {
-  return { ok: true, state: getBootstrapRuntimeState() };
-});
-
-ipcMain.handle('bootstrapPath:setCustomUserDataPath', async (_evt, nextPath) => {
-  return setCustomUserDataPath(nextPath);
-});
-
-ipcMain.handle('bootstrapPath:resetCustomUserDataPath', async () => {
-  return resetCustomUserDataPath();
-});
-
-// Gateway management IPC handlers
-ipcMain.handle('settings:loadGateways', async () => {
-  try {
-    return loadGateways();
-  } catch (e) {
-    console.error('[electron][ipc] settings:loadGateways error:', e);
-    return [];
-  }
-});
-
-ipcMain.handle('settings:addGateway', async (_evt, gateway) => {
-  try {
-    return addGateway(gateway);
-  } catch (e) {
-    console.error('[electron][ipc] settings:addGateway error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
-ipcMain.handle('settings:updateGateway', async (_evt, id, updates) => {
-  try {
-    return updateGateway(id, updates);
-  } catch (e) {
-    console.error('[electron][ipc] settings:updateGateway error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
-ipcMain.handle('settings:deleteGateway', async (_evt, id) => {
-  try {
-    return deleteGateway(id);
-  } catch (e) {
-    console.error('[electron][ipc] settings:deleteGateway error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
-// Private cloud config IPC handlers
-ipcMain.handle('settings:loadPrivateCloudConfig', async () => {
-  try {
-    return loadPrivateCloudConfig();
-  } catch (e) {
-    console.error('[electron][ipc] settings:loadPrivateCloudConfig error:', e);
-    return {
-      enabled: false,
-      gatewayIds: [],
-      preferPrivate: false,
-      fallbackToDAO: true,
-      timeout: 5000,
-      maxRetries: 3
-    };
-  }
-});
-
-ipcMain.handle('settings:savePrivateCloudConfig', async (_evt, config) => {
-  try {
-    return savePrivateCloudConfig(config);
-  } catch (e) {
-    console.error('[electron][ipc] settings:savePrivateCloudConfig error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
-// Embedded Gateway Server IPC handlers
-ipcMain.handle('gatewayServer:start', async (_evt, options) => {
-  try {
-    return await startGatewayServer(options);
-  } catch (e) {
-    console.error('[electron][ipc] gatewayServer:start error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
-ipcMain.handle('gatewayServer:stop', async () => {
-  try {
-    return await stopGatewayServer();
-  } catch (e) {
-    console.error('[electron][ipc] gatewayServer:stop error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
-ipcMain.handle('gatewayServer:status', async () => {
-  try {
-    return getGatewayServerStatus();
-  } catch (e) {
-    console.error('[electron][ipc] gatewayServer:status error:', e);
-    return { running: false, port: null, url: null };
-  }
-});
-
-ipcMain.handle('gatewayServer:getApiKey', async () => {
-  try {
-    const apiKey = getStoredApiKey();
-    return { ok: true, apiKey };
-  } catch (e) {
-    console.error('[electron][ipc] gatewayServer:getApiKey error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
-// Gateway metadata IPC handlers
-const { saveUserMetadata, getAllUserMetadata } = require('./gateways/server/database.cjs');
-
-ipcMain.handle('gatewayServer:saveMetadata', async (_evt, address, metadata) => {
-  try {
-    const saved = saveUserMetadata(address, metadata);
-    return { ok: true, metadata: saved };
-  } catch (e) {
-    console.error('[electron][ipc] gatewayServer:saveMetadata error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
-
-ipcMain.handle('gatewayServer:getAllMetadata', async () => {
-  try {
-    const metadata = getAllUserMetadata();
-    return { ok: true, metadata };
-  } catch (e) {
-    console.error('[electron][ipc] gatewayServer:getAllMetadata error:', e);
-    return { ok: false, error: String(e.message) };
-  }
-});
 
 ipcMain.on('window:mode', (_evt, mode) => {
   const win =
@@ -1105,28 +597,7 @@ app.whenReady().then(async () => {
   createSplashWindow();
   startDaemons();
 
-  const allowDevtools = !app.isPackaged || String(process.env.DEBUG_LUMEN_ELECTRON || '') === '1';
-
-  // Always attached (even in packaged builds): lets registered personal-site pages
-  // (lumen://mysite.lmn, see devtools:registerSiteTarget) use F12 like Chrome's own
-  // devtools shortcut, without exposing devtools on arbitrary web/extension content in prod.
-  app.on('web-contents-created', (_event, contents) => {
-    contents.once('destroyed', () => {
-      siteDevtoolsTargetIds.delete(contents.id);
-      forgetSiteWebContents(contents.id);
-    });
-    contents.on('before-input-event', (event, input) => {
-      if (allowDevtools && isDevtoolsToggle(input)) {
-        event.preventDefault();
-        openDevToolsForSourceContents(contents, { toggle: true });
-        return;
-      }
-      if (!allowDevtools && isF12Toggle(input) && siteDevtoolsTargetIds.has(contents.id)) {
-        event.preventDefault();
-        openDevToolsForSourceContents(contents, { toggle: true });
-      }
-    });
-  });
+  attachDevtoolsHotkeys();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

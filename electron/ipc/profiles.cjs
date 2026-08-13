@@ -14,6 +14,7 @@ const {
   stringToPath,
 } = require('@cosmjs/crypto');
 const { toBech32 } = require('@cosmjs/encoding');
+const { isWebviewSender } = require('../utils/sender.cjs');
 const {
   getSessionPassword,
   isPasswordRequired,
@@ -826,14 +827,27 @@ ipcMain.handle('profiles:getFavourites', async () => {
     });
   });
 
-  ipcMain.handle('profiles:getActive', async () => {
+  ipcMain.handle('profiles:getActive', async (evt) => {
     const { profiles, activeId } = loadProfilesFile();
     const userProfiles = profiles.filter((p) => p && p.role !== 'guest');
     const active = userProfiles.find((p) => p.id === activeId) || userProfiles[0] || null;
     if (!active) return null;
+
+    const walletAddress = active.walletAddress || active.address || null;
+
+    // A site gets the account it is talking to, and nothing else. The record
+    // also carries `favourites` - the user's domain-to-CID map, which is a
+    // browsing profile - plus the avatar image and internal UI fields, none of
+    // which a page has any use for. webview-preload trims this too; doing it
+    // here as well means the trimming does not depend on the preload being the
+    // only way in.
+    if (isWebviewSender(evt)) {
+      return { id: active.id, name: active.name, walletAddress, address: walletAddress };
+    }
+
     return {
       ...active,
-      walletAddress: active.walletAddress || active.address || null,
+      walletAddress,
       avatarDataUrl: normalizeAvatarDataUrl(active.avatarDataUrl) || undefined,
       favourites: active.favourites || {},
     };

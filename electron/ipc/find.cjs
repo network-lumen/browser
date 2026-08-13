@@ -1,4 +1,5 @@
 const { safeString } = require('../utils/strings.cjs');
+const { parseFindAction } = require('../hotkeys.cjs');
 const { app, BrowserWindow, ipcMain, webContents } = require('electron');
 
 function safeNumber(v) {
@@ -46,29 +47,6 @@ function resolveTargetWebContentsId(sourceContents, ownerWindow) {
   return sourceId;
 }
 
-function shouldIgnoreInput(input) {
-  const t = String(input?.type || '').toLowerCase();
-  // We only care about keyDown events; ignore "char" and "keyUp".
-  return t && t !== 'keydown';
-}
-
-function parseFindAction(input) {
-  const key = String(input?.key || '').toUpperCase();
-  const ctrlOrMeta = !!(input?.control || input?.meta);
-  const shift = !!input?.shift;
-  const alt = !!input?.alt;
-
-  // Avoid Alt-based shortcuts to reduce accidental collisions.
-  if (alt) return null;
-
-  if (ctrlOrMeta && key === 'F') return { action: 'open' };
-  if (key === 'F3') return { action: shift ? 'prev' : 'next' };
-  if (ctrlOrMeta && key === 'G') return { action: shift ? 'prev' : 'next' };
-  if (key === 'ESCAPE' || key === 'ESC') return { action: 'close' };
-
-  return null;
-}
-
 function sendToOwnerWindow(contents, channel, payload) {
   const win = ownerWindowForContents(contents);
   const wc = win?.webContents;
@@ -100,8 +78,6 @@ function attachFindHooks(contents) {
   // Listen for keyboard shortcuts globally (works even when focus is inside <webview>).
   try {
     contents.on('before-input-event', (event, input) => {
-      if (shouldIgnoreInput(input)) return;
-
       const parsed = parseFindAction(input);
       if (!parsed) return;
 
