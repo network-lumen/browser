@@ -19,11 +19,37 @@ export function gatewayDisplayName(gw: GatewayView): string {
   return t('Gateway #{id}', { id: gw.id });
 }
 
-/** One live subscription makes the gateway active; otherwise pending beats off. */
-export function deriveGatewayStatus(subs: SubscriptionView[]): 'active' | 'pending' | 'off' {
-  const normalized = subs.map((s) => String(s.status || '').toLowerCase());
+/**
+ * True once a subscription's paid months have run out.
+ *
+ * Nothing on chain flips for this: the contract keeps reporting
+ * `CONTRACT_STATUS_ACTIVE` until its operator claims the payment, which can be
+ * months late or never. A plan that stopped covering storage in February will
+ * still call itself active in August, which is exactly how an upload ends up
+ * failing against a subscription the UI swore was fine.
+ */
+export function isSubscriptionExpired(sub: SubscriptionView, now: number = Date.now()): boolean {
+  const expiresAt = Number(sub?.expiresAt);
+  if (!Number.isFinite(expiresAt) || expiresAt <= 0) return false;
+  const status = String(sub?.status || '').toLowerCase();
+  if (status.includes('cancel')) return false;
+  return expiresAt <= now;
+}
+
+/**
+ * One live subscription makes the gateway active; a subscription that only
+ * looks active because nobody closed it reads as expired; otherwise pending
+ * beats off.
+ */
+export function deriveGatewayStatus(
+  subs: SubscriptionView[],
+  now: number = Date.now()
+): 'active' | 'pending' | 'expired' | 'off' {
+  const live = subs.filter((s) => !isSubscriptionExpired(s, now));
+  const normalized = live.map((s) => String(s.status || '').toLowerCase());
   if (normalized.some((s) => s.includes('active'))) return 'active';
   if (normalized.some((s) => s.includes('pending'))) return 'pending';
+  if (subs.some((s) => isSubscriptionExpired(s, now))) return 'expired';
   return 'off';
 }
 

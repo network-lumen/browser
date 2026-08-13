@@ -59,7 +59,8 @@
               >
                 {{ sub.regionLabel }}
               </span>
-              <span class="grid-col-2-end grid-row-2 justify-self-start inline-flex flex-wrap-wrap gap-6px" v-if="sub.planTags.length">
+              <span class="grid-col-2-end grid-row-2 justify-self-start inline-flex flex-wrap-wrap gap-6px" v-if="sub.planTags.length || sub.expired">
+                <UiTag v-if="sub.expired" variant="warning" :title="t('Expired on {date}', { date: formatDate(sub.expiresAt) })">{{ t('Expired') }}</UiTag>
                 <UiTag v-for="p in sub.planTags" :key="p" variant="accent">{{
                   p
                 }}</UiTag>
@@ -73,17 +74,6 @@
         </div>
       </div>
 
-      <div class="flex flex-column gap-6px mt-16px">
-        <div class="h-1px bg-border m-0px mb-12px"></div>
-        <UiButton variant="none" type="button"
-          @click="openSiteDataModal" class="flex-align-center-justify-space-between gap-8px bg-transparent border-none cursor-pointer text-left py-4px px-0px hover-color-primary">
-          <span class="flex-align-center gap-8px color-text-secondary text-uppercase text-11px letter-spacing-005em">
-            <Globe :size="14" />
-            <span>{{ t('Sites data') }}</span>
-          </span>
-          <UiTag v-if="siteDataRecords.length" variant="neutral">{{ siteDataRecords.length }}</UiTag>
-        </UiButton>
-      </div>
     </InternalSidebar>
 
     <!-- ####### lumen://drive FILE BROWSER ####### -->
@@ -111,6 +101,31 @@
           </div>
         </template>
       </UiPageHeader>
+
+      <div
+        v-if="expiredHostingRow"
+        class="bg-gradient-warning-banner animate-fade-in flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-warning-a30"
+      >
+        <div class="flex-align-justify-center size-36px color-warning flex-shrink-0 border-radius-8px bg-warning-a15">
+          <CalendarX :size="20" />
+        </div>
+        <div class="flex flex-column flex-1 gap-4px">
+          <strong class="text-14px txt-weight-light color-text-primary">{{ t('Subscription expired') }}</strong>
+          <span class="text-14px color-text-secondary line-height-14">
+            {{ t('Your plan on {gateway} ran out on {date}. Uploads to this gateway will keep failing until it is renewed.', { gateway: expiredHostingRow.label, date: formatDate(expiredHostingRow.expiresAt) }) }}
+          </span>
+        </div>
+        <div class="flex-align-center gap-8px flex-shrink-0">
+          <UiButton variant="primary" type="button" :disabled="cancelContractBusy" @click="renewExpiredSubscription">
+            <RefreshCw :size="15" />
+            <span>{{ t('Renew one month') }}</span>
+          </UiButton>
+          <UiButton variant="secondary" type="button" :disabled="cancelContractBusy" @click="cancelExpiredSubscription">
+            <X :size="15" />
+            <span>{{ cancelContractBusy ? t('Cancelling…') : t('Cancel subscription') }}</span>
+          </UiButton>
+        </div>
+      </div>
 
       <div class="bg-gradient-warning-banner animate-fade-in flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-warning-a30">
         <div class="flex-align-justify-center size-36px color-warning flex-shrink-0 border-radius-8px bg-warning-a15">
@@ -145,31 +160,31 @@
         </div>
       </div>
 
-      <div v-if="canUseLocalMultiSelect && selectedLocalCount > 0" class="bg-gradient-panel flex-align-center flex-wrap-wrap mb-16px gap-12px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'ring-primary-a10 border-color-primary-a30': selectedLocalCount > 0 }">
-        <UiCheckbox boxed :title="t('Select visible entries')" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
+      <div v-if="canUseMultiSelect && selectedCount > 0" class="bg-gradient-panel flex-align-center flex-wrap-wrap mb-16px gap-12px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'ring-primary-a10 border-color-primary-a30': selectedCount > 0 }">
+        <UiCheckbox boxed :title="t('Select visible entries')" :model-value="allVisibleEntriesSelected" @update:model-value="toggleVisibleSelection" />
         <div class="flex flex-column gap-2px min-w-0">
-          <strong class="text-14px color-text-primary">{{ t('{count} selected', { count: selectedLocalCount }) }}</strong>
-          <span class="text-12px color-text-secondary" v-if="canBulkConvertSelectedLocal">
-            {{ selectedLocalConvertibleCount === 1
+          <strong class="text-14px color-text-primary">{{ t('{count} selected', { count: selectedCount }) }}</strong>
+          <span class="text-12px color-text-secondary" v-if="canBulkConvertSelected">
+            {{ selectedConvertibleCount === 1
               ? t('1 video ready for HLS')
-              : t('{count} videos ready for HLS', { count: selectedLocalConvertibleCount }) }}
+              : t('{count} videos ready for HLS', { count: selectedConvertibleCount }) }}
           </span>
         </div>
         <div class="flex-align-center flex-wrap-wrap gap-8px">
           <UiButton variant="secondary" type="button"
-            :disabled="!selectedLocalCount"
-            @click="clearLocalSelection" class="disabled-fade-50">
+            :disabled="!selectedCount"
+            @click="clearSelection" class="disabled-fade-50">
             {{ t('Clear') }}
           </UiButton>
-          <UiButton variant="primary" v-if="canBulkConvertSelectedLocal"
+          <UiButton variant="primary" v-if="canBulkConvertSelected"
             type="button"
-            @click="convertSelectedLocalToHls" class="disabled-fade-50">
+            @click="convertSelectedEntriesToHls" class="disabled-fade-50">
             {{ t('Convert to HLS') }}
-            <UiCountPill v-if="selectedLocalConvertibleCount" :count="selectedLocalConvertibleCount" pill-class="h-24px color-white txt-weight-medium text-12px bg-black-a35 p-0px pr-4px pl-4px min-w-24px" />
+            <UiCountPill v-if="selectedConvertibleCount" :count="selectedConvertibleCount" pill-class="h-24px color-white txt-weight-medium text-12px bg-black-a35 p-0px pr-4px pl-4px min-w-24px" />
           </UiButton>
           <UiButton variant="danger" type="button"
-            :disabled="!canBulkRemoveSelectedLocal"
-            @click="removeSelectedLocalFiles" class="disabled-fade-50">
+            :disabled="!canBulkRemoveSelected"
+            @click="removeSelectedEntries" class="disabled-fade-50">
             {{ t('Remove selected') }}
           </UiButton>
         </div>
@@ -357,8 +372,8 @@
       >
         <!-- List Header -->
         <div class="sticky flex-align-center gap-12px txt-weight-light text-uppercase color-text-secondary py-12px px-16px bg-secondary border-bottom-1 text-11px letter-spacing-005em top-0 z-1">
-          <div v-if="canUseLocalMultiSelect" class="flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px">
-            <UiCheckbox boxed :title="t('Select visible entries')" :model-value="allVisibleLocalEntriesSelected" @update:model-value="toggleVisibleLocalSelection" />
+          <div v-if="canUseMultiSelect" class="flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px">
+            <UiCheckbox boxed :title="t('Select visible entries')" :model-value="allVisibleEntriesSelected" @update:model-value="toggleVisibleSelection" />
           </div>
           <div class="size-32px flex-shrink-0"></div>
           <span class="flex-1 min-w-0">{{ t('Name') }}</span>
@@ -373,13 +388,13 @@
           :file="file"
           :thumbnail="thumbnailFor(file)"
           :selected="selectedFile?.cid === file.cid"
-          :checked="isLocalFileSelected(file)"
-          :selectable="canUseLocalMultiSelect"
+          :checked="isEntrySelected(file)"
+          :selectable="canUseMultiSelect"
           :is-directory="isDirEntry(file)"
           :browsing="isBrowsing"
           :busy="converting || uploading"
           @open="handleEntryClick(file)"
-          @update:checked="(checked: boolean) => setLocalFileSelected(file, checked)"
+          @update:checked="(checked: boolean) => setEntrySelected(file, checked)"
           @action="(kind) => runEntryAction(kind, file)"
           @image-error="onImageError(file)"
           @video-ready="markVideoThumbReady(file)"
@@ -523,9 +538,6 @@
     <!-- ####### lumen://drive SUBSCRIPTION DETAILS MODAL ####### -->
     <SubscriptionDetailsDialog :model-value="showGatewayDetails" :gateway-label="gatewayDetailsGatewayLabel" :usage="gatewayDetailsUsage" :bandwidth-used="gatewayDetailsBandwidthUsed" :gateway-details-status-class="gatewayDetailsStatusClass" :gateway-details-status-label="gatewayDetailsStatusLabel" :pinned="gatewayDetailsPinned" :loading="gatewayDetailsLoading" :usage-error="gatewayDetailsUsageError" @close="closeGatewayDetails" @unlock="requestUnlock" />
 
-    <!-- ####### lumen://drive SITES DATA MODAL ####### -->
-    <SitesDataDialog :model-value="showSiteDataModal" :records="siteDataRecords" :removing-id="removingSiteDataId" :loading="siteDataLoading" @close="closeSiteDataModal" @remove="removeSiteDataRecord" />
-
     <!-- ####### lumen://drive PLANS MODAL ####### -->
     <CloudPlansDialog :model-value="showPlansModal" :plans="plans" :plan-groups="planGroups" :plan-paged-groups="planPagedGroups" :plan-regions="planRegions" :plan-total-pages="planTotalPages" :has-plan-filters="hasPlanFilters" :status-of="planStatus" :plan-page-start="planPageStart" :plan-page-end="planPageEnd" :plans-loading="plansLoading" :plans-error="plansError" v-model:plan-filter="planFilter" v-model:plan-region="planRegion" v-model:plan-online-only="planOnlineOnly" v-model:plan-sort-by="planSortBy" v-model:plan-page="planPage" v-model:plan-page-size="planPageSize" @close="closePlansModal" @retry="openPlansModal" @reset-filters="resetPlanFilters" @subscribe="openSubscribeModal" />
 
@@ -559,7 +571,6 @@ const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
 const lumen_api: any = useInternalLumen();
 const gateway_lumen_api = lumen_api?.gateway;
 const profiles_lumen_api = lumen_api?.profiles;
-const siteData_lumen_api = lumen_api?.siteData;
 
 
 import {
@@ -567,7 +578,6 @@ import {
   Search,
   Download,
   Database,
-  Globe,
   Plus,
   Upload,
   Clapperboard,
@@ -578,6 +588,8 @@ import {
   Play,
   TableProperties,
   AlertTriangle,
+  CalendarX,
+  RefreshCw,
   ChevronsLeft,
   ChevronLeft,
   ChevronRight,
@@ -622,7 +634,6 @@ import { useToast } from "../../composables/useToast";
 import type { DriveFile } from "../../types/upload";
 import DriveEntryThumbnail from "../../entities/DriveEntryThumbnail.vue";
 import DriveFileRow from "../../entities/DriveFileRow.vue";
-import { siteDataRowId, siteDataSiteLabel } from "../services/siteData";
 import { planDisplayName } from "../services/plans";
 import {
   buildDriveBackupSnapshot,
@@ -637,6 +648,7 @@ import {
   formatRegionsLabel,
   formatRegionsTitle,
   gatewayDisplayName,
+  isSubscriptionExpired,
   normalizeRegions,
   reconcileOptimisticPins,
   removeOptimisticPin,
@@ -685,7 +697,6 @@ import LocalDriveDialog from "../../dialogs/LocalDriveDialog.vue";
 import DriveBackupExportDialog from "../../dialogs/DriveBackupExportDialog.vue";
 import DriveBackupImportDialog from "../../dialogs/DriveBackupImportDialog.vue";
 import SubscriptionDetailsDialog from "../../dialogs/SubscriptionDetailsDialog.vue";
-import SitesDataDialog from "../../dialogs/SitesDataDialog.vue";
 import CloudPlansDialog from "../../dialogs/CloudPlansDialog.vue";
 import SubscribeConfirmDialog from "../../dialogs/SubscribeConfirmDialog.vue";
 import { isPasswordLongEnough } from '../services/passwordPolicy';
@@ -694,7 +705,7 @@ const files = ref<DriveFile[]>([]);
 const pinnedFiles = ref<string[]>([]);
 const localPinnedLoading = ref(false);
 const selectedFile = ref<DriveFile | null>(null);
-const selectedLocalCids = ref<string[]>([]);
+const selectedCids = ref<string[]>([]);
 const ipfsConnected = ref(false);
 const stats = ref<IpfsStats | null>(null);
 const hosting = ref<HostingState>({ kind: "local", gatewayId: "" });
@@ -886,50 +897,6 @@ const pendingDriveBackupImport = ref<{ filename: string; encrypted: any } | null
 const driveBackupImportPassword = ref("");
 const driveBackupImportShowPassword = ref(false);
 const pendingDriveBackupRestore = ref<{ source: string; snapshot: any } | null>(null);
-
-// Sites data - site-managed data records (one IPNS key per site+profile),
-// deliberately kept separate from the user's own hand-created ugly domains.
-const siteDataRecords = ref<any[]>([]);
-const siteDataLoading = ref(false);
-const showSiteDataModal = ref(false);
-const removingSiteDataId = ref("");
-
-async function loadSiteDataRecords() {
-  if (!siteData_lumen_api?.list) return;
-  siteDataLoading.value = true;
-  try {
-    const res = await siteData_lumen_api.list();
-    siteDataRecords.value = res?.ok && Array.isArray(res.records) ? res.records : [];
-  } catch {
-    siteDataRecords.value = [];
-  } finally {
-    siteDataLoading.value = false;
-  }
-}
-
-function openSiteDataModal() {
-  showSiteDataModal.value = true;
-  void loadSiteDataRecords();
-}
-
-function closeSiteDataModal() {
-  showSiteDataModal.value = false;
-}
-
-async function removeSiteDataRecord(record: any) {
-  if (!siteData_lumen_api?.delete) return;
-  const label = siteDataSiteLabel(record);
-  const confirmed = window.confirm(t('Delete this site\'s data ({label})?\n\nThe site will see you as a brand new visitor next time.', { label }));
-  if (!confirmed) return;
-  const rowId = siteDataRowId(record);
-  removingSiteDataId.value = rowId;
-  try {
-    await siteData_lumen_api.delete(record?.siteKey, record?.profileId);
-    siteDataRecords.value = siteDataRecords.value.filter((r) => siteDataRowId(r) !== rowId);
-  } finally {
-    removingSiteDataId.value = "";
-  }
-}
 
 // Subscription details
 const showGatewayDetails = ref(false);
@@ -1252,51 +1219,56 @@ const displayFiles = computed<DriveFile[]>(() => {
   return filteredFiles.value.slice(start, end);
 });
 
-const canUseLocalMultiSelect = computed(
-  () => hosting.value.kind === "local" && !isBrowsing.value,
-);
+/**
+ * Multi-select covers the saved roots of whichever storage is open - local pins
+ * and a gateway's pinned CIDs alike. Folder browsing is the exception: those
+ * entries live inside a root, and removing one is not a thing.
+ */
+const canUseMultiSelect = computed(() => !isBrowsing.value);
 
-const selectedLocalCidSet = computed(
+const selectedCidSet = computed(
   () =>
     new Set(
-      selectedLocalCids.value
+      selectedCids.value
         .map((cid) => normalizeCidKey(cid))
         .filter((cid) => cid),
     ),
 );
 
-const selectedLocalEntries = computed<DriveFile[]>(() => {
-  if (!canUseLocalMultiSelect.value) return [];
+const selectedEntries = computed<DriveFile[]>(() => {
+  if (!canUseMultiSelect.value) return [];
+  // Roots come from the active storage, so switching gateways drops a
+  // selection that no longer addresses anything.
   const byCid = new Map(
     rootSavedEntries.value.map((entry) => [normalizeCidKey(entry.cid), entry] as const),
   );
-  return selectedLocalCids.value
+  return selectedCids.value
     .map((cid) => byCid.get(normalizeCidKey(cid)) || null)
     .filter((entry): entry is DriveFile => !!entry);
 });
 
-const visibleLocalEntries = computed<DriveFile[]>(() => {
-  if (!canUseLocalMultiSelect.value) return [];
+const visibleSelectableEntries = computed<DriveFile[]>(() => {
+  if (!canUseMultiSelect.value) return [];
   return displayFiles.value.filter((entry) => isRootSavedEntry(entry));
 });
 
-const selectedLocalCount = computed(() => selectedLocalEntries.value.length);
+const selectedCount = computed(() => selectedEntries.value.length);
 
-const selectedLocalConvertibleEntries = computed(() =>
-  selectedLocalEntries.value.filter(
+const selectedConvertibleEntries = computed(() =>
+  selectedEntries.value.filter(
     (entry) => !isDirEntry(entry) && isVideoFile(entry.name),
   ),
 );
 
-const selectedLocalConvertibleCount = computed(
-  () => selectedLocalConvertibleEntries.value.length,
+const selectedConvertibleCount = computed(
+  () => selectedConvertibleEntries.value.length,
 );
 
-const allVisibleLocalEntriesSelected = computed(() => {
-  const visible = visibleLocalEntries.value;
+const allVisibleEntriesSelected = computed(() => {
+  const visible = visibleSelectableEntries.value;
   if (!visible.length) return false;
   return visible.every((entry) =>
-    selectedLocalCidSet.value.has(normalizeCidKey(entry.cid)),
+    selectedCidSet.value.has(normalizeCidKey(entry.cid)),
   );
 });
 
@@ -1328,12 +1300,12 @@ const hlsQueueCanResume = computed(
     hlsQueuePausedCount.value > 0,
 );
 
-const canBulkRemoveSelectedLocal = computed(
-  () => selectedLocalCount.value > 0 && !uploading.value && !converting.value,
+const canBulkRemoveSelected = computed(
+  () => selectedCount.value > 0 && !uploading.value && !converting.value,
 );
 
-const canBulkConvertSelectedLocal = computed(
-  () => selectedLocalConvertibleCount.value > 0 && !uploading.value,
+const canBulkConvertSelected = computed(
+  () => selectedConvertibleCount.value > 0 && !uploading.value,
 );
 
 const totalPages = computed(() => {
@@ -1346,10 +1318,10 @@ watch(totalPages, (total) => {
 });
 
 watch(
-  canUseLocalMultiSelect,
+  canUseMultiSelect,
   (enabled) => {
-    if (!enabled && selectedLocalCids.value.length) {
-      selectedLocalCids.value = [];
+    if (!enabled && selectedCids.value.length) {
+      selectedCids.value = [];
     }
   },
   { immediate: true },
@@ -1361,11 +1333,11 @@ watch(
     const valid = new Set(
       entries.map((entry) => normalizeCidKey(entry.cid)).filter((cid) => cid),
     );
-    const next = selectedLocalCids.value.filter((cid) =>
+    const next = selectedCids.value.filter((cid) =>
       valid.has(normalizeCidKey(cid)),
     );
-    if (next.length !== selectedLocalCids.value.length) {
-      selectedLocalCids.value = next;
+    if (next.length !== selectedCids.value.length) {
+      selectedCids.value = next;
     }
   },
   { immediate: true },
@@ -1604,9 +1576,13 @@ const subscriptionRows = computed(() => {
       ? "status-dot-off"
       : status === "active"
         ? "status-dot-ok"
-        : status === "pending"
+        : status === "pending" || status === "expired"
           ? "status-dot-pending"
           : "status-dot-off";
+    // The most recent lapsed contract is the one worth renewing or closing.
+    const expiredSub = subs
+      .filter((s) => isSubscriptionExpired(s))
+      .sort((a, b) => Number(b.expiresAt || 0) - Number(a.expiresAt || 0))[0] || null;
     const endpoint = gw?.endpoint ? String(gw.endpoint).trim() : "";
     const labelBase =
       endpoint ||
@@ -1645,6 +1621,12 @@ const subscriptionRows = computed(() => {
       status,
       statusDot,
       planTags,
+      expired: status === "expired",
+      expiredContractId: expiredSub?.id || "",
+      expiredPlanId: String(
+        expiredSub?.metadata?.planId ?? expiredSub?.metadata?.plan_id ?? "",
+      ).trim(),
+      expiresAt: Number(expiredSub?.expiresAt || 0) || 0,
     };
   });
 
@@ -1671,6 +1653,7 @@ const gatewayDetailsStatusLabel = computed(() => {
   if (!row) return "-";
   if (row.status === "active") return t("Active");
   if (row.status === "pending") return t("Pending");
+  if (row.status === "expired") return t("Expired");
   return t("Off");
 });
 
@@ -1679,8 +1662,8 @@ const gatewayDetailsStatusClass = computed(() => {
   if (!row) return "color-error";
   return row.status === "active"
     ? "color-success"
-    : row.status === "pending"
-      ? "pending"
+    : row.status === "pending" || row.status === "expired"
+      ? "color-warning"
       : "color-error";
 });
 
@@ -1830,7 +1813,6 @@ onMounted(async () => {
   loadDriveBackupMeta();
   loadStats();
   void loadPinnedFiles();
-  void loadSiteDataRecords();
 
   void refreshGatewayOverview();
   startSubscribedGatewayHealthPolling();
@@ -2244,6 +2226,17 @@ async function refreshActiveGatewayPinned() {
   await refreshGatewayPinned(activeGatewayHint.value);
 }
 
+function toSubscriptionView(raw: any): SubscriptionView {
+  const expiresAt = Number(raw?.expiresAt ?? raw?.expires_at);
+  return {
+    id: String(raw?.id ?? ""),
+    gatewayId: String(raw?.gatewayId ?? raw?.gateway_id ?? ""),
+    status: String(raw?.status ?? "").toLowerCase(),
+    expiresAt: Number.isFinite(expiresAt) && expiresAt > 0 ? expiresAt : undefined,
+    metadata: typeof raw?.metadata === "object" ? raw.metadata : undefined,
+  };
+}
+
 async function refreshGatewayOverview() {
   try {
     if (!gateway_lumen_api.getPlansOverview) return;
@@ -2312,12 +2305,7 @@ async function refreshGatewayOverview() {
     gateways.value = Array.from(gwMap.values());
 
     const subsRaw = Array.isArray(res.subscriptions) ? res.subscriptions : [];
-    planSubscriptionsRaw.value = subsRaw.map((s: any) => ({
-      id: String(s?.id ?? ""),
-      gatewayId: String(s?.gatewayId ?? s?.gateway_id ?? ""),
-      status: String(s?.status ?? "").toLowerCase(),
-      metadata: typeof s?.metadata === "object" ? s.metadata : undefined,
-    }));
+    planSubscriptionsRaw.value = subsRaw.map(toSubscriptionView);
   } catch {
     // ignore background refresh errors
   }
@@ -2405,12 +2393,7 @@ async function openPlansModal() {
     gateways.value = Array.from(gwMap.values());
 
     const subsRaw = Array.isArray(res.subscriptions) ? res.subscriptions : [];
-    planSubscriptionsRaw.value = subsRaw.map((s: any) => ({
-      id: String(s?.id ?? ""),
-      gatewayId: String(s?.gatewayId ?? s?.gateway_id ?? ""),
-      status: String(s?.status ?? "").toLowerCase(),
-      metadata: typeof s?.metadata === "object" ? s.metadata : undefined,
-    }));
+    planSubscriptionsRaw.value = subsRaw.map(toSubscriptionView);
   } catch (e) {
     plansError.value = errorMessage(e, t("Failed to load plans."));
   } finally {
@@ -2580,6 +2563,81 @@ async function confirmSubscribe() {
     subscribeError.value = normalizeSubscribeError(errorMessage(e));
   } finally {
     subscribeBusy.value = false;
+  }
+}
+
+/** The lapsed subscription of the gateway currently being browsed, if any. */
+const expiredHostingRow = computed(() => {
+  if (hosting.value.kind !== "gateway") return null;
+  const gid = String(hosting.value.gatewayId || "").trim();
+  if (!gid) return null;
+  const row = subscriptionRows.value.find((r) => r.gatewayId === gid) || null;
+  return row && row.expired ? row : null;
+});
+
+const cancelContractBusy = ref(false);
+
+/** Takes out a fresh month on the plan that lapsed, through the normal flow. */
+function renewExpiredSubscription() {
+  const row = expiredHostingRow.value;
+  if (!row) return;
+
+  const plan =
+    plans.value.find(
+      (p) => p.gatewayId === row.gatewayId && p.planId === row.expiredPlanId,
+    ) || plans.value.find((p) => p.gatewayId === row.gatewayId);
+
+  // No pricing loaded yet: the plans dialog is where it gets fetched.
+  if (!plan) {
+    void openPlansModal();
+    return;
+  }
+  openSubscribeModal(plan);
+}
+
+/**
+ * Closes the lapsed contract on chain so it stops being offered as storage.
+ * Nothing is refunded - the months it paid for are long gone - so this is
+ * about the subscription list telling the truth.
+ */
+async function cancelExpiredSubscription() {
+  const row = expiredHostingRow.value;
+  if (!row || cancelContractBusy.value) return;
+
+  if (!gateway_lumen_api.cancelContract) {
+    showToast(t("Subscription API not available."), "error");
+    return;
+  }
+  if (!row.expiredContractId) {
+    showToast(t("This subscription has no contract to cancel."), "error");
+    return;
+  }
+  const confirmed = window.confirm(
+    t("Cancel the expired plan on {gateway}? Its months are already used, so nothing is refunded.", { gateway: row.label }),
+  );
+  if (!confirmed) return;
+
+  cancelContractBusy.value = true;
+  try {
+    const profileId = await getActiveProfileId();
+    if (!profileId) {
+      showToast(t("No active profile."), "error");
+      return;
+    }
+
+    const res = await gateway_lumen_api
+      .cancelContract({ profileId, contractId: row.expiredContractId })
+      .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
+
+    if (!res || res.ok === false) {
+      showToast(String(res?.error || t("Failed to cancel the subscription.")), "error");
+      return;
+    }
+
+    showToast(t("Subscription cancelled."), "success");
+    await refreshGatewayOverview();
+  } finally {
+    cancelContractBusy.value = false;
   }
 }
 
@@ -3200,6 +3258,17 @@ async function pinCidToActiveGateway(cid: string, displayName?: string): Promise
     ) {
       return { ok: false as const, error: "cancelled", cancelled: true };
     }
+    // A lapsed plan is the likeliest reason a gateway that used to accept
+    // uploads stops, and the gateway's own error never says so.
+    if (expiredHostingRow.value) {
+      return {
+        ok: false as const,
+        error: t('{reason} — your plan on this gateway expired on {date}.', {
+          reason: err,
+          date: formatDate(expiredHostingRow.value.expiresAt),
+        }),
+      };
+    }
     return {
       ok: false as const,
       error: err,
@@ -3447,8 +3516,8 @@ async function convertToHls(file: DriveFile) {
   if (status === "queued") void ensureHlsQueueProcessing();
 }
 
-async function convertSelectedLocalToHls() {
-  if (!canUseLocalMultiSelect.value) return;
+async function convertSelectedEntriesToHls() {
+  if (!canUseMultiSelect.value) return;
   if (!ipfsConnected.value) {
     showToast(t("IPFS is not connected"), "error");
     return;
@@ -3458,7 +3527,7 @@ async function convertSelectedLocalToHls() {
     return;
   }
 
-  const selected = selectedLocalEntries.value.slice();
+  const selected = selectedEntries.value.slice();
   if (!selected.length) return;
 
   const convertible = selected.filter(
@@ -3944,36 +4013,36 @@ async function handleEntryClick(file: DriveFile) {
   selectedFile.value = { ...file, type: "file" };
 }
 
-function isLocalFileSelected(file: DriveFile | null | undefined): boolean {
+function isEntrySelected(file: DriveFile | null | undefined): boolean {
   const cid = normalizeCidKey(file?.cid || "");
   if (!cid) return false;
-  return selectedLocalCidSet.value.has(cid);
+  return selectedCidSet.value.has(cid);
 }
 
-function setLocalFileSelected(file: DriveFile, checked: boolean) {
-  if (!canUseLocalMultiSelect.value) return;
+function setEntrySelected(file: DriveFile, checked: boolean) {
+  if (!canUseMultiSelect.value) return;
   const cid = normalizeCidKey(file?.cid || "");
   if (!cid) return;
-  const next = new Set(selectedLocalCidSet.value);
+  const next = new Set(selectedCidSet.value);
   if (checked) next.add(cid);
   else next.delete(cid);
-  selectedLocalCids.value = Array.from(next);
+  selectedCids.value = Array.from(next);
 }
 
-function clearLocalSelection() {
-  selectedLocalCids.value = [];
+function clearSelection() {
+  selectedCids.value = [];
 }
 
-function toggleVisibleLocalSelection(checked: boolean) {
-  if (!canUseLocalMultiSelect.value) return;
-  const next = new Set(selectedLocalCidSet.value);
-  for (const entry of visibleLocalEntries.value) {
+function toggleVisibleSelection(checked: boolean) {
+  if (!canUseMultiSelect.value) return;
+  const next = new Set(selectedCidSet.value);
+  for (const entry of visibleSelectableEntries.value) {
     const cid = normalizeCidKey(entry?.cid || "");
     if (!cid) continue;
     if (checked) next.add(cid);
     else next.delete(cid);
   }
-  selectedLocalCids.value = Array.from(next);
+  selectedCids.value = Array.from(next);
 }
 
 function hlsQueueKeyFor(file: DriveFile | null | undefined): string {
@@ -4257,7 +4326,7 @@ async function removeLocalRootEntries(entries: DriveFile[]) {
     renameDraft.value = "";
   }
 
-  selectedLocalCids.value = selectedLocalCids.value.filter(
+  selectedCids.value = selectedCids.value.filter(
     (cid) => !cidSet.has(normalizeCidKey(cid)),
   );
 
@@ -4281,9 +4350,80 @@ async function removeLocalRootEntries(entries: DriveFile[]) {
   showToast(t('Removed {count} entries', { count: total }), "success");
 }
 
-async function removeSelectedLocalFiles() {
-  if (!canBulkRemoveSelectedLocal.value) return;
-  await removeLocalRootEntries(selectedLocalEntries.value.slice());
+/**
+ * Unpins several roots from the gateway in one go. Each CID is its own request
+ * - the gateway has no batch endpoint - so failures are counted rather than
+ * abandoning the rest of the selection.
+ */
+async function removeGatewayRootEntries(entries: DriveFile[]) {
+  const cids = Array.from(
+    new Set(
+      entries
+        .filter((entry) => isRootSavedEntry(entry))
+        .map((entry) => String(entry?.cid || "").trim())
+        .filter(Boolean),
+    ),
+  );
+  if (!cids.length) return;
+
+  if (!gateway_lumen_api.unpinCid) {
+    showToast(t("Gateway removal not available."), "error");
+    return;
+  }
+
+  const profileId = await getActiveProfileId();
+  if (!profileId) {
+    showToast(t("No active profile."), "error");
+    return;
+  }
+
+  let removed = 0;
+  let failed = 0;
+  for (const cid of cids) {
+    const res = await gateway_lumen_api
+      .unpinCid({ profileId, cid, baseUrl: activeGatewayHint.value })
+      .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
+    if (!res || res.ok === false) {
+      failed += 1;
+      continue;
+    }
+    removed += 1;
+    removeOptimisticGatewayPinnedCid(cid);
+    setSavedName(cid, "");
+  }
+
+  const removedKeys = new Set(cids.map((cid) => normalizeCidKey(cid)));
+  selectedCids.value = selectedCids.value.filter(
+    (cid) => !removedKeys.has(normalizeCidKey(cid)),
+  );
+  if (selectedFile.value?.cid && removedKeys.has(normalizeCidKey(selectedFile.value.cid))) {
+    selectedFile.value = null;
+    renameDraft.value = "";
+  }
+
+  await refreshActiveGatewayPinned();
+
+  if (failed) {
+    showToast(
+      t('Removed {count} entries ({failed} failed)', { count: removed, failed }),
+      removed ? "success" : "error",
+    );
+    return;
+  }
+  showToast(
+    removed === 1 ? t("Removed") : t('Removed {count} entries', { count: removed }),
+    "success",
+  );
+}
+
+async function removeSelectedEntries() {
+  if (!canBulkRemoveSelected.value) return;
+  const entries = selectedEntries.value.slice();
+  if (hosting.value.kind === "gateway") {
+    await removeGatewayRootEntries(entries);
+    return;
+  }
+  await removeLocalRootEntries(entries);
 }
 
 async function removeFile(file: DriveFile) {

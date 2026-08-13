@@ -758,6 +758,54 @@ function mapSubscriptionEntryToCurrent(entry) {
   };
 }
 
+let gatewayParamsCache = null;
+
+/**
+ * `month_seconds` from the chain's gateway params - how long a paid month
+ * lasts, and so the only way to turn a contract's `months_total` into the date
+ * it stops covering anything. Cached for a minute: it is a governance
+ * parameter, and every contract in a list needs it.
+ */
+async function getGatewayMonthSeconds() {
+  const now = Date.now();
+  if (gatewayParamsCache && now - gatewayParamsCache.ts < 60_000) {
+    return gatewayParamsCache.monthSeconds;
+  }
+
+  const restBase = getRestBaseUrl();
+  if (!restBase) return null;
+
+  try {
+    const url = new URL('/lumen/gateway/v1/params', trimSlash(restBase));
+    const res = await fetch(url.toString(), { method: 'GET' });
+    if (!res.ok) return gatewayParamsCache ? gatewayParamsCache.monthSeconds : null;
+    const json = await res.json().catch(() => null);
+    const raw = json?.params?.month_seconds ?? json?.params?.monthSeconds;
+    const seconds = Number(raw);
+    const monthSeconds = Number.isFinite(seconds) && seconds > 0 ? seconds : null;
+    gatewayParamsCache = { ts: now, monthSeconds };
+    return monthSeconds;
+  } catch {
+    return gatewayParamsCache ? gatewayParamsCache.monthSeconds : null;
+  }
+}
+
+/**
+ * When a contract stops covering storage: the moment its paid months run out.
+ *
+ * The chain leaves `status` at ACTIVE long past that point - a contract is only
+ * closed once the operator claims or someone finalizes it - so status alone
+ * tells a client nothing about whether the plan is still paid for.
+ */
+function contractExpiresAt(contract, monthSeconds) {
+  if (!contract || !monthSeconds) return undefined;
+  const start = Number(contract.startTime);
+  const months = Number(contract.monthsTotal);
+  if (!Number.isFinite(start) || start <= 0) return undefined;
+  if (!Number.isFinite(months) || months <= 0) return undefined;
+  return start + months * monthSeconds * 1000;
+}
+
 async function listGatewaySubscriptions(address, opts) {
   const addr = String(address || '').trim();
   if (!addr) {
@@ -798,6 +846,12 @@ async function listGatewaySubscriptions(address, opts) {
     const list = Array.isArray(rawList)
       ? rawList.map(normalizeContract).filter(Boolean)
       : [];
+
+    const monthSeconds = await getGatewayMonthSeconds();
+    for (const contract of list) {
+      contract.expiresAt = contractExpiresAt(contract, monthSeconds);
+    }
+
     return { subscriptions: list, error: null };
   } catch (e) {
     return {
@@ -2313,6 +2367,101 @@ function registerGatewayIpc() {
       }
     } catch (e) {
       mark('error', { error: String(e && e.message ? e.message : e) });
+      const unconfirmable = describeBroadcastFailure(e);
+      if (unconfirmable) return unconfirmable;
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  /**
+   * Closes a gateway contract on chain (`MsgCancelContract`).
+   *
+   * The chain refunds whole months that were never started; a plan whose paid
+   * period has already run out therefore refunds nothing, and cancelling it is
+   * purely a way to stop it showing up as a subscription.
+   */
+  ipcMain.handle('gateway:cancelContract', async (_e, input) => {
+    try {
+      const profileId = String(input?.profileId || '').trim();
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (isGuestProfile(profileId)) return { ok: false, error: 'guest_profile' };
+
+      const contractIdRaw = input?.contractId ?? input?.id;
+      const contractId = Number(String(contractIdRaw ?? '').trim());
+      if (!Number.isFinite(contractId) || contractId < 0) {
+        return { ok: false, error: 'missing_contractId' };
+      }
+
+      const walletAddr = getWalletAddressForProfile(profileId);
+      if (!walletAddr) return { ok: false, error: 'wallet_unavailable' };
+
+      const mnemonic = loadMnemonic(profileId);
+      const bech32Prefix = walletAddr.startsWith('lmn') ? 'lmn' : 'lumen';
+
+      const restBase = getRestBaseUrl();
+      const rpcBase = getRpcBaseUrl();
+      const endpoints = {
+        rpc: rpcBase || undefined,
+        rest: restBase || rpcBase || undefined,
+        rpcEndpoint: rpcBase || undefined,
+        restEndpoint: restBase || rpcBase || undefined,
+      };
+
+      const bridgeMod = await loadBridge();
+      if (!bridgeMod || !bridgeMod.walletFromMnemonic || !bridgeMod.LumenSigningClient) {
+        return { ok: false, error: 'bridge_unavailable' };
+      }
+
+      const signer = await bridgeMod.walletFromMnemonic(mnemonic, bech32Prefix);
+      const chainId = input?.chainId || 'lumen';
+
+      const client = await bridgeMod.LumenSigningClient.connectWithSigner(
+        signer,
+        endpoints,
+        chainId,
+        { pqc: { homeDir: resolvePqcHome() } }
+      ).catch(() => null);
+      if (!client || !client.signAndBroadcast) {
+        return { ok: false, error: 'client_not_available' };
+      }
+
+      let cleanupPqc = null;
+      const effectivePassword = input?.password ? String(input.password) : getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) return { ok: false, error: 'password_required' };
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) return { ok: false, error: 'invalid_password' };
+      }
+
+      try {
+        const gatewayMod = client.gateways?.();
+        let msg = null;
+        if (gatewayMod?.msgCancelContract) {
+          msg = await gatewayMod.msgCancelContract(walletAddr, { contractId });
+        }
+        if (!msg) {
+          msg = {
+            typeUrl: '/lumen.gateway.v1.MsgCancelContract',
+            value: { client: walletAddr, contractId },
+          };
+        }
+
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod,
+          client,
+          profileId,
+          address: walletAddr,
+          msgs: [msg],
+          fee: zeroFee(),
+          memo: String(input?.memo || 'gateway:plan:cancel'),
+          label: 'gateway_cancelContract',
+        });
+        const txhash = String(res?.transactionHash || res?.txhash || res?.hash || '');
+        return { ok: true, txhash, contractId };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
       const unconfirmable = describeBroadcastFailure(e);
       if (unconfirmable) return unconfirmable;
       return { ok: false, error: String(e && e.message ? e.message : e) };

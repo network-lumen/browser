@@ -308,7 +308,8 @@ contextBridge.exposeInMainWorld('lumen', {
   },
   pqc: {
     getParams: () => ipcRenderer.invoke('pqc:getParams'),
-    getAccount: (address) => ipcRenderer.invoke('pqc:getAccount', address)
+    getAccount: (address) => ipcRenderer.invoke('pqc:getAccount', address),
+    hasLocalKey: (payload) => ipcRenderer.invoke('pqc:hasLocalKey', payload || {})
   },
   profiles: {
     getFavourites: () => ipcRenderer.invoke('profiles:getFavourites'),
@@ -501,6 +502,8 @@ contextBridge.exposeInMainWorld('lumen', {
     renameCid: (payload) => ipcRenderer.invoke('gateway:renameCid', payload || {}),
     subscribePlan: (payload) =>
       ipcRenderer.invoke('gateway:subscribePlan', payload || {}),
+    cancelContract: (payload) =>
+      ipcRenderer.invoke('gateway:cancelContract', payload || {}),
     registerGateway: (payload) => ipcRenderer.invoke('gateway:registerGateway', payload || {}),
     updateGateway: (payload) => ipcRenderer.invoke('gateway:updateGateway', payload || {})
   },

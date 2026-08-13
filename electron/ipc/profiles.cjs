@@ -839,6 +839,35 @@ ipcMain.handle('profiles:getFavourites', async () => {
     };
   });
 
+  /**
+   * Whether this device already holds a Dilithium key for a wallet.
+   *
+   * What makes a first transaction slow is creating that key and linking it
+   * on-chain; once the local store knows the address, the user has been through
+   * it and does not need to be told again. Reads the store's own files rather
+   * than the SDK so it stays cheap enough to call while a dialog opens, and
+   * answers false whenever it cannot tell - the notice is the safe default.
+   */
+  ipcMain.handle('pqc:hasLocalKey', async (_evt, input) => {
+    try {
+      const profileId = String(input?.profileId || '').trim();
+      const address = String(input?.address || '').trim();
+
+      const links = readJson(pqcLinksFile(), null);
+      if (address && links && typeof links === 'object' && links[address]) {
+        return { ok: true, hasLocalKey: true };
+      }
+
+      const keys = readJson(pqcKeysFile(), null);
+      if (!keys || typeof keys !== 'object' || isEncryptedPqcKeysObject(keys)) {
+        return { ok: true, hasLocalKey: false };
+      }
+      return { ok: true, hasLocalKey: !!(profileId && keys[`profile:${profileId}`]) };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   ipcMain.handle('profiles:isWalletFullyCreated', async (_evt, id) => {
     const profileId = String(id || '').trim();
     if (!profileId) return { ok: false, error: 'missing_profile_id' };

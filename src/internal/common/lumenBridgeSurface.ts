@@ -67,7 +67,7 @@ export const REQUIRED_NAMESPACES = {
     'get', 'getBytes'
   ],
   pqc: [
-    'getParams', 'getAccount'
+    'getParams', 'getAccount', 'hasLocalKey'
   ],
   profiles: [
     'getFavourites', 'setFavourite', 'removeFavourite', 'list', 'getActive',
@@ -103,8 +103,8 @@ export const REQUIRED_NAMESPACES = {
   gateway: [
     'getWalletUsage', 'getWalletPinnedCids', 'getBaseUrl', 'checkAlive', 'getPlansOverview',
     'getParams', 'listGateways', 'searchPq', 'pingViewPq', 'pinCid', 'cancelPinCid',
-    'onIngestProgress', 'unpinCid', 'renameCid', 'subscribePlan', 'registerGateway',
-    'updateGateway'
+    'onIngestProgress', 'unpinCid', 'renameCid', 'subscribePlan', 'cancelContract',
+    'registerGateway', 'updateGateway'
   ],
   addressBook: [
     'list', 'add', 'update', 'delete'

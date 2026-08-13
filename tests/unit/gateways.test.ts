@@ -4,6 +4,7 @@ import {
   addOptimisticPin,
   deriveGatewayStatus,
   encodeGatewayPath,
+  isSubscriptionExpired,
   formatRegionsLabel,
   gatewayDisplayName,
   reconcileOptimisticPins,
@@ -31,6 +32,29 @@ describe('deriving a status from subscriptions', () => {
     expect(deriveGatewayStatus([sub('expired'), sub('pending_payment')])).toBe('pending');
     expect(deriveGatewayStatus([sub('expired')])).toBe('off');
     expect(deriveGatewayStatus([])).toBe('off');
+  });
+
+  it('reads a lapsed contract as expired even while the chain calls it active', () => {
+    const now = 1_000_000;
+    const lapsed = { status: 'contract_status_active', expiresAt: now - 1 } as SubscriptionView;
+    const live = { status: 'contract_status_active', expiresAt: now + 1 } as SubscriptionView;
+
+    expect(deriveGatewayStatus([lapsed], now)).toBe('expired');
+    expect(deriveGatewayStatus([lapsed, live], now)).toBe('active');
+  });
+});
+
+describe('spotting a lapsed subscription', () => {
+  const now = 1_000_000;
+
+  it('goes by the paid period, not the on-chain status', () => {
+    expect(isSubscriptionExpired({ status: 'contract_status_active', expiresAt: now - 1 } as SubscriptionView, now)).toBe(true);
+    expect(isSubscriptionExpired({ status: 'contract_status_active', expiresAt: now + 1 } as SubscriptionView, now)).toBe(false);
+  });
+
+  it('says nothing about contracts with no end date, or already cancelled', () => {
+    expect(isSubscriptionExpired(sub('active'), now)).toBe(false);
+    expect(isSubscriptionExpired({ status: 'contract_status_canceled', expiresAt: now - 1 } as SubscriptionView, now)).toBe(false);
   });
 });
 

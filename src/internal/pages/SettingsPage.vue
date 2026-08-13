@@ -154,6 +154,17 @@
             </UiButton>
           </UiOptionRow>
 
+          <UiOptionRow :label="t('Sites data')">
+            <template #description>
+              {{ siteDataRecords.length === 1
+                ? t('1 site keeps its own data record on this device.')
+                : t('{count} sites keep their own data record on this device.', { count: siteDataRecords.length }) }}
+            </template>
+            <UiButton variant="secondary" @click="openSiteDataModal" class="disabled-fade-50">
+              {{ t('Manage sites data') }}
+            </UiButton>
+          </UiOptionRow>
+
           <UiHintText>
             {{ t('Turning history off stops new entries from being saved, but does not delete existing ones.') }}
           </UiHintText>
@@ -790,6 +801,15 @@
         </div>
       </div>
     </main>
+
+    <SitesDataDialog
+      :model-value="showSiteDataModal"
+      :records="siteDataRecords"
+      :removing-id="removingSiteDataId"
+      :loading="siteDataLoading"
+      @close="showSiteDataModal = false"
+      @remove="removeSiteDataRecord"
+    />
   </div>
 </template>
 
@@ -805,6 +825,9 @@ import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiHintText from '../../ui/UiHintText.vue';
+import SitesDataDialog from '../../dialogs/SitesDataDialog.vue';
+import { siteDataRowId, siteDataSiteLabel } from '../services/siteData';
+import type { SiteDataRecord } from '../../types/drivePage';
 import { ref, watch, computed, onMounted } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 
@@ -884,6 +907,49 @@ function clearProfileHistory() {
   if (!confirmed) return;
   clearHistory();
   toast.success(t('Browsing history cleared'));
+}
+
+// Sites data - the record a site keeps for itself, one IPNS key per site and
+// profile. It lives under Privacy because that is what it is to the user:
+// per-site state a browser holds on their behalf, next to history.
+const siteDataRecords = ref<SiteDataRecord[]>([]);
+const siteDataLoading = ref(false);
+const showSiteDataModal = ref(false);
+const removingSiteDataId = ref('');
+
+async function loadSiteDataRecords() {
+  const api = useInternalLumen()?.siteData;
+  if (!api?.list) return;
+  siteDataLoading.value = true;
+  try {
+    const res = await api.list();
+    siteDataRecords.value = res?.ok && Array.isArray(res.records) ? res.records : [];
+  } catch {
+    siteDataRecords.value = [];
+  } finally {
+    siteDataLoading.value = false;
+  }
+}
+
+function openSiteDataModal() {
+  showSiteDataModal.value = true;
+  void loadSiteDataRecords();
+}
+
+async function removeSiteDataRecord(record: SiteDataRecord) {
+  const api = useInternalLumen()?.siteData;
+  if (!api?.delete) return;
+  const label = siteDataSiteLabel(record);
+  const confirmed = window.confirm(t('Delete this site\'s data ({label})?\n\nThe site will see you as a brand new visitor next time.', { label }));
+  if (!confirmed) return;
+  const rowId = siteDataRowId(record);
+  removingSiteDataId.value = rowId;
+  try {
+    await api.delete(record?.siteKey, record?.profileId);
+    siteDataRecords.value = siteDataRecords.value.filter((r) => siteDataRowId(r) !== rowId);
+  } finally {
+    removingSiteDataId.value = '';
+  }
 }
 
 const currentView = ref<'appearance' | 'content' | 'network' | 'privacy' | 'security' | 'profiles' | 'advanced' | 'troubleshooting' | 'privatecloud' | 'about'>('appearance');
@@ -1275,6 +1341,9 @@ watch(
     }
     if (v === 'privatecloud') {
       loadPrivateCloudConfig();
+    }
+    if (v === 'privacy') {
+      void loadSiteDataRecords();
     }
   },
 );

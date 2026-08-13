@@ -3,15 +3,18 @@
 </template>
 
 <script setup lang="ts">
+import type { TagVariant } from '../types/uiTag';
+
 const props = withDefaults(defineProps<{
-  variant?: 'neutral' | 'accent' | 'success';
+  variant?: TagVariant;
 }>(), {
   variant: 'neutral',
 });
 
-const variantClass: Record<'neutral' | 'accent' | 'success', string> = {
+const variantClass: Record<TagVariant, string> = {
   neutral: 'color-text-secondary bg-secondary',
   accent: 'color-accent-secondary bg-primary-a10 border-color-primary-a15 txt-weight-medium',
   success: 'color-white bg-success border-color-success txt-weight-medium',
+  warning: 'color-warning bg-warning-a15 border-color-warning-a30 txt-weight-medium',
 };
 </script>
