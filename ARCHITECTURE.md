@@ -13,23 +13,23 @@ explanation is the bug that caused it. That is deliberate: a rule whose reason h
 
 ```
 src/
-├── ui/           (56)  Primitives. Know nothing about Lumen.        → types only
+├── ui/           (57)  Primitives. Know nothing about Lumen.        → types only
 ├── entities/      (7)  One domain value, drawn canonically.         → ui, services, types
 ├── forms/         (5)  Reusable groups of form fields.              → ui, types
-├── dialogs/      (46)  Modals. One file per modal.                  → ui, forms, services, types
+├── dialogs/      (48)  Modals. One file per modal.                  → ui, forms, services, types
 ├── panels/        (3)  A chunk of a page, extracted. Not a modal.   → ui, entities, services
 ├── layouts/       (3)  Tab bar, tab pane, nav bar.                  → ui, services, components
 ├── components/   (15)  App shell pieces that are none of the above. → anything below pages
-├── composables/   (6)  Injection, and shared reactive state.        → types, stores
+├── composables/   (7)  Injection, and shared reactive state.        → types, stores
 ├── stores/        (5)  Global reactive state.                       → types, services
-├── locales/       (1)  One JSON catalogue per language.
-├── types/        (53)  Every type and interface.                    → nothing
+├── locales/      (12)  One JSON catalogue per language.
+├── types/        (56)  Every type and interface.                    → nothing
 ├── css/          (14)  Every stylesheet.
-└── internal/     (73)
-    ├── pages/    (24)  One per lumen:// route. 27 700 lines - the bulk.
-    ├── services/ (37)  Domain logic with no view state.            → types, composables
+└── internal/     (74)
+    ├── pages/    (24)  One per lumen:// route. 25 000 lines - the bulk.
+    ├── services/ (45)  Domain logic with no view state.            → types, composables
     ├── common/    (4)  Startup checks, the bridge surface.
-    └── *.ts       (8)  Routing and URL handling (see "wrinkles").
+    └── routes.ts       The route table. Imports every page, so nothing else may.
 ```
 
 ## The dependency rule
@@ -86,8 +86,8 @@ Do not add a fifth without saying why in the PR.
 preference:
 
 - **`UiDialog`** if it ends in Cancel beside one action - it gives you that footer, the busy state,
-  the error banner and dismiss-blocking while the action runs. 24 dialogs.
-- **`UiModal`** if it has no footer, or puts its action in the body. 24 dialogs, and
+  the error banner and dismiss-blocking while the action runs. 23 dialogs.
+- **`UiModal`** if it has no footer, or puts its action in the body. 31 dialogs, and
   `UiModalHeader` covers the icon-and-title header most of them want.
 
 > They are not two ways of saying the same thing, and merging them makes the common case worse.
@@ -127,20 +127,21 @@ a pin job because two hosts each held an identical copy of it.
 
 Not traps, but they will surprise you.
 
-**`internal/*.ts` is a mixed bag.** `routes.ts` and `navigationUrl.ts` are routing, `favouriteMeta.ts`
-draws a saved page, `useTabLoading.ts` is a composable. Historical, not designed. Put *new* files in
-the folder that matches what they are.
+**`src/internal/` holds `routes.ts` and nothing else loose.** It used to be a mixed bag - a URL
+library, a composable, two services - and the folder was also outside what `check:tests` watches, so
+none of those four had a test and nothing said so. They moved to the folder that matches what they
+are; `routes.ts` stays because it imports every page, which is exactly what a service may not do.
 
 **Two "favourites" systems** share the word. `favouritesStore.ts` is browser shortcuts in
 localStorage; `profilesStore.getFavourites` is a domain→CID map in the main process. Unrelated.
 
 **`tabPosition.ts` and `tabHistory.ts` are split for a reason.** Reading where a tab is needs
-nothing. *Moving* a tab reads page titles from the route table, which imports every page, one of
-which calls the Electron bridge as its module loads. Import `tabHistory` from a test and it throws
-before the test runs. Keep the read side dependency-free.
+nothing. *Moving* a tab reads page titles from the route table, which imports every page - and the
+unit tests run without a Vue plugin, so importing `tabHistory` fails on the first `.vue` file in
+that chain before the test runs. Keep the read side dependency-free.
 
 **Translation is keyed on the English text, not on an invented id.** `t('Save')`, not
-`t('dialogs.drive.save')`. Naming ~1 950 strings is work nobody would finish and two people would do
+`t('dialogs.drive.save')`. Naming ~2 000 strings is work nobody would finish and two people would do
 differently; keying on the source means a missing translation renders the English, and
 `npm run i18n:extract` reads the whole catalogue straight out of `src/`. The cost is that rewording
 the English orphans the translation - the extractor reports that rather than deleting it. Reasoning
@@ -149,7 +150,7 @@ in `internal/services/i18n.ts`.
 **Some strings must never be translated.** `message.includes('failed to fetch')` compares against
 text the browser produced; wrap that in `t()` and the comparison stops matching the moment the app
 is not in English, and the offline path it guards silently never runs again. Nothing fails, in
-English, ever - which is why the twelve of them are named in `scripts/check-untranslated.mjs`
+English, ever - which is why every one of them is named in `scripts/check-untranslated.mjs`
 rather than left to judgement. The same applies to a CSS selector, a CSS value and a
 `webpreferences` string.
 
@@ -208,7 +209,8 @@ other would have silently dropped files at restore.
 `goto`/`openInNewTabSafe` and they disagreed: one had no fallback at all, one turned a blank URL
 into the new tab page, one forwarded the caller's push option and the rest hard-coded it.
 
-**Comments are English, and are not code.** 0 explications needed
+**Comments are English.** The codebase is read by people who do not share a first language, and a
+comment nobody can read is worse than none - it looks like it explains something.
 
 ---
 
@@ -241,25 +243,35 @@ longer needed, so the list cannot quietly become a backlog.
 `userData` per call. That way the module runs exactly as it ships, instead of production code
 growing an injectable filesystem root for the tests' benefit.
 
-**End-to-end tests** (`tests/e2e/`, Playwright) run the renderer in a browser with a **mock bridge**
-generated from `src/internal/common/lumenBridgeSurface.ts` - the same inventory the startup check
-uses, so it cannot drift.
+**End-to-end tests** (`tests/e2e/`, Playwright) come in three kinds, and they are not
+interchangeable - `playwright.config.ts` says which is which.
 
-> The first thing these found: `internal/common/upload.ts` subscribed to a bridge event as its
-> module loaded, unguarded. With no bridge that threw before Vue mounted anything, so the renderer
-> died with a blank page - taking `App.vue`'s own "Lumen API not found" screen with it, the screen
-> whose entire job is to say the bridge is missing.
+- **`renderer`** drives the Vue app in a browser with a **mock bridge** generated from
+  `src/internal/common/lumenBridgeSurface.ts` - the same inventory the startup check uses, so it
+  cannot drift. This is how a user flow is tested.
+- **`electron`** launches the real app: main process, preloads, IPC, its own IPFS daemon. One spec
+  at a time, because three of those at once is heavier than the machine's patience. It is the only
+  thing that can say the app still boots.
+- **`chain`** signs and broadcasts real transactions against the real chain, and is opt-in behind
+  `LUMEN_E2E_CHAIN=1` (`npm run test:e2e:chain`) because broadcasting costs money and cannot be
+  undone. It exists for what a mock cannot prove: that `signAndBroadcastWithPqcAutoLink` really does
+  link an unlinked account before its first message.
 
-**They deliberately stop** at anything past a confirmation that talks to the chain. The mock would
+> The first thing the mocked ones found: `internal/common/upload.ts` subscribed to a bridge event as
+> its module loaded, unguarded. With no bridge that threw before Vue mounted anything, so the
+> renderer died with a blank page - taking `App.vue`'s own "Lumen API not found" screen with it, the
+> screen whose entire job is to say the bridge is missing.
+
+**The mocked ones stop** at anything past a confirmation that talks to the chain. The mock would
 have to invent response shapes and the test would then pass because the fake agrees with itself.
-That is worse than no test: it reads like coverage and proves nothing. Those flows are in the
-release checklist instead.
+That is worse than no test: it reads like coverage and proves nothing. That is what the `chain`
+project is for, and what is left after it is in the release checklist.
 
 ### The main process
 
-`npm run check:ipc` holds all 211 IPC channels to one contract, instead of a unit test per handler -
+`npm run check:ipc` holds all 216 IPC channels to one contract, instead of a unit test per handler -
 a third of them are four-line pass-throughs where a test would exercise the mock, and a per-handler
-test would have caught none of the four missing sender guards found by hand.
+test would have caught none of the missing sender guards found by hand.
 
 Six rules, each written after something real:
 
@@ -294,10 +306,11 @@ without requiring `path` (every directory upload with progress threw), and a `ca
 identifier that never existed - the `catch` reporting that the webview preload failed to register,
 so the one failure that leaves every site without `window.lumen` printed nothing at all.
 
-Three modules have real unit tests, chosen because they can be wrong without failing loudly:
-`gateway-auth` (who the local gateway lets in), `utils/crypto` (what stands between a stolen profile
-folder and a stolen wallet), `network/peer_pool` (which node a signed transaction goes to). The
-first found an auth bypass on its first run.
+Around thirty main-process modules have real unit tests now, `tests/unit/support/electronStub.ts`
+being what made that cheap. The ones that were written first were chosen because they can be wrong
+without failing loudly: `gateways/server/auth` (who the local gateway lets in), `utils/crypto` (what
+stands between a stolen profile folder and a stolen wallet), `daemons/peers/peer_pool` (which node a
+signed transaction goes to). The first found an auth bypass on its first run.
 
 ### Where an error ends up
 
@@ -316,7 +329,7 @@ a `try` went to a devtools console nobody opens and left no trace on disk.
 `internal/services/errorReporting.ts` now installs `error` and `unhandledrejection` listeners as the
 first statement in `main.ts`, before anything that can throw.
 
-> This does not replace a single `catch`. The 399 silent `catch {}` blocks in `electron/` — mostly in
+> This does not replace a single `catch`. The ~470 silent `catch {}` blocks in `electron/` — mostly in
 > the two preloads — are decisions about a *value*: the page is navigating, the element is gone, the
 > bridge is torn down, so absence is normal. By the time a global handler runs the call has already
 > unwound and there is nothing left to return. The net is only for what would otherwise be lost.
@@ -326,17 +339,17 @@ throwing on every frame would otherwise turn one bug into an unbounded write to 
 the same reason `app:reportRendererError` is guarded with `ensureUiSender` **and** left out of
 `webview-preload` entirely — a channel that appends to a file must not be reachable from a page.
 
-### What has no tests at all
+### What has no tests
 
 Worth knowing before you assume a green run means much:
 
-- **Most of the main process.** `ipc/wallet.cjs`, `ipc/gateway.cjs`, `extensions/manager.cjs` -
-  roughly 10 600 lines that hold the keys and talk to the chain. The contract check covers their IPC
-  surface; the logic behind it is covered nowhere.
-- **Error paths.** Every mock answers yes. Node down, chain unreachable, wrong password, disk full:
-  no coverage.
-- **Anything that writes.** The tests read. Saving a file, restoring a backup, changing a setting,
-  installing an extension - a broken write path would go unnoticed.
+- **The three biggest main-process files.** `ipc/wallet.cjs`, `ipc/gateway.cjs` and
+  `extensions/manager.cjs` are around 9 100 lines between them, and they hold the keys and talk to
+  the chain. `check:ipc` covers their IPC surface and the `chain` end-to-end project covers one path
+  through the wallet; the rest of the logic behind them is covered nowhere.
+- **Most error paths.** A mock that answers yes is the easy half. Chain unreachable, wrong password
+  and a dead IPFS daemon do appear in tests; disk full, a half-written file and a gateway that
+  answers slowly do not.
 
 ## Third-party code copied into the repo
 
@@ -346,8 +359,9 @@ of them is a liability.
 - **`public/lib/bibi/`** - the Bibi EPUB reader, 23 files and ~2,3 MB, loaded by `IpfsPage.vue`.
   Copied rather than installed, so it appears in no `package.json` and **no dependency tool sees
   it**: `npm audit` will never mention it, and a published vulnerability arrives through nobody.
-  Its provenance, licence and the reason its version is unknown are in
-  [`public/lib/bibi/VENDOR.md`](public/lib/bibi/VENDOR.md). Read that before updating it.
+  Nothing in the repo records where this copy came from, which version it is, or under what licence
+  - the only document inside it is the upstream project's own preset manual, in Japanese. Anyone
+  updating it starts by establishing that.
 - **`src/css/lib/github-markdown.css`** - not a copy. 2,4 KB of theming laid over the real
   `github-markdown-css` package, which is a normal dependency and is imported by `IpfsPage.vue`.
   Nothing to track here.

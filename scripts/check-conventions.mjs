@@ -683,7 +683,7 @@ const warnings = [];
 }
 
 // ---------------------------------------------------------------------------
-// Rule 14b: every PascalCase component a template draws must be resolvable
+// Rule 17: every PascalCase component a template draws must be resolvable
 // from the file's own <script setup> - i.e. imported, or declared there.
 //
 // Vue answers a missing one with a console warning at runtime and renders
