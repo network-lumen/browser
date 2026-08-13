@@ -1046,6 +1046,8 @@
   "Monthly total": "महीने का कुल",
   "More actions": "और क्रियाएँ",
   "More results": "और परिणाम",
+  "More than the {amount} LMN you have staked with this validator.": "इस वैलिडेटर पर आपके स्टेक किए गए {amount} LMN से अधिक।",
+  "More than your balance of {amount} LMN.": "आपके {amount} LMN के बैलेंस से अधिक।",
   "Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.": "इस परिसंपत्ति को जुड़ी IBC शृंखलाओं के बीच ले जाएँ। इसी शृंखला पर भेजना हो तो «भेजें» चुनें, और वापस लाना हो तो पहले से भरा गंतव्य बटुआ वैसा ही रहने दें।",
   "Move this asset from {chain} to another linked chain over IBC.": "इस परिसंपत्ति को {chain} से IBC के रास्ते किसी और जुड़ी शृंखला पर ले जाएँ।",
   "Multiple records are only available for Lumen domains, not ugly domains.": "कई अभिलेख केवल Lumen के डोमेन पर रह सकते हैं, भद्दे डोमेन पर नहीं।",
