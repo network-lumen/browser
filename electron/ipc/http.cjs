@@ -372,6 +372,16 @@ function resolveOwnerWindowFromRequestDetails(details) {
   return BrowserWindow.getFocusedWindow() || null;
 }
 
+/**
+ * Which extension a request is made on behalf of.
+ *
+ * Its host permissions decide what may be fetched, so the identity has to come
+ * from the caller's own URL where there is one - `options.extensionContext` is
+ * written by the caller, and a page naming another extension would be
+ * borrowing its permissions. The claimed context is only used when the sender
+ * is not an extension page at all, which is the network-interception path
+ * (`details`), where there is no sender to ask.
+ */
 function resolveExtensionAuthorizationSource(input = {}) {
   const evt = input.evt || null;
   const details = input.details || null;
@@ -382,10 +392,12 @@ function resolveExtensionAuthorizationSource(input = {}) {
     resolveOwnerWindowFromRequestDetails(details) ||
     null;
 
-  const context =
-    normalizeExtensionContext(options.extensionContext) ||
-    resolveExtensionContextFromRequestDetails(details) ||
-    null;
+  const senderRuntimeId = getExtensionRuntimeIdFromUrl(evt?.sender?.getURL?.());
+  const context = senderRuntimeId
+    ? buildExtensionContextFromRuntimeId(senderRuntimeId, String(evt.sender.getURL() || ''))
+    : normalizeExtensionContext(options.extensionContext) ||
+      resolveExtensionContextFromRequestDetails(details) ||
+      null;
 
   return {
     ownerWindow,
