@@ -186,6 +186,39 @@ function buildInternalExtensionTabUrl(entry, targetUrl = '') {
     : `lumen://extension/${encodePathSegment(id)}`;
 }
 
+const NOT_AN_EXTENSION_PAGE = Object.freeze({
+  ok: false,
+  error: 'not_an_extension_page',
+  granted: { permissions: [], origins: [] },
+});
+
+/**
+ * Which extension is calling, taken from the page that called rather than from
+ * what it said about itself.
+ *
+ * The permission handlers used to read `extensionContext` out of the payload.
+ * Both channels are reachable from the content-script shim, so any page could
+ * name any extension: request optional permissions in another extension's name,
+ * or - with no prompt at all, since removal does not ask - strip the ones it
+ * had been granted. The sender's own URL is the only account of this that the
+ * caller does not write.
+ *
+ * A content script is not an extension page, and Chrome does not let one call
+ * `chrome.permissions` either, so those are refused rather than guessed at.
+ */
+function senderExtensionContext(evt) {
+  const href = String(evt?.sender?.getURL?.() || '').trim();
+  if (!/^chrome-extension:\/\//i.test(href)) return null;
+  try {
+    const url = new URL(href);
+    const runtimeId = String(url.hostname || '').trim();
+    if (!runtimeId) return null;
+    return { runtimeId, origin: url.origin, pageUrl: href };
+  } catch {
+    return null;
+  }
+}
+
 function getExtensionGuestPreloadUrl() {
   return pathToFileURL(path.join(__dirname, '..', 'preloads', 'extension-preload.cjs')).toString();
 }
@@ -506,15 +539,19 @@ function registerExtensionsIpc() {
     }
   });
 
-  ipcMain.handle('extensions:requestPermissions', async (_evt, payload) => {
-    const owner = _evt?.sender ? BrowserWindow.fromWebContents(_evt.sender) : null;
+  ipcMain.handle('extensions:requestPermissions', async (evt, payload) => {
+    const context = senderExtensionContext(evt);
+    if (!context) return NOT_AN_EXTENSION_PAGE;
+    const owner = evt?.sender ? BrowserWindow.fromWebContents(evt.sender) : null;
     const input = payload && typeof payload === 'object' ? payload : {};
-    return requestOptionalPermissions(owner, input.extensionContext || {}, input.details || {});
+    return requestOptionalPermissions(owner, context, input.details || {});
   });
 
-  ipcMain.handle('extensions:removePermissions', async (_evt, payload) => {
+  ipcMain.handle('extensions:removePermissions', async (evt, payload) => {
+    const context = senderExtensionContext(evt);
+    if (!context) return NOT_AN_EXTENSION_PAGE;
     const input = payload && typeof payload === 'object' ? payload : {};
-    return removeGrantedPermissions(input.extensionContext || {}, input.details || {});
+    return removeGrantedPermissions(context, input.details || {});
   });
 
   ipcMain.handle('extensions:getProviderFallbackState', async () => {
