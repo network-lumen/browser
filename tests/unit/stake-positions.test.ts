@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildRedelegationLocks,
   buildStakePositions,
   hasStakePosition,
+  redelegationLockUntil,
   totalStakePosition,
 } from '../../src/internal/services/stakePositions';
 
@@ -101,6 +103,76 @@ describe('what is ignored', () => {
       rewards: undefined,
     });
     expect(map[A]).toEqual({ staked: 0, unbonding: 0, rewards: 0 });
+  });
+});
+
+/**
+ * The rule that made "le redelegate ne marche juste pas du tout" true.
+ *
+ * Cosmos SDK refuses a redelegation away from a validator that is still
+ * receiving one - so the validator holding the stake somebody just moved is
+ * exactly the one they cannot move it from again. Live shape below: 10 LMN
+ * arrived at B from C and lock B until the 3rd of September.
+ */
+const LIVE_REDELEGATIONS = [
+  {
+    redelegation: { validator_src_address: C, validator_dst_address: B },
+    entries: [{ redelegation_entry: { completion_time: '2026-09-03T15:22:58.274132785Z' } }],
+  },
+];
+
+describe('a validator locked as a redelegation source', () => {
+  it('is the destination of the redelegation, not its source', () => {
+    const locks = buildRedelegationLocks(LIVE_REDELEGATIONS);
+    expect(Object.keys(locks)).toEqual([B]);
+    expect(locks[C]).toBeUndefined();
+  });
+
+  it('reports the lock while it lasts', () => {
+    const locks = buildRedelegationLocks(LIVE_REDELEGATIONS);
+    const during = Date.parse('2026-08-14T00:00:00Z');
+    expect(redelegationLockUntil(locks, B, during)).toBe('2026-09-03T15:22:58.274132785Z');
+  });
+
+  it('stops reporting it once the entry has completed', () => {
+    const locks = buildRedelegationLocks(LIVE_REDELEGATIONS);
+    const after = Date.parse('2026-09-04T00:00:00Z');
+    expect(redelegationLockUntil(locks, B, after)).toBe('');
+  });
+
+  it('says nothing about a validator with no redelegation arriving', () => {
+    const locks = buildRedelegationLocks(LIVE_REDELEGATIONS);
+    expect(redelegationLockUntil(locks, A, Date.parse('2026-08-14T00:00:00Z'))).toBe('');
+  });
+
+  it('holds the lock until the last of several entries clears', () => {
+    const locks = buildRedelegationLocks([
+      {
+        redelegation: { validator_src_address: C, validator_dst_address: B },
+        entries: [
+          { redelegation_entry: { completion_time: '2026-09-03T00:00:00Z' } },
+          { redelegation_entry: { completion_time: '2026-09-20T00:00:00Z' } },
+          { redelegation_entry: { completion_time: '2026-09-11T00:00:00Z' } },
+        ],
+      },
+    ]);
+    expect(locks[B]).toBe('2026-09-20T00:00:00Z');
+  });
+
+  it('ignores entries with no destination or no completion time', () => {
+    expect(buildRedelegationLocks([{ redelegation: {}, entries: [] }])).toEqual({});
+    expect(buildRedelegationLocks([{ redelegation: { validator_dst_address: B }, entries: [{}] }])).toEqual({});
+    expect(buildRedelegationLocks(null)).toEqual({});
+  });
+
+  it('treats an unparseable completion time as no lock', () => {
+    const locks = buildRedelegationLocks([
+      {
+        redelegation: { validator_dst_address: B },
+        entries: [{ redelegation_entry: { completion_time: 'soon' } }],
+      },
+    ]);
+    expect(redelegationLockUntil(locks, B)).toBe('');
   });
 });
 

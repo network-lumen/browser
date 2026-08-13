@@ -489,6 +489,41 @@ async function walletGetUnbondingDelegations(input) {
 }
 
 /**
+ * Redelegations still inside the unbonding period.
+ *
+ * Needed to know what the chain will refuse before asking it. Cosmos SDK
+ * `BeginRedelegation` rejects a redelegation *away* from a validator that is
+ * currently receiving one of the same delegator's - ErrTransitiveRedelegation -
+ * so the validator a user just moved their stake to is locked as a source until
+ * the entry completes, three weeks later.
+ */
+async function walletGetRedelegations(input) {
+  const address = String(input && input.address ? input.address : '').trim();
+  if (!address) {
+    return { ok: false, error: 'missing address' };
+  }
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const base = trimSlash(restBase);
+  const url = `${base}/cosmos/staking/v1beta1/delegators/${encodeURIComponent(address)}/redelegations`;
+
+  try {
+    const res = await httpGet(url, { timeout: 10000 });
+    if (!res.ok) {
+      return { ok: false, status: res.status, error: 'redelegations query failed' };
+    }
+    const redelegations = Array.isArray(res.json && res.json.redelegation_responses)
+      ? res.json.redelegation_responses
+      : [];
+    return { ok: true, redelegations };
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+}
+
+/**
  * Rewards accrued and not yet claimed, per validator.
  *
  * The distribution module answers in decimal ulmn - "2093587.342379405193" -
@@ -943,6 +978,14 @@ function registerChainIpc() {
   ipcMain.handle('wallet:getUnbondingDelegations', async (_evt, input) => {
     try {
       return await walletGetUnbondingDelegations(input || {});
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:getRedelegations', async (_evt, input) => {
+    try {
+      return await walletGetRedelegations(input || {});
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
