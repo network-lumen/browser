@@ -6,7 +6,6 @@
 .animate-icon-bounce { animation: iconBounce 0.5s ease; }
 .animate-modal-slide-in { animation: modalSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
 .animate-mygw-pulse { animation: mygw-pulse 2s ease-in-out infinite; }
-.animate-popup-fade-in { animation: popupFadeIn 0.3s ease; }
 .animate-pulse-ring { animation: pulse 2s infinite; }
 .animate-slide-in-up { animation: slideInUp 0.3s ease; }
 .animate-walletonboard-fade-in { animation: walletonboard-fade-in 0.3s ease-in-out; }
@@ -182,7 +181,6 @@
 .z-1 { z-index: 1; }
 .z-100 { z-index: 100; }
 .z-1000 { z-index: 1000; }
-.z-10001 { z-index: 10001; }
 .z-1400 { z-index: 1400; }
 .z-9998 { z-index: 9998; }
 .z-9999 { z-index: 9999; }
