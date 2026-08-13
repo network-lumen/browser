@@ -1046,6 +1046,8 @@
   "Monthly total": "每月合计",
   "More actions": "更多操作",
   "More results": "更多结果",
+  "More than the {amount} LMN you have staked with this validator.": "超过你在该验证人处质押的 {amount} LMN。",
+  "More than your balance of {amount} LMN.": "超过你 {amount} LMN 的余额。",
   "Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.": "在已连接的 IBC 链之间转移此资产。若要在当前链上转账，请使用「发送」；也可保留预填的目标钱包，把它跨回去。",
   "Move this asset from {chain} to another linked chain over IBC.": "通过 IBC 将此资产从 {chain} 转移到另一条已连接的链。",
   "Multiple records are only available for Lumen domains, not ugly domains.": "多条记录仅适用于 Lumen 域名，不适用于丑域名。",

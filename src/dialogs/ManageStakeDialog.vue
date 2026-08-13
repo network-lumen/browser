@@ -82,6 +82,13 @@
                 min="0" class="text-15px focus-outline-none focus-ring focus-shadow" />
               <span class="txt-weight-light color-text-secondary absolute text-14px right-16px">{{ t('LMN') }}</span>
             </div>
+            <!--
+              Named here rather than left to the chain. Asking to move more than
+              is bonded costs a signature and comes back as a chain error, and
+              the balance to compare against is right above this input - it is
+              only invisible because nothing said which of the two applies.
+            -->
+            <span v-if="exceedsAvailable" class="color-error text-12px txt-weight-light">{{ exceedsMessage }}</span>
             <div class="flex flex-column gap-8px p-0px pt-8px pb-8px">
               <input 
                 type="range" 
@@ -207,4 +214,23 @@ const actionLabel = stakeActionLabel;
 const amount = defineModel<string>('amount', { required: true });
 const percentage = defineModel<number>('percentage', { required: true });
 const target = defineModel<string>('target', { required: true });
+
+/**
+ * Delegating draws on the wallet; the other three draw on what is bonded with
+ * this validator - and that goes to zero the moment a redelegation leaves, so
+ * the second attempt from the same source has nothing behind it.
+ */
+const exceedsAvailable = computed(() => {
+  const wanted = Number(amount.value);
+  if (!Number.isFinite(wanted) || wanted <= 0) return false;
+  const ceiling = Number(action.value === 'Delegate' ? props.availableBalance : props.stakedBalance);
+  return Number.isFinite(ceiling) && wanted > ceiling;
+});
+
+/** Names the ceiling that was crossed, so the user knows which one applies. */
+const exceedsMessage = computed(() =>
+  action.value === 'Delegate'
+    ? t('More than your balance of {amount} LMN.', { amount: props.availableBalance })
+    : t('More than the {amount} LMN you have staked with this validator.', { amount: props.stakedBalance })
+);
 </script>

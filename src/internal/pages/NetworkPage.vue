@@ -758,7 +758,6 @@ const stakeActions: StakeAction[] = ['Delegate', 'Undelegate', 'Redelegate', 'Wi
 const stakeAmount = ref('0.0');
 const stakePercentage = ref(0);
 const targetValidator = ref('');
-const stakedBalance = ref('0.000 LMN');
 const availableBalance = ref('0.000 LMN');
 const isProcessingTx = ref(false);
 
@@ -1441,79 +1440,32 @@ function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' 
   stakePercentage.value = 0;
   targetValidator.value = '';
   showStakeModal.value = true;
-  
-  // Fetch actual balance from profile
-  fetchStakeBalances(validator.address);
+
+  // The staked figure is already derived from the positions map; only the
+  // wallet's spendable balance still has to be asked for.
+  void fetchWalletBalance();
+  void fetchStakePositions();
 }
 
-async function fetchStakeBalances(validatorAddress: string) {
-  if (!activeProfile.value) {
+async function fetchWalletBalance() {
+  const profileAddress = activeProfile.value?.address || activeProfile.value?.walletAddress;
+  const walletApi = useInternalLumen()?.wallet;
+  if (!profileAddress || typeof walletApi?.getBalance !== 'function') {
+    availableBalance.value = '0.000000';
     return;
   }
 
-  const profileAddress = activeProfile.value.address || activeProfile.value.walletAddress;
-
   try {
-    const walletApi = useInternalLumen()?.wallet;
-    
-    if (!walletApi) {
-      console.error('Wallet API not available');
-      availableBalance.value = '0.000000';
-      stakedBalance.value = '0.000000';
-      return;
-    }
-
-    // Fetch available balance using same method as WalletPage
-    if (typeof walletApi.getBalance === 'function' && profileAddress) {
-      try {
-        const res = await walletApi.getBalance(profileAddress, { denom: 'ulmn' });
-
-        if (res && res.ok !== false) {
-          const amt = Number(res.balance?.amount ?? '0') || 0;
-          availableBalance.value = (amt / 1_000_000).toFixed(6);
-        } else {
-          console.error('Balance error:', res?.error);
-          availableBalance.value = '0.000000';
-        }
-      } catch (error) {
-        console.error('Error fetching balance:', error);
-        availableBalance.value = '0.000000';
-      }
+    const res = await walletApi.getBalance(profileAddress, { denom: 'ulmn' });
+    if (res && res.ok !== false) {
+      availableBalance.value = formatUlmn(Number(res.balance?.amount ?? '0') || 0);
     } else {
+      console.error('Balance error:', res?.error);
       availableBalance.value = '0.000000';
     }
-
-    // Fetch delegations
-    if (typeof walletApi.getDelegations === 'function' && profileAddress) {
-      try {
-        const delegations = await walletApi.getDelegations(profileAddress);
-
-        if (delegations && delegations.ok !== false && Array.isArray(delegations.delegations)) {
-          const delegation = delegations.delegations.find((d: any) =>
-            d.delegation?.validator_address === validatorAddress
-          );
-
-          if (delegation?.balance?.amount) {
-            const amt = Number(delegation.balance.amount) || 0;
-            stakedBalance.value = (amt / 1_000_000).toFixed(6);
-          } else {
-            stakedBalance.value = '0.000000';
-          }
-        } else {
-          stakedBalance.value = '0.000000';
-        }
-      } catch (error) {
-        console.error('Error fetching delegations:', error);
-        stakedBalance.value = '0.000000';
-      }
-    } else {
-      stakedBalance.value = '0.000000';
-    }
-    
   } catch (error) {
-    console.error('Failed to fetch balances:', error);
+    console.error('Error fetching balance:', error);
     availableBalance.value = '0.000000';
-    stakedBalance.value = '0.000000';
   }
 }
 
@@ -1533,6 +1485,23 @@ function positionFor(validatorAddress: string): StakePosition | undefined {
 }
 
 const stakeTotals = computed(() => totalStakePosition(stakePositions.value));
+
+/**
+ * Derived, never fetched.
+ *
+ * This was a ref filled by a per-validator query fired *after* the dialog had
+ * opened, and nothing cleared it in between - so opening a second validator
+ * showed the first one's stake under the second one's name until the request
+ * came back. It reported 10 LMN bonded with a validator that had none, and the
+ * percentage buttons sized the amount from that figure, which is how someone
+ * ends up signing a redelegation of stake that is not there.
+ *
+ * The positions map already holds every validator, so there is nothing to wait
+ * for and no window in which the wrong number can be on screen.
+ */
+const stakedBalance = computed(() =>
+  formatUlmn(stakePositions.value[selectedValidator.value?.address || '']?.staked || 0)
+);
 
 /**
  * When the selected validator stops being unusable as a redelegation source,
@@ -1620,13 +1589,13 @@ function clearPendingStakeRefreshes() {
   pendingStakeRefreshTimers = [];
 }
 
-function schedulePostStakeRefresh(validatorAddress: string) {
+function schedulePostStakeRefresh() {
   clearPendingStakeRefreshes();
   const run = () => {
     void fetchValidators();
-    void fetchStakeBalances(validatorAddress);
-    // Not per-validator: a redelegation lands on a validator this address knows
-    // nothing about, and a withdrawal changes a third one's rewards.
+    void fetchWalletBalance();
+    // Every validator, not the one just acted on: a redelegation lands on
+    // another, and a withdrawal changes a third one's rewards.
     void fetchStakePositions();
   };
   run();
@@ -1655,12 +1624,28 @@ function setStakePercentage(percentage: number) {
   stakeAmount.value = amount;
 }
 
+/**
+ * The most this action can move: the wallet's balance when delegating, and what
+ * is actually bonded with this validator otherwise.
+ *
+ * Worth stating because it is easy to forget the second one goes to zero the
+ * moment a redelegation leaves: the stake is at the destination from that block
+ * on, and asking the source for it again gets "no delegation for this pair"
+ * from the chain, after a signature.
+ */
+const maxForCurrentAction = computed(() =>
+  currentStakeAction.value === 'Delegate'
+    ? parseFloat(availableBalance.value) || 0
+    : parseFloat(stakedBalance.value) || 0
+);
+
 const canConfirm = computed(() => {
   // Withdraw doesn't require amount
   if (currentStakeAction.value === 'Withdraw') {
     return hasActiveProfile.value;
   }
   if (!stakeAmount.value || parseFloat(stakeAmount.value) <= 0) return false;
+  if (parseFloat(stakeAmount.value) > maxForCurrentAction.value) return false;
   if (currentStakeAction.value === 'Redelegate') {
     if (!targetValidator.value) return false;
     // The chain would refuse it; offering the button anyway costs a signature
@@ -1754,7 +1739,6 @@ async function confirmStakeAction() {
     }
     
     const outcome = classifyBroadcastResult(result);
-    const validatorAddress = selectedValidator.value.address;
 
     if (outcome.kind === 'locked') {
       try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
@@ -1786,7 +1770,7 @@ async function confirmStakeAction() {
     }
 
     closeStakeModal();
-    schedulePostStakeRefresh(validatorAddress);
+    schedulePostStakeRefresh();
   } catch (error) {
     console.error(`${currentStakeAction.value} failed:`, error);
     toast.error(errorMessage(error, t('Unknown error')));

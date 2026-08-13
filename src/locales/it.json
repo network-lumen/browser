@@ -1046,6 +1046,8 @@
   "Monthly total": "Totale mensile",
   "More actions": "Altre azioni",
   "More results": "Altri risultati",
+  "More than the {amount} LMN you have staked with this validator.": "Più dei {amount} LMN che hai in stake con questo validatore.",
+  "More than your balance of {amount} LMN.": "Più del tuo saldo di {amount} LMN.",
   "Move this asset across linked IBC chains. Use Send to move it on its current chain, or keep the prefilled destination wallet to bridge it back.": "Sposta questo asset tra le catene IBC collegate. Usa Invia per muoverlo sulla catena attuale, oppure lascia il portafoglio di destinazione già compilato per riportarlo indietro.",
   "Move this asset from {chain} to another linked chain over IBC.": "Sposta questo asset da {chain} a un'altra catena collegata tramite IBC.",
   "Multiple records are only available for Lumen domains, not ugly domains.": "I record multipli esistono solo per i domini Lumen, non per i domini brutti.",
