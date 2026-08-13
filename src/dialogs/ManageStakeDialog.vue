@@ -105,35 +105,6 @@
             </select>
           </div>
 
-          <div v-if="txStatus !== 'idle'" class="z-10001 animate-popup-fade-in p-32px fixed bg-primary border-radius-16px top-half left-half translate-center shadow-lg min-w-400px max-w-90vw" :style="popupStyleFor(txStatus)">
-            <div class="flex-align-center flex-column gap-24px text-center">
-              <UiResultState v-if="txStatus === 'processing'" :title="t('Processing transaction')" :description="txMessage">
-                <template #icon><UiSpinner size="lg" /></template>
-              </UiResultState>
-
-              <UiResultState v-else-if="txStatus === 'success'" :title="t('Transaction successful')" :description="txMessage">
-                <template #icon><CircleCheckBig class="animate-icon-bounce" :size="48" color="rgba(var(--color-success-rgb), 0.7)" /></template>
-                <template #action>
-                  <div v-if="txHash" class="w-full mt-12px p-12px bg-secondary border-radius-8px border-1">
-                    <small class="block text-11px color-text-tertiary mb-4px text-uppercase letter-spacing-005em">{{ t('Transaction hash') }}</small>
-                    <UiButton variant="none" @click="$emit('view-transaction')" class="reveal-on-hover hover-translate-x-2px flex-align-center gap-8px cursor-pointer w-full">
-                      <code class="flex-1 mono text-12px color-primary break-all txt-weight-light">{{ txHash }}</code>
-                      <ExternalLink class="reveal-target flex-shrink-0 color-primary opacity-70 transition-opacity-02" :size="16" />
-                    </UiButton>
-                  </div>
-                  <button class="mt-16px txt-weight-light cursor-pointer bg-accent color-white border-none border-radius-6px text-14px transition-all-02 hover-lift-1 py-10px px-32px hover-shadow-primary" @click="$emit('update:modelValue', false)">{{ t('Close') }}</button>
-                </template>
-              </UiResultState>
-
-              <UiResultState v-else-if="txStatus === 'error'" :title="t('Transaction failed')" :description="txMessage">
-                <template #icon><CircleAlert class="animate-icon-bounce" :size="48" color="var(--color-error)" /></template>
-                <template #action>
-                  <UiButton variant="primary" class="mt-8px" @click="$emit('reset')">{{ t('Try again') }}</UiButton>
-                </template>
-              </UiResultState>
-            </div>
-          </div>
-
           <UiButton
             variant="primary"
             block
@@ -153,20 +124,22 @@ import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiInput from '../ui/UiInput.vue';
-import UiSpinner from '../ui/UiSpinner.vue';
-import UiResultState from '../ui/UiResultState.vue';
-import { CircleAlert, CircleCheckBig, ExternalLink, Info } from 'lucide-vue-next';
+import { Info } from 'lucide-vue-next';
+import { STAKE_AMOUNT_LABELS, STAKE_CONFIRM_LABELS, stakeActionLabel } from '../internal/services/stakeActions';
 import type { StakeAction } from '../types/networkPage';
 import type { Validator } from '../types/explorerPage';
 
 /**
  * Delegating, undelegating, redelegating or withdrawing against one
- * validator, and the transaction that results.
+ * validator.
  *
  * The chosen action, the amount and the redelegation target write back to the
- * page, which is what actually signs and broadcasts; the transaction status it
- * reports comes back as props so this component can show the three outcomes
- * without knowing how any of them happened.
+ * page, which is what actually signs and broadcasts. How that broadcast went is
+ * deliberately not drawn here: this dialog used to raise its own full-screen
+ * panel with a coloured border for each outcome, which no other transaction in
+ * the app did, and which reported an unconfirmable-but-sent transaction as
+ * "Transaction failed" under a Try again button. Outcomes are toasts now, like
+ * the wallet's.
  */
 defineProps<{
   modelValue: boolean;
@@ -178,60 +151,22 @@ defineProps<{
   stakeActions: StakeAction[];
   canConfirm: boolean;
   isProcessingTx?: boolean;
-  txStatus: 'idle' | 'processing' | 'success' | 'error';
-  txMessage?: string;
-  txHash?: string;
 }>();
-/** The outcome tints the popup's border - the only thing the status draws here. */
-function popupStyleFor(status: string): Record<string, string> {
-  if (status === 'success') return { border: '2px solid rgba(var(--color-success-rgb), 0.5)' };
-  if (status === 'error') return { border: '2px solid var(--color-error)' };
-  return { border: '2px solid var(--color-primary)' };
-}
 
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'confirm'): void;
-  (e: 'reset'): void;
   (e: 'set-percentage', percent: number): void;
-  (e: 'view-transaction'): void;
 }>();
 
 const action = defineModel<StakeAction>('action', { required: true });
 
-/**
- * One whole sentence per action rather than "Amount to " + the verb lowercased.
- * A verb spliced into a frame only works in a language that puts it in the same
- * place, and lowercasing it is an English rule, not a universal one.
- */
-const AMOUNT_LABELS: Record<StakeAction, () => string> = {
-  Delegate: () => t('Amount to delegate'),
-  Undelegate: () => t('Amount to undelegate'),
-  Redelegate: () => t('Amount to redelegate'),
-  Withdraw: () => t('Amount to withdraw')
-};
+const amountLabel = computed(() => STAKE_AMOUNT_LABELS[action.value]?.() ?? t('Amount'));
+const confirmLabel = computed(() => STAKE_CONFIRM_LABELS[action.value]?.() ?? t('Confirm'));
 
-/** The four actions are enum values from the chain; these are what a user reads. */
-const ACTION_LABELS: Record<StakeAction, () => string> = {
-  Delegate: () => t('Delegate'),
-  Undelegate: () => t('Undelegate'),
-  Redelegate: () => t('Redelegate'),
-  Withdraw: () => t('Withdraw')
-};
+/** The page names the same four actions in its toasts, so the table is shared. */
+const actionLabel = stakeActionLabel;
 
-const CONFIRM_LABELS: Record<StakeAction, () => string> = {
-  Delegate: () => t('Confirm delegation'),
-  Undelegate: () => t('Confirm undelegation'),
-  Redelegate: () => t('Confirm redelegation'),
-  Withdraw: () => t('Confirm withdrawal')
-};
-
-const amountLabel = computed(() => AMOUNT_LABELS[action.value]?.() ?? t('Amount'));
-const confirmLabel = computed(() => CONFIRM_LABELS[action.value]?.() ?? t('Confirm'));
-
-function actionLabel(act: StakeAction): string {
-  return ACTION_LABELS[act]?.() ?? act;
-}
 const amount = defineModel<string>('amount', { required: true });
 const percentage = defineModel<number>('percentage', { required: true });
 const target = defineModel<string>('target', { required: true });

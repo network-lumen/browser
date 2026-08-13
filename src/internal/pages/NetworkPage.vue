@@ -529,7 +529,7 @@
     </div>
 
     <!-- ####### EXPLORER: STAKE MANAGEMENT MODAL ####### -->
-    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :tx-status="txStatus" :tx-message="txMessage" :tx-hash="txHash" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @reset="txStatus = 'idle'" @set-percentage="setStakePercentage" @view-transaction="viewTransaction(txHash)" />
+    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @set-percentage="setStakePercentage" />
 
     <!-- ####### GOVERNANCE: CREATE PROPOSAL MODAL ####### -->
     <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" />
@@ -564,6 +564,8 @@ import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../../stores/profilesStore';
 import { formatNumber } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
+import { classifyBroadcastResult } from '../services/broadcastOutcome';
+import { stakeActionLabel } from '../services/stakeActions';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
 import CastVoteDialog from '../../dialogs/CastVoteDialog.vue';
 import CreateProposalDialog from '../../dialogs/CreateProposalDialog.vue';
@@ -707,10 +709,6 @@ const targetValidator = ref('');
 const stakedBalance = ref('0.000 LMN');
 const availableBalance = ref('0.000 LMN');
 const isProcessingTx = ref(false);
-const txMessage = ref('');
-const txStatus = ref<'idle' | 'processing' | 'success' | 'error'>('idle');
-
-const txHash = ref('');
 
 const bondedTokens = ref<number | null>(null);
 const unbondedTokens = ref<number | null>(null);
@@ -1469,17 +1467,36 @@ async function fetchStakeBalances(validatorAddress: string) {
 function closeStakeModal() {
   showStakeModal.value = false;
   selectedValidator.value = null;
-  txStatus.value = 'idle';
-  txMessage.value = '';
-  txHash.value = '';
   isProcessingTx.value = false;
 }
 
-function viewTransaction(hash: string) {
-  if (!hash) return;
-  closeStakeModal();
-  navigateToTransaction(hash);
+/**
+ * A delegation is not visible the moment it is broadcast: it lands in the next
+ * block, and the node's index lags further still. Refreshing once on the way out
+ * of the dialog shows the numbers from before the transaction, which reads as a
+ * transaction that did nothing - the wallet answers this by refreshing on a
+ * schedule over the following two minutes, and staking now does the same.
+ */
+let pendingStakeRefreshTimers: number[] = [];
+
+function clearPendingStakeRefreshes() {
+  for (const timer of pendingStakeRefreshTimers) window.clearTimeout(timer);
+  pendingStakeRefreshTimers = [];
 }
+
+function schedulePostStakeRefresh(validatorAddress: string) {
+  clearPendingStakeRefreshes();
+  const run = () => {
+    void fetchValidators();
+    void fetchStakeBalances(validatorAddress);
+  };
+  run();
+  for (const delay of [1500, 5000, 15000, 30000, 60000, 120000]) {
+    pendingStakeRefreshTimers.push(window.setTimeout(run, delay));
+  }
+}
+
+onBeforeUnmount(clearPendingStakeRefreshes);
 
 function setStakePercentage(percentage: number) {
   stakePercentage.value = percentage;
@@ -1506,25 +1523,21 @@ async function confirmStakeAction() {
   const profileId = activeProfile.value.id;
   
   if (!profileAddress) {
-    txStatus.value = 'error';
-    txMessage.value = t('No wallet address found');
+    toast.error(t('No wallet address found'));
     return;
   }
-  
+
   if (!profileId) {
-    txStatus.value = 'error';
-    txMessage.value = t('No profile ID found');
+    toast.error(t('No profile ID found'));
     return;
   }
-  
+
   const amountInUlmn = Math.floor(parseFloat(stakeAmount.value) * 1_000_000).toString();
-  
-  // Start processing
+
+  // The confirm button carries the progress from here on, as it does in the
+  // wallet; nothing else is drawn while the transaction is in flight.
   isProcessingTx.value = true;
-  txStatus.value = 'processing';
-  txMessage.value = t('Processing {action}…', { action: currentStakeAction.value.toLowerCase() });
-  txHash.value = '';
-  
+
   try {
     const walletApi = useInternalLumen()?.wallet;
     
@@ -1585,29 +1598,43 @@ async function confirmStakeAction() {
         break;
     }
     
-    // Handle password_required error
-    if (result?.ok === false && (result?.error === 'password_required' || result?.error === 'invalid_password')) {
+    const outcome = classifyBroadcastResult(result);
+    const validatorAddress = selectedValidator.value.address;
+
+    if (outcome.kind === 'locked') {
       try { await useInternalLumen()?.security?.lockSession?.(); } catch {}
-      txStatus.value = 'idle';
-      txMessage.value = '';
+      toast.warning(t('Wallet locked. Unlock to continue.'));
       return;
     }
-    
-    if (result && result.ok !== false) {
-      txStatus.value = 'success';
-      txHash.value = result.txhash || result.txHash || '';
-      txMessage.value = `${currentStakeAction.value} successful!`;
-      
-      // Refresh validators in background
-      fetchValidators();
-    } else {
-      throw new Error(result?.error || t('Transaction failed'));
+
+    if (outcome.kind === 'failed') {
+      toast.error(t('{action} failed: {reason}', {
+        action: stakeActionLabel(currentStakeAction.value),
+        reason: outcome.error || t('Unknown error'),
+      }));
+      return;
     }
+
+    // Unconfirmed is not failed: the transaction is on the chain and only the
+    // receipt is missing, so the dialog closes like a success would. Saying
+    // otherwise is what made a user press Try again on a delegation that had
+    // already gone through.
+    if (outcome.kind === 'unconfirmed') {
+      toast.warning(outcome.retrySafe
+        ? t('The transaction could not be confirmed and did not reach a block. You can safely try again.')
+        : t('The transaction was sent but could not be confirmed. Check your balance before sending it again.'));
+    } else {
+      toast.success(t('{action} successful. TxHash: {hash}', {
+        action: stakeActionLabel(currentStakeAction.value),
+        hash: outcome.txhash || t('Not available'),
+      }));
+    }
+
+    closeStakeModal();
+    schedulePostStakeRefresh(validatorAddress);
   } catch (error) {
     console.error(`${currentStakeAction.value} failed:`, error);
-    txStatus.value = 'error';
-    const errorMsg = errorMessage(error, t('Unknown error'));
-    txMessage.value = errorMsg;
+    toast.error(errorMessage(error, t('Unknown error')));
   } finally {
     isProcessingTx.value = false;
   }
