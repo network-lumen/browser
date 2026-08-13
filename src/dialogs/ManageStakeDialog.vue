@@ -104,7 +104,24 @@
             </div>
           </div>
 
-          <div v-if="action === 'Redelegate'" class="flex flex-column gap-8px">
+          <!--
+            The chain refuses a redelegation away from a validator that is still
+            receiving one of yours (ErrTransitiveRedelegation), for the whole
+            unbonding period. Nothing said so, so moving stake and changing your
+            mind produced a signed transaction and a raw chain error - the
+            "redelegate doesn't work at all" report.
+          -->
+          <div v-if="action === 'Redelegate' && redelegationLockedUntil" class="flex-align-start gap-12px p-16px border-radius-10px bg-warning-a08 border-1-warning-a30">
+            <TriangleAlert class="flex-shrink-0 color-warning mt-2px" :size="20" />
+            <div class="flex flex-column gap-4px">
+              <strong class="text-14px txt-weight-medium color-text-primary">{{ t('Stake here cannot be moved yet') }}</strong>
+              <p class="m-0px text-13px color-text-secondary line-height-14">
+                {{ t('A redelegation is still arriving at this validator, and the chain refuses to move stake out of it until that completes on {date}.', { date: formatDateTime(redelegationLockedUntil) }) }}
+              </p>
+            </div>
+          </div>
+
+          <div v-if="action === 'Redelegate' && !redelegationLockedUntil" class="flex flex-column gap-8px">
             <label class="text-14px txt-weight-light color-text-primary">{{ t('Select new validator') }}</label>
             <select v-model="target" class="w-full color-text-primary cursor-pointer py-12px px-16px bg-secondary border-1 border-radius-8px text-14px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
               <option value="">{{ t('Choose validator…') }}</option>
@@ -133,8 +150,9 @@ import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiButton from '../ui/UiButton.vue';
 import UiInput from '../ui/UiInput.vue';
-import { Info } from 'lucide-vue-next';
+import { Info, TriangleAlert } from 'lucide-vue-next';
 import { STAKE_AMOUNT_LABELS, STAKE_CONFIRM_LABELS, stakeActionLabel } from '../internal/services/stakeActions';
+import { formatDateTime } from '../internal/services/format';
 import type { StakeAction } from '../types/networkPage';
 import type { Validator } from '../types/explorerPage';
 
@@ -162,6 +180,12 @@ const props = defineProps<{
   isProcessingTx?: boolean;
   /** Claimable from this validator, already in LMN. */
   pendingRewards: string;
+  /**
+   * ISO time at which this validator stops being refused as a redelegation
+   * source, or '' when it is not. The page reads it from the chain's own
+   * redelegation entries.
+   */
+  redelegationLockedUntil: string;
 }>();
 
 const hasRewards = computed(() => Number(props.pendingRewards) > 0);

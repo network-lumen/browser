@@ -462,6 +462,7 @@ contextBridge.exposeInMainWorld('lumen', {
     listSendTxs: (address, opts) => ipcRenderer.invoke('wallet:listSendTxs', { address, ...(opts || {}) }),
     getDelegations: (address) => ipcRenderer.invoke('wallet:getDelegations', { address }),
     getUnbondingDelegations: (address) => ipcRenderer.invoke('wallet:getUnbondingDelegations', { address }),
+    getRedelegations: (address) => ipcRenderer.invoke('wallet:getRedelegations', { address }),
     getStakingRewards: (address) => ipcRenderer.invoke('wallet:getStakingRewards', { address }),
     delegate: (payload) => ipcRenderer.invoke('wallet:delegate', payload),
     undelegate: (payload) => ipcRenderer.invoke('wallet:undelegate', payload),

@@ -573,7 +573,7 @@
     </div>
 
     <!-- ####### EXPLORER: STAKE MANAGEMENT MODAL ####### -->
-    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :pending-rewards="selectedValidatorRewards" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @set-percentage="setStakePercentage" />
+    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :pending-rewards="selectedValidatorRewards" :redelegation-locked-until="selectedValidatorLockedUntil" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @set-percentage="setStakePercentage" />
 
     <!-- ####### GOVERNANCE: CREATE PROPOSAL MODAL ####### -->
     <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" />
@@ -610,8 +610,14 @@ import { formatNumber } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
 import { classifyBroadcastResult } from '../services/broadcastOutcome';
 import { stakeActionLabel } from '../services/stakeActions';
-import { buildStakePositions, hasStakePosition, totalStakePosition } from '../services/stakePositions';
-import type { StakePosition, StakePositionMap } from '../../types/stakePosition';
+import {
+  buildRedelegationLocks,
+  buildStakePositions,
+  hasStakePosition,
+  redelegationLockUntil,
+  totalStakePosition,
+} from '../services/stakePositions';
+import type { RedelegationLockMap, StakePosition, StakePositionMap } from '../../types/stakePosition';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
 import CastVoteDialog from '../../dialogs/CastVoteDialog.vue';
 import CreateProposalDialog from '../../dialogs/CreateProposalDialog.vue';
@@ -1520,12 +1526,22 @@ async function fetchStakeBalances(validatorAddress: string) {
  */
 const stakePositions = ref<StakePositionMap>({});
 const stakePositionsLoading = ref(false);
+const redelegationLocks = ref<RedelegationLockMap>({});
 
 function positionFor(validatorAddress: string): StakePosition | undefined {
   return stakePositions.value[validatorAddress];
 }
 
 const stakeTotals = computed(() => totalStakePosition(stakePositions.value));
+
+/**
+ * When the selected validator stops being unusable as a redelegation source,
+ * or '' if it is usable now. The chain refuses this outright, so the dialog has
+ * to say it before the user signs rather than after.
+ */
+const selectedValidatorLockedUntil = computed(() =>
+  redelegationLockUntil(redelegationLocks.value, selectedValidator.value?.address || '')
+);
 
 /** What the open dialog can claim, so its Withdraw panel can name a figure. */
 const selectedValidatorRewards = computed(() => {
@@ -1554,7 +1570,7 @@ async function fetchStakePositions() {
 
   stakePositionsLoading.value = true;
   try {
-    const [delegationsRes, unbondingRes, rewardsRes] = await Promise.all([
+    const [delegationsRes, unbondingRes, rewardsRes, redelegationsRes] = await Promise.all([
       typeof walletApi.getDelegations === 'function'
         ? walletApi.getDelegations(profileAddress).catch(() => null)
         : Promise.resolve(null),
@@ -1564,6 +1580,9 @@ async function fetchStakePositions() {
       typeof walletApi.getStakingRewards === 'function'
         ? walletApi.getStakingRewards(profileAddress).catch(() => null)
         : Promise.resolve(null),
+      typeof walletApi.getRedelegations === 'function'
+        ? walletApi.getRedelegations(profileAddress).catch(() => null)
+        : Promise.resolve(null),
     ]);
 
     stakePositions.value = buildStakePositions({
@@ -1571,6 +1590,9 @@ async function fetchStakePositions() {
       unbonding: unbondingRes?.ok !== false ? unbondingRes?.unbonding : null,
       rewards: rewardsRes?.ok !== false ? rewardsRes?.rewards : null,
     });
+    redelegationLocks.value = buildRedelegationLocks(
+      redelegationsRes?.ok !== false ? redelegationsRes?.redelegations : null
+    );
   } catch (error) {
     console.error('Failed to fetch stake positions:', error);
   } finally {
@@ -1639,7 +1661,12 @@ const canConfirm = computed(() => {
     return hasActiveProfile.value;
   }
   if (!stakeAmount.value || parseFloat(stakeAmount.value) <= 0) return false;
-  if (currentStakeAction.value === 'Redelegate' && !targetValidator.value) return false;
+  if (currentStakeAction.value === 'Redelegate') {
+    if (!targetValidator.value) return false;
+    // The chain would refuse it; offering the button anyway costs a signature
+    // and teaches the user that redelegation is broken.
+    if (selectedValidatorLockedUntil.value) return false;
+  }
   if (!hasActiveProfile.value) return false;
   return true;
 });

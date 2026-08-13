@@ -1,5 +1,7 @@
 import type {
   DelegationResponse,
+  RedelegationLockMap,
+  RedelegationResponse,
   RewardResponse,
   StakePosition,
   StakePositionMap,
@@ -88,6 +90,61 @@ export function totalStakePosition(map: StakePositionMap): StakePositionTotals {
     }
   }
   return totals;
+}
+
+/**
+ * Which validators cannot currently be redelegated *away from*, and until when.
+ *
+ * Cosmos SDK v0.53 `BeginRedelegation` refuses with ErrTransitiveRedelegation
+ * when the delegator has a redelegation still arriving at the source validator:
+ *
+ *     hasRecRedel, err := k.HasReceivingRedelegation(ctx, delAddr, valSrcAddr)
+ *     if hasRecRedel { return time.Time{}, types.ErrTransitiveRedelegation }
+ *
+ * The rule stops a delegator hopping stake from validator to validator to
+ * outrun a slashing, and it bites the obvious case: move stake to a validator,
+ * then change your mind. That stake is pinned there for the unbonding period -
+ * three weeks on this chain - and the only sign of it, before this, was a chain
+ * error after signing.
+ *
+ * The latest completion time wins when several entries target one validator:
+ * the lock lifts when the last of them does.
+ */
+export function buildRedelegationLocks(
+  redelegations: RedelegationResponse[] | null | undefined
+): RedelegationLockMap {
+  const locks: RedelegationLockMap = {};
+
+  for (const entry of redelegations || []) {
+    const destination = String(entry?.redelegation?.validator_dst_address || '').trim();
+    if (!destination) continue;
+
+    for (const line of entry?.entries || []) {
+      const completion = String(line?.redelegation_entry?.completion_time || '').trim();
+      if (!completion) continue;
+      const current = locks[destination];
+      if (!current || Date.parse(completion) > Date.parse(current)) {
+        locks[destination] = completion;
+      }
+    }
+  }
+
+  return locks;
+}
+
+/**
+ * The lock only means anything while it lasts; a completion time in the past
+ * belongs to an entry the chain has already cleared.
+ */
+export function redelegationLockUntil(
+  locks: RedelegationLockMap,
+  validatorAddress: string,
+  now: number = Date.now()
+): string {
+  const until = locks[String(validatorAddress || '').trim()];
+  if (!until) return '';
+  const at = Date.parse(until);
+  return Number.isFinite(at) && at > now ? until : '';
 }
 
 /** Whether the row is worth drawing anything for at all. */

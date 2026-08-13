@@ -38,3 +38,14 @@ export type RewardResponse = {
   validator_address?: string;
   reward?: Array<{ denom?: string; amount?: string }>;
 };
+
+export type RedelegationResponse = {
+  redelegation?: { validator_src_address?: string; validator_dst_address?: string };
+  entries?: Array<{ redelegation_entry?: { completion_time?: string } }>;
+};
+
+/**
+ * Validator operator address -> when it stops being locked as a redelegation
+ * source, as an ISO timestamp. Absent means not locked.
+ */
+export type RedelegationLockMap = Record<string, string>;
