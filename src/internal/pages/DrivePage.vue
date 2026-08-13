@@ -2577,6 +2577,39 @@ const expiredHostingRow = computed(() => {
 
 const cancelContractBusy = ref(false);
 
+/**
+ * A sentence for whatever came back from the chain.
+ *
+ * These errors are English, and the ones worth reading are outnumbered by
+ * internal ones no user can act on ("The number NaN cannot be converted to a
+ * BigInt" is what a mis-shaped message looks like by the time protobuf is done
+ * with it). The cases below get told properly; anything else keeps the generic
+ * line and leaves the detail in the console, where whoever needs it is looking.
+ */
+function describeCancelError(raw: string): string {
+  const msg = String(raw || "").trim();
+  if (!msg) return t("Failed to cancel the subscription.");
+
+  if (msg === "password_required" || msg === "invalid_password") {
+    return t("Unlock your wallet to cancel this subscription.");
+  }
+  if (msg === "wallet_unavailable" || msg === "guest_profile") {
+    return t("This profile has no wallet to sign with.");
+  }
+  if (/contract not active|already completed|nothing left to cancel/i.test(msg)) {
+    return t("This plan is already closed on chain.");
+  }
+  if (/not contract owner|unauthorized/i.test(msg)) {
+    return t("This subscription belongs to another wallet.");
+  }
+  if (/insufficient funds|spendable balance/i.test(msg)) {
+    return t("Insufficient funds.");
+  }
+
+  console.error("[drive] cancelContract failed:", msg);
+  return t("Failed to cancel the subscription.");
+}
+
 /** Takes out a fresh month on the plan that lapsed, through the normal flow. */
 function renewExpiredSubscription() {
   const row = expiredHostingRow.value;
@@ -2630,7 +2663,11 @@ async function cancelExpiredSubscription() {
       .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
 
     if (!res || res.ok === false) {
-      showToast(String(res?.error || t("Failed to cancel the subscription.")), "error");
+      const code = String(res?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        await requestUnlock();
+      }
+      showToast(describeCancelError(code), "error");
       return;
     }
 

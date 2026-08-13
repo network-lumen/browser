@@ -2437,7 +2437,11 @@ function registerGatewayIpc() {
         const gatewayMod = client.gateways?.();
         let msg = null;
         if (gatewayMod?.msgCancelContract) {
-          msg = await gatewayMod.msgCancelContract(walletAddr, { contractId });
+          // The id itself, not a payload object - unlike msgCreateContract next
+          // door. The SDK runs it through Number(), so an object here becomes
+          // NaN and surfaces as "NaN cannot be converted to a BigInt" from deep
+          // inside protobuf encoding.
+          msg = await gatewayMod.msgCancelContract(walletAddr, contractId);
         }
         if (!msg) {
           msg = {
