@@ -997,7 +997,7 @@
   "Manage private gateways →": "プライベートゲートウェイを管理 →",
   "Manage site permissions": "サイトの権限を管理",
   "Manage sites data": "サイトデータを管理",
-  "Manage stake with {validator}": "{validator} へのステークを管理",
+  "Manage stake": "ステークを管理",
   "Manage your domains": "自分のドメインを管理する",
   "Manage your LMN tokens": "自分の LMN トークンを管理する",
   "Manage your Lumen address and on-chain balance (read-only).": "自分の Lumen アドレスとチェーン上の残高を確認します（読み取りのみ）。",

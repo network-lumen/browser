@@ -600,7 +600,7 @@ function registerWalletIpc() {
 
       try {
         console.log('[wallet:sendTokens] preparing MsgSend...');
-        const { MsgSend } = await import('cosmjs-types/cosmos/bank/v1beta1/tx.js');
+        const { MsgSend } = await import('cosmjs-types/cosmos/bank/v1beta1/tx');
         const micro = Math.round(amount * 1_000_000);
         
         const msg = {
@@ -773,7 +773,7 @@ function registerWalletIpc() {
       }
 
       try {
-        const { MsgTransfer } = await import('cosmjs-types/ibc/applications/transfer/v1/tx.js');
+        const { MsgTransfer } = await import('cosmjs-types/ibc/applications/transfer/v1/tx');
         const micro = Math.round(amount * 1_000_000);
         const timeoutTimestamp = BigInt(Date.now() + timeoutSeconds * 1000) * 1_000_000n;
 
@@ -1328,7 +1328,7 @@ function registerWalletIpc() {
       }
 
       try {
-        const { MsgDelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
+        const { MsgDelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx');
         
         const msg = {
           typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
@@ -1421,7 +1421,7 @@ function registerWalletIpc() {
       }
 
       try {
-        const { MsgUndelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
+        const { MsgUndelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx');
         
         const msg = {
           typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
@@ -1515,7 +1515,7 @@ function registerWalletIpc() {
       }
 
       try {
-        const { MsgBeginRedelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx.js');
+        const { MsgBeginRedelegate } = await import('cosmjs-types/cosmos/staking/v1beta1/tx');
         
         const msg = {
           typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
@@ -1608,7 +1608,7 @@ function registerWalletIpc() {
       }
 
       try {
-        const { MsgWithdrawDelegatorReward } = await import('cosmjs-types/cosmos/distribution/v1beta1/tx.js');
+        const { MsgWithdrawDelegatorReward } = await import('cosmjs-types/cosmos/distribution/v1beta1/tx');
         
         const msg = {
           typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
@@ -1839,7 +1839,7 @@ function registerWalletIpc() {
       return modAccessor.msgUpdateParams(authority, patched);
     },
     'upgrade-software': async (client, authority, values, registry) => {
-      const { MsgSoftwareUpgrade } = await import('cosmjs-types/cosmos/upgrade/v1beta1/tx.js');
+      const { MsgSoftwareUpgrade } = await import('cosmjs-types/cosmos/upgrade/v1beta1/tx');
       const typeUrl = '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade';
       try {
         if (!registry.lookupType(typeUrl)) registry.register(typeUrl, MsgSoftwareUpgrade);
@@ -1937,7 +1937,7 @@ function registerWalletIpc() {
           if (!registry) return { ok: false, error: 'registry_unavailable' };
 
           const authority = moduleAddressBech32('gov', prefix);
-          const { Any } = require('cosmjs-types/google/protobuf/any.js');
+          const { Any } = require('cosmjs-types/google/protobuf/any');
 
           for (const rawAction of rawActions) {
             const templateId = String(rawAction && rawAction.templateId ? rawAction.templateId : '').trim();
@@ -2048,7 +2048,7 @@ function registerWalletIpc() {
       }
 
       try {
-        const { MsgVote } = await import('cosmjs-types/cosmos/gov/v1/tx.js');
+        const { MsgVote } = await import('cosmjs-types/cosmos/gov/v1/tx');
 
         const msg = {
           typeUrl: '/cosmos.gov.v1.MsgVote',
@@ -2318,7 +2318,7 @@ function registerWalletIpc() {
                 ? relMod.msgValidateRelease(authority, actionReleaseId)
                 : { typeUrl: '/lumen.release.v1.MsgValidateRelease', value: { authority, id: actionReleaseId } });
 
-        const { Any } = require('cosmjs-types/google/protobuf/any.js');
+        const { Any } = require('cosmjs-types/google/protobuf/any');
         const actionBytes = registry.encode(actionMsg);
         const actionAny = Any.fromPartial({ typeUrl: actionMsg.typeUrl, value: actionBytes });
 

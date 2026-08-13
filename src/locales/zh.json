@@ -997,7 +997,7 @@
   "Manage private gateways →": "管理私有网关 →",
   "Manage site permissions": "管理网站权限",
   "Manage sites data": "管理网站数据",
-  "Manage stake with {validator}": "管理在 {validator} 的质押",
+  "Manage stake": "管理质押",
   "Manage your domains": "管理你的域名",
   "Manage your LMN tokens": "管理你的 LMN 代币",
   "Manage your Lumen address and on-chain balance (read-only).": "管理你的 Lumen 地址和链上余额（只读）。",
