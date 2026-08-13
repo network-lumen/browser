@@ -962,6 +962,85 @@ function getIpfsRepoPath() {
   return path.join(userData, 'ipfs');
 }
 
+/** The repo layout this binary speaks, e.g. 18 for Kubo 0.39. */
+function readExpectedRepoVersion(bin) {
+  try {
+    const r = spawnSync(bin, ['version', '--repo'], { stdio: 'pipe', encoding: 'utf8' });
+    if (r.error || r.status !== 0) return null;
+    const n = Number(String(r.stdout || '').trim());
+    return Number.isInteger(n) && n > 0 ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+/** What is actually on disk. A repo that was never initialised has no file. */
+function readRepoVersion(repoPath) {
+  try {
+    const raw = fs.readFileSync(path.join(repoPath, 'version'), 'utf8');
+    const n = Number(String(raw || '').trim());
+    return Number.isInteger(n) && n > 0 ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Whether an existing repo has to be migrated before this binary can use it.
+ *
+ * `'migrate'` when the repo is behind. `'newer'` when it is ahead: that is a
+ * downgrade, Kubo refuses it without an explicit flag, and doing it silently
+ * would be a good way to lose data. `'none'` when there is nothing to do or
+ * nothing to go on - an uninitialised repo, or a binary that would not say
+ * which layout it speaks.
+ */
+function planRepoMigration(current, expected) {
+  if (current == null || expected == null) return 'none';
+  if (current === expected) return 'none';
+  return current > expected ? 'newer' : 'migrate';
+}
+
+/**
+ * Brings an existing repo up to the layout this Kubo expects, before anything
+ * else touches it.
+ *
+ * `ipfs daemon --migrate=true` already did this, but too late: `ipfs config`
+ * runs first to set the addresses and the gateway headers, and `config` does
+ * not migrate - it fails with "ipfs repo needs migration" and nothing applies.
+ * So upgrading Kubo left a user with a daemon on default endpoints for that
+ * run, and the only trace was a warning in the log.
+ */
+function migrateIpfsRepoIfNeeded(bin, repoPath) {
+  const current = readRepoVersion(repoPath);
+  const expected = readExpectedRepoVersion(bin);
+  const plan = planRepoMigration(current, expected);
+
+  if (plan === 'none') return;
+  if (plan === 'newer') {
+    console.warn('[electron][ipfs] repo is newer than this Kubo', { current, expected });
+    return;
+  }
+
+  console.log('[electron][ipfs] migrating repo', { from: current, to: expected });
+  const r = spawnSync(bin, ['repo', 'migrate'], {
+    env: { ...process.env, IPFS_PATH: repoPath },
+    stdio: 'pipe',
+    encoding: 'utf8',
+  });
+
+  if (r.error || r.status !== 0) {
+    // Not fatal: the daemon starts with --migrate=true and gets another go at
+    // it. Said out loud because the config commands after this will fail.
+    console.warn('[electron][ipfs] repo migration failed', {
+      status: r.status,
+      error: String(r.error?.message || r.stderr || '').slice(0, 400),
+    });
+    return;
+  }
+
+  console.log('[electron][ipfs] repo migrated to', readRepoVersion(repoPath));
+}
+
 function ensureIpfsRepo(bin) {
   const repoPath = getIpfsRepoPath();
   try {
@@ -984,6 +1063,8 @@ function ensureIpfsRepo(bin) {
           String(r.stderr || '')
         );
       }
+    } else {
+      migrateIpfsRepoIfNeeded(bin, repoPath);
     }
   } catch (e) {
     console.warn('[electron][ipfs] ensureIpfsRepo failed', e);
@@ -3293,6 +3374,10 @@ module.exports = {
   startIpfsDaemon,
   checkIpfsStatus,
   stopIpfsDaemon,
+  // Exported for the tests: the repo migration decides whether an upgraded
+  // Kubo can configure itself at all, and it runs before anything observable.
+  planRepoMigration,
+  readRepoVersion,
   prefetchPublicIpfsGateways,
   ipfsCidToBase32,
   ipfsAdd,
