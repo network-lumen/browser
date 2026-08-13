@@ -27,9 +27,13 @@
             class="reveal-on-hover flex-align-center gap-4px flex"
           >
             <UiButton variant="none" @click="openFavourite(entry.url, $event)" class="flex-align-center gap-8px border-none bg-transparent cursor-pointer color-text-primary border-radius-10px py-6px px-8px text-left hover-bg-hover transition-all-fast flex-1 min-w-0">
-              <span class="color-text-primary bg-fill-tertiary flex-inline-align-justify-center border-radius-10px flex-0-0-auto text-11px txt-weight-strong letter-spacing-008em border-1-light size-28px" :style="avatarToneStyle(entry.kind)">
-                {{ entry.monogram }}
-              </span>
+              <UiSiteIcon
+                :url="entry.url"
+                :kind="entry.kind"
+                :monogram="entry.monogram"
+                image-class="size-16px border-radius-4px"
+                class="color-text-primary bg-fill-tertiary border-radius-10px text-11px txt-weight-strong letter-spacing-008em border-1-light size-28px"
+              />
               <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" />
             </UiButton>
             <UiButton variant="icon" type="button"
@@ -58,11 +62,12 @@ import UiButton from '../ui/UiButton.vue';
 import UiTitleSubtitle from '../ui/UiTitleSubtitle.vue';
 import UiCountPill from '../ui/UiCountPill.vue';
 import UiNoticeCard from '../ui/UiNoticeCard.vue';
+import UiSiteIcon from '../ui/UiSiteIcon.vue';
  import { computed } from 'vue';
  import { X } from 'lucide-vue-next';
  import { profilesState, activeProfileId } from '../stores/profilesStore';
  import { useFavourites } from '../stores/favouritesStore';
- import { avatarToneStyle, describeFavouriteUrl } from '../internal/favouriteMeta';
+ import { describeFavouriteUrl } from '../internal/favouriteMeta';
 
 import ActiveProfileCard from './ActiveProfileCard.vue';
 import AllPagesDropdown from './AllPagesDropdown.vue';

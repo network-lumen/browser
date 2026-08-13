@@ -20,6 +20,7 @@ import { isBrowserUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
 import type { Tab } from "../types/tab";
 import { navigateTabToInternalUrl } from '../internal/services/tabHistory';
 import { tabCurrentUrl } from '../internal/services/tabPosition';
+import { pinSiteIcon } from '../internal/services/siteIcons';
 
 const props = defineProps<{
   tab: Tab;
@@ -75,6 +76,9 @@ provide("setTabFavicon", (icon: string | null) => {
   const tab = tabState.value;
   if (!tab) return;
   tab.favicon = icon || null;
+  // The webview read the page's own <link rel="icon">: pin it so shortcut and
+  // history lists can draw this site without probing for one themselves.
+  pinSiteIcon(currentUrl(), icon);
 });
 
 provide("navigate", (url: string, opts?: { push?: boolean }) => {

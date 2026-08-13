@@ -161,8 +161,8 @@ import { STORAGE_KEYS, readJson, writeJson } from '../services/storage';
 import {
   Home, Cloud, Wallet, Globe, Settings,
   ArrowUpRight, Network, FileText,
-  Database, Rocket, Server, Search, History,
-  HelpCircle, Layers, ChevronDown, ChevronUp, X
+  Database, Rocket, Server, ServerCog, Search, History,
+  HelpCircle, Layers, Puzzle, ChevronDown, ChevronUp, X
 } from 'lucide-vue-next';
 
 import { useTabNavigation } from '../../composables/useTabNavigation';
@@ -526,9 +526,13 @@ function onItemClick(key: string, e: MouseEvent) {
 const profiles = profilesState;
 const hasProfiles = computed(() => profiles.value.length > 0);
 
+// Injected here and not inside openRoute: `inject` only works during setup, so
+// resolving it on click handed back nothing and every card on this page did
+// nothing at all.
+const { navigate, openInNewTab } = useTabNavigation();
+
 function openRoute(key: string) {
-  const { navigate, openInNewTab } = useTabNavigation();
-const url = `lumen://${key}`;
+  const url = `lumen://${key}`;
   if (navigate) {
     navigate(url, { push: true });
     return;
@@ -538,7 +542,7 @@ const url = `lumen://${key}`;
 
 function getRouteDescription(key: string): string {
   const descriptions: Record<string, string> = {
-    network: t('Browse the blockchain & view network status'),
+    network: t('Explore the blockchain'),
     search: t('Find content quickly'),
     history: t('Review recent browsing'),
     help: t('Documentation & support'),
@@ -546,6 +550,9 @@ function getRouteDescription(key: string): string {
     wallet: t('Manage crypto assets'),
     domain: t('Manage your domains'),
     gateways: t('IPFS gateway management'),
+    'my-gateways': t('Your gateway plans'),
+    extensions: t('Install & manage add-ons'),
+    newtab: t('Open a blank tab'),
     settings: t('Configure preferences'),
     ipfs: t('IPFS operations'),
     release: t('Release notes'),
@@ -561,56 +568,65 @@ function getCardTitle(key: string): string {
   return internalRouteTitle(key);
 }
 
+/** The soft tinted tile a card icon sits on, one per palette colour. */
+const ICON_TILES = {
+  primary: { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.22) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--color-primary)" },
+  secondary: { background: "linear-gradient(135deg, rgba(var(--color-secondary-rgb), 0.22) 0%, rgba(var(--color-secondary-rgb), 0.12) 100%)", color: "var(--color-secondary)" },
+  success: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
+  indigo: { background: "linear-gradient(135deg, rgba(var(--color-indigo-rgb), 0.22) 0%, rgba(var(--color-indigo-rgb), 0.12) 100%)", color: "var(--color-indigo)" },
+  purple: { background: "linear-gradient(135deg, rgba(var(--color-purple-rgb), 0.22) 0%, rgba(var(--color-purple-rgb), 0.12) 100%)", color: "var(--color-purple)" },
+  pink: { background: "linear-gradient(135deg, rgba(var(--color-pink-rgb), 0.22) 0%, rgba(var(--color-pink-rgb), 0.12) 100%)", color: "var(--color-pink)" },
+  warning: { background: "linear-gradient(135deg, rgba(var(--color-warning-rgb), 0.22) 0%, rgba(var(--color-warning-rgb), 0.12) 100%)", color: "var(--color-warning)" },
+} as const;
+
 const ACTION_ICON_STYLES: Record<string, { background: string; color: string }> = {
   drive: { background: "linear-gradient(135deg, var(--color-success) 0%, var(--color-secondary) 100%)", color: "#fff" },
   wallet: { background: "linear-gradient(135deg, var(--color-warning) 0%, var(--color-yellow) 100%)", color: "#fff" },
-  gateways: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
-  search: { background: "linear-gradient(135deg, rgba(var(--color-success-rgb), 0.22) 0%, rgba(var(--color-success-rgb), 0.12) 100%)", color: "var(--color-success)" },
-  network: { background: "linear-gradient(135deg, rgba(var(--color-pink-rgb), 0.22) 0%, rgba(var(--color-pink-rgb), 0.12) 100%)", color: "var(--color-pink)" },
-  domain: { background: "linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.22) 0%, rgba(var(--color-primary-rgb), 0.12) 100%)", color: "var(--color-primary)" },
-  help: { background: "linear-gradient(135deg, rgba(var(--color-warning-rgb), 0.22) 0%, rgba(var(--color-warning-rgb), 0.12) 100%)", color: "var(--color-warning)" },
-  settings: { background: "linear-gradient(135deg, rgba(var(--color-purple-rgb), 0.22) 0%, rgba(var(--color-purple-rgb), 0.12) 100%)", color: "var(--color-purple)" },
+  gateways: ICON_TILES.success,
+  'my-gateways': ICON_TILES.success,
+  search: ICON_TILES.success,
+  network: ICON_TILES.pink,
+  domain: ICON_TILES.primary,
+  help: ICON_TILES.warning,
+  settings: ICON_TILES.purple,
+  history: ICON_TILES.indigo,
+  extensions: ICON_TILES.secondary,
+  newtab: ICON_TILES.primary,
+  ipfs: ICON_TILES.indigo,
+  release: ICON_TILES.pink,
 };
 
+/** No card is ever left as a bare glyph: unknown routes fall back to the shell tone. */
 function actionIconStyle(key: string): Record<string, string> {
-  return ACTION_ICON_STYLES[key] || {};
+  return ACTION_ICON_STYLES[key] || ICON_TILES.primary;
 }
 
+/** One icon table for both the sidebar list and the cards, so a page never
+ * shows two different glyphs depending on where it is drawn. */
+const ROUTE_ICONS: Record<string, any> = {
+  home: Home,
+  drive: Cloud,
+  wallet: Wallet,
+  network: Network,
+  settings: Settings,
+  domain: Globe,
+  release: Rocket,
+  newtab: Layers,
+  search: Search,
+  history: History,
+  gateways: Server,
+  'my-gateways': ServerCog,
+  extensions: Puzzle,
+  help: HelpCircle,
+  ipfs: Database
+};
+
 function getCardIcon(key: string) {
-  const icons: Record<string, any> = {
-    home: Home,
-    drive: Cloud,
-    wallet: Wallet,
-    network: Network,
-    settings: Settings,
-    domain: Globe,
-    release: Rocket,
-    newtab: Layers,
-    search: Search,
-    history: History,
-    gateways: Server,
-    help: HelpCircle,
-    ipfs: Database
-  };
-  return icons[key] || HelpCircle;
+  return ROUTE_ICONS[key] || FileText;
 }
 
 function getRouteIcon(key: string) {
-  const icons: Record<string, any> = {
-    home: Home,
-    drive: Cloud,
-    wallet: Wallet,
-    network: Network,
-    settings: Settings,
-    domain: Globe,
-    release: Rocket,
-    newtab: Layers,
-    search: Search,
-    history: History,
-    gateways: Server,
-    help: HelpCircle
-  };
-  return icons[key] || FileText;
+  return ROUTE_ICONS[key] || FileText;
 }
 </script>
 

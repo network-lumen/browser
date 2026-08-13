@@ -60,9 +60,13 @@
           <div class="flex flex-column">
             <article v-for="entry in group.entries" :key="entry.id" class="flex-align-center-justify-space-between flex-justify-space-between py-12px px-2px border-top-1-separator">
               <button class="color-inherit flex-align-center flex-1 min-w-0 border-none bg-transparent cursor-pointer text-left gap-12px" type="button" @click="openEntry(entry.url)">
-                <span class="flex-inline-align-justify-center flex-0-0-auto color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary size-48px" :style="avatarToneStyle(entry.kind)">
-                  {{ entry.monogram }}
-                </span>
+                <UiSiteIcon
+                  :url="entry.url"
+                  :kind="entry.kind"
+                  :monogram="entry.monogram"
+                  image-class="size-24px border-radius-6px"
+                  class="color-text-primary txt-weight-strong border-radius-14px text-12px letter-spacing-008em border-default bg-fill-secondary size-48px"
+                />
 
                 <UiTitleSubtitle :title="entry.title" :subtitle="entry.subtitle" title-class="color-text-primary txt-weight-medium" subtitle-class="color-text-tertiary text-14px" />
               </button>
@@ -118,6 +122,7 @@ import UiButton from '../../ui/UiButton.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiTitleSubtitle from '../../ui/UiTitleSubtitle.vue';
 import UiCountPill from '../../ui/UiCountPill.vue';
+import UiSiteIcon from '../../ui/UiSiteIcon.vue';
 import { computed,  ref } from "vue";
 import {
   ArrowUpRight,
@@ -128,7 +133,7 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import InternalSidebar from "../../components/InternalSidebar.vue";
-import { avatarToneStyle, describeFavouriteUrl } from "../favouriteMeta";
+import { describeFavouriteUrl } from "../favouriteMeta";
 import { useHistory } from "../../stores/historyStore";
 import { formatTimeOfDay } from "../services/format";
 

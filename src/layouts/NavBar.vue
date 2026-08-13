@@ -34,10 +34,6 @@
         @click="emit('goto', 'lumen://home')" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
         <House :size="16" />
       </UiButton>
-      <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" :title="t('Drive')"
-        @click="emit('goto', 'lumen://drive')" class="active-scale-98 disabled-opacity-35-not-allowed flex-inline-align-justify-center size-32px">
-        <Cloud :size="16" />
-      </UiButton>
     </div>
 
     <NavBarExtensionsMenu @goto="emit('goto', $event)" />
@@ -48,7 +44,7 @@
 <script setup lang="ts">
 import { t } from '../stores/i18nStore';
 import { computed, ref, watch } from 'vue';
-import { ArrowLeft, ArrowRight, RefreshCw, House, Cloud } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, RefreshCw, House } from 'lucide-vue-next';
 import UiButton from '../ui/UiButton.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
 import NavBarAddressBar from '../components/NavBarAddressBar.vue';
