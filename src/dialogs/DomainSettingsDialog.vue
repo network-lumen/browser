@@ -76,7 +76,7 @@ import UiButton from '../ui/UiButton.vue';
 import UiCard from '../ui/UiCard.vue';
 import UiInput from '../ui/UiInput.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
-import { Settings } from 'lucide-vue-next';
+import { Settings, X } from 'lucide-vue-next';
 import type { SettingsRecord } from '../types/domainPage';
 
 /**
