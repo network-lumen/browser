@@ -57,7 +57,16 @@
               <Info class="flex-shrink-0 color-primary mt-4px" :size="20" />
               <div class="flex flex-column gap-4px">
                 <strong class="text-15px txt-weight-light color-text-primary">{{ t('Withdraw staking rewards') }}</strong>
+                <!--
+                  The amount, because the button claimed an unknown sum: this
+                  panel asked the user to sign a transaction without telling them
+                  what it was worth, which is also the only way to notice there
+                  is nothing to claim before paying for the attempt.
+                -->
                 <p class="m-0px text-13px color-text-secondary line-height-14">{{ t('This will claim all pending rewards from this validator to your wallet.') }}</p>
+                <span class="mt-4px txt-weight-medium text-15px" :class="hasRewards ? 'color-success' : 'color-text-tertiary'">
+                  {{ t('Pending rewards: {amount} LMN', { amount: pendingRewards }) }}
+                </span>
               </div>
             </div>
           </div>
@@ -141,7 +150,7 @@ import type { Validator } from '../types/explorerPage';
  * "Transaction failed" under a Try again button. Outcomes are toasts now, like
  * the wallet's.
  */
-defineProps<{
+const props = defineProps<{
   modelValue: boolean;
   selectedValidator: { moniker?: string; address?: string } | null;
   stakedBalance: string;
@@ -151,7 +160,11 @@ defineProps<{
   stakeActions: StakeAction[];
   canConfirm: boolean;
   isProcessingTx?: boolean;
+  /** Claimable from this validator, already in LMN. */
+  pendingRewards: string;
 }>();
+
+const hasRewards = computed(() => Number(props.pendingRewards) > 0);
 
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void;

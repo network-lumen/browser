@@ -380,12 +380,37 @@
 
         <!-- ####### EXPLORER: VALIDATORS VIEW ####### -->
         <div v-else-if="currentView === 'validators'" class="border-radius-12px p-32px bg-transparent overflow-visible">
+          <!--
+            The whole position in one line, above the per-validator breakdown.
+            Stake sits in three states at once and the chain reports each of them
+            separately; without this, working out what you own means reading
+            every row and adding them up.
+          -->
+          <div v-if="hasAnyStake" class="flex-align-center flex-wrap-wrap gap-24px mb-16px py-12px px-20px bg-secondary border-radius-12px border-1">
+            <div class="flex flex-column gap-2px">
+              <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Staked') }}</span>
+              <span class="txt-weight-medium color-text-primary text-15px">{{ formatUlmn(stakeTotals.staked) }} LMN</span>
+            </div>
+            <div class="flex flex-column gap-2px" v-if="stakeTotals.unbonding > 0">
+              <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Unbonding') }}</span>
+              <span class="txt-weight-medium color-warning text-15px">{{ formatUlmn(stakeTotals.unbonding) }} LMN</span>
+            </div>
+            <div class="flex flex-column gap-2px">
+              <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Pending rewards') }}</span>
+              <span class="txt-weight-medium color-success text-15px">{{ formatRewards(stakeTotals.rewards) }} LMN</span>
+            </div>
+            <div class="flex flex-column gap-2px">
+              <span class="color-text-tertiary text-uppercase text-10px letter-spacing-005em">{{ t('Validators') }}</span>
+              <span class="txt-weight-medium color-text-primary text-15px">{{ stakeTotals.validatorCount }}</span>
+            </div>
+          </div>
+
           <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-sm backdrop-blur">
-            <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-120-160-100-110-120">
+            <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-170-160-100-110-120">
               <div>#</div>
               <div>{{ t('Validator') }}</div>
               <div>{{ t('Voting power %') }}</div>
-              <div>{{ t('24h changes') }}</div>
+              <div>{{ t('My position') }}</div>
               <div>{{ t('Cumulative share %') }}</div>
               <div>{{ t('Commission %') }}</div>
               <div>{{ t('Uptime %') }}</div>
@@ -393,7 +418,7 @@
             </div>
             
             <div class="max-h-600px flex flex-column overflow-y-auto">
-              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-recipe explorer-table-row-recipe grid-cols-50-220-200-120-160-100-110-120 active-scale-998 hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
+              <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-recipe explorer-table-row-recipe grid-cols-50-220-200-170-160-100-110-120 active-scale-998 hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
                 <div class="flex-align-center text-14px">
                   <span class="txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
                 </div>
@@ -418,8 +443,27 @@
                     <div class="color-text-tertiary fw-500 text-11px">{{ formatVotingPower(validator.tokens) }} LMN</div>
                   </div>
                 </div>
+                <!--
+                  This column read "24h changes" and drew an em-dash for every
+                  validator, always - a heading for a feature that was never
+                  written. It now carries what the user actually has here, which
+                  is the one thing the explorer could not tell them: after a
+                  redelegation the source row goes to zero and the destination
+                  row shows the stake, so the money is visibly somewhere.
+                -->
                 <div class="flex-align-center text-14px">
-                  <span class="txt-weight-light text-14px">—</span>
+                  <div v-if="hasStakePosition(positionFor(validator.address))" class="flex flex-column gap-2px w-full">
+                    <span v-if="positionFor(validator.address)!.staked > 0" class="txt-weight-medium color-text-primary text-13px">
+                      {{ t('Staked: {amount} LMN', { amount: formatUlmn(positionFor(validator.address)!.staked) }) }}
+                    </span>
+                    <span v-if="positionFor(validator.address)!.unbonding > 0" class="color-warning text-11px txt-weight-light">
+                      {{ t('Unbonding: {amount} LMN', { amount: formatUlmn(positionFor(validator.address)!.unbonding) }) }}
+                    </span>
+                    <span v-if="positionFor(validator.address)!.rewards > 0" class="color-success text-11px txt-weight-light">
+                      {{ t('Rewards: {amount} LMN', { amount: formatRewards(positionFor(validator.address)!.rewards) }) }}
+                    </span>
+                  </div>
+                  <span v-else class="txt-weight-light color-text-tertiary text-14px">—</span>
                 </div>
                 <div class="flex-align-center text-14px">
                   <div class="flex-align-justify-center relative size-64px">
@@ -529,7 +573,7 @@
     </div>
 
     <!-- ####### EXPLORER: STAKE MANAGEMENT MODAL ####### -->
-    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @set-percentage="setStakePercentage" />
+    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :pending-rewards="selectedValidatorRewards" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @set-percentage="setStakePercentage" />
 
     <!-- ####### GOVERNANCE: CREATE PROPOSAL MODAL ####### -->
     <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" />
@@ -566,6 +610,8 @@ import { formatNumber } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
 import { classifyBroadcastResult } from '../services/broadcastOutcome';
 import { stakeActionLabel } from '../services/stakeActions';
+import { buildStakePositions, hasStakePosition, totalStakePosition } from '../services/stakePositions';
+import type { StakePosition, StakePositionMap } from '../../types/stakePosition';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
 import CastVoteDialog from '../../dialogs/CastVoteDialog.vue';
 import CreateProposalDialog from '../../dialogs/CreateProposalDialog.vue';
@@ -1287,6 +1333,7 @@ async function fetchAllData() {
     await fetchValidators();
     await fetchBlocks();
     await fetchSupplyStats({ force: true });
+    void fetchStakePositions();
     if (currentView.value === 'transactions' || currentView.value === 'overview') {
       await fetchTransactions();
     }
@@ -1464,6 +1511,73 @@ async function fetchStakeBalances(validatorAddress: string) {
   }
 }
 
+/**
+ * Everything the wallet holds with every validator, refreshed as one snapshot.
+ *
+ * Per-validator queries were what made a redelegation look like a loss: the
+ * dialog asked about the validator the stake had just left, got zero, and said
+ * so. Three queries covering all validators at once cannot produce that answer.
+ */
+const stakePositions = ref<StakePositionMap>({});
+const stakePositionsLoading = ref(false);
+
+function positionFor(validatorAddress: string): StakePosition | undefined {
+  return stakePositions.value[validatorAddress];
+}
+
+const stakeTotals = computed(() => totalStakePosition(stakePositions.value));
+
+/** What the open dialog can claim, so its Withdraw panel can name a figure. */
+const selectedValidatorRewards = computed(() => {
+  const address = selectedValidator.value?.address || '';
+  return formatRewards(address ? stakePositions.value[address]?.rewards || 0 : 0);
+});
+const hasAnyStake = computed(() => stakeTotals.value.validatorCount > 0);
+
+/** ulmn to a readable LMN figure; six decimals is the chain's own precision. */
+function formatUlmn(amount: number): string {
+  return (Number(amount || 0) / 1_000_000).toFixed(6);
+}
+
+/** Rewards are small and accrue continuously, so they get more room than a whole LMN. */
+function formatRewards(amount: number): string {
+  return (Number(amount || 0) / 1_000_000).toFixed(6);
+}
+
+async function fetchStakePositions() {
+  const profileAddress = activeProfile.value?.address || activeProfile.value?.walletAddress;
+  const walletApi = useInternalLumen()?.wallet;
+  if (!profileAddress || !walletApi) {
+    stakePositions.value = {};
+    return;
+  }
+
+  stakePositionsLoading.value = true;
+  try {
+    const [delegationsRes, unbondingRes, rewardsRes] = await Promise.all([
+      typeof walletApi.getDelegations === 'function'
+        ? walletApi.getDelegations(profileAddress).catch(() => null)
+        : Promise.resolve(null),
+      typeof walletApi.getUnbondingDelegations === 'function'
+        ? walletApi.getUnbondingDelegations(profileAddress).catch(() => null)
+        : Promise.resolve(null),
+      typeof walletApi.getStakingRewards === 'function'
+        ? walletApi.getStakingRewards(profileAddress).catch(() => null)
+        : Promise.resolve(null),
+    ]);
+
+    stakePositions.value = buildStakePositions({
+      delegations: delegationsRes?.ok !== false ? delegationsRes?.delegations : null,
+      unbonding: unbondingRes?.ok !== false ? unbondingRes?.unbonding : null,
+      rewards: rewardsRes?.ok !== false ? rewardsRes?.rewards : null,
+    });
+  } catch (error) {
+    console.error('Failed to fetch stake positions:', error);
+  } finally {
+    stakePositionsLoading.value = false;
+  }
+}
+
 function closeStakeModal() {
   showStakeModal.value = false;
   selectedValidator.value = null;
@@ -1489,6 +1603,9 @@ function schedulePostStakeRefresh(validatorAddress: string) {
   const run = () => {
     void fetchValidators();
     void fetchStakeBalances(validatorAddress);
+    // Not per-validator: a redelegation lands on a validator this address knows
+    // nothing about, and a withdrawal changes a third one's rewards.
+    void fetchStakePositions();
   };
   run();
   for (const delay of [1500, 5000, 15000, 30000, 60000, 120000]) {
@@ -1497,6 +1614,17 @@ function schedulePostStakeRefresh(validatorAddress: string) {
 }
 
 onBeforeUnmount(clearPendingStakeRefreshes);
+
+// Switching profile switches wallets, and the previous one's stake is not this
+// one's. `immediate` because the page is often mounted with a profile already
+// active, and a watcher that only fires on change would leave the table blank.
+watch(
+  () => activeProfile.value?.address || activeProfile.value?.walletAddress || '',
+  () => {
+    void fetchStakePositions();
+  },
+  { immediate: true }
+);
 
 function setStakePercentage(percentage: number) {
   stakePercentage.value = percentage;

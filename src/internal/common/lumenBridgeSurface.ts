@@ -100,7 +100,8 @@ export const REQUIRED_NAMESPACES = {
   ],
   wallet: [
     'getBalance', 'getTokenomicsParams', 'sendTokens', 'ibcTransfer', 'listSendTxs',
-    'getDelegations', 'delegate', 'undelegate', 'redelegate', 'withdrawRewards',
+    'getDelegations', 'getUnbondingDelegations', 'getStakingRewards',
+    'delegate', 'undelegate', 'redelegate', 'withdrawRewards',
     'govSubmitProposal', 'govVote'
   ],
   gateway: [
