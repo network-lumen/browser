@@ -34,19 +34,19 @@
       </UiPageHeader>
 
       <!-- Advanced gateway management -->
-      <div class="overflow-y-auto">
-        <div v-if="privateGateways.length > 0">
-          <div class="flex-align-center-justify-space-between">
+      <div class="overflow-y-auto flex flex-column gap-24px">
+        <div v-if="privateGateways.length > 0" class="flex flex-column gap-12px">
+          <div class="flex-align-center-justify-space-between gap-16px">
             <h2 class="color-text-primary txt-weight-light m-0px text-20px">{{ t('Private gateways') }}</h2>
             <a href="lumen://my-gateways" @click.prevent="navigate?.('lumen://my-gateways', { push: true })" class="hover-opacity-80 color-primary text-14px transition-opacity-02 hover-underline">
               {{ t('Manage private gateways →') }}
             </a>
           </div>
-          <div class="grid grid-cols-auto-fill-280">
-            <UiCard v-for="gw in privateGateways" :key="gw.id" padding="none" border-class="border-1" radius="0" :shadow="false" hoverable hover-class="transition-all-02 hover-border-primary hover-lift-2 hover-shadow-md">
-              <div class="flex-align-center mb-12px">
-                <div class="w-10px h-10px bg-text-tertiary" :class="{ 'bg-success': gw.status === 'active' }"></div>
-                <span class="text-11px letter-spacing-005em py-4px px-12px bg-indigo-a15 color-indigo">{{ t('Private') }}</span>
+          <div class="grid gap-16px grid-cols-auto-fill-280">
+            <UiCard v-for="gw in privateGateways" :key="gw.id" padding="lg" border-class="border-1" radius="16px" :shadow="false" hoverable hover-class="transition-all-02 hover-border-primary hover-lift-2 hover-shadow-md">
+              <div class="flex-align-center gap-8px mb-12px">
+                <div class="w-10px h-10px border-radius-circle bg-text-tertiary" :class="{ 'bg-success': gw.status === 'active' }"></div>
+                <span class="text-11px letter-spacing-005em border-radius-full py-4px px-12px bg-indigo-a15 color-indigo">{{ t('Private') }}</span>
               </div>
               <h3 class="color-text-primary text-16px m-0px mb-8px">{{ gw.name }}</h3>
               <p class="mono color-text-secondary text-13px break-all m-0px mb-12px">{{ gw.url }}</p>
@@ -57,10 +57,9 @@
           </div>
         </div>
 
-        <div v-if="hasProfile">
-          <div class="flex-align-center-justify-space-between">
-            <h2 class="color-text-primary txt-weight-light m-0px text-20px">{{ t('DAO gateways') }}</h2>
-          </div>
+        <div v-if="hasProfile" class="flex flex-column gap-4px">
+          <h2 class="color-text-primary txt-weight-light m-0px text-20px">{{ t('On-chain gateways') }}</h2>
+          <p class="color-text-secondary text-13px m-0px">{{ t('Gateways you registered on the Lumen chain, and the settings other people resolve them by.') }}</p>
         </div>
 
         <UiEmptyState v-if="!hasProfile" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" :title="t('No active profile.')" :description="t('Select or create a profile first.')" />
@@ -79,17 +78,17 @@
           <UiEmptyState v-else-if="!myGateways.length" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" :title="t('No gateways yet')" :description="t('Use “Create gateway” to register your first gateway.')" />
 
           <div v-else class="flex flex-column gap-16px">
-            <UiCard v-for="gw in myGateways" :key="gw.id" padding="none" bg-class="bg-primary" border-class="border-1" radius="16px" :shadow="false">
-              <header class="flex-align-center-justify-space-between">
+            <UiCard v-for="gw in myGateways" :key="gw.id" padding="lg" bg-class="bg-primary" border-class="border-1" radius="16px" :shadow="false">
+              <header class="flex-align-center-justify-space-between gap-16px mb-16px">
                 <div class="flex-align-center gap-10px min-w-0">
-                  <div class="w-10px h-10px bg-text-tertiary" :class="{ 'bg-success': gw.active }"></div>
+                  <div class="w-10px h-10px border-radius-circle bg-text-tertiary" :class="{ 'bg-success': gw.active }"></div>
                   <span class="color-text-primary truncate max-w-520px" :title="gw.endpoint || t('Gateway #{id}', { id: gw.id })">
                     {{ gw.endpoint || t('Gateway #{id}', { id: gw.id }) }}
                   </span>
                   <span class="mono color-text-tertiary text-12px">#{{ gw.id }}</span>
                 </div>
-                <div>
-                  <span class="text-11px py-4px px-10px" :class="gw.active ? 'bg-fill-success' : 'bg-yellow-a15'">
+                <div class="flex-shrink-0">
+                  <span class="text-11px border-radius-full py-4px px-10px" :class="gw.active ? 'bg-fill-success' : 'bg-yellow-a15'">
                     {{ gw.active ? t('Active') : t('Inactive') }}
                   </span>
                 </div>
@@ -97,14 +96,14 @@
 
               <GatewayFields v-if="editMap[gw.id]" :form="editMap[gw.id]" with-active memo-class="grid-col-full" />
 
-              <div v-if="editMap[gw.id]?.error" class="mt-12px p-12px border-1-error-a25 bg-error-a08">
+              <div v-if="editMap[gw.id]?.error" class="mt-12px p-12px border-radius-10px border-1-error-a25 bg-error-a08">
                 {{ editMap[gw.id].error }}
               </div>
-              <div v-if="editMap[gw.id]?.txhash" class="mono mt-12px p-12px bg-success-a08 border-1-success-a25">
+              <div v-if="editMap[gw.id]?.txhash" class="mono mt-12px p-12px border-radius-10px bg-success-a08 border-1-success-a25">
                 tx: {{ editMap[gw.id].txhash }}
               </div>
 
-              <footer class="flex flex-justify-end">
+              <footer class="flex flex-justify-end gap-8px mt-16px">
                 <UiButton variant="secondary" type="button"
                   @click="resetEdit(gw.id)"
                   :disabled="editMap[gw.id].busy">

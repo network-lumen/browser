@@ -45,6 +45,12 @@ export type SubscriptionView = {
   id: string;
   gatewayId: string;
   status: string;
+  /**
+   * When the paid months run out, in ms. The chain leaves `status` at "active"
+   * long after this - a contract only closes once the operator claims it - so
+   * this is what says whether a plan still covers anything.
+   */
+  expiresAt?: number;
   metadata?: Record<string, any>;
 };
 

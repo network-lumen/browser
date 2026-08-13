@@ -141,7 +141,7 @@
           <UiBanner v-if="assetsError && assetRows.length" variant="warning" class="mb-16px">
             <span>{{ assetsError }}</span>
           </UiBanner>
-          <div v-if="assetRows.length" class="flex flex-column mt-16px gap-16px">
+          <div v-if="assetRows.length" class="flex flex-column gap-16px">
             <div
               v-for="asset in assetRows"
               :key="asset.id"
@@ -518,7 +518,7 @@
     <AssetTransferDialog :model-value="showAssetTransferModal" :context="assetTransferContext" :form="assetTransferForm" :selected-target="selectedAssetTransferTarget" :can-submit="canSubmitAssetTransfer" :validate-amount-input="validateAssetTransferAmountInput" :sending="assetTransferSending" @update:model-value="closeAssetTransferModal" @submit="confirmAssetTransfer" />
 
     <!-- ####### lumen://wallet SEND MODAL ####### -->
-    <SendTokensDialog :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" v-model:show-contact-picker="showContactPicker" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSendPreview" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
+    <SendTokensDialog :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" :show-first-transaction-notice="showFirstTransactionNotice" v-model:show-contact-picker="showContactPicker" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSendPreview" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
 
     <!-- ####### lumen://wallet RECEIVE MODAL ####### -->
     <ReceiveDialog :model-value="showReceiveModal" :address="address" :qr-data-url="qrCodeDataUrl" @update:model-value="closeReceiveModal" @copy="copyAddressWithToast" />
@@ -665,6 +665,28 @@ const balanceLoading = ref(false);
 const balanceError = ref('');
 
 const showSendModal = ref(false);
+
+/**
+ * The first transaction from a wallet with no Dilithium key on this device has
+ * to create one and link it on chain, which is the up-to-a-minute wait the send
+ * dialog warns about. Anyone whose key already exists locally has been through
+ * that once and does not need telling again.
+ */
+const showFirstTransactionNotice = ref(true);
+
+watch([showSendModal, address], async ([open, addr]) => {
+  if (!open) return;
+  const pqcApi = useInternalLumen()?.pqc;
+  if (typeof pqcApi?.hasLocalKey !== 'function') {
+    showFirstTransactionNotice.value = true;
+    return;
+  }
+  const res = await pqcApi
+    .hasLocalKey({ profileId: activeProfileId.value, address: addr })
+    .catch(() => null);
+  showFirstTransactionNotice.value = !res?.hasLocalKey;
+});
+
 const showReceiveModal = ref(false);
 const sendingTransaction = ref(false);
 const qrCodeDataUrl = ref<string>('');

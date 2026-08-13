@@ -5,7 +5,7 @@
         <template #icon><Send :size="20" /></template>
       </UiModalHeader>
     </template>
-          <UiBanner class="mb-24px">
+          <UiBanner v-if="assetContext || showFirstTransactionNotice" class="mb-24px">
             <span v-if="assetContext">
               <template v-if="isIbcSend">
                 {{ t('Move this asset from {chain} to another linked chain over IBC.', { chain: sourceChainLabel }) }}
@@ -63,23 +63,28 @@
           <UiFormGroup required :label="isIbcSend ? t('Destination address') : t('Recipient')">
             <div class="relative">
               <div class="relative">
-                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" padding-class="py-12px px-16px" :focus-ring="false" type="text"
+                <!-- The buttons float over the field, so the text has to stop
+                     before them: an address is exactly the kind of value you
+                     read to the last character. -->
+                <UiInput bg-class="bg-card" radius-class="border-radius-10px" border-class="border-2" font-size-class="text-15px" :padding-class="recipientPaddingClass" :focus-ring="false" type="text"
                   v-model="form.recipient"
                   :placeholder="recipientPlaceholder" class="mono focus-outline-none focus-ring focus-shadow bg-secondary-read-only placeholder-tertiary" />
-                <UiButton variant="secondary" @click="$emit('scan-qr')"
-                  type="button"
-                  :title="t('Scan QR code')" class="hover-bg-accent-color-white absolute top-half translate-y-center right-12px">
-                  <QrCode :size="16" />
-                </UiButton>
-                <button
-                  v-if="contacts.length > 0"
-                  class="hover-bg-accent-color-white flex-align-justify-center color-text-secondary cursor-pointer absolute p-8px border-none bg-hover border-radius-6px transition-all-02 top-half translate-y-center right-3-5rem"
-                  @click="showContactPicker = !showContactPicker"
-                  type="button"
-                  :title="t('Select from contacts')"
-                >
-                  <Users :size="16" />
-                </button>
+                <div class="flex-align-center gap-6px absolute top-half translate-y-center right-8px">
+                  <button
+                    v-if="contacts.length > 0"
+                    class="hover-bg-accent-color-white flex-align-justify-center color-text-secondary cursor-pointer p-8px border-none bg-hover border-radius-6px transition-all-02"
+                    @click="showContactPicker = !showContactPicker"
+                    type="button"
+                    :title="t('Select from contacts')"
+                  >
+                    <Users :size="16" />
+                  </button>
+                  <UiButton variant="secondary" @click="$emit('scan-qr')"
+                    type="button"
+                    :title="t('Scan QR code')" class="hover-bg-accent-color-white">
+                    <QrCode :size="16" />
+                  </UiButton>
+                </div>
               </div>
               <div v-if="showContactPicker" class="border-radius-12px absolute top-full mt-8px bg-card border-1 overflow-hidden z-100 left-0 right-0 shadow-md">
                 <div class="flex-align-center-justify-space-between txt-weight-light color-text-primary py-12px px-16px bg-secondary border-bottom-1 text-14px">
@@ -124,16 +129,19 @@
             <UiSummaryRow v-if="isIbcSend" highlight :label="t('Destination chain')" :value="summary.destinationChain" />
           </UiSummaryCard>
 
-          <UiButton variant="primary" @click="$emit('submit')" :disabled="!canSend || sending" class="disabled-fade-50">
-            <Send :size="18" v-if="!sending" />
-            <UiSpinner v-else size="sm" class="spinner-color-white" />
-            <span>{{ primaryActionLabel }}</span>
-          </UiButton>
+          <div class="flex flex-justify-end mt-16px">
+            <UiButton variant="primary" @click="$emit('submit')" :disabled="!canSend || sending" class="disabled-fade-50">
+              <Send :size="18" v-if="!sending" />
+              <UiSpinner v-else size="sm" class="spinner-color-white" />
+              <span>{{ primaryActionLabel }}</span>
+            </UiButton>
+          </div>
   </UiModal>
 </template>
 
 <script setup lang="ts">
 import { t } from '../stores/i18nStore';
+import { computed } from 'vue';
 import UiModal from '../ui/UiModal.vue';
 import UiModalHeader from '../ui/UiModalHeader.vue';
 import UiBanner from '../ui/UiBanner.vue';
@@ -143,7 +151,7 @@ import UiInput from '../ui/UiInput.vue';
 import UiSummaryCard from '../ui/UiSummaryCard.vue';
 import UiSummaryRow from '../ui/UiSummaryRow.vue';
 import UiSpinner from '../ui/UiSpinner.vue';
-import { QrCode, Send, Users } from 'lucide-vue-next';
+import { QrCode, Send, Users, X } from 'lucide-vue-next';
 import { maskDecimalInput } from '../internal/services/inputMasks';
 import type { IbcChannelOption, SendForm, IbcForm, SendTargetMode } from '../types/walletPage';
 
@@ -182,6 +190,12 @@ const props = defineProps<{
    */
   showTaxBreakdown: boolean;
   sending?: boolean;
+  /**
+   * Whether this wallet still has to create and link its Dilithium key, which
+   * is what makes a first transaction slow. Once it has one, the wait is not
+   * news to anyone and the notice only takes up room.
+   */
+  showFirstTransactionNotice?: boolean;
 }>();
 
 defineEmits<{
@@ -195,6 +209,11 @@ defineEmits<{
 function onAmountInput(event: Event) {
   props.form.amount = maskDecimalInput(event);
 }
+
+/** Room for whichever buttons sit inside the field's right edge. */
+const recipientPaddingClass = computed(() =>
+  props.contacts.length > 0 ? 'py-12px pl-16px pr-116px' : 'py-12px pl-16px pr-76px',
+);
 
 /**
  * Whether the contact list is unfolded. It stays with the page because the
