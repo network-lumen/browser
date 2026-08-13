@@ -85,7 +85,14 @@ export type DexListingConfig = {
   baseUrl: string;
   openUrl?: string;
   logoUrl: string;
-  logoTheme?: 'default' | 'dark';
+  /**
+   * The plate drawn behind the logo. A mark designed to sit on the brand's own
+   * dark background disappears against the card, so it gets one back: `dark`
+   * is the neutral slate, `navy` the near-black blue Osmosis draws its own mark
+   * on. Named after the colour rather than the DEX, since the next light mark
+   * to arrive will want one of these two and not a third.
+   */
+  logoTheme?: 'default' | 'dark' | 'navy';
   iconText: string;
   description: string;
   fallbackLinks: DexQuickLink[];

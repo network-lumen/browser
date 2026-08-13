@@ -61,6 +61,7 @@
 .bg-primary-a10 { background: var(--primary-a10); }
 .bg-primary-a15 { background: var(--primary-a15); }
 .bg-rgba-185-28-28-a20 { background: rgba(185, 28, 28, 0.2); }
+.bg-navy-950 { background: rgb(9, 5, 36); }
 .bg-rgba-37-99-235-a18 { background: rgba(37, 99, 235, 0.18); }
 .bg-secondary { background: var(--bg-secondary); }
 .bg-secondary-hover-not-disabled-not-active:hover:not(:disabled):not(.active) { background: var(--bg-secondary); }
@@ -82,6 +83,7 @@
 .border-color-primary-a30-hover:hover { border-color: var(--primary-a30); }
 .border-color-primary-a30-hover-not-disabled-not-active:hover:not(:disabled):not(.active) { border-color: var(--primary-a30); }
 .border-color-primary-a50-focus-within:focus-within { border-color: var(--primary-a50); }
+.border-color-navy-950-a65 { border-color: rgba(9, 5, 36, 0.65); }
 .border-color-slate-900-a65 { border-color: rgba(17, 24, 39, 0.65); }
 .color-accent-secondary { color: var(--color-secondary); }
 .color-error { color: var(--color-error); }
