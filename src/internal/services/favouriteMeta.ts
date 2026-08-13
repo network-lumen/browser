@@ -1,5 +1,5 @@
-import { markForTranslation } from './services/i18n';
-import { t } from '../stores/i18nStore';
+import { markForTranslation } from './i18n';
+import { t } from '../../stores/i18nStore';
 import {
   canonicalizeLumenUrl,
   getFileUrlTitle,
@@ -7,8 +7,8 @@ import {
   isHttpUrl,
   isLumenUrl,
 } from "./navigationUrl";
-import type { FavouriteKind, FavouriteMeta } from "../types/favourites";
-import { safeDecodeUriComponent } from "./services/coerce";
+import type { FavouriteKind, FavouriteMeta } from "../../types/favourites";
+import { safeDecodeUriComponent } from "./coerce";
 
 export type { FavouriteKind, FavouriteMeta };
 

@@ -51,7 +51,7 @@ import NavBarAddressBar from '../components/NavBarAddressBar.vue';
 import NavBarExtensionsMenu from '../components/NavBarExtensionsMenu.vue';
 import NavBarProfileMenu from '../components/NavBarProfileMenu.vue';
 import { useFavourites } from '../stores/favouritesStore';
-import { normalizeAddressInput } from '../internal/navigationUrl';
+import { normalizeAddressInput } from '../internal/services/navigationUrl';
 import { clamp } from '../internal/services/coerce';
 import type { Tab } from '../types/tab';
 

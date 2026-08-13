@@ -113,7 +113,7 @@ import DuePaymentsPrompt from './DuePaymentsPrompt.vue';
 import ReleaseUpdateOverlay from '../dialogs/ReleaseUpdateOverlay.vue';
 import LumenSiteModalHost from './LumenSiteModalHost.vue';
 import { INTERNAL_ROUTE_KEYS, getInternalTitle } from '../internal/routes';
-import { isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/navigationUrl';
+import { isExtensionUrl, normalizeTabUrl, parseExtensionTabUrl } from '../internal/services/navigationUrl';
 import { normalizeHistoryUrlForComparison, useHistory } from '../stores/historyStore';
 import { activeProfileId, initProfiles, profilesState } from '../stores/profilesStore';
 import { useInternalLumen } from '../composables/useInternalLumen';

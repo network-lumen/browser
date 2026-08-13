@@ -1,5 +1,5 @@
 import { getInternalTitle } from '../routes';
-import { normalizeTabUrl } from '../navigationUrl';
+import { normalizeTabUrl } from '../services/navigationUrl';
 import type { Tab, TabHistoryEntry } from '../../types/tab';
 
 

@@ -364,7 +364,7 @@ import UiCard from '../../ui/UiCard.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { useTabLoadingSync } from "../useTabLoading";
+import { useTabLoadingSync } from "../../composables/useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   ArrowUpRight,
@@ -391,7 +391,7 @@ import { localIpfsGatewayBase } from "../services/contentResolver";
 import { appSettingsState } from "../services/appSettings";
 import { clamp01, errorMessage } from '../services/coerce';
 import HowSearchWorksDialog from '../../dialogs/HowSearchWorksDialog.vue';
-import { normalizeHttpBaseUrl } from '../navigationUrl';
+import { normalizeHttpBaseUrl } from '../services/navigationUrl';
 import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
 import { useToast } from "../../composables/useToast";
 import {

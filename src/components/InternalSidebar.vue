@@ -67,7 +67,7 @@ import UiSiteIcon from '../ui/UiSiteIcon.vue';
  import { X } from 'lucide-vue-next';
  import { profilesState, activeProfileId } from '../stores/profilesStore';
  import { useFavourites } from '../stores/favouritesStore';
- import { describeFavouriteUrl } from '../internal/favouriteMeta';
+ import { describeFavouriteUrl } from '../internal/services/favouriteMeta';
 
 import ActiveProfileCard from './ActiveProfileCard.vue';
 import AllPagesDropdown from './AllPagesDropdown.vue';

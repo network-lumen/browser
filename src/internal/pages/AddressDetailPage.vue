@@ -105,7 +105,7 @@ import UiCardHeader from '../../ui/UiCardHeader.vue';
 import UiIconBadge from '../../ui/UiIconBadge.vue';
 import { Clock, Activity } from 'lucide-vue-next';
 import { ref, onMounted, computed, watch } from 'vue';
-import { useTabLoadingSync } from '../useTabLoading';
+import { useTabLoadingSync } from '../../composables/useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatMicroAmount } from '../services/format';
 import { explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';

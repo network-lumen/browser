@@ -85,7 +85,7 @@ import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMoun
 import { FileQuestion, Tag } from "lucide-vue-next";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import UiEmptyState from "../../ui/UiEmptyState.vue";
-import { useTabLoadingSync } from "../useTabLoading";
+import { useTabLoadingSync } from "../../composables/useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   buildCandidateUrl,

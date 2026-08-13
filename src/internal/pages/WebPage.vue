@@ -41,8 +41,8 @@
 <script setup lang="ts">
 import { t } from '../../stores/i18nStore';
  import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
- import { buildExtensionTabUrl, isBrowserUrl, isExtensionUrl } from "../navigationUrl";
- import { useTabLoadingSync } from "../useTabLoading";
+ import { buildExtensionTabUrl, isBrowserUrl, isExtensionUrl } from "../services/navigationUrl";
+ import { useTabLoadingSync } from "../../composables/useTabLoading";
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import {
   findExtensionByRuntimeId as findExtensionInList,

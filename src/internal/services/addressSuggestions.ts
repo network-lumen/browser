@@ -1,5 +1,5 @@
-import { describeFavouriteUrl } from '../favouriteMeta';
-import { canonicalizeLumenUrl, isLumenUrl } from '../navigationUrl';
+import { describeFavouriteUrl } from '../services/favouriteMeta';
+import { canonicalizeLumenUrl, isLumenUrl } from '../services/navigationUrl';
 import type {
   AddressSuggestion,
   AddressSuggestionCandidate,

@@ -1,5 +1,5 @@
-import { t } from '../stores/i18nStore';
-import { safeDecodeUriComponent } from './services/coerce';
+import { t } from '../../stores/i18nStore';
+import { safeDecodeUriComponent } from './coerce';
 
 const LUMEN_URL_RE = /^\s*lumen:\/\//i;
 const HTTP_URL_RE = /^\s*https?:\/\//i;
@@ -8,7 +8,7 @@ const EXTENSION_URL_RE = /^\s*chrome-extension:\/\//i;
 const WINDOWS_DRIVE_PATH_RE = /^[a-zA-Z]:[\\/]/;
 const WINDOWS_UNC_PATH_RE = /^\\\\[^\\]+\\[^\\]+/;
 
-import type { ExtensionTabRoute } from "../types/navigation";
+import type { ExtensionTabRoute } from "../../types/navigation";
 
 export type { ExtensionTabRoute };
 

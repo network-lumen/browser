@@ -7,7 +7,7 @@ import {
   isFileUrl,
   isHttpUrl,
   isLumenUrl,
-} from "../internal/navigationUrl";
+} from "../internal/services/navigationUrl";
 import type { HistoryEntry, HistorySettings, HistoryMap, HistorySettingsMap } from "../types/history";
 import { STORAGE_KEYS, readJson, writeJson } from "../internal/services/storage";
 

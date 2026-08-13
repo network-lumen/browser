@@ -251,7 +251,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { Server, List, Plus, Edit2, Trash2, AlertCircle, Key, Play, Pause } from 'lucide-vue-next';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
-import { useTabLoadingSync } from '../useTabLoading';
+import { useTabLoadingSync } from '../../composables/useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatDate, shortenAddress } from '../services/format';
 import AddressLabel from '../../entities/AddressLabel.vue';
