@@ -99,7 +99,7 @@ import UiMenuItem from '../ui/UiMenuItem.vue';
 import UiToggle from '../ui/UiToggle.vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
 import { useTabNavigation } from '../composables/useTabNavigation';
-import { buildExtensionTabUrl } from '../internal/navigationUrl';
+import { buildExtensionTabUrl } from '../internal/services/navigationUrl';
 import { errorMessage } from '../internal/services/coerce';
 import type { NavBarExtensionSummary } from '../types/navBar';
 

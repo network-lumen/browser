@@ -46,8 +46,8 @@ import {
   isBrowserUrl,
   isExtensionUrl,
   parseExtensionTabUrl,
-} from "../navigationUrl";
-import { useTabLoadingSync } from "../useTabLoading";
+} from "../services/navigationUrl";
+import { useTabLoadingSync } from "../../composables/useTabLoading";
 import type { InstalledExtension } from "../../types/extension";
 import {
   getWebviewWebContentsId,

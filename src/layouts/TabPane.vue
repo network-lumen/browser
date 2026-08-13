@@ -16,7 +16,7 @@ import {
   INTERNAL_ROUTE_KEYS,
   resolveInternalComponent,
 } from "../internal/routes";
-import { isBrowserUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
+import { isBrowserUrl, parseExtensionTabUrl } from "../internal/services/navigationUrl";
 import type { Tab } from "../types/tab";
 import { navigateTabToInternalUrl } from '../internal/services/tabHistory';
 import { tabCurrentUrl } from '../internal/services/tabPosition';

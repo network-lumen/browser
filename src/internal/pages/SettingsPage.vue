@@ -884,7 +884,7 @@ import { useTheme } from '../../composables/useTheme';
 import { t, useI18n } from '../../stores/i18nStore';
 import { STORAGE_KEYS, readString, writeString } from '../services/storage';
 import { clamp, errorMessage } from '../services/coerce';
-import { normalizeHttpBaseUrl } from '../navigationUrl';
+import { normalizeHttpBaseUrl } from '../services/navigationUrl';
 import { useToast } from '../../composables/useToast';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
 import { useHistory } from '../../stores/historyStore';

@@ -214,7 +214,7 @@ import {
 import { profilesState, activeProfileId } from '../../stores/profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import { useToast } from '../../composables/useToast';
-import { useTabLoadingSync } from '../useTabLoading';
+import { useTabLoadingSync } from '../../composables/useTabLoading';
 import { copyToClipboardWithToast } from '../../composables/useClipboard';
 import { loadStableLinkRecords } from '../services/contentResolver';
 import type { DomainRow, RawDomainRow, SettingsRecord , DomainRegisterForm } from '../../types/domainPage';

@@ -62,7 +62,11 @@ const WATCHED = [
 const UNREACHABLE = new Map([
   [
     'src/internal/services/tabHistory.ts',
-    'Reads page titles from the route table, which imports every page. Importing it from a test pulls in a page that calls the Electron bridge as its module loads, and the import throws before the test runs. The read side of the same concern lives in tabPosition.ts, which is dependency-free and is tested.',
+    'Reads page titles from the route table, which imports every page - and the unit tests run without a Vue plugin, so the first .vue file in that chain fails to parse before the test runs. The read side of the same concern lives in tabPosition.ts, which is dependency-free and is tested.',
+  ],
+  [
+    'src/composables/useTabLoading.ts',
+    'Nothing but Vue lifecycle: it injects the tab callback, then wires watch/onActivated/onDeactivated/onBeforeUnmount to it. Outside a component there is no lifecycle to attach to and nothing left to assert - what it decides is when to fire, which is the component the tab renders.',
   ],
   [
     'src/internal/services/paymentReminders.ts',

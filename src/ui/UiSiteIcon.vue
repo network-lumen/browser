@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import type { FavouriteKind } from '../types/favourites';
-import { avatarToneStyle } from '../internal/favouriteMeta';
+import { avatarToneStyle } from '../internal/services/favouriteMeta';
 import { LUMEN_MARK, dropSiteIcon, ensureSiteIcon, siteIconKind, siteIconUrl } from '../internal/services/siteIcons';
 
 defineOptions({ inheritAttrs: false });

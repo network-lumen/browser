@@ -36,7 +36,7 @@
 import { t } from '../stores/i18nStore';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { X } from "lucide-vue-next";
-import { isBrowserUrl, isExtensionUrl } from "../internal/navigationUrl";
+import { isBrowserUrl, isExtensionUrl } from "../internal/services/navigationUrl";
 import { useInternalLumen } from '../composables/useInternalLumen';
 import UiExtensionStatus from '../ui/UiExtensionStatus.vue';
 import type { InstalledExtension } from '../types/extension';

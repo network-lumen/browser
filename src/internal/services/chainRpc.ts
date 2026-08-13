@@ -1,4 +1,4 @@
-import { bytesToHex } from './services/coerce';
+import { bytesToHex } from './coerce';
 
 /** SHA-256 hash (uppercase hex) of a raw base64-encoded Tendermint tx, matching the on-chain tx hash format. */
 export async function computeTxHash(txDataBase64: string): Promise<string> {

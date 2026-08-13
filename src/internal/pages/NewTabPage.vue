@@ -179,11 +179,11 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-vue-next";
-import { describeFavouriteUrl } from "../favouriteMeta";
+import { describeFavouriteUrl } from "../services/favouriteMeta";
 import { FavouriteEntry, useFavourites } from "../../stores/favouritesStore";
 import { useHistory } from "../../stores/historyStore";
 import { profilesState } from "../../stores/profilesStore";
-import { normalizeAddressInput } from "../navigationUrl";
+import { normalizeAddressInput } from "../services/navigationUrl";
 import type { ShortcutDraft, ShortcutModalMode } from "../../types/newTabPage";
 import ShortcutEditorDialog from "../../dialogs/ShortcutEditorDialog.vue";
 import NewTabOnboardingDialog from "../../dialogs/NewTabOnboardingDialog.vue";

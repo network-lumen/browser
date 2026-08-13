@@ -37,7 +37,7 @@ import NavBar from "./NavBar.vue";
 import TabPane from "./TabPane.vue";
 import FindBar from "../components/FindBar.vue";
 import { useInternalLumen } from '../composables/useInternalLumen';
-import { normalizeTabUrl, parseExtensionTabUrl } from "../internal/navigationUrl";
+import { normalizeTabUrl, parseExtensionTabUrl } from "../internal/services/navigationUrl";
 import type { Tab, RegisterFindTargetFn } from "../types/tab";
 import { navigateTabToInternalUrl } from '../internal/services/tabHistory';
 import { tabCurrentUrl } from '../internal/services/tabPosition';

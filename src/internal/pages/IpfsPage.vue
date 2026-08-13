@@ -274,7 +274,7 @@ import { marked } from "marked";
 import { BookOpen, Check, Copy, Download, File, Folder, Play, Save } from "lucide-vue-next";
 import "github-markdown-css/github-markdown.css";
 import UiSpinner from "../../ui/UiSpinner.vue";
-import { useTabLoadingSync } from "../useTabLoading";
+import { useTabLoadingSync } from "../../composables/useTabLoading";
 import {
   localIpfsGatewayBase,
   loadWhitelistedGatewayBases,

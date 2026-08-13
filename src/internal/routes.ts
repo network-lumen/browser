@@ -21,7 +21,7 @@ import TransactionDetailPage from './pages/TransactionDetailPage.vue';
 import AddressDetailPage from './pages/AddressDetailPage.vue';
 import ExtensionsPage from './pages/ExtensionsPage.vue';
 import ExtensionPage from './pages/ExtensionPage.vue';
-import { getFileUrlTitle, isBrowserUrl, isFileUrl, parseExtensionTabUrl } from './navigationUrl';
+import { getFileUrlTitle, isBrowserUrl, isFileUrl, parseExtensionTabUrl } from './services/navigationUrl';
 import { truncateMiddle } from './services/format';
 import type { InternalRoute } from '../types/routes';
 

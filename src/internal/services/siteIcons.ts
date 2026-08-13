@@ -15,7 +15,7 @@
  */
 import { ref } from 'vue';
 import lumenMark from '../../img/favicon.ico';
-import { isHttpUrl, isLumenUrl } from '../navigationUrl';
+import { isHttpUrl, isLumenUrl } from '../services/navigationUrl';
 import {
   buildCandidateUrl,
   localIpfsGatewayBase,
