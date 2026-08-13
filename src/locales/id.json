@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "Unggahan sedang dibatalkan",
   "Upload it to Drive": "Unggah ke Drive",
   "Upload your content to the cloud (Drive / cloud upload).": "Unggah isimu ke awan (Drive atau unggahan cloud).",
+  "Uploaded {count} entries to {gateway}": "{count} entri diunggah ke {gateway}",
+  "Uploaded to {gateway}: {name}": "Diunggah ke {gateway}: {name}",
   "Uploading {name}": "Mengunggah {name}",
   "Uploading to your local node": "Mengunggah ke simpulmu sendiri",
   "Uptime %": "Waktu aktif %",

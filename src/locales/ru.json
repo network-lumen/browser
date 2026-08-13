@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "Загрузка уже отменяется",
   "Upload it to Drive": "Загрузите её в Drive",
   "Upload your content to the cloud (Drive / cloud upload).": "Загрузите содержимое в облако (Drive или загрузка в cloud).",
+  "Uploaded {count} entries to {gateway}": "На {gateway} загружено записей: {count}",
+  "Uploaded to {gateway}: {name}": "Загружено на {gateway}: {name}",
   "Uploading {name}": "Загружается {name}",
   "Uploading to your local node": "Загружается на ваш локальный узел",
   "Uptime %": "Время в сети %",

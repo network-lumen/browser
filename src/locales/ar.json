@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "الرفع قيد الإلغاء بالفعل",
   "Upload it to Drive": "ارفعه إلى Drive",
   "Upload your content to the cloud (Drive / cloud upload).": "ارفع محتواك إلى السحابة (Drive أو الرفع إلى cloud).",
+  "Uploaded {count} entries to {gateway}": "تم رفع {count} من العناصر إلى {gateway}",
+  "Uploaded to {gateway}: {name}": "تم الرفع إلى {gateway}: {name}",
   "Uploading {name}": "يُرفع {name}",
   "Uploading to your local node": "يُرفع إلى عقدتك المحلية",
   "Uptime %": "نسبة التشغيل %",

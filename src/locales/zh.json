@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "上传已在取消中",
   "Upload it to Drive": "把它上传到 Drive",
   "Upload your content to the cloud (Drive / cloud upload).": "把你的内容上传到云端（Drive / 云上传）。",
+  "Uploaded {count} entries to {gateway}": "已将 {count} 项上传到 {gateway}",
+  "Uploaded to {gateway}: {name}": "已上传到 {gateway}：{name}",
   "Uploading {name}": "正在上传 {name}",
   "Uploading to your local node": "正在上传到你的本地节点",
   "Uptime %": "在线率 %",

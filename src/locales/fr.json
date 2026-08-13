@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "L'envoi est déjà en cours d'annulation",
   "Upload it to Drive": "Envoyez-le sur Drive",
   "Upload your content to the cloud (Drive / cloud upload).": "Envoyez votre contenu vers le cloud (Drive / envoi cloud).",
+  "Uploaded {count} entries to {gateway}": "{count} entrées envoyées vers {gateway}",
+  "Uploaded to {gateway}: {name}": "Envoyé vers {gateway} : {name}",
   "Uploading {name}": "Envoi de {name}",
   "Uploading to your local node": "Envoi vers votre nœud local",
   "Uptime %": "Disponibilité %",

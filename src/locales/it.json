@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "Il caricamento è già in fase di annullamento",
   "Upload it to Drive": "Caricala su Drive",
   "Upload your content to the cloud (Drive / cloud upload).": "Carica i tuoi contenuti nel cloud (Drive / caricamento nel cloud).",
+  "Uploaded {count} entries to {gateway}": "{count} voci caricate su {gateway}",
+  "Uploaded to {gateway}: {name}": "Caricato su {gateway}: {name}",
   "Uploading {name}": "Caricamento di {name}",
   "Uploading to your local node": "Caricamento sul tuo nodo locale",
   "Uptime %": "Tempo di attività %",

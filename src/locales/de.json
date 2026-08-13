@@ -1862,6 +1862,8 @@
   "Upload is already being canceled": "Der Upload wird bereits abgebrochen",
   "Upload it to Drive": "Lade ihn in Drive hoch",
   "Upload your content to the cloud (Drive / cloud upload).": "Lade deine Inhalte in die Cloud (Drive / Cloud-Upload).",
+  "Uploaded {count} entries to {gateway}": "{count} Einträge zu {gateway} hochgeladen",
+  "Uploaded to {gateway}: {name}": "Zu {gateway} hochgeladen: {name}",
   "Uploading {name}": "{name} wird hochgeladen",
   "Uploading to your local node": "Wird auf deinen lokalen Node geladen",
   "Uptime %": "Verfügbarkeit %",
