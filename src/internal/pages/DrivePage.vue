@@ -137,6 +137,10 @@
         </div>
       </div>
 
+      <!-- An expired plan serves nothing, so there is nothing to search,
+           browse or page through: only the banner above, and the way out of
+           it. -->
+      <template v-if="!expiredHostingRow">
       <!-- Search and Filter Bar -->
       <div class="flex-align-center-justify-space-between flex-wrap-wrap gap-16px mb-16px">
         <div class="flex-align-center gap-8px flex-1 border-radius-10px py-8px px-12px bg-primary border-1 transition-all-02 focus-within-border-accent focus-within-ring max-w-400px min-w-200px">
@@ -459,6 +463,7 @@
           </UiButton>
         </template>
       </UiEmptyState>
+      </template>
     </main>
 
     <!-- ####### lumen://drive FILE DETAIL PANEL ####### -->
@@ -1563,6 +1568,10 @@ const subscriptionRows = computed(() => {
   for (const sub of planSubscriptionsRaw.value) {
     const gid = String(sub.gatewayId || "").trim();
     if (!gid) continue;
+    // A cancelled contract is not a subscription: the chain keeps it around
+    // forever, and listing it leaves a gateway in the sidebar that no longer
+    // stores anything.
+    if (String(sub.status || "").includes("cancel")) continue;
     if (!byGateway.has(gid)) byGateway.set(gid, []);
     byGateway.get(gid)!.push(sub);
   }
@@ -2237,163 +2246,103 @@ function toSubscriptionView(raw: any): SubscriptionView {
   };
 }
 
+/**
+ * Reads plans, gateways and subscriptions in one call and puts them where the
+ * page expects them.
+ *
+ * Pricing is the reason this takes an option: the background refresh skips it
+ * (it costs a round trip per gateway and nothing on screen needs it), while
+ * anything that is about to offer a plan has to ask for it.
+ */
+async function loadGatewayOverview(
+  options: { includePricing?: boolean } = {},
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!gateway_lumen_api.getPlansOverview) {
+    return { ok: false, error: t("Failed to load plans.") };
+  }
+
+  const profileId = await getActiveProfileId();
+  if (!profileId) return { ok: false, error: t("No active profile.") };
+
+  const res = await gateway_lumen_api
+    .getPlansOverview(profileId, {
+      includePricing: options.includePricing === true,
+      timeoutMs: 2500,
+    })
+    .catch(() => null);
+  if (!res || res.ok === false) {
+    return { ok: false, error: String(res?.error || t("Failed to load plans.")) };
+  }
+
+  const list = Array.isArray(res.plans) ? res.plans : [];
+  plans.value = list
+    .map((p: any) => ({
+      id: String(p?.id ?? ""),
+      planId: String(p?.planId ?? p?.id ?? ""),
+      gatewayId: String(p?.gatewayId ?? ""),
+      gatewayName: String(
+        p?.gatewayName ?? p?.gateway ?? `Gateway ${p?.gatewayId ?? ""}`,
+      ),
+      gatewayEndpoint: p?.gatewayEndpoint,
+      priceUlmn: Number(p?.priceUlmn ?? 0),
+      storageGbPerMonth:
+        p?.storageGbPerMonth != null ? Number(p.storageGbPerMonth) : undefined,
+      networkGbPerMonth:
+        p?.networkGbPerMonth != null ? Number(p.networkGbPerMonth) : undefined,
+      monthsTotal: Math.max(1, Number(p?.monthsTotal ?? 1)),
+      description: p?.description ?? "",
+    }))
+    .filter((p: PlanView) => p.planId && p.gatewayId);
+
+  const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
+  const gwMap = new Map<string, GatewayView>();
+  for (const g of gwRaw) {
+    const id = String(g?.id ?? g?.gatewayId ?? "").trim();
+    if (!id || gwMap.has(id)) continue;
+    const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? "").trim();
+    const regions = Array.isArray(g?.regions)
+      ? g.regions.map((r: any) => String(r || "")).filter(Boolean)
+      : [];
+    const active =
+      typeof g?.active === "boolean" ? g.active : !!(g?.Active ?? g?.isActive ?? true);
+    const score =
+      g?.score != null
+        ? Number(g.score)
+        : g?.metadata && g.metadata.score != null
+          ? Number(g.metadata.score)
+          : undefined;
+    gwMap.set(id, {
+      id,
+      endpoint,
+      operator: String(g?.operator ?? ""),
+      regions,
+      active,
+      score,
+    });
+  }
+  gateways.value = Array.from(gwMap.values());
+
+  const subsRaw = Array.isArray(res.subscriptions) ? res.subscriptions : [];
+  planSubscriptionsRaw.value = subsRaw.map(toSubscriptionView);
+  return { ok: true };
+}
+
 async function refreshGatewayOverview() {
   try {
-    if (!gateway_lumen_api.getPlansOverview) return;
-
-    const profileId = await getActiveProfileId();
-    if (!profileId) return;
-
-    const res = await gateway_lumen_api
-      .getPlansOverview(profileId, { includePricing: false, timeoutMs: 2500 })
-      .catch(() => null);
-    if (!res || res.ok === false) return;
-
-    const list = Array.isArray(res.plans) ? res.plans : [];
-    plans.value = list
-      .map((p: any) => ({
-        id: String(p?.id ?? ""),
-        planId: String(p?.planId ?? p?.id ?? ""),
-        gatewayId: String(p?.gatewayId ?? ""),
-        gatewayName: String(
-          p?.gatewayName ?? p?.gateway ?? `Gateway ${p?.gatewayId ?? ""}`,
-        ),
-        gatewayEndpoint: p?.gatewayEndpoint,
-        priceUlmn: Number(p?.priceUlmn ?? 0),
-        storageGbPerMonth:
-          p?.storageGbPerMonth != null
-            ? Number(p.storageGbPerMonth)
-            : undefined,
-        networkGbPerMonth:
-          p?.networkGbPerMonth != null
-            ? Number(p.networkGbPerMonth)
-            : undefined,
-        monthsTotal: Math.max(1, Number(p?.monthsTotal ?? 1)),
-        description: p?.description ?? "",
-      }))
-      .filter((p: PlanView) => p.planId && p.gatewayId);
-
-    const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
-    const gwMap = new Map<string, GatewayView>();
-    for (const g of gwRaw) {
-      const id = String(g?.id ?? g?.gatewayId ?? "").trim();
-      if (!id) continue;
-      if (gwMap.has(id)) continue;
-      const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? "").trim();
-      const regions = Array.isArray(g?.regions)
-        ? g.regions.map((r: any) => String(r || "")).filter(Boolean)
-        : [];
-      const active =
-        typeof g?.active === "boolean"
-          ? g.active
-          : !!(g?.Active ?? g?.isActive ?? true);
-      const score =
-        g?.score != null
-          ? Number(g.score)
-          : g?.metadata && g.metadata.score != null
-            ? Number(g.metadata.score)
-            : undefined;
-      gwMap.set(id, {
-        id,
-        endpoint,
-        operator: String(g?.operator ?? ""),
-        regions,
-        active,
-        score,
-      });
-    }
-    gateways.value = Array.from(gwMap.values());
-
-    const subsRaw = Array.isArray(res.subscriptions) ? res.subscriptions : [];
-    planSubscriptionsRaw.value = subsRaw.map(toSubscriptionView);
+    await loadGatewayOverview();
   } catch {
     // ignore background refresh errors
   }
 }
 
 async function openPlansModal() {
+  showPlansModal.value = true;
+  planPage.value = 1;
+  plansLoading.value = true;
+  plansError.value = "";
   try {
-    if (!gateway_lumen_api.getPlansOverview) return;
-
-    showPlansModal.value = true;
-    planPage.value = 1;
-    plansLoading.value = true;
-    plansError.value = "";
-
-    const profileId = await getActiveProfileId();
-    if (!profileId) {
-      plansError.value = t("No active profile.");
-      plansLoading.value = false;
-      return;
-    }
-
-    const res = await gateway_lumen_api
-      .getPlansOverview(profileId, { includePricing: true, timeoutMs: 2500 })
-      .catch(() => null);
-    if (!res || res.ok === false) {
-      plansError.value = String(res?.error || t("Failed to load plans."));
-      plansLoading.value = false;
-      return;
-    }
-
-    const list = Array.isArray(res.plans) ? res.plans : [];
-    plans.value = list
-      .map((p: any) => ({
-        id: String(p?.id ?? ""),
-        planId: String(p?.planId ?? p?.id ?? ""),
-        gatewayId: String(p?.gatewayId ?? ""),
-        gatewayName: String(
-          p?.gatewayName ?? p?.gateway ?? `Gateway ${p?.gatewayId ?? ""}`,
-        ),
-        gatewayEndpoint: p?.gatewayEndpoint,
-        priceUlmn: Number(p?.priceUlmn ?? 0),
-        storageGbPerMonth:
-          p?.storageGbPerMonth != null
-            ? Number(p.storageGbPerMonth)
-            : undefined,
-        networkGbPerMonth:
-          p?.networkGbPerMonth != null
-            ? Number(p.networkGbPerMonth)
-            : undefined,
-        monthsTotal: Math.max(1, Number(p?.monthsTotal ?? 1)),
-        description: p?.description ?? "",
-      }))
-      .filter((p: PlanView) => p.planId && p.gatewayId);
-
-    const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
-    const gwMap = new Map<string, GatewayView>();
-    for (const g of gwRaw) {
-      const id = String(g?.id ?? g?.gatewayId ?? "").trim();
-      if (!id) continue;
-      const existing = gwMap.get(id);
-      if (existing) continue;
-      const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? "").trim();
-      const regions = Array.isArray(g?.regions)
-        ? g.regions.map((r: any) => String(r || "")).filter(Boolean)
-        : [];
-      const active =
-        typeof g?.active === "boolean"
-          ? g.active
-          : !!(g?.Active ?? g?.isActive ?? true);
-      const score =
-        g?.score != null
-          ? Number(g.score)
-          : g?.metadata && g.metadata.score != null
-            ? Number(g.metadata.score)
-            : undefined;
-      gwMap.set(id, {
-        id,
-        endpoint,
-        operator: String(g?.operator ?? ""),
-        regions,
-        active,
-        score,
-      });
-    }
-    gateways.value = Array.from(gwMap.values());
-
-    const subsRaw = Array.isArray(res.subscriptions) ? res.subscriptions : [];
-    planSubscriptionsRaw.value = subsRaw.map(toSubscriptionView);
+    const res = await loadGatewayOverview({ includePricing: true });
+    if (!res.ok) plansError.value = res.error;
   } catch (e) {
     plansError.value = errorMessage(e, t("Failed to load plans."));
   } finally {
@@ -2576,6 +2525,7 @@ const expiredHostingRow = computed(() => {
 });
 
 const cancelContractBusy = ref(false);
+const renewBusy = ref(false);
 
 /**
  * A sentence for whatever came back from the chain.
@@ -2613,18 +2563,38 @@ function describeCancelError(raw: string): string {
   return t("Failed to cancel the subscription.");
 }
 
+function findPlanForGateway(gatewayId: string, planId: string): PlanView | null {
+  return (
+    plans.value.find((p) => p.gatewayId === gatewayId && p.planId === planId) ||
+    plans.value.find((p) => p.gatewayId === gatewayId) ||
+    null
+  );
+}
+
 /** Takes out a fresh month on the plan that lapsed, through the normal flow. */
-function renewExpiredSubscription() {
+async function renewExpiredSubscription() {
   const row = expiredHostingRow.value;
-  if (!row) return;
+  if (!row || renewBusy.value) return;
 
-  const plan =
-    plans.value.find(
-      (p) => p.gatewayId === row.gatewayId && p.planId === row.expiredPlanId,
-    ) || plans.value.find((p) => p.gatewayId === row.gatewayId);
-
-  // No pricing loaded yet: the plans dialog is where it gets fetched.
+  // The background refresh leaves plans without prices, and a plan with no
+  // price cannot be offered. Fetching them here is what keeps this one click:
+  // it used to fall through to the plans dialog, so renewing meant opening a
+  // list of every cloud, closing it, and pressing Renew a second time.
+  let plan = findPlanForGateway(row.gatewayId, row.expiredPlanId);
   if (!plan) {
+    renewBusy.value = true;
+    try {
+      await loadGatewayOverview({ includePricing: true });
+    } finally {
+      renewBusy.value = false;
+    }
+    plan = findPlanForGateway(row.gatewayId, row.expiredPlanId);
+  }
+
+  // This gateway no longer offers a plan at all: the full list is the only
+  // thing left to show.
+  if (!plan) {
+    showToast(t("This gateway no longer offers this plan."), "error");
     void openPlansModal();
     return;
   }
@@ -2675,6 +2645,22 @@ async function cancelExpiredSubscription() {
     }
 
     showToast(t("Subscription cancelled."), "success");
+
+    // Drop it locally first. The transaction is broadcast, but the REST query
+    // behind the refresh can still answer from a block that predates it, and
+    // re-reading a stale "active" would put the row straight back.
+    const cancelledId = row.expiredContractId;
+    planSubscriptionsRaw.value = planSubscriptionsRaw.value.filter(
+      (sub) => sub.id !== cancelledId,
+    );
+    if (
+      hosting.value.kind === "gateway" &&
+      hosting.value.gatewayId === row.gatewayId &&
+      !subscriptionRows.value.some((r) => r.gatewayId === row.gatewayId)
+    ) {
+      selectHosting("local");
+    }
+
     await refreshGatewayOverview();
   } finally {
     cancelContractBusy.value = false;
