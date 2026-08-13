@@ -453,6 +453,74 @@ async function walletGetDelegations(input) {
   }
 }
 
+/**
+ * Stake on its way out, per validator.
+ *
+ * Separate from the delegations above because the chain keeps it separate: an
+ * undelegation leaves the delegation immediately and stays in an unbonding
+ * queue for the unbonding period, belonging to neither the validator nor the
+ * wallet's spendable balance until it completes. A UI that only reads
+ * delegations shows that stake as gone.
+ */
+async function walletGetUnbondingDelegations(input) {
+  const address = String(input && input.address ? input.address : '').trim();
+  if (!address) {
+    return { ok: false, error: 'missing address' };
+  }
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const base = trimSlash(restBase);
+  const url = `${base}/cosmos/staking/v1beta1/delegators/${encodeURIComponent(address)}/unbonding_delegations`;
+
+  try {
+    const res = await httpGet(url, { timeout: 10000 });
+    if (!res.ok) {
+      return { ok: false, status: res.status, error: 'unbonding query failed' };
+    }
+    const unbonding = Array.isArray(res.json && res.json.unbonding_responses)
+      ? res.json.unbonding_responses
+      : [];
+    return { ok: true, unbonding };
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+}
+
+/**
+ * Rewards accrued and not yet claimed, per validator.
+ *
+ * The distribution module answers in decimal ulmn - "2093587.342379405193" -
+ * because rewards accrue continuously between blocks. The fractional part is
+ * never claimable on its own, but it is returned as-is here: rounding belongs
+ * where the number is displayed, not where it is fetched.
+ */
+async function walletGetStakingRewards(input) {
+  const address = String(input && input.address ? input.address : '').trim();
+  if (!address) {
+    return { ok: false, error: 'missing address' };
+  }
+  const restBase = getRestBaseUrl();
+  if (!restBase) {
+    return { ok: false, error: 'rest_base_missing' };
+  }
+  const base = trimSlash(restBase);
+  const url = `${base}/cosmos/distribution/v1beta1/delegators/${encodeURIComponent(address)}/rewards`;
+
+  try {
+    const res = await httpGet(url, { timeout: 10000 });
+    if (!res.ok) {
+      return { ok: false, status: res.status, error: 'rewards query failed' };
+    }
+    const rewards = Array.isArray(res.json && res.json.rewards) ? res.json.rewards : [];
+    const total = Array.isArray(res.json && res.json.total) ? res.json.total : [];
+    return { ok: true, rewards, total };
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+}
+
 // ---------------- DNS helpers (pricing) ----------------
 const TIER_BPS_DENOM = 10_000n;
 const SDK_DEC_PRECISION = 1_000_000_000_000_000_000n; // 1e18
@@ -867,6 +935,22 @@ function registerChainIpc() {
   ipcMain.handle('wallet:getDelegations', async (_evt, input) => {
     try {
       return await walletGetDelegations(input || {});
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:getUnbondingDelegations', async (_evt, input) => {
+    try {
+      return await walletGetUnbondingDelegations(input || {});
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('wallet:getStakingRewards', async (_evt, input) => {
+    try {
+      return await walletGetStakingRewards(input || {});
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }
