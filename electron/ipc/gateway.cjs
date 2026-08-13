@@ -2450,6 +2450,13 @@ function registerGatewayIpc() {
           };
         }
 
+        // Checked here rather than left to the encoder: protobuf reports a bad
+        // id as "NaN cannot be converted to a BigInt", which says nothing about
+        // which message was wrong and reaches the user as a toast.
+        if (!Number.isFinite(Number(msg?.value?.contractId))) {
+          return { ok: false, error: 'missing_contractId' };
+        }
+
         const res = await signAndBroadcastWithPqcAutoLink({
           bridgeMod,
           client,
