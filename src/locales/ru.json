@@ -997,7 +997,7 @@
   "Manage private gateways →": "Управлять частными шлюзами →",
   "Manage site permissions": "Управление разрешениями сайтов",
   "Manage sites data": "Управление данными сайтов",
-  "Manage stake with {validator}": "Управление ставкой у {validator}",
+  "Manage stake": "Управление стейком",
   "Manage your domains": "Управляйте своими доменами",
   "Manage your LMN tokens": "Управляйте своими токенами LMN",
   "Manage your Lumen address and on-chain balance (read-only).": "Ваш адрес Lumen и баланс в сети (только просмотр).",

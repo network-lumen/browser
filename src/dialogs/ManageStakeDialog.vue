@@ -1,5 +1,20 @@
 <template>
-  <UiModal :model-value="modelValue" :title="t('Manage stake with {validator}', { validator: selectedValidator?.moniker || '' })" panel-class="shadow-lg animate-modal-slide-in w-90pct max-w-420px" @update:model-value="$emit('update:modelValue', false)">
+  <UiModal :model-value="modelValue" panel-class="shadow-lg animate-modal-slide-in w-90pct max-w-520px" @update:model-value="$emit('update:modelValue', false)">
+        <!--
+          Two lines rather than one sentence: a moniker is whatever its validator
+          typed - "POSTHUMAN 🧬 StakeDrop" - and inlining it made a title that
+          could not wrap and pushed the whole dialog into a horizontal scroll.
+          The name gets its own line, truncated, with the full text on hover.
+        -->
+        <template #header>
+          <div class="flex flex-column gap-4px min-w-0">
+            <span class="text-12px color-text-secondary txt-weight-light">{{ t('Manage stake') }}</span>
+            <h3 class="m-0px color-text-primary text-16px truncate" :title="selectedValidator?.moniker || ''">
+              {{ selectedValidator?.moniker || t('Unknown') }}
+            </h3>
+          </div>
+        </template>
+
         <div class="flex gap-16px mb-24px p-16px bg-secondary border-radius-8px">
           <div class="flex flex-column flex-1 gap-4px">
             <span class="text-12px color-text-secondary fw-500">{{ t('Staked') }}</span>
@@ -11,12 +26,24 @@
           </div>
         </div>
 
-        <div class="flex gap-8px mb-24px p-4px bg-secondary border-radius-8px">
-          <button 
-            v-for="act in stakeActions" 
+        <!--
+          Two rows of two, not four abreast. "Undelegate" is "Retirer la
+          délégation" in French and longer still elsewhere, and four of those in
+          a row overflowed the panel however wide it was made.
+
+          The background is set by the same binding that clears it, because
+          `bg-transparent` sits below `bg-accent` in the stylesheet: left on the
+          element as a static class it won on source order, and the selected
+          action came out white-on-grey - unreadable, and invisible to anyone
+          reading only the template.
+        -->
+        <div class="grid grid-cols-2-minmax0 gap-8px mb-24px p-4px bg-secondary border-radius-8px">
+          <button
+            v-for="act in stakeActions"
             :key="act"
-            class="color-text-primary-hover-not-disabled-not-active flex-1 txt-weight-light color-text-secondary cursor-pointer py-8px px-12px bg-transparent border-none border-radius-6px text-13px transition-all-02"
-            :class="{ 'active bg-accent color-white': action === act }"
+            class="color-text-primary-hover-not-disabled-not-active truncate txt-weight-light cursor-pointer py-8px px-12px border-none border-radius-6px text-13px transition-all-02"
+            :class="action === act ? 'active bg-accent color-white' : 'bg-transparent color-text-secondary'"
+            :title="actionLabel(act)"
             @click="action = act"
           >
             {{ actionLabel(act) }}

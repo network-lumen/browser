@@ -997,7 +997,7 @@
   "Manage private gateways →": "Gérer les passerelles privées →",
   "Manage site permissions": "Gérer les permissions des sites",
   "Manage sites data": "Gérer les données des sites",
-  "Manage stake with {validator}": "Gérer la mise avec {validator}",
+  "Manage stake": "Gérer la mise",
   "Manage your domains": "Gérez vos domaines",
   "Manage your LMN tokens": "Gérez vos jetons LMN",
   "Manage your Lumen address and on-chain balance (read-only).": "Gérez votre adresse Lumen et votre solde sur la chaîne (lecture seule).",

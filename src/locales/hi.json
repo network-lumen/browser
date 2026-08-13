@@ -997,7 +997,7 @@
   "Manage private gateways →": "निजी द्वार सँभालें →",
   "Manage site permissions": "साइट अनुमतियाँ प्रबंधित करें",
   "Manage sites data": "साइट डेटा प्रबंधित करें",
-  "Manage stake with {validator}": "{validator} के पास लगी हिस्सेदारी सँभालें",
+  "Manage stake": "हिस्सेदारी सँभालें",
   "Manage your domains": "अपने डोमेन सँभालें",
   "Manage your LMN tokens": "अपने LMN टोकन सँभालें",
   "Manage your Lumen address and on-chain balance (read-only).": "अपना Lumen पता और शृंखला पर शेष देखें (केवल पढ़ने के लिए)।",
