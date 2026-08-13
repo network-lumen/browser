@@ -95,6 +95,27 @@ function getSiteHostStatus() {
 }
 
 /**
+ * Whether a failing upstream response is the gateway's own error page rather
+ * than something the site published.
+ *
+ * Kubo answers a missing path with `text/plain` and a sentence ("no link named
+ * ... under bafy..."). Handed to the renderer as-is, that body is a plausible
+ * stylesheet or script as far as Chromium is concerned, so what a developer
+ * sees is not the 404 but "Refused to apply style ... its MIME type
+ * ('text/plain') is not a supported stylesheet MIME type" - which reads as the
+ * scheme mishandling a file that is in fact simply not published. It cost an
+ * afternoon once.
+ *
+ * A site's own 404 page is HTML (Kubo serves it through `_redirects`), so the
+ * content type is what separates the two, and only the gateway's version is
+ * dropped.
+ */
+function isGatewayErrorBody(status, contentType) {
+  if (!Number.isFinite(Number(status)) || Number(status) < 400) return false;
+  return /^text\/plain\b/i.test(String(contentType || '').trim());
+}
+
+/**
  * Installs the handler on a session. Sites live in the webview partition, so
  * that is the session that needs it.
  */
@@ -122,7 +143,7 @@ function installSiteProtocol(ses) {
     try {
       // The upstream Response is returned as-is so status, Content-Type and
       // Range/206 survive untouched, and the body streams instead of buffering.
-      return await net.fetch(upstream, {
+      const response = await net.fetch(upstream, {
         method: request.method,
         headers: request.headers,
         body: request.body,
@@ -131,6 +152,11 @@ function installSiteProtocol(ses) {
         // custom protocol handler instead of the network.
         bypassCustomProtocolHandlers: true
       });
+
+      if (isGatewayErrorBody(response.status, response.headers.get('content-type'))) {
+        return new Response(null, { status: response.status });
+      }
+      return response;
     } catch {
       return new Response('Gateway unreachable', { status: 502 });
     }
@@ -144,5 +170,6 @@ module.exports = {
   registerSiteSchemePrivileges,
   installSiteProtocol,
   registerSiteHost,
-  getSiteHostStatus
+  getSiteHostStatus,
+  isGatewayErrorBody
 };

@@ -226,7 +226,7 @@
                 class="color-inherit flex-align-start gap-12px flex-1 p-0px text-left cursor-pointer min-w-220px border-none bg-transparent"
                 @click="toggleDexExpanded(dex.key)"
               >
-                <div class="flex-align-justify-center color-primary txt-weight-medium border-radius-16px border-1 bg-secondary overflow-hidden flex-shrink-0 text-15px w-48px h-48px" :class="{ 'bg-slate-900 border-color-slate-900-a65': dex.logoTheme === 'dark' }">
+                <div class="flex-align-justify-center color-primary txt-weight-medium border-radius-16px border-1 bg-secondary overflow-hidden flex-shrink-0 text-15px w-48px h-48px" :class="{ 'bg-slate-900 border-color-slate-900-a65': dex.logoTheme === 'dark', 'bg-navy-950 border-color-navy-950-a65': dex.logoTheme === 'navy' }">
                   <img
                     v-if="dex.logoUrl"
                     :src="dex.logoUrl"
@@ -627,6 +627,7 @@ import InternalSidebar from '../../components/InternalSidebar.vue';
 import QrScanner from '../../dialogs/QrScanner.vue';
 import SubscriptionsPanel from '../../panels/SubscriptionsPanel.vue';
 import AddressBookPanel from '../../panels/AddressBookPanel.vue';
+import osmosisLogoUrl from '../../img/osmosis.svg';
 import { payReminder } from '../services/paymentReminders';
 import { formatDenom as formatDenomValue, truncateMiddle } from '../services/format';
 import { downloadTextFile } from '../services/download';
@@ -772,7 +773,11 @@ const DEX_LISTINGS: DexListingConfig[] = [
     restEndpoint: '',
     baseUrl: 'https://app.osmosis.zone/',
     openUrl: 'https://app.osmosis.zone/assets/ibc/88DBE57372690630D2DD9779C247479CE124E777C5D695FA90699F3140CEC59F',
-    logoUrl: '',
+    // Bundled rather than hotlinked, unlike BeeZee's above: this one is drawn
+    // on a page that is reachable offline, and a DEX tile that loses its logo
+    // the moment the network drops looks broken rather than offline.
+    logoUrl: osmosisLogoUrl,
+    logoTheme: 'navy',
     iconText: 'OSMO',
     description: markForTranslation('Trade LMN against the wider Cosmos market, and look at its pools.'),
     probePaths: ['/', '/pools'],
