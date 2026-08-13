@@ -2596,6 +2596,9 @@ function describeCancelError(raw: string): string {
   if (msg === "wallet_unavailable" || msg === "guest_profile") {
     return t("This profile has no wallet to sign with.");
   }
+  if (msg === "missing_contractId") {
+    return t("This subscription has no contract to cancel.");
+  }
   if (/contract not active|already completed|nothing left to cancel/i.test(msg)) {
     return t("This plan is already closed on chain.");
   }
