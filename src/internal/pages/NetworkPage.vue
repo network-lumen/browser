@@ -527,9 +527,20 @@
               <UiCard v-for="proposal in governanceVotingProposals" :key="proposal.id" padding="lg" border-class="border-1-primary-a30" radius="12px" :shadow="false">
                 <div class="flex-align-center flex-justify-space-between mb-12px">
                   <span class="color-text-secondary text-13px">#{{ proposal.id }}</span>
-                  <span class="border-radius-20px fw-500 text-12px py-4px px-12px" :class="governanceStatusClass(proposal.status)">
-                    {{ governanceStatusLabel(proposal.status) }}
-                  </span>
+                  <div class="flex-align-center gap-8px">
+                    <!--
+                      A vote runs two days here and two minutes on a devnet, so
+                      the deadline is worth more than the status: it answers
+                      whether there is still time to read the thing and vote.
+                      `governanceNow` ticks so this counts down on its own.
+                    -->
+                    <span v-if="proposal.votingEnd" class="color-text-tertiary text-12px" :title="formatDateTime(proposal.votingEnd)">
+                      {{ timeLeftLabel(proposal.votingEnd, governanceNow) }}
+                    </span>
+                    <span class="border-radius-20px fw-500 text-12px py-4px px-12px" :class="governanceStatusClass(proposal.status)">
+                      {{ governanceStatusLabel(proposal.status) }}
+                    </span>
+                  </div>
                 </div>
                 <h3 class="color-text-primary text-16px txt-weight-light m-0px mb-4px">{{ proposal.title }}</h3>
                 <p v-if="proposal.summary" class="color-text-secondary text-13px m-0px mb-16px">{{ proposal.summary.substring(0, 150) }}{{ proposal.summary.length > 150 ? '…' : '' }}</p>
@@ -561,6 +572,16 @@
               </div>
               <h3 class="color-text-primary text-16px txt-weight-light m-0px mb-4px">{{ proposal.title }}</h3>
               <p v-if="proposal.summary" class="color-text-secondary text-13px m-0px">{{ proposal.summary.substring(0, 150) }}{{ proposal.summary.length > 150 ? '…' : '' }}</p>
+              <!--
+                A proposal can pass its vote and still fail to execute, and the
+                chain says why in `failed_reason` - which nothing displayed, so
+                the only way to read it was to query the node by hand. It is the
+                one piece of text that explains a red badge on a proposal
+                everybody voted for.
+              -->
+              <p v-if="proposal.failedReason" class="color-error text-12px m-0px mt-8px">
+                {{ t('Execution failed: {reason}', { reason: proposal.failedReason }) }}
+              </p>
             </UiCard>
           </div>
         </template>
@@ -606,11 +627,12 @@ import BlockDetailPage from './BlockDetailPage.vue';
 import TransactionDetailPage from './TransactionDetailPage.vue';
 import AddressDetailPage from './AddressDetailPage.vue';
 import { profilesState, activeProfileId } from '../../stores/profilesStore';
-import { formatNumber } from '../services/format';
+import { formatDateTime, formatNumber } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
 import { classifyBroadcastResult } from '../services/broadcastOutcome';
 import { toGovernanceActionPayloads } from '../services/governanceActions';
 import { describeChainError } from '../services/chainErrors';
+import { timeLeftLabel } from '../services/countdown';
 import { stakeActionLabel } from '../services/stakeActions';
 import {
   buildRedelegationLocks,
@@ -2301,6 +2323,20 @@ const governanceProposals = ref<GovernanceProposal[]>([]);
 const governanceLoading = ref(false);
 const governanceMinDepositLmn = ref('10');
 
+/**
+ * Drives the countdown on the voting cards.
+ *
+ * A `computed` over Date.now() would never recompute - nothing reactive changes
+ * - so the deadline would freeze at whatever it said when the page loaded. Ten
+ * seconds is fine either way: a two-day vote does not need better, and a
+ * two-minute devnet vote is still legible at that resolution.
+ */
+const governanceNow = ref(Date.now());
+const governanceClock = window.setInterval(() => {
+  governanceNow.value = Date.now();
+}, 10_000);
+onBeforeUnmount(() => window.clearInterval(governanceClock));
+
 const governanceVotingProposals = computed(() =>
   governanceProposals.value.filter((p) => p.status === 'PROPOSAL_STATUS_VOTING_PERIOD'),
 );
@@ -2375,6 +2411,7 @@ async function fetchGovernanceProposals() {
         depositEnd: p.deposit_end_time || '',
         totalDeposit: p.total_deposit?.[0]?.amount || '0',
         proposer: p.proposer || '',
+        failedReason: p.failed_reason || '',
         tally: mapGovernanceTally(p.final_tally_result),
       }));
       // final_tally_result is zeroed while a proposal is still being voted on -

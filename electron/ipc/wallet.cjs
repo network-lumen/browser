@@ -8,6 +8,7 @@ const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected, 
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { zeroFee, describeBroadcastFailure } = require('../utils/tx.cjs');
 const { leadingZeroBits } = require('../utils/pow.cjs');
+const { camelizeKeysDeep } = require('../utils/strings.cjs');
 const { isPasswordRequired, getSessionPassword, verifyStoredPassword } = require('./security.cjs');
 const { DEFAULT_BECH32_PREFIXES } = require('../extensions/wallet_injection.cjs');
 const { resolvePqcHome, signAndBroadcastWithPqcAutoLink } = require('../utils/pqc_link.cjs');
@@ -1699,9 +1700,12 @@ function registerWalletIpc() {
       throw new Error(`${accessorName}_module_unavailable`);
     }
     const raw = await modAccessor.params();
-    const params = raw && typeof raw === 'object' ? (raw.params ?? raw) : raw;
-    if (!params || typeof params !== 'object') throw new Error(`${accessorName}_params_unavailable`);
-    return { modAccessor, params };
+    const fetched = raw && typeof raw === 'object' ? (raw.params ?? raw) : raw;
+    if (!fetched || typeof fetched !== 'object') throw new Error(`${accessorName}_params_unavailable`);
+    // The query answers over REST, in snake_case; the protobuf types read
+    // camelCase and silently zero anything else. Since MsgUpdateParams replaces
+    // the whole object, that turned "change one field" into "blank the rest".
+    return { modAccessor, params: camelizeKeysDeep(fetched) };
   }
 
   function moduleAccessor(client, name) {
@@ -1709,26 +1713,41 @@ function registerWalletIpc() {
   }
 
   const GOVERNANCE_ACTION_BUILDERS = {
-    'dns-update-fee': async (client, authority, values) => {
+    /**
+     * One builder for the whole dns module, not one per group of fields.
+     *
+     * MsgUpdateParams replaces the entire Params object; it does not merge. Two
+     * of these in a single proposal is therefore not "two changes" but two full
+     * replacements, and the second silently undoes the first - which is what a
+     * proposal carrying `dns-update-fee` and `dns-update-guards` together did.
+     * With one template per module that cannot be expressed.
+     *
+     * A blank field keeps its current value, since the base is the params as
+     * they stand. base_fee_dns is immutable and the keeper refuses any proposal
+     * that changes it, so it is deliberately not offered - it rides along from
+     * the fetched params untouched.
+     */
+    'dns-update-params': async (client, authority, values) => {
       const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'dns');
-      const updateFeeUlmn = Number(lmnToUlmn(requireNonEmptyValue(values.updateFeeUlmn, 'updateFeeUlmn')));
-      return modAccessor.msgUpdateParams(authority, { ...params, updateFeeUlmn });
-    },
-    'dns-update-guards': async (client, authority, values) => {
-      const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'dns');
-      return modAccessor.msgUpdateParams(authority, {
-        ...params,
-        updateRateLimitSeconds: requireIntValue(values.updateRateLimitSeconds, 'updateRateLimitSeconds'),
-        updatePowDifficulty: requireIntValue(values.updatePowDifficulty, 'updatePowDifficulty')
-      });
-    },
-    'dns-update-transfer-bid-fee': async (client, authority, values) => {
-      const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'dns');
-      return modAccessor.msgUpdateParams(authority, {
-        ...params,
-        transferFeeUlmn: Number(lmnToUlmn(requireNonEmptyValue(values.transferFeeUlmn, 'transferFeeUlmn'))),
-        bidFeeUlmn: Number(lmnToUlmn(requireNonEmptyValue(values.bidFeeUlmn, 'bidFeeUlmn')))
-      });
+      const patched = { ...params };
+      if (String(values.updateFeeUlmn || '').trim()) {
+        patched.updateFeeUlmn = Number(lmnToUlmn(values.updateFeeUlmn));
+      }
+      if (String(values.transferFeeUlmn || '').trim()) {
+        patched.transferFeeUlmn = Number(lmnToUlmn(values.transferFeeUlmn));
+      }
+      if (String(values.bidFeeUlmn || '').trim()) {
+        patched.bidFeeUlmn = Number(lmnToUlmn(values.bidFeeUlmn));
+      }
+      // Both guards accept 0 as a real setting - no rate limit, no proof of
+      // work - so they are read as "was anything typed", not as truthiness.
+      if (String(values.updateRateLimitSeconds || '').trim()) {
+        patched.updateRateLimitSeconds = requireIntValue(values.updateRateLimitSeconds, 'updateRateLimitSeconds');
+      }
+      if (String(values.updatePowDifficulty || '').trim()) {
+        patched.updatePowDifficulty = requireIntValue(values.updatePowDifficulty, 'updatePowDifficulty');
+      }
+      return modAccessor.msgUpdateParams(authority, patched);
     },
     'gateways-update-params': async (client, authority, values) => {
       const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'gateways');

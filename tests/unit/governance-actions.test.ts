@@ -20,13 +20,13 @@ function draftsFromForm(): GovernanceActionDraft[] {
   const drafts = ref<GovernanceActionDraft[]>([]);
   drafts.value.push({
     id: 'a1',
-    templateId: 'dns-update-fee',
-    values: { updateFeeUlmn: '0.01' },
+    templateId: 'dns-update-params',
+    values: { updateFeeUlmn: '0.01', updateRateLimitSeconds: '30' },
   });
   drafts.value.push({
     id: 'a2',
-    templateId: 'dns-update-guards',
-    values: { updateRateLimitSeconds: '30', updatePowDifficulty: '0' },
+    templateId: 'gateways-update-params',
+    values: { platformCommissionBps: '250' },
   });
   return drafts.value;
 }
@@ -49,8 +49,8 @@ describe('once flattened', () => {
 
   it('keeps every action, in order, with its values', () => {
     expect(toGovernanceActionPayloads(draftsFromForm())).toEqual([
-      { templateId: 'dns-update-fee', values: { updateFeeUlmn: '0.01' } },
-      { templateId: 'dns-update-guards', values: { updateRateLimitSeconds: '30', updatePowDifficulty: '0' } },
+      { templateId: 'dns-update-params', values: { updateFeeUlmn: '0.01', updateRateLimitSeconds: '30' } },
+      { templateId: 'gateways-update-params', values: { platformCommissionBps: '250' } },
     ]);
   });
 
