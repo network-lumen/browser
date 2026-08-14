@@ -55,6 +55,15 @@ const RULES: ChainErrorRule[] = [
     message: () => t('Not enough LMN in this wallet for that.'),
   },
   {
+    // Cosmos gov validates its params as a whole: expedited_min_deposit must
+    // stay strictly above min_deposit. The app can set only the second, through
+    // tokenomics MsgUpdateGovMinDeposit, so raising it past the expedited one
+    // is refused with no way to fix it from here.
+    match: 'expedited minimum deposit must be greater than minimum deposit',
+    message: () =>
+      t('The minimum deposit must stay below the expedited minimum deposit, which this app cannot change.'),
+  },
+  {
     // The dns rate limit. The settings dialog counts the wait down before
     // anyone can get here, so this only fires when its params were stale.
     match: 'domain updated too recently',

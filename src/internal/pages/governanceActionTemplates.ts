@@ -76,7 +76,17 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     label: markForTranslation('Governance minimum deposit'),
     summary: markForTranslation('Minimum deposit (in LMN) required for a proposal to enter voting.'),
     fields: [
-      { key: 'minDepositLmn', label: markForTranslation('Minimum deposit (LMN)'), type: 'text', placeholder: '10' }
+      {
+        key: 'minDepositLmn',
+        label: markForTranslation('Minimum deposit (LMN)'),
+        type: 'text',
+        placeholder: '10',
+        // The chain validates gov params together and refuses a minimum deposit
+        // at or above the expedited one. Only the first is settable from here -
+        // tokenomics exposes MsgUpdateGovMinDeposit and nothing for the other -
+        // so a value above it fails after the vote, with the deposit spent.
+        hint: markForTranslation('Must stay below the expedited minimum deposit, which this app cannot change.')
+      }
     ]
   },
   {

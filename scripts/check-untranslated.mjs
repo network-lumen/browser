@@ -56,6 +56,7 @@ const ALLOWED = new Set([
   'invalid shares amount',
   'insufficient funds',
   'domain updated too recently',
+  'expedited minimum deposit must be greater than minimum deposit',
 
   // A CSS selector list, a CSS transition, an HTTP header, a link relationship.
   'a, button, article, section, div',
