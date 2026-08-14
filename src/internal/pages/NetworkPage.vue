@@ -609,6 +609,7 @@ import { profilesState, activeProfileId } from '../../stores/profilesStore';
 import { formatNumber } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
 import { classifyBroadcastResult } from '../services/broadcastOutcome';
+import { toGovernanceActionPayloads } from '../services/governanceActions';
 import { stakeActionLabel } from '../services/stakeActions';
 import {
   buildRedelegationLocks,
@@ -2484,7 +2485,9 @@ async function submitProposal() {
       title: proposalForm.value.title.trim(),
       summary: proposalForm.value.summary.trim(),
       depositLmn: proposalForm.value.depositLmn || '0',
-      actions: actionDrafts.value.map((d) => ({ templateId: d.templateId, values: d.values })),
+      // Not `.map(d => ({ ...d }))`: the drafts are reactive Proxies and IPC
+      // puts every argument through structured clone, which refuses one.
+      actions: toGovernanceActionPayloads(actionDrafts.value),
     });
 
     if (await handleGovernanceSigningError(result)) return;

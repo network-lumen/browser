@@ -69,11 +69,13 @@
       </div>
     </div>
 
-    <UiButton variant="primary" @click="$emit('submit')" :disabled="!submissionEnabled || !canSubmit || isSubmitting">
-      <Plus :size="18" />
-      {{ isSubmitting ? t('Submitting…') : t('Submit proposal') }}
-    </UiButton>
-    <p v-if="!submissionEnabled" class="color-text-tertiary text-12px mt-8px">
+    <div class="flex-justify-end">
+      <UiButton variant="primary" @click="$emit('submit')" :disabled="!submissionEnabled || !canSubmit || isSubmitting">
+        <Plus :size="18" />
+        {{ isSubmitting ? t('Submitting…') : t('Submit proposal') }}
+      </UiButton>
+    </div>
+    <p v-if="!submissionEnabled" class="color-text-tertiary text-12px mt-8px text-right">
       {{ t('Proposal submission is temporarily disabled while the action builders above are being verified on testnet.') }}
     </p>
   </UiModal>

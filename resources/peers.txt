@@ -3,9 +3,9 @@
 # Lines beginning with # are ignored.
 
 # Primary endpoints (verified working)
-https://lumen-rpc.linknode.org        https://lumen-api.linknode.org        lumen-grpc.linknode.org:443
-https://lumen.blocksync.me/rpc        https://lumen.blocksync.me/api        lumen-grpc.blocksync.me:443
-https://lumen-rpc.node9x.com          https://lumen-api.node9x.com
+# https://lumen-rpc.linknode.org        https://lumen-api.linknode.org        lumen-grpc.linknode.org:443
+# https://lumen.blocksync.me/rpc        https://lumen.blocksync.me/api        lumen-grpc.blocksync.me:443
+# https://lumen-rpc.node9x.com          https://lumen-api.node9x.com
 
 # Disabled - DNS not found (ENOTFOUND)
 # https://lumen-rpc.chaintools.tech     https://lumen-api.chaintools.tech
