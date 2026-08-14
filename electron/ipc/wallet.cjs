@@ -1694,6 +1694,39 @@ function registerWalletIpc() {
       .filter(Boolean);
   }
 
+  /**
+   * "4:40000, 8:20000, 15:10000, 0:5000" -> the dns length tiers.
+   *
+   * A tier is a max name length and a price multiplier in basis points, and the
+   * chain reads them in order, the first whose max_len covers the name winning.
+   * A max_len of 0 is the catch-all and belongs last - which is how the current
+   * params are shaped, and why the pairs are kept in the order they were typed
+   * rather than sorted.
+   *
+   * Typed as one line rather than a row of inputs because the count varies:
+   * this chain ships four domain tiers and three extension tiers, and nothing
+   * fixes either number.
+   */
+  function parseLengthTiers(value, label) {
+    const tiers = parseLinesValue(value).map((pair) => {
+      const [rawLen, rawBps] = String(pair).split(':');
+      if (rawBps === undefined) {
+        throw new Error(`${label}: expected "maxLen:multiplierBps" pairs`);
+      }
+      const maxLen = Number(String(rawLen).trim());
+      const multiplierBps = Number(String(rawBps).trim());
+      if (!Number.isInteger(maxLen) || maxLen < 0) {
+        throw new Error(`${label}: invalid max length "${rawLen}"`);
+      }
+      if (!Number.isInteger(multiplierBps) || multiplierBps < 0) {
+        throw new Error(`${label}: invalid multiplier "${rawBps}"`);
+      }
+      return { maxLen, multiplierBps };
+    });
+    if (!tiers.length) throw new Error(`${label}: at least one tier is required`);
+    return tiers;
+  }
+
   async function fetchModuleParamsForPatch(client, accessorName) {
     const modAccessor = typeof client[accessorName] === 'function' ? client[accessorName]() : client[accessorName];
     if (!modAccessor || typeof modAccessor.params !== 'function') {
@@ -1747,6 +1780,36 @@ function registerWalletIpc() {
       if (String(values.updatePowDifficulty || '').trim()) {
         patched.updatePowDifficulty = requireIntValue(values.updatePowDifficulty, 'updatePowDifficulty');
       }
+      // The pricing curve. alpha/floor/ceiling/t are decimal strings on the
+      // proto, not numbers, so they go through the decimal validator - passing
+      // a Number here would round the string the chain compares against.
+      if (String(values.alpha || '').trim()) {
+        patched.alpha = requireDecimalStringValue(values.alpha, 'alpha');
+      }
+      if (String(values.floor || '').trim()) {
+        patched.floor = requireDecimalStringValue(values.floor, 'floor');
+      }
+      if (String(values.ceiling || '').trim()) {
+        patched.ceiling = requireDecimalStringValue(values.ceiling, 'ceiling');
+      }
+      if (String(values.t || '').trim()) {
+        patched.t = requireIntValue(values.t, 't');
+      }
+      if (String(values.graceDays || '').trim()) {
+        patched.graceDays = requireIntValue(values.graceDays, 'graceDays');
+      }
+      if (String(values.auctionDays || '').trim()) {
+        patched.auctionDays = requireIntValue(values.auctionDays, 'auctionDays');
+      }
+      if (String(values.minPriceUlmnPerMonthLmn || '').trim()) {
+        patched.minPriceUlmnPerMonth = Number(lmnToUlmn(values.minPriceUlmnPerMonthLmn));
+      }
+      if (String(values.domainTiers || '').trim()) {
+        patched.domainTiers = parseLengthTiers(values.domainTiers, 'domainTiers');
+      }
+      if (String(values.extTiers || '').trim()) {
+        patched.extTiers = parseLengthTiers(values.extTiers, 'extTiers');
+      }
       return modAccessor.msgUpdateParams(authority, patched);
     },
     'gateways-update-params': async (client, authority, values) => {
@@ -1770,14 +1833,38 @@ function registerWalletIpc() {
       if (String(values.maxActiveContractsPerGateway || '').trim()) {
         patched.maxActiveContractsPerGateway = requireIntValue(values.maxActiveContractsPerGateway, 'maxActiveContractsPerGateway');
       }
+      if (String(values.monthSeconds || '').trim()) {
+        patched.monthSeconds = requireIntValue(values.monthSeconds, 'monthSeconds');
+      }
+      if (String(values.finalizerRewardBps || '').trim()) {
+        patched.finalizerRewardBps = requireIntValue(values.finalizerRewardBps, 'finalizerRewardBps');
+      }
       return modAccessor.msgUpdateParams(authority, patched);
     },
-    'tokenomics-tax-rate': async (client, authority, values) => {
+    /**
+     * The three tokenomics params the chain will accept.
+     *
+     * The other five - denom, decimals, supply_cap_lumn, halving_interval_blocks
+     * and initial_reward_per_block_lumn - are refused by ensureImmutableParams
+     * in the keeper, so they are not offered; they ride along untouched from the
+     * fetched params.
+     */
+    'tokenomics-update-params': async (client, authority, values) => {
       const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'tokenomics');
-      return modAccessor.msgUpdateParams(authority, {
-        ...params,
-        txTaxRate: requireDecimalStringValue(values.txTaxRate, 'txTaxRate')
-      });
+      const patched = { ...params };
+      if (String(values.txTaxRate || '').trim()) {
+        patched.txTaxRate = requireDecimalStringValue(values.txTaxRate, 'txTaxRate');
+      }
+      if (String(values.minSendUlmn || '').trim()) {
+        patched.minSendUlmn = requireIntValue(values.minSendUlmn, 'minSendUlmn');
+      }
+      if (String(values.distributionIntervalBlocks || '').trim()) {
+        patched.distributionIntervalBlocks = requireIntValue(
+          values.distributionIntervalBlocks,
+          'distributionIntervalBlocks'
+        );
+      }
+      return modAccessor.msgUpdateParams(authority, patched);
     },
     'tokenomics-community-pool-spend': async (client, authority, values) => {
       const modAccessor = moduleAccessor(client, 'tokenomics');
@@ -1850,6 +1937,9 @@ function registerWalletIpc() {
       if (values.requireValidationForStable === 'true' || values.requireValidationForStable === 'false') {
         patched.requireValidationForStable = values.requireValidationForStable === 'true';
       }
+      if (String(values.daoPublishers || '').trim()) {
+        patched.daoPublishers = parseLinesValue(values.daoPublishers);
+      }
       return modAccessor.msgUpdateParams(authority, patched);
     },
     /**
@@ -1897,6 +1987,23 @@ function registerWalletIpc() {
           plan: { name, height: BigInt(height), info: String(values.info || '') }
         })
       };
+    },
+    /**
+     * The counterpart to the above, and the reason it matters: a plan scheduled
+     * at the wrong height halts the chain at that height, and the only way back
+     * is another proposal - which has to pass before the plan fires.
+     */
+    'upgrade-cancel': async (client, authority, values, registry) => {
+      const { MsgCancelUpgrade } = await import('cosmjs-types/cosmos/upgrade/v1beta1/tx');
+      const typeUrl = '/cosmos.upgrade.v1beta1.MsgCancelUpgrade';
+      try {
+        if (!registry.lookupType(typeUrl)) registry.register(typeUrl, MsgCancelUpgrade);
+      } catch {
+        registry.register(typeUrl, MsgCancelUpgrade);
+      }
+      // No fields: the module holds at most one plan, so cancelling names none.
+      void values;
+      return { typeUrl, value: MsgCancelUpgrade.fromPartial({ authority }) };
     }
   };
 
