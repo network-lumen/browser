@@ -380,7 +380,8 @@
         </div>
 
         <!-- ####### EXPLORER: VALIDATORS VIEW ####### -->
-        <div v-else-if="currentView === 'validators'" class="border-radius-12px p-32px bg-transparent overflow-visible">
+        <!-- Same 24px as governance and params: <main> pads, views do not. -->
+        <div v-else-if="currentView === 'validators'" class="border-radius-12px bg-transparent overflow-visible">
           <!--
             The whole position in one line, above the per-validator breakdown.
             Stake sits in three states at once and the chain reports each of them

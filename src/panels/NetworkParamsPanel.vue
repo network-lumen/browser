@@ -1,7 +1,13 @@
 <template>
   <!-- ####### lumen://network NETWORK PARAMS ####### -->
-  <section class="p-32px">
-    <UiPageHeader :title="t('Params')" title-size="24px" title-weight="strong">
+  <!--
+    No padding of its own, and a 20px medium heading: lumen://network's <main>
+    already pads every view by 24px, and the governance view adds nothing on top
+    of it. This one added 32px more and shouted its title two steps louder, so
+    switching between the two tabs moved the content and changed the type scale.
+  -->
+  <section>
+    <UiPageHeader :title="t('Params')" title-size="20px" title-weight="medium" margin-class="mb-16px">
       <template #actions>
         <UiButton variant="secondary" type="button" @click="copyAll" :disabled="!hasAnyData" class="hover-border-primary-a15 disabled-fade-50">
           <Copy :size="16" />
