@@ -1,5 +1,5 @@
 import { test, expect, type ElectronApplication } from '@playwright/test';
-import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, launchApp, liveWindow, windowWithBridge } from './support/launch';
+import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, launchApp, liveWindow, windowWithBridge, expectOk } from './support/launch';
 
 /**
  * Booting the real thing.
@@ -67,7 +67,7 @@ test('answers over IPC, so the handlers are registered too', async () => {
   // in the isolated profile - and a reply proves the round trip end to end:
   // renderer, preload, ipcMain, handler.
   const settings = await w.evaluate(() => (window as any).lumen.settingsGetAll());
-  expect(settings.ok).toBe(true);
+  expectOk(settings, 'settings read');
   expect(typeof settings.settings).toBe('object');
 });
 

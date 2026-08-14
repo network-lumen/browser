@@ -2,7 +2,7 @@ import { test, expect, type ElectronApplication } from '@playwright/test';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, launchApp } from './support/launch';
+import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, launchApp, expectOk } from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
 test.describe.configure({ mode: 'serial' });
@@ -63,7 +63,7 @@ test('adds a directory and gives back one address for the whole tree', async () 
     120_000
   )) as any;
 
-  expect(res.ok).toBe(true);
+  expectOk(res, 'directory add');
   expect(String(res.cid ?? res.rootCid ?? '')).toMatch(/^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{58,})$/);
 });
 

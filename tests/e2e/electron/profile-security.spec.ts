@@ -6,7 +6,8 @@ import {
   evalInApp,
   evalInAppOnce,
   launchApp,
-  windowWithBridge
+  windowWithBridge,
+  expectOk,
 } from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
@@ -76,7 +77,7 @@ test('refuses a password too short to be worth having', async () => {
 
 test('setting a password turns protection on and leaves the session open', async () => {
   const res = await evalInAppOnce(app, (p) => (window as any).lumen.security.setPassword({ password: p }), PASSWORD);
-  expect(res.ok).toBe(true);
+  expectOk(res, 'set password');
 
   const status = await evalInApp(app, () => (window as any).lumen.security.getStatus());
   expect(status.hasPassword).toBe(true);
@@ -91,7 +92,7 @@ test('the wrong password is refused and the right one accepted', async () => {
   expect(wrong.ok).toBe(false);
 
   const right = await evalInAppOnce(app, (p) => (window as any).lumen.security.verifyPassword({ password: p }), PASSWORD);
-  expect(right.ok).toBe(true);
+  expectOk(right, 'unlock with the right password');
 });
 
 test('locking forgets the password until it is given again', async () => {
@@ -102,7 +103,7 @@ test('locking forgets the password until it is given again', async () => {
 
   // Verifying is how the unlock screen re-establishes the session.
   const unlocked = await evalInAppOnce(app, (p) => (window as any).lumen.security.verifyPassword({ password: p }), PASSWORD);
-  expect(unlocked.ok).toBe(true);
+  expectOk(unlocked, 'unlock');
 
   const after = await evalInApp(app, () => (window as any).lumen.security.checkSession());
   expect(after.active).toBe(true);
