@@ -22,7 +22,19 @@ export type GovernanceProposal = {
    * is the only place that says why.
    */
   failedReason: string;
+  /**
+   * The on-chain changes the proposal executes if it passes, as the chain
+   * returns them. Kept raw: these are module params messages whose shape
+   * differs per module, and rendering them is the reader's job, not a mapper's.
+   */
+  messages: GovernanceProposalMessage[];
   tally: GovernanceTally;
+};
+
+export type GovernanceProposalMessage = {
+  /** e.g. "/lumen.dns.v1.MsgUpdateParams". */
+  type: string;
+  value: unknown;
 };
 
 export type GovernanceVoteOption = 'VOTE_OPTION_YES' | 'VOTE_OPTION_NO' | 'VOTE_OPTION_NO_WITH_VETO' | 'VOTE_OPTION_ABSTAIN';
