@@ -45,7 +45,11 @@ test.describe('sending tokens', () => {
     // without inventing response shapes - a test that passes because the fake
     // agrees with itself is worse than no test. Committing a send is verified
     // by hand; see the release checklist in CONTRIBUTING.md.
-    await expect(page.getByRole('button', { name: 'Preview Send' })).toBeEnabled();
+    //
+    // Scoped to the dialog, and it has to be: the button used to read "Preview
+    // Send" and now reads "Send", the same name as the one on the page behind
+    // it that opened this form.
+    await expect(dialog.getByRole('button', { name: /^Send$/i })).toBeEnabled();
   });
 
   test('rejects a non-numeric amount instead of sending it', async ({ openApp, page }) => {
