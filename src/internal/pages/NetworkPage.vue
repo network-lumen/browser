@@ -550,10 +550,32 @@
                   <span class="color-warning">{{ t('Veto {percent}%', { percent: governanceTallyPercent(proposal.tally, 'noWithVeto').toFixed(1) }) }}</span>
                   <span class="color-text-tertiary">{{ t('Abstain {percent}%', { percent: governanceTallyPercent(proposal.tally, 'abstain').toFixed(1) }) }}</span>
                 </div>
-                <UiButton variant="primary" @click="openVoteModal(proposal)">
-                  <Vote :size="16" />
-                  {{ t('Vote') }}
-                </UiButton>
+                <!--
+                  Details on the left, the action on the right. Voting on a
+                  title and a summary is voting blind: what a proposal actually
+                  does is its messages, and they were fetched and thrown away.
+                -->
+                <div class="flex-align-center flex-justify-space-between gap-12px">
+                  <UiButton variant="secondary" @click="toggleProposalDetails(proposal.id)">
+                    <FileText :size="16" />
+                    {{ isProposalExpanded(proposal.id) ? t('Hide details') : t('Details') }}
+                  </UiButton>
+                  <UiButton variant="primary" @click="openVoteModal(proposal)">
+                    <Vote :size="16" />
+                    {{ t('Vote') }}
+                  </UiButton>
+                </div>
+
+                <div v-if="isProposalExpanded(proposal.id)" class="mt-16px pt-16px border-top-default">
+                  <h4 class="m-0px mb-8px text-13px txt-weight-medium color-text-primary">{{ t('On-chain changes') }}</h4>
+                  <p v-if="!proposal.messages.length" class="m-0px text-12px color-text-tertiary">
+                    {{ t('This proposal executes nothing.') }}
+                  </p>
+                  <div v-for="(message, index) in proposal.messages" :key="index" class="mb-8px">
+                    <div class="mono text-12px color-primary mb-4px break-all">{{ message.type || t('Unknown') }}</div>
+                    <pre class="m-0px p-12px bg-secondary border-radius-8px text-11px mono color-text-secondary overflow-x-auto">{{ formatProposalMessage(message.value) }}</pre>
+                  </div>
+                </div>
               </UiCard>
             </div>
           </template>
@@ -2337,6 +2359,32 @@ const governanceClock = window.setInterval(() => {
 }, 10_000);
 onBeforeUnmount(() => window.clearInterval(governanceClock));
 
+/**
+ * Which proposals have their changes unfolded. By id, not a flag on the row:
+ * the rows are rebuilt every thirty seconds by the refresh, and a flag would
+ * fold everything back up under the reader.
+ */
+const expandedProposalIds = ref<number[]>([]);
+
+function isProposalExpanded(id: number): boolean {
+  return expandedProposalIds.value.includes(id);
+}
+
+function toggleProposalDetails(id: number) {
+  expandedProposalIds.value = isProposalExpanded(id)
+    ? expandedProposalIds.value.filter((entry) => entry !== id)
+    : [...expandedProposalIds.value, id];
+}
+
+/** The message as the chain returned it. Unreadable beats untrue. */
+function formatProposalMessage(value: unknown): string {
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
 const governanceVotingProposals = computed(() =>
   governanceProposals.value.filter((p) => p.status === 'PROPOSAL_STATUS_VOTING_PERIOD'),
 );
@@ -2412,6 +2460,9 @@ async function fetchGovernanceProposals() {
         totalDeposit: p.total_deposit?.[0]?.amount || '0',
         proposer: p.proposer || '',
         failedReason: p.failed_reason || '',
+        messages: Array.isArray(p.messages)
+          ? p.messages.map((m: any) => ({ type: String(m?.['@type'] || m?.type || ''), value: m }))
+          : [],
         tally: mapGovernanceTally(p.final_tally_result),
       }));
       // final_tally_result is zeroed while a proposal is still being voted on -
@@ -2523,6 +2574,10 @@ function canSubmitProposal(): boolean {
   return (
     proposalForm.value.title.trim().length > 0 &&
     proposalForm.value.summary.trim().length > 0 &&
+    // gov v1 refuses a proposal carrying neither an executable message nor
+    // metadata, and this app sends no metadata - so a proposal with no action
+    // is a deposit spent on a certain refusal.
+    actionDrafts.value.length > 0 &&
     !Number.isNaN(Number(proposalForm.value.depositLmn)) &&
     Number(proposalForm.value.depositLmn) >= 0
   );

@@ -26,14 +26,19 @@
 
     <div class="mb-20px">
       <div class="flex-align-center flex-justify-space-between mb-8px">
-        <label class="txt-weight-light color-text-primary text-13px">{{ t('Actions (optional)') }}</label>
+        <!--
+          Not "(optional)": gov v1 refuses a proposal carrying neither an
+          executable message nor metadata, and this app sends no metadata. One
+          action is the minimum the chain will accept.
+        -->
+        <label class="txt-weight-light color-text-primary text-13px">{{ t('Actions') }}</label>
         <UiButton variant="secondary" type="button" @click="$emit('add-action')" class="hover-border-primary-a15">
           <Plus :size="14" />
           {{ t('Add action') }}
         </UiButton>
       </div>
       <p class="color-text-secondary text-13px mb-12px">
-        {{ t('A plain text proposal has no actions. Add one or more to make this proposal execute an on-chain change if it passes.') }}
+        {{ t('At least one action is required: the chain refuses a proposal with nothing to execute. Each one is an on-chain change applied if the proposal passes.') }}
       </p>
 
       <div v-for="draft in actionDrafts" :key="draft.id" class="bg-secondary border-1-light border-radius-10px p-16px mb-12px">

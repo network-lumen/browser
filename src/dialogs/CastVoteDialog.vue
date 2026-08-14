@@ -59,10 +59,12 @@
       </label>
     </div>
 
-    <UiButton variant="primary" @click="$emit('submit')" :disabled="!option || isVoting">
-      <Vote :size="18" />
-      {{ isVoting ? t('Casting…') : t('Cast vote') }}
-    </UiButton>
+    <div class="flex-justify-end">
+      <UiButton variant="primary" @click="$emit('submit')" :disabled="!option || isVoting">
+        <Vote :size="18" />
+        {{ isVoting ? t('Casting…') : t('Cast vote') }}
+      </UiButton>
+    </div>
   </UiModal>
 </template>
 
