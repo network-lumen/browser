@@ -1785,11 +1785,6 @@ function registerWalletIpc() {
       const amount = lmnToUlmn(requireNonEmptyValue(values.amountLmn, 'amountLmn'));
       return modAccessor.msgCommunityPoolSpend(authority, { recipient, amount: [{ denom: 'ulmn', amount }] });
     },
-    'tokenomics-gov-min-deposit': async (client, authority, values) => {
-      const modAccessor = moduleAccessor(client, 'tokenomics');
-      const amount = lmnToUlmn(requireNonEmptyValue(values.minDepositLmn, 'minDepositLmn'));
-      return modAccessor.msgUpdateGovMinDeposit(authority, [{ denom: 'ulmn', amount }]);
-    },
     'tokenomics-slashing-downtime': async (client, authority, values) => {
       const modAccessor = moduleAccessor(client, 'tokenomics');
       return modAccessor.msgUpdateSlashingDowntimeParams(
@@ -1856,6 +1851,58 @@ function registerWalletIpc() {
         patched.requireValidationForStable = values.requireValidationForStable === 'true';
       }
       return modAccessor.msgUpdateParams(authority, patched);
+    },
+    /**
+     * The two deposit figures together, because the chain validates them
+     * together: gov refuses params whose expedited minimum is not strictly
+     * above the ordinary one. tokenomics MsgUpdateGovMinDeposit sets only the
+     * ordinary one, so raising it past the expedited figure failed after the
+     * vote with the deposit already spent, and nothing here could set the other.
+     *
+     * Built straight from cosmjs-types rather than through the Lumen SDK, whose
+     * GovModule is query-only - the same way `upgrade-software` below reaches
+     * for MsgSoftwareUpgrade.
+     *
+     * The current params are the base, camelised first: they arrive from REST
+     * in snake_case and the generated type reads camelCase only, which would
+     * blank the voting period, the thresholds and the quorum in passing.
+     */
+    'gov-update-deposit-params': async (client, authority, values, registry) => {
+      const { MsgUpdateParams } = await import('cosmjs-types/cosmos/gov/v1/tx');
+      const typeUrl = '/cosmos.gov.v1.MsgUpdateParams';
+      try {
+        if (!registry.lookupType(typeUrl)) registry.register(typeUrl, MsgUpdateParams);
+      } catch {
+        registry.register(typeUrl, MsgUpdateParams);
+      }
+
+      const raw = await readState('/cosmos/gov/v1/params/voting', { kind: 'rest', timeout: 15000 })
+        .catch(() => null);
+      const fetched = raw?.params ?? raw ?? null;
+      if (!fetched || typeof fetched !== 'object') throw new Error('gov_params_unavailable');
+      const params = camelizeKeysDeep(fetched);
+
+      const minUlmn = lmnToUlmn(requireNonEmptyValue(values.minDepositLmn, 'minDepositLmn'));
+      const expeditedUlmn = lmnToUlmn(
+        requireNonEmptyValue(values.expeditedMinDepositLmn, 'expeditedMinDepositLmn')
+      );
+      if (BigInt(expeditedUlmn) <= BigInt(minUlmn)) {
+        // Said here rather than left to the chain: this one costs a deposit and
+        // two voting periods to discover.
+        throw new Error('expedited_min_deposit_must_exceed_min_deposit');
+      }
+
+      return {
+        typeUrl,
+        value: MsgUpdateParams.fromPartial({
+          authority,
+          params: {
+            ...params,
+            minDeposit: [{ denom: 'ulmn', amount: minUlmn }],
+            expeditedMinDeposit: [{ denom: 'ulmn', amount: expeditedUlmn }],
+          },
+        }),
+      };
     },
     'upgrade-software': async (client, authority, values, registry) => {
       const { MsgSoftwareUpgrade } = await import('cosmjs-types/cosmos/upgrade/v1beta1/tx');

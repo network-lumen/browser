@@ -71,21 +71,29 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     ]
   },
   {
-    id: 'tokenomics-gov-min-deposit',
-    module: markForTranslation('Tokenomics'),
-    label: markForTranslation('Governance minimum deposit'),
-    summary: markForTranslation('Minimum deposit (in LMN) required for a proposal to enter voting.'),
+    // Both deposits in one action, because the chain validates them together:
+    // it refuses params whose expedited minimum is not strictly above the
+    // ordinary one. This replaced a template offering only the ordinary figure,
+    // through tokenomics MsgUpdateGovMinDeposit - which made any value above
+    // the expedited deposit impossible to submit, and impossible to fix, since
+    // nothing reachable from here could raise the other one.
+    id: 'gov-update-deposit-params',
+    module: markForTranslation('Governance'),
+    label: markForTranslation('Proposal deposits'),
+    summary: markForTranslation('Minimum deposits (in LMN) required for a proposal to enter voting. The expedited one must be higher than the ordinary one; every other governance parameter is left as it is.'),
     fields: [
       {
         key: 'minDepositLmn',
         label: markForTranslation('Minimum deposit (LMN)'),
         type: 'text',
-        placeholder: '10',
-        // The chain validates gov params together and refuses a minimum deposit
-        // at or above the expedited one. Only the first is settable from here -
-        // tokenomics exposes MsgUpdateGovMinDeposit and nothing for the other -
-        // so a value above it fails after the vote, with the deposit spent.
-        hint: markForTranslation('Must stay below the expedited minimum deposit, which this app cannot change.')
+        placeholder: '10'
+      },
+      {
+        key: 'expeditedMinDepositLmn',
+        label: markForTranslation('Expedited minimum deposit (LMN)'),
+        type: 'text',
+        placeholder: '20',
+        hint: markForTranslation('Must be strictly higher than the minimum deposit.')
       }
     ]
   },
