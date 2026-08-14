@@ -885,6 +885,51 @@ const FUNCTION_PROP_ALLOWLIST = new Map([
 }
 
 // ---------------------------------------------------------------------------
+// Rule 18: no t() inside a withDefaults() prop default.
+//
+// The defaults object is evaluated once, when the module is first imported -
+// before the user's locale has been read from settings, and never again. So the
+// translated string is frozen at import time: it comes out in whatever language
+// was loaded then, and no language change moves it.
+//
+// It fails in the one way that is hardest to spot: the component's other
+// strings follow the locale, so a single label sits there in English amid a
+// translated panel and reads like a missing catalogue entry rather than a
+// caching bug. Both occurrences in this app - ActiveProfileCard's "Active
+// profile" and SaveToDriveDialog's "Save to Drive" - were translated in all
+// twelve catalogues the whole time.
+//
+// The fix is a computed that falls back: `props.label || t('…')` runs per
+// render, which is what makes it follow the language.
+// ---------------------------------------------------------------------------
+for (const file of vueFiles) {
+  const text = readFileSync(file, 'utf8');
+  if (!text.includes('withDefaults')) continue;
+
+  // Comments blanked, offsets preserved. The note explaining this very rule
+  // sits inside a defaults object and names t('Save to Drive'), which the first
+  // version of the check reported as a violation of itself - the fifth time a
+  // scanner here has been fooled by text it should not have been reading.
+  const code = text
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
+    .replace(/(^|[^:])\/\/[^\n]*/g, (m, p1) => p1 + ' '.repeat(m.length - p1.length));
+
+  // The defaults object is withDefaults' second argument: what sits between the
+  // props type's closing `}>()` and the call's own closing paren.
+  for (const m of code.matchAll(/}>\(\)\s*,\s*\{([\s\S]*?)\n\s*\}\s*\)/g)) {
+    const call = /\bt\(\s*['"`]/.exec(m[1]);
+    if (!call) continue;
+    const index = m.index + m[0].indexOf(m[1]) + call.index;
+    violations.push({
+      rule: 'no-translated-prop-default',
+      file: relative(ROOT, file),
+      line: text.slice(0, index).split('\n').length,
+      detail: 't() in a withDefaults default is evaluated once at import time - resolve it in a computed instead',
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 const titles = {
@@ -904,6 +949,7 @@ const titles = {
   'no-duplicate-class-token': 'Same class listed twice in one class="..." attribute',
   'no-dead-css-variable': 'CSS custom property (--foo) defined in theme.css but never referenced via var()',
   'no-function-prop': 'Function passed as a prop (a component should not receive its own presentation)',
+  'no-translated-prop-default': 't() in a withDefaults default (frozen at import time, never follows a language change)',
   'stale-allowlist-entry': 'An allowlist in this script excuses something that is no longer there',
 };
 
