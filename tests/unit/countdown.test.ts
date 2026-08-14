@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasEnded, timeLeftLabel } from '../../src/internal/services/countdown';
+import { hasEnded, timeLeftLabel, updateCooldownSeconds } from '../../src/internal/services/countdown';
 
 /**
  * How long is left on a governance deadline.
@@ -49,6 +49,48 @@ describe('a deadline that is not one', () => {
   it('says nothing rather than guessing', () => {
     expect(timeLeftLabel('', NOW)).toBe('');
     expect(timeLeftLabel('soon', NOW)).toBe('');
+  });
+});
+
+/**
+ * How long before the dns module will take another update.
+ *
+ * It refuses one inside update_rate_limit_seconds with "domain updated too
+ * recently: invalid request", which does not say how long - and both numbers
+ * needed to answer are already on screen.
+ */
+describe('the update cooldown', () => {
+  const UPDATED_AT = 1786620417; // seconds, as the chain reports it
+  const at = (offsetSeconds: number) => (UPDATED_AT + offsetSeconds) * 1000;
+
+  it('counts down from the moment of the last update', () => {
+    expect(updateCooldownSeconds(UPDATED_AT, 60, at(0))).toBe(60);
+    expect(updateCooldownSeconds(UPDATED_AT, 60, at(25))).toBe(35);
+  });
+
+  it('is over once the limit has elapsed', () => {
+    expect(updateCooldownSeconds(UPDATED_AT, 60, at(60))).toBe(0);
+    expect(updateCooldownSeconds(UPDATED_AT, 60, at(600))).toBe(0);
+  });
+
+  it('is nothing when the chain sets no limit', () => {
+    expect(updateCooldownSeconds(UPDATED_AT, 0, at(0))).toBe(0);
+    expect(updateCooldownSeconds(UPDATED_AT, null, at(0))).toBe(0);
+  });
+
+  it('is nothing when the domain has never been updated', () => {
+    expect(updateCooldownSeconds(null, 60, at(0))).toBe(0);
+    expect(updateCooldownSeconds(0, 60, at(0))).toBe(0);
+  });
+
+  it('does not invent a wait out of unparseable input', () => {
+    expect(updateCooldownSeconds(Number.NaN, 60, at(0))).toBe(0);
+    expect(updateCooldownSeconds(UPDATED_AT, Number.NaN, at(0))).toBe(0);
+    expect(updateCooldownSeconds(undefined, undefined, at(0))).toBe(0);
+  });
+
+  it('never reports a negative wait', () => {
+    expect(updateCooldownSeconds(UPDATED_AT, 30, at(10_000))).toBe(0);
   });
 });
 

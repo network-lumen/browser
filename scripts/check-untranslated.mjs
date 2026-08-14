@@ -55,6 +55,7 @@ const ALLOWED = new Set([
   'redelegation to this validator already in progress',
   'invalid shares amount',
   'insufficient funds',
+  'domain updated too recently',
 
   // A CSS selector list, a CSS transition, an HTTP header, a link relationship.
   'a, button, article, section, div',

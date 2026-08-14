@@ -518,7 +518,7 @@
     <AssetTransferDialog :model-value="showAssetTransferModal" :context="assetTransferContext" :form="assetTransferForm" :selected-target="selectedAssetTransferTarget" :can-submit="canSubmitAssetTransfer" :validate-amount-input="validateAssetTransferAmountInput" :sending="assetTransferSending" @update:model-value="closeAssetTransferModal" @submit="confirmAssetTransfer" />
 
     <!-- ####### lumen://wallet SEND MODAL ####### -->
-    <SendTokensDialog :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" :show-first-transaction-notice="showFirstTransactionNotice" v-model:show-contact-picker="showContactPicker" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSendPreview" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
+    <SendTokensDialog :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" :show-first-transaction-notice="showFirstTransactionNotice" v-model:show-contact-picker="showContactPicker" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSend" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
 
     <!-- ####### lumen://wallet RECEIVE MODAL ####### -->
     <ReceiveDialog :model-value="showReceiveModal" :address="address" :qr-data-url="qrCodeDataUrl" @update:model-value="closeReceiveModal" @copy="copyAddressWithToast" />
@@ -933,9 +933,11 @@ const sendRecipientPlaceholder = computed(() =>
     ? t('Enter recipient address on the other chain')
     : t('Enter recipient address ({prefix}1…)', { prefix: sendSourcePrefix.value })
 );
+// Not "Preview": this button signs and broadcasts. There is no preview step and
+// never was, so the label was a promise of a confirmation that does not exist.
 const sendPrimaryActionLabel = computed(() => {
   if (sendingTransaction.value) return isIbcSend.value ? t('Transferring…') : t('Sending…');
-  return isIbcSend.value ? t('Preview transfer') : t('Preview send');
+  return isIbcSend.value ? t('IBC transfer') : t('Send');
 });
 
 function autoSelectIbcChannel(force = false) {
@@ -2255,7 +2257,7 @@ const sendSummary = computed(() => {
   };
 });
 
-async function confirmSendPreview() {
+async function confirmSend() {
   if (sendingTransaction.value) return;
   
   if (!sendSourceAddress.value) {

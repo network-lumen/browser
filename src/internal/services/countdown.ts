@@ -34,6 +34,33 @@ export function timeLeftLabel(deadline: string, now: number = Date.now()): strin
   return t('Less than a minute left');
 }
 
+/**
+ * Seconds still to wait before the chain will accept another update.
+ *
+ * The dns module refuses a second update inside `update_rate_limit_seconds`
+ * with "domain updated too recently", which says nothing about how long. Both
+ * halves of the answer are already on screen - the domain carries its
+ * `updated_at`, the module params carry the limit - so the wait can be stated
+ * instead of discovered by signing.
+ *
+ * @returns 0 when the wait is over, when either input is missing, or when the
+ *   chain sets no limit at all. Never a guess: an unknown is not a wait.
+ */
+export function updateCooldownSeconds(
+  updatedAtSeconds: number | null | undefined,
+  rateLimitSeconds: number | null | undefined,
+  now: number = Date.now()
+): number {
+  const updatedAt = Number(updatedAtSeconds);
+  const limit = Number(rateLimitSeconds);
+  if (!Number.isFinite(updatedAt) || updatedAt <= 0) return 0;
+  if (!Number.isFinite(limit) || limit <= 0) return 0;
+
+  const elapsed = Math.floor(now / 1000) - updatedAt;
+  const remaining = limit - elapsed;
+  return remaining > 0 ? remaining : 0;
+}
+
 /** Whether a deadline has passed, for deciding what to draw rather than what to say. */
 export function hasEnded(deadline: string, now: number = Date.now()): boolean {
   const at = Date.parse(String(deadline || ''));
