@@ -53,6 +53,13 @@ const RULES: ChainErrorRule[] = [
     match: 'insufficient funds',
     message: () => t('Not enough LMN in this wallet for that.'),
   },
+  {
+    // The dns rate limit. The settings dialog counts the wait down before
+    // anyone can get here, so this only fires when its params were stale.
+    match: 'domain updated too recently',
+    message: () =>
+      t('This domain was updated too recently. Wait for the rate limit to pass and try again.'),
+  },
 ];
 
 /**

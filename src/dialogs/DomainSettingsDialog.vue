@@ -60,6 +60,14 @@
             <p class="text-12px color-error mt-8px" v-if="insufficientBalance">
               {{ t('Not enough LMN to pay the fee and stay above the minimum your PQC link needs.') }}
             </p>
+            <!--
+              The chain rate-limits record updates and refuses an early one with
+              "domain updated too recently", which does not say how long. It
+              knows both halves of the answer, so it says them.
+            -->
+            <p class="text-12px color-warning mt-8px" v-if="cooldownSeconds > 0">
+              {{ t('This domain was updated too recently. The chain accepts the next change in {count}s.', { count: cooldownSeconds }) }}
+            </p>
           </UiCard>
 
           <div class="flex flex-justify-end gap-8px">
@@ -105,6 +113,12 @@ defineProps<{
   costLabel?: string;
   /** The floor a wallet must stay above for its PQC link, if there is one. */
   pqcMinBalanceLabel?: string;
+  /**
+   * Seconds before the chain will accept another update; 0 when it will now.
+   * Required rather than optional: an absent countdown would read as "no wait",
+   * which is the answer that costs a refused transaction.
+   */
+  cooldownSeconds: number;
   walletBalanceLabel?: string;
   canSubmit: boolean;
   busy?: boolean;

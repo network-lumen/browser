@@ -176,7 +176,7 @@
 
       <RegisterDomainDialog :model-value="showRegisterModal" :form="registerForm" :can-submit="canRegister" :busy="registering" @refresh-availability="refreshAvailability" :domain-available="domainAvailable" :dns-total-fee-label="dnsTotalFeeLabel" @update:model-value="closeRegisterModal" @submit="confirmRegister" />
 
-      <DomainSettingsDialog :model-value="showSettingsModal" :records="settingsRecords" :domain="selectedDomain" :expiry-label="selectedDomain ? expiryText(selectedDomain) : ''" :cost-label="settingsCostLabel" :pqc-min-balance-label="settingsPqcMinBalanceLabel" :wallet-balance-label="settingsWalletBalanceLabel" :can-submit="canSaveSettings" :busy="savingSettings" :insufficient-balance="settingsInsufficientBalance" @update:model-value="closeSettingsModal" @submit="saveSettings" @add-record="addSettingsRecord" @remove-record="removeSettingsRecord" />
+      <DomainSettingsDialog :model-value="showSettingsModal" :records="settingsRecords" :domain="selectedDomain" :expiry-label="selectedDomain ? expiryText(selectedDomain) : ''" :cost-label="settingsCostLabel" :pqc-min-balance-label="settingsPqcMinBalanceLabel" :cooldown-seconds="settingsCooldownSeconds" :wallet-balance-label="settingsWalletBalanceLabel" :can-submit="canSaveSettings" :busy="savingSettings" :insufficient-balance="settingsInsufficientBalance" @update:model-value="closeSettingsModal" @submit="saveSettings" @add-record="addSettingsRecord" @remove-record="removeSettingsRecord" />
 
       <TransferDomainDialog :model-value="showTransferModal" :new-owner="transferForm.newOwner" :domain="transferDomain" :expiry-label="transferDomain ? expiryText(transferDomain) : ''" :can-submit="canTransfer" :busy="transferring" @update:model-value="closeTransferModal" @update:new-owner="transferForm.newOwner = $event" @submit="confirmTransfer" />
     </main>
@@ -195,8 +195,9 @@ import UiEmptyState from '../../ui/UiEmptyState.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiTag from '../../ui/UiTag.vue';
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
+import { updateCooldownSeconds } from '../services/countdown';
 import {
   Globe,
   KeyRound,
@@ -327,11 +328,13 @@ const settingsPqcCoinRequirement = computed(
  * it, so a constant would be wrong by design.
  */
 const dnsUpdateFeeUlmn = ref<number | null>(null);
+const dnsUpdateRateLimitSeconds = ref<number | null>(null);
 
 async function loadDnsUpdateFee() {
   const dnsApi = useInternalLumen()?.dns;
   if (!dnsApi || typeof dnsApi.getParams !== 'function') {
     dnsUpdateFeeUlmn.value = null;
+    dnsUpdateRateLimitSeconds.value = null;
     return;
   }
   try {
@@ -340,11 +343,38 @@ async function loadDnsUpdateFee() {
     const raw = params?.updateFeeUlmn ?? params?.update_fee_ulmn;
     const parsed = Number.parseFloat(String(raw ?? ''));
     dnsUpdateFeeUlmn.value = Number.isFinite(parsed) ? Math.max(0, parsed) : null;
+
+    const rawLimit = params?.updateRateLimitSeconds ?? params?.update_rate_limit_seconds;
+    const limit = Number.parseFloat(String(rawLimit ?? ''));
+    dnsUpdateRateLimitSeconds.value = Number.isFinite(limit) ? Math.max(0, limit) : null;
   } catch (e) {
     console.error('[domains] loadDnsUpdateFee error', e);
     dnsUpdateFeeUlmn.value = null;
+    dnsUpdateRateLimitSeconds.value = null;
   }
 }
+
+/**
+ * The dns module refuses a second update inside its rate limit, and says only
+ * "domain updated too recently". Both numbers needed to answer "how long" are
+ * already here, so the dialog states the wait rather than letting the user
+ * discover it by paying for a refused transaction.
+ *
+ * `settingsNow` ticks so the number counts down while the dialog is open.
+ */
+const settingsNow = ref(Date.now());
+const settingsClock = window.setInterval(() => {
+  settingsNow.value = Date.now();
+}, 1000);
+onBeforeUnmount(() => window.clearInterval(settingsClock));
+
+const settingsCooldownSeconds = computed(() =>
+  updateCooldownSeconds(
+    selectedDomain.value?.updatedAtSeconds ?? null,
+    dnsUpdateRateLimitSeconds.value,
+    settingsNow.value
+  )
+);
 
 const settingsCostLMN = computed(() =>
   dnsUpdateFeeUlmn.value == null ? null : dnsUpdateFeeUlmn.value / 1_000_000
@@ -403,6 +433,8 @@ const canSaveSettings = computed(() => {
   });
   if (!hasValidRecord) return false;
   if (!hasFundsForSettings.value) return false;
+  // The chain would refuse it, and charge for the attempt.
+  if (settingsCooldownSeconds.value > 0) return false;
   return true;
 });
 
@@ -826,7 +858,14 @@ async function loadDomains() {
         const n =
           typeof raw === 'string' ? parseInt(raw, 10) : Number(raw);
         const sec = Number.isFinite(n) && n > 0 ? n : null;
-        return { name, expireAtSeconds: sec } as DomainRow;
+        const rawUpdated = dom?.updated_at ?? dom?.updatedAt ?? null;
+        const updated =
+          typeof rawUpdated === 'string' ? parseInt(rawUpdated, 10) : Number(rawUpdated);
+        return {
+          name,
+          expireAtSeconds: sec,
+          updatedAtSeconds: Number.isFinite(updated) && updated > 0 ? updated : null,
+        } as DomainRow;
       })
       .filter((d: DomainRow | null): d is DomainRow => !!d);
   } catch (e) {
