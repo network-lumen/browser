@@ -602,6 +602,27 @@
                 one piece of text that explains a red badge on a proposal
                 everybody voted for.
               -->
+              <!--
+                Details here too, and arguably more useful than on a live vote:
+                this is where a FAILED badge sits, and reading the messages
+                beside the reason is what tells you which one the chain choked
+                on.
+              -->
+              <div v-if="proposal.messages.length" class="mt-12px">
+                <UiButton variant="secondary" size="sm" @click="toggleProposalDetails(proposal.id)">
+                  <FileText :size="14" />
+                  {{ isProposalExpanded(proposal.id) ? t('Hide details') : t('Details') }}
+                </UiButton>
+              </div>
+
+              <div v-if="isProposalExpanded(proposal.id)" class="mt-12px pt-12px border-top-default">
+                <h4 class="m-0px mb-8px text-13px txt-weight-medium color-text-primary">{{ t('On-chain changes') }}</h4>
+                <div v-for="(message, index) in proposal.messages" :key="index" class="mb-8px">
+                  <div class="mono text-12px color-primary mb-4px break-all">{{ message.type || t('Unknown') }}</div>
+                  <pre class="m-0px p-12px bg-secondary border-radius-8px text-11px mono color-text-secondary overflow-x-auto">{{ formatProposalMessage(message.value) }}</pre>
+                </div>
+              </div>
+
               <p v-if="proposal.failedReason" class="color-error text-12px m-0px mt-8px">
                 {{ t('Execution failed: {reason}', { reason: proposal.failedReason }) }}
               </p>
