@@ -641,7 +641,7 @@
     <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :pending-rewards="selectedValidatorRewards" :redelegation-locked-until="selectedValidatorLockedUntil" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @set-percentage="setStakePercentage" />
 
     <!-- ####### GOVERNANCE: CREATE PROPOSAL MODAL ####### -->
-    <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" />
+    <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" @template-changed="prefillActionDraft" />
 
     <!-- ####### GOVERNANCE: VOTE MODAL ####### -->
     <CastVoteDialog :model-value="showVoteModal" v-model:option="voteOption" :is-voting="isVoting" :selected-proposal="selectedProposal" @update:model-value="closeVoteModal" @submit="castVote" />
@@ -694,7 +694,9 @@ import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl, openExplo
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../../panels/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus, Plus, Activity, Network, SlidersHorizontal, FileText, Vote } from 'lucide-vue-next';
-import { GOVERNANCE_ACTION_TEMPLATES } from './governanceActionTemplates';
+import { GOVERNANCE_ACTION_TEMPLATES, findGovernanceActionTemplate } from './governanceActionTemplates';
+import { prefillFromParams } from '../services/governancePrefill';
+import { unwrapModuleParams } from '../services/moduleParams';
 import type { GovernanceActionDraft } from '../../types/networkGovernance';
 import { useToast } from '../../composables/useToast';
 import { fromBase64, toBech32 } from '@cosmjs/encoding';
@@ -2590,13 +2592,46 @@ const isSubmittingProposal = ref(false);
 const proposalForm = ref<ProposalForm>({ title: '', summary: '', depositLmn: '10' });
 const actionDrafts = ref<GovernanceActionDraft[]>([]);
 
+/**
+ * Fills a draft with what the module currently holds.
+ *
+ * MsgUpdateParams replaces the whole Params object rather than merging, so an
+ * empty form suggests one field is being changed while the message rewrites all
+ * of them. Showing the current values makes the replacement visible, and a
+ * field left alone round-trips to itself.
+ *
+ * A failed read leaves the fields blank, which is the safe outcome: the builder
+ * uses the fetched params as its base, so a blank field keeps whatever is
+ * on-chain rather than writing an empty value over it.
+ */
+async function prefillActionDraft(draft: GovernanceActionDraft) {
+  const template = findGovernanceActionTemplate(draft.templateId);
+  if (!template) return;
+
+  draft.values = prefillFromParams(template, null);
+  if (!template.paramsPath || !lumen?.net?.restGet) return;
+
+  try {
+    const res = await lumen.net.restGet(template.paramsPath, { timeout: 15000 });
+    if (res?.ok === false) return;
+    const params = unwrapModuleParams(res?.json);
+    if (params) draft.values = prefillFromParams(template, params);
+  } catch (e) {
+    console.error('[governance] prefill error', e);
+  }
+}
+
 function addActionDraft() {
   const first = GOVERNANCE_ACTION_TEMPLATES[0];
-  actionDrafts.value.push({
+  const draft: GovernanceActionDraft = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
     templateId: first.id,
     values: {}
-  });
+  };
+  actionDrafts.value.push(draft);
+  // The pushed object, not the local one: reading back through the ref is what
+  // makes the fill land on the reactive proxy the form is bound to.
+  void prefillActionDraft(actionDrafts.value[actionDrafts.value.length - 1]);
 }
 
 function removeActionDraft(id: string) {
