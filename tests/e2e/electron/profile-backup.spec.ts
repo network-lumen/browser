@@ -2,7 +2,7 @@ import { test, expect, type ElectronApplication } from '@playwright/test';
 import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, launchApp } from './support/launch';
+import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, launchApp, expectOk } from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
 test.describe.configure({ mode: 'serial' });
@@ -106,7 +106,7 @@ test('writes a backup to the folder the user picks', async () => {
     120_000
   )) as any;
 
-  expect(res.ok).toBe(true);
+  expectOk(res, 'backup export');
   // Something was actually written; the shape of the file is the app's business,
   // its existence is the user's.
   expect(readdirSync(backupDir).length).toBeGreaterThan(0);
@@ -121,7 +121,7 @@ test('restores a signing wallet from that backup after the profile is gone', asy
   expect((await list()).profiles.map((p: any) => p.name)).not.toContain('Real Backup');
 
   const res = (await evalInApp(app, () => (window as any).lumen.profiles.importBackup(), undefined, 120_000)) as any;
-  expect(res.ok).toBe(true);
+  expectOk(res, 'backup import');
 
   const restored = (await list()).profiles.find((p: any) => p.walletAddress === address);
   expect(restored, 'the backup restored a profile with the original address').toBeTruthy();

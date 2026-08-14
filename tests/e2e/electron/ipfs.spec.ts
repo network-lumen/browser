@@ -1,5 +1,5 @@
 import { test, expect, type ElectronApplication, type Page } from '@playwright/test';
-import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, launchApp, windowWithBridge } from './support/launch';
+import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, launchApp, windowWithBridge, expectOk } from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
 test.describe.configure({ mode: 'serial' });
@@ -61,12 +61,12 @@ test('adding a file gives back an address that is already pinned', async () => {
   const unique = `lumen e2e ${Date.now()}`;
   const added = await addText(w, unique, 'note.txt');
 
-  expect(added.ok).toBe(true);
+  expectOk(added, 'ipfs add');
   // A CIDv0 or v1, not an empty string dressed up as success.
   expect(String(added.cid)).toMatch(/^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{58,})$/);
 
   const pins = await w.evaluate(() => (window as any).lumen.ipfsPinList());
-  expect(pins.ok).toBe(true);
+  expectOk(pins, 'pin list');
   expect(pins.pins).toContain(added.cid);
 });
 
@@ -77,7 +77,7 @@ test('the same bytes come back out', async () => {
   const added = await addText(w, unique, 'round.txt');
 
   const got = await w.evaluate((cid) => (window as any).lumen.ipfsGet(cid), added.cid);
-  expect(got.ok).toBe(true);
+  expectOk(got, 'ipfs get');
   const text = typeof got.data === 'string' ? got.data : new TextDecoder().decode(new Uint8Array(got.data ?? []));
   expect(text).toContain(unique);
 });
@@ -97,7 +97,7 @@ test('unpinning drops it from the list', async () => {
   expect((await w.evaluate(() => (window as any).lumen.ipfsPinList())).pins).toContain(added.cid);
 
   const removed = await w.evaluate((cid) => (window as any).lumen.ipfsUnpin(cid), added.cid);
-  expect(removed.ok).toBe(true);
+  expectOk(removed, 'unpin');
 
   const after = await w.evaluate(() => (window as any).lumen.ipfsPinList());
   expect(after.pins).not.toContain(added.cid);
@@ -108,20 +108,23 @@ test('an IPNS key publishes a CID and resolves back to it', async () => {
   test.setTimeout(120_000);
   const keyName = `e2e-${Date.now()}`;
   const key = await w.evaluate((n) => (window as any).lumen.ipfsKeyGen(n), keyName);
-  expect(key.ok).toBe(true);
+  expectOk(key, 'ipns key generation');
 
   const added = await addText(w, `named content ${Date.now()}`, 'named.txt');
   const published = await w.evaluate(
     ([cid, n]) => (window as any).lumen.ipfsPublishToIPNS(cid, n),
     [added.cid, keyName]
   );
-  expect(published.ok).toBe(true);
+  // This is the one that failed on CI with nothing to go on. Whatever the
+  // handler knew - a publish timeout, a refused key, an API that was not up -
+  // now travels with the failure instead of being discarded by the check.
+  expectOk(published, 'ipns publish');
 
   const name = String(published.name || key.id || '');
   expect(name).not.toBe('');
 
   const resolved = await w.evaluate((n) => (window as any).lumen.ipfsResolveIPNS(n), name);
-  expect(resolved.ok).toBe(true);
+  expectOk(resolved, 'ipns resolve');
   // The resolver answers with a path; the CID it points at is what matters.
   expect(String(resolved.path ?? resolved.cid ?? '')).toContain(added.cid);
 });

@@ -1,4 +1,4 @@
-import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
+import { _electron as electron, expect, type ElectronApplication, type Page } from '@playwright/test';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -12,6 +12,23 @@ import { join } from 'node:path';
  * write the developer's own wallet - and hang, if their Lumen is open and
  * holding the profile's databases.
  */
+
+/**
+ * Asserts a bridge call succeeded, and says why when it did not.
+ *
+ * Every handler in this app answers `{ ok, error }`, and `expect(res.ok)
+ * .toBe(true)` throws the error away - so a red CI run reads "Expected: true,
+ * Received: false" and the one string that would explain it is gone. That cost
+ * a round trip on an IPNS publish nobody could reproduce locally: the process
+ * knew it had timed out and the assertion did not pass it on.
+ */
+export function expectOk(
+  result: { ok?: boolean; error?: unknown } | null | undefined,
+  what: string
+): void {
+  const reason = result?.error === undefined ? 'no error given' : String(result.error);
+  expect(result?.ok, `${what} failed: ${reason}`).toBe(true);
+}
 
 /** Electron needs a display server; the CI job runs on plain ubuntu. */
 export const NO_DISPLAY = process.platform === 'linux' && !process.env.DISPLAY;
