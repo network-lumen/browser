@@ -610,6 +610,7 @@ import { formatNumber } from '../services/format';
 import { clampPercent, errorMessage } from '../services/coerce';
 import { classifyBroadcastResult } from '../services/broadcastOutcome';
 import { toGovernanceActionPayloads } from '../services/governanceActions';
+import { describeChainError } from '../services/chainErrors';
 import { stakeActionLabel } from '../services/stakeActions';
 import {
   buildRedelegationLocks,
@@ -2413,6 +2414,35 @@ async function handleGovernanceSigningError(result: { ok?: boolean; error?: stri
   return false;
 }
 
+/**
+ * Reports a governance broadcast the way the staking dialog does.
+ *
+ * `toast.fromResult` cannot: it shows `result.error` verbatim, so a refusal
+ * arrived as the module's own English - "either metadata or Msgs length must be
+ * non-nil" - and `indexing_disabled` was reported as a failure for a proposal
+ * that was already on the chain.
+ *
+ * @returns whether the caller should carry on and close its dialog
+ */
+function reportGovernanceOutcome(result: unknown, successMessage: string): boolean {
+  const outcome = classifyBroadcastResult(result as never);
+
+  if (outcome.kind === 'failed') {
+    toast.error(describeChainError(outcome.error) || outcome.error || t('Unknown error'));
+    return false;
+  }
+
+  if (outcome.kind === 'unconfirmed') {
+    toast.warning(outcome.retrySafe
+      ? t('The transaction could not be confirmed and did not reach a block. You can safely try again.')
+      : t('The transaction was sent but could not be confirmed. Check your balance before sending it again.'));
+    return true;
+  }
+
+  toast.success(successMessage);
+  return true;
+}
+
 // Create-proposal modal
 //
 // Open, so the 16 action builders in electron/ipc/wallet.cjs can be exercised
@@ -2491,7 +2521,7 @@ async function submitProposal() {
     });
 
     if (await handleGovernanceSigningError(result)) return;
-    if (!toast.fromResult(result, t('Proposal submitted on-chain.'))) return;
+    if (!reportGovernanceOutcome(result, t('Proposal submitted on-chain.'))) return;
 
     closeCreateProposalModal();
     await fetchGovernanceProposals();
@@ -2545,7 +2575,7 @@ async function castVote() {
     });
 
     if (await handleGovernanceSigningError(result)) return;
-    if (!toast.fromResult(result, t('Vote broadcasted.'))) return;
+    if (!reportGovernanceOutcome(result, t('Vote broadcasted.'))) return;
 
     closeVoteModal();
     await fetchGovernanceProposals();
