@@ -2413,11 +2413,16 @@ async function handleGovernanceSigningError(result: { ok?: boolean; error?: stri
 }
 
 // Create-proposal modal
-// Flip to true once the 16 action builders in electron/ipc/wallet.cjs have
-// been exercised against a running testnet - keeps the UI/form fully
-// browsable (and reviewable) in the meantime without letting anyone actually
-// broadcast an unverified governance message.
-const GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED = false;
+//
+// Open, so the 16 action builders in electron/ipc/wallet.cjs can be exercised
+// against the live chain - which is the only thing that will ever verify them,
+// and the reason this was shut in the first place.
+//
+// What that costs while they are unproven: a malformed action is not refused
+// locally, it is signed and broadcast, and the deposit named in the form is
+// real LMN. A proposal the chain accepts but nobody can execute keeps that
+// deposit until it fails, so the first runs are worth doing with the minimum.
+const GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED = true;
 const showCreateProposalModal = ref(false);
 const isSubmittingProposal = ref(false);
 const proposalForm = ref<ProposalForm>({ title: '', summary: '', depositLmn: '10' });
