@@ -34,7 +34,31 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
       { key: 'transferFeeUlmn', label: markForTranslation('Transfer fee (LMN)'), type: 'text', placeholder: '0.05' },
       { key: 'bidFeeUlmn', label: markForTranslation('Bid fee (LMN)'), type: 'text', placeholder: '0.01' },
       { key: 'updateRateLimitSeconds', label: markForTranslation('Rate limit (seconds)'), type: 'number', placeholder: '60' },
-      { key: 'updatePowDifficulty', label: markForTranslation('PoW difficulty'), type: 'number', placeholder: '18' }
+      { key: 'updatePowDifficulty', label: markForTranslation('PoW difficulty'), type: 'number', placeholder: '18' },
+      { key: 'graceDays', label: markForTranslation('Grace period (days)'), type: 'number', placeholder: '1' },
+      { key: 'auctionDays', label: markForTranslation('Auction duration (days)'), type: 'number', placeholder: '1' },
+      { key: 'minPriceUlmnPerMonthLmn', label: markForTranslation('Minimum price per month (LMN)'), type: 'text', placeholder: '2' },
+      // base_fee_dns is the curve's starting price and the keeper refuses any
+      // change to it, so the four knobs below shape the curve around a fixed
+      // base rather than moving it.
+      { key: 'alpha', label: markForTranslation('Curve alpha'), type: 'text', placeholder: '0.125', hint: markForTranslation('Decimal. How sharply the price reacts to demand.') },
+      { key: 'floor', label: markForTranslation('Curve floor'), type: 'text', placeholder: '0.1' },
+      { key: 'ceiling', label: markForTranslation('Curve ceiling'), type: 'text', placeholder: '100' },
+      { key: 't', label: markForTranslation('Curve target'), type: 'number', placeholder: '50' },
+      {
+        key: 'domainTiers',
+        label: markForTranslation('Domain length tiers'),
+        type: 'textarea',
+        placeholder: '4:40000, 8:20000, 15:10000, 0:5000',
+        hint: markForTranslation('maxLength:multiplierBps pairs, in order. A max length of 0 is the catch-all and goes last.')
+      },
+      {
+        key: 'extTiers',
+        label: markForTranslation('Extension length tiers'),
+        type: 'textarea',
+        placeholder: '3:15000, 6:10000, 0:7000',
+        hint: markForTranslation('maxLength:multiplierBps pairs, in order. A max length of 0 is the catch-all and goes last.')
+      }
     ]
   },
   {
@@ -48,16 +72,27 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
       { key: 'actionFeeUlmnLmn', label: markForTranslation('Action fee (LMN)'), type: 'text', placeholder: '0.01' },
       { key: 'registerGatewayFeeUlmnLmn', label: markForTranslation('Register gateway fee (LMN)'), type: 'text', placeholder: '1' },
       { key: 'finalizeDelayMonths', label: markForTranslation('Finalize delay (months)'), type: 'text', placeholder: '1' },
-      { key: 'maxActiveContractsPerGateway', label: markForTranslation('Max active contracts / gateway'), type: 'text', placeholder: '100' }
+      { key: 'maxActiveContractsPerGateway', label: markForTranslation('Max active contracts / gateway'), type: 'text', placeholder: '100' },
+      { key: 'monthSeconds', label: markForTranslation('Month length (seconds)'), type: 'text', placeholder: '2592000', hint: markForTranslation('What a contract month is worth. Changing it reprices every running contract.') },
+      { key: 'finalizerRewardBps', label: markForTranslation('Finalizer reward (bps)'), type: 'text', placeholder: '100', hint: markForTranslation('100 bps = 1%') }
     ]
   },
   {
-    id: 'tokenomics-tax-rate',
+    // One entry per module for the same reason the dns ones were merged:
+    // MsgUpdateParams replaces the whole object, so two of them in a proposal
+    // would be two replacements and the second would undo the first.
+    //
+    // Five of the eight tokenomics params are refused by the keeper as
+    // immutable - denom, decimals, supply cap, halving interval and the initial
+    // block reward - so only these three are offered. They ride along unchanged.
+    id: 'tokenomics-update-params',
     module: markForTranslation('Tokenomics'),
-    label: markForTranslation('Transaction tax rate'),
-    summary: markForTranslation('Tax rate applied to transactions, as a decimal (e.g. 0.01 = 1%).'),
+    label: markForTranslation('Tax, minimum send & distribution'),
+    summary: markForTranslation('Transaction tax, smallest transferable amount, and how often rewards are distributed. Leave a field blank to keep it unchanged.'),
     fields: [
-      { key: 'txTaxRate', label: markForTranslation('Tax rate'), type: 'text', placeholder: '0.01' }
+      { key: 'txTaxRate', label: markForTranslation('Tax rate'), type: 'text', placeholder: '0.01', hint: markForTranslation('Decimal, e.g. 0.01 = 1%') },
+      { key: 'minSendUlmn', label: markForTranslation('Minimum send (ulmn)'), type: 'text', placeholder: '1', hint: markForTranslation('In micro-LMN, not LMN: this is the smallest unit the chain will move.') },
+      { key: 'distributionIntervalBlocks', label: markForTranslation('Distribution interval (blocks)'), type: 'text', placeholder: '1' }
     ]
   },
   {
@@ -171,7 +206,8 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
           { value: 'true', label: markForTranslation('Required') },
           { value: 'false', label: markForTranslation('Not required') }
         ]
-      }
+      },
+      { key: 'daoPublishers', label: markForTranslation('DAO publishers'), type: 'textarea', placeholder: 'lmn1...\nlmn1...', hint: markForTranslation('One bech32 address per line') }
     ]
   },
   {
@@ -184,6 +220,16 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
       { key: 'height', label: markForTranslation('Target height'), type: 'number', placeholder: '1000000' },
       { key: 'info', label: markForTranslation('Info (optional)'), type: 'textarea', placeholder: markForTranslation('Upgrade handler metadata / binary URLs…') }
     ]
+  },
+  {
+    // The counterpart to the above, and the reason it is worth having: a plan
+    // set at the wrong height halts the chain there, and the only way back is
+    // another proposal - which has to pass before the plan fires.
+    id: 'upgrade-cancel',
+    module: markForTranslation('Chain'),
+    label: markForTranslation('Cancel scheduled upgrade'),
+    summary: markForTranslation('Drop the pending upgrade plan. The module holds at most one, so there is nothing to name.'),
+    fields: []
   }
 ];
 
