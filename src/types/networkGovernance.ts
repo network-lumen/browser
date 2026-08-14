@@ -46,6 +46,28 @@ export type GovernanceActionFieldOption = {
   label: string;
 };
 
+/**
+ * How a field's current value is read out of the module's params.
+ *
+ * `key` is the params field in snake_case, as REST sends it. `unit` says what
+ * has to happen to it on the way into the form, and it is not cosmetic: a field
+ * labelled LMN whose param is in ulmn would prefill a figure a million times
+ * too large, and the builder would then multiply it again.
+ */
+export type GovernanceActionFieldSource = {
+  key: string;
+  unit?:
+    | 'raw'
+    /** ulmn on the chain, LMN in the form. */
+    | 'lmn'
+    /** repeated string -> one per line. */
+    | 'lines'
+    /** repeated LengthTier -> "maxLen:multiplierBps" pairs. */
+    | 'tiers'
+    /** bool -> the 'true'/'false' the select carries. */
+    | 'bool';
+};
+
 export type GovernanceActionField = {
   key: string;
   label: string;
@@ -53,6 +75,8 @@ export type GovernanceActionField = {
   placeholder?: string;
   hint?: string;
   options?: GovernanceActionFieldOption[];
+  /** Absent for a field with no on-chain counterpart, e.g. an upgrade height. */
+  source?: GovernanceActionFieldSource;
 };
 
 export type GovernanceActionTemplate = {
@@ -60,6 +84,12 @@ export type GovernanceActionTemplate = {
   module: string;
   label: string;
   summary: string;
+  /**
+   * REST path to the module's current params, for prefilling the form. Only the
+   * templates that send a MsgUpdateParams have one - an action that performs a
+   * deed rather than setting state has nothing to read back.
+   */
+  paramsPath?: string;
   fields: GovernanceActionField[];
 };
 

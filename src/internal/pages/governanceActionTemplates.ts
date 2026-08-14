@@ -26,34 +26,35 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   // changes it, and it is carried through from the current params untouched.
   {
     id: 'dns-update-params',
+    paramsPath: '/lumen/dns/v1/params',
     module: 'DNS',
     label: markForTranslation('Fees & guard rails'),
     summary: markForTranslation('Update domain fees, transfer and bid fees, and the guard rails on record updates. Leave a field blank to keep it unchanged.'),
     fields: [
-      { key: 'updateFeeUlmn', label: markForTranslation('Update fee (LMN)'), type: 'text', placeholder: '0.01' },
-      { key: 'transferFeeUlmn', label: markForTranslation('Transfer fee (LMN)'), type: 'text', placeholder: '0.05' },
-      { key: 'bidFeeUlmn', label: markForTranslation('Bid fee (LMN)'), type: 'text', placeholder: '0.01' },
-      { key: 'updateRateLimitSeconds', label: markForTranslation('Rate limit (seconds)'), type: 'number', placeholder: '60' },
-      { key: 'updatePowDifficulty', label: markForTranslation('PoW difficulty'), type: 'number', placeholder: '18' },
-      { key: 'graceDays', label: markForTranslation('Grace period (days)'), type: 'number', placeholder: '1' },
-      { key: 'auctionDays', label: markForTranslation('Auction duration (days)'), type: 'number', placeholder: '1' },
-      { key: 'minPriceUlmnPerMonthLmn', label: markForTranslation('Minimum price per month (LMN)'), type: 'text', placeholder: '2' },
+      { key: 'updateFeeUlmn', source: { key: 'update_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Update fee (LMN)'), type: 'text', placeholder: '0.01' },
+      { key: 'transferFeeUlmn', source: { key: 'transfer_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Transfer fee (LMN)'), type: 'text', placeholder: '0.05' },
+      { key: 'bidFeeUlmn', source: { key: 'bid_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Bid fee (LMN)'), type: 'text', placeholder: '0.01' },
+      { key: 'updateRateLimitSeconds', source: { key: 'update_rate_limit_seconds' }, label: markForTranslation('Rate limit (seconds)'), type: 'number', placeholder: '60' },
+      { key: 'updatePowDifficulty', source: { key: 'update_pow_difficulty' }, label: markForTranslation('PoW difficulty'), type: 'number', placeholder: '18' },
+      { key: 'graceDays', source: { key: 'grace_days' }, label: markForTranslation('Grace period (days)'), type: 'number', placeholder: '1' },
+      { key: 'auctionDays', source: { key: 'auction_days' }, label: markForTranslation('Auction duration (days)'), type: 'number', placeholder: '1' },
+      { key: 'minPriceUlmnPerMonthLmn', source: { key: 'min_price_ulmn_per_month', unit: 'lmn' }, label: markForTranslation('Minimum price per month (LMN)'), type: 'text', placeholder: '2' },
       // base_fee_dns is the curve's starting price and the keeper refuses any
       // change to it, so the four knobs below shape the curve around a fixed
       // base rather than moving it.
-      { key: 'alpha', label: markForTranslation('Curve alpha'), type: 'text', placeholder: '0.125', hint: markForTranslation('Decimal. How sharply the price reacts to demand.') },
-      { key: 'floor', label: markForTranslation('Curve floor'), type: 'text', placeholder: '0.1' },
-      { key: 'ceiling', label: markForTranslation('Curve ceiling'), type: 'text', placeholder: '100' },
-      { key: 't', label: markForTranslation('Curve target'), type: 'number', placeholder: '50' },
+      { key: 'alpha', source: { key: 'alpha' }, label: markForTranslation('Curve alpha'), type: 'text', placeholder: '0.125', hint: markForTranslation('Decimal. How sharply the price reacts to demand.') },
+      { key: 'floor', source: { key: 'floor' }, label: markForTranslation('Curve floor'), type: 'text', placeholder: '0.1' },
+      { key: 'ceiling', source: { key: 'ceiling' }, label: markForTranslation('Curve ceiling'), type: 'text', placeholder: '100' },
+      { key: 't', source: { key: 't' }, label: markForTranslation('Curve target'), type: 'number', placeholder: '50' },
       {
-        key: 'domainTiers',
+        key: 'domainTiers', source: { key: 'domain_tiers', unit: 'tiers' },
         label: markForTranslation('Domain length tiers'),
         type: 'textarea',
         placeholder: '4:40000, 8:20000, 15:10000, 0:5000',
         hint: markForTranslation('maxLength:multiplierBps pairs, in order. A max length of 0 is the catch-all and goes last.')
       },
       {
-        key: 'extTiers',
+        key: 'extTiers', source: { key: 'ext_tiers', unit: 'tiers' },
         label: markForTranslation('Extension length tiers'),
         type: 'textarea',
         placeholder: '3:15000, 6:10000, 0:7000',
@@ -63,18 +64,19 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'gateways-update-params',
+    paramsPath: '/lumen/gateway/v1/params',
     module: markForTranslation('Gateways'),
     label: markForTranslation('Commission, pricing & timing'),
     summary: markForTranslation('Update gateway contract commission, minimum price, action fee, and finalize delay. Leave a field blank to keep it unchanged.'),
     fields: [
-      { key: 'platformCommissionBps', label: markForTranslation('Commission (bps)'), type: 'text', placeholder: '500', hint: markForTranslation('100 bps = 1%') },
-      { key: 'minPriceUlmnPerMonthLmn', label: markForTranslation('Min contract price / month (LMN)'), type: 'text', placeholder: '1' },
-      { key: 'actionFeeUlmnLmn', label: markForTranslation('Action fee (LMN)'), type: 'text', placeholder: '0.01' },
-      { key: 'registerGatewayFeeUlmnLmn', label: markForTranslation('Register gateway fee (LMN)'), type: 'text', placeholder: '1' },
-      { key: 'finalizeDelayMonths', label: markForTranslation('Finalize delay (months)'), type: 'text', placeholder: '1' },
-      { key: 'maxActiveContractsPerGateway', label: markForTranslation('Max active contracts / gateway'), type: 'text', placeholder: '100' },
-      { key: 'monthSeconds', label: markForTranslation('Month length (seconds)'), type: 'text', placeholder: '2592000', hint: markForTranslation('What a contract month is worth. Changing it reprices every running contract.') },
-      { key: 'finalizerRewardBps', label: markForTranslation('Finalizer reward (bps)'), type: 'text', placeholder: '100', hint: markForTranslation('100 bps = 1%') }
+      { key: 'platformCommissionBps', source: { key: 'platform_commission_bps' }, label: markForTranslation('Commission (bps)'), type: 'text', placeholder: '500', hint: markForTranslation('100 bps = 1%') },
+      { key: 'minPriceUlmnPerMonthLmn', source: { key: 'min_price_ulmn_per_month', unit: 'lmn' }, label: markForTranslation('Min contract price / month (LMN)'), type: 'text', placeholder: '1' },
+      { key: 'actionFeeUlmnLmn', source: { key: 'action_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Action fee (LMN)'), type: 'text', placeholder: '0.01' },
+      { key: 'registerGatewayFeeUlmnLmn', source: { key: 'register_gateway_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Register gateway fee (LMN)'), type: 'text', placeholder: '1' },
+      { key: 'finalizeDelayMonths', source: { key: 'finalize_delay_months' }, label: markForTranslation('Finalize delay (months)'), type: 'text', placeholder: '1' },
+      { key: 'maxActiveContractsPerGateway', source: { key: 'max_active_contracts_per_gateway' }, label: markForTranslation('Max active contracts / gateway'), type: 'text', placeholder: '100' },
+      { key: 'monthSeconds', source: { key: 'month_seconds' }, label: markForTranslation('Month length (seconds)'), type: 'text', placeholder: '2592000', hint: markForTranslation('What a contract month is worth. Changing it reprices every running contract.') },
+      { key: 'finalizerRewardBps', source: { key: 'finalizer_reward_bps' }, label: markForTranslation('Finalizer reward (bps)'), type: 'text', placeholder: '100', hint: markForTranslation('100 bps = 1%') }
     ]
   },
   {
@@ -86,13 +88,14 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     // immutable - denom, decimals, supply cap, halving interval and the initial
     // block reward - so only these three are offered. They ride along unchanged.
     id: 'tokenomics-update-params',
+    paramsPath: '/lumen/tokenomics/v1/params',
     module: markForTranslation('Tokenomics'),
     label: markForTranslation('Tax, minimum send & distribution'),
     summary: markForTranslation('Transaction tax, smallest transferable amount, and how often rewards are distributed. Leave a field blank to keep it unchanged.'),
     fields: [
-      { key: 'txTaxRate', label: markForTranslation('Tax rate'), type: 'text', placeholder: '0.01', hint: markForTranslation('Decimal, e.g. 0.01 = 1%') },
-      { key: 'minSendUlmn', label: markForTranslation('Minimum send (ulmn)'), type: 'text', placeholder: '1', hint: markForTranslation('In micro-LMN, not LMN: this is the smallest unit the chain will move.') },
-      { key: 'distributionIntervalBlocks', label: markForTranslation('Distribution interval (blocks)'), type: 'text', placeholder: '1' }
+      { key: 'txTaxRate', source: { key: 'tx_tax_rate' }, label: markForTranslation('Tax rate'), type: 'text', placeholder: '0.01', hint: markForTranslation('Decimal, e.g. 0.01 = 1%') },
+      { key: 'minSendUlmn', source: { key: 'min_send_ulmn' }, label: markForTranslation('Minimum send (ulmn)'), type: 'text', placeholder: '1', hint: markForTranslation('In micro-LMN, not LMN: this is the smallest unit the chain will move.') },
+      { key: 'distributionIntervalBlocks', source: { key: 'distribution_interval_blocks' }, label: markForTranslation('Distribution interval (blocks)'), type: 'text', placeholder: '1' }
     ]
   },
   {
@@ -184,21 +187,22 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
   },
   {
     id: 'release-update-params',
+    paramsPath: '/lumen/release/params',
     module: markForTranslation('Release'),
     label: markForTranslation('Publishers, channels, fees & limits'),
     summary: markForTranslation('Update allowed publishers/channels, anti-spam fees, and per-release artifact limits. Leave a field blank to keep it unchanged.'),
     fields: [
-      { key: 'allowedPublishers', label: markForTranslation('Allowed publishers'), type: 'textarea', placeholder: 'lmn1...\nlmn1...', hint: markForTranslation('One bech32 address per line') },
-      { key: 'channels', label: markForTranslation('Channels'), type: 'textarea', placeholder: 'stable\nbeta\nnightly', hint: markForTranslation('One channel per line') },
-      { key: 'maxArtifacts', label: markForTranslation('Max artifacts'), type: 'number', placeholder: '8' },
-      { key: 'maxUrlsPerArt', label: markForTranslation('Max URLs per artifact'), type: 'number', placeholder: '4' },
-      { key: 'maxSigsPerArt', label: markForTranslation('Max signatures per artifact'), type: 'number', placeholder: '4' },
-      { key: 'maxNotesLen', label: markForTranslation('Max notes length'), type: 'number', placeholder: '2000' },
-      { key: 'publishFeeUlmnLmn', label: markForTranslation('Publish fee (LMN, escrowed)'), type: 'text', placeholder: '1' },
-      { key: 'maxPendingTtlSeconds', label: markForTranslation('Pending TTL (seconds)'), type: 'text', placeholder: '86400' },
-      { key: 'rejectRefundBps', label: markForTranslation('Reject refund (bps)'), type: 'text', placeholder: '5000', hint: markForTranslation('10000 bps = 100%') },
+      { key: 'allowedPublishers', source: { key: 'allowed_publishers', unit: 'lines' }, label: markForTranslation('Allowed publishers'), type: 'textarea', placeholder: 'lmn1...\nlmn1...', hint: markForTranslation('One bech32 address per line') },
+      { key: 'channels', source: { key: 'channels', unit: 'lines' }, label: markForTranslation('Channels'), type: 'textarea', placeholder: 'stable\nbeta\nnightly', hint: markForTranslation('One channel per line') },
+      { key: 'maxArtifacts', source: { key: 'max_artifacts' }, label: markForTranslation('Max artifacts'), type: 'number', placeholder: '8' },
+      { key: 'maxUrlsPerArt', source: { key: 'max_urls_per_art' }, label: markForTranslation('Max URLs per artifact'), type: 'number', placeholder: '4' },
+      { key: 'maxSigsPerArt', source: { key: 'max_sigs_per_art' }, label: markForTranslation('Max signatures per artifact'), type: 'number', placeholder: '4' },
+      { key: 'maxNotesLen', source: { key: 'max_notes_len' }, label: markForTranslation('Max notes length'), type: 'number', placeholder: '2000' },
+      { key: 'publishFeeUlmnLmn', source: { key: 'publish_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Publish fee (LMN, escrowed)'), type: 'text', placeholder: '1' },
+      { key: 'maxPendingTtlSeconds', source: { key: 'max_pending_ttl' }, label: markForTranslation('Pending TTL (seconds)'), type: 'text', placeholder: '86400' },
+      { key: 'rejectRefundBps', source: { key: 'reject_refund_bps' }, label: markForTranslation('Reject refund (bps)'), type: 'text', placeholder: '5000', hint: markForTranslation('10000 bps = 100%') },
       {
-        key: 'requireValidationForStable',
+        key: 'requireValidationForStable', source: { key: 'require_validation_for_stable', unit: 'bool' },
         label: markForTranslation('Require validation for stable channel'),
         type: 'select',
         options: [
@@ -207,7 +211,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
           { value: 'false', label: markForTranslation('Not required') }
         ]
       },
-      { key: 'daoPublishers', label: markForTranslation('DAO publishers'), type: 'textarea', placeholder: 'lmn1...\nlmn1...', hint: markForTranslation('One bech32 address per line') }
+      { key: 'daoPublishers', source: { key: 'dao_publishers', unit: 'lines' }, label: markForTranslation('DAO publishers'), type: 'textarea', placeholder: 'lmn1...\nlmn1...', hint: markForTranslation('One bech32 address per line') }
     ]
   },
   {

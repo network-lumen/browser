@@ -43,7 +43,7 @@
 
       <div v-for="draft in actionDrafts" :key="draft.id" class="bg-secondary border-1-light border-radius-10px p-16px mb-12px">
         <div class="flex-align-center gap-10px mb-12px">
-          <select v-model="draft.templateId" @change="resetActionDraftValues(draft)" class="flex-1 hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
+          <select v-model="draft.templateId" @change="$emit('template-changed', draft)" class="flex-1 hover-border-accent cursor-pointer py-8px px-12px border-1 border-radius-8px bg-card color-text-primary text-13px transition-all-02 focus-outline-none focus-border-primary focus-ring focus-shadow">
             <option v-for="tpl in templates" :key="tpl.id" :value="tpl.id">{{ t(tpl.module) }} — {{ t(tpl.label) }}</option>
           </select>
           <UiButton variant="icon" icon-radius-class="border-radius-8px" class="hover-bg-error-a08 hover-color-error size-32px flex-shrink-0" :title="t('Remove action')" @click="$emit('remove-action', draft.id)">
@@ -122,15 +122,16 @@ function templateForDraft(draft: GovernanceActionDraft): GovernanceActionTemplat
   return findGovernanceActionTemplate(draft.templateId);
 }
 
-/** Switching template invalidates whatever was filled in for the old one. */
-function resetActionDraftValues(draft: GovernanceActionDraft) {
-  draft.values = {};
-}
-
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'submit'): void;
   (e: 'add-action'): void;
   (e: 'remove-action', id: string): void;
+  /**
+   * Switching template invalidates what was filled in for the old one, and the
+   * new one wants the module's current values. Refilling needs the chain, so it
+   * is the page's job - this dialog only says that it happened.
+   */
+  (e: 'template-changed', draft: GovernanceActionDraft): void;
 }>();
 </script>
