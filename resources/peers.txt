@@ -18,3 +18,6 @@ https://lumen-rpc.node9x.com          https://lumen-api.node9x.com
 # TESTNET
 # http://157.180.17.63:26657 http://157.180.17.63:1317 http://157.180.17.63:9090
 # https://testnet-rpc.lumen.chaintools.tech/ https://testnet-api.lumen.chaintools.tech/
+
+# DEVNET
+http://172.28.209.134:26670 http://172.28.209.134:1330 http://172.28.209.134:9190
