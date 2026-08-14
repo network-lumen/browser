@@ -1793,6 +1793,7 @@
   "Transfer {symbol} to other chain": "نقل {symbol} إلى سلسلة أخرى",
   "Transfer amount": "مبلغ التحويل",
   "Transfer domain": "نقل النطاق",
+  "Transfer fee": "رسوم النقل",
   "Transfer fee (LMN)": "رسم النقل (LMN)",
   "Transfer in progress. Please wait…": "النقل جارٍ. انتظر قليلًا…",
   "Transfer may have been broadcast but node indexing is disabled. Check balances shortly.": "ربما بُثّ التحويل، لكن فهرسة العقدة معطّلة. تحقق من الأرصدة بعد قليل.",

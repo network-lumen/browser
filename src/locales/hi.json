@@ -1793,6 +1793,7 @@
   "Transfer {symbol} to other chain": "{symbol} दूसरी शृंखला पर भेजें",
   "Transfer amount": "भेजी जाने वाली राशि",
   "Transfer domain": "डोमेन सौंपें",
+  "Transfer fee": "ट्रांसफ़र शुल्क",
   "Transfer fee (LMN)": "भेजने का शुल्क (LMN)",
   "Transfer in progress. Please wait…": "भेजा जा रहा है। ठहरें…",
   "Transfer may have been broadcast but node indexing is disabled. Check balances shortly.": "भेजना शायद हो चुका हो, पर नोड पर अनुक्रमणिका बंद है। थोड़ी देर बाद शेष देखें।",

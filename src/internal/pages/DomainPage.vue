@@ -178,7 +178,7 @@
 
       <DomainSettingsDialog :model-value="showSettingsModal" :records="settingsRecords" :domain="selectedDomain" :expiry-label="selectedDomain ? expiryText(selectedDomain) : ''" :cost-label="settingsCostLabel" :pqc-min-balance-label="settingsPqcMinBalanceLabel" :cooldown-seconds="settingsCooldownSeconds" :wallet-balance-label="settingsWalletBalanceLabel" :can-submit="canSaveSettings" :busy="savingSettings" :insufficient-balance="settingsInsufficientBalance" @update:model-value="closeSettingsModal" @submit="saveSettings" @add-record="addSettingsRecord" @remove-record="removeSettingsRecord" />
 
-      <TransferDomainDialog :model-value="showTransferModal" :new-owner="transferForm.newOwner" :domain="transferDomain" :expiry-label="transferDomain ? expiryText(transferDomain) : ''" :can-submit="canTransfer" :busy="transferring" @update:model-value="closeTransferModal" @update:new-owner="transferForm.newOwner = $event" @submit="confirmTransfer" />
+      <TransferDomainDialog :model-value="showTransferModal" :new-owner="transferForm.newOwner" :domain="transferDomain" :expiry-label="transferDomain ? expiryText(transferDomain) : ''" :fee-label="transferFeeLabel" :can-submit="canTransfer" :busy="transferring" @update:model-value="closeTransferModal" @update:new-owner="transferForm.newOwner = $event" @submit="confirmTransfer" />
     </main>
 
   </div>
@@ -198,6 +198,7 @@ import UiTag from '../../ui/UiTag.vue';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { updateCooldownSeconds } from '../services/countdown';
+import { describeChainError } from '../services/chainErrors';
 import {
   Globe,
   KeyRound,
@@ -347,12 +348,30 @@ async function loadDnsUpdateFee() {
     const rawLimit = params?.updateRateLimitSeconds ?? params?.update_rate_limit_seconds;
     const limit = Number.parseFloat(String(rawLimit ?? ''));
     dnsUpdateRateLimitSeconds.value = Number.isFinite(limit) ? Math.max(0, limit) : null;
+
+    const rawTransfer = params?.transferFeeUlmn ?? params?.transfer_fee_ulmn;
+    const transfer = Number.parseFloat(String(rawTransfer ?? ''));
+    dnsTransferFeeUlmn.value = Number.isFinite(transfer) ? Math.max(0, transfer) : null;
   } catch (e) {
     console.error('[domains] loadDnsUpdateFee error', e);
     dnsUpdateFeeUlmn.value = null;
     dnsUpdateRateLimitSeconds.value = null;
+    dnsTransferFeeUlmn.value = null;
   }
 }
+
+/**
+ * What a transfer costs, from the same params query. Governable like the update
+ * fee, and the transfer dialog asked for an irreversible signature without ever
+ * naming a price.
+ */
+const dnsTransferFeeUlmn = ref<number | null>(null);
+
+const transferFeeLabel = computed(() =>
+  dnsTransferFeeUlmn.value == null
+    ? '…'
+    : `${(dnsTransferFeeUlmn.value / 1_000_000).toFixed(6)} LMN`
+);
 
 /**
  * The dns module refuses a second update inside its rate limit, and says only
@@ -368,9 +387,12 @@ const settingsClock = window.setInterval(() => {
 }, 1000);
 onBeforeUnmount(() => window.clearInterval(settingsClock));
 
+/** Read for the open dialog, from the chain, each time it opens. */
+const settingsUpdatedAtSeconds = ref<number | null>(null);
+
 const settingsCooldownSeconds = computed(() =>
   updateCooldownSeconds(
-    selectedDomain.value?.updatedAtSeconds ?? null,
+    settingsUpdatedAtSeconds.value,
     dnsUpdateRateLimitSeconds.value,
     settingsNow.value
   )
@@ -1028,6 +1050,7 @@ async function confirmRegister() {
 async function openSettingsModal(d?: DomainRow) {
   selectedDomain.value = d || null;
   settingsRecords.value = [];
+  settingsUpdatedAtSeconds.value = d?.updatedAtSeconds ?? null;
   showSettingsModal.value = true;
 
   const name = selectedDomain.value?.name;
@@ -1042,6 +1065,16 @@ async function openSettingsModal(d?: DomainRow) {
           key: String(r && r.key ? r.key : '').trim(),
           value: String(r && r.value ? r.value : '').trim()
         }));
+        // From this fetch, not from the list row. The row is whatever the list
+        // held when it was last loaded, and after saving once it still carries
+        // the timestamp from before - so the cooldown computed from it had
+        // already elapsed, and the button re-enabled itself for a change the
+        // chain was certain to refuse.
+        const rawUpdated = dom.updated_at ?? dom.updatedAt ?? null;
+        const updated =
+          typeof rawUpdated === 'string' ? parseInt(rawUpdated, 10) : Number(rawUpdated);
+        settingsUpdatedAtSeconds.value =
+          Number.isFinite(updated) && updated > 0 ? updated : null;
       }
     } catch (e) {
       console.error('[domains] openSettingsModal load records error', e);
@@ -1134,12 +1167,19 @@ async function saveSettings() {
     }
     
     if (!res || res.ok === false) {
-      const msg = res && res.error ? String(res.error) : t('Failed to update the domain.');
-      showToast(msg, 'error');
+      // Through the chain-error table, not raw: this path handed the module's
+      // own English straight to the toast, which is how "domain updated too
+      // recently: invalid request" reached the screen.
+      const raw = res && res.error ? String(res.error) : '';
+      showToast(describeChainError(raw) || raw || t('Failed to update the domain.'), 'error');
       return;
     }
     showToast(t('Domain settings updated.'), 'success');
     closeSettingsModal(true);
+    // The list still holds the timestamp from before this save, and the
+    // cooldown is computed from it - without this the dialog reopens saying
+    // there is no wait, for a change the chain will refuse.
+    void loadDomains();
   } catch (e) {
     console.error('[domains] saveSettings error', e);
     showToast(t('Unexpected error while updating domain.'), 'error');
@@ -1152,6 +1192,8 @@ function openTransferModal(d: DomainRow) {
   transferDomain.value = d;
   transferForm.value.newOwner = '';
   showTransferModal.value = true;
+  // The fee is governable, so it is read when the dialog opens rather than kept.
+  void loadDnsUpdateFee();
 }
 
 function closeTransferModal() {

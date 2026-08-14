@@ -1793,6 +1793,7 @@
   "Transfer {symbol} to other chain": "Pindahkan {symbol} ke rantai lain",
   "Transfer amount": "Jumlah yang dipindahkan",
   "Transfer domain": "Pindahkan domain",
+  "Transfer fee": "Biaya transfer",
   "Transfer fee (LMN)": "Biaya pemindahan (LMN)",
   "Transfer in progress. Please wait…": "Pemindahan sedang berjalan. Mohon tunggu…",
   "Transfer may have been broadcast but node indexing is disabled. Check balances shortly.": "Pemindahannya mungkin sudah disiarkan, tapi pengindeksan di simpul dimatikan. Cek saldo sebentar lagi.",

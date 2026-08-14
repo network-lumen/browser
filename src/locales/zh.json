@@ -1793,6 +1793,7 @@
   "Transfer {symbol} to other chain": "把 {symbol} 转移到其他链",
   "Transfer amount": "转移金额",
   "Transfer domain": "转移域名",
+  "Transfer fee": "转移费用",
   "Transfer fee (LMN)": "转移费用（LMN）",
   "Transfer in progress. Please wait…": "转移进行中，请稍候…",
   "Transfer may have been broadcast but node indexing is disabled. Check balances shortly.": "转移可能已广播，但节点索引已停用。请稍后查看余额。",

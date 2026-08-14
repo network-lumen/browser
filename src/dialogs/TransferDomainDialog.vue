@@ -18,6 +18,17 @@
             <p class="text-12px color-text-tertiary mt-8px">{{ t('Enter the Lumen address of the new owner') }}</p>
           </div>
 
+          <!--
+            The price, before an irreversible signature. This dialog warned that
+            the action could not be undone and never said what it cost - and the
+            fee is a governable parameter, so it is read from the chain each
+            time rather than written down here.
+          -->
+          <div class="flex-align-center flex-justify-space-between color-text-primary text-13px border-radius-10px bg-secondary border-1 py-8px px-12px mt-16px">
+            <span>{{ t('Transfer fee') }}</span>
+            <span class="txt-weight-light">{{ feeLabel }}</span>
+          </div>
+
           <div class="flex border-radius-10px gap-12px p-14px bg-fill-error border-1-error-a30 m-0px mt-16px mb-16px">
             <div class="text-20px flex-shrink-0">⚠️</div>
             <div class="color-text-primary text-13px">
@@ -57,6 +68,8 @@ defineProps<{
   newOwner: string;
   domain: { name?: string } | null;
   expiryLabel?: string;
+  /** The dns module's transfer fee, live from the chain - it is governable. */
+  feeLabel: string;
   canSubmit: boolean;
   busy?: boolean;
 }>();

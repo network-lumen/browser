@@ -1793,6 +1793,7 @@
   "Transfer {symbol} to other chain": "{symbol} を別のチェーンへ移す",
   "Transfer amount": "移す金額",
   "Transfer domain": "ドメインを移転",
+  "Transfer fee": "移転手数料",
   "Transfer fee (LMN)": "移転の手数料（LMN）",
   "Transfer in progress. Please wait…": "移動を処理中です。お待ちください…",
   "Transfer may have been broadcast but node indexing is disabled. Check balances shortly.": "送金は流れたかもしれませんが、ノードのインデックス作成が無効です。少ししてから残高を確かめてください。",
