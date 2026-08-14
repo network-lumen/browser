@@ -67,6 +67,7 @@
         <UiStatTile :label="t('Txs (last {count} blocks)', { count: txHistoryWindow })" :value="formatNumber(txHistoryTotal)" />
         <UiStatTile :label="t('Validators')" :value="String(validatorCount)" />
         <UiStatTile :label="t('Avg block time')" :value="avgBlockTimeLabel" />
+        <UiStatTile :label="t('Community pool')" :value="communityPoolLabel" />
       </div>
 
       <UiLoadingBlock v-if="isLoading" :message="t('Loading blockchain data…')" />
@@ -810,6 +811,12 @@ const isProcessingTx = ref(false);
 const bondedTokens = ref<number | null>(null);
 const unbondedTokens = ref<number | null>(null);
 const totalSupply = ref<number | null>(null);
+/** LMN held by the community pool, refreshed with the other supply figures. */
+const communityPool = ref<number | null>(null);
+
+const communityPoolLabel = computed(() =>
+  communityPool.value == null ? '—' : `${formatNumber(communityPool.value)} LMN`
+);
 
 const bondedRatioPct = computed<number | null>(() => {
   const bonded = bondedTokens.value;
@@ -1366,6 +1373,21 @@ async function fetchSupplyStats({ force = false } = {}) {
     } catch {
       // ignore
     }
+  }
+
+  // The distribution module answers in decimal ulmn - "180400000.000000" -
+  // because the pool accrues continuously between blocks, so it is not a
+  // BigInt like the others and cannot go through ulmnStringToLmnNumber.
+  try {
+    const poolRes = await lumen.net.restGet('/cosmos/distribution/v1beta1/community_pool', {
+      timeout: 15000,
+    });
+    const coins = Array.isArray(poolRes?.json?.pool) ? poolRes.json.pool : [];
+    const lmn = coins.find((c: any) => String(c?.denom || '') === 'ulmn');
+    const parsed = Number.parseFloat(String(lmn?.amount ?? ''));
+    communityPool.value = Number.isFinite(parsed) ? parsed / 1_000_000 : null;
+  } catch {
+    // ignore - the tile shows a dash rather than a stale figure
   }
 
   const bonded = bondedTokens.value;
