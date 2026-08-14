@@ -16,6 +16,12 @@ export type GovernanceProposal = {
   depositEnd: string;
   totalDeposit: string;
   proposer: string;
+  /**
+   * Why execution failed after the vote passed, straight from the chain. Empty
+   * for every other status - a proposal can be adopted and still fail, and this
+   * is the only place that says why.
+   */
+  failedReason: string;
   tally: GovernanceTally;
 };
 

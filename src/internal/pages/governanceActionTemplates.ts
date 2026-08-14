@@ -18,33 +18,23 @@ import type { GovernanceActionTemplate } from '../../types/networkGovernance';
 // Every remaining template's fields were checked against docs/governance.md's
 // governable-surface list and/or gov_param_cases.json's test scenarios.
 export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
+  // One entry for the whole module, because MsgUpdateParams replaces the entire
+  // Params object rather than merging. Three separate DNS templates could be
+  // added to one proposal, and the chain would apply them in order, each
+  // wiping the one before it - so the last message was the only one that
+  // counted. base_fee_dns is not offered: the keeper refuses any proposal that
+  // changes it, and it is carried through from the current params untouched.
   {
-    id: 'dns-update-fee',
+    id: 'dns-update-params',
     module: 'DNS',
-    label: markForTranslation('Update record fee'),
-    summary: markForTranslation('Change the flat fee (in LMN) charged on every domain record update.'),
+    label: markForTranslation('Fees & guard rails'),
+    summary: markForTranslation('Update domain fees, transfer and bid fees, and the guard rails on record updates. Leave a field blank to keep it unchanged.'),
     fields: [
-      { key: 'updateFeeUlmn', label: markForTranslation('Update fee (LMN)'), type: 'text', placeholder: '0.01' }
-    ]
-  },
-  {
-    id: 'dns-update-guards',
-    module: 'DNS',
-    label: markForTranslation('Guard rails'),
-    summary: markForTranslation('Rate limit and proof-of-work difficulty applied to domain record updates.'),
-    fields: [
+      { key: 'updateFeeUlmn', label: markForTranslation('Update fee (LMN)'), type: 'text', placeholder: '0.01' },
+      { key: 'transferFeeUlmn', label: markForTranslation('Transfer fee (LMN)'), type: 'text', placeholder: '0.05' },
+      { key: 'bidFeeUlmn', label: markForTranslation('Bid fee (LMN)'), type: 'text', placeholder: '0.01' },
       { key: 'updateRateLimitSeconds', label: markForTranslation('Rate limit (seconds)'), type: 'number', placeholder: '60' },
       { key: 'updatePowDifficulty', label: markForTranslation('PoW difficulty'), type: 'number', placeholder: '18' }
-    ]
-  },
-  {
-    id: 'dns-update-transfer-bid-fee',
-    module: 'DNS',
-    label: markForTranslation('Transfer & bid fees'),
-    summary: markForTranslation('Fees (in LMN) charged on domain transfers and auction bids.'),
-    fields: [
-      { key: 'transferFeeUlmn', label: markForTranslation('Transfer fee (LMN)'), type: 'text', placeholder: '0.05' },
-      { key: 'bidFeeUlmn', label: markForTranslation('Bid fee (LMN)'), type: 'text', placeholder: '0.01' }
     ]
   },
   {
