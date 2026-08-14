@@ -1,6 +1,7 @@
 import { t } from '../../stores/i18nStore';
 import type { ChainErrorRule } from '../../types/chainErrors';
 
+
 /**
  * Chain refusals, said in a sentence.
  *

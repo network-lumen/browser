@@ -199,6 +199,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { updateCooldownSeconds } from '../services/countdown';
 import { describeChainError } from '../services/chainErrors';
+import { paramNumber, unwrapModuleParams } from '../services/moduleParams';
 import {
   Globe,
   KeyRound,
@@ -339,19 +340,14 @@ async function loadDnsUpdateFee() {
     return;
   }
   try {
-    const res = await dnsApi.getParams();
-    const params = (res && (res.params ?? res.data ?? res)) || null;
-    const raw = params?.updateFeeUlmn ?? params?.update_fee_ulmn;
-    const parsed = Number.parseFloat(String(raw ?? ''));
-    dnsUpdateFeeUlmn.value = Number.isFinite(parsed) ? Math.max(0, parsed) : null;
-
-    const rawLimit = params?.updateRateLimitSeconds ?? params?.update_rate_limit_seconds;
-    const limit = Number.parseFloat(String(rawLimit ?? ''));
-    dnsUpdateRateLimitSeconds.value = Number.isFinite(limit) ? Math.max(0, limit) : null;
-
-    const rawTransfer = params?.transferFeeUlmn ?? params?.transfer_fee_ulmn;
-    const transfer = Number.parseFloat(String(rawTransfer ?? ''));
-    dnsTransferFeeUlmn.value = Number.isFinite(transfer) ? Math.max(0, transfer) : null;
+    const params = unwrapModuleParams(await dnsApi.getParams());
+    dnsUpdateFeeUlmn.value = paramNumber(params, 'updateFeeUlmn', 'update_fee_ulmn');
+    dnsUpdateRateLimitSeconds.value = paramNumber(
+      params,
+      'updateRateLimitSeconds',
+      'update_rate_limit_seconds'
+    );
+    dnsTransferFeeUlmn.value = paramNumber(params, 'transferFeeUlmn', 'transfer_fee_ulmn');
   } catch (e) {
     console.error('[domains] loadDnsUpdateFee error', e);
     dnsUpdateFeeUlmn.value = null;
