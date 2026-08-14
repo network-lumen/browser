@@ -57,6 +57,7 @@ const ALLOWED = new Set([
   'insufficient funds',
   'domain updated too recently',
   'expedited minimum deposit must be greater than minimum deposit',
+  'expected gov account as only signer for proposal message',
 
   // A CSS selector list, a CSS transition, an HTTP header, a link relationship.
   'a, button, article, section, div',

@@ -71,29 +71,23 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     ]
   },
   {
-    // Both deposits in one action, because the chain validates them together:
-    // it refuses params whose expedited minimum is not strictly above the
-    // ordinary one. This replaced a template offering only the ordinary figure,
-    // through tokenomics MsgUpdateGovMinDeposit - which made any value above
-    // the expedited deposit impossible to submit, and impossible to fix, since
-    // nothing reachable from here could raise the other one.
-    id: 'gov-update-deposit-params',
-    module: markForTranslation('Governance'),
-    label: markForTranslation('Proposal deposits'),
-    summary: markForTranslation('Minimum deposits (in LMN) required for a proposal to enter voting. The expedited one must be higher than the ordinary one; every other governance parameter is left as it is.'),
+    // Only the ordinary deposit, because it is the only one any client can
+    // set. Offering the expedited figure beside it would need
+    // cosmos.gov.v1.MsgUpdateParams, which cannot execute here: gov requires
+    // proposal messages to be signed by the gov account, and its own params
+    // handler requires a different authority - see the builder in
+    // electron/ipc/wallet.cjs. Tried on the devnet as proposal #7 and refused.
+    id: 'tokenomics-gov-min-deposit',
+    module: markForTranslation('Tokenomics'),
+    label: markForTranslation('Governance minimum deposit'),
+    summary: markForTranslation('Minimum deposit (in LMN) required for a proposal to enter voting.'),
     fields: [
       {
         key: 'minDepositLmn',
         label: markForTranslation('Minimum deposit (LMN)'),
         type: 'text',
-        placeholder: '10'
-      },
-      {
-        key: 'expeditedMinDepositLmn',
-        label: markForTranslation('Expedited minimum deposit (LMN)'),
-        type: 'text',
-        placeholder: '20',
-        hint: markForTranslation('Must be strictly higher than the minimum deposit.')
+        placeholder: '10',
+        hint: markForTranslation('Must stay below the expedited minimum deposit, which no client can change on this chain.')
       }
     ]
   },

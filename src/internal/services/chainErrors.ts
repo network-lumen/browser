@@ -61,7 +61,15 @@ const RULES: ChainErrorRule[] = [
     // is refused with no way to fix it from here.
     match: 'expedited minimum deposit must be greater than minimum deposit',
     message: () =>
-      t('The expedited minimum deposit must be higher than the ordinary one. Set both in the same action.'),
+      t('The minimum deposit must stay below the expedited minimum deposit, which no client can change on this chain.'),
+  },
+  {
+    // gov's own MsgUpdateParams, refused because its configured authority is
+    // not the gov account that must sign a proposal message. Nothing a client
+    // can do; worth naming so it is not mistaken for a wallet problem.
+    match: 'expected gov account as only signer for proposal message',
+    message: () =>
+      t('This chain does not accept that change through governance: the module expects a different authority.'),
   },
   {
     // The dns rate limit. The settings dialog counts the wait down before
