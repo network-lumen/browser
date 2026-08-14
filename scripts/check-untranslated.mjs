@@ -47,6 +47,15 @@ const ALLOWED = new Set([
   'invalid endpoint: empty label',
   'Error: kyber_pubkey_http_unavailable',
 
+  // Fragments of Cosmos SDK refusals, matched in src/internal/services/
+  // chainErrors.ts to say them in the user's language. These are the needle,
+  // not the message: translated, they would stop matching the chain's own
+  // English and every refusal would fall back to raw text again.
+  'out of gas',
+  'redelegation to this validator already in progress',
+  'invalid shares amount',
+  'insufficient funds',
+
   // A CSS selector list, a CSS transition, an HTTP header, a link relationship.
   'a, button, article, section, div',
   'filter 180ms ease, transform 180ms ease',
