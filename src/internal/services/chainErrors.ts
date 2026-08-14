@@ -61,7 +61,7 @@ const RULES: ChainErrorRule[] = [
     // is refused with no way to fix it from here.
     match: 'expedited minimum deposit must be greater than minimum deposit',
     message: () =>
-      t('The minimum deposit must stay below the expedited minimum deposit, which this app cannot change.'),
+      t('The expedited minimum deposit must be higher than the ordinary one. Set both in the same action.'),
   },
   {
     // The dns rate limit. The settings dialog counts the wait down before
