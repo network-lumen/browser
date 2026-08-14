@@ -176,7 +176,7 @@
 
       <RegisterDomainDialog :model-value="showRegisterModal" :form="registerForm" :can-submit="canRegister" :busy="registering" @refresh-availability="refreshAvailability" :domain-available="domainAvailable" :dns-total-fee-label="dnsTotalFeeLabel" @update:model-value="closeRegisterModal" @submit="confirmRegister" />
 
-      <DomainSettingsDialog :model-value="showSettingsModal" :records="settingsRecords" :domain="selectedDomain" :expiry-label="selectedDomain ? expiryText(selectedDomain) : ''" :cost-label="settingsCostLabel" :wallet-balance-label="settingsWalletBalanceLabel" :can-submit="canSaveSettings" :busy="savingSettings" :insufficient-balance="settingsInsufficientBalance" @update:model-value="closeSettingsModal" @submit="saveSettings" @add-record="addSettingsRecord" @remove-record="removeSettingsRecord" />
+      <DomainSettingsDialog :model-value="showSettingsModal" :records="settingsRecords" :domain="selectedDomain" :expiry-label="selectedDomain ? expiryText(selectedDomain) : ''" :cost-label="settingsCostLabel" :pqc-min-balance-label="settingsPqcMinBalanceLabel" :wallet-balance-label="settingsWalletBalanceLabel" :can-submit="canSaveSettings" :busy="savingSettings" :insufficient-balance="settingsInsufficientBalance" @update:model-value="closeSettingsModal" @submit="saveSettings" @add-record="addSettingsRecord" @remove-record="removeSettingsRecord" />
 
       <TransferDomainDialog :model-value="showTransferModal" :new-owner="transferForm.newOwner" :domain="transferDomain" :expiry-label="transferDomain ? expiryText(transferDomain) : ''" :can-submit="canTransfer" :busy="transferring" @update:model-value="closeTransferModal" @update:new-owner="transferForm.newOwner = $event" @submit="confirmTransfer" />
     </main>
@@ -316,20 +316,54 @@ const settingsPqcCoinRequirement = computed(
     null
 );
 
+/**
+ * What saving a record actually costs, read from the chain.
+ *
+ * This line used to show `pqc.minBalanceForLink` - the balance a wallet must
+ * keep for its PQC link to stay active - labelled "Cost". Two different numbers
+ * for two different things, and the one on screen was not the one being
+ * charged. The fee is `update_fee_ulmn` in the dns module's params, and it is
+ * governable: proposal #1 in this app's own governance screen exists to change
+ * it, so a constant would be wrong by design.
+ */
+const dnsUpdateFeeUlmn = ref<number | null>(null);
+
+async function loadDnsUpdateFee() {
+  const dnsApi = useInternalLumen()?.dns;
+  if (!dnsApi || typeof dnsApi.getParams !== 'function') {
+    dnsUpdateFeeUlmn.value = null;
+    return;
+  }
+  try {
+    const res = await dnsApi.getParams();
+    const params = (res && (res.params ?? res.data ?? res)) || null;
+    const raw = params?.updateFeeUlmn ?? params?.update_fee_ulmn;
+    const parsed = Number.parseFloat(String(raw ?? ''));
+    dnsUpdateFeeUlmn.value = Number.isFinite(parsed) ? Math.max(0, parsed) : null;
+  } catch (e) {
+    console.error('[domains] loadDnsUpdateFee error', e);
+    dnsUpdateFeeUlmn.value = null;
+  }
+}
+
 const settingsCostLMN = computed(() =>
+  dnsUpdateFeeUlmn.value == null ? null : dnsUpdateFeeUlmn.value / 1_000_000
+);
+
+const settingsCostLabel = computed(() =>
+  settingsCostLMN.value == null ? '…' : `${settingsCostLMN.value.toFixed(6)} LMN`
+);
+
+/** Separate from the fee, and said separately: it is a floor, not a charge. */
+const settingsPqcMinBalanceLMN = computed(() =>
   coinToLmn(settingsPqcCoinRequirement.value)
 );
 
-const settingsCostLabel = computed(() => {
-  if (settingsCostLMN.value != null) {
-    return `${settingsCostLMN.value.toFixed(6)} LMN`;
-  }
-  const coin = settingsPqcCoinRequirement.value;
-  if (coin && coin.amount != null) {
-    return `${coin.amount}${coin.denom || ''}`;
-  }
-  return '-';
-});
+const settingsPqcMinBalanceLabel = computed(() =>
+  settingsPqcMinBalanceLMN.value == null
+    ? ''
+    : `${settingsPqcMinBalanceLMN.value.toFixed(6)} LMN`
+);
 
 const settingsWalletBalanceLabel = computed(() =>
   settingsWalletBalanceLMN.value == null
@@ -337,14 +371,22 @@ const settingsWalletBalanceLabel = computed(() =>
     : `${settingsWalletBalanceLMN.value.toFixed(6)} LMN`
 );
 
+/**
+ * The wallet has to cover the fee *and* stay above the PQC floor, so the bar is
+ * whichever is higher - covering only the fee would sign a transaction that
+ * breaks the link that signs it.
+ */
+const settingsRequiredLMN = computed(() => {
+  const fee = settingsCostLMN.value ?? 0;
+  const floor = settingsPqcMinBalanceLMN.value ?? 0;
+  const required = Math.max(fee, floor);
+  return required > 0 ? required : null;
+});
+
 const settingsInsufficientBalance = computed(() => {
-  if (settingsCostLMN.value == null || settingsCostLMN.value <= 0) {
-    return false;
-  }
-  if (settingsWalletBalanceLMN.value == null) {
-    return false;
-  }
-  return settingsWalletBalanceLMN.value + 1e-9 < settingsCostLMN.value;
+  if (settingsRequiredLMN.value == null) return false;
+  if (settingsWalletBalanceLMN.value == null) return false;
+  return settingsWalletBalanceLMN.value + 1e-9 < settingsRequiredLMN.value;
 });
 
 const hasFundsForSettings = computed(
@@ -705,7 +747,13 @@ async function loadSettingsWalletBalance() {
 }
 
 async function refreshSettingsFunding() {
-  await Promise.all([loadSettingsPqcParams(), loadSettingsWalletBalance()]);
+  await Promise.all([
+    loadSettingsPqcParams(),
+    loadSettingsWalletBalance(),
+    // Refetched every time rather than cached: governance can change it, and
+    // this dialog is where the number is acted on.
+    loadDnsUpdateFee(),
+  ]);
 }
 
 function prettyDate(tsMs?: number | null): string {

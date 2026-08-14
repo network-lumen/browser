@@ -36,15 +36,17 @@
             </div>
           </UiCard>
 
-          <UiButton variant="primary" type="button"
-            @click="$emit('submit')"
-            :disabled="!canSubmit || busy" class="outline-none">
-            <span v-if="!busy" class="flex-inline-align-center gap-8px">
-              <Plus :size="16" />
-              {{ t('Register domain') }}
-            </span>
-            <UiSpinner v-else size="sm" />
-          </UiButton>
+          <div class="flex-justify-end">
+            <UiButton variant="primary" type="button"
+              @click="$emit('submit')"
+              :disabled="!canSubmit || busy" class="outline-none">
+              <span v-if="!busy" class="flex-inline-align-center gap-8px">
+                <Plus :size="16" />
+                {{ t('Register domain') }}
+              </span>
+              <UiSpinner v-else size="sm" />
+            </UiButton>
+          </div>
         </div>
   </UiModal>
 </template>

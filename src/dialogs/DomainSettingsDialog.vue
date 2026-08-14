@@ -38,16 +38,27 @@
           </div>
 
           <UiCard bg-class="bg-secondary" border-class="border-1" radius="10px" padding-class="py-8px px-12px" class="m-0px mt-8px mb-16px" :shadow="false">
+            <!--
+              Cost is the dns module's update fee, read from the chain, because
+              it is a governable parameter. This line used to show the PQC
+              minimum balance instead - a floor the wallet must stay above,
+              which is not what saving a record charges. Both are shown now,
+              named for what they are.
+            -->
             <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
               <span>{{ t('Cost') }}</span>
               <span class="txt-weight-light">{{ costLabel }}</span>
+            </div>
+            <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px" v-if="pqcMinBalanceLabel">
+              <span>{{ t('Minimum balance to keep') }}</span>
+              <span class="txt-weight-light">{{ pqcMinBalanceLabel }}</span>
             </div>
             <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
               <span>{{ t('Balance') }}</span>
               <span class="txt-weight-light">{{ walletBalanceLabel }}</span>
             </div>
-            <p class="text-12px color-text-tertiary mt-8px" v-if="insufficientBalance">
-              {{ t('You need at least {amount} available to keep your PQC link active.', { amount: costLabel || '' }) }}
+            <p class="text-12px color-error mt-8px" v-if="insufficientBalance">
+              {{ t('Not enough LMN to pay the fee and stay above the minimum your PQC link needs.') }}
             </p>
           </UiCard>
 
@@ -90,7 +101,10 @@ defineProps<{
   records: SettingsRecord[];
   domain: { name?: string } | null;
   expiryLabel?: string;
+  /** The dns module's update fee, live from the chain - it is governable. */
   costLabel?: string;
+  /** The floor a wallet must stay above for its PQC link, if there is one. */
+  pqcMinBalanceLabel?: string;
   walletBalanceLabel?: string;
   canSubmit: boolean;
   busy?: boolean;
