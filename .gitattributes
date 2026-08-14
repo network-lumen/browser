@@ -1,0 +1,12 @@
+# The catalogues are written by scripts/extract-strings.mjs with \n, and
+# `check:i18n` compares the file on disk against exactly what that script would
+# write. On a Windows checkout with core.autocrlf=true - the Git for Windows
+# default, and what the release job runs on - git hands the working tree CRLF,
+# so the bytes differ while the content is identical: the check reported every
+# catalogue "out of date" beside "2046/2046 translated, 0 missing, 0 orphaned",
+# and the Windows build failed alone.
+#
+# Pinned to LF so a checkout gives the same bytes the script produces, on every
+# platform. The comparison also normalises line endings now; this keeps the two
+# from drifting in the first place.
+src/locales/*.json text eol=lf

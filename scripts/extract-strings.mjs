@@ -81,7 +81,14 @@ for (const code of TARGET_LOCALES) {
   const orphaned = Object.keys(existing).filter((key) => !keys.has(key) && String(existing[key] || '').trim());
 
   const serialized = `${JSON.stringify(next, null, 2)}\n`;
-  const unchanged = existsSync(path) && readFileSync(path, 'utf8') === serialized;
+  // Line endings normalised before comparing, so this asks whether the
+  // catalogue's *content* is current rather than which platform checked it out.
+  // A Windows checkout converts these files to CRLF, and the byte-for-byte
+  // version of this line then called every catalogue out of date while
+  // reporting, on the line above, that all 2046 strings were translated with
+  // nothing missing and nothing orphaned.
+  const onDisk = existsSync(path) ? readFileSync(path, 'utf8').replace(/\r\n/g, '\n') : null;
+  const unchanged = onDisk === serialized;
 
   const translated = sourceKeys.length - missing.length;
   console.log(
