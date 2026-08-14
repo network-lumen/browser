@@ -1,7 +1,7 @@
 <template>
   <UiModal
     :model-value="modelValue"
-    :title="title"
+    :title="resolvedTitle"
     panel-class="w-min-520px-92vw max-h-100vh-32px"
     :closable="!isRunning"
     @update:model-value="$emit('update:modelValue', false)"
@@ -109,7 +109,10 @@ const props = withDefaults(
     canStop?: boolean;
   }>(),
   {
-    title: t('Save to Drive'),
+    // Empty, not t('Save to Drive'): a withDefaults object is evaluated once at
+    // import time, before the locale is known, so the translated default would
+    // be frozen in English. Resolved below instead.
+    title: '',
     placeholder: '',
     error: '',
     preparing: false,
@@ -136,11 +139,14 @@ defineEmits<{
   (e: 'stop'): void;
 }>();
 
+/** Read per render, so a language change moves it. See the note on `title`. */
+const resolvedTitle = computed(() => props.title || t('Save to Drive'));
+
 const confirmLabel = computed(() => {
   if (props.jobId) {
     if (props.canResume) return t('Resume save');
-    return props.isRunning ? 'Saving...' : 'Save';
+    return props.isRunning ? t('Saving…') : t('Save');
   }
-  return props.saving ? 'Saving...' : 'Save';
+  return props.saving ? t('Saving…') : t('Save');
 });
 </script>
