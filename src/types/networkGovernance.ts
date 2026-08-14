@@ -50,3 +50,12 @@ export type GovernanceActionDraft = {
   templateId: string;
   values: Record<string, string>;
 };
+
+/**
+ * A draft stripped of its reactivity and its local id, as it crosses IPC.
+ * Structured clone rejects a Vue Proxy, so this is deliberately plain.
+ */
+export type GovernanceActionPayload = {
+  templateId: string;
+  values: Record<string, string>;
+};
