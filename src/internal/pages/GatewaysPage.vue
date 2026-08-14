@@ -57,11 +57,6 @@
           </div>
         </div>
 
-        <div v-if="hasProfile" class="flex flex-column gap-4px">
-          <h2 class="color-text-primary txt-weight-light m-0px text-20px">{{ t('On-chain gateways') }}</h2>
-          <p class="color-text-secondary text-13px m-0px">{{ t('Gateways you registered on the Lumen chain, and the settings other people resolve them by.') }}</p>
-        </div>
-
         <UiEmptyState v-if="!hasProfile" class="border-radius-16px bg-primary border-1 max-w-520px mx-auto mt-32px mb-32px" :title="t('No active profile.')" :description="t('Select or create a profile first.')" />
 
         <div v-else class="flex flex-column gap-16px">

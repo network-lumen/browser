@@ -16,6 +16,7 @@ const { trimSlash } = require('../utils/strings.cjs');
 const { getSessionPassword } = require('./security.cjs');
 const { getNetworkPool } = require('../daemons/peers/pool_singleton.cjs');
 const { resolvePqcHome, signAndBroadcastWithPqcAutoLink } = require('../utils/pqc_link.cjs');
+const { resolveChainId } = require('../chain/chain_id.cjs');
 // Finding gateways and resolving one to a base URL is the client's job, in
 // gateways/client.cjs. This file is the IPC layer over it.
 const {
@@ -2268,8 +2269,7 @@ function registerGatewayIpc() {
       mark('walletFromMnemonic.start');
       const signer = await bridgeMod.walletFromMnemonic(mnemonic, bech32Prefix);
       mark('walletFromMnemonic.done');
-      const chainId =
-        input?.chainId || 'lumen';
+      const chainId = resolveChainId(input?.chainId);
 
       mark('connectWithSigner.start', { rpc: endpoints.rpcEndpoint, rest: endpoints.restEndpoint });
       const client = await bridgeMod.LumenSigningClient.connectWithSigner(
@@ -2413,7 +2413,7 @@ function registerGatewayIpc() {
       }
 
       const signer = await bridgeMod.walletFromMnemonic(mnemonic, bech32Prefix);
-      const chainId = input?.chainId || 'lumen';
+      const chainId = resolveChainId(input?.chainId);
 
       const client = await bridgeMod.LumenSigningClient.connectWithSigner(
         signer,
@@ -2563,7 +2563,7 @@ function registerGatewayIpc() {
       }
 
       const signer = await bridgeMod.walletFromMnemonic(mnemonic, bech32Prefix);
-      const chainId = input?.chainId || 'lumen';
+      const chainId = resolveChainId(input?.chainId);
 
       const client = await bridgeMod.LumenSigningClient.connectWithSigner(
         signer,
@@ -2672,7 +2672,7 @@ function registerGatewayIpc() {
       }
 
       const signer = await bridgeMod.walletFromMnemonic(mnemonic, bech32Prefix);
-      const chainId = input?.chainId || 'lumen';
+      const chainId = resolveChainId(input?.chainId);
 
       const client = await bridgeMod.LumenSigningClient.connectWithSigner(
         signer,
