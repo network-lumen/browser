@@ -3,13 +3,13 @@
 # Lines beginning with # are ignored.
 
 # Primary endpoints (verified working)
-# https://lumen-rpc.linknode.org        https://lumen-api.linknode.org        lumen-grpc.linknode.org:443
-# https://lumen.blocksync.me/rpc        https://lumen.blocksync.me/api        lumen-grpc.blocksync.me:443
-# https://lumen-rpc.node9x.com          https://lumen-api.node9x.com
+https://lumen-rpc.linknode.org        https://lumen-api.linknode.org        lumen-grpc.linknode.org:443
+https://lumen.blocksync.me/rpc        https://lumen.blocksync.me/api        lumen-grpc.blocksync.me:443
+https://lumen-rpc.node9x.com          https://lumen-api.node9x.com
+https://rpc.lumen.chaintools.tech     https://api.lumen.chaintools.tech
 
 # Disabled - DNS not found (ENOTFOUND)
-# https://lumen-rpc.chaintools.tech     https://lumen-api.chaintools.tech
-# https://rpc.lumen.chaintools.tech     https://api.lumen.chaintools.tech:443
+# 
 # https://rpc.lumen.node9x.com          https://api.lumen.node9x.com
 
 # ERR_TLS_CERT_ALTNAME_INVALID
@@ -20,4 +20,4 @@
 # https://testnet-rpc.lumen.chaintools.tech/ https://testnet-api.lumen.chaintools.tech/
 
 # DEVNET
-http://172.28.209.134:26670 http://172.28.209.134:1330 http://172.28.209.134:9190
+# http://172.28.209.134:26670 http://172.28.209.134:1330 http://172.28.209.134:9190
