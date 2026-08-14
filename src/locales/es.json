@@ -1793,6 +1793,7 @@
   "Transfer {symbol} to other chain": "Transferir {symbol} a otra cadena",
   "Transfer amount": "Importe de la transferencia",
   "Transfer domain": "Transferir el dominio",
+  "Transfer fee": "Comisión de transferencia",
   "Transfer fee (LMN)": "Comisión de transferencia (LMN)",
   "Transfer in progress. Please wait…": "Transferencia en curso. Espera…",
   "Transfer may have been broadcast but node indexing is disabled. Check balances shortly.": "Puede que la transferencia se haya difundido, pero la indexación del nodo está desactivada. Comprueba los saldos dentro de un momento.",

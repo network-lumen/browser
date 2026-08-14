@@ -1793,6 +1793,7 @@
   "Transfer {symbol} to other chain": "Перевести {symbol} в другую сеть",
   "Transfer amount": "Сумма перевода",
   "Transfer domain": "Передать домен",
+  "Transfer fee": "Комиссия за перенос",
   "Transfer fee (LMN)": "Комиссия за передачу (LMN)",
   "Transfer in progress. Please wait…": "Перевод выполняется. Подождите…",
   "Transfer may have been broadcast but node indexing is disabled. Check balances shortly.": "Перевод, возможно, отправлен, но индексация на узле отключена. Проверьте балансы чуть позже.",

@@ -1793,6 +1793,7 @@
   "Transfer {symbol} to other chain": "{symbol}을(를) 다른 체인으로 옮기기",
   "Transfer amount": "옮길 금액",
   "Transfer domain": "도메인 넘기기",
+  "Transfer fee": "이전 수수료",
   "Transfer fee (LMN)": "이전 수수료(LMN)",
   "Transfer in progress. Please wait…": "옮기는 중입니다. 기다려 주세요…",
   "Transfer may have been broadcast but node indexing is disabled. Check balances shortly.": "이체는 갔을 수 있지만 노드의 색인이 꺼져 있습니다. 잠시 뒤 잔액을 확인해 보세요.",
