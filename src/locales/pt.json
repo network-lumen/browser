@@ -887,6 +887,7 @@
   "HTTP request failed": "A requisição HTTP falhou",
   "IBC ({count})": "",
   "IBC chain": "Cadeia IBC",
+  "IBC receive": "",
   "IBC route": "Rota IBC",
   "IBC transfer": "Transferência IBC",
   "ID": "ID",

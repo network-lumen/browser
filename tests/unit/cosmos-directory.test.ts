@@ -1631,3 +1631,62 @@ describe('transaction detail', () => {
     expect(entry.label).toBe('Claim rewards');
   });
 });
+
+describe('naming a transaction made of several messages', () => {
+  function multi(hash: string, types: string[]) {
+    return {
+      txhash: hash,
+      height: '1',
+      code: 0,
+      tx: { body: { messages: types.map((type) => ({ '@type': type })) } },
+    };
+  }
+
+  it('skips the IBC plumbing and names the message that moved something', async () => {
+    // What an incoming IBC transfer actually looks like on the wire.
+    stubHttp(() => ({
+      tx_responses: [
+        multi('IBCIN', ['/ibc.core.client.v1.MsgUpdateClient', '/ibc.core.channel.v1.MsgRecvPacket']),
+      ],
+    }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry.kind).toBe('MsgRecvPacket');
+    expect(entry.label).toBe('IBC receive');
+    // Still two messages: the row names one, it does not hide the other.
+    expect(entry.messageCount).toBe(2);
+  });
+
+  it('keeps naming a transaction that is only plumbing', async () => {
+    stubHttp(() => ({ tx_responses: [multi('REL', ['/ibc.core.client.v1.MsgUpdateClient'])] }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry.label).toBe('MsgUpdateClient');
+  });
+
+  it('takes the coin from the message it named, not from the first one', async () => {
+    stubHttp(() => ({
+      tx_responses: [
+        {
+          txhash: 'MIX',
+          height: '1',
+          code: 0,
+          tx: {
+            body: {
+              messages: [
+                { '@type': '/ibc.core.client.v1.MsgUpdateClient' },
+                {
+                  '@type': '/cosmos.bank.v1beta1.MsgSend',
+                  amount: [{ denom: 'uosmo', amount: '4200' }],
+                },
+              ],
+            },
+          },
+        },
+      ],
+    }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry).toMatchObject({ label: 'Send', amount: '4200', denom: 'uosmo' });
+  });
+});

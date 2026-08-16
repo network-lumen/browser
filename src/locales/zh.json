@@ -887,6 +887,7 @@
   "HTTP request failed": "HTTP 请求失败",
   "IBC ({count})": "",
   "IBC chain": "IBC 链",
+  "IBC receive": "",
   "IBC route": "IBC 路由",
   "IBC transfer": "IBC 转账",
   "ID": "ID",

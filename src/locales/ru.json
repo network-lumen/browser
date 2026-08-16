@@ -887,6 +887,7 @@
   "HTTP request failed": "Запрос HTTP не удался",
   "IBC ({count})": "",
   "IBC chain": "Сеть IBC",
+  "IBC receive": "",
   "IBC route": "Маршрут IBC",
   "IBC transfer": "Перевод по IBC",
   "ID": "ID",

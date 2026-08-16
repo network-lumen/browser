@@ -751,6 +751,8 @@ function describeMessage(kind: string): string {
       return t('Deposit');
     case 'MsgTransfer':
       return t('IBC transfer');
+    case 'MsgRecvPacket':
+      return t('IBC receive');
     case 'MsgExec':
       return t('Execute');
     default:
@@ -774,6 +776,30 @@ function readMessageCoin(message: any): { amount: string; denom: string } {
   return { amount: firstString(coin?.amount), denom: firstString(coin?.denom) };
 }
 
+/**
+ * Relayer housekeeping, which is never what a transaction was about.
+ *
+ * An IBC delivery arrives as [MsgUpdateClient, MsgRecvPacket]: naming the row
+ * after its first message calls it "MsgUpdateClient", which is light-client
+ * bookkeeping and tells the account nothing about the tokens it just received.
+ * These are skipped when picking the message that names the row - the count
+ * still reports every message, so none of it is hidden.
+ */
+const PLUMBING_MESSAGES = new Set([
+  'MsgUpdateClient',
+  'MsgCreateClient',
+  'MsgConnectionOpenInit',
+  'MsgConnectionOpenTry',
+  'MsgConnectionOpenAck',
+  'MsgConnectionOpenConfirm',
+  'MsgChannelOpenInit',
+  'MsgChannelOpenTry',
+  'MsgChannelOpenAck',
+  'MsgChannelOpenConfirm',
+  'MsgAcknowledgement',
+  'MsgTimeout'
+]);
+
 /** One row of the tx service's answer, or null when it carries no hash. */
 function toTransaction(row: any, direction: 'in' | 'out'): CosmosTransaction | null {
   const hash = firstString(row?.txhash, row?.hash);
@@ -781,9 +807,16 @@ function toTransaction(row: any, direction: 'in' | 'out'): CosmosTransaction | n
 
   const messages = Array.isArray(row?.tx?.body?.messages) ? row.tx.body.messages : [];
   // '/cosmos.bank.v1beta1.MsgSend' is what a row is worth reading at a glance.
-  const typeUrl = firstString(messages[0]?.['@type']);
-  const kind = typeUrl.split('.').pop() || t('Transaction');
-  const coin = readMessageCoin(messages[0]);
+  const kinds = messages.map((message: any) => firstString(message?.['@type']).split('.').pop() || '');
+
+  // The first message that is not plumbing; failing that, whatever came first,
+  // so a transaction made only of plumbing still names itself rather than
+  // showing an empty type.
+  const named = kinds.findIndex((entry: string) => entry && !PLUMBING_MESSAGES.has(entry));
+  const index = named >= 0 ? named : 0;
+
+  const kind = kinds[index] || t('Transaction');
+  const coin = readMessageCoin(messages[index]);
   const code = Number(row?.code) || 0;
 
   return {
