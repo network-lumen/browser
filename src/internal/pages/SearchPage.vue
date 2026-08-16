@@ -654,7 +654,7 @@ function switchThumbToLocalGateway(r: ResultItem): boolean {
 // string. undefined instead of null drops the attribute just the same in Vue.
 function corsAttrForThumb(r: ResultItem): "anonymous" | undefined {
   if (!isSearchImageThumb(r)) return undefined;
-  if (!isGreyZoneByTags(r.badges || [])) return undefined;
+  if (!isGreyZoneByTags(r.tags)) return undefined;
   if (thumbCorsDisabledById.value[r.id]) return undefined;
   const origin = originFromUrl(r.thumbUrl || "");
   if (origin && thumbCorsDisabledByOrigin.value[origin]) return undefined;
@@ -733,7 +733,9 @@ function shouldBlurThumb(r: ResultItem): boolean {
   if (revealedThumbIds.value[r.id]) return false;
   if (hash && thumbSafety.isRevealedForSession(hash)) return false;
 
-  if (shouldSkipAnalysisAndRenderClear(r.badges || [])) return false;
+  // The indexer's tags, not the badges drawn on screen. Absent means unknown,
+  // and unknown stays blurred: that is the whole point of the default.
+  if (shouldSkipAnalysisAndRenderClear(r.tags)) return false;
   if (grantedClearThumbIds.value[r.id]) return false;
 
   return true;
@@ -753,7 +755,7 @@ function thumbHashFor(r: ResultItem): string {
 function showHideIcon(r: ResultItem): boolean {
   if (!isSearchImageThumb(r)) return false;
   if (shouldBlurThumb(r)) return false;
-  if (!isGreyZoneByTags(r.badges || [])) return false;
+  if (!isGreyZoneByTags(r.tags)) return false;
   return true;
 }
 
@@ -812,7 +814,7 @@ function onCompactThumbClick(r: ResultItem, ev: MouseEvent): void {
 
 function maybeApplyCachedDecision(r: ResultItem): void {
   if (!isSearchImageThumb(r)) return;
-  if (shouldSkipAnalysisAndRenderClear(r.badges || [])) return;
+  if (shouldSkipAnalysisAndRenderClear(r.tags)) return;
   const url = r.thumbUrl || "";
   if (!url) return;
 
@@ -839,7 +841,7 @@ function maybeApplyCachedDecision(r: ResultItem): void {
 
 function scheduleThumbAnalysis(r: ResultItem, imgEl: HTMLImageElement): void {
   if (!isSearchImageThumb(r)) return;
-  if (shouldSkipAnalysisAndRenderClear(r.badges || [])) return;
+  if (shouldSkipAnalysisAndRenderClear(r.tags)) return;
 
   const url = r.thumbUrl || "";
   if (!url) return;
@@ -903,7 +905,7 @@ function scheduleThumbAnalysis(r: ResultItem, imgEl: HTMLImageElement): void {
 function onThumbLoad(r: ResultItem, ev: Event): void {
   if (!isSearchImageThumb(r)) return;
   markThumbLoaded(r.id);
-  if (!isGreyZoneByTags(r.badges || [])) return;
+  if (!isGreyZoneByTags(r.tags)) return;
 
   const imgEl = ev.target as HTMLImageElement | null;
   if (thumbCorsProbeById.has(r.id)) {
@@ -926,19 +928,31 @@ function onThumbLoad(r: ResultItem, ev: Event): void {
   scheduleThumbAnalysis(r, imgEl);
 }
 
-function onThumbError(r: ResultItem): void {
-  // If the gateway doesn't support CORS, retry without it (thumbnail stays blurred).
-  if (!isSearchImageThumb(r)) return;
+/**
+ * A remote gateway refusing CORS is not a reason to give up on analysis. Our own
+ * gateway is started with Access-Control-Allow-Origin, so re-route there and keep
+ * the attribute. Dropping CORS instead taints the image, `createImageBitmap`
+ * throws on it, and the thumbnail then stays blurred for good: it never gets a
+ * verdict, which reads to the user as "everything is censored".
+ *
+ * Loading it tainted is the last resort, after our own gateway has also failed.
+ */
+function recoverThumbAfterLoadError(r: ResultItem): void {
+  if (!thumbLocalFallbackTriedById.has(r.id) && switchThumbToLocalGateway(r)) {
+    thumbLocalFallbackTriedById.add(r.id);
+    return;
+  }
   if (corsAttrForThumb(r) === "anonymous") {
     thumbCorsProbeById.add(r.id);
     thumbCorsDisabledById.value = { ...thumbCorsDisabledById.value, [r.id]: true };
     return;
   }
-  if (!thumbLocalFallbackTriedById.has(r.id) && switchThumbToLocalGateway(r)) {
-    thumbLocalFallbackTriedById.add(r.id);
-    return;
-  }
   markThumbBroken(r.id);
+}
+
+function onThumbError(r: ResultItem): void {
+  if (!isSearchImageThumb(r)) return;
+  recoverThumbAfterLoadError(r);
 }
 
 function onListThumbError(r: ResultItem): void {
@@ -946,16 +960,7 @@ function onListThumbError(r: ResultItem): void {
     markThumbBroken(r.id);
     return;
   }
-  if (corsAttrForThumb(r) === "anonymous") {
-    thumbCorsProbeById.add(r.id);
-    thumbCorsDisabledById.value = { ...thumbCorsDisabledById.value, [r.id]: true };
-    return;
-  }
-  if (!thumbLocalFallbackTriedById.has(r.id) && switchThumbToLocalGateway(r)) {
-    thumbLocalFallbackTriedById.add(r.id);
-    return;
-  }
-  markThumbBroken(r.id);
+  recoverThumbAfterLoadError(r);
 }
 
 function extractCidFromUrl(url: string): string | null {
@@ -2946,8 +2951,12 @@ function mapGatewayHitToResult(
     if (badges.length >= badgeLimit) break;
     if (!badges.includes(t)) badges.push(t);
   }
-  // Fallback: show MIME when we don't have tags.
-  if (!badges.length && mime) badges.push(mime);
+  // No MIME fallback here. It used to fill an empty badge row with the content
+  // type, which told a reader nothing - four results reading "image/jpeg" - and
+  // did real harm: the safety heuristic read this same array, so that one badge
+  // turned "no tags, treat as unknown" into "tagged, and not with a sensitive
+  // word", and the images nothing was known about were shown unblurred and
+  // never analysed. `tags` below is what the heuristic reads now.
 
   return {
     id: `gw:${gateway.id}:${cid}:${path || ""}`,
@@ -2956,6 +2965,7 @@ function mapGatewayHitToResult(
     kind: "ipfs",
     description: snippet || undefined,
     badges,
+    tags: extractedTags,
     thumbUrl,
     thumbCid: isImage ? (hasPath ? thumbBaseCid : cid) : undefined,
     media,
@@ -3132,6 +3142,17 @@ function mergeResultInPlace(base: ResultItem, incoming: ResultItem, leafCid: str
   base.uniqueViews7d = Math.max(baseViews, incViews);
 
   base.badges = mergeBadges(Array.isArray(base.badges) ? base.badges : [], Array.isArray(incoming.badges) ? incoming.badges : [], 20);
+
+  // Union, like the badges above: a tag another gateway knows about is still a
+  // tag. Only when no gateway had any does this stay empty, which is exactly
+  // the case the safety default is meant to catch.
+  if (Array.isArray(base.tags) || Array.isArray(incoming.tags)) {
+    base.tags = mergeBadges(
+      Array.isArray(base.tags) ? base.tags : [],
+      Array.isArray(incoming.tags) ? incoming.tags : [],
+      20,
+    );
+  }
 
   if (!base.thumbUrl && incoming.thumbUrl) base.thumbUrl = incoming.thumbUrl;
 
@@ -3325,6 +3346,13 @@ function mergeAndRankSites(query: string, items: ResultItem[]): ResultItem[] {
       r.badges || [],
       20,
     );
+    if (Array.isArray(existing.result.tags) || Array.isArray(r.tags)) {
+      existing.result.tags = mergeBadges(
+        existing.result.tags || [],
+        r.tags || [],
+        20,
+      );
+    }
     existing.result.description = existing.result.description || r.description;
 
     const nextDomain = existing.domain || domain || null;
@@ -4120,6 +4148,7 @@ async function runSearch(
         thumbUrl: favicon || undefined,
         description: bestDomain.cid ? `CID ${bestDomain.cid}` : undefined,
         badges: domainTags.length ? domainTags.slice(0, 20) : [],
+        tags: domainTags.slice(0, 20),
         kind: "site",
         site: {
           domain: bestDomain.name.toLowerCase(),
@@ -4176,6 +4205,7 @@ async function runSearch(
                 description: siteCandidate.description,
                 kind: "ipfs",
                 badges: siteCandidate.badges,
+                tags: siteCandidate.tags,
                 thumbUrl: siteCandidate.thumbUrl,
                 media: "unknown",
                 fileKind: "html",

@@ -33,10 +33,30 @@ function tagHasAny(tags: string[], needles: string[]): boolean {
   return false;
 }
 
-export function isGreyZoneByTags(tagsRaw: string[] | null | undefined): boolean {
-  if (!tagsRaw || tagsRaw.length === 0) return true;
+/**
+ * A content type ("image/jpeg", "video/mp4"), which says what a file is and
+ * nothing whatsoever about what it depicts.
+ */
+function isContentTypeTag(tag: string): boolean {
+  return /^[a-z]+\/[a-z0-9.+-]+$/.test(tag);
+}
 
-  const tags = Array.isArray(tagsRaw) ? tagsRaw : [];
+/**
+ * Tags carrying some claim about the subject, which is all this heuristic can
+ * reason about. Tags arrive from the gateway's index, so a gateway is free to
+ * put a content type in there; counting one as a description would say "this
+ * image was described, and not as a person" about an image nobody described.
+ */
+function descriptiveTags(tagsRaw: string[] | null | undefined): string[] {
+  if (!Array.isArray(tagsRaw)) return [];
+  return tagsRaw
+    .map((t) => normalizeTag(t))
+    .filter((t) => t.length > 0 && !isContentTypeTag(t));
+}
+
+export function isGreyZoneByTags(tagsRaw: string[] | null | undefined): boolean {
+  const tags = descriptiveTags(tagsRaw);
+  if (tags.length === 0) return true;
 
   const human = tagHasAny(tags, ["human", "person", "people", "man", "woman", "child", "boy", "girl", "baby"]);
   const face = tagHasAny(tags, ["face"]);
@@ -54,14 +74,29 @@ export function isBlockedBySettings(scores: ThumbSafetyScores, settings: ThumbSa
   return blockedCategories(scores, settings).length > 0;
 }
 
+/**
+ * How sure the heuristic has to be before a thumbnail is held behind the blur.
+ *
+ * The scores come from a coarse pixel-statistics pass, not a model, so the
+ * number is a confidence in ratios of skin-like, red and dark pixels rather
+ * than in any recognised subject. At 0.95 the sexual score needed roughly 56%
+ * skin-like pixels, which almost no real image reaches - the filter was
+ * effectively inert. 0.85 lands near 48% and does catch the blatant cases, at
+ * the cost of occasionally blurring a face close-up or a beach photo. That
+ * trade is deliberate: a false blur costs one click, a false clear does not.
+ */
+const BLOCK_THRESHOLD = 0.85;
+
 export function blockedCategories(
   scores: ThumbSafetyScores,
   settings: ThumbSafetySettings,
 ): ThumbSafetyBlockedCategory[] {
   const out: ThumbSafetyBlockedCategory[] = [];
-  if (!settings.showSexualContent && scores.sexual > 0.95) out.push("sexual");
-  if (!settings.showViolentContent && scores.violence > 0.95) out.push("violence");
-  if (!settings.showDisturbingImagery && scores.disturbing > 0.95) out.push("disturbing");
+  if (!settings.showSexualContent && scores.sexual > BLOCK_THRESHOLD) out.push("sexual");
+  if (!settings.showViolentContent && scores.violence > BLOCK_THRESHOLD) out.push("violence");
+  if (!settings.showDisturbingImagery && scores.disturbing > BLOCK_THRESHOLD) {
+    out.push("disturbing");
+  }
   return out;
 }
 

@@ -6,7 +6,21 @@ export type ResultItem = {
   url: string;
   description?: string;
   kind: ResultKind;
+  /** What is drawn under a result. Presentation only - see `tags`. */
   badges?: string[];
+  /**
+   * The indexer's own tags, untouched by anything drawn on screen.
+   *
+   * Separate from `badges` because the thumbnail safety heuristic reads them,
+   * and it treats "no tags at all" as unknown and therefore sensitive. While
+   * the two shared one array, a display fallback that pushed the MIME type in
+   * gave every untagged image exactly one tag - "image/jpeg" - which is not
+   * empty and matches none of the sensitive words, so the least-known images
+   * were the ones rendered in the clear and never analysed.
+   *
+   * Absent means unknown, which is the safe reading.
+   */
+  tags?: string[];
   thumbUrl?: string;
   thumbCid?: string;
   media?: "image" | "unknown";
