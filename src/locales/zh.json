@@ -1150,6 +1150,7 @@
   "No active profile.": "没有当前配置文件。",
   "No active subscriptions yet.": "暂无进行中的订阅。",
   "No activity found": "未找到活动",
+  "No address could be derived for this chain.": "",
   "No address provided": "未提供地址",
   "No address to look up.": "",
   "No API key available": "没有可用的 API 密钥",

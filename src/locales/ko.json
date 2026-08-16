@@ -1150,6 +1150,7 @@
   "No active profile.": "쓰고 있는 프로필이 없습니다.",
   "No active subscriptions yet.": "아직 이용 중인 구독이 없습니다.",
   "No activity found": "활동을 찾지 못했습니다",
+  "No address could be derived for this chain.": "",
   "No address provided": "주소를 넣지 않았습니다",
   "No address to look up.": "",
   "No API key available": "쓸 수 있는 API 키가 없습니다",

@@ -1150,6 +1150,7 @@
   "No active profile.": "لا ملف تعريف مستعمَل.",
   "No active subscriptions yet.": "لا اشتراكات سارية بعد.",
   "No activity found": "لم يُعثر على نشاط",
+  "No address could be derived for this chain.": "",
   "No address provided": "لم يُذكر عنوان",
   "No address to look up.": "",
   "No API key available": "لا مفتاح واجهة برمجية متاح",

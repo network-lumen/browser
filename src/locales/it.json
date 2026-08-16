@@ -1150,6 +1150,7 @@
   "No active profile.": "Nessun profilo attivo.",
   "No active subscriptions yet.": "Ancora nessun abbonamento attivo.",
   "No activity found": "Nessuna attività trovata",
+  "No address could be derived for this chain.": "",
   "No address provided": "Non è stato indicato alcun indirizzo",
   "No address to look up.": "",
   "No API key available": "Nessuna chiave API disponibile",

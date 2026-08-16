@@ -1150,6 +1150,7 @@
   "No active profile.": "Нет активного профиля.",
   "No active subscriptions yet.": "Пока нет действующих подписок.",
   "No activity found": "Действий не найдено",
+  "No address could be derived for this chain.": "",
   "No address provided": "Адрес не указан",
   "No address to look up.": "",
   "No API key available": "Ключа API нет",
