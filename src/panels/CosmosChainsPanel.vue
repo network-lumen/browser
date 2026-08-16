@@ -659,7 +659,7 @@
               <!-- One grid for the table, not one per row. Separate grid
                    containers size their columns independently, so a row of
                    rows never lines up - the columns have to share a grid. -->
-              <div v-else class="grid grid-cols-1fr-auto-auto-auto gap-x-12px">
+              <div v-else class="grid grid-cols-14fr-09fr-08fr-auto gap-x-12px">
                 <span class="py-6px text-11px color-text-tertiary text-uppercase">{{ t('Type') }}</span>
                 <span class="py-6px text-11px color-text-tertiary text-uppercase text-right">
                   {{ t('Amount') }}
@@ -682,22 +682,27 @@
                     </span>
                   </span>
 
-                  <span class="py-8px border-top-1 text-13px text-right mono">{{ txAmountLabel(entry) }}</span>
+                  <span class="flex flex-align-center flex-justify-end py-8px border-top-1 text-13px mono">
+                    {{ txAmountLabel(entry) }}
+                  </span>
 
-                  <span class="py-8px border-top-1 text-12px color-text-tertiary">
+                  <span class="flex flex-align-center py-8px border-top-1 text-12px color-text-tertiary">
                     {{ formatTxDate(entry.timestamp) }}
                   </span>
 
+                  <!-- `icon` and not `ghost`: a ghost button carries a border
+                       and md padding, which in a table reads as two boxes per
+                       row and sets the row height on its own. -->
                   <span class="flex flex-align-center gap-4px py-8px border-top-1">
                     <span class="text-12px color-text-tertiary mono" :title="entry.hash">
                       {{ truncateMiddle(entry.hash, { start: 6, end: 4 }) }}
                     </span>
                     <!-- Opens the transaction on its own chain, which is a page
                          of ours rather than a link out to an explorer. -->
-                    <UiButton variant="ghost" :title="t('Open transaction')" @click="openTransaction(entry.hash)">
+                    <UiButton variant="icon" :title="t('Open transaction')" @click="openTransaction(entry.hash)">
                       <ExternalLink :size="13" />
                     </UiButton>
-                    <UiButton variant="ghost" :title="t('Copy hash')" @click="copyHash(entry.hash)">
+                    <UiButton variant="icon" :title="t('Copy hash')" @click="copyHash(entry.hash)">
                       <Copy :size="13" />
                     </UiButton>
                   </span>

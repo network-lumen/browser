@@ -887,6 +887,7 @@
   "HTTP request failed": "Permintaan HTTP gagal",
   "IBC ({count})": "",
   "IBC chain": "Rantai IBC",
+  "IBC receive": "",
   "IBC route": "Rute IBC",
   "IBC transfer": "Pemindahan lewat IBC",
   "ID": "ID",
