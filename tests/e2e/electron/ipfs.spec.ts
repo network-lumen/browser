@@ -1,5 +1,5 @@
-import { test, expect, type ElectronApplication, type Page } from '@playwright/test';
-import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, launchApp, windowWithBridge, expectOk } from './support/launch';
+import { test, expect, type ElectronApplication } from '@playwright/test';
+import { NO_DISPLAY, NO_DISPLAY_REASON, closeApp, evalInApp, evalInAppOnce, launchApp, expectOk } from './support/launch';
 
 test.skip(NO_DISPLAY, NO_DISPLAY_REASON);
 test.describe.configure({ mode: 'serial' });
@@ -20,11 +20,27 @@ test.describe.configure({ mode: 'serial' });
 let app: ElectronApplication;
 
 /**
- * Fetched per test, never cached: the splash window closes when the main one
- * takes over, and a page held from beforeAll is dead by the time it is used -
- * intermittently, depending on how long the suite before it took.
+ * No test here holds a window.
+ *
+ * `windowWithBridge` hands back the last window `windows()` reports, which is
+ * the splash - it loads the same Vue app, so it has the bridge and answers
+ * every call correctly right up to the moment the main window takes over and
+ * it is destroyed. `beforeAll` waits for the daemon, not for the boot to
+ * finish, and the four short tests below run in seconds: the splash was
+ * routinely still the one being talked to by the time the IPNS test started,
+ * and that one is long enough to still be mid-publish when the swap happened.
+ * The failure landed on the publish every time, which read like a slow publish
+ * rather than what it was.
+ *
+ * `evalInApp` re-acquires the window and retries; `evalInAppOnce` targets the
+ * main window and never retries, for the calls a second attempt would break.
  */
-const bridge = () => windowWithBridge(app);
+const addText = (text: string, name: string) =>
+  evalInApp(
+    app,
+    ([t, n]) => (window as any).lumen.ipfsAdd(new TextEncoder().encode(t as string), n as string),
+    [text, name]
+  ) as Promise<any>;
 
 test.beforeAll(async () => {
   test.setTimeout(240_000);
@@ -50,70 +66,68 @@ test.afterAll(async () => {
   await closeApp(app);
 });
 
-const addText = (page: Page, text: string, name: string) =>
-  page.evaluate(
-    ([t, n]) => (window as any).lumen.ipfsAdd(new TextEncoder().encode(t as string), n as string),
-    [text, name]
-  );
-
 test('adding a file gives back an address that is already pinned', async () => {
-  const w = await bridge();
   const unique = `lumen e2e ${Date.now()}`;
-  const added = await addText(w, unique, 'note.txt');
+  const added = await addText(unique, 'note.txt');
 
   expectOk(added, 'ipfs add');
   // A CIDv0 or v1, not an empty string dressed up as success.
   expect(String(added.cid)).toMatch(/^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{58,})$/);
 
-  const pins = await w.evaluate(() => (window as any).lumen.ipfsPinList());
+  const pins = await evalInApp<any, void>(app, () => (window as any).lumen.ipfsPinList());
   expectOk(pins, 'pin list');
   expect(pins.pins).toContain(added.cid);
 });
 
 test('the same bytes come back out', async () => {
-  const w = await bridge();
   // The one property the whole app rests on: the address addresses the content.
   const unique = `round trip ${Date.now()}`;
-  const added = await addText(w, unique, 'round.txt');
+  const added = await addText(unique, 'round.txt');
 
-  const got = await w.evaluate((cid) => (window as any).lumen.ipfsGet(cid), added.cid);
+  const got = await evalInApp<any, string>(app, (cid) => (window as any).lumen.ipfsGet(cid), added.cid);
   expectOk(got, 'ipfs get');
   const text = typeof got.data === 'string' ? got.data : new TextDecoder().decode(new Uint8Array(got.data ?? []));
   expect(text).toContain(unique);
 });
 
 test('the same content added twice is the same address', async () => {
-  const w = await bridge();
   // Content addressing, not upload receipts: a second add must not mint a new id.
   const text = 'deterministic content, identical twice';
-  const first = await addText(w, text, 'a.txt');
-  const second = await addText(w, text, 'b.txt');
+  const first = await addText(text, 'a.txt');
+  const second = await addText(text, 'b.txt');
   expect(second.cid).toBe(first.cid);
 });
 
 test('unpinning drops it from the list', async () => {
-  const w = await bridge();
-  const added = await addText(w, `to unpin ${Date.now()}`, 'temp.txt');
-  expect((await w.evaluate(() => (window as any).lumen.ipfsPinList())).pins).toContain(added.cid);
+  const added = await addText(`to unpin ${Date.now()}`, 'temp.txt');
+  const pinned = await evalInApp<any, void>(app, () => (window as any).lumen.ipfsPinList());
+  expect(pinned.pins).toContain(added.cid);
 
-  const removed = await w.evaluate((cid) => (window as any).lumen.ipfsUnpin(cid), added.cid);
+  // Not retried: the second unpin of a CID the first one already dropped comes
+  // back as a failure, and the test would report it as the feature breaking.
+  const removed = await evalInAppOnce<any, string>(app, (cid) => (window as any).lumen.ipfsUnpin(cid), added.cid);
   expectOk(removed, 'unpin');
 
-  const after = await w.evaluate(() => (window as any).lumen.ipfsPinList());
+  const after = await evalInApp<any, void>(app, () => (window as any).lumen.ipfsPinList());
   expect(after.pins).not.toContain(added.cid);
 });
 
 test('an IPNS key publishes a CID and resolves back to it', async () => {
-  const w = await bridge();
   test.setTimeout(120_000);
   const keyName = `e2e-${Date.now()}`;
-  const key = await w.evaluate((n) => (window as any).lumen.ipfsKeyGen(n), keyName);
+  // Not retried: a key that exists is refused, so a second attempt at one the
+  // first call had already created reports as a broken keygen.
+  const key = await evalInAppOnce<any, string>(app, (n) => (window as any).lumen.ipfsKeyGen(n), keyName);
   expectOk(key, 'ipns key generation');
 
-  const added = await addText(w, `named content ${Date.now()}`, 'named.txt');
-  const published = await w.evaluate(
+  const added = await addText(`named content ${Date.now()}`, 'named.txt');
+  // Safe to retry: republishing the same CID under the same key writes a record
+  // with a higher sequence number that resolves to exactly the same place.
+  const published = await evalInApp<any, string[]>(
+    app,
     ([cid, n]) => (window as any).lumen.ipfsPublishToIPNS(cid, n),
-    [added.cid, keyName]
+    [added.cid, keyName],
+    90_000
   );
   // This is the one that failed on CI with nothing to go on. Whatever the
   // handler knew - a publish timeout, a refused key, an API that was not up -
@@ -123,7 +137,7 @@ test('an IPNS key publishes a CID and resolves back to it', async () => {
   const name = String(published.name || key.id || '');
   expect(name).not.toBe('');
 
-  const resolved = await w.evaluate((n) => (window as any).lumen.ipfsResolveIPNS(n), name);
+  const resolved = await evalInApp<any, string>(app, (n) => (window as any).lumen.ipfsResolveIPNS(n), name);
   expectOk(resolved, 'ipns resolve');
   // The resolver answers with a path; the CID it points at is what matters.
   expect(String(resolved.path ?? resolved.cid ?? '')).toContain(added.cid);
