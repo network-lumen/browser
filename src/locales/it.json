@@ -1289,6 +1289,7 @@
   "Open My Gateways": "Apri I miei gateway",
   "Open new tab": "Apri una nuova scheda",
   "Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.": "Apre la cartella dei log, con il log di Electron in tempo reale, l'ultimo rapporto di debug e copie innocue dei log di supporto conosciuti.",
+  "Open transaction": "",
   "Open transaction in new tab": "Apri la transazione in una nuova scheda",
   "Open ugly domain": "Apri il dominio brutto",
   "Open website": "Apri il sito",

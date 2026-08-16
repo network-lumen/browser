@@ -1289,6 +1289,7 @@
   "Open My Gateways": "Открыть «Мои шлюзы»",
   "Open new tab": "Открыть новую вкладку",
   "Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.": "Открывает папку журналов: текущий журнал Electron, последний отчёт для отладки и безопасные копии известных журналов поддержки.",
+  "Open transaction": "",
   "Open transaction in new tab": "Открыть транзакцию в новой вкладке",
   "Open ugly domain": "Открыть некрасивый домен",
   "Open website": "Открыть сайт",

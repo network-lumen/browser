@@ -1289,6 +1289,7 @@
   "Open My Gateways": "Ouvrir Mes passerelles",
   "Open new tab": "Ouvrir un nouvel onglet",
   "Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.": "Ouvrir le dossier des journaux contenant le journal Electron en direct, le dernier rapport de débogage et des copies sûres des journaux de support connus.",
+  "Open transaction": "",
   "Open transaction in new tab": "Ouvrir la transaction dans un nouvel onglet",
   "Open ugly domain": "Ouvrir le domaine moche",
   "Open website": "Ouvrir le site",

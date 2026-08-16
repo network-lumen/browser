@@ -1289,6 +1289,7 @@
   "Open My Gateways": "打开「我的网关」",
   "Open new tab": "打开新标签页",
   "Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.": "打开日志文件夹，其中包含实时的 Electron 日志、最新的调试报告以及已知支持日志的安全副本。",
+  "Open transaction": "",
   "Open transaction in new tab": "在新标签页中打开交易",
   "Open ugly domain": "打开丑域名",
   "Open website": "打开网站",

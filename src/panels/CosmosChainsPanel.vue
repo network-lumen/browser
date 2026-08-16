@@ -275,7 +275,7 @@
       which is a data dump rather than a hierarchy: the balance read the same
       as the network type.
     -->
-    <UiModal v-if="selected" :model-value="true" panel-class="w-full max-w-560px" @update:model-value="closeChain">
+    <UiModal v-if="selected" :model-value="true" panel-class="w-full max-w-760px" @update:model-value="closeChain">
       <template #header>
         <div class="flex-align-center gap-16px min-w-0 flex-1">
           <ChainMark :chain="selected" />
@@ -656,24 +656,21 @@
                 :title="t('No transactions')"
                 :description="t('Chains running without a transaction index cannot answer this, and say so the same way as an account that never spent.')"
               />
-              <div v-else class="flex flex-column">
-                <div
-                  class="grid grid-cols-1fr-auto-auto-auto gap-8px py-6px text-11px color-text-tertiary text-uppercase"
-                >
-                  <span>{{ t('Type') }}</span>
-                  <span class="text-right">{{ t('Amount') }}</span>
-                  <span>{{ t('Date') }}</span>
-                  <span>{{ t('Hash') }}</span>
-                </div>
+              <!-- One grid for the table, not one per row. Separate grid
+                   containers size their columns independently, so a row of
+                   rows never lines up - the columns have to share a grid. -->
+              <div v-else class="grid grid-cols-1fr-auto-auto-auto gap-x-12px">
+                <span class="py-6px text-11px color-text-tertiary text-uppercase">{{ t('Type') }}</span>
+                <span class="py-6px text-11px color-text-tertiary text-uppercase text-right">
+                  {{ t('Amount') }}
+                </span>
+                <span class="py-6px text-11px color-text-tertiary text-uppercase">{{ t('Date') }}</span>
+                <span class="py-6px text-11px color-text-tertiary text-uppercase">{{ t('Hash') }}</span>
 
-                <div
-                  v-for="entry in chainTxs"
-                  :key="entry.hash"
-                  class="grid grid-cols-1fr-auto-auto-auto gap-8px py-8px border-top-1 flex-align-center"
-                >
+                <template v-for="entry in chainTxs" :key="entry.hash">
                   <!-- The arrow is the direction, which is known for free: the
                        row came back from the signer query or the recipient one. -->
-                  <span class="flex-align-center gap-6px text-13px">
+                  <span class="flex flex-align-center gap-6px py-8px border-top-1 text-13px">
                     <ArrowUpRight v-if="entry.direction === 'out'" :size="14" class="color-text-tertiary" />
                     <ArrowDownLeft v-else :size="14" class="color-success" />
                     <span>{{ entry.label }}</span>
@@ -685,25 +682,26 @@
                     </span>
                   </span>
 
-                  <span class="text-13px text-right mono">{{ txAmountLabel(entry) }}</span>
-                  <span class="text-12px color-text-tertiary">{{ formatTxDate(entry.timestamp) }}</span>
+                  <span class="py-8px border-top-1 text-13px text-right mono">{{ txAmountLabel(entry) }}</span>
 
-                  <span class="flex-align-center gap-4px">
-                    <!-- The hash opens the transaction on its own chain, which
-                         is a page rather than a link out to an explorer. -->
-                    <button
-                      type="button"
-                      class="border-radius-6px py-2px px-6px bg-transparent border-none cursor-pointer color-text-secondary text-12px mono transition-all-fast hover-bg-hover"
-                      :title="entry.hash"
-                      @click="openTransaction(entry.hash)"
-                    >
+                  <span class="py-8px border-top-1 text-12px color-text-tertiary">
+                    {{ formatTxDate(entry.timestamp) }}
+                  </span>
+
+                  <span class="flex flex-align-center gap-4px py-8px border-top-1">
+                    <span class="text-12px color-text-tertiary mono" :title="entry.hash">
                       {{ truncateMiddle(entry.hash, { start: 6, end: 4 }) }}
-                    </button>
+                    </span>
+                    <!-- Opens the transaction on its own chain, which is a page
+                         of ours rather than a link out to an explorer. -->
+                    <UiButton variant="ghost" :title="t('Open transaction')" @click="openTransaction(entry.hash)">
+                      <ExternalLink :size="13" />
+                    </UiButton>
                     <UiButton variant="ghost" :title="t('Copy hash')" @click="copyHash(entry.hash)">
                       <Copy :size="13" />
                     </UiButton>
                   </span>
-                </div>
+                </template>
               </div>
             </div>
 

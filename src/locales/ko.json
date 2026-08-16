@@ -1289,6 +1289,7 @@
   "Open My Gateways": "「내 게이트웨이」 열기",
   "Open new tab": "새 탭 열기",
   "Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.": "로그 폴더를 엽니다. 돌아가고 있는 Electron 로그, 가장 최근의 디버그 보고서, 알려진 지원용 로그의 안전한 사본이 들어 있습니다.",
+  "Open transaction": "",
   "Open transaction in new tab": "트랜잭션을 새 탭에서 열기",
   "Open ugly domain": "못난 도메인 열기",
   "Open website": "사이트 열기",
