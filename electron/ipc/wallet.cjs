@@ -1810,17 +1810,30 @@ function registerWalletIpc() {
       const feeGas = String(input && input.feeGas ? input.feeGas : '300000').trim() || '300000';
       const password = input && input.password ? String(input.password) : null;
 
+      // A vote names a proposal and an option where the staking actions name a
+      // validator and an amount. Everything below this - the key, the client,
+      // the fee, the broadcast - is identical, which is why it lives here
+      // rather than in a second handler repeating all of it.
+      const voting = action === 'vote';
+      const proposalId = String(input && input.proposalId ? input.proposalId : '').trim();
+      const voteOption = String(input && input.voteOption ? input.voteOption : '').trim().toUpperCase();
+
       if (!profileId) return { ok: false, error: 'missing_profileId' };
-      if (!address || !validatorAddress) return { ok: false, error: 'missing_required_fields' };
-      if (!['delegate', 'undelegate', 'redelegate'].includes(action)) {
+      if (!['delegate', 'undelegate', 'redelegate', 'vote'].includes(action)) {
         return { ok: false, error: 'unknown_action' };
       }
+      if (!address) return { ok: false, error: 'missing_required_fields' };
+      if (!voting && !validatorAddress) return { ok: false, error: 'missing_required_fields' };
       if (action === 'redelegate' && !toValidatorAddress) {
         return { ok: false, error: 'missing_destination_validator' };
       }
+      if (voting && !/^\d+$/.test(proposalId)) return { ok: false, error: 'missing_proposal' };
+      if (voting && !GOV_VOTE_OPTIONS[`VOTE_OPTION_${voteOption}`]) {
+        return { ok: false, error: 'unknown_vote_option' };
+      }
 
-      const microAmount = toBaseUnits(amountText, decimals);
-      if (microAmount === '0') return { ok: false, error: 'missing_amount' };
+      const microAmount = voting ? '0' : toBaseUnits(amountText, decimals);
+      if (!voting && microAmount === '0') return { ok: false, error: 'missing_amount' };
 
       const pwdCheck = checkPasswordForSigning(password);
       if (!pwdCheck.ok) return { ok: false, error: pwdCheck.error };
@@ -1865,14 +1878,39 @@ function registerWalletIpc() {
       }
 
       try {
-        const staking = await import('cosmjs-types/cosmos/staking/v1beta1/tx');
         const amount = { denom, amount: microAmount };
+
+        /**
+         * v1beta1, where `wallet:govVote` on the home chain uses v1.
+         *
+         * The registry spans a decade of SDK releases: v1 does not exist on the
+         * chains still below 0.46, and it is absent from the default CosmJS
+         * registry the standard client is built with, so encoding one would
+         * throw before it ever reached a node. v1beta1 is registered in both
+         * and is still served by 0.50, which makes it the only spelling that
+         * works everywhere. The home chain keeps v1 because it is known to
+         * carry it.
+         */
+        const voteMsg = async () => {
+          const gov = await import('cosmjs-types/cosmos/gov/v1beta1/tx');
+          return {
+            typeUrl: '/cosmos.gov.v1beta1.MsgVote',
+            value: gov.MsgVote.fromPartial({
+              proposalId: BigInt(proposalId),
+              voter: address,
+              option: GOV_VOTE_OPTIONS[`VOTE_OPTION_${voteOption}`]
+            })
+          };
+        };
+
+        const staking = voting ? null : await import('cosmjs-types/cosmos/staking/v1beta1/tx');
 
         // Redelegating moves stake between validators without unbonding it, so
         // it carries both addresses and no waiting period. The other two carry
         // one, and undelegating starts the unbonding clock.
-        const msg =
-          action === 'redelegate'
+        const msg = voting
+          ? await voteMsg()
+          : action === 'redelegate'
             ? {
                 typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
                 value: staking.MsgBeginRedelegate.fromPartial({
