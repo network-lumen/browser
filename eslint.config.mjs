@@ -1,0 +1,215 @@
+// Deliberately minimal: only the rules below, each chosen because it has a
+// real AST behind it (unlike scripts/check-conventions.mjs's regex-based
+// checks) and each one caught an actual bug when it was added:
+//   - no-console          -> 8 debug console.log()s left in SettingsPage.vue
+//   - no-empty-function   -> DrivePage.vue's handleDrop(e) { } (wired to a
+//                            real addEventListener, did nothing on drop)
+//   - no-unreachable      -> DrivePage.vue's downloadFile() had ~17 lines of
+//                            .tar download code after an unconditional return
+//   - no-unused-vars      -> superset of check-conventions.mjs's regex-based
+//                            unused-import/declaration rules, but AST-backed
+//   - vue/valid-v-on      -> SearchPage.vue's @keydown.slash.prevent used a
+//                            modifier Vue doesn't support (key modifiers
+//                            match event.key, and "/" produces key === "/",
+//                            not "Slash") - the shortcut silently never fired
+//   - no-unsafe-finally   -> three `return`s inside a `finally` in SearchPage,
+//                            each discarding whatever the block was carrying.
+//                            Benign only for as long as nobody rethrows from
+//                            the `catch` above them.
+//   - no-case-declarations-> three `const`s in bare `case` bodies in
+//                            RecurringPaymentModal, scoped to the whole switch
+//                            and therefore present, uninitialised, in every
+//                            other branch.
+//   - no-restricted-syntax (TSInterfaceDeclaration/TSTypeAliasDeclaration)
+//                         -> enforces the src/types/ centralization convention
+//                            (see CONTRIBUTING.md) - added 2026-07-29 after a
+//                            real DriveFile interface had silently drifted
+//                            into 3 separate copies across the codebase.
+//
+// Still not a general `eslint:recommended` sweep, and now with numbers rather
+// than a hunch. Running the recommended set over src, electron, tests and
+// scripts reports 543 findings, of which:
+//
+//   466  no-empty              the deliberate `catch {}` idiom - a decision
+//                              about a value (the page is navigating, the
+//                              element is gone), documented in ARCHITECTURE.md
+//    30  no-useless-assignment dead stores, real but cosmetic
+//    23  no-useless-escape     redundant backslashes in regex literals
+//    11  no-inner-declarations function declarations inside blocks, legal since
+//                              ES2015 and used on purpose here
+//     7  no-control-regex      deliberate: stripping control characters out of
+//                              a filename needs to match them
+//
+// Enabling `no-empty` would mean 466 disable comments over an idiom this
+// project chose; the other four are worth a pass of their own rather than a
+// wave of noise on top of unrelated work. The project's own CSS-utility-system
+// rules (dead/undefined classes, cascade conflicts, no raw <svg>) have no
+// generic linter equivalent and stay in scripts/check-conventions.mjs.
+import vuePlugin from 'eslint-plugin-vue';
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+
+export default [
+  { ignores: ['dist/**', 'node_modules/**', 'release/**', 'public/**'] },
+  ...vuePlugin.configs['flat/base'],
+  {
+    files: ['src/**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        parser: tsParser,
+      },
+    },
+  },
+  {
+    files: ['src/**/*.ts'],
+    languageOptions: {
+      parser: tsParser,
+    },
+  },
+  {
+    files: ['src/**/*.vue', 'src/**/*.ts'],
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+      // arrowFunctions allowed: `.catch(() => {})` to deliberately swallow a
+      // rejection (e.g. autoplay-blocked video.play()) is idiomatic here and
+      // used 6x already. Named `function foo() {}` stubs (the real bug this
+      // rule caught - DrivePage's dead handleDrop) are still flagged.
+      'no-empty-function': ['error', { allow: ['arrowFunctions'] }],
+      'no-unreachable': 'error',
+      'no-unsafe-finally': 'error',
+      'no-case-declarations': 'error',
+      'vue/valid-v-on': 'error',
+      'no-unused-vars': 'off',
+      // Respects this codebase's existing "leading underscore = intentionally
+      // unused" convention (already used in several files before this rule
+      // existed, e.g. `catch (_e)`, `(_releases, _tag)`).
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
+    },
+  },
+  {
+    // The main process was linted by nothing at all until a cleanup pass here
+    // deleted a function and left three calls to it - a ReferenceError on
+    // `extensions:disable`, in a file that `npm test` never opens. `no-undef`
+    // is the whole point of this block; the other two come free.
+    //
+    // Deliberately narrower than the src rules: no-console is off, because the
+    // main process logs to a real log file on purpose.
+    //
+    // Unused vars were a warning here, on the grounds that a preload keeping a
+    // reference for clarity is not worth failing a build over. There are none
+    // left, and a warning nobody fails on is a warning nobody reads - the wall
+    // of five that main.cjs grew while being split is what made the point.
+    files: ['electron/**/*.cjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'commonjs',
+      globals: {
+        // Node, plus what a preload sees: it runs in a renderer, so it has
+        // both halves.
+        require: 'readonly', module: 'writable', exports: 'writable',
+        process: 'readonly', console: 'readonly', Buffer: 'readonly',
+        __dirname: 'readonly', __filename: 'readonly', global: 'readonly',
+        setTimeout: 'readonly', clearTimeout: 'readonly',
+        setInterval: 'readonly', clearInterval: 'readonly',
+        setImmediate: 'readonly', queueMicrotask: 'readonly',
+        URL: 'readonly', URLSearchParams: 'readonly', TextEncoder: 'readonly',
+        TextDecoder: 'readonly', AbortController: 'readonly', fetch: 'readonly',
+        Headers: 'readonly', Request: 'readonly', Response: 'readonly',
+        Blob: 'readonly', FormData: 'readonly', File: 'readonly',
+        ReadableStream: 'readonly', WritableStream: 'readonly',
+        TransformStream: 'readonly', structuredClone: 'readonly',
+        performance: 'readonly', crypto: 'readonly', btoa: 'readonly',
+        atob: 'readonly', Event: 'readonly', EventTarget: 'readonly',
+        CustomEvent: 'readonly', MessageChannel: 'readonly',
+        window: 'readonly', document: 'readonly', navigator: 'readonly',
+        location: 'readonly', history: 'readonly', BroadcastChannel: 'readonly',
+        localStorage: 'readonly', sessionStorage: 'readonly',
+        XMLHttpRequest: 'readonly', WebSocket: 'readonly', Image: 'readonly',
+        MutationObserver: 'readonly', requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly', getComputedStyle: 'readonly',
+        Node: 'readonly', Element: 'readonly', HTMLElement: 'readonly',
+        DOMParser: 'readonly', Worker: 'readonly', importScripts: 'readonly',
+        self: 'readonly', chrome: 'readonly', browser: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'error',
+      'no-unreachable': 'error',
+      'no-unsafe-finally': 'error',
+      'no-case-declarations': 'error',
+      'no-unused-vars': ['error', {
+        args: 'none',
+        varsIgnorePattern: '^_',
+        caughtErrors: 'none',
+      }],
+    },
+  },
+  {
+    // Tests and scripts were linted by nothing, the same gap the electron block
+    // above was opened for. Narrower than the src rules on purpose: a test
+    // declares its own local types (`type NewPayment = Parameters<...>`), which
+    // is exactly what the src/types/ rule forbids, and console output is how a
+    // check script reports. What is worth catching here is the leftover - an
+    // import or a helper that survived a rewrite.
+    files: ['tests/**/*.ts', 'scripts/**/*.mjs'],
+    languageOptions: {
+      parser: tsParser,
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        process: 'readonly', console: 'readonly', Buffer: 'readonly',
+        __dirname: 'readonly', globalThis: 'readonly',
+        setTimeout: 'readonly', clearTimeout: 'readonly',
+        setInterval: 'readonly', clearInterval: 'readonly',
+        queueMicrotask: 'readonly', fetch: 'readonly', Response: 'readonly',
+        Request: 'readonly', Headers: 'readonly', URL: 'readonly',
+        TextEncoder: 'readonly', TextDecoder: 'readonly',
+        window: 'readonly', document: 'readonly', localStorage: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      'no-unreachable': 'error',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
+    },
+  },
+  {
+    // Every type/interface declaration must live in src/types/ (one file per
+    // concept/page, see CONTRIBUTING.md) - single source of truth, no
+    // colocated ad hoc types drifting out of sync across files. This is the
+    // TS-side equivalent of "all CSS lives in src/css/": a project-wide rule
+    // contributors can follow without having to judge case-by-case whether a
+    // given type is "shared enough" to deserve centralizing.
+    files: ['src/**/*.vue', 'src/**/*.ts'],
+    ignores: ['src/types/**'],
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      'no-restricted-syntax': ['error',
+        {
+          selector: 'TSInterfaceDeclaration',
+          message: 'Interfaces must live in src/types/<concept>.ts, not colocated with implementation. See CONTRIBUTING.md.',
+        },
+        {
+          selector: 'TSTypeAliasDeclaration',
+          message: 'Type aliases must live in src/types/<concept>.ts, not colocated with implementation. See CONTRIBUTING.md.',
+        },
+      ],
+    },
+  },
+];

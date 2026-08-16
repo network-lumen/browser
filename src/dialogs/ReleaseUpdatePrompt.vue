@@ -1,0 +1,127 @@
+<template>
+  <transition name="fade-slide">
+    <section v-if="visible && latest" class="bg-card border-default color-text-primary border-radius-16px fixed p-16px w-min-380px-92vw shadow-lg z-9998 bottom-24px right-24px">
+      <header class="flex flex-column gap-2px">
+        <p class="color-primary text-11px line-height-12 txt-weight-medium text-uppercase letter-spacing-01em m-0px">
+          {{ t('Update available') }}
+        </p>
+        <h4 class="m-0px text-15px line-height-12 txt-weight-light">
+          {{ (latest.release && latest.release.version) || latest.version }}
+        </h4>
+        <p class="color-text-secondary text-11px line-height-12 m-0px">{{ t('Current version: {version}', { version: currentVersion || 'n/a' }) }}</p>
+      </header>
+
+      <button v-if="hasNotes" class="hover-opacity-85 bg-transparent border-none cursor-pointer underline mt-4px p-0px text-14px color-text-link text-underline-offset-2px" type="button" @click="notesOpen = true">
+        {{ t('Change notes') }}
+      </button>
+
+      <ul class="divide-y-mt6px list-style-none m-0px color-text-secondary text-11px line-height-12 p-0px">
+        <li><strong>{{ t('Platform') }}</strong> {{ latest.platform }}</li>
+        <li><strong>{{ t('Channel') }}</strong> {{ latest.channel }}</li>
+        <li><strong>{{ t('Artifact') }}</strong> {{ latest.artifact.kind }}</li>
+        <li v-if="sizeLabel"><strong>{{ t('Size') }}</strong> ~{{ sizeLabel }}</li>
+        <li v-if="shaFull">
+          <strong>{{ t('SHA256') }}</strong>
+          <button type="button" class="hover-opacity-85 bg-transparent border-none cursor-pointer p-0px ml-4px" @click.stop="copySha" :aria-label="t('Copy SHA-256')">
+            <code class="color-text-primary bg-fill-tertiary border-light border-radius-8px mono py-0px px-8px">{{ shaShort }}</code>
+          </button>
+        </li>
+      </ul>
+
+      <div class="gap-4px flex flex-wrap-wrap mt-4px">
+        <UiButton
+          size="xs"
+          class="flex-inline-align-justify-center gap-8px release-prompt-btn flex-1-1-auto"
+          :variant="downloadDisabled ? 'ghost' : 'primary'"
+          :disabled="downloadDisabled || busy"
+          @click="onUpdate"
+        >
+          <template v-if="busy">
+            <UiSpinner size="sm" />
+            <span>{{ busyLabel }}</span>
+          </template>
+          <template v-else>
+            <span>{{ primaryLabel }}</span>
+          </template>
+        </UiButton>
+        <UiButton
+          size="xs"
+          class="flex-inline-align-justify-center gap-8px release-prompt-btn flex-1-1-auto"
+          variant="ghost"
+          @click="remindLater"
+        >
+          {{ t('Remind me later') }}
+        </UiButton>
+      </div>
+    </section>
+  </transition>
+
+  <UiModal :model-value="notesOpen" :title="t('Change notes')" panel-class="w-min-720px-92vw" @update:model-value="notesOpen = false">
+    <pre class="color-text-primary bg-primary m-0px overflow-auto text-14px line-height-14 break-word pre-wrap mono">{{ fullNotes }}</pre>
+  </UiModal>
+</template>
+
+<script setup lang="ts">
+import { t } from '../stores/i18nStore';
+import { computed, ref } from 'vue';
+import UiButton from '../ui/UiButton.vue';
+import UiModal from '../ui/UiModal.vue';
+import UiSpinner from '../ui/UiSpinner.vue';
+import { formatReleaseSize, useReleaseUpdates } from '../internal/services/releaseUpdates';
+import { clampPercent } from '../internal/services/coerce';
+import { addToast } from '../stores/toastStore';
+import { copyToClipboard } from '../composables/useClipboard';
+
+const { latest, shouldPrompt, currentVersion, updateNow, remindLater, busy, updateProgress } = useReleaseUpdates();
+
+const visible = computed(() => shouldPrompt.value && !!latest.value && !busy.value);
+const downloadDisabled = computed(() => !latest.value?.downloadUrl);
+const sizeLabel = computed(() => formatReleaseSize(latest.value?.artifact?.size ?? null));
+const notesOpen = ref(false);
+const fullNotes = computed(() => String(latest.value?.release?.notes || '').trim());
+const hasNotes = computed(() => !!fullNotes.value);
+const primaryLabel = computed(() => {
+  const p = String(latest.value?.platform || '').toLowerCase();
+  if (p.startsWith('darwin-')) return t('Open installer');
+  if (p.startsWith('windows-') || p.startsWith('linux-')) return t('Update now');
+  return t('Download');
+});
+
+const shaFull = computed(() => String(latest.value?.artifact?.sha256Hex || '').trim());
+const shaShort = computed(() => {
+  const s = shaFull.value;
+  if (!s) return '';
+  if (s.length <= 18) return s;
+  return `${s.slice(0, 12)}...`;
+});
+
+const busyLabel = computed(() => {
+  const p: any = updateProgress.value;
+  const stage = String(p?.stage || '').toLowerCase();
+  if (stage === 'downloading') {
+    const received = Number(p?.receivedBytes || 0);
+    const total = Number(p?.totalBytes || 0);
+    if (total > 0) {
+      const pct = clampPercent(Math.round((received / total) * 100));
+      return t('Downloading… {percent}%', { percent: pct });
+    }
+    return t('Downloading…');
+  }
+  if (stage === 'verifying') return t('Verifying…');
+  if (stage === 'installing') return t('Installing…');
+  if (stage === 'error') return t('Failed');
+  return t('Working…');
+});
+
+async function copySha() {
+  const value = shaFull.value;
+  if (!value) return;
+  const ok = await copyToClipboard(value);
+  addToast(ok ? 'success' : 'error', ok ? t('SHA-256 copied') : t('Failed to copy'));
+}
+
+function onUpdate() {
+  if (downloadDisabled.value || busy.value) return;
+  void updateNow();
+}
+</script>

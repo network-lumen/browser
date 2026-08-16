@@ -1,45 +1,41 @@
 <template>
-  <div class="splash-shell">
-    <div class="glass">
-      <section class="body">
-        <div v-if="phase === 'starting' || phase === 'retrying'" class="center">
-          <div class="spinner"></div>
-          <div class="msg">
-            <div class="msg-title">
-              {{ phase === 'retrying' ? 'Reconnecting...' : 'Starting services...' }}
-            </div>
-          </div>
-        </div>
+  <UiCard padding="none" :shadow="false" radius="0" role="status" aria-live="polite" class="flex flex-column w-full h-full shadow-none overflow-hidden">
+    <header class="flex-align-center gap-12px p-10px border-bottom-default">
+      <img :src="logoUrl" alt="" class="flex-0-0-auto border-radius-14px size-48px" aria-hidden="true" />
+      <div class="min-w-0">
+        <div class="text-16px txt-weight-strong line-height-12 letter-spacing-n002">Lumen</div>
+      </div>
+    </header>
 
-        <div v-else-if="phase === 'error'" class="center">
-          <div class="warn">!</div>
-          <div class="msg">
-            <div class="msg-title">Unable to start</div>
-            <div class="msg-subtitle">
-              {{ errorText || 'IPFS daemon did not respond.' }}
-            </div>
+    <main class="h-auto flex flex-1-1-auto min-h-0">
+      <div v-if="phase === 'starting' || phase === 'retrying' || phase === 'error'" class="flex-align-center flex-column text-center gap-12px py-28px px-24px mt-auto mx-auto mb-32px">
+        <UiLoadingSpinner v-if="phase !== 'error'" :aria-label="t('Loading')" />
+        <div v-else>
+          <div class="color-text-secondary text-13px">
+            {{ t('Failed to start - {reason}', { reason: errorText || t('IPFS daemon did not respond.') }) }}
           </div>
-          <div class="row">
-            <button class="btn primary" type="button" :disabled="busy" @click="restartAll">
-              Retry
-            </button>
-          </div>
+          <UiButton variant="primary" type="button" :disabled="busy" @click="restartAll" class="active-not-disabled-lift-1px disabled-opacity-60-cursor-default transition-lift-015">
+            {{ t('Retry') }}
+          </UiButton>
         </div>
-      </section>
-    </div>
+      </div>
+    </main>
 
-    <div class="bg">
-      <div class="blob b1"></div>
-      <div class="blob b2"></div>
-      <div class="blob b3"></div>
-    </div>
-  </div>
+    <footer class="flex-justify-center border-top-default py-12px px-16px">
+      <span class="color-text-tertiary text-12px">{{ phase !== 'error' ? t('This usually takes a few seconds.') : t('If it keeps failing, restart Lumen.') }}</span>
+    </footer>
+  </UiCard>
 </template>
 
 <script setup lang="ts">
+import { t } from '../stores/i18nStore';
+import UiCard from '../ui/UiCard.vue';
+import UiButton from '../ui/UiButton.vue';
+import UiLoadingSpinner from '../ui/UiLoadingSpinner.vue';
 import { ref, onMounted } from 'vue';
-
-type Phase = 'starting' | 'retrying' | 'error' | 'ready';
+import { useInternalLumen } from '../composables/useInternalLumen';
+import logoUrl from '../img/logo.png';
+import type { Phase } from '../types/startupScreen';
 
 const emit = defineEmits<{ (e: 'ready'): void }>();
 
@@ -51,15 +47,29 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Set when the node refused the repository outright, which no amount of waiting
+ * changes - so the loop stops instead of spending fifteen seconds proving it.
+ */
+const fatalError = ref('');
+
 async function pollOnce(): Promise<boolean> {
   try {
-    const anyWindow: any = window;
-    if (!anyWindow.lumen || typeof anyWindow.lumen.ipfsStatus !== 'function') {
+    if (!useInternalLumen() || typeof useInternalLumen()?.ipfsStatus !== 'function') {
       console.warn('[startup] window.lumen.ipfsStatus not available yet');
       return false;
     }
-    const res = await anyWindow.lumen.ipfsStatus();
-    console.log('[startup] ipfsStatus result', res);
+    const res = await useInternalLumen()?.ipfsStatus();
+    if (res?.error === 'repo_newer_than_binary') {
+      // The one startup failure the app can explain precisely. A newer build
+      // migrated %APPDATA%/lumen/ipfs forward and this Kubo cannot open it;
+      // retrying only hides that behind "not reachable".
+      fatalError.value = t(
+        'This copy of Lumen ships an older IPFS node than the one that last used your data (repository v{repo}, node v{binary}). Install the latest Lumen, or remove the ipfs folder in your Lumen data directory to start fresh.',
+        { repo: String(res.repoVersion ?? '?'), binary: String(res.binaryVersion ?? '?') }
+      );
+      return false;
+    }
     return !!res?.ok;
   } catch (e) {
     console.error('[startup] ipfsStatus error', e);
@@ -70,21 +80,22 @@ async function pollOnce(): Promise<boolean> {
 async function bootSequence() {
   phase.value = 'starting';
   errorText.value = '';
+  fatalError.value = '';
 
   let tries = 15;
   while (tries-- > 0) {
     const ok = await pollOnce();
     if (ok) {
-      await sleep(200);
       emit('ready');
       return;
     }
+    if (fatalError.value) break;
     await sleep(1000);
   }
 
   phase.value = 'error';
   if (!errorText.value) {
-    errorText.value = 'IPFS daemon not reachable.';
+    errorText.value = fatalError.value || t('IPFS daemon not reachable.');
   }
 }
 
@@ -103,140 +114,3 @@ onMounted(async () => {
   await bootSequence();
 });
 </script>
-
-<style scoped>
-.splash-shell {
-  position: relative;
-  width: min(720px, 92vw);
-  height: min(420px, 70vh);
-}
-
-.glass {
-  z-index: 1;
-  position: absolute;
-  inset: 10px;
-  border-radius: 15px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.body {
-  flex: 1 1 auto;
-  display: flex;
-  position: relative;
-}
-
-.center {
-  margin: auto;
-  padding: 32px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.spinner {
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  border: 3px solid rgba(15, 23, 42, 0.1);
-  border-top-color: #2563eb;
-  animation: spin 0.9s linear infinite;
-}
-
-.warn {
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  border: 3px solid rgba(220, 38, 38, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #b91c1c;
-  font-weight: 700;
-  font-size: 20px;
-}
-
-.msg-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.msg-subtitle {
-  font-size: 13px;
-  color: #4b5563;
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-}
-
-.btn {
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  font-size: 13px;
-  cursor: pointer;
-  background: #ffffff;
-}
-
-.btn.primary {
-  border-color: #2563eb;
-  background: #2563eb;
-  color: #ffffff;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-.bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.blob {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(22px);
-}
-
-.blob.b1 {
-  width: 200px;
-  height: 200px;
-  left: -30px;
-  top: -30px;
-  background: #93c5fd;
-}
-
-.blob.b2 {
-  width: 220px;
-  height: 220px;
-  right: -40px;
-  bottom: -30px;
-  background: #a5b4fc;
-}
-
-.blob.b3 {
-  width: 160px;
-  height: 160px;
-  left: 20%;
-  top: 60%;
-  background: #6ee7b7;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-</style>
-

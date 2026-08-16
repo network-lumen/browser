@@ -1,28 +1,155 @@
 {
   "name": "lumen-browser",
-  "version": "0.1.0",
+  "version": "0.9.9",
+  "description": "A decentralized Web3 browser for the Lumen network, with native IPFS, on-chain domains, P2P content, and a built-in Lumen wallet",
+  "keywords": [
+    "lumen",
+    "lumen-network",
+    "web3",
+    "decentralized",
+    "decentralized-web",
+    "ipfs",
+    "p2p",
+    "blockchain",
+    "l1",
+    "crypto",
+    "wallet",
+    "on-chain",
+    "domains",
+    "electron",
+    "browser"
+  ],
   "private": true,
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
     "dev:renderer": "vite",
-    "dev:electron": "electron electron/main.cjs",
+    "dev:electron": "electron .",
+    "prebuild": "npm test",
     "build": "vite build",
     "preview": "vite preview",
-    "electron": "electron electron/main.cjs"
+    "postinstall": "electron-builder install-app-deps",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder --publish=never",
+    "dist:win": "npm run build && electron-builder --win nsis --publish=never",
+    "electron": "electron .",
+    "test": "npm run check:conventions && npm run check:imports && npm run check:ipc && npm run check:tests && npm run check:i18n && npm run check:i18n-strings && npm run check:wording && npm run lint && npm run typecheck && npm run test:unit",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "check:conventions": "node scripts/check-conventions.mjs",
+    "lint": "eslint src electron tests scripts",
+    "typecheck": "vue-tsc --noEmit",
+    "test:e2e": "npx playwright test",
+    "test:all": "npm run test:unit && npm run test:e2e",
+    "doc:window.lumen": "node --experimental-specifier-resolution=node scripts/generate-window-lumen-doc.mjs",
+    "check:imports": "node scripts/check-imports.mjs",
+    "check:ipc": "node scripts/check-ipc.mjs",
+    "check:tests": "node scripts/check-tests.mjs",
+    "test:e2e:electron": "npx playwright test --project=electron",
+    "test:e2e:renderer": "npx playwright test --project=renderer",
+    "e2e:wallet": "node scripts/make-e2e-wallet.mjs",
+    "test:e2e:chain": "node scripts/run-chain-e2e.mjs",
+    "i18n:extract": "node scripts/extract-strings.mjs",
+    "check:i18n": "node scripts/extract-strings.mjs --check",
+    "check:i18n-strings": "node scripts/check-untranslated.mjs",
+    "check:wording": "node scripts/check-wording.mjs"
   },
   "dependencies": {
-    "kubo": "^0.37.0",
+    "@cosmjs/crypto": "^0.36.0",
+    "@cosmjs/encoding": "^0.36.0",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
+    "@lumen-chain/sdk": "^1.6.1",
+    "@noble/post-quantum": "^0.5.4",
+    "@zxing/library": "^0.21.3",
+    "cors": "^2.8.5",
+    "dompurify": "^3.3.3",
+    "express": "^4.18.2",
+    "github-markdown-css": "^5.9.0",
+    "hls.js": "^1.6.12",
+    "jszip": "^3.10.1",
+    "kubo": "^0.39.0",
     "lucide-vue-next": "^0.540.0",
+    "marked": "^17.0.4",
+    "qrcode": "^1.5.4",
     "vue": "^3.4.27"
   },
   "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "@testing-library/vue": "^8.1.0",
     "@types/node": "^20.11.30",
+    "@types/qrcode": "^1.5.6",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
     "@vitejs/plugin-vue": "^5.0.5",
     "concurrently": "^9.0.0",
-    "electron": "^31.3.1",
+    "electron": "^41.0.3",
+    "electron-builder": "^26.4.0",
+    "eslint": "^10.8.0",
+    "eslint-plugin-vue": "^10.10.0",
+    "jsdom": "^29.1.1",
     "typescript": "^5.5.4",
-    "vite": "^5.4.2"
+    "vite": "^6.4.1",
+    "vitest": "^4.1.10",
+    "vue-tsc": "^2.2.12"
+  },
+  "build": {
+    "appId": "com.lumen.browser",
+    "productName": "Lumen Browser",
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/kubo/kubo/**",
+      "node_modules/@ffmpeg-installer/**",
+      "node_modules/@ffprobe-installer/**"
+    ],
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/peers.txt",
+        "to": "peers.txt"
+      },
+      {
+        "from": "resources/gateways_whitelist.txt",
+        "to": "gateways_whitelist.txt"
+      },
+      {
+        "from": "src/img/logo.png",
+        "to": "icon.png"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "icon": "src/img/logo.png",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "icon": "src/img/logo.png",
+      "category": "Network",
+      "synopsis": "Web3 and IPFS-native browser with a built-in Lumen wallet"
+    },
+    "win": {
+      "icon": "src/img/logo.png",
+      "signtoolOptions": {
+        "sign": "./resources/no-sign.cjs"
+      },
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Lumen Browser",
+      "runAfterFinish": true
+    }
   }
 }

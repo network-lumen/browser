@@ -1,0 +1,2253 @@
+<template>
+  <!-- ####### lumen://ipfs IPFS / IPNS ####### -->
+  <div class="flex w-full h-full bg-primary" :class="{ 'fullscreen-trigger fixed inset-0 z-max bg-black': webviewHtmlFullscreen }">
+    <main class="fullscreen-target flex flex-column flex-1" :class="isBareHtmlView ? 'p-0px overflow-hidden' : 'p-24px overflow-auto'">
+      <UiPageHeader v-if="!isBareHtmlView">
+        <template #actions>
+          <UiButton variant="primary" v-if="isDir && indexHtmlEntry"
+            type="button"
+            @click="openIndexHtml"
+            :disabled="!navigate" class="disabled-fade-50">
+            <span>{{ t('Open website') }}</span>
+          </UiButton>
+          <UiButton variant="primary" v-if="isDir && masterM3u8Entry"
+            type="button"
+            @click="openMasterHls"
+            :disabled="!navigate"
+            :title="t('Play HLS video')" class="disabled-fade-50">
+            <Play :size="16" />
+            <span>{{ t('Play video') }}</span>
+          </UiButton>
+          <UiButton
+            variant="secondary"
+            class="disabled-fade-50"
+            type="button"
+            @click="openSaveModal"
+            :class="{ 'bg-success-a12-override border-1-success-a38 color-success': saved }"
+            :disabled="!canSaveToDrive || saving || saved"
+            :title="
+              saved ? t('Saved to Drive') : saving ? t('Saving…') : t('Save to Drive')
+            "
+          >
+            <Check v-if="saved" :size="16" />
+            <Save v-else :size="16" />
+            <span>{{ saved ? t('Saved') : saving ? t('Saving…') : t('Save') }}</span>
+          </UiButton>
+          <UiButton variant="primary" type="button"
+            @click="copyLink"
+            :disabled="!rootCid" class="disabled-fade-50">
+            <Copy :size="16" />
+            <span>{{ t('Copy link') }}</span>
+          </UiButton>
+          <UiButton variant="primary" type="button"
+            @click="download"
+            v-if="!isPreviewUnavailable"
+            :disabled="!canDownload" class="disabled-fade-50">
+            <Download :size="16" />
+            <span>{{ t('Download') }}</span>
+          </UiButton>
+        </template>
+      </UiPageHeader>
+
+      <UiCard padding="none" :shadow="false" v-if="loading" class="flex-align-center gap-12px p-16px">
+        <UiSpinner size="md" />
+      </UiCard>
+
+      <div v-else-if="error" class="p-16px border-radius-16px color-error bg-fill-error border-05-error-a35">
+        {{ error }}
+      </div>
+
+      <template v-else>
+        <div v-if="!rootCid" class="flex-align-justify-center py-48px px-32px">
+          <div class="text-center max-w-600px">
+            <h2 class="text-28px txt-weight-light color-text-primary mb-12px">{{ t('IPFS content viewer') }}</h2>
+            <p class="color-text-secondary text-16px mb-32px">{{ t('View and download content from IPFS using CIDs.') }}</p>
+            <UiCard padding="none" :shadow="false" class="p-24px mb-32px">
+              <p class="fw-500 color-text-secondary text-14px mb-12px">{{ t('Example:') }}</p>
+              <code class="block bg-card border-default border-radius-8px py-12px px-16px mono text-14px color-primary break-all"
+                >lumen://ipfs/QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code
+              >
+            </UiCard>
+            <p class="color-text-secondary text-16px mb-32px">
+              {{ t('Enter an IPFS CID in the address bar to view content.') }}
+            </p>
+          </div>
+        </div>
+
+        <div v-else-if="isDir">
+          <div class="flex-align-center flex-wrap-wrap gap-6px p-0px pt-8px pb-8px">
+            <UiButton variant="primary" type="button"
+              @click="openDirRoot"
+              :disabled="!navigate" class="disabled-fade-50">
+              /
+            </UiButton>
+            <template v-for="(c, idx) in crumbs" :key="c.path">
+              <span v-if="idx > 0" class="color-text-secondary">/</span>
+              <UiButton variant="primary" type="button"
+                @click="openDirCrumb(idx)"
+                :disabled="!navigate" class="disabled-fade-50">
+                {{ c.label }}
+              </UiButton>
+            </template>
+          </div>
+
+          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="p-16px color-text-secondary">{{ t('Empty folder') }}</UiCard>
+
+          <div v-else class="border-radius-16px border-default overflow-hidden">
+            <div
+              v-for="it in entries"
+              :key="it.key"
+              class="hover-bg-secondary grid-cols-200minmax-140-180 last-border-bottom-none gap-12px grid flex-inline-align-center py-12px px-16px border-bottom-1 bg-primary"
+              @dblclick="openEntry(it)"
+            >
+              <div class="flex-align-center cursor-pointer gap-10px min-w-0" @click="openEntry(it)">
+                <Folder v-if="it.type === 'dir'" :size="16" class="color-text-secondary" />
+                <BookOpen v-else-if="isEpubName(it.name)" :size="16" class="color-text-secondary" />
+                <File v-else :size="16" class="color-text-secondary" />
+                <span class="truncate">{{
+                  it.name
+                }}</span>
+              </div>
+              <div class="mono text-right color-text-secondary text-14px">
+                {{ it.size != null ? formatSize(it.size) : "-" }}
+              </div>
+              <div class="flex-justify-end gap-8px">
+                <UiButton variant="primary" type="button"
+                  @click.stop="copyLinkFor(it)">
+                  {{ t('Copy link') }}
+                </UiButton>
+                <UiButton variant="primary" type="button"
+                  @click.stop="openEntry(it)">
+                  {{ t('Open') }}
+                </UiButton>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-else
+          class="flex-align-justify-center border-radius-12px border-1 bg-secondary relative min-h-360px"
+          :class="{ 'border-none border-radius-0 bg-transparent min-h-0 h-full flex-1': isBareHtmlView, 'block min-w-0': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
+        >
+          <img
+            v-if="viewKind === 'image'"
+            :src="contentUrl"
+            class="border-radius-12px border-1 bg-primary max-h-75vh max-w-full"
+            alt=""
+            @error="onMediaError"
+          />
+
+          <template v-else-if="viewKind === 'video'">
+            <video
+              ref="videoEl"
+              :src="videoSrc"
+              class="border-radius-12px border-1 bg-primary max-h-75vh max-w-full"
+              controls
+              playsinline
+            ></video>
+            <div v-if="hlsError" class="border-radius-12px color-error absolute text-14px cursor-events-none py-12px px-16px right-16px bg-error-a15 border-1-error-a30 left-16px bottom-16px backdrop-blur-6">
+              {{ hlsError }}
+            </div>
+          </template>
+
+          <audio
+            v-else-if="viewKind === 'audio'"
+            :src="contentUrl"
+            controls
+            class="w-full"
+          ></audio>
+
+           <webview
+             v-else-if="viewKind === 'html'"
+             ref="siteWebview"
+             :src="contentUrl"
+             class="fullscreen-target w-full"
+             :class="webviewHtmlFullscreen
+               ? 'h-full border-none border-radius-0 bg-black'
+               : isBareHtmlView
+                 ? 'h-full border-none border-radius-0 bg-transparent'
+                 : 'h-75vh border-radius-12px border-1 bg-primary'"
+             partition="persist:lumen"
+             allowpopups
+             allowfullscreen
+             allow="fullscreen"
+             :webpreferences="webprefs"
+             @enter-html-full-screen="onWebviewEnterHtmlFullscreen"
+             @leave-html-full-screen="onWebviewLeaveHtmlFullscreen"
+             @will-navigate="onWebviewWillNavigate"
+             @did-navigate="onWebviewDidNavigate"
+             @did-navigate-in-page="onWebviewDidNavigateInPage"
+             @new-window="onWebviewNewWindow"
+             @ipc-message="onWebviewIpcMessage"
+             @did-start-loading="onWebviewDidStartLoading"
+             @did-stop-loading="onWebviewDidStopLoading"
+             @dom-ready="onWebviewDomReady"
+           ></webview>
+
+          <iframe
+            v-else-if="viewKind === 'pdf'"
+            :src="contentUrl"
+            class="h-75vh w-full border-radius-12px border-1 bg-primary"
+          ></iframe>
+
+          <template v-else-if="viewKind === 'epub'">
+            <UiCard v-if="epubReaderLoading" padding="none" :shadow="false" class="flex-align-center gap-12px p-16px">
+              <UiSpinner size="md" />
+              <span>{{ t('Preparing EPUB reader…') }}</span>
+            </UiCard>
+            <div v-else-if="epubReaderError" class="p-16px border-radius-16px color-error bg-fill-error border-05-error-a35">
+              {{ epubReaderError }}
+            </div>
+            <iframe
+              v-else-if="epubReaderSrcDoc"
+              :srcdoc="epubReaderSrcDoc"
+              class="h-75vh w-full border-radius-12px border-1 bg-primary"
+              allow="fullscreen"
+            ></iframe>
+          </template>
+
+          <pre v-else-if="viewKind === 'docx'" class="w-full text-14px color-text-primary overflow-auto pre-wrap max-h-75vh">{{
+            docxContent
+          }}</pre>
+
+          <article
+            v-else-if="viewKind === 'markdown'"
+            class="markdown-body-theme w-full my-0px mx-auto overflow-auto border-1 border-radius-16px shadow-none bg-card max-h-75vh"
+            data-color-mode="auto"
+            v-html="markdownHtml"
+            @click="onMarkdownClick"
+          ></article>
+
+          <pre v-else-if="viewKind === 'text'" class="w-full text-14px color-text-primary overflow-auto pre-wrap max-h-75vh">{{
+            textContent
+          }}</pre>
+
+          <div v-else class="flex-align-justify-center w-full">
+            <div class="text-center p-32px max-w-500px">
+              <h3 class="text-20px txt-weight-light color-text-primary mb-12px">{{ t('No preview available') }}</h3>
+              <p class="color-text-secondary mb-24px">{{ t('This content type cannot be previewed directly.') }}</p>
+            </div>
+          </div>
+        </div>
+      </template>
+    </main>
+
+    <SaveToDriveDialog
+      :model-value="showSaveModal"
+      :name="saveNameDraft"
+      :placeholder="saveNamePlaceholder"
+      :error="saveModalError"
+      :preparing="savePreparing"
+      :saving="saving"
+      :job-id="savePinJobId"
+      :status-label="savePinStatusLabel"
+      :counter="savePinProgressCounter"
+      :percent="savePinProgressPercent"
+      :progress-text="savePinProgressText"
+      :is-running="savePinIsRunning"
+      :can-pause="savePinCanPause"
+      :can-resume="savePinCanResume"
+      :can-stop="savePinCanStop"
+      @update:model-value="closeSaveModal"
+      @update:name="saveNameDraft = $event"
+      @confirm="confirmSaveToDrive"
+      @pause="pauseSavePinJob"
+      @resume="resumeSavePinJob"
+      @stop="cancelSavePinJob"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { t } from '../../stores/i18nStore';
+import UiCard from '../../ui/UiCard.vue';
+import UiButton from '../../ui/UiButton.vue';
+import UiPageHeader from '../../ui/UiPageHeader.vue';
+import { useInternalLumen } from '../../composables/useInternalLumen';
+import { copyToClipboardWithToast } from '../../composables/useClipboard';
+ import {
+  computed,
+  nextTick,
+  onActivated,
+  onBeforeUnmount,
+  onDeactivated,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
+import JSZip from "jszip";
+import DOMPurify from "dompurify";
+import { marked } from "marked";
+import { BookOpen, Check, Copy, Download, File, Folder, Play, Save } from "lucide-vue-next";
+import "github-markdown-css/github-markdown.css";
+import UiSpinner from "../../ui/UiSpinner.vue";
+import { useTabLoadingSync } from "../../composables/useTabLoading";
+import {
+  localIpfsGatewayBase,
+  loadWhitelistedGatewayBases,
+  probeUrl,
+  resolveStableLinkTarget,
+} from "../services/contentResolver";
+import { activeProfileId } from "../../stores/profilesStore";
+import { formatBytes } from "../services/format";
+import { downloadBytes } from "../services/download";
+import { installExtensionFromChromeWebStore } from "../services/extensions";
+import { driveFilesKey, driveLocalNamesKey, nextDriveBackupSeq } from "../services/driveStorage";
+import { readJson, writeJson } from "../services/storage";
+import {
+  getWebviewWebContentsId,
+  registerWebviewFindTarget,
+  retryWebviewRegistration
+} from "../services/webviewRegistration";
+import type { Entry, MarkdownTarget, MarkdownResolvedLink } from "../../types/ipfsPage";
+import type { DriveSavedFile } from "../../types/driveSavedFile";
+
+import { errorMessage, safeDecodeUriComponent } from "../services/coerce";
+import { usePinJob } from "../../composables/usePinJob";
+import SaveToDriveDialog from '../../dialogs/SaveToDriveDialog.vue';
+import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
+ const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
+ const { currentTabIsActive } = useTabState();
+ const { navigate, openInNewTab } = useTabNavigation();
+ const { registerFindTarget } = useTabNavigation();
+
+const loading = ref(false);
+const error = ref("");
+const entries = ref<Entry[]>([]);
+const isDir = ref(false);
+const viewKind = ref<
+  | "image"
+  | "video"
+  | "audio"
+  | "html"
+  | "pdf"
+  | "epub"
+  | "docx"
+  | "markdown"
+  | "text"
+  | "unknown"
+>("unknown");
+const textContent = ref("");
+const docxContent = ref("");
+const mediaErrored = ref(false);
+const hlsError = ref("");
+const webviewLoading = ref(false);
+ const siteWebview = ref<any>(null);
+ const videoEl = ref<HTMLVideoElement | null>(null);
+let hlsInstance: any = null;
+const IGNORABLE_HLS_WARNING_DETAILS = new Set([
+  "bufferStalledError",
+  "bufferNudgeOnStall",
+]);
+ const webprefs =
+   "contextIsolation=yes, nodeIntegration=no, sandbox=yes, javascript=yes, nativeWindowOpen=no";
+ const pageActive = ref(false);
+ const isBareHtmlView = ref(false);
+
+useTabLoadingSync(computed(() => loading.value || webviewLoading.value));
+
+ function currentWebContentsId(): number | null {
+   return getWebviewWebContentsId(siteWebview.value);
+ }
+
+ function registerFindTargetOnce(): number | null {
+   const id = viewKind.value === "html" ? currentWebContentsId() : null;
+   return registerWebviewFindTarget(registerFindTarget, currentTabId?.value, id);
+ }
+
+function registerFindTargetWithRetry() {
+  retryWebviewRegistration(registerFindTargetOnce, () => viewKind.value === "html");
+}
+
+/**
+ * Electron's <webview> guest content never automatically receives OS-level
+ * keyboard focus just because it becomes visible (CSS display toggle on a
+ * background/KeepAlive'd tab, or a brand new tab finishing its first load) -
+ * only an explicit `.focus()` call on the element does that. Without it, a
+ * page can look focused (cursor blinking in an input) while keystrokes never
+ * actually reach the guest page at all, intermittently, depending on
+ * whatever click happened to also transfer focus by chance. Only ever fires
+ * for the tab that's actually the visible/selected one - a background tab
+ * mounting or finishing a load in the background must never steal focus.
+ */
+function focusWebviewIfActive() {
+  if (!currentTabIsActive?.value) return;
+  if (viewKind.value !== "html") return;
+  try {
+    siteWebview.value?.focus?.();
+  } catch {
+    // ignore
+  }
+}
+
+function onWebviewDomReady() {
+  webviewLoading.value = false;
+  void nextTick(() => registerFindTargetWithRetry());
+  focusWebviewIfActive();
+}
+
+function onWebviewDidStartLoading() {
+  webviewLoading.value = true;
+}
+
+function onWebviewDidStopLoading() {
+  webviewLoading.value = false;
+}
+
+/**
+ * A video going fullscreen inside the guest page.
+ *
+ * The window itself is put into fullscreen by the main process, but the webview
+ * element keeps whatever box the viewer drew it in - which here is a 75vh panel
+ * with a rounded 1px border. That border stayed visible around the video as a
+ * white outline. WebPage and SitePage already do this; this page did not.
+ */
+const webviewHtmlFullscreen = ref(false);
+
+function onWebviewEnterHtmlFullscreen() {
+  webviewHtmlFullscreen.value = true;
+  document.body.classList.add("lumen-webview-html-fullscreen");
+}
+
+function onWebviewLeaveHtmlFullscreen() {
+  webviewHtmlFullscreen.value = false;
+  document.body.classList.remove("lumen-webview-html-fullscreen");
+}
+
+const rootCid = ref("");
+const rootProto = ref<"ipfs" | "ipns">("ipfs");
+const relPath = ref("");
+const wantsDir = ref(false);
+const suffix = ref("");
+const stableDisplayUrl = ref("");
+// The ipns/<name> identity the user actually navigated to, kept separate
+// from rootProto/rootCid (the resolved identity actually used to fetch
+// content) so the address bar can stay on the stable ipns link even after
+// resolving through a stable-link JSON record or a plain ipns->ipfs
+// directory lookup - see toStableUrlIfSameRoot().
+const stableRootProto = ref<"ipfs" | "ipns">("ipns");
+const stableRootCid = ref("");
+const resolvedGatewayBase = ref("");
+const saving = ref(false);
+const saved = ref(false);
+const savedCid = ref("");
+const showSaveModal = ref(false);
+const saveNameDraft = ref("");
+const saveModalError = ref("");
+const savePreparing = ref(false);
+const saveTargetCid = ref("");
+// Destructured under the names this file already used, so the template and
+// everything below are untouched.
+const {
+  jobId: savePinJobId,
+  progressText: savePinProgressText,
+  progressPercent: savePinProgressPercent,
+  waitJobId: savePinWaitJobId,
+  isRunning: savePinIsRunning,
+  canPause: savePinCanPause,
+  canResume: savePinCanResume,
+  canStop: savePinCanStop,
+  statusLabel: savePinStatusLabel,
+  progressCounter: savePinProgressCounter,
+  clear: clearSavePinJobState,
+  apply: applySavePinJobSnapshot,
+  pause: pauseSavePinJob,
+  resume: resumeSavePinJob,
+  cancel: cancelSavePinJob,
+} = usePinJob({
+  busy: saving,
+  error: saveModalError,
+  onResumed: async (jobId) => {
+    // Resuming needs what the job is saving under, which the modal holds.
+    const cid = saveTargetCid.value || (await resolveSaveTargetCid().catch(() => ""));
+    const name = String(saveNameDraft.value || "").trim();
+    if (cid && name) void waitForSavePinCompletion(jobId, cid, name);
+  },
+});
+let stopPinProgressListener: null | (() => void) = null;
+
+const saveNamePlaceholder = computed(() => {
+  const name = inferDefaultName();
+  return name || t("Enter a name");
+});
+
+
+function activeDriveProfileId(): string {
+  return String(activeProfileId.value || "").trim() || "default";
+}
+
+function isEpubName(nameOrPath: string): boolean {
+  const s = String(nameOrPath || "").toLowerCase();
+  return s.endsWith(".epub") || s.includes(".epub?");
+}
+
+function getDefaultBibiOrigin(): string {
+  try {
+    const baseEl = document.querySelector<HTMLBaseElement>("base[href]");
+    if (baseEl?.href) {
+      const u = new URL("./lib/bibi/", baseEl.href);
+      return u.href.replace(/\/+$/, "");
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    const u = new URL("./lib/bibi/", window.location.href);
+    return u.href.replace(/\/+$/, "");
+  } catch {
+    // ignore
+  }
+
+  return "/lib/bibi";
+}
+
+const bibiOrigin = computed(() =>
+  String((window as any).BIBI_ORIGIN || getDefaultBibiOrigin()).replace(
+    /\/+$/,
+    "",
+  ),
+);
+
+// For EPUB parsing, prefer a path-style gateway URL.
+// The localhost subdomain gateway (`<cid>.ipfs.localhost`) is great for websites with absolute paths,
+// but some EPUB readers/tools are more reliable with `/ipfs/<cid>` URLs.
+const epubBookUrl = computed(() => {
+  if (!rootCid.value) return "";
+  const p = relPath.value ? `/${encodePath(relPath.value)}` : "";
+  const base = resolvedGatewayBase.value || localIpfsGatewayBase();
+  const b = String(base).replace(/\/+$/, "");
+  const suf = suffix.value || "";
+  return `${b}/${rootProto.value}/${rootCid.value}${p}${suf}`;
+});
+
+// Bibi refuses to load a book "via URL" whenever ITS OWN page is loaded over
+// file:// (it checks `location.protocol` and treats that as "local mode" -
+// see public/lib/bibi/resources/scripts/bibi.js's `U.Local` / `initializeBook`).
+// That's exactly what happens in the packaged app (the whole renderer is
+// served via file://), so pointing the iframe at `index.html?book=<url>`
+// throws "Bibi can't open books via URL on local mode" for any local IPFS
+// content. Bibi also supports embedding the book's bytes directly as Base64
+// in its `#bibi-book-data` element (see `N.initialize` in bibi.js) - that
+// path never checks `U.Local` at all, so we fetch the EPUB ourselves and
+// build a self-contained HTML document for the iframe's `srcdoc` instead of
+// just linking to Bibi's static index.html.
+//
+// The <base href> below is also what makes Bibi's own extension loader work
+// correctly in this srcdoc-embedded context: see the "Lumen patch" comment
+// on `trustworthy-origins` in public/lib/bibi/presets/default.js for why
+// that was needed (bibi.js's own same-origin trust check for extensions is
+// derived from `window.location`, which doesn't reliably reflect where
+// Bibi's files are actually hosted from when there's no real navigable URL -
+// `document.baseURI` does, since it reflects this exact <base> tag).
+const epubReaderSrcDoc = ref("");
+const epubReaderLoading = ref(false);
+const epubReaderError = ref("");
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const CHUNK = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+  }
+  return btoa(binary);
+}
+
+async function buildEpubReaderSrcDoc() {
+  const book = String(epubBookUrl.value || "").trim();
+  const bibi = String(bibiOrigin.value || "").replace(/\/+$/, "");
+  epubReaderSrcDoc.value = "";
+  epubReaderError.value = "";
+  if (!book || !bibi) return;
+
+  epubReaderLoading.value = true;
+  try {
+    const [bookRes, tplRes] = await Promise.all([
+      fetch(book),
+      fetch(`${bibi}/index.html`),
+    ]);
+    if (!bookRes.ok) throw new Error(t('Failed to fetch EPUB (status {status})', { status: bookRes.status }));
+    if (!tplRes.ok) throw new Error(t('Failed to load EPUB reader (status {status})', { status: tplRes.status }));
+
+    const base64 = arrayBufferToBase64(await bookRes.arrayBuffer());
+    const tpl = await tplRes.text();
+
+    const doc = new DOMParser().parseFromString(tpl, "text/html");
+    const baseEl = doc.createElement("base");
+    baseEl.href = `${bibi}/`;
+    doc.head.insertBefore(baseEl, doc.head.firstChild);
+
+    const bookDataEl = doc.getElementById("bibi-book-data");
+    if (!bookDataEl) throw new Error(t("EPUB reader template is missing its book-data element"));
+    bookDataEl.textContent = base64;
+    bookDataEl.setAttribute("data-bibi-book-mimetype", "application/epub+zip");
+
+    epubReaderSrcDoc.value = `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
+  } catch (e) {
+    epubReaderError.value = errorMessage(e, t("Failed to open EPUB"));
+  } finally {
+    epubReaderLoading.value = false;
+  }
+}
+
+watch([viewKind, epubBookUrl, bibiOrigin], ([kind]) => {
+  if (kind === "epub") {
+    buildEpubReaderSrcDoc();
+  } else {
+    epubReaderSrcDoc.value = "";
+    epubReaderError.value = "";
+  }
+});
+
+
+function encodePath(p: string): string {
+  const cleaned = String(p || "").replace(/^\/+/, "");
+  if (!cleaned) return "";
+  return cleaned
+    .split("/")
+    .filter((x) => x.length > 0)
+    .map((s) => encodeURIComponent(s))
+    .join("/");
+}
+
+function splitPathSuffix(rawPath: string): { path: string; suffix: string } {
+  const m = String(rawPath || "").match(/^([^?#]*)(.*)$/);
+  const path = m?.[1] || "";
+  const suffix = m?.[2] || "";
+  return { path, suffix };
+}
+
+function parseIpfsUrl(raw: string): {
+  proto: "ipfs" | "ipns";
+  cid: string;
+  rel: string;
+  dir: boolean;
+  suffix: string;
+} {
+  const s = String(raw || "").trim();
+  if (!s) return { proto: "ipfs", cid: "", rel: "", dir: false, suffix: "" };
+
+  const withoutScheme = /^lumen:\/\//i.test(s) ? s.slice("lumen://".length) : s;
+  const proto = /^ipns(\/|$)/i.test(withoutScheme) ? "ipns" : "ipfs";
+  const afterHost = withoutScheme.replace(/^(ipfs|ipns)\/?/i, "");
+  const split = splitPathSuffix(afterHost);
+  const hasTrailingSlash = /\/$/.test(split.path);
+  const cleaned = split.path.replace(/^\/+/, "").replace(/\/+$/, "");
+
+  const segs = cleaned.split("/").filter(Boolean).map(safeDecodeUriComponent);
+  const cid = segs[0] || "";
+  const rel = segs.slice(1).join("/");
+  return { proto, cid, rel, dir: hasTrailingSlash, suffix: split.suffix };
+}
+
+const displayLumenUrl = computed(() => {
+  if (!rootCid.value) return `lumen://${rootProto.value}/`;
+  const p = relPath.value
+    ? `/${encodePath(relPath.value)}`
+    : wantsDir.value || isDir.value
+      ? "/"
+      : "";
+  return `lumen://${rootProto.value}/${rootCid.value}${p}${suffix.value || ""}`;
+});
+
+const contentUrl = computed(() => {
+  if (!rootCid.value) return "";
+  const p = relPath.value ? `/${encodePath(relPath.value)}` : "";
+  const base = resolvedGatewayBase.value || localIpfsGatewayBase();
+
+  const b = String(base).replace(/\/+$/, "");
+  const suf = suffix.value || "";
+
+  // Use localhost subdomain gateway when possible to support absolute paths (e.g. Next.js /_next/*).
+  try {
+    const u = new URL(b);
+    const host = String(u.hostname || "").toLowerCase();
+    const isLocal = host === "localhost" || host === "127.0.0.1";
+    const isCidV1B32 = rootProto.value === "ipfs" && /^bafy[a-z0-9]{20,}$/i.test(rootCid.value);
+    if (isLocal && isCidV1B32) {
+      const port = u.port ? `:${u.port}` : "";
+      const proto = u.protocol || "http:";
+      const idLower = String(rootCid.value).toLowerCase();
+      const siteHost = `${idLower}.ipfs.localhost`;
+      return `${proto}//${siteHost}${port}${p || "/"}${suf}`;
+    }
+  } catch {}
+
+  return `${b}/${rootProto.value}/${rootCid.value}${p}${suf}`;
+});
+
+function isDangerousMarkdownScheme(value: string): boolean {
+  const s = String(value || "").trim().toLowerCase();
+  return (
+    s.startsWith("javascript:") ||
+    s.startsWith("vbscript:") ||
+    s.startsWith("file:")
+  );
+}
+
+function decodePathSegments(pathname: string): string {
+  return String(pathname || "")
+    .split("/")
+    .filter(Boolean)
+    .map((seg) => safeDecodeUriComponent(seg))
+    .join("/");
+}
+
+function parseExplicitMarkdownTarget(raw: string): MarkdownTarget | null {
+  const input = String(raw || "").trim();
+  if (!input || isDangerousMarkdownScheme(input)) return null;
+
+  const lower = input.toLowerCase();
+  let proto: MarkdownTarget["proto"] | null = null;
+  let rest = "";
+
+  if (lower.startsWith("lumen://ipfs/")) {
+    proto = "ipfs";
+    rest = input.slice("lumen://ipfs/".length);
+  } else if (lower.startsWith("lumen://ipns/")) {
+    proto = "ipns";
+    rest = input.slice("lumen://ipns/".length);
+  } else if (lower.startsWith("ipfs://")) {
+    proto = "ipfs";
+    rest = input.slice("ipfs://".length);
+  } else if (lower.startsWith("ipns://")) {
+    proto = "ipns";
+    rest = input.slice("ipns://".length);
+  } else if (lower.startsWith("/ipfs/")) {
+    proto = "ipfs";
+    rest = input.slice("/ipfs/".length);
+  } else if (lower.startsWith("/ipns/")) {
+    proto = "ipns";
+    rest = input.slice("/ipns/".length);
+  }
+
+  if (!proto) return null;
+
+  const split = splitPathSuffix(String(rest || "").replace(/^\/+/, ""));
+  const pathOnly = String(split.path || "");
+  const dir = /\/$/.test(pathOnly);
+  const segs = pathOnly
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "")
+    .split("/")
+    .filter(Boolean)
+    .map((seg) => safeDecodeUriComponent(seg));
+  const id = String(segs[0] || "").trim();
+  if (!id) return null;
+
+  return {
+    proto,
+    id,
+    path: segs.slice(1).join("/"),
+    dir,
+    suffix: split.suffix || "",
+  };
+}
+
+function resolveRelativeMarkdownTarget(raw: string): MarkdownTarget | null {
+  const input = String(raw || "").trim();
+  if (!input || !rootCid.value || isDangerousMarkdownScheme(input)) return null;
+
+  const basePath = relPath.value ? `/${encodePath(relPath.value)}` : "/";
+
+  try {
+    const next = new URL(input, `https://markdown.local${basePath}`);
+    return {
+      proto: rootProto.value,
+      id: rootCid.value,
+      path: decodePathSegments(next.pathname),
+      dir: next.pathname.endsWith("/"),
+      suffix: `${next.search || ""}${next.hash || ""}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function buildMarkdownLumenUrl(target: MarkdownTarget): string {
+  const rel = target.path
+    ? `/${encodePath(target.path)}`
+    : target.dir
+      ? "/"
+      : "";
+  return `lumen://${target.proto}/${target.id}${rel}${target.suffix || ""}`;
+}
+
+function buildMarkdownGatewayUrl(target: MarkdownTarget): string {
+  const base = String(
+    resolvedGatewayBase.value || localIpfsGatewayBase(),
+  ).replace(/\/+$/, "");
+  const rel = target.path
+    ? `/${encodePath(target.path)}`
+    : target.dir
+      ? "/"
+      : "";
+  return `${base}/${target.proto}/${target.id}${rel}${target.suffix || ""}`;
+}
+
+function resolveMarkdownLink(rawHref: string): MarkdownResolvedLink | null {
+  const href = String(rawHref || "").trim();
+  if (!href) return null;
+  if (href.startsWith("#")) return { kind: "anchor", value: href };
+  if (isDangerousMarkdownScheme(href)) return null;
+  if (/^(https?:|mailto:|tel:)/i.test(href) || href.startsWith("//")) {
+    return { kind: "external", value: href };
+  }
+
+  const explicitTarget = parseExplicitMarkdownTarget(href);
+  if (explicitTarget) {
+    return { kind: "internal", value: buildMarkdownLumenUrl(explicitTarget) };
+  }
+
+  const relativeTarget = resolveRelativeMarkdownTarget(href);
+  if (relativeTarget) {
+    return { kind: "internal", value: buildMarkdownLumenUrl(relativeTarget) };
+  }
+
+  return { kind: "external", value: href };
+}
+
+function resolveMarkdownImageSource(rawSrc: string): string | null {
+  const src = String(rawSrc || "").trim();
+  if (!src || src.startsWith("#") || isDangerousMarkdownScheme(src)) return null;
+  if (/^(https?:|data:|blob:)/i.test(src) || src.startsWith("//")) return src;
+
+  const explicitTarget = parseExplicitMarkdownTarget(src);
+  if (explicitTarget) return buildMarkdownGatewayUrl(explicitTarget);
+
+  const relativeTarget = resolveRelativeMarkdownTarget(src);
+  if (relativeTarget) return buildMarkdownGatewayUrl(relativeTarget);
+
+  return null;
+}
+
+function slugifyMarkdownHeading(
+  text: string,
+  counts: Map<string, number>,
+): string {
+  const base =
+    String(text || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "") || "section";
+  const seen = counts.get(base) || 0;
+  counts.set(base, seen + 1);
+  return seen > 0 ? `${base}-${seen}` : base;
+}
+
+const markdownHtml = computed(() => {
+  if (viewKind.value !== "markdown") return "";
+  const source = String(textContent.value || "");
+  if (!source.trim()) return "";
+
+  const parsed = String(
+    marked.parse(source, {
+      gfm: true,
+      breaks: false,
+      async: false,
+    }),
+  );
+  const sanitized = String(
+    DOMPurify.sanitize(parsed, { USE_PROFILES: { html: true } }),
+  );
+  const doc = new DOMParser().parseFromString(
+    `<body>${sanitized}</body>`,
+    "text/html",
+  );
+  const body = doc.body;
+  const headingCounts = new Map<string, number>();
+
+  body.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach((heading) => {
+    const text = String(heading.textContent || "").trim();
+    if (!text || heading.id) return;
+    heading.id = slugifyMarkdownHeading(text, headingCounts);
+  });
+
+  body.querySelectorAll("a[href]").forEach((anchor) => {
+    const resolved = resolveMarkdownLink(String(anchor.getAttribute("href") || ""));
+    anchor.removeAttribute("data-lumen-href");
+    if (!resolved) {
+      anchor.removeAttribute("href");
+      anchor.removeAttribute("target");
+      anchor.removeAttribute("rel");
+      return;
+    }
+    if (resolved.kind === "internal") {
+      anchor.setAttribute("href", "#");
+      anchor.setAttribute("data-lumen-href", resolved.value);
+      anchor.removeAttribute("target");
+      anchor.removeAttribute("rel");
+      return;
+    }
+    anchor.setAttribute("href", resolved.value);
+    if (resolved.kind === "external") {
+      anchor.setAttribute("target", "_blank");
+      anchor.setAttribute("rel", "noopener noreferrer");
+    } else {
+      anchor.removeAttribute("target");
+      anchor.removeAttribute("rel");
+    }
+  });
+
+  body.querySelectorAll("img[src]").forEach((img) => {
+    const src = resolveMarkdownImageSource(String(img.getAttribute("src") || ""));
+    if (!src) {
+      img.remove();
+      return;
+    }
+    img.setAttribute("src", src);
+    img.setAttribute("loading", "lazy");
+    img.setAttribute("decoding", "async");
+  });
+
+  return String(
+    DOMPurify.sanitize(body.innerHTML, { USE_PROFILES: { html: true } }),
+  );
+});
+
+function onMarkdownClick(event: MouseEvent) {
+  const target = event.target as HTMLElement | null;
+  const link = target?.closest?.("a[data-lumen-href]") as HTMLAnchorElement | null;
+  const href = String(link?.dataset?.lumenHref || "").trim();
+  if (!href) return;
+  event.preventDefault();
+  event.stopPropagation();
+  if (typeof navigate === "function") {
+    navigate(href);
+    return;
+  }
+  window.open(href, "_blank");
+}
+
+async function pickGatewayBaseForCurrentTarget(): Promise<string> {
+  const cid = String(rootCid.value || "").trim();
+  if (!cid) return localIpfsGatewayBase();
+
+  const relEncoded = relPath.value ? encodePath(relPath.value) : "";
+  const suffixStr = String(suffix.value || "");
+  const makeUrl = (base: string) => {
+    const b = String(base || "").replace(/\/+$/, "");
+    if (!b) return "";
+    const rel = relEncoded ? `/${relEncoded}` : "";
+    return `${b}/${rootProto.value}/${cid}${rel}${suffixStr}`;
+  };
+
+  const localBase = localIpfsGatewayBase();
+  const localUrl = makeUrl(localBase);
+  if (localUrl && (await probeUrl(localUrl, 2000))) return localBase;
+
+  const whitelisted = await loadWhitelistedGatewayBases().catch(() => [] as string[]);
+  if (whitelisted.length) {
+    try {
+      const best = await Promise.any(
+        whitelisted.map(async (b) => {
+          const url = makeUrl(b);
+          const ok = url ? await probeUrl(url, 2500) : false;
+          if (!ok) throw new Error("probe_failed");
+          return b;
+        }),
+      );
+      if (best) return best;
+    } catch {
+      // fall through
+    }
+  }
+
+  const publicBases = ["https://ipfs.io", "https://dweb.link"];
+  try {
+    const best = await Promise.any(
+      publicBases.map(async (b) => {
+        const url = makeUrl(b);
+        const ok = url ? await probeUrl(url, 4000) : false;
+        if (!ok) throw new Error("probe_failed");
+        return b;
+      }),
+    );
+    if (best) return best;
+  } catch {
+    // fall through
+  }
+
+  return localBase;
+}
+
+const crumbs = computed(() => {
+  const p = String(relPath.value || "").replace(/^\/+/, "");
+  if (!p) return [];
+  const parts = p.split("/").filter(Boolean);
+  const out: { label: string; path: string }[] = [];
+  for (let i = 0; i < parts.length; i++) {
+    out.push({ label: parts[i], path: parts.slice(0, i + 1).join("/") });
+  }
+  return out;
+});
+
+const canDownload = computed(() => !!rootCid.value && !loading.value);
+const canSaveToDrive = computed(() => rootProto.value === "ipfs" && !!rootCid.value && !loading.value);
+const isPreviewUnavailable = computed(
+  () => !loading.value && !!rootCid.value && !isDir.value && viewKind.value === "unknown",
+);
+
+function guessViewKind(nameOrPath: string): typeof viewKind.value {
+  const s = String(nameOrPath || "").toLowerCase();
+  const ext = s.split(".").pop() || "";
+  if (["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"].includes(ext))
+    return "image";
+  if (["mp4", "webm", "mov", "mkv", "avi", "m3u8"].includes(ext)) return "video";
+  if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return "audio";
+  if (["pdf"].includes(ext)) return "pdf";
+  if (["epub"].includes(ext)) return "epub";
+  if (["docx"].includes(ext)) return "docx";
+  if (["html", "htm"].includes(ext)) return "html";
+  if (["md", "markdown", "mdown", "mkd", "mkdn"].includes(ext))
+    return "markdown";
+  if (["txt", "json", "xml", "csv", "log"].includes(ext)) return "text";
+  return "unknown";
+}
+
+function looksLikeMarkdown(text: string, nameOrPath = ""): boolean {
+  const path = String(nameOrPath || "").toLowerCase();
+  if (
+    [".md", ".markdown", ".mdown", ".mkd", ".mkdn"].some((ext) =>
+      path.endsWith(ext),
+    )
+  ) {
+    return true;
+  }
+
+  const sample = String(text || "").slice(0, 24_000);
+  if (!sample.trim()) return false;
+
+  let score = 0;
+
+  if (/^#{1,6}\s+\S+/m.test(sample)) score += 2;
+  if (/^[^\n]+\n(?:=+|-+)\s*$/m.test(sample)) score += 2;
+  if (/(^|\n)(`{3,}|~{3,})/.test(sample)) score += 2;
+  if (/^\|.+\|\s*$[\r\n]+\|(?:\s*:?-+:?\s*\|)+/m.test(sample)) score += 2;
+  if (/!\[[^\]\n]*\]\([^)]+\)/.test(sample)) score += 1;
+  if (/\[[^\]\n]+\]\([^)]+\)/.test(sample)) score += 1;
+  if (/^\s{0,3}(?:>|\-\s|\*\s|\+\s|\d+\.\s)\S+/m.test(sample)) score += 1;
+  // Capturing, not (?:...): \1 needs a group to point at. With a non-capturing
+  // group there was no group 1, so this never matched a horizontal rule and
+  // the point was never scored.
+  if (/^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/m.test(sample)) score += 1;
+
+  const lineCount = sample.split(/\r?\n/).length;
+  if (lineCount >= 4 && /^\s*[-*+]\s+\S+/m.test(sample)) score += 1;
+
+  return score >= 2;
+}
+
+async function sniffViewKindFromHead(
+  url: string,
+): Promise<typeof viewKind.value> {
+  const target = String(url || "").trim();
+  if (!target) return "unknown";
+
+  try {
+    const httpHead = useInternalLumen()?.httpHead;
+    if (!httpHead) return "unknown";
+
+    // Prefer the Electron http bridge to avoid CORS issues with local gateways.
+    const res = await httpHead(target, { timeout: 8000 }).catch(() => null);
+    const headers =
+      res && res.headers && typeof res.headers === "object" ? res.headers : {};
+    const headerKey = Object.keys(headers).find(
+      (k) => String(k || "").toLowerCase() === "content-type",
+    );
+
+    const ct = String(headerKey ? headers[headerKey] || "" : "").toLowerCase();
+    if (!ct) return "unknown";
+    if (ct.startsWith("image/")) return "image";
+    if (ct.startsWith("video/")) return "video";
+    if (ct.startsWith("audio/")) return "audio";
+    if (ct.includes("application/vnd.apple.mpegurl")) return "video";
+    if (ct.includes("application/x-mpegurl")) return "video";
+    if (ct.includes("text/html")) return "html";
+    if (ct.includes("application/pdf")) return "pdf";
+    if (ct.includes("application/epub+zip")) return "epub";
+    if (ct.includes("officedocument.wordprocessingml")) return "docx";
+    if (ct.includes("text/markdown") || ct.includes("text/x-markdown"))
+      return "markdown";
+    if (ct.startsWith("text/")) return "text";
+    if (ct.includes("application/json") || ct.includes("application/xml"))
+      return "text";
+    return "unknown";
+  } catch (err) {
+    console.warn("[ipfs-page] sniff failed:", err);
+    return "unknown";
+  }
+}
+
+// Only the first few KB are ever inspected (see detectMagicKindFromBytes), so fetch a
+// bounded prefix via Range instead of downloading arbitrarily large/huge files whole just
+// to sniff their type — this used to be able to pull a multi-GB file fully into memory.
+const MAGIC_BYTES_SNIFF_LIMIT = 32_768;
+
+async function detectViaMagicBytes(
+  target: string,
+): Promise<typeof viewKind.value> {
+  try {
+    const got = await useInternalLumen()
+      ?.ipfsGet?.(target, { maxBytes: MAGIC_BYTES_SNIFF_LIMIT })
+      .catch(() => null);
+    if (!got?.ok || !Array.isArray(got.data)) return "unknown";
+
+    const bytes = new Uint8Array(got.data);
+    if (bytes.length < 12) return "unknown";
+
+    const magicKind = detectMagicKindFromBytes(bytes);
+    if (magicKind !== "unknown") return magicKind;
+
+    return "unknown";
+  } catch (err) {
+    console.warn("[ipfs-page] magic bytes detection failed:", err);
+    return "unknown";
+  }
+}
+
+function detectMagicKindFromBytes(bytes: Uint8Array): typeof viewKind.value {
+  try {
+    if (!bytes || bytes.length < 12) return "unknown";
+
+    if (bytes[0] === 0x50 && bytes[1] === 0x4b) {
+      // DOCX: ZIP container with `word/` parts.
+      try {
+        const sample = bytes.subarray(0, Math.min(bytes.length, 16_384));
+        const enc = new TextEncoder();
+        const hasWord = includesBytes(sample, enc.encode("word/"));
+        const hasContentTypes = includesBytes(sample, enc.encode("[Content_Types].xml"));
+        const hasWordDoc = includesBytes(sample, enc.encode("word/document.xml"));
+        if (hasWord && (hasContentTypes || hasWordDoc)) return "docx";
+      } catch {
+        // ignore
+      }
+
+      // EPUB: ZIP container that contains a `mimetype` entry with content "application/epub+zip".
+      // When the `mimetype` entry is stored uncompressed, that string typically appears very early.
+      try {
+        const needle = new TextEncoder().encode("application/epub+zip");
+        const sample = bytes.subarray(0, Math.min(bytes.length, 2048));
+        if (includesBytes(sample, needle)) return "epub";
+      } catch {
+        // ignore
+      }
+    }
+
+    // Check magic bytes for common formats
+    // JPEG: FF D8 FF
+    if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)
+      return "image";
+    // PNG: 89 50 4E 47
+    if (
+      bytes[0] === 0x89 &&
+      bytes[1] === 0x50 &&
+      bytes[2] === 0x4e &&
+      bytes[3] === 0x47
+    )
+      return "image";
+    // GIF: 47 49 46 38
+    if (
+      bytes[0] === 0x47 &&
+      bytes[1] === 0x49 &&
+      bytes[2] === 0x46 &&
+      bytes[3] === 0x38
+    )
+      return "image";
+    // WebP: 52 49 46 46 ... 57 45 42 50
+    if (
+      bytes[0] === 0x52 &&
+      bytes[1] === 0x49 &&
+      bytes[2] === 0x46 &&
+      bytes[3] === 0x46 &&
+      bytes[8] === 0x57 &&
+      bytes[9] === 0x45 &&
+      bytes[10] === 0x42 &&
+      bytes[11] === 0x50
+    )
+      return "image";
+    // PDF: 25 50 44 46
+    if (
+      bytes[0] === 0x25 &&
+      bytes[1] === 0x50 &&
+      bytes[2] === 0x44 &&
+      bytes[3] === 0x46
+    )
+      return "pdf";
+
+    return "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
+function includesBytes(haystack: Uint8Array, needle: Uint8Array): boolean {
+  if (!haystack?.length || !needle?.length) return false;
+  if (needle.length > haystack.length) return false;
+  outer: for (let i = 0; i <= haystack.length - needle.length; i++) {
+    for (let j = 0; j < needle.length; j++) {
+      if (haystack[i + j] !== needle[j]) continue outer;
+    }
+    return true;
+  }
+  return false;
+}
+
+function decodeEntities(input: string): string {
+  const s = String(input || "");
+  if (!s) return "";
+  const basic = s
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, "\"")
+    .replace(/&#39;/gi, "'");
+
+  return basic
+    .replace(/&#x([0-9a-f]+);/gi, (_m, hex) => {
+      try {
+        const code = Number.parseInt(String(hex), 16);
+        if (!Number.isFinite(code) || code <= 0) return " ";
+        return String.fromCodePoint(code);
+      } catch {
+        return " ";
+      }
+    })
+    .replace(/&#([0-9]+);/g, (_m, dec) => {
+      try {
+        const code = Number.parseInt(String(dec), 10);
+        if (!Number.isFinite(code) || code <= 0) return " ";
+        return String.fromCodePoint(code);
+      } catch {
+        return " ";
+      }
+    });
+}
+
+function squeezeWhitespace(text: string): string {
+  return String(text || "")
+    .replace(/\r/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
+function extractDocxTextFromXml(xml: string): string {
+  const raw = String(xml || "");
+  if (!raw) return "";
+
+  const paras = raw.match(/<w:p[\s\S]*?<\/w:p>/g) || [];
+  const out: string[] = [];
+  for (const para of paras) {
+    const parts: string[] = [];
+    const matches = para.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g);
+    for (const m of matches) {
+      const v = decodeEntities(m[1] || "");
+      if (v) parts.push(v);
+    }
+    const joined = parts.join("");
+    if (joined.trim()) out.push(joined.trim());
+  }
+
+  if (!out.length) {
+    return squeezeWhitespace(decodeEntities(raw.replace(/<[^>]+>/g, " ")));
+  }
+
+  return squeezeWhitespace(out.join("\n"));
+}
+
+async function extractDocxTextFromBytes(bytes: Uint8Array): Promise<string> {
+  const zip = await JSZip.loadAsync(bytes);
+  const file = zip.file("word/document.xml");
+  if (!file) return "";
+  const xml = await file.async("string");
+  return extractDocxTextFromXml(xml);
+}
+
+const indexHtmlEntry = computed(() => {
+  const candidates = entries.value.filter((e) => e.type === "file");
+  return (
+    candidates.find((e) => String(e.name).toLowerCase() === "index.html") ||
+    candidates.find((e) => String(e.name).toLowerCase() === "index.htm") ||
+    null
+  );
+});
+
+const masterM3u8Entry = computed(() => {
+  const candidates = entries.value.filter((e) => e.type === "file");
+  return candidates.find((e) => String(e.name).toLowerCase() === "master.m3u8") || null;
+});
+
+const isHlsManifest = computed(() => {
+  if (viewKind.value !== "video") return false;
+  const p = String(relPath.value || "").toLowerCase();
+  return p.endsWith(".m3u8") || String(contentUrl.value || "").toLowerCase().includes(".m3u8");
+});
+
+const videoSrc = computed(() => {
+  if (!contentUrl.value) return undefined;
+  // For HLS on non-native platforms, we use hls.js which attaches a MediaSource blob URL.
+  // Avoid binding `src` in Vue when HLS is active, otherwise Vue can overwrite the blob URL.
+  return isHlsManifest.value ? undefined : contentUrl.value;
+});
+
+async function ensureHlsStopped(opts: { clearVideoSrc?: boolean } = {}) {
+  try {
+    if (hlsInstance && typeof hlsInstance.destroy === "function") hlsInstance.destroy();
+  } catch {
+    // ignore
+  }
+  hlsInstance = null;
+  hlsError.value = "";
+  const clearVideoSrc = !!opts.clearVideoSrc;
+  const video = videoEl.value;
+  if (!video) return;
+
+  // Never clear the src for normal videos (e.g. mp4) because Vue controls it via `:src`.
+  // Only clear when explicitly requested or when hls.js previously attached a blob URL.
+  const current = String((video as any).currentSrc || video.src || "");
+  const isBlob =
+    current.startsWith("blob:") ||
+    current.startsWith("mediasource:") ||
+    current.startsWith("ms-stream:");
+  if (!clearVideoSrc && !isBlob) return;
+
+  try {
+    video.pause?.();
+  } catch {
+    // ignore
+  }
+  try {
+    video.removeAttribute("src");
+    video.load?.();
+  } catch {
+    try {
+      (video as any).src = "";
+    } catch {
+      // ignore
+    }
+  }
+}
+
+async function ensureHlsPlaying(url: string) {
+  const video = videoEl.value;
+  if (!video) return;
+  hlsError.value = "";
+
+  // Safari (and some platforms) support HLS natively.
+  try {
+    if (typeof video.canPlayType === "function") {
+      const can = video.canPlayType("application/vnd.apple.mpegurl");
+      if (can === "probably" || can === "maybe") {
+        await ensureHlsStopped({ clearVideoSrc: true });
+        video.src = url;
+        void video.play?.().catch?.(() => {});
+        return;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  const { default: Hls } = await import("hls.js");
+  if (!Hls || typeof Hls.isSupported !== "function" || !Hls.isSupported()) {
+    // Last resort: try direct <video src> (may fail on Windows).
+    await ensureHlsStopped();
+    video.src = url;
+    return;
+  }
+
+  const sanitizeHlsUrl = (u: string): string =>
+    String(u || "").replace(/%(?![0-9A-Fa-f]{2})/g, "%25");
+
+  await ensureHlsStopped({ clearVideoSrc: true });
+  hlsInstance = new Hls({
+    lowLatencyMode: true,
+    xhrSetup: (xhr: XMLHttpRequest, rawUrl: string) => {
+      const nextUrl = sanitizeHlsUrl(rawUrl);
+      if (nextUrl === rawUrl) return;
+      try {
+        xhr.open("GET", nextUrl, true);
+      } catch {
+        // ignore
+      }
+    },
+  });
+
+  hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+    void video.play?.().catch?.(() => {});
+  });
+  hlsInstance.on(Hls.Events.ERROR, (_evt: any, data: any) => {
+    const url = String(data?.context?.url || data?.frag?.url || data?.url || "");
+    const code = data?.response?.code || data?.response?.status || data?.networkDetails?.status || "";
+    const details = String(data?.details || "");
+    if (!data?.fatal && IGNORABLE_HLS_WARNING_DETAILS.has(details)) {
+      if (hlsError.value.includes(`HLS ${details}`)) hlsError.value = "";
+      return;
+    }
+    const reason = String(data?.reason || "");
+    const type = String(data?.type || "");
+    const errMsg = String(data?.errorMessage(error, ""));
+    const respText = String(data?.response?.text || "");
+    const msg = details || type || "hls_error";
+    const extraBits = [reason, errMsg, respText].map((s) => String(s || "").trim()).filter(Boolean);
+    const extra = extraBits.length ? ` - ${extraBits[0]}` : "";
+    hlsError.value = `HLS ${msg}${extra}${code ? ` (HTTP ${code})` : ""}${url ? `: ${url}` : ""}`;
+    try {
+      if (data?.fatal && data?.type === Hls.ErrorTypes.NETWORK_ERROR) {
+        hlsInstance.startLoad();
+      } else if (data?.fatal && data?.type === Hls.ErrorTypes.MEDIA_ERROR) {
+        hlsInstance.recoverMediaError();
+      }
+    } catch {
+      // ignore
+    }
+  });
+
+  try {
+    hlsInstance.loadSource(url);
+  } catch {}
+  try {
+    hlsInstance.attachMedia(video);
+  } catch {}
+}
+
+function normalizeSuffix(raw: string): {
+  search: string;
+  hash: string;
+  full: string;
+} {
+  const full = String(raw || "");
+  const idxHash = full.indexOf("#");
+  const idxQ = full.indexOf("?");
+  const hasQ = idxQ >= 0 && (idxHash < 0 || idxQ < idxHash);
+  const search = hasQ
+    ? full.slice(idxQ, idxHash >= 0 ? idxHash : undefined)
+    : "";
+  const hash = idxHash >= 0 ? full.slice(idxHash) : "";
+  return { search, hash, full };
+}
+
+function isOnlyHashChange(prev: string, next: string): boolean {
+  const a = normalizeSuffix(prev);
+  const b = normalizeSuffix(next);
+  return a.search === b.search && a.hash !== b.hash;
+}
+
+function joinStableLinkTargetPath(basePath: string | undefined, rel: string): string {
+  const base = String(basePath || "").trim().replace(/^\/+|\/+$/g, "");
+  const rest = String(rel || "").trim().replace(/^\/+|\/+$/g, "");
+  const parts = [base, rest].filter(Boolean);
+  return parts.length ? `/${parts.join("/")}` : "";
+}
+
+function buildStableDisplayUrl(parsed: ReturnType<typeof parseIpfsUrl>): string {
+  const rel = String(parsed.rel || "").replace(/^\/+/, "");
+  const path = rel ? `/${encodePath(rel)}` : (parsed.dir ? "/" : "");
+  return `lumen://ipns/${parsed.cid}${path}${parsed.suffix || ""}`;
+}
+
+// When viewing via a stable ipns/<name> address, the webview may internally
+// navigate to (or be gateway-redirected to) the resolved ipfs/<cid>
+// equivalent of the same content - both when it's the initial resolved root
+// and when the user clicks a same-site relative link. Either way, the
+// address bar must keep showing ipns/<name> (with whatever path the webview
+// actually navigated to) rather than leaking the transient resolved CID.
+function toStableUrlIfSameRoot(input: string): string | null {
+  if (!stableDisplayUrl.value) return null;
+  const parsed = parseIpfsUrl(input);
+  if (!parsed.cid) return null;
+  const matchesStableRoot = parsed.proto === stableRootProto.value && parsed.cid === stableRootCid.value;
+  const matchesResolvedRoot = parsed.proto === rootProto.value && parsed.cid === rootCid.value;
+  if (!matchesStableRoot && !matchesResolvedRoot) return null;
+  const rel = parsed.rel ? `/${encodePath(parsed.rel)}` : (parsed.dir ? "/" : "");
+  return `lumen://${stableRootProto.value}/${stableRootCid.value}${rel}${parsed.suffix || ""}`;
+}
+
+function toLumenFromWebHref(raw: string): string | null {
+  const href = String(raw || "").trim();
+  if (!href) return null;
+
+  const normalizeDirRest = (rest: string): string => {
+    const r = String(rest || "");
+    if (!r || r === "/") return "";
+    return r.endsWith("/") ? r.slice(0, -1) : r;
+  };
+
+  try {
+    const u = new URL(href);
+    const pathname = String(u.pathname || "");
+    const hostname = String(u.hostname || "").trim();
+
+    // Subdomain gateway support: http://<cid>.ipfs.localhost:8080/...
+    if (hostname) {
+      const h = hostname.toLowerCase();
+      const mHost = h.match(/^([a-z0-9]+)\.(ipfs|ipns)\./i);
+      if (mHost && mHost[1] && mHost[2]) {
+        const id = mHost[1] || "";
+        const kind = String(mHost[2] || "").toLowerCase();
+        const rest = normalizeDirRest(pathname || "/");
+        if (kind === "ipfs") return `lumen://ipfs/${id}${rest}${u.search || ""}${u.hash || ""}`;
+        if (kind === "ipns") return `lumen://ipns/${id}${rest}${u.search || ""}${u.hash || ""}`;
+      }
+    }
+    let m = pathname.match(/^\/ipfs\/([^/]+)(\/.*)?$/i);
+    if (m) {
+      const cid = m[1] || "";
+      const rest = normalizeDirRest(m[2] || "");
+      return `lumen://ipfs/${cid}${rest}${u.search || ""}${u.hash || ""}`;
+    }
+    m = pathname.match(/^\/ipns\/([^/]+)(\/.*)?$/i);
+    if (m) {
+      const name = m[1] || "";
+      const rest = normalizeDirRest(m[2] || "");
+      return `lumen://ipns/${name}${rest}${u.search || ""}${u.hash || ""}`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function syncNavFromWebview(rawUrl: string, opts: { push?: boolean } = {}) {
+  if (!pageActive.value) return;
+  if (!navigate) return;
+  const next = toLumenFromWebHref(rawUrl);
+  if (!next) return;
+  const finalNext = toStableUrlIfSameRoot(next) || next;
+  const cur = String(currentTabUrl?.value || "").trim();
+  if (cur && cur === finalNext) return;
+  navigate(finalNext, { push: opts.push ?? true });
+}
+
+function onWebviewWillNavigate(ev: any) {
+  if (!pageActive.value) return;
+  const href = String(ev?.url || "");
+  if (/^\s*lumen:\/\//i.test(href)) {
+    ev.preventDefault?.();
+    navigate?.(href.trim(), { push: true });
+    return;
+  }
+  try {
+    const u = new URL(href);
+    const proto = (u.protocol || "").replace(":", "").toLowerCase();
+    if (proto !== "http" && proto !== "https") {
+      ev.preventDefault?.();
+      return;
+    }
+    // Only allow webview to navigate inside /ipfs or /ipns.
+    if (!toLumenFromWebHref(href)) {
+      ev.preventDefault?.();
+    }
+  } catch {
+    ev.preventDefault?.();
+  }
+}
+
+function onWebviewDidNavigate(ev: any) {
+  syncNavFromWebview(String(ev?.url || ""), { push: true });
+}
+
+function onWebviewDidNavigateInPage(ev: any) {
+  syncNavFromWebview(String(ev?.url || ""), { push: true });
+}
+
+function onWebviewNewWindow(ev: any) {
+  if (!pageActive.value) return;
+  ev.preventDefault?.();
+  const href = String(ev?.url || "");
+  const lumen = toLumenFromWebHref(href);
+  if (lumen) openInNewTab?.(lumen);
+  else if (/^\s*https?:\/\//i.test(href)) openInNewTab?.(href.trim());
+}
+
+function onWebviewIpcMessage(ev: any) {
+  if (!pageActive.value) return;
+  const channel = String(ev?.channel || "").trim();
+  if (channel === "extensions:installFromStore") {
+    const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
+    const input =
+      typeof payload === "string"
+        ? payload
+        : payload && typeof payload === "object"
+          ? String((payload as any).id || (payload as any).url || "").trim()
+          : "";
+    if (input) void installChromeWebStoreExtension(input);
+    return;
+  }
+  if (channel !== "lumen:navigate") return;
+
+  const payload = Array.isArray(ev?.args) ? ev.args[0] : null;
+  const url =
+    typeof payload === "string"
+      ? payload
+      : payload && typeof payload === "object" && typeof (payload as any).url === "string"
+        ? (payload as any).url
+        : "";
+  const href = String(url || "").trim();
+  if (!/^lumen:\/\//i.test(href)) return;
+
+  const openInNewTabFlag =
+    !!(payload && typeof payload === "object" && (payload as any).openInNewTab);
+  if (openInNewTabFlag) openInNewTab?.(href);
+  else navigate?.(href, { push: true });
+}
+
+async function installChromeWebStoreExtension(input: string) {
+  await installExtensionFromChromeWebStore(input, "ipfs-webview");
+}
+
+function isHtmlLikePath(pathValue: string): boolean {
+  const p = String(pathValue || "").toLowerCase();
+  return p.endsWith(".html") || p.endsWith(".htm") || p.endsWith(".xhtml");
+}
+
+async function load() {
+  const url = String(currentTabUrl?.value || window.location.href || "");
+  const parsed = parseIpfsUrl(url);
+  const visibleParsed = { ...parsed };
+  stableDisplayUrl.value = "";
+
+  if (parsed.proto === "ipns" && parsed.cid) {
+    // Keep the ipns/<name> address as what the user sees/shares, regardless
+    // of whether it resolves through a stable-link JSON record (below) or
+    // turns out to just be a plain ipns-published site - in both cases the
+    // whole point of an ipns link is that it stays stable even though the
+    // content it resolves to can change.
+    stableDisplayUrl.value = buildStableDisplayUrl(visibleParsed);
+    stableRootProto.value = "ipns";
+    stableRootCid.value = parsed.cid;
+
+    const target = await resolveStableLinkTarget(parsed.cid).catch(() => null);
+    if (target) {
+      const path = joinStableLinkTargetPath(target.basePath, parsed.rel);
+      parsed.proto = target.proto;
+      parsed.cid = target.id;
+      parsed.rel = path.replace(/^\/+/, "");
+      parsed.dir = path.endsWith("/");
+      if (target.suffix) parsed.suffix = target.suffix;
+    }
+  }
+
+  // Auto-convert CIDv0 (Qm...) to CIDv1 base32 (bafy...) so localhost subdomain gateways work.
+  if (parsed.proto === "ipfs" && /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(parsed.cid)) {
+    const api: any = useInternalLumen();
+    if (api && typeof api.ipfsCidToBase32 === "function") {
+      const res = await api.ipfsCidToBase32(parsed.cid).catch(() => null);
+      const next = String(res?.cid || "").trim();
+      if (next && next !== parsed.cid) {
+        const raw = String(url || "").trim();
+        const withoutScheme = /^lumen:\/\//i.test(raw) ? raw.slice("lumen://".length) : raw;
+        const isIpfs = withoutScheme.toLowerCase().startsWith("ipfs/");
+        if (navigate && isIpfs) {
+          const rest = withoutScheme.slice("ipfs/".length);
+          const idx = rest.search(/[/?#]/);
+          const tail = idx >= 0 ? rest.slice(idx) : "";
+          const rewritten = `lumen://ipfs/${next}${tail}`;
+          if (rewritten !== raw) navigate(rewritten, { push: false });
+        }
+        parsed.cid = next;
+      }
+    }
+  }
+
+  if (
+    rootCid.value &&
+    viewKind.value === "html" &&
+    rootProto.value === parsed.proto &&
+    rootCid.value === parsed.cid &&
+    relPath.value === parsed.rel &&
+    isOnlyHashChange(suffix.value, parsed.suffix)
+  ) {
+    suffix.value = parsed.suffix;
+    return;
+  }
+
+  rootProto.value = parsed.proto;
+  rootCid.value = parsed.cid;
+  relPath.value = parsed.rel;
+  wantsDir.value = parsed.dir;
+  suffix.value = parsed.suffix;
+
+  loading.value = true;
+  error.value = "";
+  entries.value = [];
+  isDir.value = false;
+  viewKind.value = "unknown";
+  isBareHtmlView.value = false;
+  await ensureHlsStopped();
+  textContent.value = "";
+  docxContent.value = "";
+  mediaErrored.value = false;
+  resolvedGatewayBase.value = "";
+  saved.value = false;
+  savedCid.value = "";
+
+  if (!rootCid.value) {
+    // Show welcome page when no CID is provided
+    isDir.value = true;
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const target = relPath.value
+      ? `/${rootProto.value}/${rootCid.value}/${relPath.value}`
+      : `/${rootProto.value}/${rootCid.value}`;
+    const res = await useInternalLumen()?.ipfsLs?.(target).catch(() => null);
+    const list = Array.isArray(res?.entries) ? res.entries : [];
+    const mapped: Entry[] = list
+      .filter((it: any) => it && it.name && it.cid)
+      .map((it: any) => ({
+        key: `${it.cid}:${it.name}`,
+        name: String(it.name),
+        cid: String(it.cid),
+        type: String(it.type) === "dir" ? "dir" : "file",
+        size: typeof it.size === "number" ? it.size : null,
+        relPath: relPath.value
+          ? `${relPath.value}/${String(it.name)}`
+          : String(it.name),
+      }));
+    mapped.sort((a, b) =>
+      a.type === b.type
+        ? a.name.localeCompare(b.name)
+        : a.type === "dir"
+          ? -1
+          : 1,
+    );
+    entries.value = mapped;
+    isDir.value = wantsDir.value || mapped.length > 0;
+
+    // Web-like behavior: if navigating to a directory path without an explicit trailing slash,
+    // auto-open `index.html` / `index.htm` when present.
+    if (!wantsDir.value && isDir.value && navigate) {
+      // If the current path already looks like an explicit HTML file, do not treat it as a "directory route"
+      // and append another `/index.html` (avoids `/index.html/index.html` in weird DAGs).
+      const allowAutoIndex = !(relPath.value && isHtmlLikePath(relPath.value));
+      if (allowAutoIndex) {
+        const idx =
+          mapped.find(
+            (e) => e.type === "file" && String(e.name).toLowerCase() === "index.html",
+          ) ||
+          mapped.find(
+            (e) => e.type === "file" && String(e.name).toLowerCase() === "index.htm",
+          ) ||
+          null;
+
+        if (idx) {
+          // Prefer the stable ipns/<name> address over the resolved
+          // ipfs/<cid> identity, so this convenience redirect never turns a
+          // shareable stable link into a transient CID-based one.
+          const useStable = !!stableDisplayUrl.value;
+          const nextProto = useStable ? stableRootProto.value : rootProto.value;
+          const nextCid = useStable ? stableRootCid.value : rootCid.value;
+          const next = `lumen://${nextProto}/${nextCid}/${encodePath(idx.relPath)}${suffix.value || ""}`;
+          const cur = String(currentTabUrl?.value || "").trim();
+          if (cur !== next) {
+            navigate(next, { push: false });
+            return;
+          }
+        }
+      }
+    }
+
+    if (!isDir.value) {
+      resolvedGatewayBase.value = await pickGatewayBaseForCurrentTarget();
+      viewKind.value = guessViewKind(relPath.value || rootCid.value);
+      if (viewKind.value === "unknown") {
+        const sniffed = await sniffViewKindFromHead(contentUrl.value);
+        if (sniffed !== "unknown") {
+          viewKind.value = sniffed;
+        } else {
+          // Fallback: try magic bytes detection for images
+          const magicKind = await detectViaMagicBytes(target);
+          if (magicKind !== "unknown") viewKind.value = magicKind;
+        }
+      }
+      if (viewKind.value === "text" || viewKind.value === "markdown") {
+        const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+        const got = await useInternalLumen()
+          ?.ipfsGet?.(target, { gateways })
+          .catch(() => null);
+        if (got?.ok && Array.isArray(got.data)) {
+          const bytes = new Uint8Array(got.data);
+          const magicKind = detectMagicKindFromBytes(bytes);
+          if (magicKind !== "unknown" && magicKind !== "text") {
+            // Content-type can be wrong for extension-less CIDs. Avoid showing raw PDF binaries as text.
+            viewKind.value = magicKind;
+            textContent.value = "";
+          } else if (bytes.byteLength > 2_000_000) {
+            viewKind.value = "unknown";
+          } else {
+            const decoded = new TextDecoder("utf-8", {
+              fatal: false,
+            }).decode(bytes);
+            textContent.value = decoded;
+            if (
+              viewKind.value === "text" &&
+              looksLikeMarkdown(decoded, relPath.value || rootCid.value)
+            ) {
+              viewKind.value = "markdown";
+            }
+          }
+        } else {
+          viewKind.value = "unknown";
+        }
+      }
+
+      if (viewKind.value === "docx") {
+        const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+        const got = await useInternalLumen()
+          ?.ipfsGet?.(target, { gateways, timeoutMs: 20000 })
+          .catch(() => null);
+        if (got?.ok && Array.isArray(got.data)) {
+          const bytes = new Uint8Array(got.data);
+          if (bytes.byteLength > 20_000_000) {
+            viewKind.value = "unknown";
+          } else {
+            try {
+              const text = await extractDocxTextFromBytes(bytes);
+              const trimmed = String(text || "").trim();
+              if (!trimmed) {
+                viewKind.value = "unknown";
+              } else {
+                docxContent.value = trimmed.slice(0, 200_000);
+              }
+            } catch {
+              viewKind.value = "unknown";
+            }
+          }
+        } else {
+          viewKind.value = "unknown";
+        }
+      }
+
+      if (viewKind.value === "html") {
+        const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+        const got = await useInternalLumen()
+          ?.ipfsGet?.(target, { gateways })
+          .catch(() => null);
+        if (got?.ok && Array.isArray(got.data)) {
+          const bytes = new Uint8Array(got.data);
+          if (bytes.byteLength > 2_000_000) {
+            viewKind.value = "unknown";
+          } else if (!wantsDir.value && relPath.value && isHtmlLikePath(relPath.value)) {
+            // Render full-bleed (like domain sites) instead of inside the framed
+            // IPFS viewer. The extension already confirms this is meant to be an
+            // HTML document, and the fetch above already confirms it's actually
+            // reachable - no need for a separate network precheck (a second,
+            // independent request that could fail on its own and silently leave
+            // the page stuck in the boxed/bordered viewer even though the real
+            // content loaded fine).
+            isBareHtmlView.value = true;
+          }
+        } else {
+          viewKind.value = "unknown";
+        }
+      }
+    }
+  } catch (e) {
+    error.value = errorMessage(e);
+  } finally {
+    loading.value = false;
+    void refreshSavedState();
+  }
+}
+
+function openIndexHtml() {
+  const entry = indexHtmlEntry.value;
+  if (!entry || !navigate) return;
+  navigate(`lumen://${rootProto.value}/${rootCid.value}/${encodePath(entry.relPath)}`);
+}
+
+function openMasterHls() {
+  const entry = masterM3u8Entry.value;
+  if (!entry || !navigate) return;
+  navigate(`lumen://${rootProto.value}/${rootCid.value}/${encodePath(entry.relPath)}`);
+}
+
+function openEntry(it: Entry) {
+  if (!navigate) return;
+  const dirSuffix = it.type === "dir" ? "/" : "";
+  navigate(
+    `lumen://${rootProto.value}/${rootCid.value}/${encodePath(it.relPath)}${dirSuffix}`,
+  );
+}
+
+function openDirRoot() {
+  if (!navigate) return;
+  navigate(`lumen://${rootProto.value}/${rootCid.value}/`);
+}
+
+function openDirCrumb(idx: number) {
+  if (!navigate) return;
+  const c = crumbs.value[idx];
+  if (!c) return;
+  navigate(`lumen://${rootProto.value}/${rootCid.value}/${encodePath(c.path)}/`);
+}
+
+async function copyText(v: string) {
+  await copyToClipboardWithToast(v);
+}
+
+async function copyLink() {
+  await copyText(displayLumenUrl.value);
+}
+
+async function copyLinkFor(it: Entry) {
+  const dirSuffix = it.type === "dir" ? "/" : "";
+  await copyText(
+    `lumen://${rootProto.value}/${rootCid.value}/${encodePath(it.relPath)}${dirSuffix}`,
+  );
+}
+
+function upsertDriveSavedFile(cid: string, name: string) {
+  const key = String(cid || "").trim();
+  const nextName = String(name || "").trim();
+  if (!key || !nextName) return;
+
+  const pid = activeDriveProfileId();
+  const storageKey = driveFilesKey(pid);
+  {
+    const parsed = readJson<unknown>(storageKey, []);
+    const base = Array.isArray(parsed) ? (parsed as any[]) : [];
+    const filtered = base.filter((f) => String(f?.cid || "").trim() !== key);
+    const next: DriveSavedFile = {
+      cid: key,
+      name: nextName,
+      size: 0,
+      uploadedAt: Date.now(),
+    };
+    writeJson(storageKey, [next, ...filtered].slice(0, 500));
+    nextDriveBackupSeq(pid);
+  }
+}
+
+function setDriveSavedName(cid: string, name: string) {
+  const key = String(cid || "").trim();
+  const nextName = String(name || "").trim();
+  if (!key || !nextName) return;
+  const pid = activeDriveProfileId();
+  const storageKey = driveLocalNamesKey(pid);
+  {
+    const parsed = readJson<unknown>(storageKey, {});
+    const base = parsed && typeof parsed === "object" ? parsed : {};
+    writeJson(storageKey, { ...base, [key]: nextName });
+    nextDriveBackupSeq(pid);
+  }
+}
+
+function inferDefaultName(): string {
+  const p = String(relPath.value || "")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+  if (!p) return "";
+  const seg = p.split("/").filter(Boolean).slice(-1)[0] || "";
+  return seg;
+}
+
+async function resolveCurrentItemCid(): Promise<string> {
+  if (!rootCid.value) throw new Error(t("Missing CID."));
+  const p = String(relPath.value || "")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+  if (!p) return rootCid.value;
+
+  const parts = p.split("/").filter(Boolean);
+  const name = parts[parts.length - 1] || "";
+  const parent = parts.slice(0, -1).join("/");
+  const parentTarget = parent ? `${rootCid.value}/${parent}` : rootCid.value;
+
+  const res = await useInternalLumen()
+    ?.ipfsLs?.(parentTarget)
+    .catch(() => null);
+  const list = Array.isArray(res?.entries) ? res.entries : [];
+  const hit = list.find((it: any) => String(it?.name || "") === name);
+  const cid = String(hit?.cid || "").trim();
+  return cid || rootCid.value;
+}
+
+async function resolveSaveTargetCid(): Promise<string> {
+  if (!rootCid.value) throw new Error(t("Missing CID."));
+  // For HLS, pin the root directory CID so all playlists + segments stay available.
+  if (isHlsManifest.value) return rootCid.value;
+  return resolveCurrentItemCid();
+}
+
+async function openSaveModal() {
+  if (!rootCid.value || saving.value || saved.value) return;
+  showSaveModal.value = true;
+  saveModalError.value = "";
+  saveTargetCid.value = "";
+  saveNameDraft.value = inferDefaultName();
+  clearSavePinJobState();
+
+  savePreparing.value = true;
+  try {
+    const cid = await resolveSaveTargetCid();
+    saveTargetCid.value = cid;
+  } catch (e) {
+    saveModalError.value = errorMessage(e, t("Failed to prepare the save."));
+  } finally {
+    savePreparing.value = false;
+  }
+}
+
+function closeSaveModal() {
+  if (savePinIsRunning.value) return;
+  showSaveModal.value = false;
+  savePreparing.value = false;
+  saveTargetCid.value = "";
+  saveModalError.value = "";
+}
+
+async function waitForSavePinCompletion(jobId: string, cid: string, name: string) {
+  const api: any = useInternalLumen();
+  const id = String(jobId || "").trim();
+  if (!id || savePinWaitJobId.value === id) return;
+  savePinWaitJobId.value = id;
+  try {
+    const res = await api?.ipfsPinWait?.(id, { timeoutMs: 0 });
+    if (savePinWaitJobId.value !== id) return;
+    if (res?.job) applySavePinJobSnapshot(res.job);
+
+    if (res?.ok) {
+      upsertDriveSavedFile(cid, name);
+      setDriveSavedName(cid, name);
+      savedCid.value = cid;
+      saved.value = true;
+      showSaveModal.value = false;
+      return;
+    }
+
+    if (res?.cancelled || String(res?.error || "").trim().toLowerCase() === "user_cancelled") {
+      saveModalError.value = t("Save cancelled.");
+      saving.value = false;
+      return;
+    }
+
+    error.value = String(res?.error || "save_failed");
+    saveModalError.value = error.value;
+    saving.value = false;
+  } catch (e) {
+    error.value = errorMessage(e);
+    saveModalError.value = error.value;
+    saving.value = false;
+  } finally {
+    if (savePinWaitJobId.value === id) savePinWaitJobId.value = "";
+  }
+}
+
+async function confirmSaveToDrive() {
+  if (!rootCid.value || savePinIsRunning.value) return;
+  const name = String(saveNameDraft.value || "").trim();
+  if (!name) {
+    saveModalError.value = t("Please enter a name.");
+    return;
+  }
+
+  saving.value = true;
+  try {
+    const cid = saveTargetCid.value || (await resolveSaveTargetCid());
+    const api: any = useInternalLumen();
+    const started = await api?.ipfsPinStart?.({ cidOrPath: cid, name }).catch(() => null);
+    if (!started?.ok || !started?.job?.id) {
+      throw new Error(String(started?.error || "save_failed"));
+    }
+    applySavePinJobSnapshot(started.job);
+    void waitForSavePinCompletion(String(started.job.id || ""), cid, name);
+  } catch (e) {
+    error.value = errorMessage(e);
+    saveModalError.value = error.value;
+    saving.value = false;
+  }
+}
+
+
+async function refreshSavedState() {
+  try {
+    saved.value = false;
+    savedCid.value = "";
+    if (rootProto.value !== "ipfs") return;
+    if (!rootCid.value) return;
+    const cid = await resolveSaveTargetCid();
+    savedCid.value = cid;
+    const res = await useInternalLumen()?.ipfsPinList?.().catch(() => null);
+    const pins =
+      res?.ok && Array.isArray(res.pins)
+        ? res.pins.map((x: any) => String(x))
+        : [];
+    saved.value = pins.includes(cid);
+  } catch {
+    saved.value = false;
+  }
+}
+
+function formatSize(bytes: number): string {
+  return formatBytes(bytes, { empty: "-" });
+}
+
+async function download() {
+  if (!canDownload.value) return;
+  const rel = String(relPath.value || "").replace(/^\/+/, "");
+  const isHlsMaster =
+    isHlsManifest.value && rel.toLowerCase().endsWith("master.m3u8");
+
+  // For folders (and for HLS masters), downloading a single file isn't useful.
+  // Use the gateway `?format=tar` so the browser streams a full archive.
+  if (isDir.value || isHlsMaster) {
+    const base = String(resolvedGatewayBase.value || localIpfsGatewayBase())
+      .replace(/\/+$/, "")
+      .trim();
+    if (!base) return;
+
+    const dirRel = isHlsMaster ? "" : rel;
+    const p = dirRel ? `/${encodePath(dirRel)}` : "";
+    const tarUrl = `${base}/${rootProto.value}/${rootCid.value}${p}?format=tar`;
+
+    const a = document.createElement("a");
+    a.href = tarUrl;
+    a.rel = "noopener";
+    a.click();
+    return;
+  }
+
+  const target = rel ? `/${rootProto.value}/${rootCid.value}/${rel}` : `/${rootProto.value}/${rootCid.value}`;
+  const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+  const got = await useInternalLumen()?.ipfsGet?.(target, { gateways }).catch(() => null);
+  if (!got?.ok || !Array.isArray(got.data)) return;
+  const name = rel ? rel.split("/").pop() || rootCid.value : rootCid.value;
+  downloadBytes(got.data, name);
+}
+
+function onMediaError() {
+  mediaErrored.value = true;
+  if (!isHlsManifest.value) viewKind.value = "unknown";
+}
+
+onMounted(() => {
+  pageActive.value = true;
+  startUrlWatch();
+  void nextTick(() => registerFindTargetWithRetry());
+  void nextTick(focusWebviewIfActive);
+  try {
+    const api: any = useInternalLumen();
+    if (api?.ipfsOnPinProgress) {
+      stopPinProgressListener = api.ipfsOnPinProgress((payload: any) => {
+        const job = payload?.job || null;
+        if (!job || String(job.id || "") !== String(savePinJobId.value || "")) return;
+        applySavePinJobSnapshot(job);
+      });
+    }
+  } catch {
+    // ignore
+  }
+});
+onActivated(() => {
+  pageActive.value = true;
+  startUrlWatch();
+  void nextTick(() => registerFindTargetWithRetry());
+  void nextTick(focusWebviewIfActive);
+});
+onDeactivated(() => {
+  pageActive.value = false;
+  webviewLoading.value = false;
+  stopUrlWatch();
+  // The class is on <body>, so a tab left in fullscreen would keep the whole
+  // app in it after switching away.
+  onWebviewLeaveHtmlFullscreen();
+  try {
+    const tabId = String(currentTabId?.value || "").trim();
+    if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
+  } catch {
+    // ignore
+  }
+});
+onBeforeUnmount(() => {
+  pageActive.value = false;
+  webviewLoading.value = false;
+  stopUrlWatch();
+  void ensureHlsStopped();
+  try {
+    const tabId = String(currentTabId?.value || "").trim();
+    if (tabId && typeof registerFindTarget === "function") registerFindTarget(tabId, null);
+  } catch {
+    // ignore
+  }
+  try {
+    stopPinProgressListener?.();
+  } catch {
+    // ignore
+  }
+  stopPinProgressListener = null;
+});
+
+watch(
+  () => [viewKind.value, contentUrl.value, isHlsManifest.value, !!videoEl.value],
+  async ([k, url, isHls, hasVideo]) => {
+    if (k === "video" && isHls && url && hasVideo) {
+      await ensureHlsPlaying(String(url));
+    } else {
+      await ensureHlsStopped();
+    }
+  },
+  { flush: "post", immediate: true },
+);
+
+watch(
+  () => [viewKind.value, contentUrl.value],
+  async ([k, url]) => {
+    const tabId = String(currentTabId?.value || "").trim();
+    if (!tabId || typeof registerFindTarget !== "function") return;
+
+    if (k !== "html" || !url) {
+      webviewLoading.value = false;
+      try {
+        registerFindTarget(tabId, null);
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    await nextTick();
+    registerFindTargetWithRetry();
+  },
+  { flush: "post", immediate: true },
+);
+
+let stopUrlWatchHandle: (() => void) | null = null;
+function startUrlWatch() {
+  if (stopUrlWatchHandle) return;
+  stopUrlWatchHandle = watch(
+    () => currentTabUrl?.value,
+    () => load(),
+    { immediate: true },
+  );
+}
+function stopUrlWatch() {
+  if (!stopUrlWatchHandle) return;
+  stopUrlWatchHandle();
+  stopUrlWatchHandle = null;
+}
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    if (pageActive.value) {
+      load();
+    }
+  }
+);
+
+</script>

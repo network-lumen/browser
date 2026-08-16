@@ -1,0 +1,82 @@
+<template>
+    <UiDialog
+    :model-value="modelValue"
+    :title="t('Export drive snapshot')"
+    panel-class="w-full max-w-520px"
+    :busy="busy"
+    :confirm-disabled="busy || !isPasswordLongEnough(password) || password !== passwordConfirm"
+    @update:model-value="$emit('close')"
+    @confirm="$emit('submit')"
+  >
+
+          <p class="color-text-secondary mb-24px text-14px">
+            {{ t('Set a password to encrypt the drive metadata backup for {profile}.', { profile: activeProfileDisplay || t('this profile') }) }}
+          </p>
+
+          <div class="flex flex-column gap-12px">
+            <UiFormGroup :label="t('Password')" wrapper-class="flex flex-column gap-6px" label-class="text-12px txt-weight-light color-text-secondary">
+              <input
+                class="w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-primary focus-ring focus-bg-primary focus-shadow"
+                :type="showPassword ? 'text' : 'password'"
+                :model-value="password" @update:model-value="$emit('update:password', $event)"
+                :placeholder="t('{min} characters minimum - a long passphrase is best', { min: MIN_PASSWORD_LENGTH })"
+                :disabled="busy"
+              />
+            </UiFormGroup>
+
+            <UiFormGroup :label="t('Confirm password')" wrapper-class="flex flex-column gap-6px" label-class="text-12px txt-weight-light color-text-secondary">
+              <input
+                class="w-full border-radius-10px color-text-primary border-1 bg-secondary text-14px py-12px px-16px focus-outline-none focus-border-primary focus-ring focus-bg-primary focus-shadow"
+                :type="showPassword ? 'text' : 'password'"
+                :model-value="passwordConfirm" @update:model-value="$emit('update:passwordConfirm', $event)"
+                :placeholder="t('Repeat password')"
+                :disabled="busy"
+                @keyup.enter="$emit('submit')"
+              />
+            </UiFormGroup>
+
+            <UiCheckbox v-model="showPassword" :disabled="busy">{{ t('Show password') }}</UiCheckbox>
+
+            <p class="text-11px line-height-12 color-text-tertiary m-0px mt-12px">
+              {{ t('If you lose the password, this backup cannot be recovered.') }}
+            </p>
+
+            <div v-if="error" class="mt-12px flex flex-column border-radius-12px gap-8px py-12px px-16px border-1-error-a25 bg-error-a08">
+              <div class="text-14px txt-weight-light color-text-primary">{{ t('Backup failed') }}</div>
+              <div class="color-text-secondary text-13px">{{ error }}</div>
+            </div>
+          </div>
+
+    <template #confirm><UiSpinner v-if="busy" size="sm" />
+              <span>{{ busy ? t('Exporting…') : t('Export') }}</span></template>
+  </UiDialog>
+</template>
+
+<script setup lang="ts">
+import { t } from '../stores/i18nStore';
+import { ref } from 'vue';
+import UiDialog from '../ui/UiDialog.vue';
+import UiFormGroup from '../ui/UiFormGroup.vue';
+import UiCheckbox from '../ui/UiCheckbox.vue';
+import UiSpinner from '../ui/UiSpinner.vue';
+import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from '../internal/services/passwordPolicy';
+
+/** Encrypting a Drive snapshot before it leaves the machine. */
+defineProps<{
+  modelValue: boolean;
+  password: string;
+  activeProfileDisplay: string;
+  passwordConfirm: string;
+  busy?: boolean;
+  error?: string;
+}>();
+defineEmits<{
+  (e: 'close'): void;
+  (e: 'submit'): void;
+  (e: 'update:password', value: string): void;
+  (e: 'update:passwordConfirm', value: string): void;
+}>();
+
+/** Whether the two password fields are shown in clear - a local toggle. */
+const showPassword = ref(false);
+</script>
