@@ -1,0 +1,117 @@
+<template>
+  <UiModal :model-value="visible" panel-class="pwd-modal w-full max-w-360px shadow-lg" :closable="false" @update:model-value="handleCancel">
+    <template #header>
+      <UiModalHeader :title="t('Password required')" badge-class="color-primary" title-class="text-18px">
+        <template #icon><LockKeyhole :size="24" /></template>
+      </UiModalHeader>
+    </template>
+          <p class="color-text-secondary text-14px line-height-14 m-0px mb-20px">
+            {{ message || t('Enter your password to authorize this operation.') }}
+          </p>
+
+          <div class="mb-20px">
+            <UiInput bg-class="bg-fill-tertiary" radius-class="border-radius-10px" font-size-class="text-16px" padding-class="py-12px px-16px" :focus-ring="false" ref="passwordInput"
+              type="password"
+              v-model="password"
+              :placeholder="t('Enter password')"
+              :disabled="loading"
+              @keyup.enter="handleSubmit"
+              @keyup.escape="handleCancel" class="focus-border-primary border-default disabled-fade-50 transition-colors-015 placeholder-tertiary" />
+
+            <UiBanner v-if="error" variant="error" class="mt-8px">{{ error }}</UiBanner>
+          </div>
+
+    <template #footer>
+      <UiButton variant="secondary" v-if="cancelable !== false"
+        @click="handleCancel"
+        :disabled="loading" class="disabled-fade-50">
+        {{ t('Cancel') }}
+      </UiButton>
+      <UiButton variant="primary" @click="handleSubmit"
+        :disabled="loading || !password" class="disabled-fade-50">
+        <span v-if="loading">{{ t('Verifying…') }}</span>
+        <span v-else>{{ t('Confirm') }}</span>
+      </UiButton>
+    </template>
+  </UiModal>
+</template>
+
+<script setup lang="ts">
+import { t } from '../stores/i18nStore';
+import UiInput from '../ui/UiInput.vue';
+import UiButton from '../ui/UiButton.vue';
+import UiModal from '../ui/UiModal.vue';
+import UiModalHeader from '../ui/UiModalHeader.vue';
+import UiBanner from '../ui/UiBanner.vue';
+import { ref, watch, nextTick } from 'vue';
+import { LockKeyhole } from 'lucide-vue-next';
+import { useInternalLumen } from '../composables/useInternalLumen';
+
+import { errorMessage } from '../internal/services/coerce';
+const props = defineProps<{
+  visible: boolean;
+  message?: string;
+  cancelable?: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: 'confirm', password: string): void;
+  (e: 'cancel'): void;
+}>();
+
+const password = ref('');
+const error = ref('');
+const loading = ref(false);
+const passwordInput = ref<HTMLInputElement | null>(null);
+
+// Focus input when modal opens
+watch(() => props.visible, async (isVisible) => {
+  if (isVisible) {
+    password.value = '';
+    error.value = '';
+    loading.value = false;
+    await nextTick();
+    passwordInput.value?.focus();
+  }
+});
+
+async function handleSubmit() {
+  if (!password.value || loading.value) return;
+  
+  error.value = '';
+  loading.value = true;
+  
+  try {
+    // Verify password with backend
+    const result = await useInternalLumen()?.security.verifyPassword({ password: password.value });
+    
+    if (result?.ok) {
+      emit('confirm', password.value);
+      password.value = '';
+    } else {
+      error.value = t('Incorrect password. Please try again.');
+      password.value = '';
+      await nextTick();
+      passwordInput.value?.focus();
+    }
+  } catch (e) {
+    error.value = errorMessage(e, t('Failed to verify password.'));
+  } finally {
+    loading.value = false;
+  }
+}
+
+function handleCancel() {
+  if (props.cancelable === false) return;
+  if (loading.value) return;
+  password.value = '';
+  error.value = '';
+  emit('cancel');
+}
+
+// Expose methods for external control
+defineExpose({
+  setError: (msg: string) => { error.value = msg; },
+  setLoading: (val: boolean) => { loading.value = val; }
+});
+</script>

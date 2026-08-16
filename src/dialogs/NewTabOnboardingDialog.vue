@@ -1,0 +1,35 @@
+<template>
+    <UiDialog
+    :model-value="modelValue"
+    panel-class="bg-card-a94-shadow-soft border-1-light border-radius-24px backdrop-blur-16 w-min-544px-full"
+    :closable="false"
+    :cancel-label="t('Skip')"
+    :confirm-label="t('Learn Lumen')"
+    @update:model-value="$emit('dismiss')"
+    @confirm="$emit('learn')"
+  >
+
+    <div class="flex-align-start gap-16px mb-16px">
+      <div class="flex-align-justify-center flex-0-0-auto bg-gradient-primary color-white shadow-primary border-radius-16px size-48px" aria-hidden="true">
+        <Hexagon :size="22" />
+      </div>
+      <div>
+        <div class="txt-weight-strong text-uppercase color-primary text-12px letter-spacing-01em">{{ t('Welcome') }}</div>
+        <h2 id="lumen-onboarding-title" class="color-text-primary">{{ t('Learn what Lumen is') }}</h2>
+        <p id="lumen-onboarding-desc" class="color-text-secondary mt-8px line-height-15">
+          {{ t('Domains, IPFS, gateways and browser-native shortcuts, all in one launch page.') }}
+        </p>
+      </div>
+    </div>
+  </UiDialog>
+</template>
+
+<script setup lang="ts">
+import { t } from '../stores/i18nStore';
+import UiDialog from '../ui/UiDialog.vue';
+import { Hexagon } from 'lucide-vue-next';
+
+/** First-run welcome on the new-tab page. Copy only; the page decides when. */
+defineProps<{ modelValue: boolean }>();
+defineEmits<{ (e: 'dismiss'): void; (e: 'learn'): void }>();
+</script>

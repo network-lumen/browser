@@ -1,0 +1,301 @@
+import { t } from '../../stores/i18nStore';
+import { computed, ref } from 'vue';
+import pkg from '../../../package.json';
+import { addToast } from '../../stores/toastStore';
+import { useInternalLumen } from '../../composables/useInternalLumen';
+import { copyToClipboard } from '../../composables/useClipboard';
+import type { LatestPayload, SemverParts } from '../../types/releaseUpdates';
+import { STORAGE_KEYS, readString, writeString } from './storage';
+
+import { errorMessage } from './coerce';
+const REMIND_INTERVAL_MS = 10 * 60 * 1000;
+const STORAGE_SNOOZE_UNTIL = STORAGE_KEYS.releaseSnoozeUntil;
+
+const latest = ref<LatestPayload | null>(null);
+const shouldPrompt = ref(false);
+const busy = ref(false);
+const updateProgress = ref<any | null>(null);
+const initialized = ref(false);
+let lastBlockedToastKey = '';
+
+function parseSemver(input: string): SemverParts | null {
+  const s = String(input || '').trim();
+  if (!s) return null;
+  const m = s.match(/^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+([0-9A-Za-z.-]+))?$/);
+  if (!m) return null;
+  const major = Number(m[1]);
+  const minor = Number(m[2]);
+  const patch = Number(m[3]);
+  if (![major, minor, patch].every((n) => Number.isFinite(n) && n >= 0)) return null;
+  const pre = m[4] ? String(m[4]).split('.').filter(Boolean) : [];
+  return { major, minor, patch, pre };
+}
+
+function compareSemver(a: string, b: string): number | null {
+  const va = parseSemver(a);
+  const vb = parseSemver(b);
+  if (!va || !vb) return null;
+  if (va.major !== vb.major) return va.major > vb.major ? 1 : -1;
+  if (va.minor !== vb.minor) return va.minor > vb.minor ? 1 : -1;
+  if (va.patch !== vb.patch) return va.patch > vb.patch ? 1 : -1;
+
+  const aPre = va.pre;
+  const bPre = vb.pre;
+  if (!aPre.length && !bPre.length) return 0;
+  if (!aPre.length) return 1;
+  if (!bPre.length) return -1;
+
+  const len = Math.max(aPre.length, bPre.length);
+  for (let i = 0; i < len; i += 1) {
+    const ai = aPre[i];
+    const bi = bPre[i];
+    if (ai == null && bi == null) return 0;
+    if (ai == null) return -1;
+    if (bi == null) return 1;
+    if (ai === bi) continue;
+    const aNum = /^[0-9]+$/.test(ai) ? Number(ai) : null;
+    const bNum = /^[0-9]+$/.test(bi) ? Number(bi) : null;
+    if (aNum != null && bNum != null) return aNum > bNum ? 1 : -1;
+    if (aNum != null) return -1;
+    if (bNum != null) return 1;
+    return ai > bi ? 1 : -1;
+  }
+
+  return 0;
+}
+
+/**
+ * Whether `latest` is worth offering over `current`.
+ *
+ * Exported for its own test rather than only through the composable: this one
+ * comparison decides whether every user is shown an update prompt, and both of
+ * its edges are easy to get backwards - a prerelease sorts *below* the release
+ * it leads to (1.0.0-beta.1 < 1.0.0), and two versions neither of which parses
+ * are compared as plain strings, so "different" is treated as "newer" rather
+ * than silently never prompting.
+ */
+export function isNewerVersion(latest: string, current: string): boolean {
+  const cmp = compareSemver(latest, current);
+  if (cmp != null) return cmp > 0;
+  return String(latest) !== String(current);
+}
+
+function getCurrentVersion(): string {
+  return String((pkg as any)?.version || '');
+}
+
+function readSnoozeUntil(): number {
+  try {
+    const raw = readString(STORAGE_SNOOZE_UNTIL);
+    const n = raw ? Number(raw) : 0;
+    return Number.isFinite(n) ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeSnoozeUntil(ts: number) {
+  try {
+    writeString(STORAGE_SNOOZE_UNTIL, String(ts || 0));
+  } catch {}
+}
+
+function evaluatePrompt() {
+  const info = latest.value;
+  const currentVersion = getCurrentVersion();
+  if (!info || !info.version || !currentVersion) {
+    shouldPrompt.value = false;
+    return;
+  }
+  if ((info as any).blocked) {
+    shouldPrompt.value = false;
+    return;
+  }
+  if (!isNewerVersion(info.version, currentVersion)) {
+    shouldPrompt.value = false;
+    return;
+  }
+  const snoozeUntil = readSnoozeUntil();
+  if (snoozeUntil && Date.now() < snoozeUntil) {
+    shouldPrompt.value = false;
+    return;
+  }
+  shouldPrompt.value = true;
+}
+
+function maybeToastBlocked(info: LatestPayload | null) {
+  if (!info || !(info as any).blocked) return;
+  const v = String(info.version || '').trim();
+  const reason = String((info as any).blockedReason || '').trim();
+  if (!v) return;
+  const key = `${v}|${reason}`;
+  if (key === lastBlockedToastKey) return;
+  lastBlockedToastKey = key;
+
+  const msg = String((info as any).blockedMessage || '').trim() || t('This version seems unstable on your system. Please try again later.');
+  try {
+    addToast('warning', msg);
+  } catch {
+    // ignore toast failures
+  }
+}
+
+function updateLatest(payload: LatestPayload | null) {
+  latest.value = payload;
+  maybeToastBlocked(payload);
+  evaluatePrompt();
+}
+
+async function fetchSnapshot() {
+  try {
+    const api = useInternalLumen()?.release;
+    if (!api) return;
+
+    // `getLatestInfo()` is backed by the main-process watcher cache. On cold start (or if the first
+    // poll failed), the cache can be empty until the next polling tick.
+    // To keep UX snappy, do a best-effort `pollNow()` once when the cache is empty.
+    const currentVersion = getCurrentVersion();
+    let info = await api.getLatestInfo?.();
+    if (!info || !info.version) {
+      info = await api.pollNow?.();
+    } else if (currentVersion && String(info.version) === currentVersion) {
+      // If the watcher cache says "same version", it can still be stale (e.g. the first poll happened
+      // before the newest release propagated). Do a single best-effort refresh on startup.
+      info = (await api.pollNow?.()) || info;
+    }
+
+    if (info && info.version) updateLatest(info);
+  } catch {
+    // ignore
+  }
+}
+
+function handleReleaseEvent(payload: any) {
+  if (!payload || !payload.version) return;
+  // A new version should override any old snooze.
+  writeSnoozeUntil(0);
+  updateLatest(payload);
+}
+
+function handleProgressEvent(payload: any) {
+  if (!payload || typeof payload !== 'object') return;
+  updateProgress.value = payload;
+}
+
+async function initReleaseUpdates() {
+  if (initialized.value) return;
+  initialized.value = true;
+  await fetchSnapshot();
+  try {
+    useInternalLumen()?.release?.onUpdateAvailable?.(handleReleaseEvent);
+  } catch {
+    // ignore
+  }
+  try {
+    useInternalLumen()?.release?.onUpdateProgress?.(handleProgressEvent);
+  } catch {
+    // ignore
+  }
+}
+
+async function openExternalAndSnooze(url: string) {
+  let opened = false;
+
+  try {
+    const res = await useInternalLumen()?.release?.openExternal?.(url);
+    if (res && res.ok) opened = true;
+  } catch {
+    opened = false;
+  }
+
+  if (!opened) {
+    try {
+      // Fallback: open inside the app (useful in headless/container environments where openExternal fails).
+      window.open(url, '_blank', 'noopener');
+      opened = true;
+      addToast('info', t('Opened download link in-app.'));
+    } catch {
+      opened = false;
+    }
+  }
+
+  if (!opened) {
+    const copied = await copyToClipboard(url);
+    addToast('warning', copied ? t('Failed to open the download link. The URL was copied to the clipboard.') : t('Failed to open the download link.'));
+  }
+
+  // External/manual install flow: avoid re-prompting immediately, but don't permanently skip.
+  writeSnoozeUntil(Date.now() + REMIND_INTERVAL_MS);
+  evaluatePrompt();
+}
+
+async function updateNow() {
+  if (!latest.value) return;
+  const url = latest.value.downloadUrl;
+  if (!url) return;
+  busy.value = true;
+  try {
+    const sha256Hex = latest.value.artifact?.sha256Hex || null;
+    const sizeBytes = latest.value.artifact?.size ?? null;
+    const api = useInternalLumen()?.release?.downloadAndInstall;
+    if (typeof api === 'function') {
+      updateProgress.value = { stage: 'starting' };
+      const res = await api({ url, sha256Hex, sizeBytes, silent: false, label: latest.value.version });
+      if (res && res.ok === false) {
+        const err = String(res.error || '').trim();
+        if (err === 'unsupported_platform') {
+          updateProgress.value = null;
+          await openExternalAndSnooze(url);
+          return;
+        }
+        throw new Error(err || t('Update failed'));
+      }
+      // If we reach here, the installer was launched; the app will quit shortly.
+      shouldPrompt.value = false;
+      return;
+    } else {
+      updateProgress.value = null;
+      await openExternalAndSnooze(url);
+    }
+  } catch (e) {
+    updateProgress.value = { stage: 'error', error: errorMessage(e, t('Update failed')) };
+  } finally {
+    busy.value = false;
+  }
+}
+
+function remindLater() {
+  if (!latest.value) return;
+  writeSnoozeUntil(Date.now() + REMIND_INTERVAL_MS);
+  evaluatePrompt();
+}
+
+export function useReleaseUpdates() {
+  void initReleaseUpdates();
+  return {
+    latest,
+    shouldPrompt,
+    currentVersion: computed(() => getCurrentVersion()),
+    updateNow,
+    remindLater,
+    busy: computed(() => busy.value),
+    updateProgress: computed(() => updateProgress.value),
+    clearUpdateProgress: () => {
+      updateProgress.value = null;
+    }
+  };
+}
+
+export function formatReleaseSize(size?: number | null) {
+  if (!size) return '';
+  const n = Number(size);
+  if (!Number.isFinite(n) || n <= 0) return '';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let idx = 0;
+  let v = n;
+  while (v >= 1024 && idx < units.length - 1) {
+    v /= 1024;
+    idx += 1;
+  }
+  return `${v.toFixed(idx === 0 ? 0 : 1)} ${units[idx]}`;
+}

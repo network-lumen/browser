@@ -1,0 +1,32 @@
+.font-inherit { font-family: inherit; }
+.fw-500 { font-weight: 500; }
+.fw-900 { font-weight: 900; }
+.letter-spacing-0 { letter-spacing: 0; }
+.letter-spacing-0025em { letter-spacing: 0.025em; }
+.letter-spacing-003em { letter-spacing: 0.03em; }
+.letter-spacing-004em { letter-spacing: 0.04em; }
+.letter-spacing-005em { letter-spacing: 0.05em; }
+.letter-spacing-006em { letter-spacing: 0.06em; }
+.letter-spacing-008em { letter-spacing: 0.08em; }
+.letter-spacing-015em { letter-spacing: 0.15em; }
+.letter-spacing-01em { letter-spacing: 0.1em; }
+.letter-spacing-n001 { letter-spacing: -0.01em; }
+.letter-spacing-n002 { letter-spacing: -0.02em; }
+.line-height-0 { line-height: 0; }
+.line-height-1 { line-height: 1; }
+.line-height-12 { line-height: 1.2; }
+.line-height-14 { line-height: 1.4; }
+.line-height-15 { line-height: 1.5; }
+.text-capitalize { text-transform: capitalize; }
+.text-center { text-align: center; }
+.text-clamp-18-4vw-28rem { font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.05em; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-shadow-soft { text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+.text-underline-offset-2px { text-underline-offset: 2px; }
+.text-uppercase { text-transform: uppercase; }
+.txt-overflow-ellipsis { text-overflow: ellipsis; }
+.txt-weight-light { font-weight: 600; }
+.txt-weight-medium { font-weight: 700; }
+.txt-weight-normal { font-weight: 400; }
+.txt-weight-strong { font-weight: 800; }

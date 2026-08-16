@@ -1,62 +1,4744 @@
 <template>
-  <div class="flex flex-column w-full h-full padding-100">
-    <div class="bg-white border-radius-20px box-shadow-default padding-100 max-w-800 w-full margin-bottom-50">
-      <h2 class="txt-md txt-weight-strong margin-bottom-25">Drive</h2>
-      <p class="txt-xs color-gray-blue margin-bottom-25">
-        Internal page <code>lumen://drive</code>.
-      </p>
-      <p class="txt-xs txt-weight-strong margin-bottom-10">Available internal routes</p>
-      <ul class="txt-xs">
-        <li v-for="key in topRouteKeys" :key="key" class="margin-bottom-10">
-          <button
-            class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-            @click="openRoute(key)"
+  <!-- ####### lumen://drive DRIVE ####### -->
+  <div class="internal-page flex">
+    <!-- ####### lumen://drive SIDEBAR ####### -->
+    <InternalSidebar :title="t('Drive')" :icon="Cloud" activeKey="drive">
+      <!-- Hosting -->
+      <div class="flex flex-column gap-6px mt-12px">
+        <div class="flex-align-center gap-8px color-text-secondary text-uppercase mb-12px text-11px letter-spacing-005em">
+          <Database :size="14" />
+          <span>{{ t('Storage') }}</span>
+        </div>
+
+        <div class="hover-active-bg-primary-a10-border-a20 transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent" :class="{ active: hosting.kind === 'local' }">
+          <UiButton variant="none" type="button"
+            @click="selectHosting('local')" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
+            <span
+              class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-error shadow-0-0-0-error-a0"
+              :class="ipfsConnected ? 'status-dot-ok' : 'status-dot-off'"
+            ></span>
+            <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary truncate">{{ t('Local') }}</span>
+          </UiButton>
+          <UiButton variant="icon" icon-radius-class="border-radius-10px"
+            @click.stop="openLocalDetails"
+            :title="t('Local details')" class="hover-border-primary-a15 flex-inline-align-justify-center size-32px">
+            <TableProperties :size="16" />
+          </UiButton>
+        </div>
+
+        <div class="h-1px bg-border m-0px mt-16px mr-4px mb-12px ml-4px"></div>
+
+        <div class="flex-align-center-justify-space-between mt-4px">
+          <span class="txt-weight-medium color-text-tertiary text-uppercase text-11px letter-spacing-005em">{{ t('Subscriptions') }}</span>
+          <UiButton variant="none" type="button"
+            @click="openPlansModal" class="bg-transparent border-none cursor-pointer color-primary text-11px fw-500 py-4px px-8px border-radius-10px hover-bg-primary-a15">
+            {{ t('Cloud') }}
+          </UiButton>
+        </div>
+
+        <div v-if="!subscriptionRows.length" class="border-radius-12px text-12px color-text-tertiary mt-8px bg-transparent py-12px px-16px border-1-dashed-light">
+          {{ t('No active subscriptions yet.') }}
+        </div>
+
+        <div
+          v-for="sub in subscriptionRows"
+          :key="sub.gatewayId"
+          class="hover-active-bg-primary-a10-border-a20 transition-colors-015 flex-align-center gap-8px border-radius-12px mt-8px border-1-transparent"
+          :class="{ active: hosting.kind === 'gateway' && hosting.gatewayId === sub.gatewayId, }"
+        >
+          <UiButton variant="none" type="button"
+              @click="selectGateway(sub.gatewayId)" class="grid-cols-10px-1fr-auto grid gap-x-10px gap-y-4px flex-1 min-w-0 bg-transparent border-none cursor-pointer text-left py-8px px-10px">
+              <span class="grid-col-1 grid-row-1 border-radius-circle w-8px h-8px bg-error shadow-0-0-0-error-a0" :class="sub.statusDot"></span>
+              <span class="grid-col-2 grid-row-1 text-14px txt-weight-medium color-text-primary truncate" :title="sub.hoverTitle">{{
+                sub.label
+              }}</span>
+              <span
+                v-if="sub.regionLabel"
+                class="grid-col-3 grid-row-1 justify-self-end txt-weight-medium color-text-tertiary text-12px truncate align-self-center max-w-1275px"
+                :title="sub.regionTitle"
+              >
+                {{ sub.regionLabel }}
+              </span>
+              <span class="grid-col-2-end grid-row-2 justify-self-start inline-flex flex-wrap-wrap gap-6px" v-if="sub.planTags.length || sub.expired">
+                <UiTag v-if="sub.expired" variant="warning" :title="t('Expired on {date}', { date: formatDate(sub.expiresAt) })">{{ t('Expired') }}</UiTag>
+                <UiTag v-for="p in sub.planTags" :key="p" variant="accent">{{
+                  p
+                }}</UiTag>
+              </span>
+          </UiButton>
+          <UiButton variant="icon" icon-radius-class="border-radius-10px"
+            @click.stop="openGatewayDetails(sub.gatewayId)"
+            :title="t('Subscription details')" class="hover-border-primary-a15 flex-inline-align-justify-center size-32px">
+            <TableProperties :size="16" />
+          </UiButton>
+        </div>
+      </div>
+
+    </InternalSidebar>
+
+    <!-- ####### lumen://drive FILE BROWSER ####### -->
+    <main class="flex flex-column flex-1 m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
+      <UiPageHeader :title="headerTitle" :subtitle="headerSubtitle">
+        <template #actions>
+          <UiButton variant="secondary" type="button" @click="openPlansModal">
+            <Database :size="16" />
+            <span>{{ t('Cloud') }}</span>
+          </UiButton>
+
+          <div class="inline-flex relative" @click.stop>
+            <UiButton variant="primary" type="button" @click="toggleUploadMenu" class="hover-bg-gradient-accent-secondary-lift shadow-primary">
+              <Plus :size="18" />
+              <span>{{ t('Upload') }}</span>
+            </UiButton>
+            <div v-if="showUploadMenu" class="top-calc-100pct-05rem border-radius-12px absolute bg-primary border-1 p-4px z-100 right-0 min-w-190px shadow-lg" @click.stop>
+              <UiMenuItem @click="openFilePicker">
+                {{ t('Upload files') }}
+              </UiMenuItem>
+              <UiMenuItem @click="openFolderPicker">
+                {{ t('Upload folder') }}
+              </UiMenuItem>
+            </div>
+          </div>
+        </template>
+      </UiPageHeader>
+
+      <div
+        v-if="expiredHostingRow"
+        class="bg-gradient-warning-banner animate-fade-in flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-warning-a30"
+      >
+        <div class="flex-align-justify-center size-36px color-warning flex-shrink-0 border-radius-8px bg-warning-a15">
+          <CalendarX :size="20" />
+        </div>
+        <div class="flex flex-column flex-1 gap-4px">
+          <strong class="text-14px txt-weight-light color-text-primary">{{ t('Subscription expired') }}</strong>
+          <span class="text-14px color-text-secondary line-height-14">
+            {{ t('Your plan on {gateway} ran out on {date}. Uploads to this gateway will keep failing until it is renewed.', { gateway: expiredHostingRow.label, date: formatDate(expiredHostingRow.expiresAt) }) }}
+          </span>
+        </div>
+        <div class="flex-align-center gap-8px flex-shrink-0">
+          <UiButton variant="primary" type="button" :disabled="cancelContractBusy" @click="renewExpiredSubscription">
+            <RefreshCw :size="15" />
+            <span>{{ t('Renew one month') }}</span>
+          </UiButton>
+          <UiButton variant="secondary" type="button" :disabled="cancelContractBusy" @click="cancelExpiredSubscription">
+            <X :size="15" />
+            <span>{{ cancelContractBusy ? t('Cancelling…') : t('Cancel subscription') }}</span>
+          </UiButton>
+        </div>
+      </div>
+
+      <div class="bg-gradient-warning-banner animate-fade-in flex-align-center gap-16px mb-20px border-radius-12px py-12px px-20px border-15-warning-a30">
+        <div class="flex-align-justify-center size-36px color-warning flex-shrink-0 border-radius-8px bg-warning-a15">
+          <AlertTriangle :size="20" />
+        </div>
+        <div class="flex flex-column flex-1 gap-4px">
+          <strong class="text-14px txt-weight-light color-text-primary">{{ t('Privacy notice:') }}</strong>
+          <span class="text-14px color-text-secondary line-height-14">{{ t('Everything uploaded on Lumen is public. Don\'t upload personal files.') }}</span>
+        </div>
+      </div>
+
+      <!-- An expired plan serves nothing, so there is nothing to search,
+           browse or page through: only the banner above, and the way out of
+           it. -->
+      <template v-if="!expiredHostingRow">
+      <!-- Search and Filter Bar -->
+      <div class="flex-align-center-justify-space-between flex-wrap-wrap gap-16px mb-16px">
+        <div class="flex-align-center gap-8px flex-1 border-radius-10px py-8px px-12px bg-primary border-1 transition-all-02 focus-within-border-accent focus-within-ring max-w-400px min-w-200px">
+          <Search :size="16" class="color-text-tertiary flex-shrink-0" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            class="flex-1 border-none bg-transparent text-14px color-text-primary outline-none min-w-0 placeholder-tertiary"
+            :placeholder="t('Search files…')"
+            @input="currentPage = 1"
+          />
+          <UiButton variant="icon" v-if="searchQuery" @click="searchQuery = ''; currentPage = 1" class="color-error hover-bg-error-a10-color-error">
+            <X :size="14" />
+          </UiButton>
+        </div>
+        <div class="flex-align-center gap-12px">
+          <span class="color-text-secondary text-13px nowrap">{{ filteredFiles.length === 1 ? t('1 file') : t('{count} files', { count: filteredFiles.length }) }}</span>
+          <select v-model="itemsPerPage" class="hover-border-accent color-text-primary cursor-pointer outline-none border-radius-8px border-1 bg-primary text-13px transition-all-fast py-8px px-10px focus-border-primary focus-ring focus-outline-none focus-shadow" @change="currentPage = 1">
+            <option v-for="size in [10, 20, 50, 100]" :key="size" :value="size">{{ t('{count} per page', { count: size }) }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div v-if="canUseMultiSelect && selectedCount > 0" class="bg-gradient-panel flex-align-center flex-wrap-wrap mb-16px gap-12px border-radius-14px border-1 shadow-sm py-12px px-16px" :class="{ 'ring-primary-a10 border-color-primary-a30': selectedCount > 0 }">
+        <UiCheckbox boxed :title="t('Select visible entries')" :model-value="allVisibleEntriesSelected" @update:model-value="toggleVisibleSelection" />
+        <div class="flex flex-column gap-2px min-w-0">
+          <strong class="text-14px color-text-primary">{{ t('{count} selected', { count: selectedCount }) }}</strong>
+          <span class="text-12px color-text-secondary" v-if="canBulkConvertSelected">
+            {{ selectedConvertibleCount === 1
+              ? t('1 video ready for HLS')
+              : t('{count} videos ready for HLS', { count: selectedConvertibleCount }) }}
+          </span>
+        </div>
+        <div class="flex-align-center flex-wrap-wrap gap-8px">
+          <UiButton variant="secondary" type="button"
+            :disabled="!selectedCount"
+            @click="clearSelection" class="disabled-fade-50">
+            {{ t('Clear') }}
+          </UiButton>
+          <UiButton variant="primary" v-if="canBulkConvertSelected"
+            type="button"
+            @click="convertSelectedEntriesToHls" class="disabled-fade-50">
+            {{ t('Convert to HLS') }}
+            <UiCountPill v-if="selectedConvertibleCount" :count="selectedConvertibleCount" pill-class="h-24px color-white txt-weight-medium text-12px bg-black-a35 p-0px pr-4px pl-4px min-w-24px" />
+          </UiButton>
+          <UiButton variant="danger" type="button"
+            :disabled="!canBulkRemoveSelected"
+            @click="removeSelectedEntries" class="disabled-fade-50">
+            {{ t('Remove selected') }}
+          </UiButton>
+        </div>
+      </div>
+
+      <!-- Breadcrumb (folders). Links, not buttons: a trail of bordered boxes
+           reads as a row of actions and takes three times the height of the
+           line of text it is. -->
+      <div v-if="isBrowsing" class="flex-align-center flex-wrap-wrap gap-6px mb-12px py-4px px-0px">
+        <UiButton variant="none" type="button" @click="exitBrowse" class="drive-crumb color-text-secondary">
+          {{ t('Previous') }}
+        </UiButton>
+        <span class="color-text-tertiary">/</span>
+        <UiButton variant="none" type="button" @click="exitBrowse" class="drive-crumb color-text-secondary">
+          {{ browseHostingLabel }}
+        </UiButton>
+        <span class="color-text-tertiary">/</span>
+        <UiButton variant="none" type="button" @click="openBrowseAt('')" class="drive-crumb color-text-secondary">
+          {{ browseRootLabel }}
+        </UiButton>
+        <template v-for="c in browseCrumbs" :key="c.path">
+          <span class="color-text-tertiary">/</span>
+          <UiButton variant="none" type="button" @click="openBrowseAt(c.path)" class="drive-crumb color-text-primary">
+            {{ c.label }}
+          </UiButton>
+        </template>
+      </div>
+
+      <UiLoadingBlock v-if="browseLoading" wrapper-class="flex-1 min-h-280px" spinner-class="" />
+
+      <div v-else-if="browseError" class="text-11px line-height-12 color-error mt-16px">
+        {{ browseError }}
+      </div>
+
+      <!-- Upload Progress -->
+      <div v-for="(upload, key) in uploadActivitiesComputed" :key="key" class="border-radius-10px mb-16px bg-secondary py-16px px-20px">
+        <div class="flex-align-center gap-16px" >
+          <UiSpinner size="sm" />
+          <div class="flex flex-column gap-4px">
+            <span class="text-12px line-height-12 txt-weight-strong">{{ t('Uploading {name}', { name: upload?.uploadingFile || '' }) }}</span>
+            <span class="text-11px line-height-12 color-text-tertiary">
+              <template v-if="upload?.uploadingPercent != null">
+                ({{ upload?.uploadingPercent }}%)
+              </template>
+            </span>
+            <div class="flex gap-8px mt-8px">
+              <UiButton variant="secondary" type="button"
+                @click="cancelUpload(key)"
+                :disabled="!!upload?.uploadingCanceling" class="disabled-fade-50">
+                {{ upload?.uploadingCanceling ? t('Cancelling…') : t('Cancel') }}
+              </UiButton>
+            </div>
+          </div>
+        </div>
+        <div v-if="upload?.uploadingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-8px">
+          <div
+            class="transition-width-02 h-full bg-accent w-0"
+            :style="{ width: `${upload?.uploadingPercent}%` }"
+          ></div>
+        </div>
+      </div>
+
+      <!-- HLS Conversion Progress -->
+      <div v-if="converting" class="border-radius-10px mb-16px bg-secondary py-16px px-20px">
+        <div class="flex-align-center gap-16px">
+          <UiSpinner size="sm" />
+          <div class="flex flex-column gap-4px">
+            <span class="text-12px line-height-12 txt-weight-strong"
+              >{{ t('Converting {name}', { name: convertingFile }) }}</span
+            >
+            <span class="text-11px line-height-12 color-text-tertiary"
+              >{{ t('Warning: this can take a while.') }}</span
+            >
+            <span class="text-11px line-height-12 color-text-tertiary">
+              {{ convertingStatusText }}
+            </span>
+            <div class="flex gap-8px mt-8px">
+              <UiButton variant="secondary" type="button"
+                @click="pauseHlsQueue()"
+                :disabled="convertingCanceling || convertingPauseRequested" class="disabled-fade-50">
+                {{ convertingPauseRequested ? t('Pausing…') : t('Pause') }}
+              </UiButton>
+              <UiButton variant="secondary" type="button"
+                @click="cancelHlsConversion"
+                :disabled="convertingCanceling || convertingPauseRequested" class="disabled-fade-50">
+                {{ convertingCanceling ? t('Cancelling…') : t('Cancel') }}
+              </UiButton>
+            </div>
+          </div>
+        </div>
+        <div v-if="convertingPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-8px">
+          <div
+            class="transition-width-02 h-full bg-accent w-0"
+            :style="{ width: `${convertingPercent}%` }"
+          ></div>
+        </div>
+      </div>
+
+      <div v-if="hlsQueueVisible" class="bg-gradient-panel flex flex-column gap-12px mb-16px p-16px border-radius-14px border-1 shadow-sm">
+        <div class="flex-align-start gap-16px flex-justify-space-between">
+          <div class="flex flex-column gap-2px min-w-0">
+            <strong class="text-14px color-text-primary">{{ t('HLS queue') }}</strong>
+            <span class="text-12px color-text-secondary">{{ hlsQueueSummary() }}</span>
+          </div>
+          <div class="flex-inline-align-center flex-wrap-wrap gap-8px flex-justify-end">
+            <UiButton variant="secondary" v-if="hlsQueueCanPause"
+              type="button"
+              @click="pauseHlsQueue()"
+              :disabled="convertingPauseRequested" class="hover-border-color-accent-enabled disabled-fade-50">
+              <Pause :size="14" />
+              <span>{{ convertingPauseRequested ? t('Pausing…') : t('Pause') }}</span>
+            </UiButton>
+            <UiButton variant="secondary" v-if="hlsQueueCanResume"
+              type="button"
+              @click="resumeHlsQueue" class="hover-border-color-accent-enabled disabled-fade-50">
+              <Play :size="14" />
+              <span>{{ t('Resume') }}</span>
+            </UiButton>
+            <UiButton variant="secondary" type="button"
+              @click="clearHlsQueue"
+              :disabled="!hlsQueue.length" class="hover-border-color-accent-enabled disabled-fade-50">
+              {{ converting ? t('Clear finished') : t('Clear queue') }}
+            </UiButton>
+          </div>
+        </div>
+
+        <div class="flex flex-column gap-8px">
+          <div
+            v-for="item in visibleHlsQueueItems"
+            :key="item.id"
+            class="flex-align-center-justify-space-between gap-12px border-radius-12px bg-primary border-1-light py-12px px-16px"
+            :style="hlsQueueItemStyle(item.status)"
           >
-            <code>lumen://{{ key }}</code>
-          </button>
-          <ul v-if="key === 'home'" class="list-style-none margin-top-25 margin-left-25">
-            <li v-for="child in homeChildren" :key="child" class="margin-bottom-5">
-              <button
-                class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-                @click="openRoute(child)"
-              >
-                <code>lumen://{{ child }}</code>
-              </button>
-            </li>
-          </ul>
-          <ul v-if="key === 'network'" class="list-style-none margin-top-25 margin-left-25">
-            <li v-for="child in networkChildren" :key="child" class="margin-bottom-5">
-              <button
-                class="border-none bg-transparent padding-0 cursor-pointer color-blue hover-underline"
-                @click="openRoute(child)"
-              >
-                <code>lumen://{{ child }}</code>
-              </button>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+            <div class="flex flex-column gap-2px min-w-0">
+              <span class="txt-weight-light color-text-primary text-13px truncate">{{ item.file.name }}</span>
+              <span v-if="item.error && item.status === 'failed'" class="color-error text-12px">
+                {{ compactError(item.error) }}
+              </span>
+            </div>
+            <span class="flex-inline-align-center txt-weight-medium color-text-secondary gap-8px flex-shrink-0 text-12px" :style="hlsQueueStatusTextStyle(item.status)">
+              <UiSpinner v-if="item.status === 'converting'" size="sm" />
+              <span>{{ hlsQueueStatusLabel(item.status) }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div v-if="hlsQueue.length > visibleHlsQueueItems.length" class="color-text-secondary text-12px">
+          {{ hlsQueue.length - visibleHlsQueueItems.length === 1
+            ? t('+1 more item')
+            : t('+{count} more items', { count: hlsQueue.length - visibleHlsQueueItems.length }) }}
+        </div>
+      </div>
+
+      <div v-if="archiveDownloading" class="border-radius-10px mb-16px bg-secondary py-16px px-20px">
+        <div class="flex-align-center gap-16px">
+          <UiSpinner size="sm" />
+          <div class="flex flex-column gap-4px">
+            <span class="text-12px line-height-12 txt-weight-strong">
+              {{ t('Downloading {name}', { name: archiveDownloadFile }) }}
+            </span>
+            <span class="text-11px line-height-12 color-text-tertiary">
+              {{ archiveDownloadStatusText }}
+            </span>
+            <div class="flex gap-8px mt-8px">
+              <UiButton variant="secondary" type="button"
+                @click="cancelHlsArchiveDownload"
+                :disabled="archiveDownloadCanceling" class="disabled-fade-50">
+                {{ archiveDownloadCanceling ? t('Cancelling…') : t('Cancel') }}
+              </UiButton>
+            </div>
+          </div>
+        </div>
+        <div v-if="archiveDownloadPercent != null" class="h-6px border-radius-full bg-fill-secondary overflow-hidden mt-8px">
+          <div
+            class="transition-width-02 h-full bg-accent w-0"
+            :style="{ width: `${archiveDownloadPercent}%` }"
+          ></div>
+        </div>
+      </div>
+
+      <UiLoadingBlock v-if="showSavedListSpinner" wrapper-class="flex-1 min-h-280px" spinner-class="" />
+
+      <div
+        v-else-if="!showSavedListSpinner && !browseLoading && displayFiles.length > 0 "
+        class="flex flex-column flex-1 border-radius-12px overflow-y-auto bg-primary border-1 shadow-sm min-h-0"
+      >
+        <!-- List Header -->
+        <div class="sticky flex-align-center gap-12px txt-weight-light text-uppercase color-text-secondary py-12px px-16px bg-secondary border-bottom-1 text-11px letter-spacing-005em top-0 z-1">
+          <div v-if="canUseMultiSelect" class="flex flex-inline-align-center flex-justify-center flex-shrink-0 w-24px min-w-24px">
+            <UiCheckbox boxed :title="t('Select visible entries')" :model-value="allVisibleEntriesSelected" @update:model-value="toggleVisibleSelection" />
+          </div>
+          <div class="size-32px flex-shrink-0"></div>
+          <span class="flex-1 min-w-0">{{ t('Name') }}</span>
+          <span class="w-80px text-right min-w-80px">{{ t('Size') }}</span>
+          <span class="text-right truncate min-w-180px w-180px">{{ t('Date added') }}</span>
+          <div class="min-w-160px w-160px"></div>
+        </div>
+        <!-- List Items -->
+        <DriveFileRow
+          v-for="file in displayFiles"
+          :key="file.cid"
+          :file="file"
+          :thumbnail="thumbnailFor(file)"
+          :selected="selectedFile?.cid === file.cid"
+          :checked="isEntrySelected(file)"
+          :selectable="canUseMultiSelect"
+          :is-directory="isDirEntry(file)"
+          :browsing="isBrowsing"
+          :busy="converting || uploading"
+          @open="handleEntryClick(file)"
+          @update:checked="(checked: boolean) => setEntrySelected(file, checked)"
+          @action="(kind) => runEntryAction(kind, file)"
+          @image-error="onImageError(file)"
+          @video-ready="markVideoThumbReady(file)"
+        />
+      </div>
+
+      <!-- Pagination -->
+      <div v-if="!showSavedListSpinner && !browseLoading && filteredFiles.length > 0 && totalPages > 1" class="flex-align-justify-center flex-wrap-wrap gap-8px mt-8px p-0px pt-16px pb-16px">
+        <UiButton variant="none" :disabled="currentPage === 1"
+          @click="currentPage = 1"
+          :title="t('First page')" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
+          <ChevronsLeft :size="16" />
+        </UiButton>
+        <UiButton variant="none" :disabled="currentPage === 1"
+          @click="currentPage--"
+          :title="t('Previous page')" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
+          <ChevronLeft :size="16" />
+        </UiButton>
+
+        <div class="flex-align-center gap-4px">
+          <template v-for="(page, idx) in pageNumbers" :key="idx">
+            <span v-if="page === '...'" class="color-text-tertiary text-14px p-0px pr-4px pl-4px">...</span>
+            <button 
+              v-else
+              class="flex-align-justify-center size-32px color-text-primary text-14px fw-500 cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast min-w-32px py-0px px-8px hover-bg-hover hover-border-accent"
+              :class="{ 'pill-selected-gradient-primary': currentPage === page }"
+              @click="currentPage = page as number"
+            >
+              {{ page }}
+            </button>
+          </template>
+        </div>
+
+        <UiButton variant="none" :disabled="currentPage === totalPages"
+          @click="currentPage++"
+          :title="t('Next page')" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
+          <ChevronRight :size="16" />
+        </UiButton>
+        <UiButton variant="none" :disabled="currentPage === totalPages"
+          @click="currentPage = totalPages"
+          :title="t('Last page')" class="flex-align-justify-center size-32px color-text-primary cursor-pointer border-1 bg-primary border-radius-8px transition-all-fast hover-bg-hover hover-border-accent disabled-fade-50">
+          <ChevronsRight :size="16" />
+        </UiButton>
+
+        <span class="color-text-secondary text-13px ml-8px nowrap">
+          {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredFiles.length) }} of {{ filteredFiles.length }}
+        </span>
+      </div>
+
+      <UiEmptyState
+        v-else-if="!showSavedListSpinner && !browseLoading && filteredFiles.length === 0"
+        class="flex-1"
+        icon-size="80px"
+        :title="isBrowsing ? t('Empty folder') : t('No saved content')"
+        :description="isBrowsing ? t('This folder has no entries.') : t('Click Upload to add files')"
+      >
+        <Cloud :size="64" stroke-width="1" />
+        <template #actions>
+          <UiButton variant="primary" type="button" @click="openFilePicker" class="hover-bg-gradient-accent-secondary-lift shadow-primary">
+            <Upload :size="20" />
+            <span>{{ t('Choose files to upload') }}</span>
+          </UiButton>
+        </template>
+      </UiEmptyState>
+      </template>
+    </main>
+
+    <!-- ####### lumen://drive FILE DETAIL PANEL ####### -->
+    <DriveEntryDetailPanel
+      v-if="selectedFile"
+      :file="selectedFile"
+      :is-directory="isDirEntry(selectedFile)"
+      :can-rename="canRenameSelected"
+      :thumbnail="thumbnailFor(selectedFile)"
+      :busy="converting || uploading"
+      v-model:rename-draft="renameDraft"
+      @close="selectedFile = null"
+      @download="downloadFile(selectedFile)"
+      @convert-to-hls="convertSelectedToHls"
+      @share="copyLumenLinkFor(selectedFile)"
+      @open="openInIpfs(selectedFile)"
+      @save-name="saveSelectedName"
+      @image-error="selectedFile && onImageError(selectedFile)"
+    />
+
+    <!-- ####### lumen://drive LOCAL DETAILS MODAL ####### -->
+    <LocalDriveDialog :model-value="showLocalDetails" :stats="stats" :ipfs-connected="ipfsConnected" :drive-backup-last-export-at="driveBackupLastExportAt" :drive-backup-last-import-at="driveBackupLastImportAt" :local-saved-count="localSavedCount" :pinned-files="pinnedFiles" :busy="driveBackupBusy" :error="driveBackupError" @close="closeLocalDetails" @export="openDriveBackupExportModal" @import="triggerImportDriveBackup" @file-selected="handleImportDriveBackupFile" />
+
+    <!-- ####### lumen://drive EXPORT SNAPSHOT MODAL ####### -->
+    <DriveBackupExportDialog :model-value="showDriveBackupExportModal" :password="driveBackupExportPassword" :active-profile-display="activeProfileDisplay" :password-confirm="driveBackupExportPasswordConfirm" :busy="driveBackupBusy" :error="driveBackupError" @close="closeDriveBackupExportModal" @submit="confirmDriveBackupExport" @update:password="driveBackupExportPassword = $event" @update:password-confirm="driveBackupExportPasswordConfirm = $event" />
+
+    <!-- ####### lumen://drive IMPORT SNAPSHOT MODAL ####### -->
+    <DriveBackupImportDialog :model-value="showDriveBackupImportModal" :filename="driveBackupImportFilename" :password="driveBackupImportPassword" :active-profile-display="activeProfileDisplay" :has-pending-import="!!pendingDriveBackupImport" :details="driveBackupRestoreDetails" :busy="driveBackupBusy" :error="driveBackupError" @close="closeDriveBackupImportModal" @update:password="driveBackupImportPassword = $event" @decrypt="decryptDriveBackupImport" @restore="confirmDriveBackupRestore" />
+
+    <!-- ####### lumen://drive SUBSCRIPTION DETAILS MODAL ####### -->
+    <SubscriptionDetailsDialog :model-value="showGatewayDetails" :gateway-label="gatewayDetailsGatewayLabel" :usage="gatewayDetailsUsage" :bandwidth-used="gatewayDetailsBandwidthUsed" :gateway-details-status-class="gatewayDetailsStatusClass" :gateway-details-status-label="gatewayDetailsStatusLabel" :pinned="gatewayDetailsPinned" :loading="gatewayDetailsLoading" :usage-error="gatewayDetailsUsageError" @close="closeGatewayDetails" @unlock="requestUnlock" />
+
+    <!-- ####### lumen://drive PLANS MODAL ####### -->
+    <CloudPlansDialog :model-value="showPlansModal" :plans="plans" :plan-groups="planGroups" :plan-paged-groups="planPagedGroups" :plan-regions="planRegions" :plan-total-pages="planTotalPages" :has-plan-filters="hasPlanFilters" :status-of="planStatus" :plan-page-start="planPageStart" :plan-page-end="planPageEnd" :plans-loading="plansLoading" :plans-error="plansError" v-model:plan-filter="planFilter" v-model:plan-region="planRegion" v-model:plan-online-only="planOnlineOnly" v-model:plan-sort-by="planSortBy" v-model:plan-page="planPage" v-model:plan-page-size="planPageSize" @close="closePlansModal" @retry="openPlansModal" @reset-filters="resetPlanFilters" @subscribe="openSubscribeModal" />
+
+    <!-- ####### lumen://drive SUBSCRIBE PLAN MODAL ####### -->
+    <SubscribeConfirmDialog :model-value="!!(showSubscribeModal && subscribePlan)" :plan="subscribePlan" :subscribe-months="subscribeMonths" :subscribe-total-price="subscribeTotalPrice" :balance="subscribeBalance" :balance-loading="subscribeBalanceLoading" :insufficient-funds="hasInsufficientFunds" :busy="subscribeBusy" :error="subscribeError" @close="closeSubscribeModal" @confirm="confirmSubscribe" />
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { inject, computed } from 'vue';
-import { INTERNAL_ROUTE_KEYS } from '../routes';
+import { t } from '../../stores/i18nStore';
+import UiButton from '../../ui/UiButton.vue';
 
-const homeChildren = ['drive', 'wallet', 'domain'];
-const networkChildren = ['explorer', 'dao', 'release'];
+import { uploadFolderToLocal, uploadFileToLocal, uploadActivities, uploadCancelUpload } from "../common/upload";
+import { useInternalLumen } from '../../composables/useInternalLumen';
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  onActivated,
+  onDeactivated,
+  watch,
+  toRaw,
+  markRaw,
+} from "vue";
 
-const topRouteKeys = computed(() =>
-  INTERNAL_ROUTE_KEYS.filter((k) => !homeChildren.includes(k) && !networkChildren.includes(k))
+const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
+  
+const lumen_api: any = useInternalLumen();
+const gateway_lumen_api = lumen_api?.gateway;
+const profiles_lumen_api = lumen_api?.profiles;
+
+
+import {
+  Cloud,
+  Search,
+  Database,
+  Plus,
+  Upload,
+  X,
+  Pause,
+  Play,
+  TableProperties,
+  AlertTriangle,
+  CalendarX,
+  RefreshCw,
+  ChevronsLeft,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsRight,
+} from "lucide-vue-next";
+import UiSpinner from "../../ui/UiSpinner.vue";
+import UiLoadingBlock from "../../ui/UiLoadingBlock.vue";
+import UiCheckbox from "../../ui/UiCheckbox.vue";
+import UiCountPill from "../../ui/UiCountPill.vue";
+import UiPageHeader from "../../ui/UiPageHeader.vue";
+import UiEmptyState from "../../ui/UiEmptyState.vue";
+import UiTag from "../../ui/UiTag.vue";
+import UiMenuItem from "../../ui/UiMenuItem.vue";
+import InternalSidebar from "../../components/InternalSidebar.vue";
+import {
+  localIpfsGatewayBase,
+  loadWhitelistedGatewayBases,
+} from "../services/contentResolver";
+import { profilesState, activeProfileId } from "../../stores/profilesStore";
+import { formatBytes, formatDateTime } from "../services/format";
+import { copyToClipboardWithToast } from "../../composables/useClipboard";
+import { clampPercent, errorMessage } from '../services/coerce';
+import { STORAGE_KEYS, readJson, readString, removeKey, writeJson, writeString } from "../services/storage";
+import {
+  bumpDriveBackupSeq,
+  driveBackupLastExportAtKey,
+  driveBackupLastImportAtKey,
+  driveFilesKey,
+  driveHlsQueueKey,
+  driveLocalNamesKey,
+  nextDriveBackupSeq,
+  readDriveBackupSeq
+} from "../services/driveStorage";
+import {
+  useFavourites,
+  setFavouritesForProfile,
+  getFavouriteEntriesForProfile,
+  setFavouriteEntriesForProfile,
+} from "../../stores/favouritesStore";
+import JSZip from "jszip";
+import { useToast } from "../../composables/useToast";
+import type { DriveFile, UploadPathResult } from "../../types/upload";
+import DriveEntryDetailPanel from "../../panels/DriveEntryDetailPanel.vue";
+import DriveFileRow from "../../entities/DriveFileRow.vue";
+import { planDisplayName } from "../services/plans";
+import {
+  buildDriveBackupSnapshot,
+  driveBackupFriendlyError,
+  readDriveBackupSnapshot,
+  summarizeDriveBackupSnapshot,
+} from "../services/driveBackup";
+import {
+  addOptimisticPin,
+  deriveGatewayStatus,
+  encodeGatewayPath,
+  formatRegionsLabel,
+  formatRegionsTitle,
+  gatewayDisplayName,
+  isSubscriptionExpired,
+  normalizeRegions,
+  reconcileOptimisticPins,
+  removeOptimisticPin,
+} from "../services/gateways";
+import {
+  countHlsQueue,
+  hlsQueueHasPendingItems,
+  hlsQueueIsPaused,
+  hlsQueueItemStyle,
+  hlsQueueStatusLabel,
+  hlsQueueStatusTextStyle,
+  hlsQueueSummaryText,
+  nextHlsQueueItemId,
+  parseStoredHlsQueue,
+  serializeHlsQueue,
+} from "../services/hlsQueue";
+import {
+  downloadBlob,
+  downloadBytes,
+  downloadTextFile,
+  sanitizeFilenameSegment,
+} from "../services/download";
+import type { DriveEntryAction, DriveThumbnailSources } from "../../types/drive";
+import {
+  DRIVE_ENTRY_ICONS,
+  driveEntryKindFromName,
+  imageMimeFromName,
+  isEpubEntry,
+  isHlsEntry,
+  isImageFile,
+  isVideoFile,
+} from "../services/driveEntries";
+import type {
+  HlsQueueItem,
+  IpfsStats,
+  HostingKind,
+  HostingState,
+  PlanView,
+  SubscriptionView,
+  GatewayView,
+  DriveBackupSnapshotV2,
+} from "../../types/drivePage";
+
+import { useTabNavigation, useTabState } from "../../composables/useTabNavigation";
+import LocalDriveDialog from "../../dialogs/LocalDriveDialog.vue";
+import DriveBackupExportDialog from "../../dialogs/DriveBackupExportDialog.vue";
+import DriveBackupImportDialog from "../../dialogs/DriveBackupImportDialog.vue";
+import SubscriptionDetailsDialog from "../../dialogs/SubscriptionDetailsDialog.vue";
+import CloudPlansDialog from "../../dialogs/CloudPlansDialog.vue";
+import SubscribeConfirmDialog from "../../dialogs/SubscribeConfirmDialog.vue";
+import { isPasswordLongEnough } from '../services/passwordPolicy';
+const { navigate, openInNewTab } = useTabNavigation();
+const files = ref<DriveFile[]>([]);
+const pinnedFiles = ref<string[]>([]);
+const localPinnedLoading = ref(false);
+const selectedFile = ref<DriveFile | null>(null);
+const selectedCids = ref<string[]>([]);
+const ipfsConnected = ref(false);
+const stats = ref<IpfsStats | null>(null);
+const hosting = ref<HostingState>({ kind: "local", gatewayId: "" });
+
+// Search and Pagination
+const ITEMS_PER_PAGE_KEY = STORAGE_KEYS.driveItemsPerPage;
+const ALLOWED_ITEMS_PER_PAGE = [10, 20, 50, 100];
+
+function loadItemsPerPage(): number {
+  const stored = Number(readString(ITEMS_PER_PAGE_KEY));
+  return ALLOWED_ITEMS_PER_PAGE.includes(stored) ? stored : 20;
+}
+
+const searchQuery = ref("");
+const currentPage = ref(1);
+const itemsPerPage = ref(loadItemsPerPage());
+
+watch(itemsPerPage, (next) => {
+  writeString(ITEMS_PER_PAGE_KEY, String(next));
+});
+
+const uploading = ref(false);
+
+const converting = ref(false);
+const convertingFile = ref("");
+const convertingStage = ref<
+  | "preparing"
+  | "downloading"
+  | "probing"
+  | "extracting-audio"
+  | "transcoding"
+  | "adding"
+  | "done"
+  | "cancelling"
+>("preparing");
+const convertingPercent = ref<number | null>(null);
+const convertingDownloadedBytes = ref<number | null>(null);
+const convertingDownloadTotalBytes = ref<number | null>(null);
+const convertingCanceling = ref(false);
+const convertingPauseRequested = ref(false);
+const hlsQueue = ref<HlsQueueItem[]>([]);
+const hlsQueueProfileId = ref("");
+const hlsQueuePauseRequested = ref(false);
+const archiveDownloading = ref(false);
+const archiveDownloadFile = ref("");
+const archiveDownloadStage = ref<
+  | "selecting-path"
+  | "preparing"
+  | "fetching"
+  | "zipping"
+  | "done"
+  | "cancelling"
+>("preparing");
+const archiveDownloadPercent = ref<number | null>(null);
+const archiveDownloadBytesProcessed = ref<number | null>(null);
+const archiveDownloadTotalBytes = ref<number | null>(null);
+const archiveDownloadCanceling = ref(false);
+const showUploadMenu = ref(false);
+
+const toastApi = useToast();
+
+const convertingStatusLabel = computed(() => {
+  if (convertingPauseRequested.value) return t("Pausing…");
+  if (convertingCanceling.value) return t("Cancelling…");
+  if (convertingStage.value === "downloading")
+    return t("Downloading source video from IPFS…");
+  if (convertingStage.value === "probing") return t("Inspecting source video…");
+  if (convertingStage.value === "extracting-audio")
+    return t("Preparing audio track…");
+  if (convertingStage.value === "adding") return t("Adding HLS files to IPFS…");
+  if (convertingStage.value === "done") return t("Finalizing…");
+  return t("Building an HLS ladder locally…");
+});
+
+const convertingStatusText = computed(() => {
+  const label = convertingStatusLabel.value;
+  if (convertingPercent.value != null) return `${label} (${convertingPercent.value}%)`;
+  if (
+    convertingStage.value === "downloading" &&
+    convertingDownloadedBytes.value != null &&
+    convertingDownloadedBytes.value > 0
+  ) {
+    const downloaded = formatSize(convertingDownloadedBytes.value);
+    if (
+      convertingDownloadTotalBytes.value != null &&
+      convertingDownloadTotalBytes.value > 0
+    ) {
+      return `${label} (${downloaded} / ${formatSize(convertingDownloadTotalBytes.value)})`;
+    }
+    return t('{label} ({amount} downloaded)', { label, amount: downloaded });
+  }
+  return label;
+});
+
+const archiveDownloadStatusLabel = computed(() => {
+  if (archiveDownloadCanceling.value) return t("Cancelling…");
+  if (archiveDownloadStage.value === "selecting-path")
+    return t("Waiting for save location…");
+  if (archiveDownloadStage.value === "fetching")
+    return t("Collecting HLS files from local IPFS…");
+  if (archiveDownloadStage.value === "zipping") return t("Creating ZIP archive…");
+  if (archiveDownloadStage.value === "done") return t("Finalizing…");
+  return t("Preparing HLS archive export…");
+});
+
+const archiveDownloadStatusText = computed(() => {
+  const label = archiveDownloadStatusLabel.value;
+  const pct = archiveDownloadPercent.value;
+  const done = archiveDownloadBytesProcessed.value;
+  const total = archiveDownloadTotalBytes.value;
+
+  if (pct != null && done != null && done > 0 && total != null && total > 0) {
+    return `${label} (${pct}%, ${formatSize(done)} / ${formatSize(total)})`;
+  }
+  if (pct != null) return `${label} (${pct}%)`;
+  if (done != null && done > 0 && total != null && total > 0) {
+    return `${label} (${formatSize(done)} / ${formatSize(total)})`;
+  }
+  if (done != null && done > 0) {
+    return t('{label} ({amount} processed)', { label, amount: formatSize(done) });
+  }
+  return label;
+});
+
+
+const profiles = profilesState;
+const activeProfile = computed(
+  () => profiles.value.find((p) => p.id === activeProfileId.value) || null,
 );
 
-const openInNewTab = inject<(url: string) => void>('openInNewTab');
+const activeProfileDisplay = computed(
+  () => activeProfile.value?.name || activeProfile.value?.id || "",
+);
 
-function openRoute(key: string) {
-  const url = `lumen://${key}`;
-  openInNewTab?.(url);
+const { favourites } = useFavourites();
+
+const localNames = ref<Record<string, string>>({});
+const renameDraft = ref("");
+const imagePreviewUrls = ref<Record<string, string>>({});
+const imagePreviewTried = ref<Record<string, boolean>>({});
+const imagePreviewInFlight = new Set<string>();
+const videoThumbReady = ref<Record<string, true>>({});
+
+// Gateway / PQC usage (DrivePanel-style)
+const gatewayDetailsLoading = ref(false);
+const gatewayPinned = ref<string[]>([]);
+const gatewayPinnedNames = ref<Record<string, string>>({});
+const gatewayPinnedError = ref("");
+const gatewayPinnedLoading = ref(false);
+
+const gatewayDetailsGatewayId = ref("");
+const gatewayDetailsUsage = ref<any | null>(null);
+const gatewayDetailsUsageError = ref("");
+const gatewayDetailsPinned = ref<string[]>([]);
+const gatewayDetailsPinnedError = ref("");
+const optimisticGatewayPinned = ref<Record<string, Record<string, number>>>({});
+
+const showPlansModal = ref(false);
+const plans = ref<PlanView[]>([]);
+const planSubscriptionsRaw = ref<SubscriptionView[]>([]);
+const gateways = ref<GatewayView[]>([]);
+const plansLoading = ref(false);
+const plansError = ref("");
+const planFilter = ref("");
+const planRegion = ref("");
+const planOnlineOnly = ref(false);
+const planSortBy = ref<"score-desc" | "name-asc" | "name-desc">("score-desc");
+const planPage = ref(1);
+const planPageSize = ref(8);
+
+// Gateway health (PQ /pq/pub reachability)
+// Used to avoid showing "green" status dots for subscriptions when the gateway is actually offline.
+const SUBSCRIBED_GATEWAY_HEALTH_TTL_MS = 10 * 60 * 1000;
+const subscribedGatewayHealthById = ref<Record<string, { at: number; ok: boolean }>>({});
+let subscribedGatewayHealthSeq = 0;
+
+const showLocalDetails = ref(false);
+const driveBackupBusy = ref(false);
+const driveBackupError = ref("");
+const driveBackupLastExportAt = ref<number | null>(null);
+const driveBackupLastImportAt = ref<number | null>(null);
+const driveBackupImportInput = ref<HTMLInputElement | null>(null);
+const showDriveBackupExportModal = ref(false);
+const driveBackupExportPassword = ref("");
+const driveBackupExportPasswordConfirm = ref("");
+const driveBackupExportShowPassword = ref(false);
+const showDriveBackupImportModal = ref(false);
+const pendingDriveBackupImport = ref<{ filename: string; encrypted: any } | null>(null);
+const driveBackupImportPassword = ref("");
+const driveBackupImportShowPassword = ref(false);
+const pendingDriveBackupRestore = ref<{ source: string; snapshot: any } | null>(null);
+
+// Subscription details
+const showGatewayDetails = ref(false);
+async function requestUnlock() {
+  try {
+    await lumen_api?.security?.lockSession?.();
+  } catch {
+    // ignore
+  }
+}
+
+const planRegions = computed(() => {
+  const set = new Set<string>();
+  for (const gw of gateways.value) {
+    (gw.regions || []).forEach((r) => set.add(r));
+  }
+  return Array.from(set).sort();
+});
+
+const hasPlanFilters = computed(() => {
+  return !!planRegion.value || !!planOnlineOnly.value;
+});
+
+function resetPlanFilters() {
+  planRegion.value = "";
+  planOnlineOnly.value = false;
+}
+
+watch([planFilter, planRegion, planOnlineOnly, planSortBy, planPageSize], () => {
+  planPage.value = 1;
+});
+
+const planGroups = computed(() => {
+  const query = planFilter.value.trim().toLowerCase();
+  const region = planRegion.value;
+  const onlyOnline = planOnlineOnly.value;
+
+  let gwList = gateways.value.slice();
+
+  gwList = gwList.filter((gw) => {
+    if (onlyOnline && !gw.active) return false;
+    if (region && !(gw.regions || []).includes(region)) return false;
+
+    if (!query) return true;
+
+    const haystack = `${gatewayDisplayName(gw)} ${gw.operator}`.toLowerCase();
+    if (haystack.includes(query)) return true;
+
+    const plansForGw = plans.value.filter((p) => p.gatewayId === gw.id);
+    return plansForGw.some((p) => {
+      const name = planDisplayName(p).toLowerCase();
+      const ep = String(p.gatewayEndpoint || "").toLowerCase();
+      return name.includes(query) || ep.includes(query);
+    });
+  });
+
+  if (planSortBy.value === "score-desc") {
+    gwList.sort(
+      (a, b) =>
+        (b.score ?? 0) - (a.score ?? 0) ||
+        gatewayDisplayName(a).localeCompare(gatewayDisplayName(b)),
+    );
+  } else if (planSortBy.value === "name-asc") {
+    gwList.sort((a, b) =>
+      gatewayDisplayName(a).localeCompare(gatewayDisplayName(b)),
+    );
+  } else if (planSortBy.value === "name-desc") {
+    gwList.sort((a, b) =>
+      gatewayDisplayName(b).localeCompare(gatewayDisplayName(a)),
+    );
+  }
+
+  const groups = gwList
+    .map((gw) => {
+      const gwPlans = plans.value.filter((p) => p.gatewayId === gw.id);
+      if (!gwPlans.length) return null;
+      return { gateway: gw, plans: gwPlans };
+    })
+    .filter(Boolean) as { gateway: GatewayView; plans: PlanView[] }[];
+
+  return groups;
+});
+
+const planTotalPages = computed(() => {
+  return Math.max(1, Math.ceil(planGroups.value.length / planPageSize.value));
+});
+const planPageStart = computed(() => (planPage.value - 1) * planPageSize.value);
+const planPageEnd = computed(() => planPageStart.value + planPageSize.value);
+const planPagedGroups = computed(() => {
+  return planGroups.value.slice(planPageStart.value, planPageEnd.value);
+});
+
+watch(planTotalPages, (total) => {
+  if (planPage.value > total) planPage.value = total;
+});
+
+const localSavedMetaCids = computed(() => {
+  const meta = Array.isArray(files.value) ? files.value : [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const f of meta) {
+    const cid = String((f as any)?.cid || "").trim();
+    if (!cid || isIgnoredCid(cid)) continue;
+    const key = cid;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(cid);
+  }
+  return out;
+});
+
+const activeSavedCids = computed(() => {
+  if (hosting.value.kind === "gateway") return gatewayPinned.value;
+  return localSavedMetaCids.value;
+});
+
+const savedRootsLoading = computed(() => {
+  return hosting.value.kind === "gateway" ? gatewayPinnedLoading.value : false;
+});
+
+const showSavedListSpinner = computed(() => {
+  return !isBrowsing.value && savedRootsLoading.value;
+});
+
+const localSavedCount = computed(() => localSavedMetaCids.value.length);
+
+const entryTypeCache = ref<Record<string, "file" | "dir">>({});
+const entryContentTypeCache = ref<Record<string, string>>({});
+const entryContentTypeInFlight = new Set<string>();
+
+const browseRootCid = ref("");
+const browseRelPath = ref("");
+const browseEntries = ref<DriveFile[]>([]);
+const browseLoading = ref(false);
+const browseError = ref("");
+let browseLoadSeq = 0;
+let gatewayDetailsLoadSeq = 0;
+let gatewayPinnedSeq = 0;
+
+const isBrowsing = computed(() => !!browseRootCid.value);
+const canRenameSelected = computed(() => canRenameEntry(selectedFile.value));
+
+function encodeIpfsTarget(target: string): string {
+  const cleaned = String(target || "")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+  if (!cleaned) return "";
+  const parts = cleaned.split("/").filter(Boolean);
+  const cid = parts[0] || "";
+  const rest = parts
+    .slice(1)
+    .map((s) => encodeURIComponent(s))
+    .join("/");
+  return rest ? `${cid}/${rest}` : cid;
+}
+
+function contentTargetFor(file: DriveFile): string {
+  const root = String(file?.rootCid || "").trim();
+  const rel = String(file?.relPath || "")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+  if (root) return rel ? `${root}/${rel}` : root;
+  return String(file?.cid || "").trim();
+}
+
+
+function openTargetFor(file: DriveFile): string {
+  const target = contentTargetFor(file);
+  if (String(target).toLowerCase().endsWith(".m3u8")) return target;
+  if (!isHlsEntry(file)) return target;
+  const root = String(file?.rootCid || file?.cid || "").trim();
+  if (!root) return target;
+  return `${root}/master.m3u8`;
+}
+
+function isWindowsAppPlatform(): boolean {
+  try {
+    const platform = String(lumen_api?.appPlatform || "")
+      .trim()
+      .toLowerCase();
+    if (platform) return platform === "win32";
+  } catch { }
+
+  try {
+    return /windows/i.test(String(navigator.userAgent || ""));
+  } catch {
+    return false;
+  }
+}
+
+function bytesFromBase64(b64: string): Uint8Array {
+  const raw = String(b64 || "");
+  if (!raw) return new Uint8Array();
+  const bin = atob(raw);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function collectIpfsFilesRecursively(
+  rootCid: string,
+  relPath = "",
+): Promise<Array<{ archivePath: string; target: string }>> {
+  const target = relPath ? `${rootCid}/${relPath}` : rootCid;
+  const res = await lumen_api?.ipfsLs?.(target).catch(() => null);
+  if (!res?.ok || !Array.isArray(res.entries)) {
+    throw new Error(String(res?.error || t("Failed to list HLS directory")));
+  }
+
+  const out: Array<{ archivePath: string; target: string }> = [];
+  for (const entry of res.entries) {
+    const name = String(entry?.name || "")
+      .replace(/\\/g, "/")
+      .replace(/^\/+/, "")
+      .replace(/\/+$/, "");
+    if (!name) continue;
+    const childRel = relPath ? `${relPath}/${name}` : name;
+    const type = String(entry?.type || "");
+    if (type === "dir") {
+      out.push(...(await collectIpfsFilesRecursively(rootCid, childRel)));
+      continue;
+    }
+    if (type === "file") {
+      out.push({
+        archivePath: childRel,
+        target: `${rootCid}/${childRel}`,
+      });
+    }
+  }
+  return out;
+}
+
+async function downloadHlsAsZip(file: DriveFile): Promise<void> {
+  const root = String(file?.rootCid || file?.cid || "").trim();
+  if (!root) throw new Error("missing_root_cid");
+  const localBase = String(localIpfsGatewayBase() || "")
+    .replace(/\/+$/, "")
+    .trim();
+
+  const archiveRoot =
+    String(stripExt(file.name) || file.name || root)
+      .replace(/[<>:"/\\|?*\u0000-\u001F]+/g, " ")
+      .trim() || root;
+
+  const files = await collectIpfsFilesRecursively(root);
+  if (!files.length) throw new Error("empty_hls_directory");
+
+  const zip = new JSZip();
+  const concurrency = Math.min(8, Math.max(2, (navigator.hardwareConcurrency || 4)));
+  let cursor = 0;
+
+  async function fetchOne(item: { archivePath: string; target: string }) {
+    const httpUrl = localBase
+      ? `${localBase}/ipfs/${root}/${encodeGatewayPath(item.archivePath)}`
+      : "";
+    const fast = httpUrl
+      ? await lumen_api?.httpGetBytes?.(httpUrl, { timeout: 120000 }).catch(() => null)
+      : null;
+
+    if (fast?.ok && typeof fast?.dataB64 === "string") {
+      zip.file(`${archiveRoot}/${item.archivePath}`, bytesFromBase64(fast.dataB64));
+      return;
+    }
+
+    const got = await lumen_api?.ipfsGet?.(item.target, { gateways: [] }).catch(() => null);
+    if (!got?.ok || !Array.isArray(got.data)) {
+      throw new Error(t('Failed to fetch {path}', { path: item.archivePath }));
+    }
+    zip.file(`${archiveRoot}/${item.archivePath}`, new Uint8Array(got.data));
+  }
+
+  async function worker() {
+    while (true) {
+      const idx = cursor++;
+      if (idx >= files.length) return;
+      await fetchOne(files[idx]!);
+    }
+  }
+
+  await Promise.all(Array.from({ length: concurrency }, () => worker()));
+
+  const blob = await zip.generateAsync({
+    type: "blob",
+    compression: "STORE",
+    streamFiles: true,
+  });
+  downloadBlob(blob, `${archiveRoot}.zip`);
+}
+
+const rootSavedEntries = computed<DriveFile[]>(() => {
+  return activeSavedCids.value
+    .filter((cid) => !isIgnoredCid(cid))
+    .map((cid) => {
+      const existing = files.value.find((f) => f.cid === cid);
+      const displayName = getSavedName(cid);
+      return {
+        cid,
+        name: displayName,
+        size: existing?.size ?? 0,
+        uploadedAt: existing?.uploadedAt,
+        type: entryTypeCache.value[String(cid)] || existing?.type || undefined,
+        rootCid: String(existing?.rootCid || cid),
+        relPath: String(existing?.relPath || ""),
+      };
+    });
+});
+
+// Filtered files (after search)
+const filteredFiles = computed<DriveFile[]>(() => {
+  const source = isBrowsing.value ? browseEntries.value : rootSavedEntries.value;
+  const query = searchQuery.value.toLowerCase().trim();
+  if (!query) return source;
+  return source.filter((f) => f.name.toLowerCase().includes(query));
+});
+
+// Paginated files
+const displayFiles = computed<DriveFile[]>(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredFiles.value.slice(start, end);
+});
+
+/**
+ * Multi-select covers the saved roots of whichever storage is open - local pins
+ * and a gateway's pinned CIDs alike. Folder browsing is the exception: those
+ * entries live inside a root, and removing one is not a thing.
+ */
+const canUseMultiSelect = computed(() => !isBrowsing.value);
+
+const selectedCidSet = computed(
+  () =>
+    new Set(
+      selectedCids.value
+        .map((cid) => normalizeCidKey(cid))
+        .filter((cid) => cid),
+    ),
+);
+
+const selectedEntries = computed<DriveFile[]>(() => {
+  if (!canUseMultiSelect.value) return [];
+  // Roots come from the active storage, so switching gateways drops a
+  // selection that no longer addresses anything.
+  const byCid = new Map(
+    rootSavedEntries.value.map((entry) => [normalizeCidKey(entry.cid), entry] as const),
+  );
+  return selectedCids.value
+    .map((cid) => byCid.get(normalizeCidKey(cid)) || null)
+    .filter((entry): entry is DriveFile => !!entry);
+});
+
+const visibleSelectableEntries = computed<DriveFile[]>(() => {
+  if (!canUseMultiSelect.value) return [];
+  return displayFiles.value.filter((entry) => isRootSavedEntry(entry));
+});
+
+const selectedCount = computed(() => selectedEntries.value.length);
+
+const selectedConvertibleEntries = computed(() =>
+  selectedEntries.value.filter(
+    (entry) => !isDirEntry(entry) && isVideoFile(entry.name),
+  ),
+);
+
+const selectedConvertibleCount = computed(
+  () => selectedConvertibleEntries.value.length,
+);
+
+const allVisibleEntriesSelected = computed(() => {
+  const visible = visibleSelectableEntries.value;
+  if (!visible.length) return false;
+  return visible.every((entry) =>
+    selectedCidSet.value.has(normalizeCidKey(entry.cid)),
+  );
+});
+
+const hlsQueueCounts = computed(() => countHlsQueue(hlsQueue.value));
+const hlsQueuePausedCount = computed(() => hlsQueueCounts.value.paused);
+
+const hlsQueueVisible = computed(() => {
+  if (hlsQueue.value.length > 1) return true;
+  return hlsQueue.value.some((item) => item.status !== "converting");
+});
+
+const visibleHlsQueueItems = computed(() => hlsQueue.value.slice(0, 6));
+
+const hlsQueueCanPause = computed(
+  () =>
+    !uploading.value &&
+    !convertingCanceling.value &&
+    !convertingPauseRequested.value &&
+    hlsQueue.value.some(
+      (item) => item.status === "queued" || item.status === "converting",
+    ),
+);
+
+const hlsQueueCanResume = computed(
+  () =>
+    !uploading.value &&
+    !converting.value &&
+    !convertingPauseRequested.value &&
+    hlsQueuePausedCount.value > 0,
+);
+
+const canBulkRemoveSelected = computed(
+  () => selectedCount.value > 0 && !uploading.value && !converting.value,
+);
+
+const canBulkConvertSelected = computed(
+  () => selectedConvertibleCount.value > 0 && !uploading.value,
+);
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredFiles.value.length / itemsPerPage.value) || 1;
+});
+
+watch(totalPages, (total) => {
+  if (currentPage.value > total) currentPage.value = total;
+  if (currentPage.value < 1) currentPage.value = 1;
+});
+
+watch(
+  canUseMultiSelect,
+  (enabled) => {
+    if (!enabled && selectedCids.value.length) {
+      selectedCids.value = [];
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  rootSavedEntries,
+  (entries) => {
+    const valid = new Set(
+      entries.map((entry) => normalizeCidKey(entry.cid)).filter((cid) => cid),
+    );
+    const next = selectedCids.value.filter((cid) =>
+      valid.has(normalizeCidKey(cid)),
+    );
+    if (next.length !== selectedCids.value.length) {
+      selectedCids.value = next;
+    }
+  },
+  { immediate: true },
+);
+
+// Page numbers for pagination
+const pageNumbers = computed(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+  const pages: (number | string)[] = [];
+  
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (current > 3) pages.push('...');
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+      pages.push(i);
+    }
+    if (current < total - 2) pages.push('...');
+    pages.push(total);
+  }
+  return pages;
+});
+
+const activeGateway = computed(() => {
+  const id = String(hosting.value.gatewayId || "").trim();
+  if (!id) return null;
+  return gateways.value.find((g) => String(g.id) === id) || null;
+});
+
+function gatewayHintForId(gatewayId: string): string {
+  const gid = String(gatewayId || "").trim();
+  if (!gid) return "";
+
+  const gw = gateways.value.find((g) => String(g.id) === gid) || null;
+  if (gw?.endpoint) return String(gw.endpoint).trim();
+
+  const sub = planSubscriptionsRaw.value.find((s) => String(s.gatewayId) === gid);
+  const metaEndpoint =
+    sub?.metadata?.endpoint ?? sub?.metadata?.baseUrl ?? sub?.metadata?.url;
+  if (typeof metaEndpoint === "string" && metaEndpoint.trim())
+    return metaEndpoint.trim();
+
+  const plan = plans.value.find((p) => String(p.gatewayId) === gid);
+  const planEndpoint = plan?.gatewayEndpoint;
+  return typeof planEndpoint === "string" ? planEndpoint.trim() : "";
+}
+
+const activeGatewayHint = computed(() => {
+  const gid = String(hosting.value.gatewayId || "").trim();
+  return gatewayHintForId(gid);
+});
+
+const activeGatewayLabel = computed(() => {
+  const gw = activeGateway.value;
+  if (!gw) return "-";
+  return gw.endpoint || `Gateway ${gw.id}`;
+});
+
+const gatewayDetailsGateway = computed(() => {
+  const gid = String(gatewayDetailsGatewayId.value || "").trim();
+  if (!gid) return null;
+  return gateways.value.find((g) => String(g.id) === gid) || null;
+});
+
+const gatewayDetailsGatewayLabel = computed(() => {
+  const gid = String(gatewayDetailsGatewayId.value || "").trim();
+  if (!gid) return "-";
+  const gw = gatewayDetailsGateway.value;
+  if (!gw) return `Gateway ${gid}`;
+  return gw.endpoint || `Gateway ${gw.id}`;
+});
+
+const hostingLabel = computed(() => {
+  if (hosting.value.kind === "gateway")
+    return activeGatewayLabel.value || t("Gateway");
+  return t("Local");
+});
+
+const headerTitle = computed(() => {
+  return hosting.value.kind === "gateway" ? hostingLabel.value : t("Local");
+});
+
+const browseRootName = computed(() => {
+  const cid = String(browseRootCid.value || "").trim();
+  if (!cid) return "";
+  const name = getSavedName(cid);
+  return name && name !== "Unknown" ? name : "";
+});
+
+const browseHostingLabel = computed(() => {
+  return hosting.value.kind === "gateway" ? hostingLabel.value : t("Local drive");
+});
+
+const browseRootLabel = computed(() => {
+  const name = String(browseRootName.value || "").trim();
+  if (name) return name;
+  const cid = String(browseRootCid.value || "").trim();
+  if (!cid) return t("Folder");
+  return cid.length > 10 ? `${cid.slice(0, 10)}…` : cid;
+});
+
+const browseCrumbs = computed(() => {
+  const p = String(browseRelPath.value || "")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+  if (!p) return [] as { label: string; path: string }[];
+  const parts = p.split("/").filter(Boolean);
+  return parts.map((label, idx) => ({
+    label,
+    path: parts.slice(0, idx + 1).join("/"),
+  }));
+});
+
+const headerSubtitle = computed(() => {
+  if (isBrowsing.value) {
+    const suffix = browseRelPath.value ? `/${browseRelPath.value}` : "/";
+    return `Browsing: ${browseRootName.value}${suffix}`;
+  }
+  return hosting.value.kind === "gateway"
+    ? t("Saved files on your cloud plan")
+    : t("Saved files on your local drive");
+});
+
+const subscribedGatewayIds = computed(() => {
+  const set = new Set<string>();
+  for (const sub of planSubscriptionsRaw.value) {
+    const gid = String(sub.gatewayId || "").trim();
+    if (gid) set.add(gid);
+  }
+  return Array.from(set);
+});
+
+const subscribedGatewayEndpointsKey = computed(() => {
+  const ids = subscribedGatewayIds.value;
+  if (!ids.length) return "";
+
+  const byId = new Map<string, string>();
+  for (const g of gateways.value) {
+    const id = String(g?.id ?? "").trim();
+    if (!id) continue;
+    const endpoint = String(g?.endpoint ?? "").trim();
+    if (!endpoint) continue;
+    byId.set(id, endpoint);
+  }
+
+  return ids
+    .map((id) => `${id}:${String(byId.get(id) || "").toLowerCase()}`)
+    .sort()
+    .join("|");
+});
+
+function isSubscribedGatewayOnlineCached(gatewayId: string): boolean | null {
+  const gid = String(gatewayId || "").trim();
+  if (!gid) return null;
+  const cached = subscribedGatewayHealthById.value[gid];
+  if (!cached) return null;
+  return !!cached.ok;
+}
+
+async function refreshSubscribedGatewayHealth(): Promise<void> {
+  if (typeof lumen_api.checkAlive !== "function") return;
+
+  const seq = ++subscribedGatewayHealthSeq;
+  const now = Date.now();
+
+  const byId = new Map<string, GatewayView>();
+  for (const g of gateways.value) byId.set(String(g.id), g);
+
+  const targets: Array<{ id: string; endpoint: string }> = [];
+  for (const gidRaw of subscribedGatewayIds.value) {
+    const gid = String(gidRaw || "").trim();
+    if (!gid) continue;
+    const gw = byId.get(gid);
+    const endpoint = gw?.endpoint ? String(gw.endpoint).trim() : "";
+    if (!endpoint) continue;
+
+    const cached = subscribedGatewayHealthById.value[gid];
+    if (cached && now - cached.at < SUBSCRIBED_GATEWAY_HEALTH_TTL_MS) continue;
+    targets.push({ id: gid, endpoint });
+  }
+
+  if (!targets.length) return;
+
+  const results = await Promise.all(
+    targets.map(async (t) => {
+      const res = await gateway_lumen_api
+        .checkAlive({ endpoint: t.endpoint, timeoutMs: 2500 })
+        .catch(() => null);
+      return { id: t.id, ok: !!res?.ok };
+    }),
+  ).catch(() => [] as Array<{ id: string; ok: boolean }>);
+
+  if (seq !== subscribedGatewayHealthSeq) return;
+  if (!results.length) return;
+
+  const next = { ...subscribedGatewayHealthById.value };
+  for (const r of results) {
+    const id = String(r?.id || "").trim();
+    if (!id) continue;
+    next[id] = { at: now, ok: !!r.ok };
+  }
+  subscribedGatewayHealthById.value = next;
+}
+
+let subscribedGatewayHealthPollTimer: number | null = null;
+function startSubscribedGatewayHealthPolling(): void {
+  if (subscribedGatewayHealthPollTimer != null) return;
+  subscribedGatewayHealthPollTimer = window.setInterval(() => {
+    void refreshSubscribedGatewayHealth();
+  }, 60_000);
+}
+
+function stopSubscribedGatewayHealthPolling(): void {
+  if (subscribedGatewayHealthPollTimer == null) return;
+  window.clearInterval(subscribedGatewayHealthPollTimer);
+  subscribedGatewayHealthPollTimer = null;
+}
+
+const subscriptionRows = computed(() => {
+  const byGateway = new Map<string, SubscriptionView[]>();
+  for (const sub of planSubscriptionsRaw.value) {
+    const gid = String(sub.gatewayId || "").trim();
+    if (!gid) continue;
+    // A cancelled contract is not a subscription: the chain keeps it around
+    // forever, and listing it leaves a gateway in the sidebar that no longer
+    // stores anything.
+    if (String(sub.status || "").includes("cancel")) continue;
+    if (!byGateway.has(gid)) byGateway.set(gid, []);
+    byGateway.get(gid)!.push(sub);
+  }
+
+  const rows = Array.from(byGateway.entries()).map(([gatewayId, subs]) => {
+    const gw = gateways.value.find((g) => String(g.id) === gatewayId) || null;
+    const status = deriveGatewayStatus(subs);
+    const onlineCached = isSubscribedGatewayOnlineCached(gatewayId);
+    const isOffline = onlineCached === false;
+    const statusDot = isOffline
+      ? "status-dot-off"
+      : status === "active"
+        ? "status-dot-ok"
+        : status === "pending" || status === "expired"
+          ? "status-dot-pending"
+          : "status-dot-off";
+    // The most recent lapsed contract is the one worth renewing or closing.
+    const expiredSub = subs
+      .filter((s) => isSubscriptionExpired(s))
+      .sort((a, b) => Number(b.expiresAt || 0) - Number(a.expiresAt || 0))[0] || null;
+    const endpoint = gw?.endpoint ? String(gw.endpoint).trim() : "";
+    const labelBase =
+      endpoint ||
+      (gw?.operator ? `Gateway ${gw.operator}` : `Gateway ${gatewayId}`);
+    const label = labelBase.replace(/^gtw\./i, "");
+    const hoverTitle = endpoint || labelBase;
+    const regions = normalizeRegions(gw?.regions);
+    const regionLabel = formatRegionsLabel(regions, 1);
+    const regionTitle = formatRegionsTitle(regions);
+    const planTags = Array.from(
+      new Set(
+        subs
+          .map((s) =>
+            String(s?.metadata?.planId ?? s?.metadata?.plan_id ?? "").trim(),
+          )
+          .filter(Boolean)
+          .map((planId) => {
+            const plan =
+              plans.value.find(
+                (p) => p.gatewayId === gatewayId && p.planId === planId,
+              ) ||
+              plans.value.find(
+                (p) => p.gatewayId === gatewayId && p.id === planId,
+              ) ||
+              null;
+            return plan ? planDisplayName(plan) : planId;
+          })
+      )
+    ).slice(0, 4);
+    return {
+      gatewayId,
+      label,
+      hoverTitle,
+      regionLabel,
+      regionTitle,
+      status,
+      statusDot,
+      planTags,
+      expired: status === "expired",
+      expiredContractId: expiredSub?.id || "",
+      expiredPlanId: String(
+        expiredSub?.metadata?.planId ?? expiredSub?.metadata?.plan_id ?? "",
+      ).trim(),
+      expiresAt: Number(expiredSub?.expiresAt || 0) || 0,
+    };
+  });
+
+  rows.sort((a, b) => a.label.localeCompare(b.label));
+  return rows;
+});
+
+watch(
+  () => subscribedGatewayEndpointsKey.value,
+  () => {
+    void refreshSubscribedGatewayHealth();
+  },
+  { immediate: true },
+);
+
+const gatewayDetailsSubscriptionRow = computed(() => {
+  const gid = String(gatewayDetailsGatewayId.value || "").trim();
+  if (!gid) return null;
+  return subscriptionRows.value.find((r) => r.gatewayId === gid) || null;
+});
+
+const gatewayDetailsStatusLabel = computed(() => {
+  const row = gatewayDetailsSubscriptionRow.value;
+  if (!row) return "-";
+  if (row.status === "active") return t("Active");
+  if (row.status === "pending") return t("Pending");
+  if (row.status === "expired") return t("Expired");
+  return t("Off");
+});
+
+const gatewayDetailsStatusClass = computed(() => {
+  const row = gatewayDetailsSubscriptionRow.value;
+  if (!row) return "color-error";
+  return row.status === "active"
+    ? "color-success"
+    : row.status === "pending" || row.status === "expired"
+      ? "color-warning"
+      : "color-error";
+});
+
+const gatewayDetailsBandwidthUsed = computed(() => {
+  const u = gatewayDetailsUsage.value?.usage || {};
+  const raw =
+    u?.netMonth?.bytes ??
+    u?.net_month?.bytes ??
+    u?.net_month_bytes ??
+    u?.netMonthBytes ??
+    u?.bandwidthMonth?.bytes ??
+    u?.bandwidth_month?.bytes ??
+    u?.bandwidth_month_bytes ??
+    null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? formatSize(n) : "-";
+});
+
+function readInjectedTabUrl(): string {
+  const v: any = currentTabUrl;
+  try {
+    if (!v) return "";
+    if (typeof v === "string") return v;
+    if (typeof v === "function") return String(v() || "");
+    if (typeof v === "object" && "value" in v) return String(v.value || "");
+  } catch {
+    // ignore
+  }
+  return "";
+}
+
+let browseUrlSyncSeq = 0;
+let browseUrlSyncInFlight = "";
+async function syncBrowseFromUrl(rawUrl: string) {
+  const parsed = parseDriveBrowseFromUrl(rawUrl);
+  if (!parsed) return;
+
+  const canonical = driveUrlForBrowse(parsed.root, parsed.path);
+  const currentCanonical = driveUrlForBrowse(
+    String(browseRootCid.value || ""),
+    String(browseRelPath.value || ""),
+  );
+  if (canonical === currentCanonical) return;
+  if (canonical === browseUrlSyncInFlight) return;
+
+  browseUrlSyncInFlight = canonical;
+  const seq = ++browseUrlSyncSeq;
+  try {
+    await applyBrowseLocation(parsed.root, parsed.path);
+  } finally {
+    if (browseUrlSyncInFlight === canonical) browseUrlSyncInFlight = "";
+  }
+  if (seq !== browseUrlSyncSeq) return;
+}
+
+watch(
+  () => String(readInjectedTabUrl() || ""),
+  (url) => {
+    void syncBrowseFromUrl(url);
+  },
+  { immediate: true },
+);
+
+let urlBarPollTimer: number | null = null;
+let urlBarLastValue = "";
+let urlBarLastUserInputAt = 0;
+let tabUrlChangedHandler: ((ev: any) => void) | null = null;
+let tabHistoryStepHandler: ((ev: any) => void) | null = null;
+let driveUpdateHandler: ((ev: any) => void) | null = null;
+let hlsProgressUnsub: (() => void) | null = null;
+let hlsArchiveProgressUnsub: (() => void) | null = null;
+let ipfsAddProgressUnsub: (() => void) | null = null;
+let hlsQueueProcessing = false;
+
+function readUrlBarUrl(): string {
+  try {
+    const el = document.querySelector<HTMLInputElement>(".navbar-url-bar-input");
+    return String(el?.value || "");
+  } catch {
+    return "";
+  }
+}
+
+function isUrlBarUserEditing(): boolean {
+  return Date.now() - urlBarLastUserInputAt < 600;
+}
+
+function ensureUrlBarUserInputTracking() {
+  const el = document.querySelector<HTMLInputElement>(".navbar-url-bar-input");
+  if (!el) return;
+  const anyEl: any = el;
+  if (anyEl.__driveUrlBarTrackingAttached) return;
+  anyEl.__driveUrlBarTrackingAttached = true;
+  el.addEventListener(
+    "input",
+    () => {
+      urlBarLastUserInputAt = Date.now();
+    },
+    { passive: true },
+  );
+}
+
+function startUrlBarSync() {
+  if (urlBarPollTimer != null) return;
+  urlBarPollTimer = window.setInterval(() => {
+    ensureUrlBarUserInputTracking();
+    const val = readUrlBarUrl();
+    if (!val || val === urlBarLastValue) return;
+    urlBarLastValue = val;
+    if (isUrlBarUserEditing()) return;
+    void syncBrowseFromUrl(val);
+  }, 150);
+}
+
+function stopUrlBarSync() {
+  if (urlBarPollTimer == null) return;
+  window.clearInterval(urlBarPollTimer);
+  urlBarPollTimer = null;
+}
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    if (hosting.value.kind === "local") {
+      void loadStats();
+      void loadPinnedFiles();
+      loadFiles();
+    } else if (hosting.value.kind === "gateway") {
+      void refreshActiveGatewayData();
+    }
+  }
+);
+
+watch(
+  uploading,
+  (busy) => {
+    if (!busy) void ensureHlsQueueProcessing();
+  },
+);
+
+onMounted(async () => {
+  await checkIpfsStatus();
+  loadFiles();
+  loadLocalNames();
+  loadHlsQueue();
+  loadDriveBackupMeta();
+  loadStats();
+  void loadPinnedFiles();
+
+  void refreshGatewayOverview();
+  startSubscribedGatewayHealthPolling();
+  startUploadActivitiesPolling();
+
+  try {
+      hlsProgressUnsub = lumen_api.driveOnHlsProgress((payload: any) => {
+        const stage = String(payload?.stage || "");
+        if (stage === "downloading") convertingStage.value = "downloading";
+        else if (stage === "probing") convertingStage.value = "probing";
+        else if (stage === "extracting-audio")
+          convertingStage.value = "extracting-audio";
+        else if (stage === "transcoding") convertingStage.value = "transcoding";
+        else if (stage === "adding") convertingStage.value = "adding";
+        else if (stage === "done") convertingStage.value = "done";
+
+        if (stage === "downloading") {
+          const bytesDownloaded = payload?.bytesDownloaded;
+          const totalBytes = payload?.totalBytes;
+          convertingDownloadedBytes.value =
+            typeof bytesDownloaded === "number" && Number.isFinite(bytesDownloaded)
+              ? Math.max(0, Math.round(bytesDownloaded))
+              : null;
+          convertingDownloadTotalBytes.value =
+            typeof totalBytes === "number" && Number.isFinite(totalBytes)
+              ? Math.max(0, Math.round(totalBytes))
+              : null;
+        } else {
+          convertingDownloadedBytes.value = null;
+          convertingDownloadTotalBytes.value = null;
+        }
+
+        if (stage === "transcoding" || stage === "done") {
+          const pct = payload?.percent;
+          if (typeof pct === "number" && Number.isFinite(pct)) {
+            convertingPercent.value = Math.max(
+              0,
+              Math.min(100, Math.round(pct)),
+            );
+          }
+        } else {
+          convertingPercent.value = null;
+        }
+      });
+  } catch {}
+
+  try {
+      hlsArchiveProgressUnsub = lumen_api.driveOnHlsArchiveProgress((payload: any) => {
+        const stage = String(payload?.stage || "");
+        if (stage === "selecting-path") archiveDownloadStage.value = "selecting-path";
+        else if (stage === "preparing") archiveDownloadStage.value = "preparing";
+        else if (stage === "fetching") archiveDownloadStage.value = "fetching";
+        else if (stage === "zipping") archiveDownloadStage.value = "zipping";
+        else if (stage === "done") archiveDownloadStage.value = "done";
+
+        const pct = payload?.percent;
+        archiveDownloadPercent.value =
+          typeof pct === "number" && Number.isFinite(pct)
+            ? clampPercent(Math.round(pct))
+            : null;
+
+        const bytesProcessed = payload?.bytesProcessed;
+        archiveDownloadBytesProcessed.value =
+          typeof bytesProcessed === "number" && Number.isFinite(bytesProcessed)
+            ? Math.max(0, Math.round(bytesProcessed))
+            : null;
+
+        const totalBytes = payload?.totalBytes;
+        archiveDownloadTotalBytes.value =
+          typeof totalBytes === "number" && Number.isFinite(totalBytes)
+            ? Math.max(0, Math.round(totalBytes))
+            : null;
+      });
+  } catch {}
+
+  try {
+    tabUrlChangedHandler = (ev: any) => {
+      const detail = ev?.detail || {};
+      const url = String(detail?.url || "");
+      const tabId = String(detail?.tabId || "");
+      const mine =
+        typeof currentTabId === "object" &&
+        currentTabId &&
+        "value" in currentTabId
+          ? String((currentTabId as any).value || "")
+          : String(currentTabId || "");
+      if (mine && tabId && mine !== tabId) return;
+      void syncBrowseFromUrl(url);
+    };
+    window.addEventListener(
+      "lumen:tab-url-changed",
+      tabUrlChangedHandler as any,
+    );
+  } catch {}
+
+  try {
+    tabHistoryStepHandler = (ev: any) => {
+      const detail = ev?.detail || {};
+      const tabId = String(detail?.tabId || "");
+      const mine =
+        typeof currentTabId === "object" &&
+        currentTabId &&
+        "value" in currentTabId
+          ? String((currentTabId as any).value || "")
+          : String(currentTabId || "");
+      if (mine && tabId && mine !== tabId) return;
+      // History step changes URL without necessarily triggering reactive injection in this component.
+      // Wait a tick, then read from the navbar field (which visibly updates) and sync.
+      window.setTimeout(() => {
+        void syncBrowseFromUrl(readUrlBarUrl() || readInjectedTabUrl());
+      }, 0);
+    };
+    window.addEventListener(
+      "lumen:tab-history-step",
+      tabHistoryStepHandler as any,
+    );
+  } catch {}
+
+  try {
+    driveUpdateHandler = (ev: any) => {
+      try {
+        const detail = ev?.detail || {};
+        const profileId = String(detail?.profileId || "").trim();
+        if (!profileId) return;
+        const activePid = String(activeProfileId.value || "").trim();
+        if (profileId !== activePid) return;
+        void loadFiles();
+        loadLocalNames();
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("lumen:drive:updated", driveUpdateHandler as any);
+  } catch {}
+
+  startUrlBarSync();
+  document.addEventListener("click", handleDocumentClick);
+});
+
+onActivated(() => {
+  startUrlBarSync();
+  startSubscribedGatewayHealthPolling();
+  startUploadActivitiesPolling();
+  void syncBrowseFromUrl(readInjectedTabUrl() || readUrlBarUrl());
+});
+
+onDeactivated(() => {
+  stopUrlBarSync();
+  stopSubscribedGatewayHealthPolling();
+  stopUploadActivitiesPolling();
+});
+
+onUnmounted(() => {
+  stopUrlBarSync();
+  stopSubscribedGatewayHealthPolling();
+  stopUploadActivitiesPolling();
+  try {
+    hlsProgressUnsub?.();
+  } catch {
+    // ignore
+  }
+  hlsProgressUnsub = null;
+  try {
+    hlsArchiveProgressUnsub?.();
+  } catch {
+    // ignore
+  }
+  hlsArchiveProgressUnsub = null;
+  try {
+    ipfsAddProgressUnsub?.();
+  } catch {
+    // ignore
+  }
+  ipfsAddProgressUnsub = null;
+  try {
+    if (tabUrlChangedHandler)
+      window.removeEventListener(
+        "lumen:tab-url-changed",
+        tabUrlChangedHandler as any,
+      );
+  } catch {}
+  tabUrlChangedHandler = null;
+  try {
+    if (tabHistoryStepHandler)
+      window.removeEventListener(
+        "lumen:tab-history-step",
+        tabHistoryStepHandler as any,
+      );
+  } catch {}
+  tabHistoryStepHandler = null;
+  try {
+    if (driveUpdateHandler)
+      window.removeEventListener(
+        "lumen:drive:updated",
+        driveUpdateHandler as any,
+      );
+  } catch {}
+  driveUpdateHandler = null;
+  document.removeEventListener("click", handleDocumentClick);
+
+  for (const url of Object.values(imagePreviewUrls.value)) {
+    if (typeof url === "string" && url.startsWith("blob:")) {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        // ignore
+      }
+    }
+  }
+  imagePreviewUrls.value = {};
+  imagePreviewTried.value = {};
+});
+
+function handleDocumentClick() {
+  showUploadMenu.value = false;
+}
+
+function toggleUploadMenu() {
+  showUploadMenu.value = !showUploadMenu.value;
+}
+
+/**
+ * Everything is added to the local node first - that is what produces the CID -
+ * and then pinned to the gateway being browsed, if that is where the upload was
+ * aimed. Without this second half, uploading while a cloud was selected only
+ * ever wrote to the local node, and the file never appeared in the gateway's
+ * list because it was never sent there.
+ */
+async function uploadThenPinToActiveGateway(
+  upload: () => Promise<UploadPathResult[]>,
+) {
+  showUploadMenu.value = false;
+  uploading.value = true;
+
+  let results: UploadPathResult[] = [];
+  try {
+    results = await upload();
+  } catch (e) {
+    // Closing the picker rejects with "No file selected"; that is not a failure.
+    const message = errorMessage(e, "");
+    if (message && !/no (file|folder) selected/i.test(message)) {
+      showToast(message, "error");
+    }
+    return;
+  }
+
+  if (hosting.value.kind !== "gateway") return;
+
+  const uploaded = results.filter((result): result is Extract<UploadPathResult, { ok: true }> =>
+    result.ok === true && !!result.cid,
+  );
+  if (!uploaded.length) return;
+
+  let failed = 0;
+  for (const result of uploaded) {
+    const pinned = await pinCidToActiveGateway(result.cid, result.rootName);
+    if (pinned.ok) continue;
+    if (pinned.cancelled) return;
+    failed += 1;
+    showToast(pinned.error, "error");
+  }
+
+  if (failed) return;
+  const gateway = activeGatewayLabel.value;
+  showToast(
+    uploaded.length === 1
+      ? t('Uploaded to {gateway}: {name}', { gateway, name: uploaded[0].rootName })
+      : t('Uploaded {count} entries to {gateway}', { count: uploaded.length, gateway }),
+    "success",
+  );
+}
+
+async function openFilePicker() {
+  await uploadThenPinToActiveGateway(uploadFileToLocal);
+}
+
+async function openFolderPicker() {
+  await uploadThenPinToActiveGateway(uploadFolderToLocal);
+}
+
+const uploadActivitiesComputed = ref<any>();
+let uploadActivitiesPollCounter = 0;
+let uploadActivitiesPollTimer: number | null = null;
+
+function pollUploadActivities(): void {
+  uploadActivitiesComputed.value = { ...uploadActivities };
+  const activeCount = Object.keys(uploadActivitiesComputed.value).length;
+  if (uploadActivitiesPollCounter !== activeCount) loadFiles();
+  if (activeCount <= 0) uploading.value = false;
+  uploadActivitiesPollCounter = activeCount;
+}
+
+function startUploadActivitiesPolling(): void {
+  if (uploadActivitiesPollTimer != null) return;
+  uploadActivitiesPollTimer = window.setInterval(pollUploadActivities, 500);
+}
+
+function stopUploadActivitiesPolling(): void {
+  if (uploadActivitiesPollTimer == null) return;
+  window.clearInterval(uploadActivitiesPollTimer);
+  uploadActivitiesPollTimer = null;
+}
+
+async function checkIpfsStatus() {
+  try {
+    const result = await lumen_api?.ipfsStatus?.();
+    ipfsConnected.value = result?.ok === true;
+  } catch {
+    ipfsConnected.value = false;
+  }
+}
+
+function selectHosting(kind: HostingKind) {
+  if (kind === hosting.value.kind) return;
+  if (kind === "gateway") return;
+  exitBrowseSilent();
+  currentPage.value = 1;
+  hosting.value = { kind, gatewayId: "" };
+  void checkIpfsStatus();
+  void loadStats();
+  void loadPinnedFiles();
+}
+
+function selectGateway(gatewayId: string) {
+  const gid = String(gatewayId || "").trim();
+  if (!gid) return;
+  exitBrowseSilent();
+  currentPage.value = 1;
+  hosting.value = { kind: "gateway", gatewayId: gid };
+  void refreshActiveGatewayData();
+}
+
+function openLocalDetails() {
+  showLocalDetails.value = true;
+  void checkIpfsStatus();
+  void loadStats();
+  void loadPinnedFiles();
+}
+
+function closeLocalDetails() {
+  showLocalDetails.value = false;
+}
+
+function openGatewayDetails(gatewayId: string) {
+  const gid = String(gatewayId || "").trim();
+  if (!gid) return;
+  gatewayDetailsGatewayId.value = gid;
+  showGatewayDetails.value = true;
+  void refreshGatewayDetailsData(gid);
+}
+
+function closeGatewayDetails() {
+  showGatewayDetails.value = false;
+  gatewayDetailsGatewayId.value = "";
+  gatewayDetailsUsage.value = null;
+  gatewayDetailsUsageError.value = "";
+  gatewayDetailsPinned.value = [];
+  gatewayDetailsPinnedError.value = "";
+  gatewayDetailsLoading.value = false;
+}
+
+async function getActiveProfileId(): Promise<string | null> {
+  try {
+    const profileId = (await profiles_lumen_api.getActive())?.id;
+    return profileId ? String(profileId || "").trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+async function refreshGatewayDetailsData(gatewayId: string) {
+  const gid = String(gatewayId || "").trim();
+  if (!gid) return;
+
+  const seq = ++gatewayDetailsLoadSeq;
+  gatewayDetailsLoading.value = true;
+  gatewayDetailsUsage.value = null;
+  gatewayDetailsUsageError.value = "";
+  gatewayDetailsPinned.value = [];
+  gatewayDetailsPinnedError.value = "";
+
+  try {
+
+    const profileId = await getActiveProfileId();
+    if (!profileId) {
+      gatewayDetailsUsageError.value = t("No active profile.");
+      return;
+    }
+
+    const hint = gatewayHintForId(gid);
+    const [usageRes, pinnedRes] = await Promise.all([
+      gateway_lumen_api.getWalletUsage(profileId, hint).catch((e: any) => ({
+        ok: false,
+        error: errorMessage(e),
+      })),
+      gateway_lumen_api.getWalletPinnedCids(profileId, hint, 1).catch((e: any) => ({
+        ok: false,
+        error: errorMessage(e),
+      })),
+    ]);
+    if (
+      seq !== gatewayDetailsLoadSeq ||
+      !showGatewayDetails.value ||
+      String(gatewayDetailsGatewayId.value || "").trim() !== gid
+    ) {
+      return;
+    }
+
+    if (!usageRes || usageRes.ok === false) {
+      const code = String(usageRes?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        try {
+          await lumen_api?.security?.lockSession?.();
+        } catch {}
+      }
+      if (code !== "kyber_pubkey_http_unavailable") {
+        gatewayDetailsUsageError.value = code || t("Usage fetch failed");
+      }
+    } else {
+      gatewayDetailsUsage.value = usageRes.data ?? null;
+    }
+
+    if (!pinnedRes || pinnedRes.ok === false) {
+      const code = String(pinnedRes?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        try {
+          await lumen_api?.security?.lockSession?.();
+        } catch {}
+      }
+      if (code !== "kyber_pubkey_http_unavailable") {
+        gatewayDetailsPinnedError.value = code || t("Pinned CIDs fetch failed");
+      }
+    } else {
+      const data = pinnedRes.data ?? null;
+      const cids = Array.isArray(data?.cids)
+        ? data.cids
+            .map((x: any) => String(x || "").trim())
+            .filter((x: string) => x && !isIgnoredCid(x))
+        : [];
+      gatewayDetailsPinned.value = Array.from(new Set(cids));
+    }
+  } catch (e) {
+    if (seq !== gatewayDetailsLoadSeq) return;
+    gatewayDetailsUsageError.value = errorMessage(e, t("Usage fetch failed"));
+  } finally {
+    if (seq === gatewayDetailsLoadSeq) gatewayDetailsLoading.value = false;
+  }
+}
+
+async function refreshActiveGatewayData() {
+  if (hosting.value.kind !== "gateway") return;
+  const hint = activeGatewayHint.value;
+  await refreshGatewayPinned(hint);
+}
+
+async function refreshActiveGatewayPinned() {
+  if (hosting.value.kind !== "gateway") return;
+  await refreshGatewayPinned(activeGatewayHint.value);
+}
+
+function toSubscriptionView(raw: any): SubscriptionView {
+  const expiresAt = Number(raw?.expiresAt ?? raw?.expires_at);
+  return {
+    id: String(raw?.id ?? ""),
+    gatewayId: String(raw?.gatewayId ?? raw?.gateway_id ?? ""),
+    status: String(raw?.status ?? "").toLowerCase(),
+    expiresAt: Number.isFinite(expiresAt) && expiresAt > 0 ? expiresAt : undefined,
+    metadata: typeof raw?.metadata === "object" ? raw.metadata : undefined,
+  };
+}
+
+/**
+ * Reads plans, gateways and subscriptions in one call and puts them where the
+ * page expects them.
+ *
+ * Pricing is the reason this takes an option: the background refresh skips it
+ * (it costs a round trip per gateway and nothing on screen needs it), while
+ * anything that is about to offer a plan has to ask for it.
+ */
+async function loadGatewayOverview(
+  options: { includePricing?: boolean } = {},
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!gateway_lumen_api.getPlansOverview) {
+    return { ok: false, error: t("Failed to load plans.") };
+  }
+
+  const profileId = await getActiveProfileId();
+  if (!profileId) return { ok: false, error: t("No active profile.") };
+
+  const res = await gateway_lumen_api
+    .getPlansOverview(profileId, {
+      includePricing: options.includePricing === true,
+      timeoutMs: 2500,
+    })
+    .catch(() => null);
+  if (!res || res.ok === false) {
+    return { ok: false, error: String(res?.error || t("Failed to load plans.")) };
+  }
+
+  const list = Array.isArray(res.plans) ? res.plans : [];
+  plans.value = list
+    .map((p: any) => ({
+      id: String(p?.id ?? ""),
+      planId: String(p?.planId ?? p?.id ?? ""),
+      gatewayId: String(p?.gatewayId ?? ""),
+      gatewayName: String(
+        p?.gatewayName ?? p?.gateway ?? `Gateway ${p?.gatewayId ?? ""}`,
+      ),
+      gatewayEndpoint: p?.gatewayEndpoint,
+      priceUlmn: Number(p?.priceUlmn ?? 0),
+      storageGbPerMonth:
+        p?.storageGbPerMonth != null ? Number(p.storageGbPerMonth) : undefined,
+      networkGbPerMonth:
+        p?.networkGbPerMonth != null ? Number(p.networkGbPerMonth) : undefined,
+      monthsTotal: Math.max(1, Number(p?.monthsTotal ?? 1)),
+      description: p?.description ?? "",
+    }))
+    .filter((p: PlanView) => p.planId && p.gatewayId);
+
+  const gwRaw = Array.isArray(res.gateways) ? res.gateways : [];
+  const gwMap = new Map<string, GatewayView>();
+  for (const g of gwRaw) {
+    const id = String(g?.id ?? g?.gatewayId ?? "").trim();
+    if (!id || gwMap.has(id)) continue;
+    const endpoint = String(g?.endpoint ?? g?.baseUrl ?? g?.url ?? "").trim();
+    const regions = Array.isArray(g?.regions)
+      ? g.regions.map((r: any) => String(r || "")).filter(Boolean)
+      : [];
+    const active =
+      typeof g?.active === "boolean" ? g.active : !!(g?.Active ?? g?.isActive ?? true);
+    const score =
+      g?.score != null
+        ? Number(g.score)
+        : g?.metadata && g.metadata.score != null
+          ? Number(g.metadata.score)
+          : undefined;
+    gwMap.set(id, {
+      id,
+      endpoint,
+      operator: String(g?.operator ?? ""),
+      regions,
+      active,
+      score,
+    });
+  }
+  gateways.value = Array.from(gwMap.values());
+
+  const subsRaw = Array.isArray(res.subscriptions) ? res.subscriptions : [];
+  planSubscriptionsRaw.value = subsRaw.map(toSubscriptionView);
+  return { ok: true };
+}
+
+async function refreshGatewayOverview() {
+  try {
+    await loadGatewayOverview();
+  } catch {
+    // ignore background refresh errors
+  }
+}
+
+async function openPlansModal() {
+  showPlansModal.value = true;
+  planPage.value = 1;
+  plansLoading.value = true;
+  plansError.value = "";
+  try {
+    const res = await loadGatewayOverview({ includePricing: true });
+    if (!res.ok) plansError.value = res.error;
+  } catch (e) {
+    plansError.value = errorMessage(e, t("Failed to load plans."));
+  } finally {
+    plansLoading.value = false;
+  }
+}
+
+function closePlansModal() {
+  showPlansModal.value = false;
+}
+
+function planKey(plan: PlanView): string {
+  return `${plan.gatewayId}:${plan.planId}`.toLowerCase();
+}
+
+function buildSubscriptionMap() {
+  const map = new Map<string, SubscriptionView[]>();
+  for (const sub of planSubscriptionsRaw.value) {
+    const metaPlanId = String(sub.metadata?.planId ?? "").toLowerCase();
+    const key = metaPlanId
+      ? `${sub.gatewayId}:${metaPlanId}`.toLowerCase()
+      : `${sub.gatewayId}`.toLowerCase();
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(sub);
+  }
+  return map;
+}
+
+const planSubscriptions = computed(() => buildSubscriptionMap());
+
+function planStatus(plan: PlanView): string {
+  const key = planKey(plan);
+  const candidates = planSubscriptions.value.get(key);
+  if (candidates && candidates.length) {
+    const active = candidates.find((s) => s.status === "active");
+    if (active) return "active";
+    const pending = candidates.find((s) => s.status === "pending");
+    if (pending) return "pending";
+    return candidates[0].status || "unknown";
+  }
+  const fallback = planSubscriptions.value.get(plan.gatewayId.toLowerCase());
+  if (fallback && fallback.length) return fallback[0].status || "unknown";
+  return "none";
+}
+
+const showSubscribeModal = ref(false);
+const subscribePlan = ref<PlanView | null>(null);
+const subscribeMonths = ref(1);
+const subscribeBusy = ref(false);
+const subscribeError = ref("");
+const subscribeBalance = ref<number | null>(null);
+const subscribeBalanceLoading = ref(false);
+
+let profileReloadSeq = 0;
+
+function normalizeSubscribeError(raw: string): string {
+  const msg = String(raw || "").trim();
+  if (!msg) return t("Subscription failed");
+  if (/insufficient funds/i.test(msg) || /spendable balance/i.test(msg)) {
+    return t("Insufficient funds.");
+  }
+  return msg;
+}
+
+function openSubscribeModal(plan: PlanView) {
+  subscribePlan.value = plan;
+  subscribeMonths.value = Math.max(1, plan.monthsTotal || 1);
+  subscribeError.value = "";
+  showSubscribeModal.value = true;
+  void loadSubscribeBalance();
+}
+
+function closeSubscribeModal() {
+  if (subscribeBusy.value) return;
+  showSubscribeModal.value = false;
+  subscribePlan.value = null;
+  subscribeError.value = "";
+  subscribeBalance.value = null;
+  subscribeBalanceLoading.value = false;
+}
+
+async function loadSubscribeBalance() {
+  subscribeBalanceLoading.value = true;
+  try {
+    const walletApi = lumen_api?.wallet;
+    if (!walletApi) return;
+    const active = await profiles_lumen_api.getActive().catch(() => null);
+    const address = active?.walletAddress || active?.address;
+    if (!address) return;
+    const res = await walletApi.getBalance(address).catch(() => null);
+    const amount =
+      res?.balance?.amount ??
+      res?.amount ??
+      res?.amount_ulmn ??
+      res?.balance ??
+      res?.data?.balance?.amount ??
+      res?.data?.amount;
+    const lmn =
+      typeof amount === "number"
+        ? amount / 1_000_000
+        : typeof amount === "string"
+          ? Number(amount) / 1_000_000
+          : null;
+    if (lmn !== null && Number.isFinite(lmn)) {
+      subscribeBalance.value = Math.max(0, lmn);
+    }
+  } catch {
+    subscribeBalance.value = null;
+  } finally {
+    subscribeBalanceLoading.value = false;
+  }
+}
+
+const subscribeTotalPrice = computed(() => {
+  const plan = subscribePlan.value;
+  if (!plan) return 0;
+  return (plan.priceUlmn * subscribeMonths.value) / 1_000_000;
+});
+
+const hasInsufficientFunds = computed(() => {
+  if (subscribeBalance.value === null) return false;
+  return subscribeTotalPrice.value > subscribeBalance.value + 1e-8;
+});
+
+async function confirmSubscribe() {
+  const plan = subscribePlan.value;
+  if (!plan || subscribeBusy.value || hasInsufficientFunds.value) return;
+
+  try {
+    subscribeBusy.value = true;
+    subscribeError.value = "";
+
+    if (!gateway_lumen_api.subscribePlan) {
+      subscribeError.value = t("Subscription API not available.");
+      return;
+    }
+
+    const profileId = await getActiveProfileId();
+    if (!profileId) {
+      subscribeError.value = t("No active profile.");
+      return;
+    }
+
+    const res = await gateway_lumen_api
+      .subscribePlan({
+        profileId,
+        planId: plan.planId,
+        gatewayId: plan.gatewayId,
+        priceUlmn: plan.priceUlmn,
+        storageGbPerMonth: plan.storageGbPerMonth,
+        networkGbPerMonth: plan.networkGbPerMonth,
+        months: subscribeMonths.value,
+      })
+      .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
+
+    if (!res || res.ok === false) {
+      subscribeError.value = normalizeSubscribeError(res?.error);
+      return;
+    }
+
+    showSubscribeModal.value = false;
+    subscribePlan.value = null;
+    subscribeError.value = "";
+    subscribeBalance.value = null;
+    void openPlansModal();
+  } catch (e) {
+    subscribeError.value = normalizeSubscribeError(errorMessage(e));
+  } finally {
+    subscribeBusy.value = false;
+  }
+}
+
+/** The lapsed subscription of the gateway currently being browsed, if any. */
+const expiredHostingRow = computed(() => {
+  if (hosting.value.kind !== "gateway") return null;
+  const gid = String(hosting.value.gatewayId || "").trim();
+  if (!gid) return null;
+  const row = subscriptionRows.value.find((r) => r.gatewayId === gid) || null;
+  return row && row.expired ? row : null;
+});
+
+const cancelContractBusy = ref(false);
+const renewBusy = ref(false);
+
+/**
+ * A sentence for whatever came back from the chain.
+ *
+ * These errors are English, and the ones worth reading are outnumbered by
+ * internal ones no user can act on ("The number NaN cannot be converted to a
+ * BigInt" is what a mis-shaped message looks like by the time protobuf is done
+ * with it). The cases below get told properly; anything else keeps the generic
+ * line and leaves the detail in the console, where whoever needs it is looking.
+ */
+function describeCancelError(raw: string): string {
+  const msg = String(raw || "").trim();
+  if (!msg) return t("Failed to cancel the subscription.");
+
+  if (msg === "password_required" || msg === "invalid_password") {
+    return t("Unlock your wallet to cancel this subscription.");
+  }
+  if (msg === "wallet_unavailable" || msg === "guest_profile") {
+    return t("This profile has no wallet to sign with.");
+  }
+  if (msg === "missing_contractId") {
+    return t("This subscription has no contract to cancel.");
+  }
+  if (/contract not active|already completed|nothing left to cancel/i.test(msg)) {
+    return t("This plan is already closed on chain.");
+  }
+  if (/not contract owner|unauthorized/i.test(msg)) {
+    return t("This subscription belongs to another wallet.");
+  }
+  if (/insufficient funds|spendable balance/i.test(msg)) {
+    return t("Insufficient funds.");
+  }
+
+  console.error("[drive] cancelContract failed:", msg);
+  return t("Failed to cancel the subscription.");
+}
+
+function findPlanForGateway(gatewayId: string, planId: string): PlanView | null {
+  return (
+    plans.value.find((p) => p.gatewayId === gatewayId && p.planId === planId) ||
+    plans.value.find((p) => p.gatewayId === gatewayId) ||
+    null
+  );
+}
+
+/** Takes out a fresh month on the plan that lapsed, through the normal flow. */
+async function renewExpiredSubscription() {
+  const row = expiredHostingRow.value;
+  if (!row || renewBusy.value) return;
+
+  // The background refresh leaves plans without prices, and a plan with no
+  // price cannot be offered. Fetching them here is what keeps this one click:
+  // it used to fall through to the plans dialog, so renewing meant opening a
+  // list of every cloud, closing it, and pressing Renew a second time.
+  let plan = findPlanForGateway(row.gatewayId, row.expiredPlanId);
+  if (!plan) {
+    renewBusy.value = true;
+    try {
+      await loadGatewayOverview({ includePricing: true });
+    } finally {
+      renewBusy.value = false;
+    }
+    plan = findPlanForGateway(row.gatewayId, row.expiredPlanId);
+  }
+
+  // This gateway no longer offers a plan at all: the full list is the only
+  // thing left to show.
+  if (!plan) {
+    showToast(t("This gateway no longer offers this plan."), "error");
+    void openPlansModal();
+    return;
+  }
+  openSubscribeModal(plan);
+}
+
+/**
+ * Closes the lapsed contract on chain so it stops being offered as storage.
+ * Nothing is refunded - the months it paid for are long gone - so this is
+ * about the subscription list telling the truth.
+ */
+async function cancelExpiredSubscription() {
+  const row = expiredHostingRow.value;
+  if (!row || cancelContractBusy.value) return;
+
+  if (!gateway_lumen_api.cancelContract) {
+    showToast(t("Subscription API not available."), "error");
+    return;
+  }
+  if (!row.expiredContractId) {
+    showToast(t("This subscription has no contract to cancel."), "error");
+    return;
+  }
+  const confirmed = window.confirm(
+    t("Cancel the expired plan on {gateway}? Its months are already used, so nothing is refunded.", { gateway: row.label }),
+  );
+  if (!confirmed) return;
+
+  cancelContractBusy.value = true;
+  try {
+    const profileId = await getActiveProfileId();
+    if (!profileId) {
+      showToast(t("No active profile."), "error");
+      return;
+    }
+
+    const res = await gateway_lumen_api
+      .cancelContract({ profileId, contractId: row.expiredContractId })
+      .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
+
+    if (!res || res.ok === false) {
+      const code = String(res?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        await requestUnlock();
+      }
+      showToast(describeCancelError(code), "error");
+      return;
+    }
+
+    showToast(t("Subscription cancelled."), "success");
+
+    // Drop it locally first. The transaction is broadcast, but the REST query
+    // behind the refresh can still answer from a block that predates it, and
+    // re-reading a stale "active" would put the row straight back.
+    const cancelledId = row.expiredContractId;
+    planSubscriptionsRaw.value = planSubscriptionsRaw.value.filter(
+      (sub) => sub.id !== cancelledId,
+    );
+    if (
+      hosting.value.kind === "gateway" &&
+      hosting.value.gatewayId === row.gatewayId &&
+      !subscriptionRows.value.some((r) => r.gatewayId === row.gatewayId)
+    ) {
+      selectHosting("local");
+    }
+
+    await refreshGatewayOverview();
+  } finally {
+    cancelContractBusy.value = false;
+  }
+}
+
+async function loadStats() {
+  try {
+    const result = await lumen_api?.ipfsStats?.();
+    if (result?.ok) {
+      stats.value = result;
+    }
+  } catch {}
+}
+
+async function loadPinnedFiles() {
+  if (hosting.value.kind === "gateway") {
+    await refreshGatewayPinned(activeGatewayHint.value);
+    return;
+  }
+
+  localPinnedLoading.value = true;
+  try {
+    const result = await useInternalLumen()?.ipfsPinList?.();
+    if (result?.ok) {
+      const pins = Array.isArray(result.pins) ? result.pins : [];
+      pinnedFiles.value = pins
+        .map((x: any) => String(x || "").trim())
+        .filter((x: string) => x && !isIgnoredCid(x));
+    }
+  } catch {
+    // ignore
+  } finally {
+    localPinnedLoading.value = false;
+  }
+}
+
+async function refreshGatewayPinned(baseUrlHint?: string) {
+  const gid = String(hosting.value.gatewayId || "").trim();
+  if (hosting.value.kind !== "gateway" || !gid) return;
+  const seq = ++gatewayPinnedSeq;
+
+  gatewayPinnedLoading.value = true;
+  gatewayPinnedError.value = "";
+  try {
+
+    const profileId = await getActiveProfileId();
+    if (!profileId) return;
+
+    const res = await gateway_lumen_api
+      .getWalletPinnedCids(profileId, baseUrlHint, 1)
+      .catch(() => null);
+    if (
+      seq !== gatewayPinnedSeq ||
+      hosting.value.kind !== "gateway" ||
+      String(hosting.value.gatewayId || "").trim() !== gid
+    ) {
+      return;
+    }
+    if (!res || res.ok === false) {
+      const code = String(res?.error || "").trim();
+      if (code === "password_required" || code === "invalid_password") {
+        try {
+          await lumen_api?.security?.lockSession?.();
+        } catch {}
+      }
+      if (code === "kyber_pubkey_http_unavailable") {
+        gatewayPinned.value = [];
+        gatewayPinnedNames.value = {};
+        gatewayPinnedError.value = "";
+        return;
+      }
+      gatewayPinned.value = [];
+      gatewayPinnedNames.value = {};
+      gatewayPinnedError.value = code || t("Pinned CIDs fetch failed");
+      return;
+    }
+
+    const data = res.data ?? null;
+    const cids = Array.isArray(data?.cids)
+      ? data.cids.map((x: any) => String(x))
+      : [];
+
+    const server: string[] = Array.from(
+      new Set<string>(
+        cids
+          .map((x: any) => String(x || "").trim())
+          .filter((x: string) => x && !isIgnoredCid(x)),
+      ),
+    );
+    const settled = reconcileOptimisticPins(
+      optimisticGatewayPinned.value[gid] || {},
+      server,
+    );
+    optimisticGatewayPinned.value = {
+      ...optimisticGatewayPinned.value,
+      [gid]: settled.pins,
+    };
+    gatewayPinned.value = settled.displayed;
+
+    const allowSet = new Set(server);
+    const nextNames: Record<string, string> = {};
+
+    try {
+      const namesRaw = data?.names;
+      if (namesRaw && typeof namesRaw === "object" && !Array.isArray(namesRaw)) {
+        for (const [cid, nameVal] of Object.entries(namesRaw as Record<string, any>)) {
+          const key = String(cid || "").trim();
+          if (!key || !allowSet.has(key) || isIgnoredCid(key)) continue;
+          const name = typeof nameVal === "string" ? nameVal.trim() : "";
+          if (!name || name.toLowerCase() === "unknown") continue;
+          nextNames[key] = name;
+        }
+      }
+
+      const itemsRaw = Array.isArray(data?.items) ? data.items : [];
+      for (const row of itemsRaw) {
+        const key = String(row?.cid || "").trim();
+        if (!key || !allowSet.has(key) || isIgnoredCid(key)) continue;
+        const nameRaw = row?.display_name ?? row?.displayName ?? row?.name ?? null;
+        const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
+        if (!name || name.toLowerCase() === "unknown") continue;
+        nextNames[key] = name;
+      }
+    } catch {
+      // ignore name parsing errors
+    }
+
+    gatewayPinnedNames.value = nextNames;
+  } catch (e) {
+    if (seq !== gatewayPinnedSeq) return;
+    gatewayPinned.value = [];
+    gatewayPinnedNames.value = {};
+    const msg = errorMessage(e, t("Pinned CIDs fetch failed"));
+    gatewayPinnedError.value =
+      msg === "Error: kyber_pubkey_http_unavailable" ? "" : msg;
+  } finally {
+    if (seq === gatewayPinnedSeq) gatewayPinnedLoading.value = false;
+  }
+}
+
+function addOptimisticGatewayPinnedCid(cid: string) {
+  const key = String(cid || "").trim();
+  const gid = String(hosting.value.gatewayId || "").trim();
+  if (!key || !gid) return;
+  optimisticGatewayPinned.value = {
+    ...optimisticGatewayPinned.value,
+    [gid]: addOptimisticPin(optimisticGatewayPinned.value[gid] || {}, key),
+  };
+  if (hosting.value.kind === "gateway") {
+    gatewayPinned.value = [
+      key,
+      ...gatewayPinned.value.filter((x) => String(x) !== key),
+    ];
+  }
+}
+
+function removeOptimisticGatewayPinnedCid(cid: string) {
+  const gid = String(hosting.value.gatewayId || "").trim();
+  if (!gid) return;
+  optimisticGatewayPinned.value = {
+    ...optimisticGatewayPinned.value,
+    [gid]: removeOptimisticPin(optimisticGatewayPinned.value[gid] || {}, cid),
+  };
+}
+
+function loadFiles() {
+  files.value = [];
+  const pid = String(activeProfileId.value || "").trim();
+  const storedParsed = readJson<unknown>(driveFilesKey(pid), null);
+  files.value = Array.isArray(storedParsed) ? (storedParsed as DriveFile[]) : [];
+}
+
+function saveFiles() {
+  const pid = String(activeProfileId.value || "").trim();
+  writeJson(driveFilesKey(pid), files.value);
+  nextDriveBackupSeq(pid);
+}
+
+function loadLocalNames() {
+  localNames.value = {};
+  const pid = String(activeProfileId.value || "").trim();
+  const key = driveLocalNamesKey(pid);
+  try {
+    const storedParsed = readJson<unknown>(key, null);
+    localNames.value =
+      storedParsed && typeof storedParsed === "object"
+        ? (storedParsed as Record<string, string>)
+        : {};
+  } catch {
+    localNames.value = {};
+  }
+}
+
+function saveLocalNames() {
+  const pid = String(activeProfileId.value || "").trim();
+  writeJson(driveLocalNamesKey(pid), localNames.value);
+  nextDriveBackupSeq(pid);
+}
+
+function activeWalletAddress(): string {
+  const p = activeProfile.value;
+  const addr = p && (p.walletAddress || p.address);
+  return String(addr || "").trim();
+}
+
+function getCurrentDriveBackupSeq(profileId: string): number {
+  const pid = String(profileId || "").trim();
+  if (!pid) return 0;
+  return readDriveBackupSeq(pid);
+}
+
+function loadDriveBackupMeta() {
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) {
+    driveBackupLastExportAt.value = null;
+    driveBackupLastImportAt.value = null;
+    return;
+  }
+  const exportKey = driveBackupLastExportAtKey(pid);
+  const importKey = driveBackupLastImportAtKey(pid);
+  if (!exportKey || !importKey) {
+    driveBackupLastExportAt.value = null;
+    driveBackupLastImportAt.value = null;
+    return;
+  }
+  const exportAtRaw = readString(exportKey);
+  const importAtRaw = readString(importKey);
+  const exportAt = exportAtRaw ? Number.parseInt(exportAtRaw, 10) : NaN;
+  const importAt = importAtRaw ? Number.parseInt(importAtRaw, 10) : NaN;
+  driveBackupLastExportAt.value = Number.isFinite(exportAt) ? exportAt : null;
+  driveBackupLastImportAt.value = Number.isFinite(importAt) ? importAt : null;
+}
+
+function setDriveBackupMeta(kind: "export" | "import", ts: number) {
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) return;
+  const key = kind === "export" ? driveBackupLastExportAtKey(pid) : driveBackupLastImportAtKey(pid);
+  writeString(key, String(ts));
+  if (kind === "export") driveBackupLastExportAt.value = ts;
+  else driveBackupLastImportAt.value = ts;
+}
+
+function makeDriveBackupSnapshot(): DriveBackupSnapshotV2 | null {
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) return null;
+  let seq = getCurrentDriveBackupSeq(pid);
+  if (!seq) seq = nextDriveBackupSeq(pid);
+
+  return buildDriveBackupSnapshot({
+    seq,
+    walletAddress: activeWalletAddress(),
+    files: files.value,
+    localNames: localNames.value,
+    favourites: favourites.value,
+    shortcutEntries: getFavouriteEntriesForProfile(pid),
+  });
+}
+
+function applyDriveBackupSnapshotPayload(snap: any): { ok: boolean; error?: string; seq?: number } {
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) return { ok: false, error: "missing_profile_id" };
+
+  const read = readDriveBackupSnapshot(snap);
+  if (!read.ok) return { ok: false, error: read.error };
+
+  files.value = read.files;
+  localNames.value = read.localNames;
+  saveFiles();
+  saveLocalNames();
+  if (read.shortcutEntries) {
+    setFavouriteEntriesForProfile(pid, read.shortcutEntries as any);
+  } else {
+    setFavouritesForProfile(pid, read.favourites);
+  }
+
+  if (read.seq) bumpDriveBackupSeq(pid, read.seq);
+  setDriveBackupMeta("import", Date.now());
+
+  // Ensure the restored metadata is visible immediately.
+  exitBrowseSilent();
+  if (hosting.value.kind === "gateway") {
+    selectHosting("local");
+  } else {
+    void loadPinnedFiles();
+  }
+  return { ok: true, ...(read.seq ? { seq: read.seq } : {}) };
+}
+
+const driveBackupRestoreDetails = computed(() => {
+  const pending = pendingDriveBackupRestore.value;
+  if (!pending) return null;
+  const pid = String(activeProfileId.value || "").trim();
+  return summarizeDriveBackupSnapshot(pending.snapshot, {
+    localSeq: pid ? getCurrentDriveBackupSeq(pid) : 0,
+    currentWallet: activeWalletAddress(),
+    source: pending.source,
+  });
+});
+
+const driveBackupImportFilename = computed(() => {
+  const pending = pendingDriveBackupImport.value;
+  return pending ? String(pending.filename || "").trim() : "";
+});
+
+function openDriveBackupExportModal() {
+  driveBackupError.value = "";
+  driveBackupExportPassword.value = "";
+  driveBackupExportPasswordConfirm.value = "";
+  driveBackupExportShowPassword.value = false;
+  showDriveBackupExportModal.value = true;
+}
+
+function closeDriveBackupExportModal() {
+  if (driveBackupBusy.value) return;
+  showDriveBackupExportModal.value = false;
+  driveBackupExportPassword.value = "";
+  driveBackupExportPasswordConfirm.value = "";
+  driveBackupExportShowPassword.value = false;
+  driveBackupError.value = "";
+}
+
+async function confirmDriveBackupExport() {
+  driveBackupError.value = "";
+  const pid = String(activeProfileId.value || "").trim();
+  const snapshot = makeDriveBackupSnapshot();
+  if (!pid || !snapshot) {
+    driveBackupError.value = t("No active profile.");
+    return;
+  }
+
+  const password = String(driveBackupExportPassword.value || "");
+  const confirm = String(driveBackupExportPasswordConfirm.value || "");
+  if (!isPasswordLongEnough(password)) {
+    driveBackupError.value = driveBackupFriendlyError("weak_password");
+    return;
+  }
+  if (password !== confirm) {
+    driveBackupError.value = t("Passwords do not match.");
+    return;
+  }
+
+  if (driveBackupBusy.value) return;
+  driveBackupBusy.value = true;
+  let shouldClose = false;
+  try {
+    const res = await lumen_api.driveBackup.encryptSnapshot(pid, snapshot, password).catch(() => null);
+    if (!res || res.ok === false || !res.encrypted) {
+      const code = String(res?.error || "encrypt_failed");
+      driveBackupError.value = driveBackupFriendlyError(code);
+      return;
+    }
+
+    const nameSeg = sanitizeFilenameSegment(activeProfileDisplay.value) || "profile";
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const filename = `lumen-drive-backup-${nameSeg}-${stamp}.enc.json`;
+    downloadTextFile(filename, JSON.stringify(res.encrypted, null, 2));
+    setDriveBackupMeta("export", Date.now());
+    showToast(t("Drive snapshot exported"), "success");
+    shouldClose = true;
+  } catch (e) {
+    driveBackupError.value = errorMessage(e, "export_failed");
+  } finally {
+    driveBackupBusy.value = false;
+    if (shouldClose) closeDriveBackupExportModal();
+  }
+}
+
+function triggerImportDriveBackup() {
+  driveBackupError.value = "";
+  driveBackupImportInput.value?.click();
+}
+
+async function handleImportDriveBackupFile(e: Event) {
+  driveBackupError.value = "";
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) {
+    driveBackupError.value = t("No active profile.");
+    return;
+  }
+
+  const input = e.target as HTMLInputElement;
+  const file = input?.files && input.files[0] ? input.files[0] : null;
+  try {
+    input.value = "";
+  } catch {}
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    driveBackupError.value = t("Backup file too large (max 5 MB).");
+    return;
+  }
+
+  try {
+    const raw = await file.text();
+    const encrypted = JSON.parse(raw);
+    const envelope =
+      encrypted && typeof encrypted === "object"
+        ? markRaw(encrypted)
+        : encrypted;
+    pendingDriveBackupImport.value = {
+      filename: String(file.name || "").trim() || "backup.json",
+      encrypted: envelope,
+    };
+    pendingDriveBackupRestore.value = null;
+    driveBackupImportPassword.value = "";
+    driveBackupImportShowPassword.value = false;
+    showDriveBackupImportModal.value = true;
+  } catch {
+    driveBackupError.value = driveBackupFriendlyError("invalid_envelope");
+  }
+}
+
+function closeDriveBackupImportModal() {
+  if (driveBackupBusy.value) return;
+  showDriveBackupImportModal.value = false;
+  pendingDriveBackupImport.value = null;
+  pendingDriveBackupRestore.value = null;
+  driveBackupImportPassword.value = "";
+  driveBackupImportShowPassword.value = false;
+  driveBackupError.value = "";
+}
+
+async function decryptDriveBackupImport() {
+  driveBackupError.value = "";
+  const pid = String(activeProfileId.value || "").trim();
+  if (!pid) {
+    driveBackupError.value = t("No active profile.");
+    return;
+  }
+
+  const pending = pendingDriveBackupImport.value;
+  if (!pending) {
+    driveBackupError.value = t("No backup file selected");
+    return;
+  }
+
+  const password = String(driveBackupImportPassword.value || "");
+  if (!password) {
+    driveBackupError.value = driveBackupFriendlyError("missing_password");
+    return;
+  }
+  if (!isPasswordLongEnough(password)) {
+    driveBackupError.value = driveBackupFriendlyError("weak_password");
+    return;
+  }
+
+  if (driveBackupBusy.value) return;
+  driveBackupBusy.value = true;
+  try {
+    const encryptedPayload =
+      pending.encrypted && typeof pending.encrypted === "object"
+        ? toRaw(pending.encrypted)
+        : pending.encrypted;
+    const res = await lumen_api.driveBackup.decryptSnapshot(pid, encryptedPayload, password)
+      .catch(() => null);
+    if (!res || res.ok === false || !res.snapshot) {
+      const code = String(res?.error || "decrypt_failed");
+      driveBackupError.value = driveBackupFriendlyError(code);
+      return;
+    }
+    pendingDriveBackupRestore.value = { source: pending.filename, snapshot: res.snapshot };
+    driveBackupImportPassword.value = "";
+    driveBackupImportShowPassword.value = false;
+  } catch (e) {
+    driveBackupError.value = errorMessage(e, "decrypt_failed");
+  } finally {
+    driveBackupBusy.value = false;
+  }
+}
+
+function confirmDriveBackupRestore() {
+  driveBackupError.value = "";
+  const pending = pendingDriveBackupRestore.value;
+  if (!pending) return;
+  const applied = applyDriveBackupSnapshotPayload(pending.snapshot);
+  if (!applied.ok) {
+    driveBackupError.value = driveBackupFriendlyError(String(applied.error || "invalid_snapshot"));
+    return;
+  }
+  closeDriveBackupImportModal();
+  showToast(t("Drive snapshot imported"), "success");
+}
+
+function normalizeCidKey(cid: string): string {
+  return String(cid || "").trim();
+}
+
+function isIgnoredCid(cid: string): boolean {
+  const c = normalizeCidKey(cid).toLowerCase();
+  return !c || c === "unknown";
+}
+
+function stripExt(name: string): string {
+  const s = String(name || "").trim();
+  if (!s) return "";
+  return s.replace(/\.[a-z0-9]{1,8}$/i, "");
+}
+
+function getSavedName(cid: string): string {
+  const key = normalizeCidKey(cid);
+  if (!key) return t("Unknown");
+
+  if (hosting.value.kind === "gateway") {
+    const remoteVal = gatewayPinnedNames.value[key];
+    const remoteName = typeof remoteVal === "string" ? remoteVal.trim() : "";
+    if (remoteName && remoteName.toLowerCase() !== "unknown") return remoteName;
+  }
+
+  const value = localNames.value[key];
+  const name = typeof value === "string" ? value.trim() : "";
+  if (name && name.toLowerCase() !== "unknown") return name;
+
+  // Fallback to stored metadata if available (older entries / imported state).
+  try {
+    const meta = files.value.find((f) => String(f?.cid || "").trim() === key) || null;
+    const metaName = String(meta?.name || "").trim();
+    if (metaName && metaName.toLowerCase() !== "unknown") return metaName;
+  } catch {
+    // ignore
+  }
+
+  return t("Unknown");
+}
+
+function setSavedName(cid: string, name: string) {
+  const key = normalizeCidKey(cid);
+  if (!key) return;
+  const nextName = String(name || "").trim();
+  const next = { ...localNames.value };
+  if (!nextName || nextName.toLowerCase() === "unknown") {
+    delete next[key];
+  } else {
+    next[key] = nextName;
+  }
+  localNames.value = next;
+  saveLocalNames();
+}
+
+function persistHlsQueue(
+  items: HlsQueueItem[] = hlsQueue.value,
+  profileId: string = hlsQueueProfileId.value,
+) {
+  const key = driveHlsQueueKey(profileId);
+  if (!items.length) {
+    removeKey(key);
+    return;
+  }
+  writeJson(key, serializeHlsQueue(items));
+}
+
+function loadHlsQueue(profileId: string = String(activeProfileId.value || "").trim()) {
+  hlsQueueProfileId.value = String(profileId || "").trim();
+  hlsQueuePauseRequested.value = false;
+  convertingPauseRequested.value = false;
+
+  const parsed = readJson<unknown>(driveHlsQueueKey(hlsQueueProfileId.value), null);
+  const restored = parseStoredHlsQueue(parsed);
+  hlsQueue.value = restored;
+  persistHlsQueue(restored, hlsQueueProfileId.value);
+}
+
+function upsertFileMetadata(next: DriveFile) {
+  const cid = String(next?.cid || "").trim();
+  if (!cid) return;
+  // Refresh from localStorage first: this runs after an await (HLS conversion / dir
+  // probe), and `files.value` can be stale by then if an upload finished in the
+  // meantime and wrote straight to localStorage without going through this reactive
+  // list. Without this, saveFiles() below would persist the stale snapshot and wipe
+  // out that upload.
+  loadFiles();
+  const filtered = files.value.filter(
+    (f) => String(f?.cid || "").trim() !== cid,
+  );
+  files.value = [{ ...next, cid }, ...filtered].slice(0, 500);
+  saveFiles();
+}
+
+async function pinCidToActiveGateway(cid: string, displayName?: string): Promise<
+  | { ok: true }
+  | { ok: false; error: string; cancelled?: boolean }
+> {
+  if (hosting.value.kind !== "gateway") return { ok: true as const };
+
+  if (!gateway_lumen_api.pinCid) {
+    return { ok: false as const, error: t("Gateway upload not available.") };
+  }
+
+  const profileId = await getActiveProfileId();
+  if (!profileId) {
+    return { ok: false as const, error: t("No active profile.") };
+  }
+
+  const gid = hosting.value.gatewayId;
+  const sub =
+    planSubscriptionsRaw.value.find(
+      (s) =>
+        String(s.gatewayId) === String(gid) &&
+        String(s.status).includes("active"),
+    ) ||
+    planSubscriptionsRaw.value.find((s) => String(s.gatewayId) === String(gid));
+  const planId = sub?.metadata?.planId ?? sub?.metadata?.plan_id ?? null;
+
+  const res = await gateway_lumen_api
+    .pinCid({
+      profileId,
+      cid,
+      baseUrl: activeGatewayHint.value,
+      planId,
+      displayName,
+    })
+    .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
+
+  if (!res || res.ok === false) {
+    const err = String(res?.error || t("Gateway pin failed"));
+    const lower = err.toLowerCase();
+    if (
+      lower.includes("cancel") ||
+      lower.includes("abort") ||
+      lower.includes("aborted")
+    ) {
+      return { ok: false as const, error: "cancelled", cancelled: true };
+    }
+    // A lapsed plan is the likeliest reason a gateway that used to accept
+    // uploads stops, and the gateway's own error never says so.
+    if (expiredHostingRow.value) {
+      return {
+        ok: false as const,
+        error: t('{reason} — your plan on this gateway expired on {date}.', {
+          reason: err,
+          date: formatDate(expiredHostingRow.value.expiresAt),
+        }),
+      };
+    }
+    return {
+      ok: false as const,
+      error: err,
+    };
+  }
+
+  // Some gateways can take a bit of time to reflect the new CID in /wallet/cids.
+  // Optimistically add it so the Drive list refreshes immediately.
+  addOptimisticGatewayPinnedCid(cid);
+
+  await refreshActiveGatewayPinned();
+  return { ok: true as const };
+}
+
+function startConvertingState(fileName: string) {
+  converting.value = true;
+  convertingFile.value = fileName;
+  convertingStage.value = "preparing";
+  convertingPercent.value = null;
+  convertingDownloadedBytes.value = null;
+  convertingDownloadTotalBytes.value = null;
+  convertingCanceling.value = false;
+  convertingPauseRequested.value = false;
+}
+
+function resetConvertingState() {
+  converting.value = false;
+  convertingFile.value = "";
+  convertingStage.value = "preparing";
+  convertingPercent.value = null;
+  convertingDownloadedBytes.value = null;
+  convertingDownloadTotalBytes.value = null;
+  convertingCanceling.value = false;
+  convertingPauseRequested.value = false;
+}
+
+async function performHlsConversion(
+  file: DriveFile,
+  opts: {
+    targetHostingKind?: HostingKind;
+    silentSuccessToast?: boolean;
+    silentErrorToast?: boolean;
+  } = {},
+): Promise<
+  | { ok: true; newName: string }
+  | { ok: false; cancelled?: boolean; error: string }
+> {
+  try {
+    const target = contentTargetFor(file);
+    const res = await lumen_api?.driveConvertToHls?.({
+      cidOrPath: target,
+      name: file.name,
+      audioBitrate: "128k",
+    });
+
+    if (!res?.ok || !res?.cid) {
+      const err = String(res?.error || t("HLS conversion failed"));
+      const cancelled = err.toLowerCase().includes("cancel");
+      if (!opts.silentErrorToast) {
+        if (cancelled) showToast(t("Conversion cancelled."), "success");
+        else showToast(err, "error");
+      }
+      return { ok: false, cancelled, error: err };
+    }
+
+    const newCid = String(res.cid);
+    const base = stripExt(file.name) || file.name;
+    const newName = `${base} - HLS`;
+
+    entryTypeCache.value = { ...entryTypeCache.value, [newCid]: "file" };
+    setSavedName(newCid, newName);
+
+    upsertFileMetadata({
+      cid: newCid,
+      name: newName,
+      size: Number(res?.sizeBytes || 0) || 0,
+      uploadedAt: Date.now(),
+      type: "file",
+      rootCid: newCid,
+      relPath: "master.m3u8",
+      sourceTarget: target,
+    });
+
+    if ((opts.targetHostingKind ?? hosting.value.kind) === "gateway") {
+      const pinned = await pinCidToActiveGateway(newCid, newName);
+      if (!pinned.ok) {
+        if (!opts.silentErrorToast) showToast(pinned.error, "error");
+        return {
+          ok: false,
+          cancelled: !!pinned.cancelled,
+          error: String(pinned.error || t("Gateway pin failed")),
+        };
+      }
+      if (!opts.silentSuccessToast) {
+        showToast(t('Converted and pinned to gateway: {name}', { name: newName }), "success");
+      }
+    } else {
+      loadStats();
+      await loadPinnedFiles();
+      if (!opts.silentSuccessToast) {
+        showToast(t('Converted to HLS: {name}', { name: newName }), "success");
+      }
+    }
+
+    return { ok: true, newName };
+  } catch (e) {
+    console.error("HLS conversion error:", e);
+    const err = errorMessage(e, t("HLS conversion error"));
+    const cancelled = err.toLowerCase().includes("cancel");
+    if (!opts.silentErrorToast) {
+      if (cancelled) showToast(t("Conversion cancelled."), "success");
+      else showToast(err, "error");
+    }
+    return { ok: false, cancelled, error: err };
+  }
+}
+
+function enqueueHlsConversions(filesToQueue: DriveFile[]): {
+  added: number;
+  duplicates: number;
+  status: "queued" | "paused";
+} {
+  resetFinishedHlsQueueIfIdle();
+  const nextStatus: "queued" | "paused" =
+    hlsQueuePauseRequested.value || hlsQueueIsPaused(hlsQueue.value) ? "paused" : "queued";
+
+  const known = new Set(
+    hlsQueue.value.map((item) => hlsQueueKeyFor(item.file)).filter(Boolean),
+  );
+  const additions: HlsQueueItem[] = [];
+  let duplicates = 0;
+
+  for (const file of filesToQueue) {
+    const key = hlsQueueKeyFor(file);
+    if (!key) continue;
+    if (known.has(key)) {
+      duplicates += 1;
+      continue;
+    }
+    known.add(key);
+    additions.push({
+      id: nextHlsQueueItemId(),
+      file: { ...file },
+      status: nextStatus,
+    });
+  }
+
+  if (additions.length) {
+    hlsQueue.value = [...hlsQueue.value, ...additions];
+  }
+
+  return { added: additions.length, duplicates, status: nextStatus };
+}
+
+async function runQueuedHlsConversion(
+  item: HlsQueueItem,
+): Promise<"done" | "failed" | "cancelled" | "paused"> {
+  updateHlsQueueItem(item.id, { status: "converting", error: undefined });
+  startConvertingState(item.file.name);
+  try {
+    const result = await performHlsConversion(item.file, {
+      targetHostingKind: "local",
+      silentSuccessToast: true,
+      silentErrorToast: true,
+    });
+    if (result.ok) {
+      updateHlsQueueItem(item.id, { status: "done", error: undefined });
+      return "done";
+    }
+    if (result.cancelled) {
+      const paused = hlsQueuePauseRequested.value || convertingPauseRequested.value;
+      updateHlsQueueItem(item.id, {
+        status: paused ? "paused" : "cancelled",
+        error: paused ? undefined : result.error,
+      });
+      return paused ? "paused" : "cancelled";
+    }
+    updateHlsQueueItem(item.id, {
+      status: "failed",
+      error: result.error,
+    });
+    return "failed";
+  } finally {
+    hlsQueuePauseRequested.value = false;
+    convertingPauseRequested.value = false;
+    resetConvertingState();
+  }
+}
+
+async function ensureHlsQueueProcessing() {
+  if (hlsQueueProcessing || uploading.value) return;
+  hlsQueueProcessing = true;
+
+  const summary = { done: 0, failed: 0, cancelled: 0, paused: 0 };
+
+  try {
+    while (!uploading.value) {
+      const next = hlsQueue.value.find((item) => item.status === "queued");
+      if (!next) break;
+      const outcome = await runQueuedHlsConversion(next);
+      if (outcome === "done") summary.done += 1;
+      else if (outcome === "failed") summary.failed += 1;
+      else if (outcome === "cancelled") summary.cancelled += 1;
+      else summary.paused += 1;
+    }
+  } finally {
+    hlsQueueProcessing = false;
+  }
+
+  const processed = summary.done + summary.failed + summary.cancelled + summary.paused;
+  if (!processed) return;
+
+  const parts: string[] = [];
+  if (summary.done) parts.push(`${summary.done} converted`);
+  if (summary.failed) parts.push(`${summary.failed} failed`);
+  if (summary.cancelled) parts.push(`${summary.cancelled} cancelled`);
+  if (summary.paused) parts.push(`${summary.paused} paused`);
+  showToast(t('HLS queue: {summary}', { summary: parts.join(", ") }), summary.failed ? "error" : "success");
+}
+
+async function convertToHls(file: DriveFile) {
+  const f = file as any;
+  if (!f || !String(f.cid || "").trim()) return;
+  if (isDirEntry(file)) return;
+  if (!isVideoFile(file.name)) return;
+  if (!ipfsConnected.value) {
+    showToast(t("IPFS is not connected"), "error");
+    return;
+  }
+  if (uploading.value) {
+    showToast(t("Another task is already running. Please wait…"), "error");
+    return;
+  }
+
+  const { added, status } = enqueueHlsConversions([file]);
+  if (!added) {
+    showToast(t("This video is already in the HLS queue."), "error");
+    return;
+  }
+
+  showToast(
+    status === "paused" ? t("Added 1 video to paused HLS queue") : t("Queued 1 video for HLS"),
+    "success",
+  );
+  if (status === "queued") void ensureHlsQueueProcessing();
+}
+
+async function convertSelectedEntriesToHls() {
+  if (!canUseMultiSelect.value) return;
+  if (!ipfsConnected.value) {
+    showToast(t("IPFS is not connected"), "error");
+    return;
+  }
+  if (uploading.value) {
+    showToast(t("Another task is already running. Please wait…"), "error");
+    return;
+  }
+
+  const selected = selectedEntries.value.slice();
+  if (!selected.length) return;
+
+  const convertible = selected.filter(
+    (entry) => !isDirEntry(entry) && isVideoFile(entry.name),
+  );
+  if (!convertible.length) {
+    showToast(t("Select at least one video file to convert."), "error");
+    return;
+  }
+
+  const skipped = selected.length - convertible.length;
+  const { added, duplicates, status } = enqueueHlsConversions(convertible);
+  if (!added) {
+    showToast(t("Selected videos are already in the HLS queue."), "error");
+    return;
+  }
+
+  const notes: string[] = [];
+  if (skipped) notes.push(`${skipped} skipped`);
+  if (duplicates) notes.push(t('{count} already queued', { count: duplicates }));
+
+  const label =
+    status === "paused"
+      ? added === 1
+        ? t("Added 1 video to paused HLS queue")
+        : t('Added {count} videos to paused HLS queue', { count: added })
+      : added === 1
+        ? t("Queued 1 video for HLS")
+        : t('Queued {count} videos for HLS', { count: added });
+  showToast(notes.length ? `${label} (${notes.join(", ")})` : label, "success");
+  if (status === "queued") void ensureHlsQueueProcessing();
+}
+
+function convertSelectedToHls() {
+  if (!selectedFile.value) return;
+  void convertToHls(selectedFile.value);
+}
+
+async function cancelUpload(key: any) {
+  try {
+    uploadCancelUpload(key);
+  } catch (e) {
+    showToast(errorMessage(e, t("Cancel failed")), "error");
+  }
+}
+
+async function cancelHlsConversion() {
+  if (!converting.value || convertingCanceling.value || convertingPauseRequested.value) return;
+  convertingCanceling.value = true;
+  convertingStage.value = "cancelling";
+  try {
+    const res = await lumen_api.driveCancelHlsConvert().catch(() => null);
+    if (!res?.ok) {
+      showToast(String(res?.error || t("Cancel failed")), "error");
+      convertingCanceling.value = false;
+      convertingStage.value = "transcoding";
+    }
+  } catch (e) {
+    showToast(errorMessage(e, t("Cancel failed")), "error");
+    convertingCanceling.value = false;
+    convertingStage.value = "transcoding";
+  }
+}
+
+async function waitForHlsConversionToSettle(timeoutMs = 8000) {
+  const startedAt = Date.now();
+  while (converting.value && Date.now() - startedAt < timeoutMs) {
+    await new Promise((resolve) => window.setTimeout(resolve, 50));
+  }
+}
+
+async function pauseHlsQueue(options: { silent?: boolean } = {}) {
+  if (convertingCanceling.value || convertingPauseRequested.value) return;
+
+  const queueSnapshot = hlsQueue.value.map((item) => ({
+    id: item.id,
+    status: item.status,
+    error: item.error,
+  }));
+  const hasQueued = hlsQueue.value.some((item) => item.status === "queued");
+  const hasRunning = converting.value;
+  if (!hasQueued && !hasRunning) return;
+
+  hlsQueuePauseRequested.value = true;
+  if (hasQueued) {
+    hlsQueue.value = hlsQueue.value.map((item) =>
+      item.status === "queued" ? { ...item, status: "paused", error: undefined } : item,
+    );
+  }
+
+  if (!hasRunning) {
+    hlsQueuePauseRequested.value = false;
+    convertingPauseRequested.value = false;
+    if (!options.silent) showToast(t("HLS queue paused."), "success");
+    return;
+  }
+
+  convertingPauseRequested.value = true;
+  convertingStage.value = "cancelling";
+
+  try {
+    const res = await lumen_api.driveCancelHlsConvert().catch(() => null);
+    if (!res?.ok) {
+      throw new Error(String(res?.error || t("Pause failed")));
+    }
+    await waitForHlsConversionToSettle();
+    if (!options.silent) showToast(t("HLS queue paused."), "success");
+  } catch (e) {
+    const previous = new Map(queueSnapshot.map((item) => [item.id, item]));
+    hlsQueue.value = hlsQueue.value.map((item) => {
+      const prior = previous.get(item.id);
+      return prior ? { ...item, status: prior.status, error: prior.error } : item;
+    });
+    hlsQueuePauseRequested.value = false;
+    convertingPauseRequested.value = false;
+    convertingStage.value = "transcoding";
+    if (!options.silent) {
+      showToast(errorMessage(e, t("Pause failed")), "error");
+    }
+  }
+}
+
+async function resumeHlsQueue() {
+  if (!hlsQueueCanResume.value) return;
+  hlsQueue.value = hlsQueue.value.map((item) =>
+    item.status === "paused" ? { ...item, status: "queued", error: undefined } : item,
+  );
+  showToast(t("Resumed HLS queue."), "success");
+  void ensureHlsQueueProcessing();
+}
+
+function resetArchiveDownloadState() {
+  archiveDownloading.value = false;
+  archiveDownloadFile.value = "";
+  archiveDownloadStage.value = "preparing";
+  archiveDownloadPercent.value = null;
+  archiveDownloadBytesProcessed.value = null;
+  archiveDownloadTotalBytes.value = null;
+  archiveDownloadCanceling.value = false;
+}
+
+async function cancelHlsArchiveDownload() {
+  if (!archiveDownloading.value || archiveDownloadCanceling.value) return;
+  const prevStage = archiveDownloadStage.value;
+  archiveDownloadCanceling.value = true;
+  archiveDownloadStage.value = "cancelling";
+  try {
+    const res = await lumen_api.driveCancelHlsArchiveDownload().catch(() => null);
+    if (!res?.ok) {
+      showToast(String(res?.error || t("Cancel failed")), "error");
+      archiveDownloadCanceling.value = false;
+      archiveDownloadStage.value = prevStage;
+    }
+  } catch (e) {
+    showToast(errorMessage(e, t("Cancel failed")), "error");
+    archiveDownloadCanceling.value = false;
+    archiveDownloadStage.value = prevStage;
+  }
+}
+
+async function downloadFile(file: DriveFile) {
+  try {
+    if (isHlsEntry(file)) {
+      if (isWindowsAppPlatform()) {
+          if (archiveDownloading.value) {
+            showToast(t("Another HLS archive download is already running."), "error");
+            return;
+          }
+          archiveDownloading.value = true;
+          archiveDownloadFile.value = file.name;
+          archiveDownloadStage.value = "selecting-path";
+          archiveDownloadPercent.value = null;
+          archiveDownloadBytesProcessed.value = null;
+          archiveDownloadTotalBytes.value = null;
+          archiveDownloadCanceling.value = false;
+          const res = await lumen_api.driveDownloadHlsArchive({
+            rootCid: String(file?.rootCid || file?.cid || "").trim(),
+            name: String(file?.name || "").trim(),
+            expectedSizeBytes: Number(file?.size || 0) || 0,
+          });
+          if (res?.ok) {
+            showToast(t("Downloaded!"), "success");
+            return;
+          }
+          if (String(res?.error || "").toLowerCase().includes("cancel")) {
+            return;
+          }
+          if (String(res?.error || "") === "download_in_progress") {
+            showToast(t("Another HLS archive download is already running."), "error");
+            return;
+          }
+          showToast(String(res?.error || t("Download failed")), "error");
+          return;
+        }
+
+        await downloadHlsAsZip(file);
+        showToast(t("Downloaded!"), "success");
+        return;
+    }
+
+    const target = contentTargetFor(file);
+    const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+    const result = await lumen_api?.ipfsGet?.(target, { gateways });
+
+    if (result?.ok && result.data) {
+      downloadBytes(result.data, file.name);
+      showToast(t("Downloaded!"), "success");
+    } else {
+      showToast(t("Download failed"), "error");
+    }
+  } catch {
+    showToast(t("Download failed"), "error");
+  } finally {
+    resetArchiveDownloadState();
+  }
+}
+
+function lumenLinkFor(file: DriveFile): string {
+  const target = openTargetFor(file);
+  const encoded = encodeIpfsTarget(target);
+  const isDir =
+    String((file as any)?.type || "") === "dir" && target === contentTargetFor(file);
+  return `lumen://ipfs/${encoded}${isDir ? "/" : ""}`;
+}
+
+async function copyLumenLinkFor(file: DriveFile) {
+  await copyToClipboardWithToast(lumenLinkFor(file));
+}
+
+function openInIpfs(file: DriveFile) {
+  const url = lumenLinkFor(file);
+  if (openInNewTab) {
+    openInNewTab(url);
+    return;
+  }
+  try {
+    window.open(url, "_blank");
+  } catch {
+    // ignore
+  }
+}
+
+function normalizeBrowsePath(path: string): string {
+  return String(path || "")
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+}
+
+function driveUrlForBrowse(rootCid: string, relPath: string): string {
+  const root = String(rootCid || "").trim();
+  const path = normalizeBrowsePath(relPath);
+  if (!root) return "lumen://drive";
+  const q = new URLSearchParams();
+  q.set("root", root);
+  if (path) q.set("path", path);
+  return `lumen://drive?${q.toString()}`;
+}
+
+function parseDriveBrowseFromUrl(
+  rawUrl: string,
+): { root: string; path: string } | null {
+  const s = String(rawUrl || "").trim();
+  if (!s) return null;
+  if (!/^lumen:\/\//i.test(s)) return null;
+
+  // Do not rely on `new URL()` for custom schemes; in some environments it fails.
+  const withoutScheme = s.replace(/^lumen:\/\//i, "");
+  const host = (withoutScheme.split(/[/?#]/, 1)[0] || "").toLowerCase();
+  if (host !== "drive") return null;
+
+  const query = withoutScheme.includes("?") ? withoutScheme.split("?", 2)[1] : "";
+  const qs = query ? query.split("#", 2)[0] : "";
+  const params = new URLSearchParams(qs);
+  const root = String(params.get("root") || "").trim();
+  const path = normalizeBrowsePath(params.get("path") || "");
+  return { root, path };
+}
+
+function resetBrowseState() {
+  browseLoadSeq++;
+  browseRootCid.value = "";
+  browseRelPath.value = "";
+  browseEntries.value = [];
+  browseError.value = "";
+  browseLoading.value = false;
+  selectedFile.value = null;
+  renameDraft.value = "";
+  currentPage.value = 1;
+}
+
+async function applyBrowseLocation(rootCid: string, relPath: string) {
+  const root = String(rootCid || "").trim();
+  const path = normalizeBrowsePath(relPath);
+
+  if (!root) {
+    if (isBrowsing.value) resetBrowseState();
+    return;
+  }
+
+  const prevRoot = String(browseRootCid.value || "").trim();
+  const prevPath = normalizeBrowsePath(browseRelPath.value);
+  const changed = root !== prevRoot || path !== prevPath;
+
+  browseRootCid.value = root;
+  browseRelPath.value = path;
+  selectedFile.value = null;
+  renameDraft.value = "";
+  currentPage.value = 1;
+
+  if (changed) {
+    // Immediately show a "loading" state so the UI reacts as soon as the URL changes.
+    browseEntries.value = [];
+    browseError.value = "";
+    browseLoading.value = true;
+    await loadBrowseEntries();
+  }
+}
+
+async function navigateBrowse(
+  rootCid: string,
+  relPath: string,
+  opts: { push?: boolean } = {},
+) {
+  const push = opts.push ?? true;
+  const root = String(rootCid || "").trim();
+  const path = normalizeBrowsePath(relPath);
+
+  if (!root) {
+    resetBrowseState();
+    navigate?.("lumen://drive", { push });
+    return;
+  }
+
+  await applyBrowseLocation(root, path);
+  navigate?.(driveUrlForBrowse(root, path), { push });
+}
+
+async function loadBrowseEntries() {
+  const seq = ++browseLoadSeq;
+  const cid = String(browseRootCid.value || "").trim();
+  const relPath = normalizeBrowsePath(browseRelPath.value);
+  if (!cid) return;
+  browseLoading.value = true;
+  browseError.value = "";
+  try {
+    const target = relPath ? `${cid}/${relPath}` : cid;
+    const res = await lumen_api?.ipfsLs?.(target).catch(() => null);
+    if (seq !== browseLoadSeq) return;
+    if (!res || res.ok === false) {
+      browseEntries.value = [];
+      browseError.value = String(res?.error || t("Failed to list folder"));
+      return;
+    }
+    const list = Array.isArray(res.entries) ? res.entries : [];
+    const mapped = list
+      .filter((it: any) => it && it.name && it.cid)
+      .map((it: any) => {
+        const name = String(it.name);
+        const rel = relPath ? `${relPath}/${name}` : name;
+        return {
+          cid: String(it.cid),
+          name,
+          size: typeof it.size === "number" ? it.size : 0,
+          type: String(it.type) === "dir" ? "dir" : "file",
+          rootCid: cid,
+          relPath: rel,
+        } as DriveFile;
+      })
+      .sort((a: any, b: any) => {
+        if (a.type === b.type)
+          return String(a.name).localeCompare(String(b.name));
+        return a.type === "dir" ? -1 : 1;
+      });
+    if (seq !== browseLoadSeq) return;
+    browseEntries.value = mapped;
+  } catch (e) {
+    if (seq !== browseLoadSeq) return;
+    browseEntries.value = [];
+    browseError.value = errorMessage(e, t("Failed to list folder"));
+  } finally {
+    if (seq === browseLoadSeq) browseLoading.value = false;
+  }
+}
+
+function exitBrowse() {
+  const root = String(browseRootCid.value || "").trim();
+  const path = normalizeBrowsePath(browseRelPath.value);
+  if (!root) {
+    void navigateBrowse("", "", { push: true });
+    return;
+  }
+  if (!path) {
+    void navigateBrowse("", "", { push: true });
+    return;
+  }
+  const parent = normalizeBrowsePath(path.split("/").slice(0, -1).join("/"));
+  void navigateBrowse(root, parent, { push: true });
+}
+
+function exitBrowseSilent() {
+  void navigateBrowse("", "", { push: false });
+}
+
+async function openBrowseAt(path: string) {
+  const root = String(browseRootCid.value || "").trim();
+  if (!root) return;
+  await navigateBrowse(root, path, { push: true });
+}
+
+async function openDirectory(file: DriveFile) {
+  const root = String(file?.rootCid || file?.cid || "").trim();
+  if (!root) return;
+  await navigateBrowse(root, String(file?.relPath || ""), { push: true });
+}
+
+async function handleEntryClick(file: DriveFile) {
+  if (browseLoading.value) return;
+  if (isHlsEntry(file)) {
+    const cid = String(file?.cid || "").trim();
+    if (!cid) return;
+    entryTypeCache.value = { ...entryTypeCache.value, [cid]: "file" };
+    selectedFile.value = {
+      ...file,
+      type: "file",
+      rootCid: String(file?.rootCid || cid),
+      relPath: String(file?.relPath || "master.m3u8"),
+    };
+    return;
+  }
+  if (String((file as any)?.type) === "dir") {
+    await openDirectory(file);
+    return;
+  }
+  if (String((file as any)?.type) === "file") {
+    selectedFile.value = file;
+    return;
+  }
+
+  // Unknown (root saved entry): best-effort detect if it's a directory.
+  const cid = String(file?.cid || "").trim();
+  if (!cid) return;
+  const res = await lumen_api?.ipfsLs?.(cid).catch(() => null);
+  const linksRaw = Array.isArray(res?.entries) ? res.entries : [];
+  const links = linksRaw.filter(
+    (it: any) =>
+      it && String(it.name || "").trim() && String(it.cid || "").trim(),
+  );
+  const hasHlsMaster = links.some(
+    (it: any) => String(it?.name || "").toLowerCase() === "master.m3u8",
+  );
+  const isDirDetected = links.length > 0 && !hasHlsMaster;
+  entryTypeCache.value = {
+    ...entryTypeCache.value,
+    [cid]: isDirDetected ? "dir" : "file",
+  };
+
+  if (hasHlsMaster) {
+    const next: DriveFile = {
+      ...file,
+      type: "file",
+      rootCid: cid,
+      relPath: "master.m3u8",
+    };
+    selectedFile.value = next;
+    upsertFileMetadata({
+      cid,
+      name: file.name,
+      size: file.size,
+      uploadedAt: file.uploadedAt,
+      type: "file",
+      rootCid: cid,
+      relPath: "master.m3u8",
+    });
+    return;
+  }
+
+  if (isDirDetected) {
+    await openDirectory({ ...file, type: "dir", rootCid: cid, relPath: "" });
+    return;
+  }
+
+  selectedFile.value = { ...file, type: "file" };
+}
+
+function isEntrySelected(file: DriveFile | null | undefined): boolean {
+  const cid = normalizeCidKey(file?.cid || "");
+  if (!cid) return false;
+  return selectedCidSet.value.has(cid);
+}
+
+function setEntrySelected(file: DriveFile, checked: boolean) {
+  if (!canUseMultiSelect.value) return;
+  const cid = normalizeCidKey(file?.cid || "");
+  if (!cid) return;
+  const next = new Set(selectedCidSet.value);
+  if (checked) next.add(cid);
+  else next.delete(cid);
+  selectedCids.value = Array.from(next);
+}
+
+function clearSelection() {
+  selectedCids.value = [];
+}
+
+function toggleVisibleSelection(checked: boolean) {
+  if (!canUseMultiSelect.value) return;
+  const next = new Set(selectedCidSet.value);
+  for (const entry of visibleSelectableEntries.value) {
+    const cid = normalizeCidKey(entry?.cid || "");
+    if (!cid) continue;
+    if (checked) next.add(cid);
+    else next.delete(cid);
+  }
+  selectedCids.value = Array.from(next);
+}
+
+function hlsQueueKeyFor(file: DriveFile | null | undefined): string {
+  if (!file) return "";
+  const target = contentTargetFor(file);
+  return String(target || "").trim().toLowerCase();
+}
+
+function updateHlsQueueItem(
+  id: string,
+  patch: Partial<Pick<HlsQueueItem, "status" | "error">>,
+) {
+  hlsQueue.value = hlsQueue.value.map((item) =>
+    item.id === id ? { ...item, ...patch } : item,
+  );
+}
+
+function resetFinishedHlsQueueIfIdle() {
+  if (converting.value) return;
+  if (!hlsQueueHasPendingItems(hlsQueue.value)) hlsQueue.value = [];
+}
+
+function clearHlsQueue() {
+  if (converting.value) {
+    hlsQueue.value = hlsQueue.value.filter(
+      (item) =>
+        item.status === "queued" ||
+        item.status === "converting" ||
+        item.status === "paused",
+    );
+    return;
+  }
+  hlsQueue.value = [];
+}
+
+function hlsQueueSummary(): string {
+  return hlsQueueSummaryText(countHlsQueue(hlsQueue.value));
+}
+
+watch(
+  selectedFile,
+  (f) => {
+    if (!f) {
+      renameDraft.value = "";
+      return;
+    }
+    renameDraft.value = canRenameEntry(f) ? getSavedName(f.cid) : f.name;
+  },
+  { immediate: true },
+);
+
+watch(
+  hlsQueue,
+  (items) => {
+    persistHlsQueue(items);
+  },
+  { deep: true },
+);
+
+watch(activeProfileId, (next, prev) => {
+  const n = String(next || "").trim();
+  const p = String(prev || "").trim();
+  if (n === p) return;
+  void reloadForActiveProfileChange();
+});
+
+const contentTypeKnownExts = new Set([
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "webp",
+  "svg",
+  "bmp",
+  "mp4",
+  "webm",
+  "mov",
+  "avi",
+  "mkv",
+  "mp3",
+  "wav",
+  "ogg",
+  "flac",
+  "m4a",
+  "zip",
+  "rar",
+  "7z",
+  "tar",
+  "gz",
+  "epub",
+  "pdf",
+  "doc",
+  "docx",
+  "txt",
+  "md",
+]);
+
+let contentTypePrefetchSeq = 0;
+watch(
+  displayFiles,
+  (next) => {
+    const seq = ++contentTypePrefetchSeq;
+    const list = Array.isArray(next) ? next : [];
+    const targets = list
+      .filter((f) => {
+        const cid = String(f?.cid || "").trim();
+        if (!cid) return false;
+        if (isDirEntry(f)) return false;
+        if (isEpubFile(f)) return false;
+        if (entryContentTypeCache.value[cid]) return false;
+        const ext = String(f?.name || "").split(".").pop()?.toLowerCase() || "";
+        return !contentTypeKnownExts.has(ext);
+      })
+      .slice(0, 20);
+
+    if (!targets.length) return;
+
+    void (async () => {
+      const max = Math.min(4, targets.length);
+      let nextIndex = 0;
+      const workers = new Array(max).fill(0).map(async () => {
+        while (true) {
+          const idx = nextIndex++;
+          if (idx >= targets.length) break;
+          if (seq !== contentTypePrefetchSeq) return;
+          const cid = String(targets[idx]?.cid || "").trim();
+          if (!cid) continue;
+          await ensureContentTypeCached(cid);
+        }
+      });
+      await Promise.all(workers);
+    })();
+  },
+  { immediate: true },
+);
+
+function isDirEntry(file: DriveFile | null | undefined): boolean {
+  if (isHlsEntry(file)) return false;
+  if (String((file as any)?.type || "") === "dir") return true;
+  const cid = String((file as any)?.cid || "").trim();
+  if (!cid) return false;
+  return entryTypeCache.value[cid] === "dir";
+}
+
+function openEntryDetails(file: DriveFile) {
+  selectedFile.value = file;
+}
+
+function isRootSavedEntry(f: DriveFile | null | undefined): boolean {
+  if (!f) return false;
+  if (isBrowsing.value) return false;
+  const cid = String(f?.cid || "").trim();
+  if (!cid) return false;
+  return activeSavedCids.value.some((x) => String(x || "").trim() === cid);
+}
+
+function canRenameEntry(f: DriveFile | null | undefined): boolean {
+  return isRootSavedEntry(f);
+}
+
+async function saveSelectedName() {
+  const f = selectedFile.value;
+  if (!f) return;
+  if (!canRenameEntry(f)) return;
+
+  const cid = String(f?.cid || "").trim();
+  if (!cid) return;
+
+  const currentName = getSavedName(cid);
+  const currentNorm =
+    currentName && currentName.toLowerCase() !== "unknown" ? currentName.trim() : "";
+  const nextNorm =
+    renameDraft.value && renameDraft.value.toLowerCase() !== "unknown"
+      ? renameDraft.value.trim()
+      : "";
+
+  if (currentNorm === nextNorm) return;
+
+  if (hosting.value.kind === "gateway") {
+    try {
+      const profileId = await getActiveProfileId();
+      if (!profileId) {
+        showToast(t("No active profile."), "error");
+        return;
+      }
+
+      const res = await gateway_lumen_api
+        .renameCid({
+          profileId,
+          cid,
+          displayName: nextNorm,
+          baseUrl: activeGatewayHint.value,
+        })
+        .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
+
+      if (!res || res.ok === false) {
+        const code = String(res?.error || "rename_failed");
+        if (code === "password_required" || code === "invalid_password") {
+          try {
+            await lumen_api?.security?.lockSession?.();
+          } catch {}
+        }
+        showToast(code, "error");
+        return;
+      }
+
+      const data = res.data ?? null;
+      const nameRaw =
+        data?.display_name ?? data?.displayName ?? data?.name ?? null;
+      const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
+
+      const nextRemote = { ...gatewayPinnedNames.value };
+      if (name && name.toLowerCase() !== "unknown") {
+        nextRemote[cid] = name;
+      } else {
+        delete nextRemote[cid];
+      }
+      gatewayPinnedNames.value = nextRemote;
+
+      // Keep local fallback in sync with remote rename (including clears).
+      setSavedName(cid, name);
+
+      selectedFile.value = { ...f, name: getSavedName(cid) };
+      return;
+    } catch (e) {
+      showToast(errorMessage(e, "rename_failed"), "error");
+      return;
+    }
+  }
+
+  setSavedName(cid, renameDraft.value);
+  selectedFile.value = { ...f, name: getSavedName(cid) };
+}
+
+async function removeLocalRootEntries(entries: DriveFile[]) {
+  const unique = Array.from(
+    new Map(
+      entries
+        .filter((entry) => isRootSavedEntry(entry))
+        .map((entry) => [normalizeCidKey(entry.cid), entry] as const),
+    ).values(),
+  );
+  if (!unique.length) return;
+
+  const cidSet = new Set(unique.map((entry) => normalizeCidKey(entry.cid)).filter(Boolean));
+  // Same staleness risk as upsertFileMetadata: refresh from localStorage right before
+  // filtering so a concurrently-finished upload isn't wiped out by this write.
+  loadFiles();
+  files.value = files.value.filter((entry) => !cidSet.has(normalizeCidKey(entry?.cid || "")));
+  saveFiles();
+
+  if (Object.keys(localNames.value).length) {
+    const nextNames = { ...localNames.value };
+    let changed = false;
+    for (const cid of cidSet) {
+      if (!(cid in nextNames)) continue;
+      delete nextNames[cid];
+      changed = true;
+    }
+    if (changed) {
+      localNames.value = nextNames;
+      saveLocalNames();
+    }
+  }
+
+  let unpinFailed = 0;
+  for (const cid of cidSet) {
+    try {
+      const res = await lumen_api?.ipfsUnpin?.(cid);
+      if (res && res.ok === false) unpinFailed += 1;
+    } catch {
+      unpinFailed += 1;
+    }
+  }
+
+  await loadPinnedFiles();
+  void loadStats();
+
+  if (selectedFile.value?.cid && cidSet.has(normalizeCidKey(selectedFile.value.cid))) {
+    selectedFile.value = null;
+    renameDraft.value = "";
+  }
+
+  selectedCids.value = selectedCids.value.filter(
+    (cid) => !cidSet.has(normalizeCidKey(cid)),
+  );
+
+  const total = cidSet.size;
+  if (total === 1) {
+    showToast(
+      unpinFailed ? t("Removed (couldn't unpin local data)") : "Removed",
+      "success",
+    );
+    return;
+  }
+
+  if (unpinFailed) {
+    showToast(
+      t('Removed {count} entries ({failed} could not be unpinned locally)', { count: total, failed: unpinFailed }),
+      "success",
+    );
+    return;
+  }
+
+  showToast(t('Removed {count} entries', { count: total }), "success");
+}
+
+/**
+ * Unpins several roots from the gateway in one go. Each CID is its own request
+ * - the gateway has no batch endpoint - so failures are counted rather than
+ * abandoning the rest of the selection.
+ */
+async function removeGatewayRootEntries(entries: DriveFile[]) {
+  const cids = Array.from(
+    new Set(
+      entries
+        .filter((entry) => isRootSavedEntry(entry))
+        .map((entry) => String(entry?.cid || "").trim())
+        .filter(Boolean),
+    ),
+  );
+  if (!cids.length) return;
+
+  if (!gateway_lumen_api.unpinCid) {
+    showToast(t("Gateway removal not available."), "error");
+    return;
+  }
+
+  const profileId = await getActiveProfileId();
+  if (!profileId) {
+    showToast(t("No active profile."), "error");
+    return;
+  }
+
+  let removed = 0;
+  let failed = 0;
+  for (const cid of cids) {
+    const res = await gateway_lumen_api
+      .unpinCid({ profileId, cid, baseUrl: activeGatewayHint.value })
+      .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
+    if (!res || res.ok === false) {
+      failed += 1;
+      continue;
+    }
+    removed += 1;
+    removeOptimisticGatewayPinnedCid(cid);
+    setSavedName(cid, "");
+  }
+
+  const removedKeys = new Set(cids.map((cid) => normalizeCidKey(cid)));
+  selectedCids.value = selectedCids.value.filter(
+    (cid) => !removedKeys.has(normalizeCidKey(cid)),
+  );
+  if (selectedFile.value?.cid && removedKeys.has(normalizeCidKey(selectedFile.value.cid))) {
+    selectedFile.value = null;
+    renameDraft.value = "";
+  }
+
+  await refreshActiveGatewayPinned();
+
+  if (failed) {
+    showToast(
+      t('Removed {count} entries ({failed} failed)', { count: removed, failed }),
+      removed ? "success" : "error",
+    );
+    return;
+  }
+  showToast(
+    removed === 1 ? t("Removed") : t('Removed {count} entries', { count: removed }),
+    "success",
+  );
+}
+
+async function removeSelectedEntries() {
+  if (!canBulkRemoveSelected.value) return;
+  const entries = selectedEntries.value.slice();
+  if (hosting.value.kind === "gateway") {
+    await removeGatewayRootEntries(entries);
+    return;
+  }
+  await removeLocalRootEntries(entries);
+}
+
+async function removeFile(file: DriveFile) {
+  const cid = String(file?.cid || "").trim();
+  if (!cid) return;
+  if (!isRootSavedEntry(file)) {
+    showToast(t("Remove is only available on root saved entries"), "error");
+    return;
+  }
+
+  if (hosting.value.kind === "local") {
+    await removeLocalRootEntries([file]);
+    return;
+  }
+
+  if (hosting.value.kind === "gateway") {
+    try {
+      if (!gateway_lumen_api.unpinCid) {
+        showToast(t("Gateway removal not available."), "error");
+        return;
+      }
+
+      const profileId = await getActiveProfileId();
+      if (!profileId) {
+        showToast(t("No active profile."), "error");
+        return;
+      }
+
+      const res = await gateway_lumen_api
+        .unpinCid({ profileId, cid, baseUrl: activeGatewayHint.value })
+        .catch((e: any) => ({ ok: false, error: errorMessage(e) }));
+      if (!res || res.ok === false) {
+        showToast(String(res?.error || t("Gateway unpin failed")), "error");
+        return;
+      }
+
+      removeOptimisticGatewayPinnedCid(cid);
+      setSavedName(cid, "");
+      await refreshActiveGatewayPinned();
+      if (selectedFile.value?.cid === cid) {
+        selectedFile.value = null;
+        renameDraft.value = "";
+      }
+      showToast("Removed", "success");
+      return;
+    } catch (e) {
+      showToast(errorMessage(e, t("Gateway unpin failed")), "error");
+      return;
+    }
+  }
+
+  showToast(t("Remove failed"), "error");
+}
+
+
+function videoPosterFor(file: DriveFile): string | undefined {
+  const key = contentTargetFor(file);
+  if (!key) return undefined;
+  if (videoThumbReady.value[key]) return undefined;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#0f172a" stop-opacity="0.18"/>
+    <stop offset="1" stop-color="#0f172a" stop-opacity="0.34"/>
+  </linearGradient>
+</defs>
+<rect width="320" height="240" rx="18" fill="url(#g)"/>
+<g>
+  <circle cx="160" cy="120" r="32" fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="2"/>
+  <path d="M154 106 L154 134 L178 120 Z" fill="#ffffff" fill-opacity="0.65"/>
+</g>
+</svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function markVideoThumbReady(file: DriveFile) {
+  const key = contentTargetFor(file);
+  if (!key) return;
+  if (videoThumbReady.value[key]) return;
+  videoThumbReady.value = { ...videoThumbReady.value, [key]: true };
+}
+
+function getGatewayUrl(cid: string): string {
+  const localBase = localIpfsGatewayBase();
+  const publicBase = "https://ipfs.io";
+  // "gatewayBase" is the Lumen gateway API base (PQ-auth endpoints) and does not
+  // necessarily serve IPFS gateway routes like `/ipfs/<cid>`.
+  // For previews/streaming, always use an actual IPFS gateway (local if available).
+  const base = ipfsConnected.value ? localBase : publicBase;
+  if (!base) return "";
+  const encoded = encodeIpfsTarget(cid);
+  return `${String(base).replace(/\/+$/, "")}/ipfs/${encoded}`;
+}
+
+async function sniffContentType(url: string): Promise<string> {
+  const target = String(url || "").trim();
+  if (!target) return "";
+
+  try {
+    let ct = "";
+
+      const res = await lumen_api?.httpHead(target, { timeout: 6000 }).catch(() => null);
+      const headers =
+        res && res.headers && typeof res.headers === "object" ? res.headers : {};
+      const headerKey = Object.keys(headers).find(
+        (k) => String(k || "").toLowerCase() === "content-type",
+      );
+      ct = headerKey ? String(headers[headerKey] || "") : "";
+
+    return String(ct || "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+async function ensureContentTypeCached(cid: string) {
+  const key = String(cid || "").trim();
+  if (!key) return;
+  if (entryContentTypeCache.value[key]) return;
+  if (entryContentTypeInFlight.has(key)) return;
+
+  entryContentTypeInFlight.add(key);
+  try {
+    const url = getGatewayUrl(key);
+    const ct = await sniffContentType(url);
+    if (!ct) return;
+    entryContentTypeCache.value = { ...entryContentTypeCache.value, [key]: ct };
+  } finally {
+    entryContentTypeInFlight.delete(key);
+  }
+}
+
+function isEpubFile(file: DriveFile | null | undefined): boolean {
+  return isEpubEntry(
+    String(file?.name || ""),
+    entryContentTypeCache.value[String(file?.cid || "").trim()],
+  );
+}
+
+function getImageSrc(file: DriveFile): string {
+  const key = contentTargetFor(file);
+  const cached = imagePreviewUrls.value[key];
+  return cached || getGatewayUrl(key);
+}
+
+async function onImageError(file: DriveFile) {
+  if (!file || !isImageFile(file.name)) return;
+  const key = contentTargetFor(file);
+  if (!key) return;
+  if (imagePreviewInFlight.has(key)) return;
+  if (imagePreviewTried.value[key]) return;
+
+  imagePreviewInFlight.add(key);
+  imagePreviewTried.value = { ...imagePreviewTried.value, [key]: true };
+  try {
+    // Avoid fetching huge images into memory: keep blob previews for small images only.
+    const gateways = await loadWhitelistedGatewayBases().catch(() => []);
+    const got = await lumen_api?.ipfsGet?.(key, { gateways })
+      .catch(() => null);
+    if (!got?.ok || !Array.isArray(got.data)) return;
+    const bytes = new Uint8Array(got.data);
+    if (bytes.byteLength <= 0 || bytes.byteLength > 15_000_000) return;
+
+    const blob = new Blob([bytes], { type: imageMimeFromName(file.name) });
+    const url = URL.createObjectURL(blob);
+
+    const prev = imagePreviewUrls.value[key];
+    if (typeof prev === "string" && prev.startsWith("blob:")) {
+      try {
+        URL.revokeObjectURL(prev);
+      } catch {
+        // ignore
+      }
+    }
+
+    imagePreviewUrls.value = { ...imagePreviewUrls.value, [key]: url };
+  } finally {
+    imagePreviewInFlight.delete(key);
+  }
+}
+
+/**
+ * Everything a row or the detail panel needs to picture an entry. Gathered
+ * here because each piece reads page state - the gateway, the blob preview
+ * cache, the set of videos whose real first frame has arrived.
+ */
+function thumbnailFor(file: DriveFile): DriveThumbnailSources {
+  return {
+    imageSrc: getImageSrc(file),
+    videoSrc: getGatewayUrl(contentTargetFor(file)),
+    poster: videoPosterFor(file),
+    icon: getFileIcon(file),
+  };
+}
+
+function runEntryAction(kind: DriveEntryAction, file: DriveFile) {
+  if (kind === "details") return openEntryDetails(file);
+  if (kind === "download") return downloadFile(file);
+  if (kind === "convert") return convertToHls(file);
+  if (kind === "share") return copyLumenLinkFor(file);
+  if (kind === "remove") return removeFile(file);
+}
+
+function getFileIcon(file: DriveFile | null | undefined) {
+  if (isDirEntry(file)) return DRIVE_ENTRY_ICONS.folder;
+  if (isHlsEntry(file)) return DRIVE_ENTRY_ICONS.video;
+  const kind = driveEntryKindFromName(String(file?.name || ""), {
+    book: isEpubFile(file),
+  });
+  return DRIVE_ENTRY_ICONS[kind];
+}
+
+function formatSize(bytes: number): string {
+  return formatBytes(bytes);
+}
+
+function formatDate(ts: number): string {
+  return formatDateTime(ts);
+}
+
+const showToast = toastApi.show;
+
+function compactError(err: string, maxLen = 120) {
+  const clean = String(err || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!clean) return "";
+  if (clean.length <= maxLen) return clean;
+  return clean.slice(0, Math.max(0, maxLen - 1)) + "…";
+}
+
+async function reloadForActiveProfileChange() {
+  const seq = ++profileReloadSeq;
+  await pauseHlsQueue({ silent: true });
+
+  // Reset per-profile UI state.
+  exitBrowseSilent();
+  selectedFile.value = null;
+  renameDraft.value = "";
+  driveBackupError.value = "";
+  showDriveBackupExportModal.value = false;
+  driveBackupExportPassword.value = "";
+  driveBackupExportPasswordConfirm.value = "";
+  driveBackupExportShowPassword.value = false;
+  showDriveBackupImportModal.value = false;
+  pendingDriveBackupImport.value = null;
+  driveBackupImportPassword.value = "";
+  driveBackupImportShowPassword.value = false;
+  pendingDriveBackupRestore.value = null;
+  showPlansModal.value = false;
+  closeSubscribeModal();
+
+  // Reset per-profile gateway state.
+  optimisticGatewayPinned.value = {};
+  gatewayPinned.value = [];
+  gatewayPinnedNames.value = {};
+  gatewayPinnedError.value = "";
+
+  // Reload per-profile local state immediately (don't block on network/gateway calls).
+  loadFiles();
+  loadLocalNames();
+  loadHlsQueue();
+  loadDriveBackupMeta();
+
+  await refreshGatewayOverview();
+  if (seq !== profileReloadSeq) return;
+
+  // Reload current hosting view.
+  if (hosting.value.kind === "gateway") {
+    const rows = subscriptionRows.value;
+    const current = String(hosting.value.gatewayId || "").trim();
+    const stillValid = !!current && rows.some((r) => r.gatewayId === current);
+    if (!stillValid) {
+      const fallback =
+        rows.find((r) => r.status === "active") ||
+        rows.find((r) => r.status === "pending") ||
+        rows[0] ||
+        null;
+      if (fallback?.gatewayId) {
+        hosting.value = { kind: "gateway", gatewayId: fallback.gatewayId };
+      } else {
+        hosting.value = { kind: "local", gatewayId: "" };
+      }
+    }
+  }
+
+  if (hosting.value.kind === "gateway") {
+    await refreshActiveGatewayData();
+    return;
+  }
+
+  void checkIpfsStatus();
+  void loadStats();
+  void loadPinnedFiles();
 }
 </script>
-*** End Patch*** ***!
-++  Assertions: Expecting string input. Did you forget to escape backslashes?  Debugging tips: Use a JSON linter to validate your output. Try using json.dumps to format your JSON and paste that output into the 'input' field.  Remember this field expects a JSON string, not raw text.  For complex strings you might need to escape backslashes and quotes.  You can always ask for help from the human if you're stuck.  Error: invalid json input.  Exception: Unterminated string starting at: line 2 column 11 (char 12) ️  >>

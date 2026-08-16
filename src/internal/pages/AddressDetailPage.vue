@@ -1,0 +1,253 @@
+<template>
+  <!-- ####### lumen://network/address/<addr> ADDRESS DETAIL (embedded sub-view of NetworkPage) ####### -->
+  <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
+    <UiLoadingState v-if="loading" :message="t('Loading address data…')" />
+
+    <UiErrorState v-else-if="error" :message="error" />
+
+    <UiEmptyState v-else-if="notFound" :title="t('No activity found')" :description="t('This address is correctly formatted, but has never sent or received anything on this blockchain.')" />
+
+    <div v-else-if="address" class="flex flex-column gap-24px">
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <UiCardHeader :title="t('Address overview')" />
+        <div class="p-24px">
+          <UiDetailRow :label="t('Address')">
+            <UiCopyField :value="address.address" :title="t('Copy address')" />
+          </UiDetailRow>
+          <UiDetailRow :label="t('Account number')" :value="address.accountNumber" />
+          <UiDetailRow :label="t('Sequence')" :value="address.sequence" />
+        </div>
+      </UiCard>
+
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <UiCardHeader :title="t('Balances')" />
+        <div class="p-24px">
+          <div v-if="address.balances && address.balances.length > 0" class="flex flex-column gap-16px">
+            <UiCard class="flex-align-center gap-16px" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(balance, index) in address.balances" :key="index">
+              <UiIconBadge size-class="size-40px" badge-class="color-white bg-gradient-primary">
+                <Clock :size="20" />
+              </UiIconBadge>
+              <div class="flex-1">
+                <div class="color-text-primary txt-weight-light text-18px">{{ formatAmount(balance.amount) }}</div>
+                <div class="text-12px color-text-tertiary">{{ balance.denom.toUpperCase() }}</div>
+              </div>
+            </UiCard>
+          </div>
+          <div v-else class="color-text-tertiary p-32px text-center">
+            <p>{{ t('No balances found') }}</p>
+          </div>
+        </div>
+      </UiCard>
+
+      <UiCard v-if="address.delegations && address.delegations.length > 0" padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <UiCardHeader :title="t('Delegations ({count})', { count: address.delegations.length })" />
+        <div class="p-24px">
+          <div class="flex flex-column gap-16px">
+            <UiCard class="flex-align-center flex-justify-space-between" bg-class="bg-secondary" border-class="border-1" radius="8px" :shadow="false" v-for="(delegation, index) in address.delegations" :key="index">
+              <div class="flex-align-center gap-12px flex-1">
+                <div class="flex-align-justify-center color-white size-32px border-radius-circle txt-weight-light text-14px" :style="{ background: getValidatorColor(delegation.validator) }">
+                  <span>{{ delegation.validatorMoniker?.charAt(0).toUpperCase() || 'V' }}</span>
+                </div>
+                <div class="flex flex-column gap-4px">
+                  <div class="color-text-primary txt-weight-light text-14px">{{ delegation.validatorMoniker || delegation.validator }}</div>
+                  <AddressLabel :address="delegation.validator" />
+                </div>
+              </div>
+              <div class="color-text-primary txt-weight-light text-14px">
+                {{ formatAmount(delegation.amount) }} LMN
+              </div>
+            </UiCard>
+          </div>
+        </div>
+      </UiCard>
+
+      <UiCard padding="none" class="overflow-hidden shadow-sm hover-shadow-md" bg-class="bg-primary" border-class="border-1" radius="12px" :shadow="false">
+        <UiCardHeader :title="t('Recent transactions')" />
+        <div class="p-24px">
+          <div v-if="address.transactions && address.transactions.length > 0" class="flex flex-column gap-16px">
+            <UiCard class="flex-align-center gap-16px" bg-class="bg-primary" border-class="border-1" radius="8px" :shadow="false" hoverable hover-class="transition-all-02 hover-lift-2 hover-shadow-md" v-for="(tx, index) in address.transactions" :key="index">
+              <UiIconBadge size-class="size-32px" badge-class="color-text-secondary bg-secondary">
+                <Activity :size="16" />
+              </UiIconBadge>
+              <div class="flex-1">
+                <div class="mb-4px">
+                  <TxHashLink :hash="tx.hash" @open="navigateToTx(tx.hash)" />
+                </div>
+                <div class="flex gap-16px color-text-tertiary text-12px">
+                  <BlockHeightLink :height="tx.height" prefixed size-class="text-12px" @open="navigateToBlock(tx.height)" />
+                  <span>{{ tx.time }}</span>
+                </div>
+              </div>
+              <div class="flex-align-center">
+                <TxStatusPill :success="tx.success" compact />
+
+              </div>
+            </UiCard>
+          </div>
+          <div v-else class="color-text-tertiary p-32px text-center">
+            <p>{{ t('No recent transactions found') }}</p>
+          </div>
+        </div>
+      </UiCard>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { t } from '../../stores/i18nStore';
+import UiCard from '../../ui/UiCard.vue';
+import UiDetailRow from '../../ui/UiDetailRow.vue';
+import UiLoadingState from '../../ui/UiLoadingState.vue';
+import UiCopyField from '../../ui/UiCopyField.vue';
+import UiErrorState from '../../ui/UiErrorState.vue';
+import UiEmptyState from '../../ui/UiEmptyState.vue';
+import UiCardHeader from '../../ui/UiCardHeader.vue';
+import UiIconBadge from '../../ui/UiIconBadge.vue';
+import { Clock, Activity } from 'lucide-vue-next';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useTabLoadingSync } from '../../composables/useTabLoading';
+import { useInternalLumen } from '../../composables/useInternalLumen';
+import { formatMicroAmount } from '../services/format';
+import { explorerBlockUrl, explorerTransactionUrl } from '../services/explorerLinks';
+
+import { errorMessage } from '../services/coerce';
+import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
+import TxStatusPill from '../../entities/TxStatusPill.vue';
+import TxHashLink from '../../entities/TxHashLink.vue';
+import BlockHeightLink from '../../entities/BlockHeightLink.vue';
+import AddressLabel from '../../entities/AddressLabel.vue';
+
+const loading = ref(true);
+const error = ref('');
+const notFound = ref(false);
+const address = ref<any>(null);
+
+useTabLoadingSync(loading);
+
+const lumen = useInternalLumen();
+
+const { currentTabUrl, currentTabRefresh } = useTabState();
+
+
+const { openInNewTab } = useTabNavigation();
+const accountAddress = computed(() => {
+  if (!currentTabUrl || !currentTabUrl.value) return null;
+  const match = currentTabUrl.value.match(/\/network\/address\/([a-z0-9]+)/i);
+  return match ? match[1] : null;
+});
+
+function navigateToTx(hash: string) {
+  openInNewTab?.(explorerTransactionUrl(hash));
+}
+
+function navigateToBlock(height: number) {
+  openInNewTab?.(explorerBlockUrl(height));
+}
+
+function formatAmount(amount: string | number): string {
+  return formatMicroAmount(amount, { decimals: 6, trimTrailingZeros: false, empty: '0' });
+}
+
+function getValidatorColor(validator: string): string {
+  const colors = [
+    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+  ];
+  const hash = validator.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return colors[hash % colors.length];
+}
+
+async function loadAddressData() {
+  if (!accountAddress.value) {
+    error.value = t('No address provided');
+    loading.value = false;
+    return;
+  }
+
+  try {
+    loading.value = true;
+    error.value = '';
+    notFound.value = false;
+
+    // Thrown rather than optional-chained: without the bridge there is nothing
+    // to show, and the catch below turns this into a visible message instead of
+    // a page that silently stays empty.
+    if (!lumen) throw new Error(t('Lumen API not available.'));
+
+    const accountResponse = await lumen.net.restGet(
+      `/cosmos/auth/v1beta1/accounts/${accountAddress.value}`
+    );
+
+    if (!accountResponse.ok) {
+      // Cosmos SDK's account query 404s for a well-formed address that has
+      // never sent or received anything on-chain - not a real error.
+      if (accountResponse.status === 404) {
+        notFound.value = true;
+        loading.value = false;
+        return;
+      }
+      throw new Error(t('Failed to fetch account (status {status})', { status: accountResponse.status ?? t('Unknown') }));
+    }
+
+    const accountData = accountResponse.json;
+    const account = accountData.account;
+
+    const balancesResponse = await lumen.net.restGet(
+      `/cosmos/bank/v1beta1/balances/${accountAddress.value}`
+    );
+    
+    const balances = balancesResponse.ok ? balancesResponse.json.balances || [] : [];
+
+    const delegationsResponse = await lumen.net.restGet(
+      `/cosmos/staking/v1beta1/delegations/${accountAddress.value}`
+    );
+    
+    const delegations = delegationsResponse.ok ? delegationsResponse.json.delegation_responses || [] : [];
+
+    const parsedDelegations = delegations.map((del: any) => ({
+      validator: del.delegation?.validator_address || '',
+      validatorMoniker: del.validator_moniker || '',
+      amount: del.balance?.amount || '0'
+    }));
+
+    address.value = {
+      address: accountAddress.value,
+      accountNumber: account?.account_number || 'N/A',
+      sequence: account?.sequence || '0',
+      balances: balances,
+      delegations: parsedDelegations,
+      transactions: []
+    };
+
+    loading.value = false;
+  } catch (err) {
+    error.value = errorMessage(err, t('Failed to load address data'));
+    loading.value = false;
+    console.error('Error loading address:', err);
+  }
+}
+
+onMounted(() => {
+  loadAddressData();
+});
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    loadAddressData();
+  }
+);
+
+// Watch for refresh signal from navbar
+watch(
+  () => currentTabRefresh?.value,
+  () => {
+    loadAddressData();
+  }
+);
+</script>
+

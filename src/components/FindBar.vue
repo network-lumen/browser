@@ -1,0 +1,279 @@
+<template>
+  <div
+    v-if="open"
+    class="flex-align-center border-radius-12px absolute gap-6px p-8px border-default bg-primary z-100 right-12px shadow-md top-10px"
+    role="dialog"
+    :aria-label="t('Find in page')"
+    @mousedown.stop
+    @click.stop
+  >
+    <input
+      ref="inputEl"
+      v-model="query"
+      class="outline-none color-text-primary border-radius-10px text-13px border-default bg-primary h-32px py-0px px-8px w-220px border-color-accent-primary-focus-visible shadow-0-0-0-3-primary-a20-focus-visible"
+      type="text"
+      :placeholder="t('Find in page')"
+      autocomplete="off"
+      @keydown="onInputKeydown"
+    />
+
+    <div class="color-text-secondary text-right text-12px cursor-select-none min-w-24px" :class="{ 'opacity-55': !query }" aria-live="polite">
+      {{ countText }}
+    </div>
+
+    <UiButton
+      variant="icon"
+      :title="t('Previous match (Shift+Enter)')"
+      :disabled="!canStep"
+      @click="prev"
+    >
+      <ChevronUp :size="16" />
+    </UiButton>
+
+    <UiButton
+      variant="icon"
+      :title="t('Next match (Enter)')"
+      :disabled="!canStep"
+      @click="next"
+    >
+      <ChevronDown :size="16" />
+    </UiButton>
+
+    <UiButton variant="icon" :title="t('Close (Esc)')" @click="closeBar">
+      <X :size="16" />
+    </UiButton>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { t } from '../stores/i18nStore';
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { ChevronDown, ChevronUp, X } from "lucide-vue-next";
+import UiButton from "../ui/UiButton.vue";
+import { useInternalLumen } from '../composables/useInternalLumen';
+import type { FindActionPayload, FindResultPayload } from '../types/findBar';
+import { safeNumber } from '../internal/services/coerce';
+
+const open = ref(false);
+const query = ref("");
+const inputEl = ref<HTMLInputElement | null>(null);
+
+const targetWebContentsId = ref<number | null>(null);
+const injectedActiveTarget = inject<any>("findActiveTargetWebContentsId", null);
+const matches = ref(0);
+const activeMatchOrdinal = ref(0);
+
+let unsubAction: null | (() => void) = null;
+let unsubResult: null | (() => void) = null;
+let debounceTimer: number | null = null;
+
+const activeTargetWebContentsId = computed<number | null>(() => {
+  return safeNumber(injectedActiveTarget?.value);
+});
+
+const effectiveTargetWebContentsId = computed<number | null>(() => {
+  return activeTargetWebContentsId.value != null
+    ? activeTargetWebContentsId.value
+    : targetWebContentsId.value;
+});
+
+function findApi(): any | null {
+  return useInternalLumen()?.find || null;
+}
+
+function setOpenState(next: boolean) {
+  open.value = next;
+  try {
+    findApi()?.setOpen?.(next);
+  } catch {
+    // ignore
+  }
+}
+
+async function clearSelection() {
+  const id = effectiveTargetWebContentsId.value;
+  if (id == null) return;
+  try {
+    await findApi()?.stopFindInPage?.({
+      targetWebContentsId: id,
+      action: "clearSelection",
+    });
+  } catch {
+    // ignore
+  }
+}
+
+async function focusTarget() {
+  const id = effectiveTargetWebContentsId.value;
+  if (id == null) return;
+  try {
+    await findApi()?.focusTarget?.(id);
+  } catch {
+    // ignore
+  }
+}
+
+async function doFind(opts: { forward?: boolean; findNext?: boolean } = {}) {
+  const id = effectiveTargetWebContentsId.value;
+  if (id == null) return;
+  const text = String(query.value || "");
+  if (!text) return;
+  try {
+    await findApi()?.findInPage?.({
+      targetWebContentsId: id,
+      text,
+      options: {
+        forward: opts.forward !== false,
+        findNext: !!opts.findNext,
+      },
+    });
+  } catch {
+    // ignore
+  }
+}
+
+function scheduleFreshFind() {
+  if (!open.value) return;
+  if (debounceTimer != null) window.clearTimeout(debounceTimer);
+  debounceTimer = window.setTimeout(() => {
+    debounceTimer = null;
+    if (!open.value) return;
+    if (!query.value) {
+      matches.value = 0;
+      activeMatchOrdinal.value = 0;
+      void clearSelection();
+      return;
+    }
+    void doFind({ forward: true, findNext: false });
+  }, 80);
+}
+
+async function openBar(nextTargetId: number | null, opts: { selectAll?: boolean } = {}) {
+  if (nextTargetId != null && nextTargetId !== targetWebContentsId.value) {
+    targetWebContentsId.value = nextTargetId;
+    matches.value = 0;
+    activeMatchOrdinal.value = 0;
+  }
+
+  setOpenState(true);
+  await nextTick();
+  try {
+    inputEl.value?.focus();
+    if (opts.selectAll !== false) inputEl.value?.select();
+  } catch {
+    // ignore
+  }
+
+  if (query.value) scheduleFreshFind();
+}
+
+async function closeBar() {
+  if (!open.value) return;
+  await clearSelection();
+  setOpenState(false);
+  void focusTarget();
+}
+
+function next() {
+  if (!open.value) return;
+  void doFind({ forward: true, findNext: true });
+}
+
+function prev() {
+  if (!open.value) return;
+  void doFind({ forward: false, findNext: true });
+}
+
+function onInputKeydown(ev: KeyboardEvent) {
+  if (ev.key === "Escape") {
+    ev.preventDefault();
+    void closeBar();
+    return;
+  }
+  if (ev.key === "Enter") {
+    ev.preventDefault();
+    if (ev.shiftKey) prev();
+    else next();
+  }
+}
+
+const canStep = computed(() => open.value && !!query.value && effectiveTargetWebContentsId.value != null);
+
+const countText = computed(() => {
+  if (!query.value) return "";
+  const m = matches.value || 0;
+  const a = activeMatchOrdinal.value || 0;
+  return `${a}/${m}`;
+});
+
+onMounted(() => {
+  const api = findApi();
+  unsubAction =
+    api?.onAction?.((payload: FindActionPayload) => {
+      const action = String(payload?.action || "").toLowerCase();
+      const targetId = safeNumber(payload?.targetWebContentsId);
+
+      if (action === "open") {
+        void openBar(targetId, { selectAll: true });
+        return;
+      }
+      if (action === "next") {
+        if (!open.value) void openBar(targetId, { selectAll: false });
+        next();
+        return;
+      }
+      if (action === "prev") {
+        if (!open.value) void openBar(targetId, { selectAll: false });
+        prev();
+        return;
+      }
+      if (action === "close") {
+        void closeBar();
+      }
+    }) || null;
+
+  unsubResult =
+    api?.onResult?.((payload: FindResultPayload) => {
+      const targetId = safeNumber(payload?.targetWebContentsId);
+      if (targetId == null) return;
+      if (effectiveTargetWebContentsId.value == null || targetId !== effectiveTargetWebContentsId.value) return;
+
+      const r = payload?.result || {};
+      matches.value = safeNumber(r.matches) ?? 0;
+      activeMatchOrdinal.value = safeNumber(r.activeMatchOrdinal) ?? 0;
+    }) || null;
+});
+
+onBeforeUnmount(() => {
+  try {
+    unsubAction?.();
+  } catch {}
+  try {
+    unsubResult?.();
+  } catch {}
+  unsubAction = null;
+  unsubResult = null;
+
+  if (debounceTimer != null) window.clearTimeout(debounceTimer);
+  debounceTimer = null;
+});
+
+watch(query, () => {
+  if (!open.value) return;
+  scheduleFreshFind();
+});
+
+watch(targetWebContentsId, () => {
+  if (!open.value) return;
+  if (!query.value) return;
+  scheduleFreshFind();
+});
+
+watch(activeTargetWebContentsId, (id) => {
+  if (!open.value) return;
+  if (id == null) return;
+  matches.value = 0;
+  activeMatchOrdinal.value = 0;
+  if (query.value) scheduleFreshFind();
+});
+</script>

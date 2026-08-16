@@ -1,0 +1,414 @@
+name: Build desktop apps
+
+on:
+  push:
+    branches: [ beta, beta-pre-clean ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: All tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # Under xvfb because one of the two projects launches the real Electron
+      # app, and Electron needs a display server. Without it that project skips
+      # itself - silently, and it is the only test that proves the app boots at
+      # all: preloads attached, IPC answering, daemons started.
+      - name: Run end-to-end tests
+        run: xvfb-run -a npm run test:e2e
+
+  build-mac:
+    needs: [test]
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [x64, arm64]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies (force correct Kubo + rebuild arch)
+        run: |
+          if [ "${{ matrix.arch }}" = "x64" ]; then
+            export GOARCH=amd64
+            export npm_config_arch=x64
+            export npm_config_target_arch=x64
+            export npm_config_target_platform=darwin
+            echo "=== Forcing everything for x64 / darwin-amd64 ==="
+          else
+            export GOARCH=arm64
+            export npm_config_arch=arm64
+            export npm_config_target_arch=arm64
+            export npm_config_target_platform=darwin
+            echo "=== Forcing everything for arm64 ==="
+          fi
+
+          npm ci
+
+          # Force rebuild of native deps for the target arch
+          npx electron-rebuild -f -w kubo --arch=${{ matrix.arch }}
+
+      - name: Force correct Kubo binary (manual download)
+        run: |
+          if [ "${{ matrix.arch }}" = "x64" ]; then
+            KUBO_PLATFORM="darwin-amd64"
+          else
+            KUBO_PLATFORM="darwin-arm64"
+          fi
+
+          # Taken from the installed package, never hardcoded: this step used to
+          # pin v0.32.1 while npm shipped 0.37.x to Windows and Linux, so macOS
+          # ran five minor versions behind on the IPFS daemon and any bug it
+          # caused was unreproducible on the other two platforms.
+          KUBO_VERSION="v$(node -p "require('./node_modules/kubo/package.json').version")"
+          echo "Downloading official Kubo $KUBO_VERSION for $KUBO_PLATFORM..."
+
+          curl -fL -o kubo.tar.gz "https://github.com/ipfs/kubo/releases/download/${KUBO_VERSION}/kubo_${KUBO_VERSION}_${KUBO_PLATFORM}.tar.gz"
+
+          tar -xzf kubo.tar.gz
+
+          KUBO_BIN_PATH=$(find node_modules -path "*/kubo/kubo/ipfs" | head -1)
+
+          if [ -z "$KUBO_BIN_PATH" ]; then
+            echo "ERROR: Kubo binary path not found!"
+            find node_modules -name "ipfs" || true
+            exit 1
+          fi
+
+          echo "Replacing binary at: $KUBO_BIN_PATH"
+          cp -f kubo/ipfs "$KUBO_BIN_PATH"
+          chmod +x "$KUBO_BIN_PATH"
+
+          echo "=== Verification ==="
+          file "$KUBO_BIN_PATH"
+
+          # The binary is for the other arch half the time, so it cannot be run
+          # here. Compare what the archive claims instead - a redirect to an
+          # error page would sail past `file` and ship a broken daemon.
+          got="$(tar -xzOf kubo.tar.gz kubo/version 2>/dev/null || echo '')"
+          if [ -n "$got" ] && [ "v$got" != "$KUBO_VERSION" ]; then
+            echo "ERROR: archive contains kubo v$got, expected $KUBO_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Build renderer (Vite)
+        run: npm run build
+
+      - name: Build Electron app
+        run: npx electron-builder --mac --${{ matrix.arch }} --publish=never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lumen-browser-mac-${{ matrix.arch }}
+          path: release/*.dmg
+
+  build-windows:
+    needs: [test]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows installer (NSIS)
+        run: npm run dist:win
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Keep unsigned installer
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem release -Filter "*Setup*.exe" |
+            Where-Object { $_.Name -notlike "*uninstaller*" -and $_.Name -notlike "*unsigned*" } |
+            Select-Object -First 1
+
+          if (-not $setup) { throw "No setup exe found" }
+
+          Copy-Item $setup.FullName "release/Lumen-Browser-Setup-unsigned-windows-x64.exe"
+
+      - name: Import Windows signing certificate
+        shell: pwsh
+        run: |
+          $pfxPath = "$env:GITHUB_WORKSPACE\lumen-code-signing.pfx"
+
+          [IO.File]::WriteAllBytes(
+            $pfxPath,
+            [Convert]::FromBase64String("${{ secrets.WINDOWS_CERT_PFX_BASE64 }}")
+          )
+
+          echo "PFX_PATH=$pfxPath" >> $env:GITHUB_ENV
+          echo "PFX_PASSWORD=${{ secrets.WINDOWS_CERT_PASSWORD }}" >> $env:GITHUB_ENV
+
+      - name: Sign Windows installer
+        shell: pwsh
+        run: |
+          $signtool = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
+
+          Write-Host "=== Fichiers avant signature ==="
+          Get-ChildItem release -Filter "*Setup*.exe" | Format-Table Name, Length
+
+          $exe = Get-ChildItem release -Filter "*Setup*.exe" |
+            Where-Object {
+              $_.Name -notlike "*uninstaller*" -and
+              $_.Name -notlike "*unsigned*"
+            } |
+            Select-Object -First 1
+
+          Write-Host "Signature file: $($exe.FullName)"
+
+          & $signtool sign `
+            /f "$env:PFX_PATH" `
+            /p "$env:PFX_PASSWORD" `
+            /fd SHA256 `
+            /tr http://timestamp.digicert.com `
+            /td SHA256 `
+            $exe.FullName
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "signtool failed with exit code $LASTEXITCODE"
+          }
+
+          Write-Host "=== After signature ==="
+          Get-AuthenticodeSignature $exe.FullName | Format-List Status, SignerCertificate
+
+      - name: Rename signed installer
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem release -Filter "*Setup*.exe" |
+            Where-Object {
+              $_.Name -notlike "*uninstaller*" -and
+              $_.Name -notlike "*unsigned*"
+            } |
+            Select-Object -First 1
+
+          Write-Host "Signature file: $($exe.FullName)"
+          Move-Item $exe.FullName "release/Lumen-Browser-Setup-signed-windows-x64.exe"
+
+          Write-Host "=== Final files ==="
+          Get-ChildItem release -Filter "*windows-x64*.exe" | Format-Table Name, Length
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lumen-browser-windows-x64
+          path: |
+            release/Lumen-Browser-Setup-signed-windows-x64.exe
+            release/Lumen-Browser-Setup-unsigned-windows-x64.exe
+
+  build-linux:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Linux deps
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libfuse2 || sudo apt-get install -y libfuse2t64 || sudo apt-get install -y fuse
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Build renderer (Vite)
+        run: npm run build
+
+      - name: Build Linux AppImage (x64)
+        run: npx electron-builder --linux AppImage --x64 --publish=never
+
+      - name: Sign Linux AppImage
+        shell: bash
+        run: |
+          set -euo pipefail
+          APPIMAGE="$(find release -name '*.AppImage' | head -n1)"
+          gpg --batch --yes --armor --detach-sign "$APPIMAGE"
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lumen-browser-linux-x64
+          path: |
+            release/*.AppImage
+            release/*.AppImage.asc
+            !release/*.blockmap
+
+  checksums:
+    needs: [build-mac, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: lumen-browser-*
+          path: artifacts
+
+      - name: Prepare release assets
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="$(python -c "import json; print(json.load(open('package.json','r',encoding='utf-8')).get('version',''))")"
+          VERSION="$(echo "$VERSION" | tr -d '[:space:]')"
+          if [ -z "$VERSION" ]; then
+            echo "Missing version in package.json" >&2
+            exit 1
+          fi
+
+          TAG="v${VERSION}-draft${GITHUB_RUN_NUMBER}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Draft release tag: ${TAG}"
+
+          mkdir -p release_assets
+
+          mac_x64="$(ls -1t artifacts/lumen-browser-mac-x64/*.dmg 2>/dev/null | head -n 1 || true)"
+          mac_arm64="$(ls -1t artifacts/lumen-browser-mac-arm64/*.dmg 2>/dev/null | head -n 1 || true)"
+          win_signed="$(find artifacts/lumen-browser-windows-x64 -name '*signed*.exe' ! -name '*unsigned*' | head -n1 || true)"
+          win_unsigned="$(find artifacts/lumen-browser-windows-x64 -name '*unsigned*.exe' | head -n1 || true)"
+          linux_x64="$(ls -1t artifacts/lumen-browser-linux-x64/*.AppImage 2>/dev/null | head -n 1 || true)"
+
+          if [ -z "$mac_x64" ] || [ -z "$mac_arm64" ] || [ -z "$win_signed" ] || [ -z "$win_unsigned" ] || [ -z "$linux_x64" ]; then
+            echo "Missing one or more platform artifacts:" >&2
+            echo "mac_x64=$mac_x64" >&2
+            echo "mac_arm64=$mac_arm64" >&2
+            echo "win_signed=$win_signed" >&2
+            echo "win_unsigned=$win_unsigned" >&2
+            echo "linux_x64=$linux_x64" >&2
+            exit 1
+          fi
+
+          cp "$mac_x64" "release_assets/Lumen-Browser-${VERSION}-mac-x64.dmg"
+          cp "$mac_arm64" "release_assets/Lumen-Browser-${VERSION}-mac-arm64.dmg"
+          cp "$win_signed" "release_assets/Lumen-Browser-Setup-${VERSION}-windows-x64-signed.exe"
+          cp "$win_unsigned" "release_assets/Lumen-Browser-Setup-${VERSION}-windows-x64-unsigned.exe"
+          cp "$linux_x64" "release_assets/Lumen-Browser-${VERSION}-linux-x64.AppImage"
+          linux_sig="$(ls -1t artifacts/lumen-browser-linux-x64/*.AppImage.asc 2>/dev/null | head -n1 || true)"
+
+          if [ -n "$linux_sig" ]; then
+            cp "$linux_sig" "release_assets/Lumen-Browser-${VERSION}-linux-x64.AppImage.asc"
+          fi
+
+          if [ -f "resources/Lumen-public.cer" ]; then
+            cp "resources/Lumen-public.cer" "release_assets/Lumen-win-public.cer"
+          fi
+
+      - name: Build SHA256SUMS.txt
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd release_assets && sha256sum * ) > SHA256SUMS.txt
+
+      - name: Upload SHA256SUMS.txt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lumen-browser-SHA256SUMS
+          path: SHA256SUMS.txt
+
+      - name: Validate release tag (avoid mismatched tag commit)
+        id: tagcheck
+        shell: bash
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null 2>&1; then
+            tag_commit="$(git rev-list -n 1 "${TAG}")"
+            if [ "${tag_commit}" != "${GITHUB_SHA}" ]; then
+              echo "Tag ${TAG} already exists but points to ${tag_commit}, not this commit (${GITHUB_SHA})." >&2
+              echo "enabled=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create / update draft GitHub release
+        if: steps.tagcheck.outputs.enabled == 'true'
+        id: draft_release
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ steps.meta.outputs.tag }}
+          commit: ${{ github.sha }}
+          name: Lumen Browser ${{ steps.meta.outputs.tag }}
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          replacesArtifacts: true
+          artifacts: |
+            release_assets/*
+            SHA256SUMS.txt
+
+      - name: Release summary
+        if: steps.tagcheck.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Draft release created/updated:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Tag: \`${{ steps.meta.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- URL: ${{ steps.draft_release.outputs.html_url }}" >> "$GITHUB_STEP_SUMMARY"
