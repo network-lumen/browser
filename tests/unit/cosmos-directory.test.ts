@@ -1449,7 +1449,7 @@ describe('fetchCosmosProposals', () => {
 
     const result = await fetchCosmosProposals(historyChain);
     expect(result).toEqual([
-      { id: '42', title: 'Raise the cap', status: 'VOTING_PERIOD', votingEndsAt: '' },
+      { id: '42', title: 'Raise the cap', status: 'VOTING_PERIOD', statusLabel: 'Voting', votingEndsAt: '' },
     ]);
     expect(get.mock.calls.every(([url]) => !String(url).includes('v1beta1'))).toBe(true);
   });
@@ -1466,7 +1466,13 @@ describe('fetchCosmosProposals', () => {
     );
 
     const [proposal] = await fetchCosmosProposals(historyChain);
-    expect(proposal).toEqual({ id: '7', title: 'Legacy text', status: 'PASSED', votingEndsAt: '' });
+    expect(proposal).toEqual({
+      id: '7',
+      title: 'Legacy text',
+      status: 'PASSED',
+      statusLabel: 'Passed',
+      votingEndsAt: '',
+    });
   });
 
   it('reads the title of a v1 proposal that wraps a legacy one', async () => {
@@ -1491,5 +1497,137 @@ describe('fetchCosmosProposals', () => {
     const get = stubHttp(() => ({ proposals: [] }));
     await expect(fetchCosmosProposals({ ...historyChain, rest: [] })).resolves.toEqual([]);
     expect(get).not.toHaveBeenCalled();
+  });
+});
+
+describe('transaction detail', () => {
+  function sendRow(hash: string, from: string, to: string) {
+    return {
+      txhash: hash,
+      height: '100',
+      code: 0,
+      timestamp: '2026-08-01T10:00:00Z',
+      tx: {
+        body: {
+          messages: [
+            {
+              '@type': '/cosmos.bank.v1beta1.MsgSend',
+              from_address: from,
+              to_address: to,
+              amount: [{ denom: 'uosmo', amount: '2500000' }],
+            },
+          ],
+        },
+      },
+    };
+  }
+
+  it('marks what the account signed as outgoing and the rest as incoming', async () => {
+    stubHttp((url) =>
+      url.includes('message.sender')
+        ? { tx_responses: [sendRow('OUT', 'osmo1abc', 'osmo1other')] }
+        : { tx_responses: [sendRow('IN', 'osmo1other', 'osmo1abc')] }
+    );
+
+    const result = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    const byHash = Object.fromEntries(result.map((entry) => [entry.hash, entry.direction]));
+    expect(byHash).toEqual({ OUT: 'out', IN: 'in' });
+  });
+
+  it('calls a transaction found by both queries outgoing', async () => {
+    // Delegating withdraws rewards to the delegator in the same transaction, so
+    // the recipient query matches something the account itself sent.
+    stubHttp(() => ({ tx_responses: [sendRow('BOTH', 'osmo1abc', 'osmo1abc')] }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry.direction).toBe('out');
+  });
+
+  it('reads the coin out of a send', async () => {
+    stubHttp(() => ({ tx_responses: [sendRow('AMT', 'osmo1abc', 'osmo1other')] }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry.amount).toBe('2500000');
+    expect(entry.denom).toBe('uosmo');
+  });
+
+  it('reads the single coin the staking messages carry', async () => {
+    stubHttp(() => ({
+      tx_responses: [
+        {
+          txhash: 'DEL',
+          height: '1',
+          code: 0,
+          tx: {
+            body: {
+              messages: [
+                {
+                  '@type': '/cosmos.staking.v1beta1.MsgDelegate',
+                  amount: { denom: 'uosmo', amount: '900' },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry).toMatchObject({ amount: '900', denom: 'uosmo', label: 'Delegate' });
+  });
+
+  it('reads the coin an IBC transfer calls a token', async () => {
+    stubHttp(() => ({
+      tx_responses: [
+        {
+          txhash: 'IBC',
+          height: '1',
+          code: 0,
+          tx: {
+            body: {
+              messages: [
+                { '@type': '/ibc.applications.transfer.v1.MsgTransfer', token: { denom: 'uatom', amount: '5' } },
+              ],
+            },
+          },
+        },
+      ],
+    }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry).toMatchObject({ amount: '5', denom: 'uatom', label: 'IBC transfer' });
+  });
+
+  it('leaves an unmapped message type under its protobuf name', async () => {
+    stubHttp(() => ({ tx_responses: [txRow('X', '1', '/osmosis.gamm.v1beta1.MsgSwapExactAmountIn')] }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry.label).toBe('MsgSwapExactAmountIn');
+    expect(entry.amount).toBe('');
+  });
+
+  it('counts the messages, so a batch is not shown as a single action', async () => {
+    stubHttp(() => ({
+      tx_responses: [
+        {
+          txhash: 'BATCH',
+          height: '1',
+          code: 0,
+          tx: {
+            body: {
+              messages: [
+                { '@type': '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward' },
+                { '@type': '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward' },
+                { '@type': '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward' },
+              ],
+            },
+          },
+        },
+      ],
+    }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry.messageCount).toBe(3);
+    expect(entry.label).toBe('Claim rewards');
   });
 });

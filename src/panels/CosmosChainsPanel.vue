@@ -656,30 +656,55 @@
                 :title="t('No transactions')"
                 :description="t('Chains running without a transaction index cannot answer this, and say so the same way as an account that never spent.')"
               />
-              <template v-else>
+              <div v-else class="flex flex-column">
+                <div
+                  class="grid grid-cols-1fr-auto-auto-auto gap-8px py-6px text-11px color-text-tertiary text-uppercase"
+                >
+                  <span>{{ t('Type') }}</span>
+                  <span class="text-right">{{ t('Amount') }}</span>
+                  <span>{{ t('Date') }}</span>
+                  <span>{{ t('Hash') }}</span>
+                </div>
+
                 <div
                   v-for="entry in chainTxs"
                   :key="entry.hash"
-                  class="flex-align-center-justify-space-between gap-8px"
+                  class="grid grid-cols-1fr-auto-auto-auto gap-8px py-8px border-top-1 flex-align-center"
                 >
-                  <div class="flex flex-column gap-4px flex-1">
-                    <span class="flex-align-center gap-8px text-13px">
-                      <span>{{ entry.kind }}</span>
-                      <span v-if="entry.failed" class="text-12px color-error">
-                        {{ t('Failed ({code})', { code: entry.code }) }}
-                      </span>
+                  <!-- The arrow is the direction, which is known for free: the
+                       row came back from the signer query or the recipient one. -->
+                  <span class="flex-align-center gap-6px text-13px">
+                    <ArrowUpRight v-if="entry.direction === 'out'" :size="14" class="color-text-tertiary" />
+                    <ArrowDownLeft v-else :size="14" class="color-success" />
+                    <span>{{ entry.label }}</span>
+                    <span v-if="entry.messageCount > 1" class="text-11px color-text-tertiary">
+                      {{ t('+{count}', { count: entry.messageCount - 1 }) }}
                     </span>
-                    <span class="text-12px color-text-tertiary mono">{{ shortHash(entry.hash) }}</span>
-                  </div>
-                  <div class="flex flex-column gap-4px">
-                    <span class="text-12px color-text-tertiary">{{ formatTxDate(entry.timestamp) }}</span>
-                    <span class="text-12px color-text-tertiary">{{ formatHeight(Number(entry.height)) }}</span>
-                  </div>
-                  <UiButton variant="ghost" @click="copyHash(entry.hash)">
-                    <Copy :size="14" />
-                  </UiButton>
+                    <span v-if="entry.failed" class="text-11px color-error">
+                      {{ t('failed {code}', { code: entry.code }) }}
+                    </span>
+                  </span>
+
+                  <span class="text-13px text-right mono">{{ txAmountLabel(entry) }}</span>
+                  <span class="text-12px color-text-tertiary">{{ formatTxDate(entry.timestamp) }}</span>
+
+                  <span class="flex-align-center gap-4px">
+                    <!-- The hash opens the transaction on its own chain, which
+                         is a page rather than a link out to an explorer. -->
+                    <button
+                      type="button"
+                      class="border-radius-6px py-2px px-6px bg-transparent border-none cursor-pointer color-text-secondary text-12px mono transition-all-fast hover-bg-hover"
+                      :title="entry.hash"
+                      @click="openTransaction(entry.hash)"
+                    >
+                      {{ truncateMiddle(entry.hash, { start: 6, end: 4 }) }}
+                    </button>
+                    <UiButton variant="ghost" :title="t('Copy hash')" @click="copyHash(entry.hash)">
+                      <Copy :size="13" />
+                    </UiButton>
+                  </span>
                 </div>
-              </template>
+              </div>
             </div>
 
             <div v-else-if="detailTab === 'governance'" class="flex flex-column gap-12px">
@@ -702,9 +727,17 @@
                       class="text-12px"
                       :class="proposal.status === 'VOTING_PERIOD' ? 'color-warning' : 'color-text-tertiary'"
                     >
-                      {{ proposal.status }}
+                      {{ proposal.statusLabel }}
                     </span>
                   </div>
+                  <!-- Only while it is still open: on a closed proposal the
+                       date has already passed and says nothing. -->
+                  <span
+                    v-if="proposal.status === 'VOTING_PERIOD' && proposal.votingEndsAt"
+                    class="text-12px color-text-tertiary"
+                  >
+                    {{ t('Voting ends {date}', { date: formatTxDate(proposal.votingEndsAt) }) }}
+                  </span>
                   <!-- Offered only while a vote can still be cast, and only
                        with an account to cast it from. A proposal that closed
                        stays listed, because how it ended is worth reading. -->
@@ -783,6 +816,7 @@ import QRCode from 'qrcode';
 import {
   ArrowDownLeft,
   ArrowLeftRight,
+  ArrowUpRight,
   Boxes,
   ChevronDown,
   ChevronUp,
@@ -1626,10 +1660,29 @@ const voteOptions = computed(() => [
   { key: 'no_with_veto', label: t('No with veto') }
 ]);
 
-/** Enough of a hash to recognise one, not enough to read it out. */
-function shortHash(hash: string): string {
-  const value = String(hash || '');
-  return value.length > 16 ? `${value.slice(0, 8)}…${value.slice(-6)}` : value;
+/**
+ * The coin the transaction moved, in the denom it actually moved.
+ *
+ * The chain's own decimals apply only when the denom is the chain's own: a
+ * transaction can move an IBC token or a contract token whose exponent is not
+ * this chain's. Those are shown in base units with their denom rather than
+ * divided by the wrong power of ten, which would silently misstate an amount.
+ */
+function txAmountLabel(entry: CosmosTransaction): string {
+  if (!entry.amount || !entry.denom) return '—';
+  const chain = selected.value;
+
+  if (chain && entry.denom === chain.denom) {
+    return `${formatAmount(entry.amount, chain.decimals)} ${chain.symbol}`;
+  }
+  return `${entry.amount} ${truncateMiddle(entry.denom, { start: 8, end: 5 })}`;
+}
+
+/** The chain's own transaction page, rather than a link out to an explorer. */
+function openTransaction(hash: string) {
+  const chain = selected.value;
+  if (!chain || !hash) return;
+  openExternal(`lumen://tx/${chain.name}/${hash}`);
 }
 
 /** The date only: the time of day is noise in a list scanned for "when". */
