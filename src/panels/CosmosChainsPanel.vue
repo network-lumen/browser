@@ -301,7 +301,42 @@
       </template>
 
       <div class="flex flex-column gap-20px">
-        <!-- 2. The holding. -->
+        <!--
+          2. Vitals, on one line above the holding.
+
+          These are what the chain is, not what you have on it, and they are
+          all short. As tiles they took a block of the dialog to say six words;
+          on one line they read as a caption to the balance below, which is
+          what someone actually opened the chain for. It wraps rather than
+          scrolls, so a narrow window loses the line break and nothing else.
+        -->
+        <div class="flex-align-center gap-x-16px gap-y-4px flex-wrap-wrap text-12px">
+          <span v-if="selected.symbol" class="flex-align-center gap-6px">
+            <span class="color-text-tertiary">{{ t('Symbol') }}</span>
+            <span class="color-text-primary">{{ selected.symbol }}</span>
+          </span>
+          <span v-if="selected.blockTime !== null" class="flex-align-center gap-6px">
+            <span class="color-text-tertiary">{{ t('Block time') }}</span>
+            <span class="color-text-primary">
+              {{ t('{seconds}s', { seconds: selected.blockTime.toFixed(2) }) }}
+            </span>
+          </span>
+          <span v-if="selected.unbondingSeconds !== null" class="flex-align-center gap-6px">
+            <span class="color-text-tertiary">{{ t('Unbonding') }}</span>
+            <span class="color-text-primary">{{ formatDays(selected.unbondingSeconds) }}</span>
+          </span>
+          <span v-if="selected.height" class="flex-align-center gap-6px">
+            <span class="color-text-tertiary">{{ t('Height') }}</span>
+            <span class="color-text-primary">{{ formatHeight(selected.height) }}</span>
+          </span>
+          <span class="flex-align-center gap-6px">
+            <span class="color-text-tertiary">{{ t('Endpoints') }}</span>
+            <span class="color-text-primary">{{ endpointSummary }}</span>
+          </span>
+          <ChainStatusPill :status="selected.status" />
+        </div>
+
+        <!-- 3. The holding. -->
         <div class="flex flex-column gap-16px border-radius-12px p-20px bg-secondary border-1">
           <div v-if="!derivedAddress" class="text-14px color-text-tertiary">
             {{ address
@@ -551,26 +586,6 @@
               </div>
             </div>
           </template>
-        </div>
-
-        <!-- 3. Vitals: short values, so tiles rather than rows. -->
-        <div class="grid-cols-auto-fit-140 gap-12px grid">
-          <UiKeyValue v-if="selected.symbol" :label="t('Symbol')" :value="selected.symbol" />
-          <UiKeyValue
-            v-if="selected.blockTime !== null"
-            :label="t('Block time')"
-            :value="t('{seconds}s', { seconds: selected.blockTime.toFixed(2) })"
-          />
-          <UiKeyValue
-            v-if="selected.unbondingSeconds !== null"
-            :label="t('Unbonding')"
-            :value="formatDays(selected.unbondingSeconds)"
-          />
-          <UiKeyValue v-if="selected.height" :label="t('Height')" :value="formatHeight(selected.height)" />
-          <UiKeyValue :label="t('Endpoints')" :value="endpointSummary" />
-          <UiKeyValue :label="t('Status')">
-            <ChainStatusPill :status="selected.status" />
-          </UiKeyValue>
         </div>
 
         <!-- 4. Reference. One tab open at a time, none by default. -->
