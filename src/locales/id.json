@@ -1150,6 +1150,7 @@
   "No active profile.": "Tidak ada profil yang dipakai.",
   "No active subscriptions yet.": "Belum ada langganan yang berjalan.",
   "No activity found": "Tidak ada aktivitas",
+  "No address could be derived for this chain.": "",
   "No address provided": "Alamat belum diisi",
   "No address to look up.": "",
   "No API key available": "Tidak ada kunci API",

@@ -178,7 +178,7 @@
                 class="flex-1"
                 variant="secondary"
                 :disabled="!canSendOn(chain)"
-                :title="canSendOn(chain) ? '' : t('This chain publishes no RPC endpoint to broadcast through.')"
+                :title="sendDisabledReason(chain)"
                 @click.stop="requestSend(chain)"
               >
                 <Send :size="14" />
@@ -342,7 +342,7 @@
               <UiButton
                 variant="secondary"
                 :disabled="!canSendOn(selected)"
-                :title="canSendOn(selected) ? '' : t('This chain publishes no RPC endpoint to broadcast through.')"
+                :title="sendDisabledReason(selected)"
                 @click="requestSend(selected)"
               >
                 <Send :size="16" />
@@ -749,7 +749,7 @@ import {
   toggleFollowedChain
 } from '../internal/services/cosmosDirectory';
 import { useTabNavigation } from '../composables/useTabNavigation';
-import { reencodeAddressPrefix } from '../internal/services/ibcChains';
+import { getAddressPrefix, reencodeAddressPrefix } from '../internal/services/ibcChains';
 import { formatDecimal, truncateMiddle } from '../internal/services/format';
 import { errorMessage } from '../internal/services/coerce';
 import { describeChainError } from '../internal/services/chainErrors';
@@ -875,6 +875,11 @@ const address = computed(() => String(props.address || '').trim());
  */
 function addressFor(chain: CosmosChainSummary | null): string {
   if (!address.value || !chain?.prefix) return '';
+  // The account's own chain needs no conversion, and re-encoding it would put
+  // its address through a bech32 round trip that can only fail: a checksum the
+  // decoder rejects turns a perfectly usable address into an empty string, and
+  // with it disables every action on the home chain.
+  if (getAddressPrefix(address.value) === chain.prefix) return address.value;
   return reencodeAddressPrefix(address.value, chain.prefix);
 }
 
@@ -918,6 +923,13 @@ function canSendOn(chain: CosmosChainSummary): boolean {
   return Boolean(chain.rpc.length) && Boolean(addressFor(chain));
 }
 
+/** Why the button is off, rather than one guess covering both reasons. */
+function sendDisabledReason(chain: CosmosChainSummary): string {
+  if (canSendOn(chain)) return '';
+  if (!chain.rpc.length) return t('This chain publishes no RPC endpoint to broadcast through.');
+  return t('No address could be derived for this chain.');
+}
+
 /**
  * Hands the page the chain, the address on it, and what is held there.
  *
@@ -938,7 +950,7 @@ function canIbcFrom(chain: CosmosChainSummary): boolean {
 
 function ibcButtonTitle(chain: CosmosChainSummary): string {
   if (canIbcFrom(chain)) return t('To other chain (IBC)');
-  if (!canSendOn(chain)) return t('This chain publishes no RPC endpoint to broadcast through.');
+  if (!canSendOn(chain)) return sendDisabledReason(chain);
   return t('No IBC path is registered for this chain.');
 }
 

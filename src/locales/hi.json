@@ -1150,6 +1150,7 @@
   "No active profile.": "कोई प्रोफ़ाइल चालू नहीं है।",
   "No active subscriptions yet.": "अभी कोई सदस्यता चालू नहीं है।",
   "No activity found": "कोई गतिविधि नहीं मिली",
+  "No address could be derived for this chain.": "",
   "No address provided": "कोई पता नहीं दिया गया",
   "No address to look up.": "",
   "No API key available": "कोई API कुंजी उपलब्ध नहीं",

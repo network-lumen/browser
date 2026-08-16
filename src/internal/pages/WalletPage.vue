@@ -1007,7 +1007,10 @@ const sendAvailableMicro = computed<bigint | null>(() => {
   return decimalToMicroUnits(balanceLmn.value.toFixed(6));
 });
 const sendAvailableLabel = computed(() => {
-  if (sendAssetContext.value) return sendAssetContext.value.displayAmount;
+  // Falls through on an empty figure rather than on a missing context: the
+  // Cosmos panel always supplies a context, and may not have read a balance for
+  // it - the wallet's own reading of the home chain beats a blank line.
+  if (sendAssetContext.value?.displayAmount) return sendAssetContext.value.displayAmount;
   if (balanceLmn.value == null) return '';
   return balanceLmnDisplay.value;
 });
@@ -1481,7 +1484,16 @@ async function openCosmosSendModal(payload: {
     ownerAddress,
     denom: asset?.denom || chain.denom,
     microAmount,
-    displayAmount: '',
+    // Empty when the panel has not read one, which lets the label above fall
+    // back to whatever the wallet already knows rather than showing nothing.
+    displayAmount:
+      microAmount && microAmount !== '0'
+        ? formatDecimal(Number(microAmount) / 10 ** (asset?.decimals ?? chain.decimals), {
+            decimals: asset?.decimals ?? chain.decimals,
+            trimTrailingZeros: true,
+            empty: ''
+          })
+        : '',
     displayName: chain.prettyName,
     displaySymbol: asset?.symbol || chain.symbol || chain.denom,
     iconText: chain.symbol.slice(0, 3),

@@ -1150,6 +1150,7 @@
   "No active profile.": "使用中のプロファイルがありません。",
   "No active subscriptions yet.": "まだ有効なサブスクリプションはありません。",
   "No activity found": "アクティビティが見つかりません",
+  "No address could be derived for this chain.": "",
   "No address provided": "アドレスが指定されていません",
   "No address to look up.": "",
   "No API key available": "使える API キーがありません",
