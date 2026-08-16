@@ -1,6 +1,16 @@
 <template>
-  <!-- ####### lumen://network/tx/<hash> TRANSACTION DETAIL (embedded sub-view of NetworkPage) ####### -->
-  <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px">
+  <!-- ####### lumen://network/tx/<hash> and lumen://tx/<chain>/<hash> TRANSACTION DETAIL ####### -->
+  <!--
+    `flex-column` is load-bearing, not decoration.
+
+    Embedded in NetworkPage this root is a plain block and its cards fill the
+    width. Reached as a route it is not: TabPane renders the page component
+    with `class="flex w-full h-full"`, so `display: flex` arrives from outside
+    and the cards become items in a *row*, each shrinking to its own content.
+    Declaring the direction here makes the two paths render identically
+    instead of leaving the layout to depend on how the page was reached.
+  -->
+  <div class="w-full h-full min-h-0 overflow-y-auto bg-primary color-text-primary p-32px flex flex-column">
     <UiLoadingState v-if="loading" :message="t('Loading transaction data…')" />
 
     <div v-else-if="pending" class="flex flex-column flex-align-justify-center gap-16px min-h-300px text-center">

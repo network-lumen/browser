@@ -1289,6 +1289,7 @@
   "Open My Gateways": "فتح «بواباتي»",
   "Open new tab": "فتح لسان جديد",
   "Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.": "يفتح مجلد السجلات، وفيه سجل Electron الجاري وآخر تقرير تنقيح ونسخ آمنة من سجلات الدعم المعروفة.",
+  "Open transaction": "",
   "Open transaction in new tab": "فتح المعاملة في لسان جديد",
   "Open ugly domain": "فتح النطاق القبيح",
   "Open website": "فتح الموقع",

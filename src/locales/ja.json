@@ -1289,6 +1289,7 @@
   "Open My Gateways": "「マイゲートウェイ」を開く",
   "Open new tab": "新しいタブを開く",
   "Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.": "ログのフォルダーを開きます。動作中の Electron のログ、最新のデバッグレポート、既知のサポート用ログの安全な写しが入っています。",
+  "Open transaction": "",
   "Open transaction in new tab": "トランザクションを新しいタブで開く",
   "Open ugly domain": "不格好なドメインを開く",
   "Open website": "サイトを開く",
