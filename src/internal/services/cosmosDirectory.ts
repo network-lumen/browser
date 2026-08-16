@@ -719,20 +719,83 @@ export async function fetchCosmosValidators(
   throw lastError instanceof Error ? lastError : new Error(t('No endpoint answered.'));
 }
 
+/**
+ * The common message types in words.
+ *
+ * A dozen types cover nearly every transaction an account makes. The rest keep
+ * their protobuf name: a chain-specific message has no general translation,
+ * and `MsgSwapExactAmountIn` is what its own explorer calls it too.
+ */
+function describeMessage(kind: string): string {
+  switch (kind) {
+    case 'MsgSend':
+      return t('Send');
+    case 'MsgMultiSend':
+      return t('Multi-send');
+    case 'MsgDelegate':
+      return t('Delegate');
+    case 'MsgUndelegate':
+      return t('Undelegate');
+    case 'MsgBeginRedelegate':
+      return t('Redelegate');
+    case 'MsgWithdrawDelegatorReward':
+      return t('Claim rewards');
+    case 'MsgWithdrawValidatorCommission':
+      return t('Claim commission');
+    case 'MsgVote':
+    case 'MsgVoteWeighted':
+      return t('Vote');
+    case 'MsgSubmitProposal':
+      return t('Submit proposal');
+    case 'MsgDeposit':
+      return t('Deposit');
+    case 'MsgTransfer':
+      return t('IBC transfer');
+    case 'MsgExec':
+      return t('Execute');
+    default:
+      return kind;
+  }
+}
+
+/**
+ * The coin a message moves, across the three shapes the SDK spells it in.
+ *
+ * `MsgSend` carries a list, the staking messages a single coin, and the IBC
+ * transfer calls it `token`. Anything else moves nothing worth a column.
+ */
+function readMessageCoin(message: any): { amount: string; denom: string } {
+  const coin = Array.isArray(message?.amount)
+    ? message.amount[0]
+    : message?.amount && typeof message.amount === 'object'
+      ? message.amount
+      : message?.token;
+
+  return { amount: firstString(coin?.amount), denom: firstString(coin?.denom) };
+}
+
 /** One row of the tx service's answer, or null when it carries no hash. */
-function toTransaction(row: any): CosmosTransaction | null {
+function toTransaction(row: any, direction: 'in' | 'out'): CosmosTransaction | null {
   const hash = firstString(row?.txhash, row?.hash);
   if (!hash) return null;
 
+  const messages = Array.isArray(row?.tx?.body?.messages) ? row.tx.body.messages : [];
   // '/cosmos.bank.v1beta1.MsgSend' is what a row is worth reading at a glance.
-  const typeUrl = firstString(row?.tx?.body?.messages?.[0]?.['@type']);
+  const typeUrl = firstString(messages[0]?.['@type']);
+  const kind = typeUrl.split('.').pop() || t('Transaction');
+  const coin = readMessageCoin(messages[0]);
   const code = Number(row?.code) || 0;
 
   return {
     hash,
     height: firstString(row?.height, '0'),
     timestamp: firstString(row?.timestamp),
-    kind: typeUrl.split('.').pop() || t('Transaction'),
+    kind,
+    label: describeMessage(kind),
+    direction,
+    amount: coin.amount,
+    denom: coin.denom,
+    messageCount: messages.length || 1,
     code,
     failed: code > 0
   };
@@ -760,13 +823,24 @@ export async function fetchCosmosTransactions(
   const size = Math.min(100, Math.max(1, limit | 0));
   if (!account || !chain.rest.length) return [];
 
-  const filters = [`message.sender='${account}'`, `transfer.recipient='${account}'`];
+  /**
+   * Which query answered is the direction, which is why the sender runs first.
+   *
+   * A transaction the account signed can appear under both - delegating
+   * withdraws rewards to you in the same transaction, so `transfer.recipient`
+   * matches it too. First seen wins, and the signer query having run first
+   * makes that the right answer: you sent it, whatever else it also did.
+   */
+  const filters: { filter: string; direction: 'in' | 'out' }[] = [
+    { filter: `message.sender='${account}'`, direction: 'out' },
+    { filter: `transfer.recipient='${account}'`, direction: 'in' }
+  ];
   const byHash = new Map<string, CosmosTransaction>();
 
   for (const endpoint of chain.rest) {
     let answered = false;
 
-    for (const filter of filters) {
+    for (const { filter, direction } of filters) {
       for (const param of ['query', 'events']) {
         try {
           const url =
@@ -777,7 +851,7 @@ export async function fetchCosmosTransactions(
 
           answered = true;
           for (const row of rows) {
-            const parsed = toTransaction(row);
+            const parsed = toTransaction(row, direction);
             if (parsed && !byHash.has(parsed.hash)) byHash.set(parsed.hash, parsed);
           }
           break;
@@ -795,10 +869,30 @@ export async function fetchCosmosTransactions(
     .slice(0, size);
 }
 
+/** The gov module's status enum in words. */
+function describeProposalStatus(status: string): string {
+  switch (status) {
+    case 'VOTING_PERIOD':
+      return t('Voting');
+    case 'DEPOSIT_PERIOD':
+      return t('Deposit');
+    case 'PASSED':
+      return t('Passed');
+    case 'REJECTED':
+      return t('Rejected');
+    case 'FAILED':
+      return t('Failed');
+    default:
+      return status;
+  }
+}
+
 /** One proposal, from either module version, or null without an id. */
 function toProposal(entry: any): CosmosProposal | null {
   const id = firstString(entry?.id, entry?.proposal_id);
   if (!id) return null;
+
+  const status = firstString(entry?.status).replace('PROPOSAL_STATUS_', '');
 
   return {
     id,
@@ -810,7 +904,8 @@ function toProposal(entry: any): CosmosProposal | null {
       entry?.messages?.[0]?.content?.title,
       `#${id}`
     ),
-    status: firstString(entry?.status).replace('PROPOSAL_STATUS_', ''),
+    status,
+    statusLabel: describeProposalStatus(status),
     votingEndsAt: firstString(entry?.voting_end_time)
   };
 }

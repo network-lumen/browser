@@ -90,6 +90,8 @@ import { useTabLoadingSync } from '../../composables/useTabLoading';
 import { useInternalLumen } from '../../composables/useInternalLumen';
 import { formatDateTime, formatDenom, formatNumber as formatNumberValue } from '../services/format';
 import { explorerBlockUrl } from '../services/explorerLinks';
+import { loadCosmosChains } from '../services/cosmosDirectory';
+import { fetchAbsoluteJson } from '../services/httpJson';
 
 import { errorMessage } from '../services/coerce';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
@@ -109,10 +111,30 @@ const { currentTabUrl, currentTabRefresh } = useTabState();
 
 
 const { openInNewTab } = useTabNavigation();
-const txHash = computed(() => {
-  if (!currentTabUrl || !currentTabUrl.value) return null;
-  const match = currentTabUrl.value.match(/\/network\/tx\/([A-F0-9]+)/i);
-  return match ? match[1] : null;
+/**
+ * Two shapes reach this page, and they resolve against different chains.
+ *
+ * `lumen://network/tx/<hash>` is the network explorer's own view and always
+ * means the home chain, read through the peer pool. `lumen://tx/<chain>/<hash>`
+ * names a chain from the registry, and is what the wallet's history links to -
+ * a Cosmos hash cannot be looked up on the home chain's nodes, so the chain
+ * segment is what decides which endpoints are asked.
+ */
+const txRoute = computed<{ chain: string; hash: string }>(() => {
+  const url = currentTabUrl?.value || '';
+  const scoped = url.match(/\/tx\/([a-z0-9._-]+)\/([A-F0-9]+)/i);
+  if (scoped) return { chain: scoped[1], hash: scoped[2] };
+
+  const home = url.match(/\/network\/tx\/([A-F0-9]+)/i);
+  return { chain: '', hash: home ? home[1] : '' };
+});
+
+const txHash = computed(() => txRoute.value.hash || null);
+
+/** Empty, or 'lumen', means the home chain and its own richer read path. */
+const remoteChainName = computed(() => {
+  const name = txRoute.value.chain;
+  return name && name !== 'lumen' ? name : '';
 });
 
 function navigateToBlock(height: number) {
@@ -140,6 +162,11 @@ async function loadTransactionData() {
     pending.value = false;
 
     const upperHash = txHash.value.toUpperCase();
+
+    if (remoteChainName.value) {
+      await loadFromRegistryChain(remoteChainName.value, upperHash);
+      return;
+    }
 
     // Surfaced through the catch below rather than optional-chained: there is
     // no transaction to render without the bridge.
@@ -212,6 +239,72 @@ async function loadTransactionData() {
 function formatFeeAmount(coins: any): string {
   if (!Array.isArray(coins) || !coins.length) return t('0 LMN');
   return coins.map((c) => `${Number(c.amount) / 1e6} ${formatDenom(c.denom)}`).join(', ');
+}
+
+/**
+ * A transaction on a chain from the registry, read from that chain's REST.
+ *
+ * One request rather than the home chain's two: the REST tx endpoint already
+ * carries the result, the gas and the events, where the home path asks RPC
+ * first because it can also answer for a transaction that is not yet indexed.
+ * The fee is divided by the chain's own exponent - dividing by 1e6 the way the
+ * home path does would misstate it on every chain that is not six-decimal.
+ */
+async function loadFromRegistryChain(chainName: string, hash: string) {
+  const chains = await loadCosmosChains();
+  const chain = chains.find((entry) => entry.name === chainName);
+
+  if (!chain) throw new Error(t('No chain named {chain} is in the registry.', { chain: chainName }));
+  if (!chain.rest.length) {
+    throw new Error(t('{chain} does not publish a REST endpoint.', { chain: chain.prettyName }));
+  }
+
+  let response: any = null;
+  for (const endpoint of chain.rest) {
+    try {
+      response = await fetchAbsoluteJson(`${endpoint}/cosmos/tx/v1beta1/txs/${hash}`, 12000);
+      if (response?.tx_response) break;
+    } catch {
+      // Next endpoint; only the last failure is worth reporting.
+    }
+  }
+
+  const txResponse = response?.tx_response;
+  if (!txResponse) {
+    throw new Error(
+      t('Transaction not found: {hash}\n\nThis transaction may not exist on the blockchain or has not been indexed yet.', {
+        hash
+      })
+    );
+  }
+
+  const feeCoins = txResponse.tx?.auth_info?.fee?.amount;
+  const fee = Array.isArray(feeCoins) && feeCoins.length
+    ? feeCoins
+        .map((coin: any) => {
+          const scale = coin?.denom === chain.denom ? chain.decimals : 0;
+          const value = Number(coin?.amount || 0) / 10 ** scale;
+          return `${value} ${coin?.denom === chain.denom ? chain.symbol : formatDenom(coin?.denom)}`;
+        })
+        .join(', ')
+    : t('None');
+
+  transaction.value = {
+    hash,
+    height: txResponse.height,
+    time: formatTime(txResponse.timestamp || new Date().toISOString()),
+    success: Number(txResponse.code || 0) === 0,
+    gasUsed: txResponse.gas_used || 0,
+    gasWanted: txResponse.gas_wanted || 0,
+    fee,
+    messages: Array.isArray(txResponse.tx?.body?.messages)
+      ? txResponse.tx.body.messages.map((m: any) => ({ type: m?.['@type'] || 'Unknown', value: m }))
+      : [],
+    events: txResponse.events || [],
+    raw: txResponse
+  };
+
+  loading.value = false;
 }
 
 async function fetchTxRestData(hash: string): Promise<{ fee: string; messages: any[] }> {

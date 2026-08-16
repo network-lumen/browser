@@ -299,6 +299,15 @@ export type CosmosTransaction = {
   timestamp: string;
   /** The first message's type without its package, e.g. 'MsgSend'. */
   kind: string;
+  /** That type in words, e.g. 'Send'; falls back to `kind` when unmapped. */
+  label: string;
+  /** 'out' when the account signed it, 'in' when it only received. */
+  direction: 'in' | 'out';
+  /** Base units of `denom`; empty when the message moves no coin. */
+  amount: string;
+  denom: string;
+  /** How many messages it carried, so a batch is not shown as one. */
+  messageCount: number;
   /** The chain's result code; 0 is success. */
   code: number;
   failed: boolean;
@@ -310,6 +319,8 @@ export type CosmosProposal = {
   title: string;
   /** The status without its `PROPOSAL_STATUS_` prefix, e.g. 'VOTING_PERIOD'. */
   status: string;
+  /** That status in words, e.g. 'Voting'; falls back to `status` when unmapped. */
+  statusLabel: string;
   /** ISO time the voting period ends, empty when the chain did not report one. */
   votingEndsAt: string;
 };
