@@ -2,7 +2,7 @@ name: Build desktop apps
 
 on:
   push:
-    branches: [ beta, beta-pre-clean ]
+    branches: [ master ]
   workflow_dispatch:
 
 permissions:
