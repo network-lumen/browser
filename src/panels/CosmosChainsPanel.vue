@@ -641,6 +641,94 @@
               </button>
             </div>
 
+            <!-- Newest first, and deliberately shallow: what happened, when,
+                 and the hash to take elsewhere. Anything richer means decoding
+                 every message type on 221 chains, which the explorers already
+                 do and link to from the Sources tab. -->
+            <div v-else-if="detailTab === 'history'" class="flex flex-column gap-8px">
+              <UiLoadingState
+                v-if="chainTxsState === 'loading'"
+                :message="t('Reading history…')"
+                wrapper-class="min-h-48px"
+              />
+              <UiEmptyState
+                v-else-if="!chainTxs.length"
+                :title="t('No transactions')"
+                :description="t('Chains running without a transaction index cannot answer this, and say so the same way as an account that never spent.')"
+              />
+              <template v-else>
+                <div
+                  v-for="entry in chainTxs"
+                  :key="entry.hash"
+                  class="flex-align-center-justify-space-between gap-8px"
+                >
+                  <div class="flex flex-column gap-4px flex-1">
+                    <span class="flex-align-center gap-8px text-13px">
+                      <span>{{ entry.kind }}</span>
+                      <span v-if="entry.failed" class="text-12px color-error">
+                        {{ t('Failed ({code})', { code: entry.code }) }}
+                      </span>
+                    </span>
+                    <span class="text-12px color-text-tertiary mono">{{ shortHash(entry.hash) }}</span>
+                  </div>
+                  <div class="flex flex-column gap-4px">
+                    <span class="text-12px color-text-tertiary">{{ formatTxDate(entry.timestamp) }}</span>
+                    <span class="text-12px color-text-tertiary">{{ formatHeight(Number(entry.height)) }}</span>
+                  </div>
+                  <UiButton variant="ghost" @click="copyHash(entry.hash)">
+                    <Copy :size="14" />
+                  </UiButton>
+                </div>
+              </template>
+            </div>
+
+            <div v-else-if="detailTab === 'governance'" class="flex flex-column gap-12px">
+              <UiLoadingState
+                v-if="chainProposalsState === 'loading'"
+                :message="t('Reading proposals…')"
+                wrapper-class="min-h-48px"
+              />
+              <UiEmptyState
+                v-else-if="!chainProposals.length"
+                :title="t('No proposals')"
+                :description="t('This chain has published none, or does not serve the governance module.')"
+              />
+              <template v-else>
+                <div v-for="proposal in chainProposals" :key="proposal.id" class="flex flex-column gap-6px">
+                  <div class="flex-align-center gap-8px">
+                    <span class="text-12px color-text-tertiary mono">#{{ proposal.id }}</span>
+                    <span class="text-13px flex-1">{{ proposal.title }}</span>
+                    <span
+                      class="text-12px"
+                      :class="proposal.status === 'VOTING_PERIOD' ? 'color-warning' : 'color-text-tertiary'"
+                    >
+                      {{ proposal.status }}
+                    </span>
+                  </div>
+                  <!-- Offered only while a vote can still be cast, and only
+                       with an account to cast it from. A proposal that closed
+                       stays listed, because how it ended is worth reading. -->
+                  <div
+                    v-if="proposal.status === 'VOTING_PERIOD' && derivedAddress"
+                    class="flex-align-center gap-8px flex-wrap-wrap"
+                  >
+                    <UiSpinner v-if="votingProposal === proposal.id" size="sm" />
+                    <template v-else>
+                      <UiButton
+                        v-for="option in voteOptions"
+                        :key="option.key"
+                        variant="ghost"
+                        :disabled="votingProposal !== ''"
+                        @click="voteOnProposal(proposal, option.key)"
+                      >
+                        <span>{{ option.label }}</span>
+                      </UiButton>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </div>
+
             <div v-else class="grid-cols-auto-fit-140 gap-12px grid">
               <UiKeyValue :label="t('Registry name')" :value="selected.name" value-class="mono" />
               <UiKeyValue v-if="selected.denom" :label="t('Base denom')" :value="selected.denom" value-class="mono" />
@@ -703,7 +791,9 @@ import {
   ExternalLink,
   Globe,
   HandCoins,
+  History,
   Info,
+  Landmark,
   Minus,
   Plus,
   RefreshCw,
@@ -732,10 +822,12 @@ import CosmosStakeDialog from '../dialogs/CosmosStakeDialog.vue';
 import { copyToClipboardWithToast } from '../composables/useClipboard';
 import { useToast } from '../composables/useToast';
 import { useInternalLumen } from '../composables/useInternalLumen';
-import { computeFeeAmount, loadChainFeeSchedule } from '../internal/services/cosmosFees';
+import { DEFAULT_FEE_GAS, computeFeeAmount, loadChainFeeSchedule } from '../internal/services/cosmosFees';
 import {
   fetchCosmosBalances,
+  fetchCosmosProposals,
   fetchCosmosStaking,
+  fetchCosmosTransactions,
   fetchCosmosRedelegations,
   fetchCosmosValidators,
   getCosmosChainsAge,
@@ -761,9 +853,11 @@ import type {
   CosmosChainSummary,
   CosmosExplorer,
   CosmosIbcPeer,
+  CosmosProposal,
   CosmosResolvedDenom,
   CosmosStakeAction,
   CosmosStakeOption,
+  CosmosTransaction,
   CosmosValidator,
   ChainFeeSchedule
 } from '../types/walletPage';
@@ -819,7 +913,21 @@ const followedLoading = ref(false);
 const receiveChain = ref<CosmosChainSummary | null>(null);
 const receiveQrDataUrl = ref('');
 
-const detailTab = ref<'' | 'sources' | 'ibc' | 'raw'>('');
+const detailTab = ref<'' | 'sources' | 'ibc' | 'history' | 'governance' | 'raw'>('');
+
+/**
+ * History and governance load when their tab is opened, never with the modal.
+ *
+ * Both are several requests against endpoints that answer slowly or not at
+ * all, and neither is what someone opens a chain for - the balance is. Loading
+ * them eagerly would put that cost on every open, for two panels most opens
+ * never look at. The tab strip already says "none by default"; this follows it.
+ */
+const chainTxs = ref<CosmosTransaction[]>([]);
+const chainTxsState = ref<'idle' | 'loading' | 'ok'>('idle');
+const chainProposals = ref<CosmosProposal[]>([]);
+const chainProposalsState = ref<'idle' | 'loading' | 'ok'>('idle');
+const votingProposal = ref('');
 const unbondingExpanded = ref(false);
 /** Name of the chain being claimed, so one claim at a time across both views. */
 const claimingChain = ref('');
@@ -1492,16 +1600,126 @@ const detailTabs = computed(() => {
   const chain = selected.value;
   if (!chain) return [];
 
-  const tabs: { key: 'sources' | 'ibc' | 'raw'; label: string; icon: unknown }[] = [];
+  const tabs: {
+    key: 'sources' | 'ibc' | 'history' | 'governance' | 'raw';
+    label: string;
+    icon: unknown;
+  }[] = [];
   if (chain.explorers.length || chain.website) {
     tabs.push({ key: 'sources', label: t('Sources'), icon: ExternalLink });
   }
   if (ibcPeers.value.length) {
     tabs.push({ key: 'ibc', label: t('IBC ({count})', { count: ibcPeers.value.length }), icon: Waypoints });
   }
+  // History is about an account, so it is offered only once there is one.
+  // Governance belongs to the chain and is offered as soon as it answers.
+  if (derivedAddress.value) tabs.push({ key: 'history', label: t('History'), icon: History });
+  if (chain.rest.length) tabs.push({ key: 'governance', label: t('Governance'), icon: Landmark });
   tabs.push({ key: 'raw', label: t('Identifiers'), icon: Info });
   return tabs;
 });
+
+const voteOptions = computed(() => [
+  { key: 'yes', label: t('Yes') },
+  { key: 'no', label: t('No') },
+  { key: 'abstain', label: t('Abstain') },
+  { key: 'no_with_veto', label: t('No with veto') }
+]);
+
+/** Enough of a hash to recognise one, not enough to read it out. */
+function shortHash(hash: string): string {
+  const value = String(hash || '');
+  return value.length > 16 ? `${value.slice(0, 8)}…${value.slice(-6)}` : value;
+}
+
+/** The date only: the time of day is noise in a list scanned for "when". */
+function formatTxDate(timestamp: string): string {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString();
+}
+
+function copyHash(hash: string) {
+  void copyToClipboardWithToast(String(hash || ''));
+}
+
+/** Opening a tab is what pays for it; reopening the same one does not. */
+watch(detailTab, async (tab) => {
+  const chain = selected.value;
+  if (!chain) return;
+
+  if (tab === 'history' && chainTxsState.value === 'idle' && derivedAddress.value) {
+    chainTxsState.value = 'loading';
+    chainTxs.value = await fetchCosmosTransactions(chain, derivedAddress.value);
+    chainTxsState.value = 'ok';
+  }
+
+  if (tab === 'governance' && chainProposalsState.value === 'idle') {
+    chainProposalsState.value = 'loading';
+    chainProposals.value = await fetchCosmosProposals(chain);
+    chainProposalsState.value = 'ok';
+  }
+});
+
+/**
+ * A vote is a staking-shaped transaction, so it takes the same route.
+ *
+ * `wallet:cosmosStake` already owns the key, the client, the fee and the
+ * broadcast for an arbitrary chain; a vote differs only in the message it
+ * builds. Adding an action there costs a branch, where a second handler would
+ * have repeated all of it - and repeated its bugs.
+ */
+async function voteOnProposal(proposal: CosmosProposal, option: string) {
+  const chain = selected.value;
+  const account = derivedAddress.value;
+  if (!chain || !account || votingProposal.value) return;
+
+  const walletApi = useInternalLumen()?.wallet;
+  if (!walletApi || typeof walletApi.cosmosStake !== 'function') {
+    toast.show(t('Wallet send bridge not available.'), 'error');
+    return;
+  }
+
+  let schedule: ChainFeeSchedule | null = null;
+  if (chain.name !== 'lumen') {
+    schedule = await loadChainFeeSchedule(chain.name);
+    if (!schedule) {
+      toast.show(
+        t('{chain} does not publish a gas price, so a transfer cannot be priced.', {
+          chain: chain.prettyName
+        }),
+        'warning'
+      );
+      return;
+    }
+  }
+
+  votingProposal.value = proposal.id;
+  try {
+    // Primitives only: everything here is read out of a reactive proxy, which
+    // the structured clone behind the bridge cannot serialise.
+    const res = await walletApi.cosmosStake({
+      profileId: String(props.profileId),
+      address: String(account),
+      action: 'vote',
+      proposalId: String(proposal.id),
+      voteOption: String(option),
+      rpcEndpoint: String(chain.rpc[0] || ''),
+      chainId: String(chain.chainId),
+      feeDenom: String(schedule?.denom || chain.denom),
+      feeAmount: schedule ? computeFeeAmount(schedule, 'average') : '0',
+      feeGas: DEFAULT_FEE_GAS
+    });
+
+    if (!res || res.ok === false) {
+      toast.show(ipcError(res, t('Failed to submit the vote.')), 'error');
+      return;
+    }
+    toast.show(t('Vote submitted on proposal #{id}.', { id: proposal.id }), 'success');
+  } finally {
+    votingProposal.value = '';
+  }
+}
 
 /** The chain's own token, which is the number the user is looking for. */
 const nativeBalance = computed(() => {
@@ -1715,6 +1933,12 @@ function openChain(chain: CosmosChainSummary) {
   // across would open the next chain scrolled past its own actions.
   detailTab.value = '';
   unbondingExpanded.value = false;
+  // Back to idle rather than emptied: the next chain must pay for its own
+  // history, and leaving these at 'ok' would show the previous chain's.
+  chainTxs.value = [];
+  chainTxsState.value = 'idle';
+  chainProposals.value = [];
+  chainProposalsState.value = 'idle';
   // Opening a chain is the request. Making the user press "check balance" after
   // choosing the chain is a second click for something they already asked for,
   // and the balance is the headline of the dialog.

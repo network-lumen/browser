@@ -10,8 +10,10 @@ import type {
   CosmosChainSummary,
   CosmosExplorer,
   CosmosIbcPeer,
+  CosmosProposal,
   CosmosResolvedDenom,
   CosmosStakingSummary,
+  CosmosTransaction,
   CosmosUnbondingEntry,
   CosmosValidator,
   RawIbcChannel,
@@ -715,6 +717,144 @@ export async function fetchCosmosValidators(
   }
 
   throw lastError instanceof Error ? lastError : new Error(t('No endpoint answered.'));
+}
+
+/** One row of the tx service's answer, or null when it carries no hash. */
+function toTransaction(row: any): CosmosTransaction | null {
+  const hash = firstString(row?.txhash, row?.hash);
+  if (!hash) return null;
+
+  // '/cosmos.bank.v1beta1.MsgSend' is what a row is worth reading at a glance.
+  const typeUrl = firstString(row?.tx?.body?.messages?.[0]?.['@type']);
+  const code = Number(row?.code) || 0;
+
+  return {
+    hash,
+    height: firstString(row?.height, '0'),
+    timestamp: firstString(row?.timestamp),
+    kind: typeUrl.split('.').pop() || t('Transaction'),
+    code,
+    failed: code > 0
+  };
+}
+
+/**
+ * The account's recent transactions on this chain.
+ *
+ * Two queries rather than one: the tx service indexes a transfer under its
+ * sender and under its recipient separately, so asking only `message.sender`
+ * hides every incoming payment - which is most of what an account came to see.
+ *
+ * The parameter carrying the filter was renamed across SDK versions and both
+ * spellings are live across the registry, so each is tried in turn. A chain
+ * running without a tx index refuses both, and that is a chain with no history
+ * to show rather than a failure worth putting in front of anyone: the caller
+ * gets an empty list, exactly as it would from an account that never spent.
+ */
+export async function fetchCosmosTransactions(
+  chain: CosmosChainSummary,
+  address: string,
+  limit = 25
+): Promise<CosmosTransaction[]> {
+  const account = String(address || '').trim();
+  const size = Math.min(100, Math.max(1, limit | 0));
+  if (!account || !chain.rest.length) return [];
+
+  const filters = [`message.sender='${account}'`, `transfer.recipient='${account}'`];
+  const byHash = new Map<string, CosmosTransaction>();
+
+  for (const endpoint of chain.rest) {
+    let answered = false;
+
+    for (const filter of filters) {
+      for (const param of ['query', 'events']) {
+        try {
+          const url =
+            `${endpoint}/cosmos/tx/v1beta1/txs?${param}=${encodeURIComponent(filter)}` +
+            `&order_by=ORDER_BY_DESC&pagination.limit=${size}`;
+          const json = await fetchAbsoluteJson(url, BALANCE_TIMEOUT_MS);
+          const rows = Array.isArray(json?.tx_responses) ? json.tx_responses : [];
+
+          answered = true;
+          for (const row of rows) {
+            const parsed = toTransaction(row);
+            if (parsed && !byHash.has(parsed.hash)) byHash.set(parsed.hash, parsed);
+          }
+          break;
+        } catch {
+          // The other spelling of the parameter, then the next endpoint.
+        }
+      }
+    }
+
+    if (answered) break;
+  }
+
+  return [...byHash.values()]
+    .sort((a, b) => Number(b.height || 0) - Number(a.height || 0))
+    .slice(0, size);
+}
+
+/** One proposal, from either module version, or null without an id. */
+function toProposal(entry: any): CosmosProposal | null {
+  const id = firstString(entry?.id, entry?.proposal_id);
+  if (!id) return null;
+
+  return {
+    id,
+    // v1 carries the title at the top level, v1beta1 inside `content`, and a v1
+    // proposal wrapping a legacy one carries it in its first message.
+    title: firstString(
+      entry?.title,
+      entry?.content?.title,
+      entry?.messages?.[0]?.content?.title,
+      `#${id}`
+    ),
+    status: firstString(entry?.status).replace('PROPOSAL_STATUS_', ''),
+    votingEndsAt: firstString(entry?.voting_end_time)
+  };
+}
+
+/**
+ * The chain's governance proposals, newest first.
+ *
+ * Two module versions are live across the registry: v1 replaced v1beta1 in SDK
+ * 0.46, both are still served, and a proposal submitted through v1 with no
+ * legacy content makes the v1beta1 endpoint fail outright rather than omit it.
+ * So v1 is asked first, and v1beta1 answers for the chains that never moved.
+ *
+ * An endpoint that answers at all settles it, empty included: a chain with no
+ * proposals is a real answer, and retrying it against every other endpoint
+ * would spend 20 requests to arrive at the same empty list.
+ */
+export async function fetchCosmosProposals(
+  chain: CosmosChainSummary,
+  limit = 20
+): Promise<CosmosProposal[]> {
+  const size = Math.min(100, Math.max(1, limit | 0));
+  if (!chain.rest.length) return [];
+
+  const paths = ['/cosmos/gov/v1/proposals', '/cosmos/gov/v1beta1/proposals'];
+
+  for (const endpoint of chain.rest) {
+    for (const path of paths) {
+      try {
+        const json = await fetchAbsoluteJson(
+          `${endpoint}${path}?pagination.limit=${size}&pagination.reverse=true`,
+          BALANCE_TIMEOUT_MS
+        );
+        if (!Array.isArray(json?.proposals)) continue;
+
+        return json.proposals
+          .map(toProposal)
+          .filter((entry: CosmosProposal | null): entry is CosmosProposal => entry !== null);
+      } catch {
+        // The other module version, then the next endpoint.
+      }
+    }
+  }
+
+  return [];
 }
 
 /** The registry orders every pair file alphabetically; all 790 follow it. */

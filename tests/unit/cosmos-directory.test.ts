@@ -3,6 +3,8 @@ import {
   clearCosmosChainsCache,
   clearIbcIndexCache,
   fetchCosmosBalances,
+  fetchCosmosProposals,
+  fetchCosmosTransactions,
   fetchCosmosStaking,
   getCosmosChainsAge,
   isChainUsable,
@@ -1342,5 +1344,152 @@ describe('fetchCosmosBalances', () => {
     stubHttp(() => ({ balances: [{ denom: '', amount: '5' }, { denom: 'uosmo', amount: '7' }] }));
     const result = await fetchCosmosBalances(chain, 'osmo1abc');
     expect(result.balances).toEqual([{ denom: 'uosmo', amount: '7' }]);
+  });
+});
+
+/** The two new readers share the balance fixture's shape; only rest matters. */
+const historyChain: CosmosChainSummary = {
+  name: 'osmosis',
+  prettyName: 'Osmosis',
+  chainId: 'osmosis-1',
+  prefix: 'osmo',
+  status: 'live',
+  networkType: 'mainnet',
+  symbol: 'OSMO',
+  denom: 'uosmo',
+  decimals: 6,
+  image: '',
+  rest: ['https://rest.example.test'],
+  rpc: [],
+  height: null,
+  priceUsd: null,
+  website: '',
+  coingeckoId: '',
+  apr: null,
+  unbondingSeconds: null,
+  blockTime: null,
+  explorers: [],
+};
+
+function txRow(hash: string, height: string, type: string, code = 0) {
+  return {
+    txhash: hash,
+    height,
+    code,
+    timestamp: '2026-08-01T10:00:00Z',
+    tx: { body: { messages: [{ '@type': type }] } },
+  };
+}
+
+describe('fetchCosmosTransactions', () => {
+  it('merges the sender and recipient queries without repeating a transaction', async () => {
+    // The same transfer is indexed under both, which is the whole reason two
+    // queries are made - and the reason it must be deduplicated afterwards.
+    stubHttp((url) =>
+      url.includes('message.sender')
+        ? { tx_responses: [txRow('AAA', '100', '/cosmos.bank.v1beta1.MsgSend')] }
+        : { tx_responses: [txRow('AAA', '100', '/cosmos.bank.v1beta1.MsgSend')] }
+    );
+
+    const result = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(result).toHaveLength(1);
+    expect(result[0].hash).toBe('AAA');
+  });
+
+  it('shortens the message type and orders the newest block first', async () => {
+    stubHttp((url) =>
+      url.includes('message.sender')
+        ? { tx_responses: [txRow('OLD', '10', '/cosmos.staking.v1beta1.MsgDelegate')] }
+        : { tx_responses: [txRow('NEW', '900', '/cosmos.bank.v1beta1.MsgSend')] }
+    );
+
+    const result = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(result.map((entry) => entry.hash)).toEqual(['NEW', 'OLD']);
+    expect(result.map((entry) => entry.kind)).toEqual(['MsgSend', 'MsgDelegate']);
+  });
+
+  it('falls back to the older spelling of the filter parameter', async () => {
+    // Chains below SDK 0.46 only answer `events`; refusing `query` must not be
+    // read as "this account has no history".
+    stubHttp((url) => (url.includes('events=') ? { tx_responses: [txRow('OK', '5', '/x.MsgSend')] } : undefined));
+
+    const result = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(result.map((entry) => entry.hash)).toEqual(['OK']);
+  });
+
+  it('reports a failed transaction with the code the chain returned', async () => {
+    stubHttp(() => ({ tx_responses: [txRow('BAD', '7', '/x.MsgSend', 18)] }));
+
+    const [entry] = await fetchCosmosTransactions(historyChain, 'osmo1abc');
+    expect(entry.failed).toBe(true);
+    expect(entry.code).toBe(18);
+  });
+
+  it('returns nothing when no endpoint answers, rather than throwing', async () => {
+    // A chain with its transaction index off is not a failure to put in front
+    // of anyone: it looks exactly like an account that never spent.
+    stubHttp(() => undefined);
+    await expect(fetchCosmosTransactions(historyChain, 'osmo1abc')).resolves.toEqual([]);
+  });
+
+  it('asks nothing without an address', async () => {
+    const get = stubHttp(() => ({ tx_responses: [] }));
+    await expect(fetchCosmosTransactions(historyChain, '  ')).resolves.toEqual([]);
+    expect(get).not.toHaveBeenCalled();
+  });
+});
+
+describe('fetchCosmosProposals', () => {
+  it('prefers v1 and never asks v1beta1 when it answers', async () => {
+    const get = stubHttp((url) =>
+      url.includes('/gov/v1/proposals')
+        ? { proposals: [{ id: '42', title: 'Raise the cap', status: 'PROPOSAL_STATUS_VOTING_PERIOD' }] }
+        : undefined
+    );
+
+    const result = await fetchCosmosProposals(historyChain);
+    expect(result).toEqual([
+      { id: '42', title: 'Raise the cap', status: 'VOTING_PERIOD', votingEndsAt: '' },
+    ]);
+    expect(get.mock.calls.every(([url]) => !String(url).includes('v1beta1'))).toBe(true);
+  });
+
+  it('falls back to v1beta1, where the title sits inside the content', async () => {
+    stubHttp((url) =>
+      url.includes('v1beta1')
+        ? {
+            proposals: [
+              { proposal_id: '7', content: { title: 'Legacy text' }, status: 'PROPOSAL_STATUS_PASSED' },
+            ],
+          }
+        : undefined
+    );
+
+    const [proposal] = await fetchCosmosProposals(historyChain);
+    expect(proposal).toEqual({ id: '7', title: 'Legacy text', status: 'PASSED', votingEndsAt: '' });
+  });
+
+  it('reads the title of a v1 proposal that wraps a legacy one', async () => {
+    stubHttp(() => ({ proposals: [{ id: '9', messages: [{ content: { title: 'Wrapped' } }] }] }));
+    expect((await fetchCosmosProposals(historyChain))[0].title).toBe('Wrapped');
+  });
+
+  it('falls back to the number when no shape carries a title', async () => {
+    stubHttp(() => ({ proposals: [{ id: '3' }] }));
+    expect((await fetchCosmosProposals(historyChain))[0].title).toBe('#3');
+  });
+
+  it('treats an empty answer as an answer and stops asking', async () => {
+    // A chain with no proposals is a real result; retrying it against every
+    // endpoint would spend the requests to arrive at the same empty list.
+    const get = stubHttp(() => ({ proposals: [] }));
+    await expect(fetchCosmosProposals(historyChain)).resolves.toEqual([]);
+    expect(get).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns nothing when the chain publishes no REST endpoint', async () => {
+    const get = stubHttp(() => ({ proposals: [] }));
+    await expect(fetchCosmosProposals({ ...historyChain, rest: [] })).resolves.toEqual([]);
+    expect(get).not.toHaveBeenCalled();
   });
 });

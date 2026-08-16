@@ -290,6 +290,33 @@ export type CosmosValidator = {
   jailed: boolean;
 };
 
+/** One transaction as the tx service reports it, reduced to what a row shows. */
+export type CosmosTransaction = {
+  hash: string;
+  /** Block height as a string; the panel sorts on it numerically. */
+  height: string;
+  /** ISO time, empty when the endpoint did not report one. */
+  timestamp: string;
+  /** The first message's type without its package, e.g. 'MsgSend'. */
+  kind: string;
+  /** The chain's result code; 0 is success. */
+  code: number;
+  failed: boolean;
+};
+
+/** One governance proposal, reduced to what a row shows. */
+export type CosmosProposal = {
+  id: string;
+  title: string;
+  /** The status without its `PROPOSAL_STATUS_` prefix, e.g. 'VOTING_PERIOD'. */
+  status: string;
+  /** ISO time the voting period ends, empty when the chain did not report one. */
+  votingEndsAt: string;
+};
+
+/** The four options the gov module accepts, as the vote dialog names them. */
+export type CosmosVoteOption = 'yes' | 'abstain' | 'no' | 'no_with_veto';
+
 /** One pending undelegation: an amount, and when it lands. */
 export type CosmosUnbondingEntry = {
   amount: string;
