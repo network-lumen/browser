@@ -1,5 +1,4 @@
 {
-  "(unchanged)": "(sem alterações)",
   "{action} failed: {reason}": "Falha de {action}: {reason}",
   "{action} successful. TxHash: {hash}": "{action} concluída. Hash da transação: {hash}",
   "{address} — click to copy": "{address} — clique para copiar",
@@ -1241,7 +1240,6 @@
   "Not enough LMN in this wallet for that.": "Não há LMN suficientes nesta carteira para isso.",
   "Not enough LMN to pay the fee and stay above the minimum your PQC link needs.": "Não há LMN suficientes para pagar a taxa e ficar acima do mínimo exigido pela sua ligação PQC.",
   "Not read yet": "",
-  "Not required": "Não é obrigatório",
   "Not specified": "Não especificado",
   "Note (optional)": "Nota (opcional)",
   "Note:": "Nota:",
@@ -1562,8 +1560,6 @@
   "Request timeout": "Tempo de espera da requisição esgotado",
   "Requested": "Solicitado",
   "Requested by": "Solicitado por",
-  "Require validation for stable channel": "Exigir validação no canal estável",
-  "Required": "Obrigatório",
   "Reset": "Redefinir",
   "Reset filters": "Limpar os filtros",
   "Resources": "Recursos",

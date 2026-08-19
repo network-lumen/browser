@@ -201,16 +201,6 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
       { key: 'publishFeeUlmnLmn', source: { key: 'publish_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Publish fee (LMN, escrowed)'), type: 'text', placeholder: '1' },
       { key: 'maxPendingTtlSeconds', source: { key: 'max_pending_ttl' }, label: markForTranslation('Pending TTL (seconds)'), type: 'text', placeholder: '86400' },
       { key: 'rejectRefundBps', source: { key: 'reject_refund_bps' }, label: markForTranslation('Reject refund (bps)'), type: 'text', placeholder: '5000', hint: markForTranslation('10000 bps = 100%') },
-      {
-        key: 'requireValidationForStable', source: { key: 'require_validation_for_stable', unit: 'bool' },
-        label: markForTranslation('Require validation for stable channel'),
-        type: 'select',
-        options: [
-          { value: '', label: markForTranslation('(unchanged)') },
-          { value: 'true', label: markForTranslation('Required') },
-          { value: 'false', label: markForTranslation('Not required') }
-        ]
-      },
       { key: 'daoPublishers', source: { key: 'dao_publishers', unit: 'lines' }, label: markForTranslation('DAO publishers'), type: 'textarea', placeholder: 'lmn1...\nlmn1...', hint: markForTranslation('One bech32 address per line') }
     ]
   },
