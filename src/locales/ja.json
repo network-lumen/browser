@@ -1,5 +1,4 @@
 {
-  "(unchanged)": "（変更なし）",
   "{action} failed: {reason}": "{action} に失敗しました: {reason}",
   "{action} successful. TxHash: {hash}": "{action}が完了しました。トランザクションハッシュ: {hash}",
   "{address} — click to copy": "{address} — クリックでコピー",
@@ -1241,7 +1240,6 @@
   "Not enough LMN in this wallet for that.": "このウォレットには十分な LMN がありません。",
   "Not enough LMN to pay the fee and stay above the minimum your PQC link needs.": "手数料を支払いつつ PQC リンクに必要な最低残高を保つには LMN が足りません。",
   "Not read yet": "",
-  "Not required": "必須ではありません",
   "Not specified": "指定なし",
   "Note (optional)": "メモ（任意）",
   "Note:": "注意:",
@@ -1562,8 +1560,6 @@
   "Request timeout": "リクエストの時間切れ",
   "Requested": "リクエスト済み",
   "Requested by": "リクエストした人",
-  "Require validation for stable channel": "stable チャネルには承認を必須にする",
-  "Required": "必須",
   "Reset": "リセット",
   "Reset filters": "絞り込みをリセット",
   "Resources": "資料",

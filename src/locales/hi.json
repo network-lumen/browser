@@ -1,5 +1,4 @@
 {
-  "(unchanged)": "(कोई बदलाव नहीं)",
   "{action} failed: {reason}": "{action} विफल: {reason}",
   "{action} successful. TxHash: {hash}": "{action} पूरा हुआ। लेन-देन हैश: {hash}",
   "{address} — click to copy": "{address} — नकल करने के लिए क्लिक करें",
@@ -1241,7 +1240,6 @@
   "Not enough LMN in this wallet for that.": "इसके लिए इस वॉलेट में पर्याप्त LMN नहीं है।",
   "Not enough LMN to pay the fee and stay above the minimum your PQC link needs.": "शुल्क चुकाने और अपने PQC लिंक के लिए आवश्यक न्यूनतम से ऊपर बने रहने हेतु पर्याप्त LMN नहीं है।",
   "Not read yet": "",
-  "Not required": "ज़रूरी नहीं",
   "Not specified": "नहीं बताया गया",
   "Note (optional)": "टिप्पणी (वैकल्पिक)",
   "Note:": "ध्यान दें:",
@@ -1562,8 +1560,6 @@
   "Request timeout": "अनुरोध का समय बीता",
   "Requested": "माँगा गया",
   "Requested by": "किसने माँगा",
-  "Require validation for stable channel": "stable चैनल के लिए स्वीकृति ज़रूरी करें",
-  "Required": "ज़रूरी",
   "Reset": "पहले जैसा करें",
   "Reset filters": "छननी पहले जैसी करें",
   "Resources": "सामग्री",

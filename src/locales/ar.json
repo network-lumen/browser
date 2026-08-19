@@ -1,5 +1,4 @@
 {
-  "(unchanged)": "(دون تغيير)",
   "{action} failed: {reason}": "فشل {action}: {reason}",
   "{action} successful. TxHash: {hash}": "تم {action} بنجاح. بصمة المعاملة: {hash}",
   "{address} — click to copy": "{address} — انقر للنسخ",
@@ -1241,7 +1240,6 @@
   "Not enough LMN in this wallet for that.": "لا توجد LMN كافية في هذه المحفظة لذلك.",
   "Not enough LMN to pay the fee and stay above the minimum your PQC link needs.": "لا توجد LMN كافية لدفع الرسوم والبقاء فوق الحد الأدنى الذي يحتاجه ارتباط PQC الخاص بك.",
   "Not read yet": "",
-  "Not required": "غير مطلوب",
   "Not specified": "غير محدد",
   "Note (optional)": "ملاحظة (اختياري)",
   "Note:": "ملحوظة:",
@@ -1562,8 +1560,6 @@
   "Request timeout": "انتهت مهلة الطلب",
   "Requested": "مطلوب",
   "Requested by": "بطلب من",
-  "Require validation for stable channel": "اشتراط الاعتماد لقناة stable",
-  "Required": "مطلوب",
   "Reset": "إعادة الضبط",
   "Reset filters": "إعادة ضبط المرشّحات",
   "Resources": "مصادر",

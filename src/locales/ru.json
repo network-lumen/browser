@@ -1,5 +1,4 @@
 {
-  "(unchanged)": "(без изменений)",
   "{action} failed: {reason}": "Не удалось выполнить «{action}»: {reason}",
   "{action} successful. TxHash: {hash}": "{action} — успешно. Хеш транзакции: {hash}",
   "{address} — click to copy": "{address} — нажмите, чтобы скопировать",
@@ -1241,7 +1240,6 @@
   "Not enough LMN in this wallet for that.": "В этом кошельке недостаточно LMN для этого.",
   "Not enough LMN to pay the fee and stay above the minimum your PQC link needs.": "Недостаточно LMN, чтобы оплатить комиссию и остаться выше минимума, необходимого для PQC-привязки.",
   "Not read yet": "",
-  "Not required": "Не требуется",
   "Not specified": "Не указано",
   "Note (optional)": "Заметка (необязательно)",
   "Note:": "Примечание:",
@@ -1562,8 +1560,6 @@
   "Request timeout": "Время запроса вышло",
   "Requested": "Запрошено",
   "Requested by": "Кто запросил",
-  "Require validation for stable channel": "Требовать проверку для стабильного канала",
-  "Required": "Обязательно",
   "Reset": "Сбросить",
   "Reset filters": "Сбросить фильтры",
   "Resources": "Материалы",
