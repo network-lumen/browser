@@ -1169,7 +1169,7 @@ const lumenNetworkSaving = ref(false);
 
 const lumenChainIdSummary = computed(() => {
   const active = lumenNetworkOptions.value.find((option) => option.id === lumenNetwork.value);
-  return active?.chainId || t('unknown');
+  return active?.chainId || t('Unknown');
 });
 
 async function loadLumenNetworkOptions() {
