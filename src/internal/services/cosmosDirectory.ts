@@ -4,6 +4,8 @@ import bundledChains from '../../data/cosmosChains.json';
 import { fetchAbsoluteJson, trimTrailingSlash } from './httpJson';
 import { STORAGE_KEYS, profileScopedKey, readJson, readString, writeJson } from './storage';
 import { pickPreferredRegistryImage, resolveDenomTrace } from './chainRegistry';
+import { loadLumenNetwork } from './lumenNetwork';
+import type { LumenNetwork } from '../../types/lumenNetwork';
 import type {
   CosmosChainBalance,
   CosmosDelegation,
@@ -62,6 +64,72 @@ const HOME_CHAIN_NAME = 'lumen';
  * shipped in the build.
  */
 const HOME_CHAIN_IMAGE = lumenLogoUrl;
+
+/**
+ * The home chain, described by the app rather than by the registry.
+ *
+ * chains.cosmos.directory only knows mainnet Lumen, and every read in this file
+ * goes to `chain.rest[0]`. So while `lumen://network` followed peers.txt onto
+ * the testnet, the wallet panel kept reading balances, staking and governance
+ * off the mainnet endpoints the registry publishes - the same account, the
+ * wrong chain, and nothing on screen saying so.
+ *
+ * The registry entry is still what the image, the price feed and the explorer
+ * links come from, because none of those exist for a testnet. What it must not
+ * decide is where to send a query or which chain id a transaction is signed
+ * for; those come from the active network.
+ *
+ * Applied on read rather than folded into the stored directory on purpose: the
+ * cache stays the registry's own answer, so switching back to mainnet does not
+ * depend on it being refetched.
+ */
+function homeChainSummary(
+  registryEntry: CosmosChainSummary | undefined,
+  network: LumenNetwork
+): CosmosChainSummary {
+  const isMainnet = network.id === 'mainnet';
+
+  return {
+    ...(registryEntry as CosmosChainSummary),
+    name: HOME_CHAIN_NAME,
+    prettyName: network.prettyName || registryEntry?.prettyName || 'Lumen',
+    // What the nodes answer, when they have answered: a devnet gets a new chain
+    // id every redeploy, and a signature made against a stale one is refused.
+    chainId: network.observedChainId || network.chainId,
+    prefix: network.prefix,
+    status: 'live',
+    networkType: network.id,
+    symbol: network.symbol,
+    denom: network.denom,
+    decimals: network.decimals,
+    image: registryEntry?.image || HOME_CHAIN_IMAGE,
+    rest: network.rest,
+    rpc: network.rpc,
+    website: network.website || registryEntry?.website || '',
+    // Everything below describes mainnet and only mainnet. Carrying a price or
+    // an APR across to a testnet would put a dollar value on play money.
+    height: isMainnet ? registryEntry?.height ?? null : null,
+    priceUsd: isMainnet ? registryEntry?.priceUsd ?? null : null,
+    coingeckoId: isMainnet ? registryEntry?.coingeckoId || '' : '',
+    apr: isMainnet ? registryEntry?.apr ?? null : null,
+    unbondingSeconds: isMainnet ? registryEntry?.unbondingSeconds ?? null : null,
+    blockTime: isMainnet ? registryEntry?.blockTime ?? null : null,
+    explorers: isMainnet ? registryEntry?.explorers || [] : []
+  };
+}
+
+/** Replaces the registry's Lumen with the active network's. */
+function applyHomeChain(
+  chains: CosmosChainSummary[],
+  network: LumenNetwork
+): CosmosChainSummary[] {
+  const home = homeChainSummary(
+    chains.find((chain) => chain.name === HOME_CHAIN_NAME),
+    network
+  );
+  const others = chains.filter((chain) => chain.name !== HOME_CHAIN_NAME);
+  return sortCosmosChains([home, ...others]);
+}
 
 function firstString(...values: unknown[]): string {
   for (const value of values) {
@@ -528,6 +596,17 @@ function isFresh(stored: StoredCosmosChains | null): boolean {
  * time-sensitive enough for staleness to mislead.
  */
 export async function loadCosmosChains(
+  { force = false }: { force?: boolean } = {}
+): Promise<CosmosChainSummary[]> {
+  const [chains, network] = await Promise.all([
+    loadDirectoryChains({ force }),
+    loadLumenNetwork()
+  ]);
+  return applyHomeChain(chains, network);
+}
+
+/** The registry's own answer, untouched, memoized and cached to storage. */
+function loadDirectoryChains(
   { force = false }: { force?: boolean } = {}
 ): Promise<CosmosChainSummary[]> {
   if (force) directoryRequest = null;

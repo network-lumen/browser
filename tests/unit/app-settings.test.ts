@@ -31,6 +31,7 @@ function bridge(api: Record<string, unknown>) {
 beforeEach(() => {
   appSettingsState.value = {
     localGatewayBase: DEFAULTS.localGatewayBase,
+    lumenNetwork: 'mainnet',
     ipfsApiBase: DEFAULTS.ipfsApiBase,
     ipfsConnectivityMode: 'normal',
     localDriveMaxUploadSizeGb: DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,

@@ -15,6 +15,7 @@ const MAX_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB = Math.floor(Number.MAX_SAFE_INTEGER / 
 
 const DEFAULT_APP_SETTINGS: AppSettings = Object.freeze({
   localGatewayBase: "http://127.0.0.1:8080",
+  lumenNetwork: "mainnet",
   ipfsApiBase: "http://127.0.0.1:5001",
   ipfsConnectivityMode: "normal",
   localDriveMaxUploadSizeGb: DEFAULT_LOCAL_DRIVE_MAX_UPLOAD_SIZE_GB,
@@ -79,6 +80,9 @@ function mergeSettings(partial: Partial<AppSettings> | null | undefined): AppSet
       String(p.ipfsApiBase ?? cur.ipfsApiBase),
       DEFAULT_APP_SETTINGS.ipfsApiBase,
     ),
+    // Validated in the main process, which owns the list of networks; an
+    // unknown id is refused there rather than coerced here.
+    lumenNetwork: String(p.lumenNetwork ?? cur.lumenNetwork ?? DEFAULT_APP_SETTINGS.lumenNetwork),
     ipfsConnectivityMode: normalizeIpfsConnectivityMode(
       p.ipfsConnectivityMode ?? cur.ipfsConnectivityMode,
       DEFAULT_APP_SETTINGS.ipfsConnectivityMode,
