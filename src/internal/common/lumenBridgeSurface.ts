@@ -97,7 +97,8 @@ export const REQUIRED_NAMESPACES = {
   ],
   dns: [
     'getParams', 'getDomainInfo', 'listByOwnerDetailed', 'estimateRegisterPrice',
-    'createDomain', 'updateDomain', 'transferDomain'
+    'listAuctions', 'createDomain', 'updateDomain', 'transferDomain',
+    'renewDomain', 'bidDomain', 'settleDomain'
   ],
   wallet: [
     'getBalance', 'getTokenomicsParams', 'sendTokens', 'ibcTransfer', 'listSendTxs',

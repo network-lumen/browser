@@ -13,6 +13,11 @@
             <span>{{ t('Ugly domains') }}</span>
             <UiTag variant="success">{{ t('Free') }}</UiTag>
           </UiSidebarNavItem>
+          <UiSidebarNavItem :active="activeNameTab === 'auctions'" @click="activeNameTab = 'auctions'">
+            <Gavel :size="16" />
+            <span>{{ t('Auctions') }}</span>
+            <UiTag v-if="auctionRows.length" variant="warning">{{ auctionRows.length }}</UiTag>
+          </UiSidebarNavItem>
         </UiSidebarNavSection>
 
         <UiSidebarNavSection :title="t('Help')">
@@ -32,6 +37,12 @@
             <UiButton variant="primary" type="button" @click="openRegisterModal" class="outline-none">
               <Plus :size="16" />
               <span>{{ t('Buy domain') }}</span>
+            </UiButton>
+          </template>
+          <template v-else-if="activeNameTab === 'auctions'">
+            <UiButton variant="secondary" type="button" :disabled="auctionsLoading" @click="loadAuctionList" class="outline-none">
+              <RefreshCw :size="16" />
+              <span>{{ t('Refresh') }}</span>
             </UiButton>
           </template>
           <template v-else>
@@ -64,7 +75,7 @@
           </template>
         </UiEmptyState>
         <ul v-else class="flex flex-column gap-8px p-0px list-style-none m-0px mt-12px">
-          <li v-for="d in domains" :key="d.name" class="flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary py-10px px-12px">
+          <li v-for="d in domainRows" :key="d.name" class="flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary py-10px px-12px">
             <div class="flex flex-column gap-2px min-w-0">
               <span class="txt-weight-light color-text-primary text-14px">{{ d.name }}</span>
             </div>
@@ -92,6 +103,19 @@
                 @click="openSettingsModal(d)">
                 <Settings :size="16" />
               </UiButton>
+              <!--
+                Loud only when it needs to be: a labelled button once the name
+                is expiring or expired, a plain icon the rest of the year.
+              -->
+              <UiButton
+                v-if="d.renewable"
+                :variant="d.urgency === 'urgent' ? 'primary' : d.urgency === 'soon' ? 'secondary' : 'icon'"
+                type="button"
+                :title="t('Renew domain')"
+                @click="openRenewModal(d)">
+                <RefreshCw :size="16" />
+                <span v-if="d.urgency !== 'none'">{{ t('Renew') }}</span>
+              </UiButton>
               <UiButton variant="icon" type="button"
                 :title="t('Transfer domain')"
                 @click="openTransferModal(d)">
@@ -100,6 +124,60 @@
             </div>
           </li>
         </ul>
+      </UiCard>
+
+      <!--
+        Auctions.
+        Two things live here, because they are the same list from either side:
+        a name someone else let lapse, which anyone can bid on, and a name of
+        one's own that lapsed far enough to be auctioned - which is the last
+        warning an owner gets before it is gone.
+      -->
+      <UiCard v-else-if="activeNameTab === 'auctions'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
+        <UiWarningBox v-if="myAuctionedNames.length" box-class="mb-16px">
+          {{ t('One of your domains is being auctioned: {names}. Renewing keeps it only until the auction settles with a winning bid.', { names: myAuctionedNames.join(', ') }) }}
+        </UiWarningBox>
+
+        <UiErrorState v-if="auctionsError" :message="auctionsError" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
+        <UiLoadingBlock v-else-if="auctionsLoading" :message="t('Loading auctions…')" wrapper-class="text-center gap-8px py-32px px-24px" spinner-class="" />
+        <UiEmptyState
+          v-else-if="!auctionRows.length"
+          :title="t('No domains are up for auction')"
+          :description="t('A domain is auctioned only after it expires and its grace period runs out. Nothing on the chain is in that window right now.')"
+        />
+        <template v-else>
+          <ul class="flex flex-column gap-8px p-0px list-style-none m-0px mt-12px">
+            <li v-for="row in auctionRows" :key="row.name" class="flex-align-center flex-justify-space-between border-radius-10px border-1 bg-secondary py-10px px-12px gap-12px">
+              <div class="flex flex-column gap-2px min-w-0">
+                <span class="txt-weight-light color-text-primary text-14px">{{ row.name }}</span>
+                <span class="text-12px color-text-tertiary">
+                  {{ auctionClosesLabel(row) }} · {{ highestBidLabel(row) }}
+                </span>
+              </div>
+              <div class="flex-align-center gap-6px flex-shrink-0">
+                <UiButton variant="icon" type="button"
+                  :title="t('Open lumen URL')"
+                  @click="openInNewTab?.(`lumen://${row.name}`)">
+                  <ExternalLink :size="16" />
+                </UiButton>
+                <UiButton v-if="row.open" variant="primary" type="button" @click="openBidModal(row)" class="outline-none">
+                  <Gavel :size="16" />
+                  <span>{{ t('Bid') }}</span>
+                </UiButton>
+                <UiButton v-else-if="row.settleable" variant="secondary" type="button"
+                  :disabled="settlingName === row.name"
+                  :title="t('Hand the name to the winning bidder and take their bid')"
+                  @click="confirmSettle(row)" class="outline-none">
+                  <UiSpinner v-if="settlingName === row.name" size="sm" />
+                  <span v-else>{{ t('Settle') }}</span>
+                </UiButton>
+              </div>
+            </li>
+          </ul>
+          <p v-if="auctions?.truncated" class="text-12px color-text-tertiary mt-12px m-0px">
+            {{ t('Only the first {count} domains were checked, so an auction may be missing from this list.', { count: auctions?.scannedDomains || 0 }) }}
+          </p>
+        </template>
       </UiCard>
 
       <UiCard v-else border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
@@ -179,6 +257,10 @@
       <DomainSettingsDialog :model-value="showSettingsModal" :records="settingsRecords" :domain="selectedDomain" :expiry-label="selectedDomain ? expiryText(selectedDomain) : ''" :cost-label="settingsCostLabel" :pqc-min-balance-label="settingsPqcMinBalanceLabel" :cooldown-seconds="settingsCooldownSeconds" :wallet-balance-label="settingsWalletBalanceLabel" :can-submit="canSaveSettings" :busy="savingSettings" :insufficient-balance="settingsInsufficientBalance" @update:model-value="closeSettingsModal" @submit="saveSettings" @add-record="addSettingsRecord" @remove-record="removeSettingsRecord" />
 
       <TransferDomainDialog :model-value="showTransferModal" :new-owner="transferForm.newOwner" :domain="transferDomain" :expiry-label="transferDomain ? expiryText(transferDomain) : ''" :fee-label="transferFeeLabel" :can-submit="canTransfer" :busy="transferring" @update:model-value="closeTransferModal" @update:new-owner="transferForm.newOwner = $event" @submit="confirmTransfer" />
+
+      <RenewDomainDialog :model-value="showRenewModal" :domain="renewDomain" :status="renewDomain?.status || 'active'" :expiry-label="renewDomain ? expiryText(renewDomain) : ''" :duration-days="renewDurationDays" :price-label="renewPriceLabel" :new-expiry-label="renewNewExpiryLabel" :can-submit="canSubmitRenew" :busy="renewing" @update:model-value="closeRenewModal" @update:duration-days="renewDurationDays = $event" @submit="confirmRenew" />
+
+      <BidDomainDialog :model-value="showBidModal" :auction="bidAuction" :closes-label="bidAuction ? auctionClosesLabel(bidAuction) : ''" :highest-bid-label="bidAuction ? highestBidLabel(bidAuction) : ''" :minimum-bid-label="bidMinimumLabel" :amount="bidAmount" :amount-error="bidAmountError" :bid-fee-label="bidFeeLabel" :can-submit="canSubmitBid" :busy="bidding" @update:model-value="closeBidModal" @update:amount="bidAmount = $event" @submit="confirmBid" />
     </main>
 
   </div>
@@ -192,6 +274,8 @@ import UiErrorState from '../../ui/UiErrorState.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import UiCard from '../../ui/UiCard.vue';
 import UiEmptyState from '../../ui/UiEmptyState.vue';
+import UiWarningBox from '../../ui/UiWarningBox.vue';
+import UiSpinner from '../../ui/UiSpinner.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
 import UiTag from '../../ui/UiTag.vue';
@@ -212,7 +296,9 @@ import {
   Settings,
   Send,
   Trash2,
-  Rocket
+  Rocket,
+  Gavel,
+  RefreshCw
 } from 'lucide-vue-next';
 import { profilesState, activeProfileId } from '../../stores/profilesStore';
 import InternalSidebar from '../../components/InternalSidebar.vue';
@@ -229,6 +315,17 @@ import UglyDomainRecordDialog from '../../dialogs/UglyDomainRecordDialog.vue';
 import RegisterDomainDialog from '../../dialogs/RegisterDomainDialog.vue';
 import DomainSettingsDialog from '../../dialogs/DomainSettingsDialog.vue';
 import TransferDomainDialog from '../../dialogs/TransferDomainDialog.vue';
+import RenewDomainDialog from '../../dialogs/RenewDomainDialog.vue';
+import BidDomainDialog from '../../dialogs/BidDomainDialog.vue';
+import {
+  formatUlmn,
+  lmnLabel,
+  loadAuctions,
+  minimumNextBidUlmn,
+  toLifecycleStatus,
+  toUlmn
+} from '../services/domainAuctions';
+import type { AuctionList, AuctionRow } from '../../types/domainAuctions';
 import { useTabNavigation, useTabState } from '../../composables/useTabNavigation';
 const { currentTabRefresh } = useTabState();
 
@@ -244,14 +341,16 @@ const profileAddress = computed(() => {
 const domains = ref<DomainRow[]>([]);
 const loading = ref(false);
 const error = ref('');
-const activeNameTab = ref<'lumen' | 'stable'>('lumen');
+const activeNameTab = ref<'lumen' | 'stable' | 'auctions'>('lumen');
 const rawDomains = ref<RawDomainRow[]>([]);
 const rawDomainsLoading = ref(false);
 const rawDomainsError = ref('');
 
-const pageTitle = computed(() =>
-  activeNameTab.value === 'stable' ? t('Ugly domains') : t('Lumen Domains')
-);
+const pageTitle = computed(() => {
+  if (activeNameTab.value === 'stable') return t('Ugly domains');
+  if (activeNameTab.value === 'auctions') return t('Auctions');
+  return t('Lumen Domains');
+});
 
 useTabLoadingSync(loading);
 
@@ -294,6 +393,43 @@ const transferForm = ref({
   newOwner: ''
 });
 const transferring = ref(false);
+
+// ---------------------------------------------------------------------------
+// Renew, and auctions.
+//
+// A registration lapses in three steps: it expires, it sits in a grace period
+// where only the owner can rescue it, then it opens to public auction and the
+// name can be bought out from under them. Both halves of that are here - the
+// renew action on the owner's own rows, and the auction list anyone can bid in.
+// Neither computes the windows: the main process does, the way the chain does.
+// ---------------------------------------------------------------------------
+const showRenewModal = ref(false);
+const renewDomain = ref<DomainRow | null>(null);
+const renewDurationDays = ref(365);
+const renewPriceUlmn = ref<number | null>(null);
+const renewing = ref(false);
+
+const auctions = ref<AuctionList | null>(null);
+const auctionsLoading = ref(false);
+const auctionsError = ref('');
+const showBidModal = ref(false);
+const bidAuction = ref<AuctionRow | null>(null);
+const bidAmount = ref('');
+const bidding = ref(false);
+const settlingName = ref('');
+
+/**
+ * Ticks while the page is open so that every countdown below counts down.
+ *
+ * An auction is seven days wide and the numbers that matter are at its end, so
+ * a static "closes in 2 hours" rendered once on load is wrong by the time
+ * anyone reads it.
+ */
+const auctionNow = ref(Date.now());
+const auctionClock = window.setInterval(() => {
+  auctionNow.value = Date.now();
+}, 30_000);
+
 const stableLinkModalMode = ref<'generate' | 'import' | null>(null);
 const stableLinkNameDraft = ref('');
 const stableLinkSaving = ref(false);
@@ -382,6 +518,7 @@ const settingsClock = window.setInterval(() => {
   settingsNow.value = Date.now();
 }, 1000);
 onBeforeUnmount(() => window.clearInterval(settingsClock));
+onBeforeUnmount(() => window.clearInterval(auctionClock));
 
 /** Read for the open dialog, from the chain, each time it opens. */
 const settingsUpdatedAtSeconds = ref<number | null>(null);
@@ -834,7 +971,9 @@ function expiryText(d: DomainRow): string {
   if (!d.expireAtSeconds) return t('Expires: unknown');
   const ms = d.expireAtSeconds * 1000;
   const days = Math.floor((ms - Date.now()) / 86_400_000);
-  if (days < 0) return `Expired ${prettyDate(ms)}`;
+  // Was a bare template literal, so the one label an owner sees at the moment
+  // it matters most was the only one still in English in every language.
+  if (days < 0) return t('Expired {date}', { date: prettyDate(ms) });
   return t('Expires {date}', { date: prettyDate(ms) });
 }
 
@@ -879,10 +1018,17 @@ async function loadDomains() {
         const rawUpdated = dom?.updated_at ?? dom?.updatedAt ?? null;
         const updated =
           typeof rawUpdated === 'string' ? parseInt(rawUpdated, 10) : Number(rawUpdated);
+        // The lifecycle comes from the main process, which computes it the way
+        // the chain does. Recomputing it here from `expire_at` is how the badge
+        // on this row and the auction list end up disagreeing.
+        const lifecycle = dom?.lifecycle || null;
+        const auctionStart = Number(lifecycle?.auctionStart ?? 0);
         return {
           name,
           expireAtSeconds: sec,
           updatedAtSeconds: Number.isFinite(updated) && updated > 0 ? updated : null,
+          status: lifecycle ? toLifecycleStatus(lifecycle.status) : null,
+          auctionStartSeconds: Number.isFinite(auctionStart) && auctionStart > 0 ? auctionStart : null,
         } as DomainRow;
       })
       .filter((d: DomainRow | null): d is DomainRow => !!d);
@@ -1253,6 +1399,349 @@ async function confirmTransfer() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Renew
+// ---------------------------------------------------------------------------
+
+/**
+ * How long is left before the name stops being the owner's to renew quietly.
+ *
+ * Measured to the auction opening, not to the expiry: the grace period after
+ * expiry is still uncontested, and counting down to the expiry alone tells an
+ * owner they have zero days left while they in fact have a week.
+ */
+function daysUntil(seconds: number | null): number | null {
+  if (!seconds) return null;
+  return Math.ceil((seconds * 1000 - auctionNow.value) / 86_400_000);
+}
+
+/** Rows the page nags about: expired, or close enough that it matters. */
+const RENEW_SOON_DAYS = 30;
+
+function renewUrgency(d: DomainRow): 'none' | 'soon' | 'urgent' {
+  if (d.status === 'grace' || d.status === 'auction') return 'urgent';
+  const days = daysUntil(d.expireAtSeconds);
+  if (days == null) return 'none';
+  return days <= RENEW_SOON_DAYS ? 'soon' : 'none';
+}
+
+/**
+ * The rows as drawn, each carrying how loudly it is asking to be renewed.
+ *
+ * Decorated here rather than called from the template: the urgency depends on
+ * the ticking clock, and a template calling it once per button per row would
+ * recompute the same answer three times a row on every tick.
+ */
+const domainRows = computed(() =>
+  domains.value.map((d) => ({
+    ...d,
+    urgency: renewUrgency(d),
+    renewable: canRenewDomain(d)
+  }))
+);
+
+/**
+ * A domain that has gone `free` is past renewing: the row still names the old
+ * owner, so the chain would take the money and extend a registration anyone
+ * else can now claim underneath.
+ */
+function canRenewDomain(d: DomainRow): boolean {
+  return d.status !== 'free';
+}
+
+function openRenewModal(d: DomainRow) {
+  renewDomain.value = d;
+  renewDurationDays.value = 365;
+  renewPriceUlmn.value = null;
+  showRenewModal.value = true;
+  void refreshRenewPrice();
+}
+
+function closeRenewModal() {
+  showRenewModal.value = false;
+  renewDomain.value = null;
+  renewPriceUlmn.value = null;
+}
+
+/**
+ * What the chain would charge. Renew is priced by the same quote as
+ * registration - `params.PriceQuote(len(domain), len(ext), days)` - so the
+ * existing estimate is asked rather than the arithmetic being repeated here.
+ */
+async function refreshRenewPrice() {
+  const name = renewDomain.value?.name;
+  if (!name) {
+    renewPriceUlmn.value = null;
+    return;
+  }
+  const dnsApi = useInternalLumen()?.dns;
+  if (typeof dnsApi?.estimateRegisterPrice !== 'function') {
+    renewPriceUlmn.value = null;
+    return;
+  }
+  try {
+    const est = await dnsApi.estimateRegisterPrice({
+      name,
+      duration_days: renewDurationDays.value
+    });
+    const amount =
+      typeof est?.amountNumber === 'number'
+        ? est.amountNumber
+        : parseInt(String(est?.amount || '0'), 10) || 0;
+    renewPriceUlmn.value = Math.max(0, amount);
+  } catch (e) {
+    console.error('[domains] refreshRenewPrice error', e);
+    renewPriceUlmn.value = null;
+  }
+}
+
+watch(renewDurationDays, () => {
+  void refreshRenewPrice();
+});
+
+const renewPriceLabel = computed(() =>
+  renewPriceUlmn.value == null ? '…' : lmnLabel(String(renewPriceUlmn.value))
+);
+
+/**
+ * The expiry this renewal buys. The chain adds the duration to the existing
+ * expiry, not to today - so renewing early loses nothing, and the dialog says
+ * so with a date rather than leaving it to be assumed either way.
+ */
+const renewNewExpiryLabel = computed(() => {
+  const from = renewDomain.value?.expireAtSeconds;
+  if (!from) return '';
+  const next = (from + renewDurationDays.value * 86_400) * 1000;
+  return t('New expiry: {date}', { date: prettyDate(next) });
+});
+
+const canSubmitRenew = computed(
+  () => !!renewDomain.value && renewDurationDays.value > 0 && !renewing.value
+);
+
+async function confirmRenew() {
+  if (!canSubmitRenew.value || renewing.value) return;
+  const name = renewDomain.value?.name;
+  const owner = (profileAddress.value || '').trim();
+  const profileId = activeProfileId.value;
+  if (!name || !owner || !profileId) {
+    showToast(t('Missing required information for renewal'), 'error');
+    return;
+  }
+
+  const dnsApi = useInternalLumen()?.dns;
+  if (typeof dnsApi?.renewDomain !== 'function') {
+    showToast(t('Domain renewal bridge not available.'), 'error');
+    return;
+  }
+
+  renewing.value = true;
+  try {
+    const res = await dnsApi.renewDomain({
+      profileId,
+      owner,
+      name,
+      durationDays: renewDurationDays.value
+    });
+    if (await handledSigningFailure(res, t('Failed to renew the domain.'))) return;
+
+    showToast(t('Domain {name} renewed', { name }), 'success');
+    closeRenewModal();
+    await loadDomains();
+  } catch (e) {
+    console.error('[domains] confirmRenew error', e);
+    showToast(t('Unexpected error while renewing domain'), 'error');
+  } finally {
+    renewing.value = false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Auctions
+// ---------------------------------------------------------------------------
+
+/**
+ * The three ways a signature fails that every caller here handles the same way,
+ * in one place: a locked wallet has to lock the session before anything else,
+ * and the rest is the chain's own message.
+ *
+ * @returns true when the result was a failure and has been reported.
+ */
+async function handledSigningFailure(res: any, fallback: string): Promise<boolean> {
+  if (res?.ok === false && (res?.error === 'password_required' || res?.error === 'invalid_password')) {
+    try { await useInternalLumen()?.security?.lockSession?.(); } catch { /* already locked */ }
+    showToast(t('Wallet locked. Unlock to continue.'), 'warning');
+    return true;
+  }
+  if (!res || res.ok === false) {
+    showToast(res?.error ? describeChainError(String(res.error)) : fallback, 'error');
+    return true;
+  }
+  return false;
+}
+
+async function loadAuctionList() {
+  auctionsLoading.value = true;
+  auctionsError.value = '';
+  try {
+    auctions.value = await loadAuctions();
+  } catch (e) {
+    console.error('[domains] loadAuctionList error', e);
+    auctionsError.value = t('Failed to load auctions.');
+  } finally {
+    auctionsLoading.value = false;
+  }
+}
+
+const auctionRows = computed(() => auctions.value?.rows || []);
+
+const bidFeeLabel = computed(() => lmnLabel(String(auctions.value?.bidFeeUlmn ?? 0)));
+
+/** Whether one of my own domains is among the names being auctioned. */
+const myAuctionedNames = computed(() => {
+  const mine = new Set(domains.value.map((d) => d.name));
+  return auctionRows.value.filter((row) => mine.has(row.name)).map((row) => row.name);
+});
+
+function auctionClosesLabel(row: AuctionRow): string {
+  if (!row.auctionEndSeconds) return t('Closing time unknown');
+  const remainingMs = row.auctionEndSeconds * 1000 - auctionNow.value;
+  if (remainingMs <= 0) return t('Closed, waiting to be settled');
+
+  const hours = Math.floor(remainingMs / 3_600_000);
+  if (hours >= 48) return t('Closes in {count} days', { count: Math.floor(hours / 24) });
+  if (hours >= 1) return t('Closes in {count} hours', { count: hours });
+  return t('Closes in {count} minutes', { count: Math.max(1, Math.floor(remainingMs / 60_000)) });
+}
+
+function highestBidLabel(row: AuctionRow): string {
+  return row.highestBidUlmn ? lmnLabel(row.highestBidUlmn) : t('No bids yet');
+}
+
+/**
+ * The floor the dialog shows. One ulmn over the standing bid where there is
+ * one; where there is none the chain's floor is a year of registration for that
+ * specific name, which is not known here - so the dialog says that in words
+ * rather than printing a number it would be guessing.
+ */
+const bidMinimumLabel = computed(() => {
+  const current = bidAuction.value?.highestBidUlmn || '';
+  const next = minimumNextBidUlmn(current);
+  return next ? lmnLabel(next) : t('One year of registration for this name');
+});
+
+/** Empty while what is typed is still bid-able; the dialog shows it in place of its hint. */
+const bidAmountError = computed(() => {
+  const typed = bidAmount.value.trim();
+  if (!typed) return '';
+  const ulmn = toUlmn(typed);
+  if (!ulmn || ulmn === '0') return t('Enter an amount in LMN, to at most six decimals.');
+  const current = bidAuction.value?.highestBidUlmn || '';
+  if (current && BigInt(ulmn) <= BigInt(current)) {
+    return t('Must be more than the highest bid of {amount}', { amount: lmnLabel(current) });
+  }
+  return '';
+});
+
+const canSubmitBid = computed(
+  () => !!bidAuction.value && !!toUlmn(bidAmount.value.trim()) && !bidAmountError.value && !bidding.value
+);
+
+function openBidModal(row: AuctionRow) {
+  bidAuction.value = row;
+  // Pre-filled with the smallest winning bid: the amount that is always valid,
+  // and the one someone has to type by hand from a number shown elsewhere.
+  const next = minimumNextBidUlmn(row.highestBidUlmn);
+  bidAmount.value = next ? formatUlmn(next) : '';
+  showBidModal.value = true;
+}
+
+function closeBidModal() {
+  showBidModal.value = false;
+  bidAuction.value = null;
+  bidAmount.value = '';
+}
+
+async function confirmBid() {
+  if (!canSubmitBid.value || bidding.value) return;
+  const name = bidAuction.value?.name;
+  const owner = (profileAddress.value || '').trim();
+  const profileId = activeProfileId.value;
+  const amountUlmn = toUlmn(bidAmount.value.trim());
+  if (!name || !owner || !profileId || !amountUlmn) {
+    showToast(t('Missing required information for the bid'), 'error');
+    return;
+  }
+
+  const dnsApi = useInternalLumen()?.dns;
+  if (typeof dnsApi?.bidDomain !== 'function') {
+    showToast(t('Auction bridge not available.'), 'error');
+    return;
+  }
+
+  bidding.value = true;
+  try {
+    const res = await dnsApi.bidDomain({ profileId, owner, name, amountUlmn });
+    if (await handledSigningFailure(res, t('Failed to place the bid.'))) return;
+
+    showToast(t('Bid placed on {name}', { name }), 'success');
+    closeBidModal();
+    await loadAuctionList();
+  } catch (e) {
+    console.error('[domains] confirmBid error', e);
+    showToast(t('Unexpected error while placing the bid'), 'error');
+  } finally {
+    bidding.value = false;
+  }
+}
+
+/**
+ * Closes a finished auction. Anyone may send this - the chain reads the winner
+ * off the auction row - and until somebody does, the winning bidder has not
+ * been given the name they won.
+ */
+async function confirmSettle(row: AuctionRow) {
+  if (settlingName.value) return;
+  const owner = (profileAddress.value || '').trim();
+  const profileId = activeProfileId.value;
+  if (!row.name || !owner || !profileId) {
+    showToast(t('Select or create a profile with a wallet first.'), 'error');
+    return;
+  }
+
+  const dnsApi = useInternalLumen()?.dns;
+  if (typeof dnsApi?.settleDomain !== 'function') {
+    showToast(t('Auction bridge not available.'), 'error');
+    return;
+  }
+
+  settlingName.value = row.name;
+  try {
+    const res = await dnsApi.settleDomain({ profileId, owner, name: row.name });
+    if (await handledSigningFailure(res, t('Failed to settle the auction.'))) return;
+
+    showToast(t('Auction for {name} settled', { name: row.name }), 'success');
+    await Promise.all([loadAuctionList(), loadDomains()]);
+  } catch (e) {
+    console.error('[domains] confirmSettle error', e);
+    showToast(t('Unexpected error while settling the auction'), 'error');
+  } finally {
+    settlingName.value = '';
+  }
+}
+
+/**
+ * Refetched on every return to the tab, because what it shows is a set of
+ * deadlines and the page is often left open.
+ */
+watch(activeNameTab, (tab) => {
+  if (tab === 'auctions') void loadAuctionList();
+});
+
 void loadDomains();
 void loadRawDomains();
+// Also loaded up front, unasked: it is three requests, and it is what puts the
+// count on the sidebar tab and finds an owner's own name in the list. A warning
+// nobody sees until they open the tab is not a warning.
+void loadAuctionList();
 </script>
