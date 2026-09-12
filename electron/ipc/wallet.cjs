@@ -838,6 +838,130 @@ function registerWalletIpc() {
     }
   });
 
+  /**
+   * Splits an fqdn into the two fields every dns message carries separately.
+   *
+   * Renew, bid and settle all act on a name that came back from the chain, so
+   * it always has its extension on it. A bare name is refused rather than given
+   * a default: the three handlers above each guessed a different one - register
+   * assumes `lumen`, transfer assumes `lmn` - and a guess here decides which
+   * domain the signature covers.
+   */
+  function splitFqdn(nameInput) {
+    const name = String(nameInput || '').trim().toLowerCase();
+    const m = name.match(/^([^.]+)\.([^.]+)$/);
+    if (!m) return null;
+    return { domain: m[1], ext: m[2] };
+  }
+
+  /**
+   * The plumbing shared by renew, bid and settle.
+   *
+   * All three are the same transaction with a different message in the middle:
+   * unlock the profile, load the signing bridge, check the signer really is the
+   * address the caller claims, decrypt the PQC keys for the length of the
+   * signature, broadcast, and map the failures onto the error strings the
+   * renderer already understands. That is a hundred lines each, and the part
+   * that differs is the two lines `build` returns.
+   *
+   * @param build receives the module and the parsed name, and returns the
+   *   message to sign - or a string, which is returned to the caller as the
+   *   error and nothing is signed.
+   */
+  async function signDnsTx({ input, label, memo, build }) {
+    const profileId = String(input && input.profileId ? input.profileId : '').trim();
+    const nameRaw = (input && (input.fqdn || input.name)) ? (input.fqdn || input.name) : '';
+    const name = String(nameRaw || '').trim();
+    const owner = String(
+      input && (input.owner || input.address) ? (input.owner || input.address) : ''
+    ).trim();
+    const password = input && input.password ? String(input.password) : null;
+
+    if (!profileId) return { ok: false, error: 'missing_profileId' };
+    if (!name) return { ok: false, error: 'missing_name' };
+    if (!owner) return { ok: false, error: 'missing_owner' };
+
+    const parts = splitFqdn(name);
+    if (!parts) return { ok: false, error: 'invalid_name' };
+
+    const pwdCheck = checkPasswordForSigning(password);
+    if (!pwdCheck.ok) return { ok: false, error: pwdCheck.error };
+
+    let mnemonic;
+    try {
+      mnemonic = loadMnemonic(profileId, password);
+    } catch (loadErr) {
+      const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+      if (errMsg === 'password_required') return { ok: false, error: 'password_required' };
+      return { ok: false, error: errMsg };
+    }
+
+    const mod = await loadBridge();
+    if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+      return { ok: false, error: 'wallet_bridge_unavailable' };
+    }
+
+    const prefixMatch = String(owner).match(/^([a-z0-9]+)1/i);
+    const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+    const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+    let sender = owner;
+    try {
+      if (signer && typeof signer.getAccounts === 'function') {
+        const accounts = await signer.getAccounts();
+        const addr = String(
+          accounts && accounts[0] && accounts[0].address ? accounts[0].address : ''
+        ).trim();
+        if (addr) sender = addr;
+      }
+    } catch {
+      // Keep the caller's address: the mismatch check below is what matters.
+    }
+
+    // The profile signs with a different address than the page was showing.
+    // Deliberately not phrased as "not the owner": settle is sent by whoever
+    // closes the auction, so what is wrong here is the profile, not the deed.
+    if (owner && sender && owner !== sender) {
+      return { ok: false, error: 'signer_address_mismatch', detail: { owner, sender } };
+    }
+
+    const client = await connectSigningClientWithFailover(mod, signer, {
+      pqc: { homeDir: resolvePqcHome() }
+    });
+
+    let cleanupPqc = null;
+    const effectivePassword = password || getSessionPassword();
+    if (arePqcKeysEncrypted()) {
+      if (!effectivePassword) return { ok: false, error: 'password_required' };
+      cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+      if (!cleanupPqc) return { ok: false, error: 'invalid_password' };
+    }
+
+    try {
+      const dnsMod = typeof client.dns === 'function' ? client.dns() : client.dns;
+      if (!dnsMod) return { ok: false, error: 'dns_module_unavailable' };
+
+      const msg = await build({ dnsMod, sender, domain: parts.domain, ext: parts.ext });
+      if (typeof msg === 'string') return { ok: false, error: msg };
+      if (!msg || !msg.typeUrl) return { ok: false, error: 'dns_module_unavailable' };
+
+      const res = await signAndBroadcastWithPqcAutoLink({
+        bridgeMod: mod,
+        client,
+        profileId,
+        address: sender,
+        msgs: [msg],
+        fee: zeroFee(),
+        memo: String((input && input.memo) || memo),
+        label
+      });
+
+      return { ok: true, txhash: res.transactionHash || res.hash || '' };
+    } finally {
+      if (cleanupPqc) cleanupPqc();
+    }
+  }
+
   ipcMain.handle('dns:createDomain', async (_evt, input) => {
     try {
       const profileId = String(input && input.profileId ? input.profileId : '').trim();
@@ -1271,6 +1395,102 @@ function registerWalletIpc() {
       } finally {
         if (cleanupPqc) cleanupPqc();
       }
+    } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
+      const raw = String(e && e.message ? e.message : e);
+      return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
+    }
+  });
+
+  /**
+   * Buys more time on a domain the profile owns.
+   *
+   * `duration_days` is priced by the same quote as registration, and the chain
+   * reads 0 as "the maximum", so an unset duration is not a cheap no-op - it is
+   * the most expensive renewal available. It is required here for that reason.
+   */
+  ipcMain.handle('dns:renewDomain', async (_evt, input) => {
+    try {
+      const durationDays = Number(
+        input && (input.durationDays ?? input.duration_days ?? input.days)
+      );
+      if (!Number.isFinite(durationDays) || durationDays <= 0) {
+        return { ok: false, error: 'missing_durationDays' };
+      }
+
+      return await signDnsTx({
+        input,
+        label: 'dns_renewDomain',
+        memo: 'dns:renew',
+        build: ({ dnsMod, sender, domain, ext }) => {
+          if (typeof dnsMod.msgRenew !== 'function') return 'dns_module_unavailable';
+          // camelCase: the SDK builds MsgRenew from `payload.durationDays` and
+          // reads a snake_case key as absent, which the chain then treats as
+          // the maximum duration and charges for.
+          return dnsMod.msgRenew(sender, {
+            domain,
+            ext,
+            durationDays: Math.floor(durationDays)
+          });
+        }
+      });
+    } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
+      const raw = String(e && e.message ? e.message : e);
+      return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
+    }
+  });
+
+  /**
+   * Bids on a domain whose auction window is open.
+   *
+   * The amount is in ulmn and stays a string the whole way down: a bid is
+   * compared against the standing one as an integer on the chain, and passing
+   * it through a float is how the last digits of a large bid move.
+   */
+  ipcMain.handle('dns:bidDomain', async (_evt, input) => {
+    try {
+      const amount = String(input && (input.amountUlmn ?? input.amount) ? (input.amountUlmn ?? input.amount) : '').trim();
+      if (!/^[0-9]+$/.test(amount) || amount === '0') {
+        return { ok: false, error: 'invalid_amount' };
+      }
+
+      return await signDnsTx({
+        input,
+        label: 'dns_bidDomain',
+        memo: 'dns:bid',
+        build: ({ dnsMod, sender, domain, ext }) => {
+          if (typeof dnsMod.msgBid !== 'function') return 'dns_module_unavailable';
+          return dnsMod.msgBid(sender, { domain, ext, amount });
+        }
+      });
+    } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
+      const raw = String(e && e.message ? e.message : e);
+      return { ok: false, error: sanitizeDecryptErrorMessage(raw) };
+    }
+  });
+
+  /**
+   * Closes a finished auction: the chain moves the name to the winning bidder
+   * and takes the bid. Anyone may send it - the winner is read from the auction
+   * row, not from the signer - which is why this one does not belong to the
+   * owner the way renew does.
+   */
+  ipcMain.handle('dns:settleDomain', async (_evt, input) => {
+    try {
+      return await signDnsTx({
+        input,
+        label: 'dns_settleDomain',
+        memo: 'dns:settle',
+        build: ({ dnsMod, sender, domain, ext }) => {
+          if (typeof dnsMod.msgSettle !== 'function') return 'dns_module_unavailable';
+          return dnsMod.msgSettle(sender, { domain, ext });
+        }
+      });
     } catch (e) {
       const indexing = indexingDisabledResult(e);
       if (indexing) return indexing;

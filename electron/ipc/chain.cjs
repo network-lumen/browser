@@ -3,6 +3,13 @@ const { httpGet } = require('./http.cjs');
 const { getNetworkPool } = require('../daemons/peers/pool_singleton.cjs');
 const { trimSlash } = require('../utils/strings.cjs');
 const { pollChainOnce, getChainState } = require('../daemons/chain_poller.cjs');
+const {
+  toSeconds,
+  lifecycleWindows,
+  lifecycleStatus,
+  isAuctionOpen,
+  isAuctionSettleable
+} = require('../chain/domainLifecycle.cjs');
 
 // Which node to talk to is the peer pool's decision, not this module's: it
 // reads resources/peers.txt once (daemons/peers/peer_pool.cjs) and tracks health per
@@ -853,6 +860,28 @@ async function dnsListByOwnerDetailed(ownerInput) {
       : [];
   if (!names.length) return { ok: true, data: [] };
 
+  // Where each domain is in its life, computed here rather than in the page.
+  // The rule lives in one place (chain/domainLifecycle.cjs) so that the badge
+  // the owner reads and the auction list they can bid in cannot disagree about
+  // whether a name is in grace. Params failing is not fatal: the rows are still
+  // worth listing, they just carry no status.
+  let graceDays = 0;
+  let auctionDays = 0;
+  let haveParams = false;
+  try {
+    const paramsRes = await dnsGetParams();
+    if (paramsRes && paramsRes.ok !== false) {
+      const params = (paramsRes.data && (paramsRes.data.params || paramsRes.data)) || {};
+      graceDays = toSeconds(params.grace_days ?? params.graceDays);
+      auctionDays = toSeconds(params.auction_days ?? params.auctionDays);
+      haveParams = true;
+    }
+  } catch {
+    // Listed without a status rather than not listed at all.
+  }
+
+  const nowSec = Math.floor(Date.now() / 1000);
+
   const out = [];
   for (const rawName of names) {
     const name = String(rawName || '').trim();
@@ -862,12 +891,154 @@ async function dnsListByOwnerDetailed(ownerInput) {
       const d = await httpGet(u, { timeout: LCD_ITEM_TIMEOUT_MS });
       if (!d.ok) continue;
       const dom = (d.json && (d.json.domain || d.json)) || {};
+      if (haveParams) {
+        const expireAt = toSeconds(dom.expire_at ?? dom.expireAt);
+        dom.lifecycle = {
+          ...lifecycleWindows(expireAt, graceDays, auctionDays),
+          status: lifecycleStatus(nowSec, expireAt, graceDays, auctionDays)
+        };
+      }
       out.push(dom);
     } catch {
       // ignore per-domain errors
     }
   }
-  return { ok: true, data: out };
+  return { ok: true, data: out, params: haveParams ? { graceDays, auctionDays } : null };
+}
+
+/**
+ * Pages through a cosmos-sdk list query until it runs out or hits the cap.
+ *
+ * The cap is not a performance tweak. `/lumen/dns/v1/domain` is an unbounded
+ * list and this runs on every visit to the auctions tab, so without a stop the
+ * page's load time is a function of how well the chain has sold. Truncation is
+ * reported rather than hidden - the caller says so in the UI.
+ */
+async function lcdListAll(url, key, { pageLimit = 200, maxPages = 10, timeout = 20_000 } = {}) {
+  const out = [];
+  let pageKey = '';
+  let truncated = false;
+
+  for (let page = 0; page < maxPages; page += 1) {
+    const params = new URLSearchParams({ 'pagination.limit': String(pageLimit) });
+    if (pageKey) params.set('pagination.key', pageKey);
+    const res = await httpGet(`${url}?${params.toString()}`, { timeout });
+    if (!res.ok) {
+      return { ok: false, status: res.status, error: res.error || `http_${res.status}` };
+    }
+    const rows = Array.isArray(res.json && res.json[key]) ? res.json[key] : [];
+    out.push(...rows);
+
+    pageKey = String((res.json && res.json.pagination && res.json.pagination.next_key) || '');
+    if (!pageKey) break;
+    // The loop is about to end with a key still outstanding.
+    if (page === maxPages - 1) truncated = true;
+  }
+
+  return { ok: true, data: out, truncated };
+}
+
+/**
+ * Every auction a user can act on, with what it would take to act.
+ *
+ * Two sources have to be read, because neither is complete on its own:
+ *
+ *  - `/lumen/dns/v1/auction` holds a row only once somebody has bid. `Bid`
+ *    creates it lazily, so a domain whose auction window is open but which
+ *    nobody has bid on yet is absent from this list entirely.
+ *  - `/lumen/dns/v1/domain` holds every domain and its `expire_at`, from which
+ *    the window is arithmetic - but says nothing about bids.
+ *
+ * So the domain scan finds the open auctions and the auction rows fill in the
+ * standing bid. The union also keeps a row whose window has closed while the
+ * row still exists: `Settle` is what removes it, and until someone sends that
+ * message the winner has not been paid out.
+ */
+async function dnsListAuctions() {
+  const restBase = getRestBaseUrl();
+  if (!restBase) return { ok: false, error: 'rest_base_missing' };
+  const base = trimSlash(restBase);
+
+  const paramsRes = await dnsGetParams();
+  if (!paramsRes || paramsRes.ok === false) {
+    return { ok: false, error: (paramsRes && paramsRes.error) || 'dns_params_unavailable' };
+  }
+  const params = (paramsRes.data && (paramsRes.data.params || paramsRes.data)) || {};
+  const graceDays = toSeconds(params.grace_days ?? params.graceDays);
+  const auctionDays = toSeconds(params.auction_days ?? params.auctionDays);
+  const bidFeeUlmn = toSeconds(params.bid_fee_ulmn ?? params.bidFeeUlmn);
+
+  const [domainsRes, auctionsRes] = await Promise.all([
+    lcdListAll(`${base}/lumen/dns/v1/domain`, 'domain'),
+    lcdListAll(`${base}/lumen/dns/v1/auction`, 'auction')
+  ]);
+  if (domainsRes.ok === false) return domainsRes;
+  if (auctionsRes.ok === false) return auctionsRes;
+
+  const nowSec = Math.floor(Date.now() / 1000);
+
+  // Keyed by fqdn: the auction row's `index` is the name the domain row carries.
+  const bids = new Map();
+  for (const auc of auctionsRes.data) {
+    const name = String((auc && (auc.index || auc.name)) || '').trim();
+    if (name) bids.set(name, auc);
+  }
+
+  const domainsByName = new Map();
+  for (const dom of domainsRes.data) {
+    const name = String((dom && (dom.index || dom.name)) || '').trim();
+    if (name) domainsByName.set(name, dom);
+  }
+
+  const rows = [];
+  const seen = new Set();
+
+  const addRow = (name, dom, auc) => {
+    if (!name || seen.has(name)) return;
+    const expireAt = toSeconds(dom && (dom.expire_at ?? dom.expireAt));
+    const windows = lifecycleWindows(expireAt, graceDays, auctionDays);
+    const status = lifecycleStatus(nowSec, expireAt, graceDays, auctionDays);
+    const highestBid = String((auc && (auc.highest_bid ?? auc.highestBid)) || '');
+    const bidder = String((auc && auc.bidder) || '');
+
+    // A row the chain would still accept a settlement for: the window has
+    // closed and a winner is on record. Without this the auctions tab shows
+    // the name vanishing at the end of the window with nobody paid.
+    const settleable = !!bidder && !!highestBid && isAuctionSettleable(nowSec, expireAt, graceDays, auctionDays);
+    const open = isAuctionOpen(nowSec, expireAt, graceDays, auctionDays);
+    if (!open && !settleable) return;
+
+    seen.add(name);
+    rows.push({
+      name,
+      status,
+      owner: String((dom && dom.owner) || ''),
+      expireAtSeconds: expireAt || null,
+      auctionStartSeconds: windows.auctionStart || null,
+      auctionEndSeconds: windows.auctionEnd || null,
+      highestBidUlmn: highestBid,
+      bidder,
+      open,
+      settleable
+    });
+  };
+
+  for (const [name, dom] of domainsByName) addRow(name, dom, bids.get(name) || null);
+  // An auction row whose domain the scan truncated away, or which outlived its
+  // window, is still actionable.
+  for (const [name, auc] of bids) addRow(name, domainsByName.get(name) || null, auc);
+
+  // Soonest deadline first: an auction closing in an hour is the one a bidder
+  // needs to see, not the one closing in six days.
+  rows.sort((a, b) => (a.auctionEndSeconds || 0) - (b.auctionEndSeconds || 0));
+
+  return {
+    ok: true,
+    data: rows,
+    truncated: !!domainsRes.truncated,
+    params: { graceDays, auctionDays, bidFeeUlmn },
+    scannedDomains: domainsByName.size
+  };
 }
 
 function registerChainIpc() {
@@ -913,6 +1084,14 @@ function registerChainIpc() {
   ipcMain.handle('dns:listByOwnerDetailed', async (_evt, owner) => {
     try {
       return await dnsListByOwnerDetailed(owner);
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
+  ipcMain.handle('dns:listAuctions', async () => {
+    try {
+      return await dnsListAuctions();
     } catch (e) {
       return { ok: false, error: String(e && e.message ? e.message : e) };
     }

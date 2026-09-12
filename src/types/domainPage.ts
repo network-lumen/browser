@@ -1,3 +1,5 @@
+import type { DomainLifecycleStatus } from './domainAuctions';
+
 export type DomainRow = {
   name: string;
   expireAtSeconds: number | null;
@@ -7,6 +9,17 @@ export type DomainRow = {
    * is what says whether saving is possible yet.
    */
   updatedAtSeconds: number | null;
+  /**
+   * Where the chain puts this name in its life, computed in the main process
+   * from `expire_at` and the two governable params. Null when the params could
+   * not be read - the row is still listed, it just carries no status.
+   */
+  status: DomainLifecycleStatus | null;
+  /**
+   * When this name would open to public auction, in seconds. What the owner
+   * actually has to act before, and further out than the expiry itself.
+   */
+  auctionStartSeconds: number | null;
 };
 
 export type RawDomainRow = {

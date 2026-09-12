@@ -467,9 +467,13 @@ contextBridge.exposeInMainWorld('lumen', {
     getDomainInfo: (name) => ipcRenderer.invoke('dns:getDomainInfo', name),
     listByOwnerDetailed: (owner) => ipcRenderer.invoke('dns:listByOwnerDetailed', owner),
     estimateRegisterPrice: (input) => ipcRenderer.invoke('dns:estimateRegisterPrice', input || {}),
+    listAuctions: () => ipcRenderer.invoke('dns:listAuctions'),
     createDomain: (input) => ipcRenderer.invoke('dns:createDomain', input || {}),
     updateDomain: (input) => ipcRenderer.invoke('dns:updateDomain', input || {}),
-    transferDomain: (input) => ipcRenderer.invoke('dns:transferDomain', input || {})
+    transferDomain: (input) => ipcRenderer.invoke('dns:transferDomain', input || {}),
+    renewDomain: (input) => ipcRenderer.invoke('dns:renewDomain', input || {}),
+    bidDomain: (input) => ipcRenderer.invoke('dns:bidDomain', input || {}),
+    settleDomain: (input) => ipcRenderer.invoke('dns:settleDomain', input || {})
   },
   wallet: {
     getBalance: (address, opts) => ipcRenderer.invoke('wallet:getBalance', { address, ...(opts || {}) }),
