@@ -377,8 +377,25 @@ contextBridge.exposeInMainWorld('lumen', {
     restGet: (path, options) => ipcRenderer.invoke('net:restGet', path, options || {}),
     broadcastTx: (txBytes, options) => ipcRenderer.invoke('net:broadcastTx', txBytes, options || {}),
     getState: () => ipcRenderer.invoke('net:getState'),
+    getNetwork: () => ipcRenderer.invoke('net:getNetwork'),
+    setNetwork: (id) => ipcRenderer.invoke('net:setNetwork', id),
+    getExplorerAccountUrl: (address) => ipcRenderer.invoke('net:getExplorerAccountUrl', address),
     getValidators: () => ipcRenderer.invoke('net:getValidators'),
-    refreshOnChain: () => ipcRenderer.invoke('net:refreshOnChain')
+    refreshOnChain: () => ipcRenderer.invoke('net:refreshOnChain'),
+    onNetworkChanged: (callback) => {
+      if (typeof callback !== 'function') return () => {};
+      const handler = (_event, payload) => {
+        try {
+          callback(payload);
+        } catch {
+          // A listener that throws must not take the switch down with it.
+        }
+      };
+      ipcRenderer.on('net:networkChanged', handler);
+      return () => {
+        ipcRenderer.removeListener('net:networkChanged', handler);
+      };
+    }
   },
   release: {
     getLatestInfo: () => ipcRenderer.invoke('release:getLatestInfo'),

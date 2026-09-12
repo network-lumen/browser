@@ -382,11 +382,11 @@
                 <li class="m-0px mt-4px mb-4px">{{ t('All transactions are recorded on-chain') }}</li>
                 <li class="m-0px mt-4px mb-4px">{{ t('Transaction history cannot be queried via API') }}</li>
               </ul>
-              <div class="mt-12px">
+              <div v-if="explorerAccountHref" class="mt-12px">
                 <strong>{{ t('Alternative:') }}</strong> {{ t('Use a block explorer to view your transaction history:') }}
                 <br>
                 <a
-                  :href="`https://explorer.lumen.network/account/${address}`"
+                  :href="explorerAccountHref"
                   target="_blank"
                   class="mt-4px inline-block color-primary underline"
                 >
@@ -652,6 +652,7 @@ import SubscriptionsPanel from '../../panels/SubscriptionsPanel.vue';
 import AddressBookPanel from '../../panels/AddressBookPanel.vue';
 import CosmosChainsPanel from '../../panels/CosmosChainsPanel.vue';
 import { loadIbcPairChannels } from '../services/cosmosDirectory';
+import { explorerAccountUrl } from '../services/lumenNetwork';
 import { requestProfileImport } from '../../stores/profileImportStore';
 import {
   DEFAULT_FEE_GAS,
@@ -876,6 +877,9 @@ const assetRowRefreshingId = ref('');
 let assetPollingTimer: number | null = null;
 const ASSET_POLL_INTERVAL_MS = 15_000;
 const currentNetworkChainId = ref('');
+// Empty when the active network publishes no explorer, which the banner above
+// renders as no link rather than as a link to another chain's explorer.
+const explorerAccountHref = ref('');
 const showAssetTransferModal = ref(false);
 const assetTransferSending = ref(false);
 const assetTransferContext = ref<AssetRow | null>(null);
@@ -920,6 +924,14 @@ const toast = useToast();
 onMounted(() => {
   loadContacts();
 });
+
+watch(
+  address,
+  async (value) => {
+    explorerAccountHref.value = value ? await explorerAccountUrl(value) : '';
+  },
+  { immediate: true }
+);
 
 onBeforeUnmount(() => {
   if (assetPollingTimer !== null) {

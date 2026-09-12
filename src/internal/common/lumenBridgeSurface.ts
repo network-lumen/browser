@@ -83,7 +83,8 @@ export const REQUIRED_NAMESPACES = {
     'getHeight', 'onHeightChanged'
   ],
   net: [
-    'rpcGet', 'restGet', 'broadcastTx', 'getState', 'getValidators', 'refreshOnChain'
+    'rpcGet', 'restGet', 'broadcastTx', 'getState', 'getNetwork', 'setNetwork',
+    'getExplorerAccountUrl', 'getValidators', 'refreshOnChain', 'onNetworkChanged'
   ],
   release: [
     'getLatestInfo', 'pollNow', 'downloadAndInstall',

@@ -1,4 +1,4 @@
-const { ipcMain, clipboard } = require('electron');
+const { BrowserWindow, ipcMain, clipboard } = require('electron');
 const {
   getSettings,
   setSettings,
@@ -16,6 +16,7 @@ const {
 } = require('../bootstrap_paths.cjs');
 const { syncActiveSessionTimeout } = require('./security.cjs');
 const { startIpfsDaemon, stopIpfsDaemon } = require('../ipfs.cjs');
+const { resetNetworkPool } = require('../daemons/peers/pool_singleton.cjs');
 
 /**
  * App settings, the gateway list the user maintains by hand, the private-cloud
@@ -44,6 +45,42 @@ function restartIpfsIfEndpointsChanged(before, after) {
   }, 250);
 }
 
+/**
+ * Switching network invalidates every peer in the pool, the chain id, and every
+ * balance and transaction already on screen. The pool is dropped so the next
+ * read bootstraps from the new network's section of peers.txt, and the windows
+ * are told so the pages refetch rather than showing another chain's numbers
+ * under the new network's name.
+ */
+function applyNetworkChange(before, after) {
+  if (String(before?.lumenNetwork || '') === String(after?.lumenNetwork || '')) return;
+
+  try { resetNetworkPool(); } catch {}
+  try {
+    BrowserWindow.getAllWindows().forEach((w) => {
+      try {
+        w.webContents?.send('net:networkChanged', { networkId: after.lumenNetwork });
+      } catch {
+        // A window that has gone away is not worth failing the switch over.
+      }
+    });
+  } catch {}
+}
+
+/**
+ * The one way the network setting is written.
+ *
+ * `settings:set` and `net:setNetwork` both land here, so neither can be the
+ * path that forgets to drop the pool - which would leave the app on the old
+ * chain's peers while the setting, and the UI reading it, said otherwise.
+ */
+function setLumenNetworkSetting(id) {
+  const before = getSettings();
+  const res = setSettings({ lumenNetwork: String(id || '') });
+  if (res?.ok && res?.settings) applyNetworkChange(before, res.settings);
+  return res;
+}
+
 function registerSettingsIpc() {
   ipcMain.handle('settings:getAll', async () => ({ ok: true, settings: getSettings() }));
 
@@ -56,6 +93,7 @@ function registerSettingsIpc() {
         try { syncActiveSessionTimeout(after.securitySessionTimeoutMs); } catch {}
       }
       restartIpfsIfEndpointsChanged(before, after);
+      applyNetworkChange(before, after);
     }
     return res;
   });
@@ -141,4 +179,5 @@ function registerSettingsIpc() {
 
 module.exports = {
   registerSettingsIpc,
+  setLumenNetworkSetting,
 };

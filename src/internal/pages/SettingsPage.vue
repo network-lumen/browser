@@ -185,6 +185,29 @@
       <!-- ####### lumen://settings NETWORK VIEW ####### -->
       <div v-else-if="currentView === 'network'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
+          <UiOptionRow :label="t('Lumen network')" :description="t('Which Lumen chain the wallet, the network page and every signature use. Other Cosmos chains are always mainnet.')" control-class="flex-justify-end">
+            <div class="flex gap-8px border-radius-10px flex-wrap-wrap bg-secondary border-1 p-4px">
+              <UiSegmentedButton
+                v-for="option in lumenNetworkOptions"
+                :key="option.id"
+                :active="lumenNetwork === option.id"
+                :disabled="lumenNetworkSaving"
+                extra-class="flex-justify-center min-w-140px"
+                @click="saveLumenNetwork(option.id)"
+              >
+                <span>{{ option.label }}</span>
+              </UiSegmentedButton>
+            </div>
+          </UiOptionRow>
+
+          <UiHintText>
+            {{ t('Chain id:') }}
+            <span class="break-all mono">{{ lumenChainIdSummary }}</span>
+          </UiHintText>
+          <UiHintText>
+            {{ t('Switching forgets every known peer and bootstraps again from that network\'s section of peers.txt. Balances and history are re-read from the chain you switch to.') }}
+          </UiHintText>
+
           <UiOptionRow :label="t('Kubo connectivity')" :description="t('Controls how many peer connections the embedded IPFS node tries to keep.')" control-class="flex-justify-end">
             <div class="flex gap-8px border-radius-10px flex-wrap-wrap bg-secondary border-1 p-4px">
               <UiSegmentedButton :active="ipfsConnectivityMode === 'light'" :disabled="networkSettingsSaving" extra-class="flex-justify-center min-w-140px" @click="saveIpfsConnectivityMode('light')">
@@ -885,6 +908,8 @@ import { t, useI18n } from '../../stores/i18nStore';
 import { STORAGE_KEYS, readString, writeString } from '../services/storage';
 import { clamp, errorMessage } from '../services/coerce';
 import { normalizeHttpBaseUrl } from '../services/navigationUrl';
+import { listLumenNetworks, setLumenNetwork } from '../services/lumenNetwork';
+import type { LumenNetworkIdentity } from '../../types/lumenNetwork';
 import { useToast } from '../../composables/useToast';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
 import { useHistory } from '../../stores/historyStore';
@@ -1135,10 +1160,52 @@ const showViolentContent = ref(!!appSettingsState.value.showViolentContent);
 const showDisturbingImagery = ref(!!appSettingsState.value.showDisturbingImagery);
 const contentSaving = ref(false);
 
+// Which Lumen the app talks to. The list comes from the main process rather
+// than from a literal here, so adding a network is a change to
+// electron/chain/networks.cjs and nothing else.
+const lumenNetwork = ref<string>(appSettingsState.value.lumenNetwork || 'mainnet');
+const lumenNetworkOptions = ref<LumenNetworkIdentity[]>([]);
+const lumenNetworkSaving = ref(false);
+
+const lumenChainIdSummary = computed(() => {
+  const active = lumenNetworkOptions.value.find((option) => option.id === lumenNetwork.value);
+  return active?.chainId || t('unknown');
+});
+
+async function loadLumenNetworkOptions() {
+  lumenNetworkOptions.value = await listLumenNetworks();
+}
+
+async function saveLumenNetwork(nextId: string) {
+  if (lumenNetworkSaving.value) return;
+  if (lumenNetwork.value === nextId) return;
+
+  const previous = lumenNetwork.value;
+  lumenNetworkSaving.value = true;
+  networkSettingsError.value = '';
+  lumenNetwork.value = nextId;
+
+  try {
+    const res = await setLumenNetwork(nextId);
+    if (!res.ok) {
+      lumenNetwork.value = previous;
+      networkSettingsError.value = String(res.error || t('Failed to switch network.'));
+      toast.error(networkSettingsError.value);
+      return;
+    }
+    // The pages holding balances read them from the other chain, and nothing
+    // short of a reload gets every one of them to ask again.
+    toast.success(t('Network switched. Reload open pages to re-read them from the new chain.'));
+  } finally {
+    lumenNetworkSaving.value = false;
+  }
+}
+
 watch(
   () => appSettingsState.value,
   (next) => {
     ipfsConnectivityMode.value = next.ipfsConnectivityMode || 'normal';
+    lumenNetwork.value = next.lumenNetwork || 'mainnet';
     showSexualContent.value = !!next.showSexualContent;
     showViolentContent.value = !!next.showViolentContent;
     showDisturbingImagery.value = !!next.showDisturbingImagery;
@@ -1403,6 +1470,8 @@ watch(
 // Load security status on mount
 onMounted(() => {
   loadSecurityStatus();
+  // Unconditional: the network view can be the one the page opens on.
+  void loadLumenNetworkOptions();
 });
 
 // Reload security status when switching to security view
@@ -1411,6 +1480,7 @@ watch(
   (v) => {
     if (v === 'network') {
       networkSettingsError.value = '';
+      void loadLumenNetworkOptions();
     }
     if (v === 'security') {
       loadSecurityStatus();

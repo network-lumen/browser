@@ -2,6 +2,7 @@ const { app, BrowserWindow } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { writeFileAtomic } = require('./utils/fs.cjs');
+const { DEFAULT_NETWORK_ID, isNetworkId, normalizeNetworkId } = require('./chain/networks.cjs');
 
 const DEFAULT_SECURITY_SESSION_TIMEOUT_MS = 15 * 60 * 1000;
 const BYTES_PER_GIB = 1024 * 1024 * 1024;
@@ -18,6 +19,10 @@ const VALID_SECURITY_SESSION_TIMEOUTS = new Set([
 
 const DEFAULT_SETTINGS = Object.freeze({
   localGatewayBase: 'http://127.0.0.1:8088',
+
+  // Which Lumen to talk to. Only Lumen: every other Cosmos chain the wallet
+  // reaches is mainnet-only and unaffected by this.
+  lumenNetwork: DEFAULT_NETWORK_ID,
 
   ipfsApiBase: 'http://127.0.0.1:5001',
   ipfsConnectivityMode: 'normal',
@@ -134,6 +139,7 @@ function getSettings() {
   const disk = loadSettingsFromDisk();
   const settings = {
     localGatewayBase: normalizeBaseUrl(disk.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase),
+    lumenNetwork: normalizeNetworkId(disk.lumenNetwork, DEFAULT_SETTINGS.lumenNetwork),
     ipfsApiBase: normalizeBaseUrl(disk.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase),
     ipfsConnectivityMode: normalizeIpfsConnectivityMode(
       Object.prototype.hasOwnProperty.call(disk, 'ipfsConnectivityMode')
@@ -192,6 +198,12 @@ function setSettings(partial) {
     if (!r.ok) return { ok: false, error: 'invalid_ipfsApiBase' };
     next.ipfsApiBase = r.value;
   }
+  if (Object.prototype.hasOwnProperty.call(p, 'lumenNetwork')) {
+    // Refused rather than coerced: silently falling back to mainnet is how
+    // someone ends up broadcasting a transaction they believed was a test.
+    if (!isNetworkId(p.lumenNetwork)) return { ok: false, error: 'invalid_lumenNetwork' };
+    next.lumenNetwork = normalizeNetworkId(p.lumenNetwork, DEFAULT_SETTINGS.lumenNetwork);
+  }
   if (Object.prototype.hasOwnProperty.call(p, 'ipfsConnectivityMode')) {
     if (!isValidIpfsConnectivityMode(p.ipfsConnectivityMode)) {
       return { ok: false, error: 'invalid_ipfsConnectivityMode' };
@@ -231,6 +243,7 @@ function setSettings(partial) {
 
   next.localGatewayBase = normalizeBaseUrl(next.localGatewayBase, DEFAULT_SETTINGS.localGatewayBase);
   next.ipfsApiBase = normalizeBaseUrl(next.ipfsApiBase, DEFAULT_SETTINGS.ipfsApiBase);
+  next.lumenNetwork = normalizeNetworkId(next.lumenNetwork, DEFAULT_SETTINGS.lumenNetwork);
   next.ipfsConnectivityMode = normalizeIpfsConnectivityMode(
     next.ipfsConnectivityMode,
     DEFAULT_SETTINGS.ipfsConnectivityMode,

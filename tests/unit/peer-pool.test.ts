@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createRequire } from 'node:module';
 
 const require_ = createRequire(import.meta.url);
-const { PeerPool } = require_('../../electron/daemons/peers/peer_pool.cjs');
+const { PeerPool, parseBootstrapPeers } = require_('../../electron/daemons/peers/peer_pool.cjs');
 
 /**
  * Which node the wallet talks to.
@@ -140,5 +140,85 @@ describe('chain identity', () => {
     const pool = poolWith(1);
     pool.networkChainId = 'lumen-1';
     expect(pool.pickPeers('rpc', 5, { requireAlive: false })).toHaveLength(1);
+  });
+
+  it('pins the chain id from the network rather than from whoever answers first', () => {
+    // Latching onto the first peer to reply is fine until a peer discovered
+    // from a validator's description replies first.
+    const pool = new PeerPool({ networkId: 'testnet', expectedChainId: 'lumen-testnet' });
+    expect(pool.networkChainId).toBe('lumen-testnet');
+  });
+});
+
+describe('getBestPeer, which is what the wallet reads through', () => {
+  // `pickPeers` filters on chain id and this did not, so `lumen://network` and
+  // `lumen://wallet` could disagree about which chain they were on: the network
+  // page reads through pickPeers, and every balance, delegation and signing
+  // endpoint in ipc/chain.cjs reads through this. One foreign peer was enough,
+  // because the fallbacks below reach for any peer rather than return nothing.
+  const alive = (pool: any, rpc: string, patch: Record<string, unknown> = {}) => {
+    Object.assign(pool.getPeerByRpc(rpc), { lastSeenAt: Date.now(), latencyMs: 10 }, patch);
+  };
+
+  it('never returns a peer on another chain, however fast it is', () => {
+    const pool = poolWith(2);
+    pool.networkChainId = 'lumen-testnet';
+    alive(pool, 'https://rpc1.test', { chainId: 'lumen', latencyMs: 1 });
+    alive(pool, 'https://rpc2.test', { chainId: 'lumen-testnet', latencyMs: 900 });
+
+    expect(pool.getBestPeer('rpc').rpc).toBe('https://rpc2.test');
+    expect(pool.getBestPeer('rest').rpc).toBe('https://rpc2.test');
+  });
+
+  it('returns nothing rather than a peer on another chain', () => {
+    // The fallbacks are there so a degraded network stays usable. They must not
+    // be a way back in for a chain we did not ask about.
+    const pool = poolWith(1);
+    pool.networkChainId = 'lumen-testnet';
+    alive(pool, 'https://rpc1.test', { chainId: 'lumen' });
+
+    expect(pool.getBestPeer('rpc')).toBeFalsy();
+  });
+
+  it('prefers the fastest peer that is neither slow nor suspect', () => {
+    const pool = poolWith(3);
+    alive(pool, 'https://rpc1.test', { latencyMs: 50 });
+    alive(pool, 'https://rpc2.test', { latencyMs: 10, suspectUntil: Date.now() + 60_000 });
+    alive(pool, 'https://rpc3.test', { latencyMs: 20 });
+
+    expect(pool.getBestPeer('rpc').rpc).toBe('https://rpc3.test');
+  });
+});
+
+describe('the bootstrap file', () => {
+  const FILE = [
+    '# a comment',
+    '[mainnet]',
+    'https://rpc-main.test https://rest-main.test grpc-main.test:443',
+    '',
+    '[testnet]',
+    '# https://commented-out.test',
+    'https://rpc-test.test https://rest-test.test',
+  ].join('\n');
+
+  it('loads only the section for the network asked for', () => {
+    expect(parseBootstrapPeers(FILE, 'mainnet')).toEqual([
+      { rpc: 'https://rpc-main.test', rest: 'https://rest-main.test', grpc: 'grpc-main.test:443' },
+    ]);
+    expect(parseBootstrapPeers(FILE, 'testnet')).toEqual([
+      { rpc: 'https://rpc-test.test', rest: 'https://rest-test.test', grpc: null },
+    ]);
+  });
+
+  it('returns nothing for a section the file does not have', () => {
+    // Better an empty pool, which is loud, than mainnet peers under a testnet
+    // name, which is not.
+    expect(parseBootstrapPeers(FILE, 'devnet')).toEqual([]);
+  });
+
+  it('treats a file written before sections existed as mainnet', () => {
+    const old = 'https://rpc1.test https://rest1.test';
+    expect(parseBootstrapPeers(old, 'mainnet')).toHaveLength(1);
+    expect(parseBootstrapPeers(old, 'testnet')).toHaveLength(0);
   });
 });

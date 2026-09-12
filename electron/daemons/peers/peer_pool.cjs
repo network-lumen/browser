@@ -19,6 +19,12 @@ const DEFAULTS = {
 // resources/peers.txt is the only way in: the pool has nowhere to ask until it
 // has one peer to ask. Everything after that comes from the chain's own
 // validator set.
+//
+// The file is split into `[<network>]` sections and only the active network's
+// section is loaded, so switching between mainnet and testnet is a change of
+// setting rather than a change of file.
+
+const { DEFAULT_NETWORK_ID } = require('../../chain/networks.cjs');
 
 let _cachedPeersFilePath = null;
 let _loggedPeersPath = false;
@@ -75,23 +81,53 @@ function parsePeerLine(line) {
   return { rpc, rest, grpc };
 }
 
-function loadBootstrapPeers() {
+/** `[testnet]` on a line of its own opens a section, and returns its name. */
+function parseSectionHeader(line) {
+  const cleaned = String(line || '').replace(/#.*/, '').trim();
+  const match = cleaned.match(/^\[([a-z0-9_-]+)\]$/i);
+  return match ? match[1].trim().toLowerCase() : null;
+}
+
+/**
+ * The peers to start from, for one network.
+ *
+ * A file written before sections existed has no headers at all, so lines seen
+ * before the first one are treated as mainnet's: an old peers.txt keeps working
+ * unchanged rather than silently bootstrapping nothing.
+ *
+ * @param {string} [networkId] which section to read; defaults to mainnet.
+ */
+function parseBootstrapPeers(raw, networkId = DEFAULT_NETWORK_ID) {
+  const wanted = String(networkId || DEFAULT_NETWORK_ID).trim().toLowerCase();
+  let section = DEFAULT_NETWORK_ID;
+  const peers = [];
+
+  for (const line of String(raw || '').split(/\r?\n/)) {
+    const header = parseSectionHeader(line);
+    if (header) {
+      section = header;
+      continue;
+    }
+    if (section !== wanted) continue;
+
+    const parsed = parsePeerLine(line);
+    if (!parsed) continue;
+    peers.push({
+      rpc: ensureHttp(parsed.rpc),
+      rest: parsed.rest ? ensureHttp(parsed.rest) : null,
+      grpc: parsed.grpc ? String(parsed.grpc).trim() : null
+    });
+  }
+
+  return peers;
+}
+
+function loadBootstrapPeers(networkId = DEFAULT_NETWORK_ID) {
   const filePath = resolvePeersFilePath();
   if (!filePath) return [];
 
   try {
-    const raw = fs.readFileSync(filePath, 'utf8');
-    const peers = [];
-    for (const line of raw.split(/\r?\n/)) {
-      const parsed = parsePeerLine(line);
-      if (!parsed) continue;
-      peers.push({
-        rpc: ensureHttp(parsed.rpc),
-        rest: parsed.rest ? ensureHttp(parsed.rest) : null,
-        grpc: parsed.grpc ? String(parsed.grpc).trim() : null
-      });
-    }
-    return peers;
+    return parseBootstrapPeers(fs.readFileSync(filePath, 'utf8'), networkId);
   } catch (e) {
     console.warn('[net] unable to read peers file:', filePath, e && e.message ? e.message : e);
     return [];
@@ -139,13 +175,38 @@ function shouldCountAsPeerFailure(res) {
 }
 
 class PeerPool {
+  /**
+   * @param {object} [options]
+   * @param {string} [options.networkId] which network this pool serves, for the
+   *   snapshot the UI reads.
+   * @param {string} [options.expectedChainId] the chain id the active network
+   *   is defined to have. When given it pins `networkChainId` from the start
+   *   rather than letting the first peer that answers decide, which is what
+   *   makes a peer discovered on-chain unable to drag the pool onto another
+   *   chain.
+   */
   constructor(options = {}) {
     this.opts = { ...DEFAULTS, ...(options || {}) };
     this.peersByRpc = new Map();
-    this.networkChainId = null;
+    this.networkId = String((options && options.networkId) || '').trim() || null;
+    this.expectedChainId = String((options && options.expectedChainId) || '').trim() || null;
+    this.networkChainId = this.expectedChainId;
     this.lastOnChainRefreshAt = 0;
     this.validators = [];
     this._refreshRunning = false;
+  }
+
+  /**
+   * Is this peer known to be on a chain that is not ours?
+   *
+   * Unknown is not wrong: a peer that has never answered has no chain id yet,
+   * and refusing those would empty the pool at startup, before anything has
+   * been pinged.
+   */
+  _isForeignChain(peer) {
+    if (!this.networkChainId) return false;
+    if (!peer || !peer.chainId) return false;
+    return peer.chainId !== this.networkChainId;
   }
 
   upsertPeer(input) {
@@ -212,7 +273,9 @@ class PeerPool {
       });
     }
     return {
+      networkId: this.networkId,
       networkChainId: this.networkChainId,
+      expectedChainId: this.expectedChainId,
       lastOnChainRefreshAt: this.lastOnChainRefreshAt,
       peers
     };
@@ -241,7 +304,7 @@ class PeerPool {
       if (exclude && exclude.has && exclude.has(p.rpc)) continue;
       if (kind === 'rest' && !p.rest) continue;
       if (p.deathUntil > now) continue;
-      if (this.networkChainId && p.chainId && p.chainId !== this.networkChainId) continue;
+      if (this._isForeignChain(p)) continue;
       if (requireAlive) {
         if (!this._isAlive(p, now)) continue;
       } else {
@@ -311,28 +374,38 @@ class PeerPool {
     return { ...(res || { ok: false, status: 0, error: 'request_failed' }), peer: { rpc: p.rpc, rest: p.rest || null, grpc: p.grpc || null } };
   }
 
+  /**
+   * The single peer to use when there is no quorum to build - a balance read,
+   * a signing endpoint, the chain id a signature will cover.
+   *
+   * Every filter here has to match `pickPeers`, and the chain-id one most of
+   * all. It was missing, and that is the whole reason `lumen://network` could
+   * be on one chain while `lumen://wallet` read another: the network page reads
+   * through `pickPeers`, and everything in `ipc/chain.cjs` reads through this.
+   * A single mainnet peer picked up from a validator's description was enough,
+   * because the fallbacks below will reach for any peer at all rather than
+   * return nothing.
+   */
   getBestPeer(kind = 'rpc') {
     const now = Date.now();
-    const peers = Array.from(this.peersByRpc.values()).filter((p) => {
+    const eligible = Array.from(this.peersByRpc.values()).filter((p) => {
       if (kind === 'rest' && !p.rest) return false;
-      return this._isAlive(p, now) && !(p.slowUntil > now) && !(p.suspectUntil > now);
+      return !this._isForeignChain(p);
     });
+
+    const peers = eligible.filter(
+      (p) => this._isAlive(p, now) && !(p.slowUntil > now) && !(p.suspectUntil > now)
+    );
     if (peers.length) {
       peers.sort((a, b) => (a.latencyMs || 9e9) - (b.latencyMs || 9e9));
       return peers[0];
     }
 
     // Fallbacks: allow slow/suspect but still alive, then any non-dead.
-    const aliveAny = Array.from(this.peersByRpc.values()).filter((p) => {
-      if (kind === 'rest' && !p.rest) return false;
-      return this._isAlive(p, now);
-    });
+    const aliveAny = eligible.filter((p) => this._isAlive(p, now));
     if (aliveAny.length) return pickRandom(aliveAny, 1)[0] || null;
 
-    const nonDead = Array.from(this.peersByRpc.values()).filter((p) => {
-      if (kind === 'rest' && !p.rest) return false;
-      return !(p.deathUntil > now);
-    });
+    const nonDead = eligible.filter((p) => !(p.deathUntil > now));
     return pickRandom(nonDead, 1)[0] || null;
   }
 
@@ -395,8 +468,23 @@ class PeerPool {
     if (!this.networkChainId && parsed.chainId) {
       this.networkChainId = parsed.chainId;
     } else if (this.networkChainId && parsed.chainId && this.networkChainId !== parsed.chainId) {
-      // Chain ID mismatch -> suspect
-      peer.suspectUntil = Date.now() + this.opts.slowTtlMs;
+      // On another chain. When the id was pinned by the active network this is
+      // settled, not suspicious - the peer answers for a chain we did not ask
+      // about - so it is put down for a while rather than left to be re-pinged
+      // every health tick. It comes back when the death expires, in case the
+      // node itself moved.
+      if (this.expectedChainId) {
+        peer.deathUntil = Date.now() + this.opts.deathTtlMs;
+        // Said out loud because pinning has a failure mode worth naming: a
+        // chain redeployed under a new id turns every peer foreign at once, and
+        // the app goes quiet rather than wrong. This line is what tells the
+        // difference between that and an outage.
+        console.warn(
+          `[net] ${peer.rpc} answers for ${parsed.chainId}, not ${this.expectedChainId} - not using it`
+        );
+      } else {
+        peer.suspectUntil = Date.now() + this.opts.slowTtlMs;
+      }
     }
 
     return { ok: true, chainId: parsed.chainId, height: parsed.height };
@@ -577,5 +665,6 @@ class PeerPool {
 
 module.exports = {
   PeerPool,
-  loadBootstrapPeers
+  loadBootstrapPeers,
+  parseBootstrapPeers
 };

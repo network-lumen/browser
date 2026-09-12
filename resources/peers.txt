@@ -1,23 +1,23 @@
-# Default peer endpoints
+# Default peer endpoints, by network.
+#
 # Format: rpc rest [grpc]
-# Lines beginning with # are ignored.
+# `[<network>]` opens a section; only the active network's section is loaded.
+# The active network is the `lumenNetwork` setting (Settings > Network).
+# Lines before any header belong to [mainnet]. Lines beginning with # are ignored.
+
+[mainnet]
 
 # Primary endpoints (verified working)
 https://lumen-rpc.linknode.org        https://lumen-api.linknode.org        lumen-grpc.linknode.org:443
-https://lumen.blocksync.me/rpc        https://lumen.blocksync.me/api        lumen-grpc.blocksync.me:443
-https://lumen-rpc.node9x.com          https://lumen-api.node9x.com
 https://rpc.lumen.chaintools.tech     https://api.lumen.chaintools.tech
+https://lumen-mainnet-rpc.mekonglabs.com https://lumen-mainnet-api.mekonglabs.com/
 
-# Disabled - DNS not found (ENOTFOUND)
-# 
-# https://rpc.lumen.node9x.com          https://api.lumen.node9x.com
 
-# ERR_TLS_CERT_ALTNAME_INVALID
-# https://lumen-mainnet-rpc.mekonglabs.tech https://lumen-mainnet-api.mekonglabs.tech lumen-mainnet-grpc.mekonglabs.tech:35090
+[testnet]
 
-# TESTNET
+https://testnet-rpc.lumen.chaintools.tech:443 https://testnet-api.lumen.chaintools.tech:443
 # http://157.180.17.63:26657 http://157.180.17.63:1317 http://157.180.17.63:9090
-# https://testnet-rpc.lumen.chaintools.tech/ https://testnet-api.lumen.chaintools.tech/
 
-# DEVNET
-# http://172.28.209.134:26670 http://172.28.209.134:1330 http://172.28.209.134:9190
+# A devnet would go in a [devnet] section here, once electron/chain/networks.cjs
+# describes one - a section with no matching network entry is never loaded.
+# http://172.28.209.134:26657 http://172.28.209.134:1317 http://172.28.209.134:9090
