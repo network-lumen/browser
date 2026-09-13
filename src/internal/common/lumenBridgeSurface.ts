@@ -104,7 +104,7 @@ export const REQUIRED_NAMESPACES = {
     'getBalance', 'getTokenomicsParams', 'sendTokens', 'ibcTransfer', 'listSendTxs',
     'getDelegations', 'getUnbondingDelegations', 'getRedelegations', 'getStakingRewards',
     'delegate', 'undelegate', 'redelegate', 'withdrawRewards', 'withdrawAllRewards', 'cosmosStake',
-    'govSubmitProposal', 'govVote'
+    'govSubmitProposal', 'govVote', 'govCancelProposal'
   ],
   gateway: [
     'getWalletUsage', 'getWalletPinnedCids', 'getBaseUrl', 'checkAlive', 'getPlansOverview',

@@ -2779,6 +2779,113 @@ function registerWalletIpc() {
     }
   });
 
+  /**
+   * Withdraws a proposal before its vote ends. x/gov accepts it only from the
+   * proposal's own proposer, and charges every deposit `proposal_cancel_ratio`
+   * for it - burned, or sent to `proposal_cancel_dest` - which the renderer
+   * states before anything is signed.
+   *
+   * MsgCancelProposal is in neither CosmJS's default registry nor the Lumen
+   * SDK's own list, so it is registered on the client's registry first. That is
+   * the instance the transaction is encoded with: LumenSigningClient hands the
+   * same object to SigningStargateClient when it connects.
+   */
+  ipcMain.handle('wallet:govCancelProposal', async (_evt, input) => {
+    try {
+      const profileId = String(input && input.profileId ? input.profileId : '').trim();
+      const address = String(input && input.address ? input.address : '').trim();
+      const proposalId = String(input && input.proposalId ? input.proposalId : '').trim();
+      const password = input && input.password ? String(input.password) : null;
+
+      if (!profileId) return { ok: false, error: 'missing_profileId' };
+      if (!address || !proposalId || !/^\d+$/.test(proposalId)) {
+        return { ok: false, error: 'missing_required_fields' };
+      }
+
+      const pwdCheck = checkPasswordForSigning(password);
+      if (!pwdCheck.ok) {
+        return { ok: false, error: pwdCheck.error };
+      }
+
+      let mnemonic;
+      try {
+        mnemonic = loadMnemonic(profileId, password);
+      } catch (loadErr) {
+        const errMsg = loadErr && loadErr.message ? loadErr.message : String(loadErr);
+        if (errMsg === 'password_required') {
+          return { ok: false, error: 'password_required' };
+        }
+        return { ok: false, error: errMsg };
+      }
+      if (!mnemonic) return { ok: false, error: 'no_mnemonic_found' };
+
+      const mod = await loadBridge();
+      if (!mod || !mod.walletFromMnemonic || !mod.LumenSigningClient) {
+        return { ok: false, error: 'wallet_bridge_unavailable' };
+      }
+
+      const prefixMatch = address.match(/^([a-z0-9]+)1/i);
+      const prefix = (prefixMatch && prefixMatch[1]) || 'lmn';
+      const signer = await mod.walletFromMnemonic(mnemonic, prefix);
+
+      const client = await connectSigningClientWithFailover(mod, signer, {
+        pqc: { homeDir: resolvePqcHome() }
+      });
+
+      let cleanupPqc = null;
+      const effectivePassword = password || getSessionPassword();
+      if (arePqcKeysEncrypted()) {
+        if (!effectivePassword) {
+          return { ok: false, error: 'password_required' };
+        }
+        cleanupPqc = tempDecryptPqcKeys(effectivePassword);
+        if (!cleanupPqc) {
+          return { ok: false, error: 'invalid_password' };
+        }
+      }
+
+      try {
+        const { MsgCancelProposal } = await import('cosmjs-types/cosmos/gov/v1/tx');
+        const typeUrl = '/cosmos.gov.v1.MsgCancelProposal';
+
+        const registry = getRegistryForEncode(client);
+        if (!registry) return { ok: false, error: 'registry_unavailable' };
+        try {
+          if (!registry.lookupType(typeUrl)) registry.register(typeUrl, MsgCancelProposal);
+        } catch {
+          registry.register(typeUrl, MsgCancelProposal);
+        }
+
+        const msg = {
+          typeUrl,
+          value: MsgCancelProposal.fromPartial({
+            proposalId: BigInt(proposalId),
+            proposer: address
+          })
+        };
+
+        const res = await signAndBroadcastWithPqcAutoLink({
+          bridgeMod: mod,
+          client,
+          profileId,
+          address,
+          msgs: [msg],
+          fee: zeroFee(),
+          memo: 'dao:cancel',
+          label: 'wallet_govCancelProposal',
+        });
+        const txhash = res.transactionHash || res.hash || '';
+        return { ok: true, txhash };
+      } finally {
+        if (cleanupPqc) cleanupPqc();
+      }
+    } catch (e) {
+      const indexing = indexingDisabledResult(e);
+      if (indexing) return indexing;
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   ipcMain.handle('release:publish', async (_evt, input) => {
     try {
       const profileId = String(input && input.profileId ? input.profileId : '').trim();

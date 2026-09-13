@@ -562,10 +562,16 @@
                     <FileText :size="16" />
                     {{ isProposalExpanded(proposal.id) ? t('Hide details') : t('Details') }}
                   </UiButton>
-                  <UiButton variant="primary" @click="openVoteModal(proposal)">
-                    <Vote :size="16" />
-                    {{ t('Vote') }}
-                  </UiButton>
+                  <div class="flex-align-center gap-8px">
+                    <UiButton v-if="canCancelProposal(proposal, activeGovernanceAddress, governanceNow)" variant="secondary" @click="openCancelProposalModal(proposal)">
+                      <Ban :size="16" />
+                      {{ t('Cancel proposal') }}
+                    </UiButton>
+                    <UiButton variant="primary" @click="openVoteModal(proposal)">
+                      <Vote :size="16" />
+                      {{ t('Vote') }}
+                    </UiButton>
+                  </div>
                 </div>
 
                 <div v-if="isProposalExpanded(proposal.id)" class="mt-16px pt-16px border-top-default">
@@ -609,10 +615,14 @@
                 beside the reason is what tells you which one the chain choked
                 on.
               -->
-              <div v-if="proposal.messages.length" class="mt-12px">
-                <UiButton variant="secondary" size="sm" @click="toggleProposalDetails(proposal.id)">
+              <div v-if="proposal.messages.length || canCancelProposal(proposal, activeGovernanceAddress, governanceNow)" class="flex-align-center flex-wrap-wrap gap-8px mt-12px">
+                <UiButton v-if="proposal.messages.length" variant="secondary" size="sm" @click="toggleProposalDetails(proposal.id)">
                   <FileText :size="14" />
                   {{ isProposalExpanded(proposal.id) ? t('Hide details') : t('Details') }}
+                </UiButton>
+                <UiButton v-if="canCancelProposal(proposal, activeGovernanceAddress, governanceNow)" variant="secondary" size="sm" @click="openCancelProposalModal(proposal)">
+                  <Ban :size="14" />
+                  {{ t('Cancel proposal') }}
                 </UiButton>
               </div>
 
@@ -647,6 +657,20 @@
     <!-- ####### GOVERNANCE: VOTE MODAL ####### -->
     <CastVoteDialog :model-value="showVoteModal" v-model:option="voteOption" :is-voting="isVoting" :selected-proposal="selectedProposal" @update:model-value="closeVoteModal" @submit="castVote" />
 
+    <!-- ####### GOVERNANCE: CANCEL PROPOSAL CONFIRMATION ####### -->
+    <ConfirmDialog
+      :model-value="showCancelProposalModal"
+      :title="t('Cancel proposal #{id}?', { id: cancelTarget?.id ?? '' })"
+      :message="cancelTarget?.title || ''"
+      :consequence="cancelProposalConsequence"
+      :confirm-label="t('Cancel proposal')"
+      :busy-label="t('Cancelling…')"
+      :cancel-label="t('Keep it')"
+      :busy="isCancellingProposal"
+      @update:model-value="closeCancelProposalModal"
+      @confirm="confirmCancelProposal"
+    />
+
     </template>
   </div>
 </template>
@@ -678,6 +702,8 @@ import { classifyBroadcastResult } from '../services/broadcastOutcome';
 import { toGovernanceActionPayloads } from '../services/governanceActions';
 import { describeChainError } from '../services/chainErrors';
 import { timeLeftLabel } from '../services/countdown';
+import { canCancelProposal, cancelChargeUlmn, cancelDestination, cancelRatioPercent } from '../services/governanceCancel';
+import { lmnLabel } from '../services/domainAuctions';
 import { stakeActionLabel } from '../services/stakeActions';
 import {
   buildRedelegationLocks,
@@ -689,12 +715,13 @@ import {
 import type { RedelegationLockMap, StakePosition, StakePositionMap } from '../../types/stakePosition';
 import { fetchKeybaseAvatarUrl } from '../services/keybase';
 import CastVoteDialog from '../../dialogs/CastVoteDialog.vue';
+import ConfirmDialog from '../../dialogs/ConfirmDialog.vue';
 import CreateProposalDialog from '../../dialogs/CreateProposalDialog.vue';
 import ManageStakeDialog from '../../dialogs/ManageStakeDialog.vue';
 import { explorerAddressUrl, explorerBlockUrl, explorerTransactionUrl, openExplorerUrl } from '../services/explorerLinks';
 import InternalSidebar from '../../components/InternalSidebar.vue';
 import NetworkParamsPanel from '../../panels/NetworkParamsPanel.vue';
-import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus, Plus, Activity, Network, SlidersHorizontal, FileText, Vote } from 'lucide-vue-next';
+import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus, Plus, Activity, Network, SlidersHorizontal, FileText, Vote, Ban } from 'lucide-vue-next';
 import { GOVERNANCE_ACTION_TEMPLATES, findGovernanceActionTemplate } from './governanceActionTemplates';
 import { prefillFromParams } from '../services/governancePrefill';
 import { unwrapModuleParams } from '../services/moduleParams';
@@ -2718,6 +2745,100 @@ function closeVoteModal() {
   showVoteModal.value = false;
   selectedProposal.value = null;
   voteOption.value = '';
+}
+
+// Cancel proposal
+//
+// Offered only where x/gov would accept it - the proposer, in the deposit or
+// voting period, before the vote ends (services/governanceCancel.ts). What it
+// costs is read from the tallying params when the dialog opens: the ratio is
+// governable, and the confirmation is the one place the number has to be right.
+const showCancelProposalModal = ref(false);
+const cancelTarget = ref<GovernanceProposal | null>(null);
+const isCancellingProposal = ref(false);
+const governanceCancelRatio = ref('');
+const governanceCancelDest = ref('');
+
+const cancelProposalConsequence = computed(() => {
+  const target = cancelTarget.value;
+  if (!target) return '';
+  const charge = cancelChargeUlmn(target.totalDeposit, governanceCancelRatio.value);
+  if (!charge) {
+    return t('Cancelling keeps part of the deposits, and the share could not be read from the chain. This cannot be undone.');
+  }
+  const values = {
+    percent: cancelRatioPercent(governanceCancelRatio.value),
+    charged: lmnLabel(charge.charged),
+    refunded: lmnLabel(charge.refunded),
+  };
+  const dest = cancelDestination(governanceCancelDest.value);
+  return dest.kind === 'burn'
+    ? t('Cancelling burns {percent}% of the deposits ({charged}) and refunds the rest ({refunded}). This cannot be undone.', values)
+    : t('Cancelling sends {percent}% of the deposits ({charged}) to {address} and refunds the rest ({refunded}). This cannot be undone.', { ...values, address: dest.address });
+});
+
+async function fetchGovernanceCancelParams() {
+  if (!lumen?.net?.restGet) return;
+  try {
+    const res = await lumen.net.restGet('/cosmos/gov/v1/params/tallying');
+    const params = res.ok ? res.json?.params : null;
+    governanceCancelRatio.value = String(params?.proposal_cancel_ratio ?? '');
+    governanceCancelDest.value = String(params?.proposal_cancel_dest ?? '');
+  } catch (e) {
+    console.error('Failed to fetch gov cancel params:', e);
+  }
+}
+
+function openCancelProposalModal(proposal: GovernanceProposal) {
+  cancelTarget.value = proposal;
+  showCancelProposalModal.value = true;
+  void fetchGovernanceCancelParams();
+}
+
+function closeCancelProposalModal() {
+  if (isCancellingProposal.value) return;
+  showCancelProposalModal.value = false;
+  cancelTarget.value = null;
+}
+
+async function confirmCancelProposal() {
+  const target = cancelTarget.value;
+  if (!target || isCancellingProposal.value) return;
+
+  const profileId = activeProfileId.value;
+  const address = activeGovernanceAddress.value;
+  if (!profileId || !address) {
+    toast.error(t('Select or create a profile first.'));
+    return;
+  }
+  // Checked again on confirm: the vote can end while the dialog is open.
+  if (!canCancelProposal(target, address, Date.now())) {
+    toast.error(t('This proposal can no longer be cancelled.'));
+    showCancelProposalModal.value = false;
+    cancelTarget.value = null;
+    return;
+  }
+
+  const walletApi = lumen?.wallet;
+  if (!walletApi?.govCancelProposal) {
+    toast.error(t('Cancelling proposals is not available.'));
+    return;
+  }
+
+  isCancellingProposal.value = true;
+  try {
+    const result = await walletApi.govCancelProposal({ profileId, address, proposalId: target.id });
+    if (await handleGovernanceSigningError(result)) return;
+    if (!reportGovernanceOutcome(result, t('Proposal #{id} cancelled.', { id: target.id }))) return;
+
+    isCancellingProposal.value = false;
+    closeCancelProposalModal();
+    await fetchGovernanceProposals();
+  } catch (err) {
+    toast.error(errorMessage(err, t('Failed to cancel the proposal.')));
+  } finally {
+    isCancellingProposal.value = false;
+  }
 }
 
 async function castVote() {

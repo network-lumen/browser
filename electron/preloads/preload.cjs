@@ -492,7 +492,8 @@ contextBridge.exposeInMainWorld('lumen', {
     withdrawAllRewards: (payload) => ipcRenderer.invoke('wallet:withdrawAllRewards', payload),
     cosmosStake: (payload) => ipcRenderer.invoke('wallet:cosmosStake', payload),
     govSubmitProposal: (payload) => ipcRenderer.invoke('wallet:govSubmitProposal', payload),
-    govVote: (payload) => ipcRenderer.invoke('wallet:govVote', payload)
+    govVote: (payload) => ipcRenderer.invoke('wallet:govVote', payload),
+    govCancelProposal: (payload) => ipcRenderer.invoke('wallet:govCancelProposal', payload)
   },
   gateway: {
     getWalletUsage: (profileId, baseUrl) =>
