@@ -6,7 +6,7 @@
  * Cosmos chain the wallet can reach comes from the public registry and is
  * mainnet-only.
  */
-export type LumenNetworkId = "mainnet" | "testnet";
+export type LumenNetworkId = "mainnet" | "testnet" | "devnet";
 
 export type LumenNetworkIdentity = {
   id: LumenNetworkId;

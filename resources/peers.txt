@@ -18,6 +18,13 @@ https://lumen-mainnet-rpc.mekonglabs.com https://lumen-mainnet-api.mekonglabs.co
 https://testnet-rpc.lumen.chaintools.tech:443 https://testnet-api.lumen.chaintools.tech:443
 # http://157.180.17.63:26657 http://157.180.17.63:1317 http://157.180.17.63:9090
 
-# A devnet would go in a [devnet] section here, once electron/chain/networks.cjs
-# describes one - a section with no matching network entry is never loaded.
-# http://172.28.209.134:26657 http://172.28.209.134:1317 http://172.28.209.134:9090
+[devnet]
+
+# The DNS lab chain (chain-id lumen-dns-lab), served from WSL and reachable at
+# the WSL VM's address from the Windows host that runs it - and from nowhere
+# else: 172.28.x.x is private, so this section answers only on that machine.
+#
+# WSL hands its VM a new address on most restarts, so this line goes stale
+# without anything changing here. When Devnet stops connecting, `hostname -I`
+# inside WSL says what it became.
+http://172.28.209.134:26657 http://172.28.209.134:1317 172.28.209.134:9090

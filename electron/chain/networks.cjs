@@ -49,6 +49,21 @@ const NETWORKS = Object.freeze({
     // pointing this at the mainnet explorer would show every address as
     // unfunded, which reads as a wallet bug rather than as a wrong link.
     explorerAccountUrl: ''
+  }),
+  devnet: Object.freeze({
+    id: 'devnet',
+    label: 'Devnet',
+    // Not `lumen-dev`: the lab chain answers `lumen-dns-lab`, and the chain id
+    // is what a signature commits to, so guessing it wrong makes every
+    // transaction fail verification rather than fail to connect.
+    chainId: 'lumen-dns-lab',
+    prefix: 'lmn',
+    denom: 'ulmn',
+    symbol: 'LMN',
+    decimals: 6,
+    prettyName: 'Lumen Devnet',
+    website: 'https://lumen-browser.com/',
+    explorerAccountUrl: ''
   })
 });
 

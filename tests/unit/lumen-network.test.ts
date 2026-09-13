@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 
 const require_ = createRequire(import.meta.url);
 const networks = require_('../../electron/chain/networks.cjs');
@@ -35,13 +36,25 @@ afterEach(() => {
 });
 
 describe('the network table', () => {
-  it('knows mainnet and testnet apart by chain id', () => {
+  it('knows each network apart by chain id', () => {
     expect(networks.getNetwork('mainnet').chainId).toBe('lumen');
     expect(networks.getNetwork('testnet').chainId).toBe('lumen-testnet');
+    // The lab chain answers `lumen-dns-lab`, not `lumen-devnet`. A signature
+    // commits to this, so a plausible-looking guess fails verification rather
+    // than failing to connect, which is much harder to read from the outside.
+    expect(networks.getNetwork('devnet').chainId).toBe('lumen-dns-lab');
+  });
+
+  it('has a bootstrap section in peers.txt for every network it declares', () => {
+    // A network with no section bootstraps nothing and looks like a dead node.
+    const peers = readFileSync(require_.resolve('../../resources/peers.txt'), 'utf8');
+    for (const network of networks.listNetworks()) {
+      expect(peers).toContain(`[${network.id}]`);
+    }
   });
 
   it('falls back to mainnet for anything it does not recognise', () => {
-    expect(networks.normalizeNetworkId('devnet')).toBe('mainnet');
+    expect(networks.normalizeNetworkId('mainnetwork')).toBe('mainnet');
     expect(networks.normalizeNetworkId('')).toBe('mainnet');
     expect(networks.normalizeNetworkId(null)).toBe('mainnet');
   });
