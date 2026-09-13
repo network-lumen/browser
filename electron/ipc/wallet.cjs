@@ -2524,12 +2524,15 @@ function registerWalletIpc() {
       }
       const name = requireNonEmptyValue(values.name, 'name');
       const height = requireIntValue(values.height, 'height');
+      // The plan carries an explicit Go zero time. Leaving `time` out, which is
+      // what this did, encodes as 1970 and the chain rejects the proposal when
+      // it executes - testnet #2. See chain/upgradePlan.cjs for why.
+      const { softwareUpgradePlan } = require('../chain/upgradePlan.cjs');
       return {
         typeUrl,
-        // plan.time is deprecated/rejected by the chain - only name/height/info.
         value: MsgSoftwareUpgrade.fromPartial({
           authority,
-          plan: { name, height: BigInt(height), info: String(values.info || '') }
+          plan: softwareUpgradePlan({ name, height, info: values.info })
         })
       };
     },
