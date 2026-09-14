@@ -8,6 +8,10 @@
             <Sparkles :size="18" />
             <span>{{ t('Discover Lumen') }}</span>
           </UiSidebarNavItem>
+          <UiSidebarNavItem :active="currentView === 'faq'" @click="setView('faq')">
+            <MessageCircleQuestion :size="18" />
+            <span>{{ t('Common questions') }}</span>
+          </UiSidebarNavItem>
         </UiSidebarNavSection>
 
         <UiSidebarNavSection :title="t('Support')">
@@ -177,6 +181,10 @@
         </div>
       </div>
       
+      <div v-else-if="currentView === 'faq'" class="flex-1 overflow-y-auto pr-4px overflow-x-hidden">
+        <HelpFaqPanel />
+      </div>
+
       <div v-else-if="currentView === 'docs'" class="flex flex-column overflow-hidden flex-1 overflow-y-auto pr-4px overflow-x-hidden">
         <div class="flex flex-column gap-20px flex-1 min-h-0">
           <UiPageHeader class="flex-shrink-0" :title="getViewTitle()" :subtitle="getViewDescription()" title-size="20px" title-weight="strong" margin-class="mb-0px" />
@@ -203,8 +211,10 @@ import UiTutorialStep from '../../ui/UiTutorialStep.vue';
 import UiFeaturePoint from '../../ui/UiFeaturePoint.vue';
 import UiSidebarNavSection from '../../ui/UiSidebarNavSection.vue';
 import UiSidebarNavItem from '../../ui/UiSidebarNavItem.vue';
+import HelpFaqPanel from '../../panels/HelpFaqPanel.vue';
 import { 
   HelpCircle,
+  MessageCircleQuestion,
   Sparkles,
   MessageCircle,
   Github,
@@ -270,7 +280,10 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
   if (firstPath === 'contact') return 'contact';
   // Backward-compat: old tabs now redirect to Discover.
   if (firstPath === 'docs') return 'docs';
-  if (firstPath === 'getting-started' || firstPath === 'faq') return 'discover';
+  // The FAQ was folded into Discover when this page was rebuilt, and is back:
+  // restored from the prototype, with every answer checked against the code.
+  if (firstPath === 'faq') return 'faq';
+  if (firstPath === 'getting-started') return 'discover';
 
   // Optional query param `view=` (kept for backward-compat)
   try {
@@ -282,7 +295,8 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
     if (viewParam === 'publish') return 'publish';
     if (viewParam === 'contact') return 'contact';
     if (viewParam === 'docs') return 'docs';
-    if (viewParam === 'getting-started' || viewParam === 'faq') return 'discover';
+    if (viewParam === 'faq') return 'faq';
+    if (viewParam === 'getting-started') return 'discover';
   } catch {}
 
   return 'discover';
@@ -290,6 +304,7 @@ function normalizeViewFromUrl(rawUrl: string): HelpView {
 
 function urlForView(view: HelpView): string {
   if (view === 'discover') return 'lumen://help/discover';
+  if (view === 'faq') return 'lumen://help/faq';
   if (view === 'publish') return 'lumen://help/publish';
   if (view === 'contact') return 'lumen://help/contact';
   if (view === 'docs') return 'lumen://help/docs';
@@ -317,6 +332,7 @@ watch(
 function getViewTitle(): string {
   const titles: Record<string, string> = {
     discover: t('What is Lumen?'),
+    faq: t('Common questions'),
     publish: t('Publish my site'),
     contact: t('Contact support'),
     docs: t('Documentation'),
@@ -327,6 +343,7 @@ function getViewTitle(): string {
 function getViewDescription(): string {
   const descs: Record<string, string> = {
     discover: t('A quick overview of the Lumen stack'),
+    faq: t('Domains, publishing, your wallet, hosting, and building sites for Lumen'),
     publish: t('Go from local files to a live .lmn site'),
     contact: t('Reach out to our team'),
     docs: t('Website developer docs for window.lumen')

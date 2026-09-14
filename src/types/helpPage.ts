@@ -1,1 +1,1 @@
-export type HelpView = 'discover' | 'publish' | 'contact' | 'docs';
+export type HelpView = 'discover' | 'faq' | 'publish' | 'contact' | 'docs';
