@@ -2679,7 +2679,7 @@ function reportGovernanceOutcome(result: unknown, successMessage: string): boole
 
 // Create-proposal modal
 //
-// Open, so the 16 action builders in electron/ipc/wallet.cjs can be exercised
+// Open, so the 21 action builders in electron/ipc/wallet.cjs can be exercised
 // against the live chain - which is the only thing that will ever verify them,
 // and the reason this was shut in the first place.
 //
