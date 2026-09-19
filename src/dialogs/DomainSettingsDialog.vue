@@ -50,7 +50,7 @@
               <span class="txt-weight-light">{{ costLabel }}</span>
             </div>
             <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px" v-if="pqcMinBalanceLabel">
-              <span>{{ t('Minimum balance to keep') }}</span>
+              <span>{{ t('Minimum balance to register your key') }}</span>
               <span class="txt-weight-light">{{ pqcMinBalanceLabel }}</span>
             </div>
             <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
@@ -58,7 +58,7 @@
               <span class="txt-weight-light">{{ walletBalanceLabel }}</span>
             </div>
             <p class="text-12px color-error mt-8px" v-if="insufficientBalance">
-              {{ t('Not enough LMN to pay the fee and stay above the minimum your PQC link needs.') }}
+              {{ t('Not enough LMN in this wallet for that.') }}
             </p>
             <!--
               The chain rate-limits record updates and refuses an early one with
@@ -114,7 +114,11 @@ defineProps<{
    * '' when it is set to zero, which is what it runs at today.
    */
   costLabel?: string;
-  /** The floor a wallet must stay above for its PQC link, if there is one. */
+  /**
+   * The balance this wallet must hold for the chain to register its Dilithium
+   * key - a bar cleared once, on the first transaction. '' once the key is
+   * registered, which hides the row: nothing measures it after that.
+   */
   pqcMinBalanceLabel?: string;
   /**
    * Seconds before the chain will accept another update; 0 when it will now.

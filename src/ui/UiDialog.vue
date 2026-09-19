@@ -72,7 +72,7 @@ withDefaults(
      */
     error?: string;
     panelClass?: string;
-    /** Shows the close cross and lets a click outside dismiss. */
+    /** Shows the close cross. A click on the overlay never dismisses. */
     closable?: boolean;
     /** Disables both buttons and blocks closing while an action runs. */
     busy?: boolean;

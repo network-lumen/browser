@@ -5,9 +5,8 @@
       class="fixed inset-0 flex-align-justify-center bg-black-a50 backdrop-blur-4 z-9999"
       role="dialog"
       aria-modal="true"
-      @click.self="close"
     >
-      <div class="bg-card border-radius-16px shadow-lg overflow-hidden flex flex-column max-h-90vh" :class="panelClass" @click.stop>
+      <div class="bg-card border-radius-16px shadow-lg overflow-hidden flex flex-column max-h-90vh" :class="panelClass">
         <div v-if="$slots.header || title" class="flex-align-center-justify-space-between p-20px border-bottom-default">
           <slot name="header">
             <h3 class="m-0px color-text-primary">{{ title }}</h3>
@@ -41,6 +40,13 @@ import { X } from 'lucide-vue-next';
  * behind one kept scrolling under the overlay. Both were uniformly absent,
  * which is exactly why nobody noticed - now that every dialog comes through
  * this file, one place fixes all of them.
+ *
+ * A click on the overlay does nothing. It used to close the modal, and that is
+ * the one dismissal nobody asks for: these dialogs hold typed amounts,
+ * recipient addresses and half-built proposals, and the gesture that discards
+ * all of it is the same one used to move the window or to click back into the
+ * app. The two deliberate ways out stay - the cross and Escape - and both are
+ * refused while `closable` is false, which the overlay never honoured anyway.
  */
 
 /**
@@ -98,9 +104,9 @@ function close() {
 }
 
 /**
- * Escape is refused while `closable` is false, matching the cross and the
- * click outside - a dialog that blocks dismissal during a request means it,
- * and the keyboard is not a way around that.
+ * Escape is refused while `closable` is false, matching the cross - a dialog
+ * that blocks dismissal during a request means it, and the keyboard is not a
+ * way around that.
  */
 function dismissFromEscape() {
   if (props.closable) close();

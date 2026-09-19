@@ -373,6 +373,15 @@ const showSettingsModal = ref(false);
 const selectedDomain = ref<DomainRow | null>(null);
 const settingsRecords = ref<SettingsRecord[]>([]);
 const settingsPqcParams = ref<any | null>(null);
+/**
+ * Whether this account already has a Dilithium key on-chain.
+ *
+ * It decides whether `min_balance_for_link` applies at all. The chain checks
+ * that threshold in `ensureMinBalance`, which has exactly one caller -
+ * `LinkAccountPQC` - so it is a bar to clear once, when the key is registered,
+ * and never again. Null while unread, which is neither yes nor no.
+ */
+const settingsPqcLinked = ref<boolean | null>(null);
 const settingsWalletBalanceLMN = ref<number | null>(null);
 const savingSettings = ref(false);
 const showStableSettingsModal = ref(false);
@@ -545,11 +554,26 @@ const settingsPqcMinBalanceLMN = computed(() =>
   coinToLmn(settingsPqcCoinRequirement.value)
 );
 
-const settingsPqcMinBalanceLabel = computed(() =>
-  settingsPqcMinBalanceLMN.value == null
+/**
+ * The PQC threshold, shown only while it is still ahead of this account.
+ *
+ * It used to be drawn on every visit, labelled "Minimum balance to keep" - and
+ * neither half was true for the account reading it. The chain checks
+ * `min_balance_for_link` once, inside `LinkAccountPQC`, and an account editing
+ * a domain record has necessarily linked already: nothing it does from here can
+ * fall below a bar that is no longer measured. So it was a standing instruction
+ * to hold funds that nothing required.
+ *
+ * It does still apply to an account whose first transaction this is - the
+ * wallet links on the way - which is why this reads the link state rather than
+ * dropping the row outright.
+ */
+const settingsPqcMinBalanceLabel = computed(() => {
+  if (settingsPqcLinked.value === true) return '';
+  return settingsPqcMinBalanceLMN.value == null
     ? ''
-    : `${settingsPqcMinBalanceLMN.value.toFixed(6)} LMN`
-);
+    : `${settingsPqcMinBalanceLMN.value.toFixed(6)} LMN`;
+});
 
 const settingsWalletBalanceLabel = computed(() =>
   settingsWalletBalanceLMN.value == null
@@ -558,12 +582,21 @@ const settingsWalletBalanceLabel = computed(() =>
 );
 
 /**
- * The wallet has to cover the fee *and* stay above the PQC floor, so the bar is
- * whichever is higher - covering only the fee would sign a transaction that
- * breaks the link that signs it.
+ * What the wallet has to hold for this save to go through.
+ *
+ * For a linked account that is the update fee and nothing else. The previous
+ * rule took the higher of the fee and the PQC floor, on the reasoning that
+ * spending below the floor would "break the link that signs it" - it does not.
+ * The floor is read once, when the key is registered, and never consulted
+ * again, so an account that is linked may spend to zero and still sign.
+ *
+ * It is a real bar only when the link is still to come, which is the case for a
+ * wallet whose first transaction this is: it must clear the threshold for the
+ * link itself, and still have the update fee left afterwards.
  */
 const settingsRequiredLMN = computed(() => {
   const fee = settingsCostLMN.value ?? 0;
+  if (settingsPqcLinked.value === true) return fee > 0 ? fee : null;
   const floor = settingsPqcMinBalanceLMN.value ?? 0;
   const required = Math.max(fee, floor);
   return required > 0 ? required : null;
@@ -913,6 +946,19 @@ async function loadSettingsPqcParams() {
   }
 }
 
+async function loadSettingsPqcLinked() {
+  const pqcApi = useInternalLumen()?.pqc;
+  const owner = (profileAddress.value || '').trim();
+  settingsPqcLinked.value = null;
+  if (!owner || !pqcApi || typeof pqcApi.getAccount !== 'function') return;
+  try {
+    const res = await pqcApi.getAccount(owner);
+    if (res && res.ok !== false) settingsPqcLinked.value = !!res.linked;
+  } catch {
+    // Left null: "unknown" shows the threshold, which is the cautious answer.
+  }
+}
+
 async function loadSettingsWalletBalance() {
   const owner = (profileAddress.value || '').trim();
   settingsWalletBalanceLMN.value = null;
@@ -937,6 +983,7 @@ async function loadSettingsWalletBalance() {
 async function refreshSettingsFunding() {
   await Promise.all([
     loadSettingsPqcParams(),
+    loadSettingsPqcLinked(),
     loadSettingsWalletBalance(),
     // Refetched every time rather than cached: governance can change it, and
     // this dialog is where the number is acted on.
