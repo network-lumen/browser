@@ -5,50 +5,52 @@ import { stubElectron } from './support/electronStub';
  * Turning a REST params answer into something the protobuf types can read.
  *
  * The chain answers in snake_case and the generated types read camelCase and
- * nothing else - `message.baseFeeDns = object.baseFeeDns ?? ""` - so a
- * snake_case key is not rejected, it is never seen, and the field takes its
- * zero value. Governance MsgUpdateParams replaces the whole Params object, so
- * "change one fee" became "blank everything else", and proposal #1 on this
+ * nothing else - `message.minPriceUlmnPerMonth = object.minPriceUlmnPerMonth ?? 0`
+ * - so a snake_case key is not rejected, it is never seen, and the field takes
+ * its zero value. Governance MsgUpdateParams replaces the whole Params object,
+ * so "change one fee" became "blank everything else", and proposal #1 on this
  * chain passed its vote then failed to execute with "base_fee_dns must be set".
  *
  * The fixture below is the real dns params, copied from `lumend query dns
- * params`. What makes it worth keeping is which fields survived without the
- * conversion: alpha, floor, ceiling and t - exactly the ones spelled the same
- * in both conventions.
+ * params`. Every field in it is multi-word now: base_fee_dns, alpha, floor,
+ * ceiling and t - the four of which were spelled identically in both
+ * conventions and so survived the bug - were removed from the proto in chain
+ * v2.0.0. Single-word keys still have to pass through untouched, so that is
+ * pinned below on a key of its own rather than on a param that no longer
+ * exists.
  */
 
 const { camelizeKeysDeep } = stubElectron().load<any>('utils/strings.cjs');
 
 const DNS_PARAMS = {
-  base_fee_dns: '1.0',
-  alpha: '0.125',
-  floor: '0.1',
-  ceiling: '100',
-  t: '50',
   grace_days: '1',
   auction_days: '1',
   transfer_fee_ulmn: '1000000',
   bid_fee_ulmn: '1000',
+  update_rate_limit_seconds: '60',
+  update_pow_difficulty: 12,
   domain_tiers: [
     { max_len: 4, multiplier_bps: 40000 },
     { multiplier_bps: 5000 },
   ],
   ext_tiers: [{ max_len: 3, multiplier_bps: 15000 }],
   min_price_ulmn_per_month: '2000000',
+  update_fee_ulmn: '10000',
 };
 
 describe('the params the chain sends back', () => {
   it('renames every multi-word field', () => {
     const out = camelizeKeysDeep(DNS_PARAMS);
-    expect(out.baseFeeDns).toBe('1.0');
     expect(out.graceDays).toBe('1');
     expect(out.transferFeeUlmn).toBe('1000000');
     expect(out.minPriceUlmnPerMonth).toBe('2000000');
+    expect(out.updatePowDifficulty).toBe(12);
   });
 
-  it('leaves the single-word ones alone - the four that used to survive', () => {
-    const out = camelizeKeysDeep(DNS_PARAMS);
-    expect(out).toMatchObject({ alpha: '0.125', floor: '0.1', ceiling: '100', t: '50' });
+  it('leaves a single-word key alone', () => {
+    // dns has none left, but x/tokenomics' denom is one and the conversion is
+    // shared, so a rename here would corrupt a param object it never names.
+    expect(camelizeKeysDeep({ denom: 'ulmn' })).toEqual({ denom: 'ulmn' });
   });
 
   it('keeps no snake_case key behind', () => {

@@ -89,6 +89,7 @@
               only invisible because nothing said which of the two applies.
             -->
             <span v-if="exceedsAvailable" class="color-error text-12px txt-weight-light">{{ exceedsMessage }}</span>
+            <span v-if="showActionFee" class="color-text-tertiary text-12px txt-weight-light">{{ t('Network fee: {amount}, taken from your balance on top of this amount.', { amount: actionFeeLabel }) }}</span>
             <div class="flex flex-column gap-8px p-0px pt-8px pb-8px">
               <input 
                 type="range" 
@@ -188,6 +189,12 @@ const props = defineProps<{
   /** Claimable from this validator, already in LMN. */
   pendingRewards: string;
   /**
+   * What the chain charges for the chosen action, in LMN, on top of whatever it
+   * moves. Delegating and redelegating are priced from chain v2.0.0; the other
+   * two are not, and pass 0.
+   */
+  actionFeeLmn: number;
+  /**
    * ISO time at which this validator stops being refused as a redelegation
    * source, or '' when it is not. The page reads it from the chain's own
    * redelegation entries.
@@ -196,6 +203,15 @@ const props = defineProps<{
 }>();
 
 const hasRewards = computed(() => Number(props.pendingRewards) > 0);
+
+/**
+ * The fee line, drawn only where there is one. It is stated rather than folded
+ * into the ceiling because redelegating pays it out of the wallet while moving
+ * bonded stake - so it is a charge with no matching subtraction anywhere the
+ * user can see.
+ */
+const showActionFee = computed(() => props.actionFeeLmn > 0);
+const actionFeeLabel = computed(() => `${props.actionFeeLmn.toFixed(6)} LMN`);
 
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
@@ -223,14 +239,19 @@ const target = defineModel<string>('target', { required: true });
 const exceedsAvailable = computed(() => {
   const wanted = Number(amount.value);
   if (!Number.isFinite(wanted) || wanted <= 0) return false;
-  const ceiling = Number(action.value === 'Delegate' ? props.availableBalance : props.stakedBalance);
+  // Delegating is paid for out of the same balance it bonds, so the ceiling is
+  // the balance less the fee; the whole balance is an amount the chain refuses.
+  const ceiling =
+    action.value === 'Delegate'
+      ? Number(props.availableBalance) - props.actionFeeLmn
+      : Number(props.stakedBalance);
   return Number.isFinite(ceiling) && wanted > ceiling;
 });
 
 /** Names the ceiling that was crossed, so the user knows which one applies. */
 const exceedsMessage = computed(() =>
   action.value === 'Delegate'
-    ? t('More than your balance of {amount} LMN.', { amount: props.availableBalance })
+    ? t('More than your balance of {amount} LMN, less the network fee.', { amount: props.availableBalance })
     : t('More than the {amount} LMN you have staked with this validator.', { amount: props.stakedBalance })
 );
 </script>

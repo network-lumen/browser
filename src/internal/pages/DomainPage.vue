@@ -135,7 +135,7 @@
       -->
       <UiCard v-else-if="activeNameTab === 'auctions'" border-class="border-1" radius="16px" padding-class="pt-20px pr-24px pb-24px pl-24px" class="shadow-lg" :shadow="false">
         <UiWarningBox v-if="myAuctionedNames.length" box-class="mb-16px">
-          {{ t('One of your domains is being auctioned: {names}. Renewing keeps it only until the auction settles with a winning bid.', { names: myAuctionedNames.join(', ') }) }}
+          {{ t('One of your domains is being auctioned: {names}. It can no longer be renewed, and settling hands it to the highest bidder. Anyone can settle once the window closes.', { names: myAuctionedNames.join(', ') }) }}
         </UiWarningBox>
 
         <UiErrorState v-if="auctionsError" :message="auctionsError" wrapper-class="text-center gap-8px py-32px px-24px" message-class="" />
@@ -166,7 +166,7 @@
                 </UiButton>
                 <UiButton v-else-if="row.settleable" variant="secondary" type="button"
                   :disabled="settlingName === row.name"
-                  :title="t('Hand the name to the winning bidder and take their bid')"
+                  :title="t('Close the auction: the winning bidder gets the name and a fresh registration, and their held bid is spent')"
                   @click="confirmSettle(row)" class="outline-none">
                   <UiSpinner v-if="settlingName === row.name" size="sm" />
                   <span v-else>{{ t('Settle') }}</span>
@@ -1418,6 +1418,13 @@ function daysUntil(seconds: number | null): number | null {
 /** Rows the page nags about: expired, or close enough that it matters. */
 const RENEW_SOON_DAYS = 30;
 
+/**
+ * How loudly a row is asking to be renewed.
+ *
+ * A name approaching its expiry still counts as `soon` even though the button
+ * is not offered yet: renewal only opens once the name lapses into grace, and
+ * an owner who is told nothing until that day has a week to notice it.
+ */
 function renewUrgency(d: DomainRow): 'none' | 'soon' | 'urgent' {
   if (d.status === 'grace' || d.status === 'auction') return 'urgent';
   const days = daysUntil(d.expireAtSeconds);
@@ -1441,12 +1448,21 @@ const domainRows = computed(() =>
 );
 
 /**
- * A domain that has gone `free` is past renewing: the row still names the old
- * owner, so the chain would take the money and extend a registration anyone
- * else can now claim underneath.
+ * Renewal is a grace-period action, and only that.
+ *
+ * The chain refuses `MsgRenew` on an active name from v2.0.0 on: renewing one
+ * used to stack terms with nothing bounding the total, so `expire_at` could be
+ * walked years ahead one call at a time. It also refuses a name at auction -
+ * settling is what ends that, and settling is permissionless - and a name that
+ * has gone `free`, where the row still names the old owner and the money would
+ * buy back a name anyone can now register underneath.
+ *
+ * The rule is the same one the main process applies in chain/domainLifecycle.cjs,
+ * which is why the status it computed is what is read here rather than the
+ * expiry being compared again.
  */
 function canRenewDomain(d: DomainRow): boolean {
-  return d.status !== 'free';
+  return d.status === 'grace';
 }
 
 function openRenewModal(d: DomainRow) {
@@ -1504,14 +1520,17 @@ const renewPriceLabel = computed(() =>
 );
 
 /**
- * The expiry this renewal buys. The chain adds the duration to the existing
- * expiry, not to today - so renewing early loses nothing, and the dialog says
- * so with a date rather than leaving it to be assumed either way.
+ * The expiry this renewal buys, measured from now rather than from the stored
+ * expiry.
+ *
+ * Renewal only happens in grace, where the stored expiry is already in the
+ * past - so the chain extends from `now`. Adding the term to `expire_at`, which
+ * is what this did, promised a date that had already partly elapsed: a full
+ * term paid for, and up to a grace period less delivered.
  */
 const renewNewExpiryLabel = computed(() => {
-  const from = renewDomain.value?.expireAtSeconds;
-  if (!from) return '';
-  const next = (from + renewDurationDays.value * 86_400) * 1000;
+  if (!renewDomain.value) return '';
+  const next = auctionNow.value + renewDurationDays.value * 86_400_000;
   return t('New expiry: {date}', { date: prettyDate(next) });
 });
 
@@ -1630,7 +1649,17 @@ const bidMinimumLabel = computed(() => {
   return next ? lmnLabel(next) : t('One year of registration for this name');
 });
 
-/** Empty while what is typed is still bid-able; the dialog shows it in place of its hint. */
+/**
+ * Empty while what is typed is still bid-able; the dialog shows it in place of
+ * its hint.
+ *
+ * The balance check is here because chain v2.0.0 escrows a bid when it is
+ * placed. Until then a bid moved no funds and the wallet's balance was
+ * irrelevant to it - which is exactly why anyone could bid an arbitrary figure
+ * from an empty wallet, and why that is now refused with "bid escrow" on
+ * broadcast. The fee is added on top of the escrow rather than taken out of it,
+ * so both have to fit.
+ */
 const bidAmountError = computed(() => {
   const typed = bidAmount.value.trim();
   if (!typed) return '';
@@ -1640,6 +1669,15 @@ const bidAmountError = computed(() => {
   if (current && BigInt(ulmn) <= BigInt(current)) {
     return t('Must be more than the highest bid of {amount}', { amount: lmnLabel(current) });
   }
+  const balance = bidBalanceUlmn.value;
+  if (balance != null) {
+    const needed = BigInt(ulmn) + BigInt(Math.max(0, auctions.value?.bidFeeUlmn ?? 0));
+    if (needed > balance) {
+      return t('More than your balance of {amount} LMN, once the bid fee is added.', {
+        amount: lmnLabel(balance.toString())
+      });
+    }
+  }
   return '';
 });
 
@@ -1647,8 +1685,30 @@ const canSubmitBid = computed(
   () => !!bidAuction.value && !!toUlmn(bidAmount.value.trim()) && !bidAmountError.value && !bidding.value
 );
 
+/**
+ * The wallet's spendable balance in ulmn, read when the bid dialog opens.
+ * Null while unknown, which lets the check above skip rather than guess.
+ */
+const bidBalanceUlmn = ref<bigint | null>(null);
+
+async function loadBidBalance() {
+  bidBalanceUlmn.value = null;
+  const address = (profileAddress.value || '').trim();
+  const walletApi = useInternalLumen()?.wallet;
+  if (!address || typeof walletApi?.getBalance !== 'function') return;
+  try {
+    const res = await walletApi.getBalance(address, { denom: 'ulmn' });
+    if (!res || res.ok === false) return;
+    const raw = String(res.balance?.amount ?? '0');
+    if (/^[0-9]+$/.test(raw)) bidBalanceUlmn.value = BigInt(raw);
+  } catch (e) {
+    console.error('[domains] loadBidBalance error', e);
+  }
+}
+
 function openBidModal(row: AuctionRow) {
   bidAuction.value = row;
+  void loadBidBalance();
   // Pre-filled with the smallest winning bid: the amount that is always valid,
   // and the one someone has to type by hand from a number shown elsewhere.
   const next = minimumNextBidUlmn(row.highestBidUlmn);
@@ -1659,6 +1719,7 @@ function openBidModal(row: AuctionRow) {
 function closeBidModal() {
   showBidModal.value = false;
   bidAuction.value = null;
+  bidBalanceUlmn.value = null;
   bidAmount.value = '';
 }
 

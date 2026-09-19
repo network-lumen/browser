@@ -56,12 +56,12 @@ const RULES: ChainErrorRule[] = [
   },
   {
     // Cosmos gov validates its params as a whole: expedited_min_deposit must
-    // stay strictly above min_deposit. The app can set only the second, through
-    // tokenomics MsgUpdateGovMinDeposit, so raising it past the expedited one
-    // is refused with no way to fix it from here.
+    // stay strictly above min_deposit. Both are reachable from v2.0.0, through
+    // tokenomics MsgUpdateGovDepositPolicy, which carries all three deposit
+    // fields - so this is now a proposal to fix rather than a dead end.
     match: 'expedited minimum deposit must be greater than minimum deposit',
     message: () =>
-      t('The minimum deposit must stay below the expedited minimum deposit, which no client can change on this chain.'),
+      t('The minimum deposit must stay below the expedited minimum deposit. Raise both together in the same proposal.'),
   },
   {
     // gov's own MsgUpdateParams, refused because its configured authority is
@@ -77,6 +77,56 @@ const RULES: ChainErrorRule[] = [
     match: 'domain updated too recently',
     message: () =>
       t('This domain was updated too recently. Wait for the rate limit to pass and try again.'),
+  },
+  {
+    // v2.0.0 restricts Renew to the grace period. The page hides the button
+    // outside it, so reaching this means the lifecycle it drew was stale - the
+    // name lapsed, or was rescued, between the page loading and the signature.
+    match: 'renewal is only allowed during the grace period',
+    message: () =>
+      t('This domain can only be renewed once it has expired and entered its grace period.'),
+  },
+  {
+    // Renewing moves expire_at, and both ways out of a bid escrow are windows
+    // measured from it - so the chain refuses to strand a bidder's money.
+    // Settling is permissionless, which is what makes this actionable.
+    match: 'is held in escrow',
+    message: () =>
+      t('A bid on this domain is being held, so it cannot be renewed. Settle the auction first - anyone can.'),
+  },
+  {
+    // The update proof-of-work commits to the domain's updated_at from v2.0.0,
+    // so a nonce is good for one update. Reaching this means the record moved
+    // between the nonce being mined and the transaction landing.
+    match: 'invalid proof-of-work for update',
+    message: () =>
+      t('This domain changed while the update was being prepared. Try again.'),
+  },
+  {
+    // The ante refuses a vote below min_voting_stake_ulmn. The dialog checks it
+    // first, so this fires when the threshold or the delegation moved under it.
+    match: 'counts a vote from',
+    message: () =>
+      t('This network counts a vote only from an account with enough delegated stake. Delegate more and vote again.'),
+  },
+  {
+    match: 'holds no delegation, so the vote would carry no weight',
+    message: () =>
+      t('A vote carries the weight of what you have delegated, so an account with none cannot vote. Delegate to any validator first.'),
+  },
+  {
+    // v2.0.0 refuses a transaction that claims the same reward twice. The
+    // wallet deduplicates before signing, so this is a backstop.
+    match: 'in the same transaction for',
+    message: () =>
+      t('That transaction claimed the same reward twice. Try again.'),
+  },
+  {
+    // MsgBid outside the auction window. The list only offers Bid while the
+    // window is open, so this means the window closed between the two.
+    match: 'auction not open',
+    message: () =>
+      t('This auction is not open. It may have closed while the page was open - reload the list.'),
   },
 ];
 

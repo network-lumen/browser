@@ -26,7 +26,18 @@ try {
   pqcWorker = null;
 }
 
-const WALLET_ACTIVATION_TOOLTIP = 'To be activated, you must make your first transaction (buy domain/send token etc..) with a minimum of 0.001 LMN in your wallet';
+// What the chain asks of a wallet before it will register its Dilithium key.
+//
+// Two figures, not one, and chain v2.0.0 is where that became true:
+// min_balance_for_link is a balance the account has to hold and keeps, while
+// link_fee_ulmn is taken from it and does not come back. Both run at 0.001 LMN
+// on mainnet, and the first transaction costs its own fee on top - so the old
+// wording, "a minimum of 0.001 LMN", named a figure that no longer covers the
+// link it is shown for.
+//
+// Deliberately not quoting the exact numbers: all three are governable, and a
+// constant that drifts is how this line came to be wrong in the first place.
+const WALLET_ACTIVATION_TOOLTIP = 'To be activated, your wallet must make a first transaction (register a domain, send tokens, and so on). Registering its key costs a small fee and requires a small balance to be left over, so fund it with a little more than the amount you want to move.';
 
 function resolvePqcHome() {
   if (process.env.LUMEN_PQC_HOME) return process.env.LUMEN_PQC_HOME;
@@ -253,11 +264,15 @@ async function ensureOnChainPqcLink(bridgeMod, client, address, record, label) {
     pqcWorker && typeof pqcWorker.computePowNonceInWorker === 'function'
       ? pqcWorker.computePowNonceInWorker
       : null;
+  // The address is part of the digest the chain checks, not just of the message
+  // it signs: sha256(creator || "|" || pubKey || nonce). Mining without it
+  // yields a nonce that is refused, and the refusal names the proof rather than
+  // the address it is missing.
   if (powBits > 0) {
     if (computePowInWorker) {
-      powNonce = await computePowInWorker(record.publicKey, powBits);
+      powNonce = await computePowInWorker(address, record.publicKey, powBits);
     } else if (bridgeMod && bridgeMod.pqc && typeof bridgeMod.pqc.computePowNonce === 'function') {
-      powNonce = bridgeMod.pqc.computePowNonce(record.publicKey, powBits);
+      powNonce = bridgeMod.pqc.computePowNonce(address, record.publicKey, powBits);
     }
   }
 

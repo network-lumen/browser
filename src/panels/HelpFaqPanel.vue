@@ -57,7 +57,7 @@
       </UiFaqItem>
       <UiFaqItem
         :question="t('What happens when my domain expires?')"
-        :answer="t('It enters a grace period in which only you can still renew it. After that it goes to public auction, and the highest bidder takes it once the auction is settled. Renew it from Domains before then to keep it.')"
+        :answer="t('It enters a grace period, and that is the window in which to renew it - the network refuses a renewal on a domain that has not expired yet, and refuses one on a domain already at auction. After the grace period it goes to public auction, and the highest bidder takes it once the auction is settled.')"
       />
       <UiFaqItem
         :question="t('Why do I have to wait before saving my domain again?')"

@@ -151,8 +151,10 @@
 
           <UiSummaryCard :title="isIbcSend ? t('Transfer summary') : t('Transaction summary')">
             <UiSummaryRow v-if="feeLabel" :label="t('Network fee')" :value="feeLabel" />
-            <UiSummaryRow :label="isIbcSend ? t('Transfer amount') : t('Amount debited')" :value="`${summary.amount} ${assetSymbol}`" />
+            <UiSummaryRow :label="isIbcSend ? t('Transfer amount') : t('Amount sent')" :value="`${summary.amount} ${assetSymbol}`" />
             <UiSummaryRow v-if="!isIbcSend" :label="t('Chain')" :value="sourceChainLabel" />
+            <UiSummaryRow v-if="showChainFee" :label="t('Network fee')" :value="`${summary.chainFee} LMN`" />
+            <UiSummaryRow v-if="showChainFee" :label="t('Total debited')" :value="`${summary.totalDebited} ${assetSymbol}`" />
             <UiSummaryRow v-if="showTaxBreakdown" :label="t('Tax')" :value="summary.taxLabel" value-class="color-warning" />
             <UiSummaryRow v-if="showTaxBreakdown" highlight :label="t('Receiver net')" :value="`${summary.receiver} ${assetSymbol}`" />
             <UiSummaryRow v-if="isIbcSend" :label="t('Route')" :value="summary.routeLabel" />
@@ -220,6 +222,12 @@ const props = withDefaults(defineProps<{
    * page computes it; it is not a fold the user toggles.
    */
   showTaxBreakdown: boolean;
+  /**
+   * Whether the chain charges a flat fee for this transfer, on top of the
+   * amount. Wider than the tax: it applies to IBC transfers out of Lumen too,
+   * and to any denomination, because it is levied in ulmn either way.
+   */
+  showChainFee?: boolean;
   sending?: boolean;
   /**
    * Whether this wallet still has to create and link its Dilithium key, which
@@ -237,6 +245,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   feeTierOptions: () => [],
   feeLabel: '',
+  showChainFee: false,
 });
 
 defineEmits<{

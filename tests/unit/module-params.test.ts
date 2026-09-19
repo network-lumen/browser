@@ -12,7 +12,6 @@ import { paramNumber, unwrapModuleParams } from '../../src/internal/services/mod
  */
 
 const DNS_PARAMS = {
-  base_fee_dns: '1.0',
   transfer_fee_ulmn: '1000000',
   update_rate_limit_seconds: '30',
   update_pow_difficulty: 0,

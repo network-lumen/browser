@@ -13,32 +13,32 @@
 
 const { Worker, isMainThread, parentPort } = require('worker_threads');
 const { createHash } = require('crypto');
-const { leadingZeroBits } = require('../utils/pow.cjs');
+const { leadingZeroBits, linkPowPrefix } = require('../utils/pow.cjs');
 
 // ---------------------------------------------------------------------------
 // Section: the work itself (runs in the worker thread)
 // ---------------------------------------------------------------------------
 
 /**
- * Find a nonce whose sha256(publicKey || nonce) starts with `powBits` zero bits.
+ * Find a nonce whose sha256(creator || "|" || publicKey || nonce) starts with
+ * `powBits` zero bits.
  *
- * Hand-rolled rather than taken from the SDK because it is the one hot loop
- * here: the sha256 of the public key is computed once and `copy()`d per
- * attempt, and the nonce is a reused 8-byte buffer. The caller falls back to
- * the SDK's version if this throws.
+ * The payload's fixed half comes from utils/pow.cjs, which is where that format
+ * is defined and tested; what is hand-rolled here is the loop around it. This
+ * is the one hot path in the app: the prefix is hashed once and the digest
+ * state `copy()`d per attempt, and the nonce is a reused 8-byte buffer. Doing
+ * it through the SDK would re-hash a 1952-byte public key on every guess. The
+ * caller falls back to the SDK's version if this throws.
  */
-function computePowNonceFast(publicKey, powBits) {
+function computePowNonceFast(creator, publicKey, powBits) {
   const bits = Number(powBits) || 0;
   if (bits <= 0) return Buffer.from([0]);
   if (bits > 256) {
     throw new Error(`pow difficulty too high: ${bits} > 256`);
   }
 
-  const pubKeyBuf = Buffer.isBuffer(publicKey) ? publicKey
-    : Buffer.from(publicKey.buffer, publicKey.byteOffset, publicKey.byteLength);
-
   const base = createHash('sha256');
-  base.update(pubKeyBuf);
+  base.update(linkPowPrefix(creator, publicKey));
 
   const nonce = Buffer.allocUnsafe(8);
   let hi = 0;
@@ -95,12 +95,12 @@ function runWorkerThread() {
     }
 
     if (msg.type === 'computePowNonce') {
-      const { publicKey, powBits } = msg;
+      const { creator, publicKey, powBits } = msg;
       try {
-        return { powNonce: computePowNonceFast(publicKey, powBits) };
+        return { powNonce: computePowNonceFast(creator, publicKey, powBits) };
       } catch {
         const pqc = await loadPqc();
-        return { powNonce: pqc.computePowNonce(publicKey, Number(powBits) || 0) };
+        return { powNonce: pqc.computePowNonce(String(creator || ''), publicKey, Number(powBits) || 0) };
       }
     }
 
@@ -176,8 +176,8 @@ function createWorkerClient() {
 
   return {
     createPqcKeyPairInWorker: async () => (await runJob('createKeyPair', {})).pair,
-    computePowNonceInWorker: async (publicKey, powBits) =>
-      (await runJob('computePowNonce', { publicKey, powBits })).powNonce
+    computePowNonceInWorker: async (creator, publicKey, powBits) =>
+      (await runJob('computePowNonce', { creator, publicKey, powBits })).powNonce
   };
 }
 

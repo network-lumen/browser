@@ -58,6 +58,16 @@ const ALLOWED = new Set([
   'domain updated too recently',
   'expedited minimum deposit must be greater than minimum deposit',
   'expected gov account as only signer for proposal message',
+  // Chain v2.0.0's own refusals: grace-only renewal, a renewal blocked by a
+  // held bid, a stale update proof-of-work, the two voting-stake guards, the
+  // duplicate-claim guard, and a bid outside the auction window.
+  'renewal is only allowed during the grace period',
+  'is held in escrow',
+  'invalid proof-of-work for update',
+  'counts a vote from',
+  'holds no delegation, so the vote would carry no weight',
+  'in the same transaction for',
+  'auction not open',
 
   // A CSS selector list, a CSS transition, an HTTP header, a link relationship.
   'a, button, article, section, div',

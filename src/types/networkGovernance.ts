@@ -63,9 +63,7 @@ export type GovernanceActionFieldSource = {
     /** repeated string -> one per line. */
     | 'lines'
     /** repeated LengthTier -> "maxLen:multiplierBps" pairs. */
-    | 'tiers'
-    /** bool -> the 'true'/'false' the select carries. */
-    | 'bool';
+    | 'tiers';
 };
 
 export type GovernanceActionField = {

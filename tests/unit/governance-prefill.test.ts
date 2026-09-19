@@ -15,12 +15,8 @@ import type { GovernanceActionTemplate } from '../../src/types/networkGovernance
  */
 
 const DNS_PARAMS = {
-  base_fee_dns: '1.0',
-  alpha: '0.125',
-  floor: '0.1',
-  ceiling: '100',
-  t: '50',
   grace_days: '1',
+  min_price_ulmn_per_month: '2000000',
   transfer_fee_ulmn: '1000000',
   update_fee_ulmn: '10000',
   update_rate_limit_seconds: '30',
@@ -30,7 +26,9 @@ const DNS_PARAMS = {
     { multiplier_bps: 5000 },
   ],
   allowed_publishers: ['lmn1aaa', 'lmn1bbb'],
-  require_validation_for_stable: false,
+  // Not a dns param. It stands in for the one decimal string a template still
+  // prefills, x/tokenomics' tax rate, which must reach the form unrounded.
+  tx_tax_rate: '0.125',
 };
 
 const TEMPLATE: GovernanceActionTemplate = {
@@ -41,12 +39,11 @@ const TEMPLATE: GovernanceActionTemplate = {
   fields: [
     { key: 'updateFeeUlmn', label: 'fee', type: 'text', source: { key: 'update_fee_ulmn', unit: 'lmn' } },
     { key: 'transferFeeUlmn', label: 'transfer', type: 'text', source: { key: 'transfer_fee_ulmn', unit: 'lmn' } },
-    { key: 'alpha', label: 'alpha', type: 'text', source: { key: 'alpha' } },
+    { key: 'txTaxRate', label: 'rate', type: 'text', source: { key: 'tx_tax_rate' } },
     { key: 'updateRateLimitSeconds', label: 'limit', type: 'number', source: { key: 'update_rate_limit_seconds' } },
     { key: 'updatePowDifficulty', label: 'pow', type: 'number', source: { key: 'update_pow_difficulty' } },
     { key: 'domainTiers', label: 'tiers', type: 'textarea', source: { key: 'domain_tiers', unit: 'tiers' } },
     { key: 'allowedPublishers', label: 'pubs', type: 'textarea', source: { key: 'allowed_publishers', unit: 'lines' } },
-    { key: 'requireValidationForStable', label: 'req', type: 'select', source: { key: 'require_validation_for_stable', unit: 'bool' } },
     { key: 'auctionDays', label: 'auction', type: 'number', source: { key: 'auction_days' } },
     { key: 'height', label: 'height', type: 'number' },
   ],
@@ -73,7 +70,7 @@ describe('amounts the form shows in LMN', () => {
 
 describe('values that are not numbers', () => {
   it('keeps a decimal string exactly, without rounding it', () => {
-    expect(prefillFromParams(TEMPLATE, DNS_PARAMS).alpha).toBe('0.125');
+    expect(prefillFromParams(TEMPLATE, DNS_PARAMS).txTaxRate).toBe('0.125');
   });
 
   it('writes the tiers back in the form the parser reads', () => {
@@ -88,11 +85,6 @@ describe('values that are not numbers', () => {
 
   it('puts one address per line', () => {
     expect(prefillFromParams(TEMPLATE, DNS_PARAMS).allowedPublishers).toBe('lmn1aaa\nlmn1bbb');
-  });
-
-  it('gives the select the string it carries', () => {
-    expect(prefillFromParams(TEMPLATE, DNS_PARAMS).requireValidationForStable).toBe('false');
-    expect(prefillFromParams(TEMPLATE, { require_validation_for_stable: true }).requireValidationForStable).toBe('true');
   });
 
   it('keeps a real zero rather than blanking it', () => {

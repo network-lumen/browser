@@ -7,7 +7,7 @@ const { userDataPath, readJson } = require('../utils/fs.cjs');
 const { decryptMnemonicLocal, decryptMnemonicWithPassword, isPasswordProtected, sha256 } = require('../utils/crypto.cjs');
 const { arePqcKeysEncrypted, tempDecryptPqcKeys } = require('../utils/pqc-keys.cjs');
 const { zeroFee, toBaseUnits, describeBroadcastFailure } = require('../utils/tx.cjs');
-const { leadingZeroBits } = require('../utils/pow.cjs');
+const { leadingZeroBits, toChainUint, updatePowPayload } = require('../utils/pow.cjs');
 const { camelizeKeysDeep } = require('../utils/strings.cjs');
 const { isPasswordRequired, getSessionPassword, verifyStoredPassword } = require('./security.cjs');
 const { DEFAULT_BECH32_PREFIXES } = require('../extensions/wallet_injection.cjs');
@@ -447,21 +447,28 @@ function pubkeyToAddressBech32(pubkeyCompressed, prefix) {
   return bech32.encode(String(prefix || 'lmn'), bech32.toWords(hash));
 }
 
-async function mineUpdatePowNonce(identifier, creator, bits, budgetMs = 2500) {
-  identifier = String(identifier || '');
-  creator = String(creator || '');
+/**
+ * The nonce `MsgUpdate` carries, searched under a time budget.
+ *
+ * The digest itself is `updatePowPayload` in utils/pow.cjs - it is a format the
+ * chain recomputes, so it is defined and tested in one place. What lives here
+ * is the search: a budget rather than an unbounded loop, because this runs on
+ * the main thread while someone waits for a dialog, and returning null lets the
+ * caller say so instead of freezing.
+ */
+async function mineUpdatePowNonce(identifier, creator, updatedAt, bits, budgetMs = 2500) {
   const end = Date.now() + Math.max(200, budgetMs | 0);
   let nonce = Long.fromNumber(0, true);
 
+  const digestFor = (n) => sha256(updatePowPayload(identifier, creator, updatedAt, n), { bytes: true });
+
   if (!bits || bits <= 0) {
-    const payload = `${identifier}|${creator}|${nonce.toString()}`;
-    const h = sha256(payload, { bytes: true });
+    const h = digestFor(nonce.toString());
     return { nonce, hashHex: Buffer.from(h).toString('hex') };
   }
 
   while (Date.now() < end) {
-    const payload = `${identifier}|${creator}|${nonce.toString()}`;
-    const h = sha256(payload, { bytes: true });
+    const h = digestFor(nonce.toString());
     if (leadingZeroBits(h) >= bits) {
       return { nonce, hashHex: Buffer.from(h).toString('hex') };
     }
@@ -1205,6 +1212,27 @@ function registerWalletIpc() {
           );
         }
 
+        // The nonce is mined against the domain's current updated_at, which the
+        // chain re-reads at handler time. A stale one is refused, so this is
+        // fetched immediately before mining rather than carried from whatever
+        // the page last drew.
+        let updatedAt = 0;
+        try {
+          const drs = await readState(
+            `/lumen/dns/v1/domain/${encodeURIComponent(identifier)}`,
+            { kind: 'rest', timeout: 5000 }
+          );
+          if (drs && drs.ok && drs.json) {
+            const dom = (drs.json.domain || drs.json.data?.domain || drs.json) || {};
+            updatedAt = toChainUint(dom.updated_at ?? dom.updatedAt);
+          }
+        } catch (e) {
+          console.warn(
+            '[dns] updateDomain: failed to read updated_at for pow',
+            e && e.message ? e.message : e
+          );
+        }
+
         const budgetMsRaw =
           Number(
             input &&
@@ -1213,7 +1241,7 @@ function registerWalletIpc() {
         const budgetMs =
           Number.isFinite(budgetMsRaw) && budgetMsRaw > 0 ? budgetMsRaw : 2500;
 
-        const mined = await mineUpdatePowNonce(identifier, owner, powBits, budgetMs);
+        const mined = await mineUpdatePowNonce(identifier, owner, updatedAt, powBits, budgetMs);
         if (!mined) {
           return {
             ok: false,
@@ -1886,13 +1914,35 @@ function registerWalletIpc() {
    * caller supplies the list, having just read it from the delegations it is
    * already showing.
    */
+  /**
+   * Lumen refuses a transaction carrying more messages than this
+   * (`app.MaxMessagesPerTx`), and refuses it whole, from chain v2.0.0 on. It is
+   * an anti-spam bound rather than a size one, so it bites long before any byte
+   * limit does.
+   *
+   * It is Lumen's, not Cosmos's: the handlers here also sign for every other
+   * chain the wallet knows, and those meter gas instead - a hundred messages
+   * there is a price, not a refusal.
+   */
+  const MAX_MESSAGES_PER_TX = 64;
+
   ipcMain.handle('wallet:withdrawAllRewards', async (_evt, input) => {
     try {
       const profileId = String(input && input.profileId ? input.profileId : '').trim();
       const address = String(input && input.address ? input.address : '').trim();
-      const validators = Array.isArray(input && input.validatorAddresses)
-        ? input.validatorAddresses.map((entry) => String(entry || '').trim()).filter(Boolean)
-        : [];
+      // Deduplicated, because chain v2.0.0 refuses a transaction that claims the
+      // same (delegator, validator) pair twice. The per-message guards read
+      // pre-execution state, so N copies each saw the full amount and only the
+      // first could be payable - the rest were no-op writes that all passed.
+      // They are refused now, and the refusal takes the whole transaction with
+      // it: one repeated address here would lose every other claim in the batch.
+      const validators = [
+        ...new Set(
+          Array.isArray(input && input.validatorAddresses)
+            ? input.validatorAddresses.map((entry) => String(entry || '').trim()).filter(Boolean)
+            : []
+        )
+      ];
       const rpcEndpoint = String(input && input.rpcEndpoint ? input.rpcEndpoint : '').trim();
       const chainId = String(input && input.chainId ? input.chainId : '').trim();
       const feeDenom = String(input && input.feeDenom ? input.feeDenom : 'ulmn').trim() || 'ulmn';
@@ -1942,6 +1992,19 @@ function registerWalletIpc() {
             { pqc: { homeDir: resolvePqcHome() } },
             { timeoutMs: 15_000 }
           );
+
+      // Lumen's own bound, and only Lumen's: every other Cosmos chain this
+      // handler serves meters gas instead, where a hundred claims in one
+      // transaction is expensive rather than refused. Applying it everywhere
+      // would block a claim on a chain that allows it.
+      if (!useRemoteStandardClient && validators.length > MAX_MESSAGES_PER_TX) {
+        return {
+          ok: false,
+          error:
+            `this network accepts at most ${MAX_MESSAGES_PER_TX} claims in one transaction, ` +
+            `and this would send ${validators.length}`
+        };
+      }
 
       // Only the PQC path needs the keys in the clear; the standard client
       // signs with secp256k1 alone.
@@ -2301,9 +2364,11 @@ function registerWalletIpc() {
      * With one template per module that cannot be expressed.
      *
      * A blank field keeps its current value, since the base is the params as
-     * they stand. base_fee_dns is immutable and the keeper refuses any proposal
-     * that changes it, so it is deliberately not offered - it rides along from
-     * the fetched params untouched.
+     * they stand.
+     *
+     * x/dns is the one module with no dedicated fee message, so this is where
+     * omission costs the most: everything the form does not name is whatever
+     * the chain last answered, and a field typed blank is left exactly there.
      */
     'dns-update-params': async (client, authority, values) => {
       const { modAccessor, params } = await fetchModuleParamsForPatch(client, 'dns');
@@ -2325,21 +2390,11 @@ function registerWalletIpc() {
       if (String(values.updatePowDifficulty || '').trim()) {
         patched.updatePowDifficulty = requireIntValue(values.updatePowDifficulty, 'updatePowDifficulty');
       }
-      // The pricing curve. alpha/floor/ceiling/t are decimal strings on the
-      // proto, not numbers, so they go through the decimal validator - passing
-      // a Number here would round the string the chain compares against.
-      if (String(values.alpha || '').trim()) {
-        patched.alpha = requireDecimalStringValue(values.alpha, 'alpha');
-      }
-      if (String(values.floor || '').trim()) {
-        patched.floor = requireDecimalStringValue(values.floor, 'floor');
-      }
-      if (String(values.ceiling || '').trim()) {
-        patched.ceiling = requireDecimalStringValue(values.ceiling, 'ceiling');
-      }
-      if (String(values.t || '').trim()) {
-        patched.t = requireIntValue(values.t, 't');
-      }
+      // base_fee_dns, alpha, floor, ceiling and t used to be set here. They
+      // were an adaptive fee controller that was never built - nothing measured
+      // demand, and base_fee_dns was pinned at 1.0 by an immutability check -
+      // and chain v2.0.0 removed all five from the proto. min_price_ulmn_per_month
+      // is the single global price lever now.
       if (String(values.graceDays || '').trim()) {
         patched.graceDays = requireIntValue(values.graceDays, 'graceDays');
       }
@@ -2362,6 +2417,13 @@ function registerWalletIpc() {
       const patched = { ...params };
       if (String(values.platformCommissionBps || '').trim()) {
         patched.platformCommissionBps = requireIntValue(values.platformCommissionBps, 'platformCommissionBps');
+      }
+      // New in v2.0.0. The module used to charge x/tokenomics' tx_tax_rate for
+      // this, falling back to that module's default whenever the rate was zero,
+      // so it followed a vote upward and ignored it downward. Zero means zero
+      // now, which the old fallback made impossible to express.
+      if (String(values.serviceTaxBps || '').trim()) {
+        patched.serviceTaxBps = requireIntValue(values.serviceTaxBps, 'serviceTaxBps');
       }
       if (String(values.minPriceUlmnPerMonthLmn || '').trim()) {
         patched.minPriceUlmnPerMonth = Number(lmnToUlmn(values.minPriceUlmnPerMonthLmn));
@@ -2411,6 +2473,40 @@ function registerWalletIpc() {
       }
       return modAccessor.msgUpdateParams(authority, patched);
     },
+    /**
+     * The per-message prices, each through its own message rather than through
+     * MsgUpdateParams.
+     *
+     * That is the whole reason these messages exist on the chain:
+     * MsgUpdateParams replaces the entire parameter block, so a proposal naming
+     * one price silently zeroes the denomination, the emission schedule and
+     * every other price beside it. A dedicated message carries only what it
+     * names and cannot do that.
+     */
+    'tokenomics-transfer-fee': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'tokenomics');
+      const fee = lmnToUlmn(requireNonEmptyValue(values.transferFeeLmn, 'transferFeeLmn'));
+      return modAccessor.msgUpdateTransferFee(authority, fee);
+    },
+    'tokenomics-staking-fees': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'tokenomics');
+      // Both are always sent, because the message carries both: omitting one
+      // here would set it to zero rather than leave it alone.
+      return modAccessor.msgUpdateStakingFees(authority, {
+        delegateFeeUlmn: lmnToUlmn(requireNonEmptyValue(values.delegateFeeLmn, 'delegateFeeLmn')),
+        redelegateFeeUlmn: lmnToUlmn(requireNonEmptyValue(values.redelegateFeeLmn, 'redelegateFeeLmn'))
+      });
+    },
+    'tokenomics-withdraw-addr-fee': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'tokenomics');
+      const fee = lmnToUlmn(requireNonEmptyValue(values.setWithdrawAddrFeeLmn, 'setWithdrawAddrFeeLmn'));
+      return modAccessor.msgUpdateWithdrawAddrFee(authority, fee);
+    },
+    'tokenomics-min-voting-stake': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'tokenomics');
+      const stake = lmnToUlmn(requireNonEmptyValue(values.minVotingStakeLmn, 'minVotingStakeLmn'));
+      return modAccessor.msgUpdateMinVotingStake(authority, stake);
+    },
     'tokenomics-community-pool-spend': async (client, authority, values) => {
       const modAccessor = moduleAccessor(client, 'tokenomics');
       const recipient = requireNonEmptyValue(values.recipient, 'recipient');
@@ -2425,12 +2521,50 @@ function registerWalletIpc() {
         requireNonEmptyValue(values.downtimeJailDuration, 'downtimeJailDuration')
       );
     },
+    /**
+     * x/slashing owns slash_fraction_double_sign and its own MsgUpdateParams
+     * authority is unreachable on this chain, so this message is the only way
+     * the equivocation penalty can ever move. It was declared in the genesis
+     * and applied by nothing until v2.0.0 wired x/evidence.
+     */
+    'tokenomics-slashing-double-sign': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'tokenomics');
+      return modAccessor.msgUpdateSlashingDoubleSignParams(
+        authority,
+        requireDecimalStringValue(values.slashFractionDoubleSign, 'slashFractionDoubleSign')
+      );
+    },
     'tokenomics-slashing-liveness': async (client, authority, values) => {
       const modAccessor = moduleAccessor(client, 'tokenomics');
       return modAccessor.msgUpdateSlashingLivenessParams(
         authority,
         requireIntValue(values.signedBlocksWindow, 'signedBlocksWindow'),
         requireDecimalStringValue(values.minSignedPerWindow, 'minSignedPerWindow')
+      );
+    },
+    /**
+     * x/pqc refuses MsgUpdateParams outright, so its governable surface is four
+     * dedicated messages: these two and the relayer-allowlist pair below.
+     *
+     * The link cost carries both fields together on purpose - min_balance_for_link
+     * is the solvency threshold and link_fee_ulmn is the debit, and they share a
+     * denomination invariant, so restating both keeps a vote from moving one
+     * without noticing the other.
+     */
+    'pqc-link-cost': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'pqc');
+      const minBalance = lmnToUlmn(requireNonEmptyValue(values.minBalanceForLinkLmn, 'minBalanceForLinkLmn'));
+      const fee = lmnToUlmn(requireNonEmptyValue(values.linkFeeLmn, 'linkFeeLmn'));
+      return modAccessor.msgUpdateLinkCost(authority, { denom: 'ulmn', amount: minBalance }, fee);
+    },
+    'pqc-pow-difficulty': async (client, authority, values) => {
+      const modAccessor = moduleAccessor(client, 'pqc');
+      // Zero is a real setting - it switches the proof off, which is where the
+      // v2.0.0 upgrade handler left it - so this is read as "was anything
+      // typed", not as truthiness.
+      return modAccessor.msgUpdatePowDifficulty(
+        authority,
+        requireIntValue(requireNonEmptyValue(values.powDifficultyBits, 'powDifficultyBits'), 'powDifficultyBits')
       );
     },
     'pqc-add-ibc-relayer': async (client, authority, values) => {
@@ -2476,22 +2610,17 @@ function registerWalletIpc() {
       if (String(values.maxPendingTtlSeconds || '').trim()) {
         patched.maxPendingTtl = requireIntValue(values.maxPendingTtlSeconds, 'maxPendingTtlSeconds');
       }
-      if (String(values.rejectRefundBps || '').trim()) {
-        patched.rejectRefundBps = requireIntValue(values.rejectRefundBps, 'rejectRefundBps');
-      }
-      if (values.requireValidationForStable === 'true' || values.requireValidationForStable === 'false') {
-        patched.requireValidationForStable = values.requireValidationForStable === 'true';
-      }
-      if (String(values.daoPublishers || '').trim()) {
-        patched.daoPublishers = parseLinesValue(values.daoPublishers);
-      }
+      // reject_refund_bps, require_validation_for_stable and dao_publishers
+      // were set here until v2.0.0 removed all three from the proto. None was
+      // ever read by the chain, so every vote on them changed nothing, without
+      // saying so.
       return modAccessor.msgUpdateParams(authority, patched);
     },
     /**
      * Gov params go through tokenomics, not through cosmos.gov.v1.
      *
      * Reaching for /cosmos.gov.v1.MsgUpdateParams looks like the obvious way to
-     * set both deposit figures at once - it is the message that carries them -
+     * set the deposit figures at once - it is the message that carries them -
      * and it cannot execute on this chain. Proposal #7 on the devnet:
      *
      *   invalid authority; expected lmn1pjl3fuyf..., got lmn10d07y265...:
@@ -2505,14 +2634,33 @@ function registerWalletIpc() {
      * account - proposals #2 to #5 executed - which is why this is the one
      * message that has to come the long way round.
      *
-     * The consequence is a real limit, not an app one: min_deposit cannot be
-     * raised above expedited_min_deposit from any client, because nothing
-     * reachable sets the expedited figure. Lifting it needs a chain change.
+     * The limit that used to follow from it is gone. MsgUpdateGovMinDeposit set
+     * the ordinary deposit alone, so it could never be raised past the
+     * expedited figure that nothing reachable set. MsgUpdateGovDepositPolicy,
+     * added in v2.0.0, carries all three fields, and all three are sent every
+     * time: the expedited deposit must stay strictly greater than the ordinary
+     * one, and the price of *submitting* is the ratio times the ordinary
+     * deposit, so a partial update would break one invariant to satisfy the
+     * other. The deprecated message is left unused rather than removed - it is
+     * still what a v1.6.0 chain accepts.
      */
-    'tokenomics-gov-min-deposit': async (client, authority, values) => {
+    'tokenomics-gov-deposit-policy': async (client, authority, values) => {
       const modAccessor = moduleAccessor(client, 'tokenomics');
-      const amount = lmnToUlmn(requireNonEmptyValue(values.minDepositLmn, 'minDepositLmn'));
-      return modAccessor.msgUpdateGovMinDeposit(authority, [{ denom: 'ulmn', amount }]);
+      const minDeposit = lmnToUlmn(requireNonEmptyValue(values.minDepositLmn, 'minDepositLmn'));
+      const expedited = lmnToUlmn(requireNonEmptyValue(values.expeditedMinDepositLmn, 'expeditedMinDepositLmn'));
+      if (BigInt(expedited) <= BigInt(minDeposit)) {
+        throw new Error('expedited_min_deposit_must_exceed_min_deposit');
+      }
+      const ratio = requireDecimalStringValue(
+        requireNonEmptyValue(values.minInitialDepositRatio, 'minInitialDepositRatio'),
+        'minInitialDepositRatio'
+      );
+      if (Number(ratio) > 1) throw new Error('invalid_minInitialDepositRatio');
+      return modAccessor.msgUpdateGovDepositPolicy(authority, {
+        minDeposit: [{ denom: 'ulmn', amount: minDeposit }],
+        expeditedMinDeposit: [{ denom: 'ulmn', amount: expedited }],
+        minInitialDepositRatio: ratio
+      });
     },
     'upgrade-software': async (client, authority, values, registry) => {
       const { MsgSoftwareUpgrade } = await import('cosmjs-types/cosmos/upgrade/v1beta1/tx');

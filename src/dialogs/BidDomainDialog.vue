@@ -25,7 +25,7 @@
           :model-value="amount" @update:model-value="$emit('update:amount', $event)"
           placeholder="0.00" class="focus-outline-none focus-ring focus-shadow placeholder-tertiary" />
         <p v-if="amountError" class="text-12px color-error mt-8px">{{ amountError }}</p>
-        <p v-else class="text-12px color-text-tertiary mt-8px">{{ t('In LMN. The chain also refuses anything below one year of registration for this name.') }}</p>
+        <p v-else class="text-12px color-text-tertiary mt-8px">{{ t('In LMN. The network also refuses anything below one year of registration for this name, and anything your wallet cannot cover.') }}</p>
       </div>
 
       <div class="flex-align-center flex-justify-space-between color-text-primary text-13px border-radius-10px bg-secondary border-1 py-8px px-12px">
@@ -34,13 +34,15 @@
       </div>
 
       <!--
-        What a bid actually commits to. The fee leaves the account when the bid
-        is placed; the bid itself is only taken at settlement, and only from the
-        winner - which is the opposite of the escrow people assume, and worth
-        saying before the signature rather than after.
+        What a bid actually commits to, which chain v2.0.0 reversed. A bid used
+        to be a promise: nothing was checked and nothing moved until settlement,
+        so anyone could name any figure from an empty wallet. The amount is held
+        by the network from the moment the bid is placed now, and returned in
+        full the moment someone outbids it. The fee is separate and is gone
+        either way.
       -->
       <UiWarningBox box-class="mt-16px">
-        {{ t('The bid fee is charged now, whether or not you win. The bid itself is taken only if you win and the auction is settled, so keep it available until then.') }}
+        {{ t('Your bid leaves your wallet now and is held by the network. It comes back in full if someone outbids you, and buys the domain if you win. The bid fee is charged on top and is not refunded.') }}
       </UiWarningBox>
 
       <div class="flex flex-justify-end gap-8px mt-16px">

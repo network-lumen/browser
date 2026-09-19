@@ -157,15 +157,20 @@ describe('isAuctionSettleable', () => {
 });
 
 describe('canRenew', () => {
-  it('allows an owner to extend early, and to rescue a domain in grace', () => {
-    expect(canRenew(EXPIRE - 86_400, EXPIRE, GRACE_DAYS, AUCTION_DAYS)).toBe(true);
+  it('allows renewal in grace, which is the only window the chain accepts', () => {
     expect(canRenew(EXPIRE, EXPIRE, GRACE_DAYS, AUCTION_DAYS)).toBe(true);
+    expect(canRenew(GRACE_END - 1, EXPIRE, GRACE_DAYS, AUCTION_DAYS)).toBe(true);
   });
 
-  it('still allows it mid-auction, where the owner has not changed yet', () => {
-    // The auction moves the name only when `Settle` runs, so until then the
-    // owner renewing is the owner the chain still recognises.
-    expect(canRenew(GRACE_END, EXPIRE, GRACE_DAYS, AUCTION_DAYS)).toBe(true);
+  it('refuses while the domain is still active', () => {
+    // Renewing an active name let an owner stack terms indefinitely: each call
+    // bounded the term it added and nothing bounded the total, so `expire_at`
+    // could be walked years ahead one call at a time. Chain v2.0.0 refuses it.
+    expect(canRenew(EXPIRE - 86_400, EXPIRE, GRACE_DAYS, AUCTION_DAYS)).toBe(false);
+  });
+
+  it('refuses mid-auction, where settling is the way out rather than renewing', () => {
+    expect(canRenew(GRACE_END, EXPIRE, GRACE_DAYS, AUCTION_DAYS)).toBe(false);
   });
 
   it('refuses once the domain is free, where renewing buys back nothing', () => {

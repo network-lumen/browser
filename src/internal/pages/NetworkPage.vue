@@ -649,13 +649,13 @@
     </div>
 
     <!-- ####### EXPLORER: STAKE MANAGEMENT MODAL ####### -->
-    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :pending-rewards="selectedValidatorRewards" :redelegation-locked-until="selectedValidatorLockedUntil" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @set-percentage="setStakePercentage" />
+    <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :pending-rewards="selectedValidatorRewards" :action-fee-lmn="currentStakeFeeLmn" :redelegation-locked-until="selectedValidatorLockedUntil" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @set-percentage="setStakePercentage" />
 
     <!-- ####### GOVERNANCE: CREATE PROPOSAL MODAL ####### -->
     <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" @template-changed="prefillActionDraft" />
 
     <!-- ####### GOVERNANCE: VOTE MODAL ####### -->
-    <CastVoteDialog :model-value="showVoteModal" v-model:option="voteOption" :is-voting="isVoting" :selected-proposal="selectedProposal" @update:model-value="closeVoteModal" @submit="castVote" />
+    <CastVoteDialog :model-value="showVoteModal" v-model:option="voteOption" :is-voting="isVoting" :selected-proposal="selectedProposal" :can-vote="canCastVote" :stake-notice="voteStakeNotice" @update:model-value="closeVoteModal" @submit="castVote" />
 
     <!-- ####### GOVERNANCE: CANCEL PROPOSAL CONFIRMATION ####### -->
     <ConfirmDialog
@@ -724,7 +724,7 @@ import NetworkParamsPanel from '../../panels/NetworkParamsPanel.vue';
 import { LayoutGrid, Search, PanelsTopLeft, RotateCw, Users, Link, Copy, Check, CirclePlus, Plus, Activity, Network, SlidersHorizontal, FileText, Vote, Ban } from 'lucide-vue-next';
 import { GOVERNANCE_ACTION_TEMPLATES, findGovernanceActionTemplate } from './governanceActionTemplates';
 import { prefillFromParams } from '../services/governancePrefill';
-import { unwrapModuleParams } from '../services/moduleParams';
+import { paramNumber, unwrapModuleParams } from '../services/moduleParams';
 import type { GovernanceActionDraft } from '../../types/networkGovernance';
 import { useToast } from '../../composables/useToast';
 import { fromBase64, toBech32 } from '@cosmjs/encoding';
@@ -857,6 +857,38 @@ const stakeAmount = ref('0.0');
 const stakePercentage = ref(0);
 const targetValidator = ref('');
 const availableBalance = ref('0.000 LMN');
+/**
+ * What the chain charges for delegating and for redelegating, in ulmn.
+ *
+ * Both are new in chain v2.0.0 and live from the upgrade height. They are taken
+ * in the ante, before the message runs, so a delegation that fails still pays -
+ * and they are taken on top of the amount bonded, which is why delegating the
+ * whole balance is now refused for insufficient funds.
+ *
+ * The two are separate parameters on purpose: delegation carries essentially
+ * all legitimate staking volume while redelegation is used a handful of times a
+ * quarter, so one price cannot serve both and the dialog must not quote one for
+ * the other.
+ */
+const stakingFees = ref<{ delegateUlmn: number; redelegateUlmn: number }>({
+  delegateUlmn: 0,
+  redelegateUlmn: 0
+});
+
+/**
+ * The stake an account must have delegated before the chain accepts its vote,
+ * in ulmn. New in chain v2.0.0.
+ *
+ * The guard runs in the ante, so a vote below it is refused before it reaches
+ * x/gov - the transaction fails and the proposal never sees it. Zero is not
+ * "off": it restores the previous rule, where any delegation at all was enough,
+ * so a voter with none is still refused.
+ *
+ * The stake is delegated, not spent, so this is a threshold rather than a price
+ * - which is worth saying on screen, because the natural reading of a number
+ * next to a vote button is that voting costs it.
+ */
+const minVotingStakeUlmn = ref(0);
 const isProcessingTx = ref(false);
 
 const bondedTokens = ref<number | null>(null);
@@ -1561,9 +1593,35 @@ function openStakeModal(validator: Validator, action: 'Delegate' | 'Undelegate' 
   showStakeModal.value = true;
 
   // The staked figure is already derived from the positions map; only the
-  // wallet's spendable balance still has to be asked for.
+  // wallet's spendable balance and the per-message prices still have to be
+  // asked for.
   void fetchWalletBalance();
   void fetchStakePositions();
+  void fetchStakingFees();
+}
+
+/**
+ * x/tokenomics' params, which carry both the staking fees and the voting
+ * threshold. One query, because they arrive together and every caller of either
+ * is about to put a number in front of a signature.
+ */
+async function fetchStakingFees() {
+  if (!lumen?.net?.restGet) return;
+  try {
+    const res = await lumen.net.restGet('/lumen/tokenomics/v1/params', { timeout: 15000 });
+    if (res?.ok === false) return;
+    const params = unwrapModuleParams(res?.json);
+    if (!params) return;
+    // proto3 omits a zero, so an absent field is a fee of zero - which is also
+    // what "not charged" looks like, so reading it as 0 is right either way.
+    stakingFees.value = {
+      delegateUlmn: paramNumber(params, 'delegateFeeUlmn', 'delegate_fee_ulmn') ?? 0,
+      redelegateUlmn: paramNumber(params, 'redelegateFeeUlmn', 'redelegate_fee_ulmn') ?? 0
+    };
+    minVotingStakeUlmn.value = paramNumber(params, 'minVotingStakeUlmn', 'min_voting_stake_ulmn') ?? 0;
+  } catch (e) {
+    console.error('[stake] failed to read staking fees', e);
+  }
 }
 
 async function fetchWalletBalance() {
@@ -1738,25 +1796,40 @@ watch(
 
 function setStakePercentage(percentage: number) {
   stakePercentage.value = percentage;
-  const maxAmount = currentStakeAction.value === 'Delegate' ? parseFloat(availableBalance.value) : parseFloat(stakedBalance.value);
-  const amount = (maxAmount * percentage / 100).toFixed(6);
+  // maxForCurrentAction, not the raw balance: at 100% the two differ by the
+  // delegate fee, and the raw balance is the figure the chain refuses.
+  const amount = (maxForCurrentAction.value * percentage / 100).toFixed(6);
   stakeAmount.value = amount;
 }
+
+/** The fee the chosen action pays, in LMN. Zero for the two that are free. */
+const currentStakeFeeLmn = computed(() => {
+  if (currentStakeAction.value === 'Delegate') return stakingFees.value.delegateUlmn / 1_000_000;
+  if (currentStakeAction.value === 'Redelegate') return stakingFees.value.redelegateUlmn / 1_000_000;
+  return 0;
+});
 
 /**
  * The most this action can move: the wallet's balance when delegating, and what
  * is actually bonded with this validator otherwise.
  *
- * Worth stating because it is easy to forget the second one goes to zero the
- * moment a redelegation leaves: the stake is at the destination from that block
- * on, and asking the source for it again gets "no delegation for this pair"
- * from the chain, after a signature.
+ * Delegating leaves room for the delegate fee, which is debited from the same
+ * balance in the same transaction - so offering the whole balance offered an
+ * amount the chain refuses, after the signature and the wait. Undelegating and
+ * redelegating move bonded stake rather than balance, so neither ceiling is
+ * touched by a fee; the redelegate fee is still paid out of the wallet, and the
+ * dialog says so.
+ *
+ * Worth stating because it is easy to forget the second ceiling goes to zero
+ * the moment a redelegation leaves: the stake is at the destination from that
+ * block on, and asking the source for it again gets "no delegation for this
+ * pair" from the chain, after a signature.
  */
-const maxForCurrentAction = computed(() =>
-  currentStakeAction.value === 'Delegate'
-    ? parseFloat(availableBalance.value) || 0
-    : parseFloat(stakedBalance.value) || 0
-);
+const maxForCurrentAction = computed(() => {
+  if (currentStakeAction.value !== 'Delegate') return parseFloat(stakedBalance.value) || 0;
+  const balance = parseFloat(availableBalance.value) || 0;
+  return Math.max(0, balance - currentStakeFeeLmn.value);
+});
 
 const canConfirm = computed(() => {
   // Withdraw doesn't require amount
@@ -2735,10 +2808,46 @@ const selectedProposal = ref<GovernanceProposal | null>(null);
 const voteOption = ref<GovernanceVoteOption | ''>('');
 const isVoting = ref(false);
 
+/**
+ * Whether this wallet clears the threshold, and by how much it falls short.
+ *
+ * Checked here rather than left to the chain because the refusal happens in the
+ * ante: the transaction is signed, broadcast, and fails, and the proposal never
+ * records anything. Told beforehand, the user can delegate and come back.
+ */
+const voteStakeShortfallUlmn = computed(() => {
+  const required = minVotingStakeUlmn.value;
+  const held = stakeTotals.value.staked;
+  if (required > 0) return Math.max(0, required - held);
+  // Zero is the presence-only rule: any delegation clears it, none does not.
+  return held > 0 ? 0 : 1;
+});
+
+const canCastVote = computed(() => voteStakeShortfallUlmn.value === 0);
+
+/**
+ * Why the vote is refused, in the terms the chain uses: a delegation that is
+ * kept, not a fee that is taken.
+ */
+const voteStakeNotice = computed(() => {
+  if (canCastVote.value) return '';
+  if (minVotingStakeUlmn.value > 0) {
+    return t(
+      'This network counts a vote from {required} LMN of delegated stake. You have {held} LMN delegated. The stake stays yours - delegate more and vote again.',
+      { required: formatUlmn(minVotingStakeUlmn.value), held: formatUlmn(stakeTotals.value.staked) }
+    );
+  }
+  return t('A vote carries the weight of what you have delegated, so this network refuses one from an account with no delegation. Delegate to any validator and vote again.');
+});
+
 function openVoteModal(proposal: GovernanceProposal) {
   selectedProposal.value = proposal;
   voteOption.value = '';
   showVoteModal.value = true;
+  // Both halves of the check are read fresh: the threshold is governable and
+  // the delegation may have been made in another tab since this page loaded.
+  void fetchStakePositions();
+  void fetchStakingFees();
 }
 
 function closeVoteModal() {

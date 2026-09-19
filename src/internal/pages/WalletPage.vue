@@ -541,7 +541,7 @@
     <AssetTransferDialog :model-value="showAssetTransferModal" :context="assetTransferContext" :form="assetTransferForm" :selected-target="selectedAssetTransferTarget" :can-submit="canSubmitAssetTransfer" :validate-amount-input="validateAssetTransferAmountInput" :sending="assetTransferSending" @update:model-value="closeAssetTransferModal" @submit="confirmAssetTransfer" />
 
     <!-- ####### lumen://wallet SEND MODAL ####### -->
-    <SendTokensDialog :fee-tier-options="sendFeeTierOptions" :fee-label="sendFeeLabel" @update:fee-tier="setSendFeeTier" :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" :show-first-transaction-notice="showFirstTransactionNotice" v-model:show-contact-picker="showContactPicker" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSend" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
+    <SendTokensDialog :fee-tier-options="sendFeeTierOptions" :fee-label="sendFeeLabel" @update:fee-tier="setSendFeeTier" :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" :show-chain-fee="showSendChainFee" :show-first-transaction-notice="showFirstTransactionNotice" v-model:show-contact-picker="showContactPicker" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSend" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
 
     <!-- ####### lumen://wallet RECEIVE MODAL ####### -->
     <ReceiveDialog :model-value="showReceiveModal" :address="address" :qr-data-url="qrCodeDataUrl" @update:model-value="closeReceiveModal" @copy="copyAddressWithToast" />
@@ -917,6 +917,22 @@ const subscriptionsRef = ref<any>(null);
 const pendingPostTxRefreshTimers = ref<number[]>([]);
 
 const tokenomicsTaxRate = ref<number | null>(null); // 0.01 = 1%
+/**
+ * The flat per-message price of moving value, in ulmn.
+ *
+ * New in chain v2.0.0 and live from the upgrade height, which makes it the one
+ * behaviour change on that release that did not wait on a vote: sending used to
+ * cost nothing beyond the tax taken out of the amount, and now the sender needs
+ * 1000 ulmn beyond it. It is charged in the ante, before the message runs, so a
+ * transfer that fails still pays - and it is charged in ulmn whatever
+ * denomination the transfer moves, which is what makes it bite on a bridged
+ * asset the tax cannot reach.
+ *
+ * Unlike the tax, it is taken *on top of* the amount rather than out of it, so
+ * it belongs in what the sender is told they can spend, not in what the
+ * recipient is told they will get.
+ */
+const tokenomicsTransferFeeUlmn = ref<number | null>(null);
 
 // Use global toast system
 const toast = useToast();
@@ -1013,10 +1029,24 @@ const sendSourceChainLabel = computed(() => {
   if (sendAssetContext.value?.chainLabel) return sendAssetContext.value.chainLabel;
   return currentNetworkChainId.value ? humanizeChainId(currentNetworkChainId.value) : 'Lumen';
 });
+/**
+ * The most this send can carry, which is the balance less what the chain takes
+ * on top of it.
+ *
+ * Offering the whole balance meant offering an amount that cannot be sent: the
+ * transfer fee is debited in the same transaction, so a send of exactly the
+ * balance is refused for insufficient funds after the wait. The subtraction
+ * only applies to the home chain's own denomination - the fee is charged in
+ * ulmn, so it comes out of an LMN balance whatever asset is being moved, and an
+ * asset balance in another denomination is untouched by it.
+ */
 const sendAvailableMicro = computed<bigint | null>(() => {
   if (sendAssetContext.value) return BigInt(sendAssetContext.value.microAmount || '0');
   if (balanceLmn.value == null) return null;
-  return decimalToMicroUnits(balanceLmn.value.toFixed(6));
+  const balance = decimalToMicroUnits(balanceLmn.value.toFixed(6));
+  if (balance == null) return null;
+  const fee = BigInt(Math.max(0, Math.round(tokenomicsTransferFeeUlmn.value ?? 0)));
+  return balance > fee ? balance - fee : 0n;
 });
 const sendAvailableLabel = computed(() => {
   // Falls through on an empty figure rather than on a missing context: the
@@ -1031,6 +1061,15 @@ const showSendTaxBreakdown = computed(
     !isIbcSend.value &&
     sendAssetDenom.value.toLowerCase() === 'ulmn' &&
     sendSourcePrefix.value === 'lmn'
+);
+/**
+ * Whether the flat transfer fee applies. Wider than the tax breakdown on both
+ * axes, because the charge is: MsgSend, MsgMultiSend and MsgTransfer are all
+ * priced, so an IBC transfer out of Lumen pays it, and it is taken in ulmn
+ * whatever denomination the message moves, so a bridged asset pays it too.
+ */
+const showSendChainFee = computed(
+  () => sendSourcePrefix.value === 'lmn' && (tokenomicsTransferFeeUlmn.value ?? 0) > 0
 );
 const selectedIbcChannel = computed(() =>
   ibcChannels.value.find(
@@ -1778,9 +1817,15 @@ async function refreshWallet() {
       if (typeof walletApi.getTokenomicsParams === 'function') {
         const tRes = await walletApi.getTokenomicsParams();
         if (tRes && tRes.ok !== false) {
-          const raw = tRes.data?.params?.tx_tax_rate ?? tRes.data?.params?.txTaxRate;
+          const params = tRes.data?.params ?? tRes.data ?? {};
+          const raw = params.tx_tax_rate ?? params.txTaxRate;
           const n = Number(raw);
           tokenomicsTaxRate.value = Number.isFinite(n) ? n : null;
+          // proto3 omits a zero, so an absent field is a fee of zero rather
+          // than a fee we failed to read - and zero is exactly what "no charge"
+          // looks like here, so reading it as 0 is right in both cases.
+          const feeRaw = Number(params.transfer_fee_ulmn ?? params.transferFeeUlmn ?? 0);
+          tokenomicsTransferFeeUlmn.value = Number.isFinite(feeRaw) ? Math.max(0, feeRaw) : null;
         }
       }
     } catch {
@@ -2574,9 +2619,16 @@ const sendSummary = computed(() => {
   const received = Math.max(amount - fee, 0);
   const pct = rate * 100;
   const taxLabel = Number.isFinite(pct) ? `${pct.toFixed(2).replace(/\.?0+$/, '')}%` : 'unknown';
+  // The two charges pull in opposite directions and the summary has to show
+  // both: the tax comes out of the amount, so it lands on the recipient, while
+  // the transfer fee is added to it and lands on the sender. One "fee" line
+  // would have to lie about one of them.
+  const chainFeeLmn = (tokenomicsTransferFeeUlmn.value ?? 0) / 1_000_000;
   return {
     amount: formatLmnAmount(amount),
     receiver: formatLmnAmount(received),
+    chainFee: formatLmnAmount(chainFeeLmn),
+    totalDebited: formatLmnAmount(amount + chainFeeLmn),
     taxLabel,
     routeLabel: selectedIbcChannel.value
       ? `${selectedIbcChannel.value.portId}/${selectedIbcChannel.value.channelId}`

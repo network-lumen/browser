@@ -109,19 +109,30 @@ function isAuctionSettleable(nowSec, expireAtInput, graceDaysInput, auctionDaysI
 }
 
 /**
- * Whether `MsgRenew` is worth offering.
+ * Whether `MsgRenew` is worth offering: only in grace, from chain v2.0.0 on.
  *
- * The chain's `Renew` checks ownership and nothing else - there is no status
- * gate on it, so an owner can extend an active domain early, and can still
- * rescue one that is in grace or even mid-auction, since the auction only
- * changes the owner once `Settle` runs. What renew cannot do is bring back a
- * domain that has gone `free`: the row is still there with the old owner, so
- * the transaction would be accepted and would buy back a name anyone else can
- * now register underneath. That case is excluded here and named in the UI.
+ * `Renew` used to check ownership and nothing else, which let an owner call it
+ * on an active name over and over - each call bounded the term it added and
+ * nothing bounded the total, so `expire_at` could be walked arbitrarily far
+ * into the future one year at a time. The chain now refuses every status but
+ * `grace`, and says which one it saw.
+ *
+ * The three refusals that follow from that are each worth naming, because they
+ * read as regressions otherwise:
+ *  - `active`: renewing early is no longer possible. A name has to lapse first,
+ *    which is what the grace period is for.
+ *  - `auction`: an auction can only be ended by settling it, and settling is
+ *    permissionless, so the owner is not stuck waiting on the bidder.
+ *  - `free`: unchanged, and never allowed - the row still names the old owner,
+ *    so the transaction would be accepted and would buy back a name anyone
+ *    else can now register underneath.
+ *
+ * A held bid blocks renewal too, since both ways out of a bid escrow are
+ * measured from `expire_at`. That one cannot be decided from the lifecycle
+ * alone - it needs the auction row - so it is left to the chain's own error.
  */
 function canRenew(nowSec, expireAtInput, graceDaysInput, auctionDaysInput) {
-  const status = lifecycleStatus(nowSec, expireAtInput, graceDaysInput, auctionDaysInput);
-  return status === 'active' || status === 'grace' || status === 'auction';
+  return lifecycleStatus(nowSec, expireAtInput, graceDaysInput, auctionDaysInput) === 'grace';
 }
 
 module.exports = {

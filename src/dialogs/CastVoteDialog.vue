@@ -59,8 +59,17 @@
       </label>
     </div>
 
+    <!--
+      The chain refuses a vote from an account holding too little delegated
+      stake, and it refuses it in the ante - so without this the transaction is
+      signed, broadcast and failed, and the proposal never sees it.
+    -->
+    <UiWarningBox v-if="stakeNotice" box-class="mb-24px">
+      {{ stakeNotice }}
+    </UiWarningBox>
+
     <div class="flex-justify-end">
-      <UiButton variant="primary" @click="$emit('submit')" :disabled="!option || isVoting">
+      <UiButton variant="primary" @click="$emit('submit')" :disabled="!option || isVoting || !canVote">
         <Vote :size="18" />
         {{ isVoting ? t('Casting…') : t('Cast vote') }}
       </UiButton>
@@ -73,6 +82,7 @@ import { t } from '../stores/i18nStore';
 import UiModal from '../ui/UiModal.vue';
 import UiCard from '../ui/UiCard.vue';
 import UiButton from '../ui/UiButton.vue';
+import UiWarningBox from '../ui/UiWarningBox.vue';
 import { Circle, CircleAlert, ThumbsDown, ThumbsUp, Vote } from 'lucide-vue-next';
 
 /**
@@ -80,7 +90,15 @@ import { Circle, CircleAlert, ThumbsDown, ThumbsUp, Vote } from 'lucide-vue-next
  * page, which is what submits it - this component only presents the four
  * choices and which one is selected.
  */
-defineProps<{ modelValue: boolean; isVoting?: boolean; selectedProposal: any }>();
+defineProps<{
+  modelValue: boolean;
+  isVoting?: boolean;
+  selectedProposal: any;
+  /** Whether this wallet clears the network's minimum delegated stake. */
+  canVote: boolean;
+  /** Why it does not, already worded. Empty when the vote can be cast. */
+  stakeNotice: string;
+}>();
 defineEmits<{ (e: 'update:modelValue', value: boolean): void; (e: 'submit'): void }>();
 const option = defineModel<string>('option', { required: true });
 </script>

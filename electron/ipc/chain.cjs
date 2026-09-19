@@ -565,7 +565,6 @@ async function walletGetStakingRewards(input) {
 
 // ---------------- DNS helpers (pricing) ----------------
 const TIER_BPS_DENOM = 10_000n;
-const SDK_DEC_PRECISION = 1_000_000_000_000_000_000n; // 1e18
 
 function parseLengthTiers(raw) {
   if (!Array.isArray(raw)) return [];
@@ -628,24 +627,6 @@ function parsePositiveBigInt(value, label) {
   } catch {
     throw new Error(`invalid ${label}`);
   }
-}
-
-function parseSdkDec(value) {
-  const raw = String(value ?? '').trim();
-  if (!raw) throw new Error('base_fee_dns missing');
-  if (!/^\d+(\.\d+)?$/.test(raw)) throw new Error('invalid base_fee_dns');
-  const parts = raw.split('.');
-  const intPart = parts[0] || '0';
-  const fracPart = parts[1] || '';
-  const frac = (fracPart + '000000000000000000').slice(0, 18);
-  return BigInt(intPart) * SDK_DEC_PRECISION + BigInt(frac || '0');
-}
-
-function mulDec(amount, dec) {
-  if (amount === 0n || dec === 0n) return 0n;
-  const num = amount * dec;
-  const div = num / SDK_DEC_PRECISION;
-  return num % SDK_DEC_PRECISION === 0n ? div : div + 1n;
 }
 
 async function dnsGetParams() {
@@ -773,7 +754,6 @@ async function dnsEstimateRegisterPrice(input) {
 
     const minPriceRaw =
       params.min_price_ulmn_per_month ?? params.minPriceUlmnPerMonth;
-    const baseFeeRaw = params.base_fee_dns ?? params.baseFeeDns ?? '1';
     const domainTiersRaw = params.domain_tiers ?? params.domainTiers ?? [];
     const extTiersRaw = params.ext_tiers ?? params.extTiers ?? [];
 
@@ -798,12 +778,14 @@ async function dnsEstimateRegisterPrice(input) {
     const domainTier = pickTier(domain.length, domainTiers);
     const extTier = pickTier(ext.length, extTiers);
 
+    // min_price_ulmn_per_month x months x domain tier x ext tier, which is
+    // the whole of x/dns's PriceQuote from chain v2.0.0 on. It used to end in a
+    // multiplication by base_fee_dns, the starting price of an adaptive fee
+    // controller that was never built: the parameter was pinned at 1.0 by an
+    // immutability check, so dropping it moves no price, and the five
+    // parameters it belonged to are gone from the proto.
     quoted = applyBps(quoted, domainTier.multiplier);
-    quoted = applyBps(quoted, extTier.multiplier);
-    const baseAfterTiers = quoted;
-
-    const multiplierDec = parseSdkDec(baseFeeRaw);
-    const amountBig = mulDec(baseAfterTiers, multiplierDec);
+    const amountBig = applyBps(quoted, extTier.multiplier);
     const amountStr = amountBig.toString();
     const amountNumber =
       amountBig <= BigInt(Number.MAX_SAFE_INTEGER)
@@ -822,12 +804,10 @@ async function dnsEstimateRegisterPrice(input) {
         months,
         durationDays,
         minPriceUlmnPerMonth: minPrice.toString(),
-        baseFeeDns: String(baseFeeRaw),
         domainTier: domainTier.tier || null,
         extTier: extTier.tier || null,
         domainMultiplierBps: domainTier.multiplier,
-        extMultiplierBps: extTier.multiplier,
-        baseAfterTiersUlmn: baseAfterTiers.toString()
+        extMultiplierBps: extTier.multiplier
       }
     };
   } catch (e) {
@@ -848,17 +828,36 @@ async function dnsListByOwnerDetailed(ownerInput) {
   const owner = String(ownerInput || '').trim();
   if (!owner) return { ok: false, error: 'missing_owner' };
 
-  const byOwnerUrl = `${trimSlash(restBase)}/lumen/dns/v1/domains_by_owner/${encodeURIComponent(owner)}`;
-  const listRes = await httpGet(byOwnerUrl, { timeout: LCD_LIST_TIMEOUT_MS });
-  if (!listRes.ok) {
-    return { ok: false, status: listRes.status, error: listRes.error || `http_${listRes.status}` };
+  // DomainsByOwner is paged from chain v2.0.0 on: it answers 50 names by
+  // default, 200 at most, and sets has_more when the scan stopped early. Asked
+  // the old way - no offset, no limit - an owner holding more than fifty names
+  // silently lost the rest, and the page had no way to tell that from owning
+  // fifty. Pages are walked until has_more clears, bounded so one account
+  // cannot make this run forever.
+  const BY_OWNER_PAGE = 200;
+  const BY_OWNER_MAX_PAGES = 10;
+  const names = [];
+  let byOwnerTruncated = false;
+  for (let page = 0; page < BY_OWNER_MAX_PAGES; page += 1) {
+    const byOwnerUrl =
+      `${trimSlash(restBase)}/lumen/dns/v1/domains_by_owner/${encodeURIComponent(owner)}` +
+      `?offset=${page * BY_OWNER_PAGE}&limit=${BY_OWNER_PAGE}`;
+    const listRes = await httpGet(byOwnerUrl, { timeout: LCD_LIST_TIMEOUT_MS });
+    if (!listRes.ok) {
+      if (page > 0) break;
+      return { ok: false, status: listRes.status, error: listRes.error || `http_${listRes.status}` };
+    }
+    const pageNames = Array.isArray(listRes.json?.domains)
+      ? listRes.json.domains
+      : Array.isArray(listRes.json)
+        ? listRes.json
+        : [];
+    names.push(...pageNames);
+    const hasMore = listRes.json?.has_more ?? listRes.json?.hasMore ?? false;
+    if (!hasMore) break;
+    if (page === BY_OWNER_MAX_PAGES - 1) byOwnerTruncated = true;
   }
-  const names = Array.isArray(listRes.json?.domains)
-    ? listRes.json.domains
-    : Array.isArray(listRes.json)
-      ? listRes.json
-      : [];
-  if (!names.length) return { ok: true, data: [] };
+  if (!names.length) return { ok: true, data: [], truncated: byOwnerTruncated };
 
   // Where each domain is in its life, computed here rather than in the page.
   // The rule lives in one place (chain/domainLifecycle.cjs) so that the badge
@@ -903,7 +902,12 @@ async function dnsListByOwnerDetailed(ownerInput) {
       // ignore per-domain errors
     }
   }
-  return { ok: true, data: out, params: haveParams ? { graceDays, auctionDays } : null };
+  return {
+    ok: true,
+    data: out,
+    truncated: byOwnerTruncated,
+    params: haveParams ? { graceDays, auctionDays } : null
+  };
 }
 
 /**

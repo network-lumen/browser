@@ -62,8 +62,6 @@ function readField(field: GovernanceActionField, params: Record<string, unknown>
       return linesToText(raw);
     case 'tiers':
       return tiersToText(raw);
-    case 'bool':
-      return raw === true ? 'true' : 'false';
     default:
       return String(raw);
   }
