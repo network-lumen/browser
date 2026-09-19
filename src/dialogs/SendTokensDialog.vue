@@ -128,6 +128,7 @@
               placeholder="0.000000"
               @input="onAmountInput" class="mono focus-outline-none focus-ring focus-shadow pr-64px bg-secondary-read-only placeholder-tertiary" />
             <span class="txt-weight-light color-text-secondary absolute text-14px cursor-events-none top-half translate-y-center right-16px">{{ assetSymbol }}</span>
+            <p v-if="amountError" class="text-12px color-error mt-8px m-0px">{{ amountError }}</p>
           </UiFormGroup>
 
           <!-- Only where the chain actually charges gas. Lumen does not, so
@@ -228,6 +229,12 @@ const props = withDefaults(defineProps<{
    * and to any denomination, because it is levied in ulmn either way.
    */
   showChainFee?: boolean;
+  /**
+   * Why the amount cannot be sent, or '' while it can. Set when the amount and
+   * the fee together exceed the balance, which is the case the "Available"
+   * figure alone cannot express.
+   */
+  amountError?: string;
   sending?: boolean;
   /**
    * Whether this wallet still has to create and link its Dilithium key, which
@@ -246,6 +253,7 @@ const props = withDefaults(defineProps<{
   feeTierOptions: () => [],
   feeLabel: '',
   showChainFee: false,
+  amountError: '',
 });
 
 defineEmits<{

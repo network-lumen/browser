@@ -541,7 +541,7 @@
     <AssetTransferDialog :model-value="showAssetTransferModal" :context="assetTransferContext" :form="assetTransferForm" :selected-target="selectedAssetTransferTarget" :can-submit="canSubmitAssetTransfer" :validate-amount-input="validateAssetTransferAmountInput" :sending="assetTransferSending" @update:model-value="closeAssetTransferModal" @submit="confirmAssetTransfer" />
 
     <!-- ####### lumen://wallet SEND MODAL ####### -->
-    <SendTokensDialog :fee-tier-options="sendFeeTierOptions" :fee-label="sendFeeLabel" @update:fee-tier="setSendFeeTier" :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" :show-chain-fee="showSendChainFee" :show-first-transaction-notice="showFirstTransactionNotice" v-model:show-contact-picker="showContactPicker" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSend" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
+    <SendTokensDialog :fee-tier-options="sendFeeTierOptions" :fee-label="sendFeeLabel" @update:fee-tier="setSendFeeTier" :model-value="showSendModal" :title="sendModalTitle" :form="sendForm" :ibc-form="ibcForm" v-model:target-mode="sendTargetMode" :is-ibc-send="isIbcSend" :asset-context="sendAssetContext" :asset-name="sendAssetName" :asset-symbol="sendAssetSymbol" :source-address="sendSourceAddress" :source-chain-label="sendSourceChainLabel" :contacts="contacts" :ibc-channels="ibcChannels" :ibc-channels-loading="ibcChannelsLoading" :ibc-channels-error="ibcChannelsError" :selected-ibc-channel="selectedIbcChannel" :summary="sendSummary" :can-send="canSend" :source-prefix="sendSourcePrefix" :recipient-placeholder="sendRecipientPlaceholder" :available-label="sendAvailableLabel" :primary-action-label="sendPrimaryActionLabel" :show-tax-breakdown="showSendTaxBreakdown" :show-chain-fee="showSendChainFee" :amount-error="sendAmountError" :show-first-transaction-notice="showFirstTransactionNotice" v-model:show-contact-picker="showContactPicker" :sending="sendingTransaction" @update:model-value="closeSendModal" @submit="confirmSend" @scan-qr="openQrScanner" @select-contact="selectContactForSend" />
 
     <!-- ####### lumen://wallet RECEIVE MODAL ####### -->
     <ReceiveDialog :model-value="showReceiveModal" :address="address" :qr-data-url="qrCodeDataUrl" @update:model-value="closeReceiveModal" @copy="copyAddressWithToast" />
@@ -965,11 +965,6 @@ const balanceLabel = computed(() => {
   return `${balanceLmn.value.toFixed(6)} LMN`;
 });
 
-const balanceLmnDisplay = computed(() => {
-  if (balanceLmn.value == null) return '0.000000';
-  return balanceLmn.value.toFixed(6);
-});
-
 function guessSendTargetMode(value: string): SendTargetMode | null {
   const prefix = getAddressPrefix(value);
   if (!prefix) return null;
@@ -1048,13 +1043,24 @@ const sendAvailableMicro = computed<bigint | null>(() => {
   const fee = BigInt(Math.max(0, Math.round(tokenomicsTransferFeeUlmn.value ?? 0)));
   return balance > fee ? balance - fee : 0n;
 });
+/**
+ * The most this send can carry, as a figure to put in front of someone.
+ *
+ * Read from `sendAvailableMicro` and not from the balance, because the two
+ * stopped being the same number the moment the chain started charging a flat
+ * fee per transfer. Showing the balance here invited exactly the amount the
+ * form then refused: "Available: 9.998" next to a total debited of 9.999,
+ * against a balance of 9.998.
+ *
+ * Falls through on an empty figure rather than on a missing context: the Cosmos
+ * panel always supplies a context, and may not have read a balance for it - the
+ * wallet's own reading of the home chain beats a blank line.
+ */
 const sendAvailableLabel = computed(() => {
-  // Falls through on an empty figure rather than on a missing context: the
-  // Cosmos panel always supplies a context, and may not have read a balance for
-  // it - the wallet's own reading of the home chain beats a blank line.
   if (sendAssetContext.value?.displayAmount) return sendAssetContext.value.displayAmount;
-  if (balanceLmn.value == null) return '';
-  return balanceLmnDisplay.value;
+  const micro = sendAvailableMicro.value;
+  if (micro == null) return '';
+  return (Number(micro) / 1_000_000).toFixed(6);
 });
 /**
  * Whether the tax breakdown is worth drawing.
@@ -2019,11 +2025,31 @@ function openTransactionTab(txHash: string) {
   window.location.href = explorerUrl;
 }
 
+/**
+ * Why the amount cannot be sent, or '' while it can.
+ *
+ * The same sentence `confirmSend` raises as a toast, said before the click
+ * instead of after it. The amount and the fee come out of one balance, so an
+ * amount equal to the balance is short by the fee - and the form used to let it
+ * through to a refusal.
+ */
+const sendAmountError = computed(() => {
+  const micro = decimalToMicroUnits(sendForm.value.amount);
+  if (micro == null || micro <= 0n) return '';
+  const available = sendAvailableMicro.value;
+  if (available === null || micro <= available) return '';
+  return t('Insufficient {symbol} balance', { symbol: sendAssetSymbol.value });
+});
+
 const canSend = computed(() => {
   if (!sendSourceAddress.value) return false;
   if (!String(sendForm.value.recipient || '').trim()) return false;
   const amount = Number(sendForm.value.amount || '0');
   if (!Number.isFinite(amount) || amount <= 0) return false;
+  // Blocked here rather than in confirmSend alone: a button that stays enabled
+  // over an impossible amount, beside a summary stating a total larger than the
+  // balance, reads as the app agreeing to it.
+  if (sendAmountError.value) return false;
   if (isIbcSend.value && (!selectedIbcChannel.value || ibcChannelsLoading.value)) return false;
   return true;
 });
