@@ -1056,11 +1056,20 @@ const sendAvailableLabel = computed(() => {
   if (balanceLmn.value == null) return '';
   return balanceLmnDisplay.value;
 });
+/**
+ * Whether the tax breakdown is worth drawing.
+ *
+ * A rate of zero is a real setting, and the DAO intends to vote it there once
+ * the flat transfer fee takes over - so "Tax 0%" is a row that will become the
+ * normal case. It says nothing, and the "Receiver net" line beside it then
+ * repeats the amount from the row above, so both go together.
+ */
 const showSendTaxBreakdown = computed(
   () =>
     !isIbcSend.value &&
     sendAssetDenom.value.toLowerCase() === 'ulmn' &&
-    sendSourcePrefix.value === 'lmn'
+    sendSourcePrefix.value === 'lmn' &&
+    (tokenomicsTaxRate.value ?? 0) > 0
 );
 /**
  * Whether the flat transfer fee applies. Wider than the tax breakdown on both

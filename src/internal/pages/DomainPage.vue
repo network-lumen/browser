@@ -284,6 +284,7 @@ import { useInternalLumen } from '../../composables/useInternalLumen';
 import { updateCooldownSeconds } from '../services/countdown';
 import { describeChainError } from '../services/chainErrors';
 import { paramNumber, unwrapModuleParams } from '../services/moduleParams';
+import { chargeLabel } from '../services/format';
 import {
   Globe,
   KeyRound,
@@ -499,10 +500,9 @@ async function loadDnsUpdateFee() {
  */
 const dnsTransferFeeUlmn = ref<number | null>(null);
 
+/** What a transfer costs, '' when free and an ellipsis while it is unread. */
 const transferFeeLabel = computed(() =>
-  dnsTransferFeeUlmn.value == null
-    ? '…'
-    : `${(dnsTransferFeeUlmn.value / 1_000_000).toFixed(6)} LMN`
+  chargeLabel(dnsTransferFeeUlmn.value, (ulmn) => `${(ulmn / 1_000_000).toFixed(6)} LMN`)
 );
 
 /**
@@ -535,8 +535,9 @@ const settingsCostLMN = computed(() =>
   dnsUpdateFeeUlmn.value == null ? null : dnsUpdateFeeUlmn.value / 1_000_000
 );
 
+/** What saving a record costs. update_fee_ulmn runs at 0 today, so this is ''. */
 const settingsCostLabel = computed(() =>
-  settingsCostLMN.value == null ? '…' : `${settingsCostLMN.value.toFixed(6)} LMN`
+  chargeLabel(settingsCostLMN.value, (lmn) => `${lmn.toFixed(6)} LMN`)
 );
 
 /** Separate from the fee, and said separately: it is a floor, not a charge. */
@@ -1614,7 +1615,10 @@ async function loadAuctionList() {
 
 const auctionRows = computed(() => auctions.value?.rows || []);
 
-const bidFeeLabel = computed(() => lmnLabel(String(auctions.value?.bidFeeUlmn ?? 0)));
+/** '' when bidding is free, which hides the row and the sentence about it. */
+const bidFeeLabel = computed(() =>
+  chargeLabel(Number(auctions.value?.bidFeeUlmn ?? 0), (ulmn) => lmnLabel(String(ulmn)))
+);
 
 /** Whether one of my own domains is among the names being auctioned. */
 const myAuctionedNames = computed(() => {

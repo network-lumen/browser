@@ -24,6 +24,8 @@ const DATE_LOCALE = 'en-US';
 const MICRO_UNIT = 1_000_000;
 
 const EM_DASH = '—';
+/** "Not read yet", which a row shows rather than hides - it is about to fill. */
+const ELLIPSIS = '…';
 
 /**
  * Normalizes any of the timestamp shapes the app deals with into a `Date`.
@@ -130,6 +132,34 @@ export function formatMicroAmount(
   const n = Number(value);
   if (!Number.isFinite(n)) return options.empty ?? EM_DASH;
   return formatDecimal(n / MICRO_UNIT, options);
+}
+
+/**
+ * What a charge is worth on screen, in the three states a charge can be in.
+ *
+ * A governable fee has a value the UI must tell apart from its absence, and the
+ * two are easy to conflate into one number:
+ *
+ *   not read yet -> an ellipsis, because the row is about to say something
+ *   zero         -> '', which every caller renders as no row at all
+ *   a real amount -> whatever `format` makes of it
+ *
+ * The middle case is the one this exists for. Every price on this chain can be
+ * voted to zero and several already are, so "0.000000 LMN" is a line the reader
+ * has to decode before ignoring - and beside it, sentences explaining a fee
+ * that is not charged. Returning '' puts the decision in one place instead of
+ * leaving each dialog to notice.
+ *
+ * @param amount in whatever unit `format` expects; null or undefined means
+ *   not read yet, which is not the same as zero.
+ */
+export function chargeLabel(
+  amount: number | null | undefined,
+  format: (amount: number) => string
+): string {
+  if (amount == null || !Number.isFinite(amount)) return ELLIPSIS;
+  if (amount <= 0) return '';
+  return format(amount);
 }
 
 /** `ulmn` -> `LMN`, `ulumen` -> `LUMEN`, `utoken` -> `TOKEN`. */

@@ -45,7 +45,7 @@
               which is not what saving a record charges. Both are shown now,
               named for what they are.
             -->
-            <div class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
+            <div v-if="costLabel" class="flex-align-center flex-justify-space-between color-text-primary text-13px py-4px px-0px">
               <span>{{ t('Cost') }}</span>
               <span class="txt-weight-light">{{ costLabel }}</span>
             </div>
@@ -109,7 +109,10 @@ defineProps<{
   records: SettingsRecord[];
   domain: { name?: string } | null;
   expiryLabel?: string;
-  /** The dns module's update fee, live from the chain - it is governable. */
+  /**
+   * The dns module's update fee, live from the chain - it is governable, and
+   * '' when it is set to zero, which is what it runs at today.
+   */
   costLabel?: string;
   /** The floor a wallet must stay above for its PQC link, if there is one. */
   pqcMinBalanceLabel?: string;

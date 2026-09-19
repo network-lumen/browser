@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  chargeLabel,
   formatBytes,
   formatDate,
   formatDateTime,
@@ -205,5 +206,49 @@ describe('the two canonical shortenings', () => {
 
   it('leaves a short address alone rather than padding it', () => {
     expect(shortenAddress('lmn1short')).toBe('lmn1short');
+  });
+});
+
+/**
+ * What a charge is worth on screen.
+ *
+ * Every price on this chain is governable and several run at zero - the dns
+ * update fee does today, and the transaction tax is meant to follow. A row
+ * reading "0.000000 LMN", and the sentences beside it explaining a fee that is
+ * not charged, are the reason this returns '' rather than a formatted zero.
+ *
+ * The state it must not collapse is "not read yet": that one keeps its row,
+ * because the row is about to say something.
+ */
+describe('chargeLabel', () => {
+  const lmn = (ulmn: number) => `${(ulmn / 1_000_000).toFixed(6)} LMN`;
+
+  it('draws nothing for a charge of zero', () => {
+    expect(chargeLabel(0, lmn)).toBe('');
+  });
+
+  it('draws the amount for a real charge', () => {
+    expect(chargeLabel(1000, lmn)).toBe('0.001000 LMN');
+  });
+
+  it('tells "not read yet" apart from "not charged"', () => {
+    // The whole point: both are falsy on the way in and must not render alike.
+    expect(chargeLabel(null, lmn)).toBe('…');
+    expect(chargeLabel(undefined, lmn)).toBe('…');
+    expect(chargeLabel(0, lmn)).toBe('');
+  });
+
+  it('treats an unreadable amount as unread rather than as free', () => {
+    // A NaN from a params read that answered something unexpected must not
+    // silently claim the charge is zero.
+    expect(chargeLabel(Number.NaN, lmn)).toBe('…');
+  });
+
+  it('refuses a negative amount the way it refuses zero', () => {
+    expect(chargeLabel(-1, lmn)).toBe('');
+  });
+
+  it('leaves the formatting to its caller', () => {
+    expect(chargeLabel(5, (n) => `${n} units`)).toBe('5 units');
   });
 });

@@ -24,7 +24,7 @@
             fee is a governable parameter, so it is read from the chain each
             time rather than written down here.
           -->
-          <div class="flex-align-center flex-justify-space-between color-text-primary text-13px border-radius-10px bg-secondary border-1 py-8px px-12px mt-16px">
+          <div v-if="feeLabel" class="flex-align-center flex-justify-space-between color-text-primary text-13px border-radius-10px bg-secondary border-1 py-8px px-12px mt-16px">
             <span>{{ t('Transfer fee') }}</span>
             <span class="txt-weight-light">{{ feeLabel }}</span>
           </div>
@@ -68,7 +68,10 @@ defineProps<{
   newOwner: string;
   domain: { name?: string } | null;
   expiryLabel?: string;
-  /** The dns module's transfer fee, live from the chain - it is governable. */
+  /**
+   * The dns module's transfer fee, live from the chain - it is governable, and
+   * '' when it is set to zero, which draws no row rather than one reading 0.
+   */
   feeLabel: string;
   canSubmit: boolean;
   busy?: boolean;

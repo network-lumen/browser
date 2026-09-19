@@ -28,7 +28,7 @@
         <p v-else class="text-12px color-text-tertiary mt-8px">{{ t('In LMN. The network also refuses anything below one year of registration for this name, and anything your wallet cannot cover.') }}</p>
       </div>
 
-      <div class="flex-align-center flex-justify-space-between color-text-primary text-13px border-radius-10px bg-secondary border-1 py-8px px-12px">
+      <div v-if="bidFeeLabel" class="flex-align-center flex-justify-space-between color-text-primary text-13px border-radius-10px bg-secondary border-1 py-8px px-12px">
         <span>{{ t('Bid fee') }}</span>
         <span class="txt-weight-light">{{ bidFeeLabel }}</span>
       </div>
@@ -38,11 +38,16 @@
         to be a promise: nothing was checked and nothing moved until settlement,
         so anyone could name any figure from an empty wallet. The amount is held
         by the network from the moment the bid is placed now, and returned in
-        full the moment someone outbids it. The fee is separate and is gone
-        either way.
+        full the moment someone outbids it.
+
+        The sentence about the fee is a separate string, appended only when
+        there is one: bid_fee_ulmn is governable and can be voted to zero, and
+        a warning that a fee is "not refunded" when none is charged is the same
+        untruth as a row reading "0".
       -->
       <UiWarningBox box-class="mt-16px">
-        {{ t('Your bid leaves your wallet now and is held by the network. It comes back in full if someone outbids you, and buys the domain if you win. The bid fee is charged on top and is not refunded.') }}
+        {{ t('Your bid leaves your wallet now and is held by the network. It comes back in full if someone outbids you, and buys the domain if you win.') }}
+        <template v-if="bidFeeLabel"> {{ t('The bid fee is charged on top and is not refunded.') }}</template>
       </UiWarningBox>
 
       <div class="flex flex-justify-end gap-8px mt-16px">
@@ -89,6 +94,7 @@ defineProps<{
   amount: string;
   /** Set when what was typed cannot be bid; the hint below is replaced by it. */
   amountError: string;
+  /** '' when bidding is free, which hides both the row and the fee warning. */
   bidFeeLabel: string;
   canSubmit: boolean;
   busy?: boolean;
