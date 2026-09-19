@@ -908,7 +908,7 @@ import { t, useI18n } from '../../stores/i18nStore';
 import { STORAGE_KEYS, readString, writeString } from '../services/storage';
 import { clamp, errorMessage } from '../services/coerce';
 import { normalizeHttpBaseUrl } from '../services/navigationUrl';
-import { listLumenNetworks, setLumenNetwork } from '../services/lumenNetwork';
+import { listLumenNetworks, loadLumenNetwork, setLumenNetwork } from '../services/lumenNetwork';
 import type { LumenNetworkIdentity } from '../../types/lumenNetwork';
 import { useToast } from '../../composables/useToast';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
@@ -1167,13 +1167,31 @@ const lumenNetwork = ref<string>(appSettingsState.value.lumenNetwork || 'mainnet
 const lumenNetworkOptions = ref<LumenNetworkIdentity[]>([]);
 const lumenNetworkSaving = ref(false);
 
+/**
+ * The chain id of the network now selected.
+ *
+ * What the nodes answer comes first, and for one network it is the only
+ * answer there is: a devnet names itself in its genesis and renames itself on
+ * every redeploy, so the table declares nothing for it and this line would
+ * otherwise read "Unknown" against a node that is plainly saying what it is.
+ */
 const lumenChainIdSummary = computed(() => {
   const active = lumenNetworkOptions.value.find((option) => option.id === lumenNetwork.value);
-  return active?.chainId || t('Unknown');
+  return activeObservedChainId.value || active?.chainId || t('Unknown');
 });
+
+/** Null until a peer has answered, which is what makes it worth showing. */
+const activeObservedChainId = ref('');
+
+async function loadActiveObservedChainId() {
+  const network = await loadLumenNetwork();
+  activeObservedChainId.value =
+    network.id === lumenNetwork.value ? network.observedChainId || '' : '';
+}
 
 async function loadLumenNetworkOptions() {
   lumenNetworkOptions.value = await listLumenNetworks();
+  await loadActiveObservedChainId();
 }
 
 async function saveLumenNetwork(nextId: string) {

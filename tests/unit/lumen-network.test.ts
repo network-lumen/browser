@@ -109,6 +109,39 @@ describe('reading the active network from the renderer', () => {
     expect(network.rest).toEqual([]);
   });
 
+  it('keeps a network that declares no chain id, endpoints and all', async () => {
+    // A devnet reads its id off the node, so it declares none. Rejecting it
+    // here threw away a working descriptor and answered the mainnet-shaped
+    // fallback instead - which has no endpoints, so a devnet with a healthy
+    // node reported itself as "Lumen / lumen" publishing no REST endpoint.
+    const getNetwork = vi.fn().mockResolvedValue({
+      ok: true,
+      network: {
+        id: 'devnet',
+        chainId: '',
+        prettyName: 'Lumen Devnet',
+        rest: ['http://127.0.0.1:1317'],
+        rpc: ['http://127.0.0.1:26657'],
+        observedChainId: 'lumen-local-1'
+      }
+    });
+    bridge({ getNetwork });
+
+    const network = await loadLumenNetwork();
+    expect(network.id).toBe('devnet');
+    expect(network.rest).toEqual(['http://127.0.0.1:1317']);
+    expect(network.observedChainId).toBe('lumen-local-1');
+  });
+
+  it('still falls back when the answer names no network at all', async () => {
+    // The guard the case above narrowed: a malformed answer must not pass for
+    // a network, or the app talks to endpoints it cannot name.
+    bridge({ getNetwork: vi.fn().mockResolvedValue({ ok: true, network: { rest: ['https://r.test'] } }) });
+    const network = await loadLumenNetwork();
+    expect(network.id).toBe('mainnet');
+    expect(network.rest).toEqual([]);
+  });
+
   it('retries after a failure instead of replaying it all session', async () => {
     const getNetwork = vi
       .fn()

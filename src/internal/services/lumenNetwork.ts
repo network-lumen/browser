@@ -20,6 +20,12 @@ let unsubscribe: (() => void) | null = null;
  * What to answer when the bridge is missing - a browser-only unit test, or a
  * preload that failed to inject. Mainnet's identity with no endpoints: reads
  * fail loudly instead of quietly going somewhere else.
+ *
+ * Loud has a limit worth knowing: this wears mainnet's name, so a screen that
+ * falls back to it reads as "you are on Lumen mainnet and it publishes no REST
+ * endpoint" rather than as "the bridge did not answer". Anything returning this
+ * in place of a real network makes the app lie about which chain it is on, so
+ * the guard below stays as narrow as it can be.
  */
 const UNKNOWN_NETWORK: LumenNetwork = {
   id: 'mainnet',
@@ -60,7 +66,14 @@ export function loadLumenNetwork(): Promise<LumenNetwork> {
       try {
         const res = await net.getNetwork();
         const network = res?.network;
-        if (!network || !network.chainId) return UNKNOWN_NETWORK;
+        // Keyed on the network's identity, not on its chain id. A devnet
+        // declares no chain id on purpose - it is redeployed under a new one
+        // and reads it off the node - and testing the id here threw that
+        // perfectly good descriptor away, endpoints and all, replacing it with
+        // a fallback that calls itself mainnet. The symptom was a devnet
+        // reporting itself as "Lumen / lumen" with no REST endpoint while its
+        // node was answering normally.
+        if (!network || !network.id) return UNKNOWN_NETWORK;
         return {
           ...network,
           rest: Array.isArray(network.rest) ? network.rest : [],
