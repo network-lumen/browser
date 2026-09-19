@@ -652,7 +652,7 @@
     <ManageStakeDialog :model-value="showStakeModal" v-model:action="currentStakeAction" v-model:amount="stakeAmount" v-model:percentage="stakePercentage" v-model:target="targetValidator" :selected-validator="selectedValidator" :staked-balance="stakedBalance" :available-balance="availableBalance" :validators="validators" :stake-actions="stakeActions" :can-confirm="canConfirm" :is-processing-tx="isProcessingTx" :pending-rewards="selectedValidatorRewards" :action-fee-lmn="currentStakeFeeLmn" :redelegation-locked-until="selectedValidatorLockedUntil" @update:model-value="closeStakeModal" @confirm="confirmStakeAction" @set-percentage="setStakePercentage" />
 
     <!-- ####### GOVERNANCE: CREATE PROPOSAL MODAL ####### -->
-    <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" @template-changed="prefillActionDraft" />
+    <CreateProposalDialog :model-value="showCreateProposalModal" :form="proposalForm" :action-drafts="actionDrafts" :templates="GOVERNANCE_ACTION_TEMPLATES" :can-submit="canSubmitProposal()" :governance-min-deposit-lmn="governanceMinDepositLmn" :deposit-error="proposalDepositError" :is-submitting="isSubmittingProposal" :submission-enabled="GOVERNANCE_PROPOSAL_SUBMISSION_ENABLED" @update:model-value="closeCreateProposalModal" @submit="submitProposal" @add-action="addActionDraft" @remove-action="removeActionDraft" @template-changed="prefillActionDraft" />
 
     <!-- ####### GOVERNANCE: VOTE MODAL ####### -->
     <CastVoteDialog :model-value="showVoteModal" v-model:option="voteOption" :is-voting="isVoting" :selected-proposal="selectedProposal" :can-vote="canCastVote" :stake-notice="voteStakeNotice" @update:model-value="closeVoteModal" @submit="castVote" />
@@ -2492,6 +2492,61 @@ const governanceLoading = ref(false);
 const governanceMinDepositLmn = ref('10');
 
 /**
+ * The share of the minimum deposit a proposal must carry when it is submitted,
+ * and the floor under any single deposit. Both are governable, and between them
+ * they decide what the form must refuse.
+ *
+ *   min_initial_deposit_ratio - checked by validateInitialDeposit at submission.
+ *     At 0 it short-circuits and a proposal may arrive with nothing.
+ *   min_deposit_ratio - checked by AddDeposit on every deposit, the initial one
+ *     included, and only when something is actually deposited.
+ *
+ * Read as decimals, not as amounts: they are fractions of min_deposit.
+ */
+const governanceInitialDepositRatio = ref(0);
+const governanceDepositFloorRatio = ref(0);
+
+/** What the proposal must carry to be accepted, in LMN. 0 when nothing need. */
+const governanceRequiredDepositLmn = computed(
+  () => (Number(governanceMinDepositLmn.value) || 0) * governanceInitialDepositRatio.value
+);
+
+/** The floor under a non-zero deposit, in LMN. */
+const governanceDepositFloorLmn = computed(
+  () => (Number(governanceMinDepositLmn.value) || 0) * governanceDepositFloorRatio.value
+);
+
+/**
+ * Why this deposit would be refused, or '' while it would not.
+ *
+ * The chain checks both ratios after the signature, so without this the form
+ * takes a proposal, signs it and comes back with ErrMinDepositTooSmall. That is
+ * harmless while min_initial_deposit_ratio is 0 - which is what it ships at,
+ * and why nothing here noticed - and becomes the normal outcome the moment a
+ * vote raises it: the placeholder alone would then be refused.
+ */
+const proposalDepositError = computed(() => {
+  const typed = String(proposalForm.value.depositLmn || '').trim();
+  if (!typed) return '';
+  const deposit = Number(typed);
+  if (!Number.isFinite(deposit) || deposit < 0) return '';
+
+  const required = governanceRequiredDepositLmn.value;
+  if (required > 0 && deposit + 1e-9 < required) {
+    return t('This network needs at least {amount} LMN with the proposal itself.', {
+      amount: String(Number(required.toFixed(6)))
+    });
+  }
+  const floor = governanceDepositFloorLmn.value;
+  if (deposit > 0 && floor > 0 && deposit + 1e-9 < floor) {
+    return t('A deposit must be at least {amount} LMN.', {
+      amount: String(Number(floor.toFixed(6)))
+    });
+  }
+  return '';
+});
+
+/**
  * Drives the countdown on the voting cards.
  *
  * A `computed` over Date.now() would never recompute - nothing reactive changes
@@ -2631,6 +2686,13 @@ async function fetchGovernanceMinDeposit() {
       const lmn = Number(minDeposit.amount) / 1e6;
       if (Number.isFinite(lmn)) governanceMinDepositLmn.value = String(lmn);
     }
+    // Only on `params`: the legacy `deposit_params` block carries the minimum
+    // and the period, and neither ratio.
+    const params = res.ok ? res.json?.params : null;
+    const initialRatio = Number(params?.min_initial_deposit_ratio);
+    governanceInitialDepositRatio.value = Number.isFinite(initialRatio) ? initialRatio : 0;
+    const floorRatio = Number(params?.min_deposit_ratio);
+    governanceDepositFloorRatio.value = Number.isFinite(floorRatio) ? floorRatio : 0;
   } catch (e) {
     console.error('Failed to fetch gov params:', e);
   }
@@ -2758,7 +2820,9 @@ function canSubmitProposal(): boolean {
     // is a deposit spent on a certain refusal.
     actionDrafts.value.length > 0 &&
     !Number.isNaN(Number(proposalForm.value.depositLmn)) &&
-    Number(proposalForm.value.depositLmn) >= 0
+    Number(proposalForm.value.depositLmn) >= 0 &&
+    // Refused before the signature rather than after it.
+    !proposalDepositError.value
   );
 }
 

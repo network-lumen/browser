@@ -14,7 +14,8 @@
 
     <div class="mb-20px">
       <label class="txt-weight-light color-text-primary block text-13px mb-8px">{{ t('Deposit (LMN)') }}</label>
-      <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="form.depositLmn" placeholder="10" class="focus-outline-none focus-ring focus-shadow bg-primary" />
+      <UiInput radius-class="border-radius-10px" padding-class="p-14px" :focus-ring="false" type="text" v-model="form.depositLmn" :placeholder="governanceMinDepositLmn" class="focus-outline-none focus-ring focus-shadow bg-primary" />
+      <p v-if="depositError" class="text-12px color-error mt-8px m-0px">{{ depositError }}</p>
     </div>
 
     <UiCard class="mb-24px" padding="md" radius="10px" border-class="border-1-primary-a30" :shadow="false">
@@ -111,6 +112,11 @@ defineProps<{
   templates: GovernanceActionTemplate[];
   canSubmit: boolean;
   governanceMinDepositLmn: string;
+  /**
+   * Why the deposit typed would be refused, or '' while it would not. The chain
+   * checks it after the signature, so the form has to check it before.
+   */
+  depositError?: string;
   isSubmitting?: boolean;
   submissionEnabled?: boolean;
 }>();
