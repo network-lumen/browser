@@ -21,6 +21,14 @@
  * `explorerAccountUrl` is a template rather than a base: explorers disagree on
  * the path, and an empty string means "this network has no explorer", which the
  * wallet renders by hiding the link rather than by linking somewhere wrong.
+ *
+ * `chainId` is the id a signature commits to, and an empty string means "ask
+ * the node". Declaring it pins the peer pool: a peer that answers for anything
+ * else is put down, which is what stops an endpoint discovered from a
+ * validator's own description dragging the wallet onto another chain. That is
+ * right for a chain with a stable id and wrong for one without, so a network
+ * that is redeployed leaves it empty and the pool learns it from the first peer
+ * that answers - see `pinsChainId` below.
  */
 const NETWORKS = Object.freeze({
   mainnet: Object.freeze({
@@ -53,10 +61,14 @@ const NETWORKS = Object.freeze({
   devnet: Object.freeze({
     id: 'devnet',
     label: 'Devnet',
-    // Not `lumen-dev`: the lab chain answers `lumen-dns-lab`, and the chain id
-    // is what a signature commits to, so guessing it wrong makes every
-    // transaction fail verification rather than fail to connect.
-    chainId: 'lumen-dns-lab',
+    // Empty on purpose: a devnet is redeployed, and each redeploy names itself
+    // whatever its genesis says - `lumen-dns-lab` one week, `lumen-local-1` the
+    // next. Writing one of those down here does not fail to connect, which
+    // would at least be legible; it turns every peer foreign at once, so the
+    // pool drops them all and the app reports the node as publishing no REST
+    // endpoint. The id is read off `node_info.network` instead, which is the
+    // only definition that survives a redeploy.
+    chainId: '',
     prefix: 'lmn',
     denom: 'ulmn',
     symbol: 'LMN',
@@ -68,6 +80,18 @@ const NETWORKS = Object.freeze({
 });
 
 const DEFAULT_NETWORK_ID = 'mainnet';
+
+/**
+ * Does this network know its own chain id, or does it have to ask?
+ *
+ * The pool pins the declared id when there is one and learns it from the first
+ * peer that answers when there is not. Both keep the guarantee that matters -
+ * every peer in the pool is on one chain - but only the pinned form can also
+ * say *which* chain before anything has answered.
+ */
+function pinsChainId(id) {
+  return !!getNetwork(id).chainId;
+}
 
 /** The name the Cosmos chain registry uses for Lumen, on every network. */
 const HOME_CHAIN_NAME = 'lumen';
@@ -108,5 +132,6 @@ module.exports = {
   normalizeNetworkId,
   getNetwork,
   listNetworks,
+  pinsChainId,
   explorerAccountUrl
 };

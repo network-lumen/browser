@@ -273,3 +273,53 @@ describe('finding peers in validator descriptions', () => {
     expect(pool._extractAndAddPeersFromValidators([null, {}, { description: null }] as never)).toBe(0);
   });
 });
+
+/**
+ * Which chain the pool believes it is on.
+ *
+ * Two modes, and the difference is the whole reason a devnet works at all.
+ * A network that declares its chain id pins the pool from the start, so a peer
+ * discovered from a validator's own description cannot drag the wallet onto
+ * another chain. A network that declares none - a devnet, which renames itself
+ * on every redeploy - learns it from the first peer to answer and holds every
+ * peer after that to it.
+ *
+ * Declaring one for a chain that moves is the failure this covers: every peer
+ * turns foreign at once, the pool empties, and the app reports a node that is
+ * plainly running as publishing no REST endpoint.
+ */
+describe('the chain the pool is on', () => {
+  it('starts pinned when the network declares an id', () => {
+    const pool = poolWith(1, { expectedChainId: 'lumen' });
+    expect(pool.networkChainId).toBe('lumen');
+    expect(pool._isForeignChain({ chainId: 'lumen-local-1' })).toBe(true);
+  });
+
+  it('starts unknown when it does not, so nothing is foreign yet', () => {
+    const pool = poolWith(1);
+    expect(pool.networkChainId).toBe(null);
+    // Nothing to be foreign to. Answering true here would drop every peer that
+    // had answered, which is the state a devnet spends its first seconds in.
+    expect(pool._isForeignChain({ chainId: 'lumen-local-1' })).toBe(false);
+  });
+
+  it('learns the id from the first peer and holds the rest to it', () => {
+    const pool = poolWith(2);
+    pool._markSuccess(peerOf(pool, 1), { chainId: 'lumen-local-1', height: 1, latencyMs: 5 });
+    // _markSuccess records the peer; adopting it as the pool's own happens on
+    // the ping path, which needs a network - so it is done here directly.
+    pool.networkChainId = pool.networkChainId || peerOf(pool, 1).chainId;
+
+    expect(pool.networkChainId).toBe('lumen-local-1');
+    expect(pool._isForeignChain({ chainId: 'lumen-local-1' })).toBe(false);
+    expect(pool._isForeignChain({ chainId: 'lumen-dns-lab' })).toBe(true);
+  });
+
+  it('never calls a peer that has not answered foreign', () => {
+    // A bootstrap peer has no chain id until it is pinged. Refusing those would
+    // empty the pool before anything had been tried.
+    const pool = poolWith(1, { expectedChainId: 'lumen' });
+    expect(pool._isForeignChain(peerOf(pool))).toBe(false);
+    expect(pool._isForeignChain(null)).toBe(false);
+  });
+});

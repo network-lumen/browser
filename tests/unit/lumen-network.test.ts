@@ -39,10 +39,23 @@ describe('the network table', () => {
   it('knows each network apart by chain id', () => {
     expect(networks.getNetwork('mainnet').chainId).toBe('lumen');
     expect(networks.getNetwork('testnet').chainId).toBe('lumen-testnet');
-    // The lab chain answers `lumen-dns-lab`, not `lumen-devnet`. A signature
-    // commits to this, so a plausible-looking guess fails verification rather
-    // than failing to connect, which is much harder to read from the outside.
-    expect(networks.getNetwork('devnet').chainId).toBe('lumen-dns-lab');
+  });
+
+  it('leaves the devnet chain id to the node, because a devnet renames itself', () => {
+    // Declaring one does not fail to connect, which would at least be legible.
+    // It pins the pool: every peer answering for anything else is dropped as
+    // foreign, so a redeploy under a new id empties the endpoint list and the
+    // app reports a running node as publishing no REST endpoint. Measured on a
+    // lab chain that moved from lumen-dns-lab to lumen-local-1.
+    expect(networks.getNetwork('devnet').chainId).toBe('');
+    expect(networks.pinsChainId('devnet')).toBe(false);
+  });
+
+  it('pins the chain id on the networks that keep one', () => {
+    // The pin is what stops an endpoint discovered from a validator's own
+    // description handing a mainnet node to a testnet signature.
+    expect(networks.pinsChainId('mainnet')).toBe(true);
+    expect(networks.pinsChainId('testnet')).toBe(true);
   });
 
   it('has a bootstrap section in peers.txt for every network it declares', () => {

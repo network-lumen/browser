@@ -20,11 +20,17 @@ https://testnet-rpc.lumen.chaintools.tech:443 https://testnet-api.lumen.chaintoo
 
 [devnet]
 
-# The DNS lab chain (chain-id lumen-dns-lab), served from WSL and reachable at
-# the WSL VM's address from the Windows host that runs it - and from nowhere
-# else: 172.28.x.x is private, so this section answers only on that machine.
+# A devnet names itself whatever its genesis says, and renames itself on the
+# next redeploy. Nothing here declares a chain id for that reason - the pool
+# reads it off the node (see chain/networks.cjs) - so these lines only have to
+# point at something answering.
 #
-# WSL hands its VM a new address on most restarts, so this line goes stale
-# without anything changing here. When Devnet stops connecting, `hostname -I`
-# inside WSL says what it became.
+# Localhost first: a devnet is usually the node on the machine running the app,
+# and WSL2 forwards 127.0.0.1 from the Windows host by default.
+http://127.0.0.1:26657 http://127.0.0.1:1317 127.0.0.1:9090
+
+# The same node addressed from outside, for a WSL VM that does not forward.
+# 172.28.x.x is private, so this line answers only on that machine - and WSL
+# hands its VM a new address on most restarts, so it goes stale without
+# anything changing here. `hostname -I` inside WSL says what it became.
 http://172.28.209.134:26657 http://172.28.209.134:1317 172.28.209.134:9090

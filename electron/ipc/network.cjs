@@ -26,7 +26,14 @@ function describeActiveNetwork() {
     // The same rule the pool applies to its own picks. A peer known to be on
     // another chain is what this whole descriptor exists to keep out of the
     // wallet, so it must not come back out through the endpoint list.
-    .filter((peer) => !peer.chainId || peer.chainId === snapshot.networkChainId)
+    //
+    // Until the pool knows which chain it is on - a network that declares no id
+    // and has had no answer yet - there is nothing to be foreign to, and
+    // comparing against null would drop every peer that *had* answered. That is
+    // the state a devnet starts in.
+    .filter(
+      (peer) => !snapshot.networkChainId || !peer.chainId || peer.chainId === snapshot.networkChainId
+    )
     .map((peer, index) => ({ peer, index }))
     .sort(
       (a, b) =>

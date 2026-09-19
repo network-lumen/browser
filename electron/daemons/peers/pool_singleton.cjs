@@ -31,11 +31,17 @@ function getNetworkPool() {
   // Pinning the chain id is what keeps a peer discovered from a validator's
   // description - which is how a mainnet endpoint gets into a testnet pool -
   // from being handed to a balance read or, worse, to a signature.
+  //
+  // A network that declares no id is not unpinned, it is pinned later: the
+  // first peer to answer sets it, and every peer after that is held to it. What
+  // it gives up is knowing the id before anything has answered, which a chain
+  // that is redeployed under a new name cannot know anyway.
   const pool = new PeerPool({ networkId: network.id, expectedChainId: network.chainId });
   pool.addBootstrapPeers(loadBootstrapPeers(network.id));
 
   const count = pool.listPeers().length;
-  console.log(`[net] network ${network.id} (${network.chainId}), ${count} bootstrap peer(s)`);
+  const chainLabel = network.chainId || 'chain id from the first peer to answer';
+  console.log(`[net] network ${network.id} (${chainLabel}), ${count} bootstrap peer(s)`);
   if (!count) {
     console.warn(`[net] resources/peers.txt has no [${network.id}] section, or it is empty`);
   }
