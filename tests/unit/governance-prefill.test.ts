@@ -112,3 +112,76 @@ describe('what stays blank', () => {
     expect(Object.keys(prefillFromParams(TEMPLATE, null))).toHaveLength(TEMPLATE.fields.length);
   });
 });
+
+/**
+ * The shapes x/gov, x/pqc and x/slashing answer with.
+ *
+ * These three templates carry no MsgUpdateParams - each sends a dedicated
+ * message that replaces only the values it names - but they still have to show
+ * what is on the chain before replacing it. Without that the form is a blank
+ * with an invented placeholder beside it, which reads as a current value and is
+ * not one: the deposit placeholder said 100 while the chain ran 10.
+ *
+ * The fixtures are the live devnet's own answers, padding included.
+ */
+
+const GOV_DEPOSIT_PARAMS = {
+  min_deposit: [{ denom: 'ulmn', amount: '10000000' }],
+  expedited_min_deposit: [{ denom: 'ulmn', amount: '50000000' }],
+  min_initial_deposit_ratio: '0.000000000000000000',
+};
+
+const PQC_PARAMS = {
+  min_balance_for_link: { denom: 'ulmn', amount: '1000' },
+  link_fee_ulmn: '1000',
+  pow_difficulty_bits: 21,
+};
+
+const COIN_TEMPLATE: GovernanceActionTemplate = {
+  id: 'coins',
+  module: 'Tokenomics',
+  label: 'coins',
+  summary: 'coins',
+  fields: [
+    { key: 'minDepositLmn', label: 'min', type: 'text', source: { key: 'min_deposit', unit: 'coins' } },
+    { key: 'ratio', label: 'ratio', type: 'text', source: { key: 'min_initial_deposit_ratio', unit: 'dec' } },
+    { key: 'minBalanceForLinkLmn', label: 'floor', type: 'text', source: { key: 'min_balance_for_link', unit: 'coin' } },
+    { key: 'powDifficultyBits', label: 'pow', type: 'number', source: { key: 'pow_difficulty_bits' } },
+  ],
+};
+
+describe('coins, and the decimals the SDK pads', () => {
+  it('reads a repeated Coin as the LMN of its first entry', () => {
+    expect(prefillFromParams(COIN_TEMPLATE, GOV_DEPOSIT_PARAMS).minDepositLmn).toBe('10');
+  });
+
+  it('reads a single Coin the same way', () => {
+    expect(prefillFromParams(COIN_TEMPLATE, PQC_PARAMS).minBalanceForLinkLmn).toBe('0.001');
+  });
+
+  it('strips the padding off a cosmos Dec', () => {
+    // Eighteen decimals is how the SDK answers; a form field is typed by hand.
+    expect(prefillFromParams(COIN_TEMPLATE, GOV_DEPOSIT_PARAMS).ratio).toBe('0');
+    expect(prefillFromParams(COIN_TEMPLATE, { min_initial_deposit_ratio: '0.050000000000000000' }).ratio).toBe('0.05');
+    expect(prefillFromParams(COIN_TEMPLATE, { min_initial_deposit_ratio: '1.000000000000000000' }).ratio).toBe('1');
+  });
+
+  it('leaves a decimal that is not padded alone', () => {
+    expect(prefillFromParams(COIN_TEMPLATE, { min_initial_deposit_ratio: '0.5' }).ratio).toBe('0.5');
+  });
+
+  it('blanks an empty coin list rather than showing a zero', () => {
+    // Blank means "keep what is there", and there is nothing to name here.
+    expect(prefillFromParams(COIN_TEMPLATE, { min_deposit: [] }).minDepositLmn).toBe('');
+  });
+
+  it('round-trips: what it shows, multiplied back, is what the chain holds', () => {
+    const values = prefillFromParams(COIN_TEMPLATE, GOV_DEPOSIT_PARAMS);
+    expect(Math.round(Number(values.minDepositLmn) * 1_000_000)).toBe(10_000_000);
+    expect(Math.round(Number(values.minBalanceForLinkLmn) * 1_000_000)).toBe(0);
+  });
+
+  it('keeps a plain number as it stands', () => {
+    expect(prefillFromParams(COIN_TEMPLATE, PQC_PARAMS).powDifficultyBits).toBe('21');
+  });
+});

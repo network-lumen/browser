@@ -24,6 +24,41 @@ function ulmnToLmnString(raw: unknown): string {
   return String(Number((n / 1_000_000).toFixed(6)));
 }
 
+/**
+ * A Coin's amount as LMN. The denomination is not checked: every fee on this
+ * chain is in the base denom, and a form that silently dropped a coin it did
+ * not recognise would prefill blank and look like "keep what is there".
+ */
+function coinToLmnString(raw: unknown): string {
+  const coin = (raw ?? {}) as Record<string, unknown>;
+  return ulmnToLmnString(coin.amount);
+}
+
+/**
+ * The first entry of a repeated Coin.
+ *
+ * x/gov's deposits are coin lists that this chain only ever fills with one
+ * entry, and the message the builder sends carries one too - so showing the
+ * first is showing all of it. A list that arrived with several would lose the
+ * rest, which is why the builder rebuilds the coin rather than editing it.
+ */
+function coinsToLmnString(raw: unknown): string {
+  return Array.isArray(raw) && raw.length ? coinToLmnString(raw[0]) : '';
+}
+
+/**
+ * A cosmos Dec, without its padding.
+ *
+ * They arrive with eighteen decimals - "0.050000000000000000" - and a form
+ * field is typed by hand, so the padding is noise that also round-trips to the
+ * same value. Trailing zeros go, and the dot with them when nothing is left.
+ */
+function decToString(raw: unknown): string {
+  const text = String(raw ?? '').trim();
+  if (!/^-?\d+(\.\d+)?$/.test(text)) return text;
+  return text.includes('.') ? text.replace(/0+$/, '').replace(/\.$/, '') : text;
+}
+
 function linesToText(raw: unknown): string {
   return Array.isArray(raw) ? raw.map((entry) => String(entry ?? '').trim()).filter(Boolean).join('\n') : '';
 }
@@ -58,6 +93,12 @@ function readField(field: GovernanceActionField, params: Record<string, unknown>
   switch (source.unit) {
     case 'lmn':
       return ulmnToLmnString(raw);
+    case 'coin':
+      return coinToLmnString(raw);
+    case 'coins':
+      return coinsToLmnString(raw);
+    case 'dec':
+      return decToString(raw);
     case 'lines':
       return linesToText(raw);
     case 'tiers':

@@ -60,6 +60,15 @@ export type GovernanceActionFieldSource = {
     | 'raw'
     /** ulmn on the chain, LMN in the form. */
     | 'lmn'
+    /** a single Coin ({denom, amount} in ulmn) -> LMN in the form. */
+    | 'coin'
+    /** repeated Coin -> the LMN amount of the first entry. */
+    | 'coins'
+    /**
+     * A cosmos Dec, which arrives with eighteen decimals
+     * ("0.050000000000000000") -> the same number without the padding.
+     */
+    | 'dec'
     /** repeated string -> one per line. */
     | 'lines'
     /** repeated LengthTier -> "maxLen:multiplierBps" pairs. */

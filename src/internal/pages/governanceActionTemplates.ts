@@ -125,39 +125,43 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     // the community pool rather than to the fee collector - paying block
     // producers out of anti-spam revenue would give them a stake in the spam.
     id: 'tokenomics-transfer-fee',
+    paramsPath: '/lumen/tokenomics/v1/params',
     module: markForTranslation('Tokenomics'),
     label: markForTranslation('Transfer fee'),
     summary: markForTranslation('The flat price of moving value: sending, multi-sending (per recipient) and IBC transfers.'),
     fields: [
-      { key: 'transferFeeLmn', label: markForTranslation('Transfer fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('Charged on top of the amount, in LMN whatever the transfer moves. Capped at 10 LMN; 0 switches it off.') }
+      { key: 'transferFeeLmn', source: { key: 'transfer_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Transfer fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('Charged on top of the amount, in LMN whatever the transfer moves. Capped at 10 LMN; 0 switches it off.') }
     ]
   },
   {
     id: 'tokenomics-staking-fees',
+    paramsPath: '/lumen/tokenomics/v1/params',
     module: markForTranslation('Tokenomics'),
     label: markForTranslation('Staking fees'),
     summary: markForTranslation('The flat price of delegating and of redelegating. Both are set together.'),
     fields: [
-      { key: 'delegateFeeLmn', label: markForTranslation('Delegate fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('A delegation is a permanent record per delegator and validator. Capped at 10 LMN; 0 switches it off.') },
-      { key: 'redelegateFeeLmn', label: markForTranslation('Redelegate fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('Kept separate from the delegate fee: delegation carries the volume, redelegation is rare.') }
+      { key: 'delegateFeeLmn', source: { key: 'delegate_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Delegate fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('A delegation is a permanent record per delegator and validator. Capped at 10 LMN; 0 switches it off.') },
+      { key: 'redelegateFeeLmn', source: { key: 'redelegate_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Redelegate fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('Kept separate from the delegate fee: delegation carries the volume, redelegation is rare.') }
     ]
   },
   {
     id: 'tokenomics-withdraw-addr-fee',
+    paramsPath: '/lumen/tokenomics/v1/params',
     module: markForTranslation('Tokenomics'),
     label: markForTranslation('Withdraw address fee'),
     summary: markForTranslation('The price of pointing staking rewards at another address.'),
     fields: [
-      { key: 'setWithdrawAddrFeeLmn', label: markForTranslation('Set withdraw address fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('The message writes a permanent entry nothing ever deletes, and a legitimate signer sends it about once. Capped at 10 LMN; 0 switches it off.') }
+      { key: 'setWithdrawAddrFeeLmn', source: { key: 'set_withdraw_addr_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Set withdraw address fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('The message writes a permanent entry nothing ever deletes, and a legitimate signer sends it about once. Capped at 10 LMN; 0 switches it off.') }
     ]
   },
   {
     id: 'tokenomics-min-voting-stake',
+    paramsPath: '/lumen/tokenomics/v1/params',
     module: markForTranslation('Tokenomics'),
     label: markForTranslation('Minimum voting stake'),
     summary: markForTranslation('How much an account must have delegated before its vote is accepted.'),
     fields: [
-      { key: 'minVotingStakeLmn', label: markForTranslation('Minimum voting stake (LMN)'), type: 'text', placeholder: '5', hint: markForTranslation('Delegated, not spent, so a voter loses nothing. 0 restores the old rule, where a single micro-LMN of delegation was enough. Capped at 1000 LMN.') }
+      { key: 'minVotingStakeLmn', source: { key: 'min_voting_stake_ulmn', unit: 'lmn' }, label: markForTranslation('Minimum voting stake (LMN)'), type: 'text', placeholder: '5', hint: markForTranslation('Delegated, not spent, so a voter loses nothing. 0 restores the old rule, where a single micro-LMN of delegation was enough. Capped at 1000 LMN.') }
     ]
   },
   {
@@ -187,12 +191,17 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     // params handler requires an authority that is not the gov account, so the
     // two conditions exclude each other. Tried on the devnet as proposal #7.
     id: 'tokenomics-gov-deposit-policy',
+    // x/gov's own params, not tokenomics': the message goes through tokenomics
+    // because gov's authority is unreachable, but the values it replaces are
+    // gov's and are read from there.
+    paramsPath: '/cosmos/gov/v1/params/deposit',
     module: markForTranslation('Tokenomics'),
     label: markForTranslation('Governance deposit policy'),
     summary: markForTranslation('What a proposal costs: the deposit it must gather to enter voting, the expedited figure, and how much of it must arrive up front.'),
     fields: [
       {
         key: 'minDepositLmn',
+        source: { key: 'min_deposit', unit: 'coins' },
         label: markForTranslation('Minimum deposit (LMN)'),
         type: 'text',
         placeholder: '100',
@@ -200,6 +209,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
       },
       {
         key: 'expeditedMinDepositLmn',
+        source: { key: 'expedited_min_deposit', unit: 'coins' },
         label: markForTranslation('Expedited minimum deposit (LMN)'),
         type: 'text',
         placeholder: '500',
@@ -207,6 +217,7 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
       },
       {
         key: 'minInitialDepositRatio',
+        source: { key: 'min_initial_deposit_ratio', unit: 'dec' },
         label: markForTranslation('Initial deposit ratio'),
         type: 'text',
         placeholder: '1.0',
@@ -232,11 +243,12 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     // x/slashing's own MsgUpdateParams sits behind an unreachable authority, so
     // this is the only route by which the figure can ever move.
     id: 'tokenomics-slashing-double-sign',
+    paramsPath: '/cosmos/slashing/v1beta1/params',
     module: markForTranslation('Slashing'),
     label: markForTranslation('Equivocation penalty'),
     summary: markForTranslation('The share of a stake slashed for signing two blocks at the same height. The penalty is permanent: the validator is jailed and tombstoned.'),
     fields: [
-      { key: 'slashFractionDoubleSign', label: markForTranslation('Slash fraction'), type: 'text', placeholder: '0.05', hint: markForTranslation('Decimal, e.g. 0.05 = 5%. Bounded to between 0.01 and 0.50 - zero is refused, because it would switch equivocation slashing off without saying so.') }
+      { key: 'slashFractionDoubleSign', source: { key: 'slash_fraction_double_sign', unit: 'dec' }, label: markForTranslation('Slash fraction'), type: 'text', placeholder: '0.05', hint: markForTranslation('Decimal, e.g. 0.05 = 5%. Bounded to between 0.01 and 0.50 - zero is refused, because it would switch equivocation slashing off without saying so.') }
     ]
   },
   {
@@ -274,12 +286,13 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     // min_balance_for_link is the solvency threshold the account must clear and
     // link_fee_ulmn is what is actually taken from it.
     id: 'pqc-link-cost',
+    paramsPath: '/lumen/pqc/v1/params',
     module: 'PQC',
     label: markForTranslation('Linking cost'),
     summary: markForTranslation('What it costs an account to link its Dilithium key, which every account must do before it can transact.'),
     fields: [
-      { key: 'minBalanceForLinkLmn', label: markForTranslation('Minimum balance to link (LMN)'), type: 'text', placeholder: '0.1', hint: markForTranslation('A balance the account must hold, not spend.') },
-      { key: 'linkFeeLmn', label: markForTranslation('Link fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('Actually taken, and paid into the community pool. While the proof-of-work is at 0 this is the whole cost of an identity.') }
+      { key: 'minBalanceForLinkLmn', source: { key: 'min_balance_for_link', unit: 'coin' }, label: markForTranslation('Minimum balance to link (LMN)'), type: 'text', placeholder: '0.1', hint: markForTranslation('A balance the account must hold, not spend.') },
+      { key: 'linkFeeLmn', source: { key: 'link_fee_ulmn', unit: 'lmn' }, label: markForTranslation('Link fee (LMN)'), type: 'text', placeholder: '0.001', hint: markForTranslation('Actually taken, and paid into the community pool. While the proof-of-work is at 0 this is the whole cost of an identity.') }
     ]
   },
   {
@@ -288,11 +301,12 @@ export const GOVERNANCE_ACTION_TEMPLATES: GovernanceActionTemplate[] = [
     // mined under the old formula had to keep working until wallets shipped
     // the new one. This browser ships it, so raising it again is a vote away.
     id: 'pqc-pow-difficulty',
+    paramsPath: '/lumen/pqc/v1/params',
     module: 'PQC',
     label: markForTranslation('Linking proof-of-work'),
     summary: markForTranslation('How much work an account must do before the network accepts its Dilithium key.'),
     fields: [
-      { key: 'powDifficultyBits', label: markForTranslation('Difficulty (bits)'), type: 'number', placeholder: '21', hint: markForTranslation('Each bit doubles the work. Capped at 40; 0 switches the proof off.') }
+      { key: 'powDifficultyBits', source: { key: 'pow_difficulty_bits' }, label: markForTranslation('Difficulty (bits)'), type: 'number', placeholder: '21', hint: markForTranslation('Each bit doubles the work. Capped at 40; 0 switches the proof off.') }
     ]
   },
   {
