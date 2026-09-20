@@ -1244,6 +1244,14 @@ async function openReceive(chain: CosmosChainSummary) {
   const account = addressFor(chain);
   if (!account) return;
 
+  // The chain sheet goes, the way it does when the stake dialog opens from it.
+  // Receive is a whole dialog of its own and carries the address it is about,
+  // so leaving the sheet underneath stacks two full-screen panels to show one
+  // thing. The chain is read from the argument rather than from `selected`,
+  // which this clears - and from the card in the list there is no sheet open,
+  // where it does nothing.
+  closeChain();
+
   receiveChain.value = chain;
   receiveQrDataUrl.value = '';
   try {
