@@ -25,7 +25,14 @@ export type AppFixtures = {
 const PROFILE = JSON.stringify({
   id: 'p1',
   name: 'Tester',
-  address: 'lmn1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq',
+  // A real bech32 address, checksum included, over twenty zero bytes.
+  //
+  // The previous one was the right shape and would not decode. Anything that
+  // re-encodes it for another chain - which is how the wallet derives your
+  // address on Osmosis, and how the chain cards decide they have one - got
+  // nothing back, and the card reported it as "This chain does not publish a
+  // REST endpoint", because that guard covers both causes with one sentence.
+  address: 'lmn1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx4uxvd',
   role: 'user',
 });
 
@@ -35,6 +42,20 @@ const SIGNED_IN: Record<string, string> = {
   'profiles.isWalletFullyCreated': `() => Promise.resolve({ ok: true, created: true })`,
   'security.getStatus': `() => Promise.resolve({ ok: true, passwordEnabled: true, hasPassword: true, sessionActive: true })`,
   'security.checkSession': `() => Promise.resolve({ ok: true, active: true })`,
+  // Which network the app is on, with endpoints on it.
+  //
+  // Un-stubbed, net.getNetwork answers the mock's blanket { ok: true }, which
+  // carries no network at all - so the renderer falls back to its "bridge did
+  // not answer" descriptor: mainnet's name with no rpc and no rest. Every
+  // action that needs an endpoint is then drawn disabled, and a spec clicking
+  // one waits for a button that never enables.
+  'net.getNetwork': `() => Promise.resolve({ ok: true, network: {
+    id: 'mainnet', label: 'Mainnet', chainId: 'lumen', prefix: 'lmn',
+    denom: 'ulmn', symbol: 'LMN', decimals: 6, prettyName: 'Lumen',
+    website: '', explorerAccountUrl: '',
+    rest: ['https://rest.test'], rpc: ['https://rpc.test'],
+    observedChainId: 'lumen'
+  }, available: [] })`,
 };
 
 export const test = base.extend<AppFixtures>({

@@ -11,6 +11,24 @@ import { test, expect, called } from './support/app';
 
 const BALANCE = `() => Promise.resolve({ ok: true, balance: { amount: '5000000', denom: 'ulmn' } })`;
 
+/**
+ * The same five LMN, over the wire the chain panel reads.
+ *
+ * Two readings of one balance reach this screen: the wallet's own
+ * `wallet.getBalance`, and the panel's REST call through `http.get`. The send
+ * form opens from the panel, so it is the second that fills "Available" - and
+ * with only the first stubbed the dialog offered five LMN nowhere and refused
+ * the amount as insufficient. Both are stubbed so they agree.
+ */
+const CHAIN_BALANCES = `(url) => Promise.resolve(
+  String(url).includes('/cosmos/bank/v1beta1/balances/')
+    ? { ok: true, status: 200, json: { balances: [{ denom: 'ulmn', amount: '5000000' }] } }
+    : { ok: true, status: 200, json: {} }
+)`;
+
+/** What every test here needs before it can open the send form. */
+const FUNDED = { 'wallet.getBalance': BALANCE, 'http.get': CHAIN_BALANCES };
+
 async function openWallet(page: import('@playwright/test').Page) {
   const bar = page.locator('input[type="search"], input[type="text"]').first();
   await bar.click();
@@ -24,7 +42,7 @@ test.describe('sending tokens', () => {
     openApp,
     page,
   }) => {
-    await openApp({ 'wallet.getBalance': BALANCE });
+    await openApp(FUNDED);
     await openWallet(page);
 
     await page.getByRole('button', { name: /^Send$/i }).first().click();
@@ -38,7 +56,10 @@ test.describe('sending tokens', () => {
     // rather than the payload: a wrong number here is a wrong decision.
     const dialog = page.locator('[role="dialog"]').last();
     await expect(dialog).toContainText('1.25 LMN');
-    await expect(dialog).toContainText('Available: 5.000000 LMN');
+    // "5", not "5.000000": the form opens from the chain card, so the figure
+    // comes with the card's own formatting, which drops trailing zeros. The
+    // wallet's six-decimal rendering is the other path into this dialog.
+    await expect(dialog).toContainText('Available: 5 LMN');
 
     // Stops before committing on purpose. Past the confirm button the page
     // runs a preflight against the chain, and the mock cannot answer it
@@ -53,7 +74,7 @@ test.describe('sending tokens', () => {
   });
 
   test('rejects a non-numeric amount instead of sending it', async ({ openApp, page }) => {
-    await openApp({ 'wallet.getBalance': BALANCE });
+    await openApp(FUNDED);
     await openWallet(page);
 
     await page.getByRole('button', { name: /^Send$/i }).first().click();
@@ -64,7 +85,7 @@ test.describe('sending tokens', () => {
   });
 
   test('caps the amount at six decimals, the chain precision', async ({ openApp, page }) => {
-    await openApp({ 'wallet.getBalance': BALANCE });
+    await openApp(FUNDED);
     await openWallet(page);
 
     await page.getByRole('button', { name: /^Send$/i }).first().click();
@@ -74,7 +95,7 @@ test.describe('sending tokens', () => {
   });
 
   test('does not reach the bridge when the form is closed', async ({ openApp, page }) => {
-    await openApp({ 'wallet.getBalance': BALANCE });
+    await openApp(FUNDED);
     await openWallet(page);
 
     await page.getByRole('button', { name: /^Send$/i }).first().click();
