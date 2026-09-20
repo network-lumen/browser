@@ -58,6 +58,40 @@ function isNewerVersion(latest, current) {
   return String(latest) !== String(current);
 }
 
+/**
+ * Whether the chain has published this release to clients.
+ *
+ * One rule, and it admits no exception: the DAO marks a release VALIDATED
+ * through `MsgValidateRelease`, which x/release gates on the governance
+ * authority, and nothing else reaches a user's machine. A release sits at
+ * PENDING from the moment it is published until a vote moves it, so a publisher
+ * - including whoever builds this app - cannot ship on their own say-so.
+ *
+ * Three things used to get past this, and all three are gone:
+ *
+ *  - The channel. The check only ran when the channel was 'stable', and the
+ *    channel defaults to 'beta', so in practice it never ran at all: a PENDING
+ *    release was offered to every client as soon as it was published.
+ *  - `emergency_ok`. A release carrying it skipped validation entirely. The
+ *    flag cannot be set - x/release's `SetEmergency` returns "emergency rollout
+ *    is disabled" unconditionally - so this was a door onto a room that does
+ *    not exist, which is the kind that gets opened by a later change to the
+ *    chain rather than by anyone noticing it here.
+ *  - The `/releases` fallback, which applied the same channel-conditional test.
+ *
+ * The status arrives as the enum's name over grpc-gateway, and as its number if
+ * anything on the path emits proto JSON in the other dialect. Both are read:
+ * the cost of getting that wrong is not a wrong update but no updates at all,
+ * silently, which is the failure nobody reports.
+ */
+function isValidatedRelease(release) {
+  if (!release || release.yanked) return false;
+  const raw = release.status;
+  if (typeof raw === 'number') return raw === 1;
+  const text = String(raw ?? '').trim().toUpperCase();
+  return text === 'VALIDATED' || text === 'RELEASE_VALIDATED' || text === '1';
+}
+
 const DEFAULT_CHANNEL = String(process.env.LUMEN_RELEASE_CHANNEL || 'beta');
 const DEFAULT_KIND = String(process.env.LUMEN_RELEASE_KIND || 'browser');
 const DEFAULT_PLATFORM = String(process.env.LUMEN_RELEASE_PLATFORM || detectPlatform());
@@ -163,17 +197,13 @@ async function findLatestFromList() {
     if (!entry || entry.yanked) continue;
     const entryChannel = String(entry.channel || '').trim().toLowerCase();
     if (entryChannel !== DEFAULT_CHANNEL.toLowerCase()) continue;
-    const statusRaw = String(entry.status || '').toUpperCase();
-    const emergencyOk = !!(entry.emergencyOk ?? entry.emergency_ok);
-    if (DEFAULT_CHANNEL === 'stable' && statusRaw !== 'VALIDATED' && !emergencyOk) continue;
+    if (!isValidatedRelease(entry)) continue;
     const artifacts = Array.isArray(entry.artifacts) ? entry.artifacts : [];
     const art = selectArtifact(artifacts, DEFAULT_PLATFORM, DEFAULT_KIND);
     if (!art) continue;
     return {
       release: entry,
-      artifact: normalizeArtifact(art, DEFAULT_PLATFORM, DEFAULT_KIND),
-      status: statusRaw,
-      emergencyOk
+      artifact: normalizeArtifact(art, DEFAULT_PLATFORM, DEFAULT_KIND)
     };
   }
   return null;
@@ -192,38 +222,11 @@ function broadcastUpdate(payload) {
 
 async function pollReleaseOnce() {
   try {
-    // /latest is VALIDATED-only; for non-stable channels we want the newest release even if PENDING.
-    // Prefer scanning /releases and fall back to /latest only if needed.
-    if (DEFAULT_CHANNEL !== 'stable') {
-      const fallback = await findLatestFromList().catch(() => null);
-      if (fallback) {
-        const payload = {
-          version: String(fallback.release && fallback.release.version ? fallback.release.version : ''),
-          channel: String(fallback.release && fallback.release.channel ? fallback.release.channel : DEFAULT_CHANNEL),
-          platform: fallback.artifact.platform,
-          kind: fallback.artifact.kind,
-          release: fallback.release,
-          artifact: fallback.artifact,
-          downloadUrl: pickDownloadUrl(fallback.artifact)
-        };
-
-        await applyStartupHealthBlock(payload);
-        cached = payload;
-
-        const currentVersion = currentAppVersion();
-
-        if (!payload.version) return;
-        if (!currentVersion || !isNewerVersion(payload.version, currentVersion)) return;
-
-        const broadcastKey = `${payload.version}|${payload.artifact.sha256Hex || ''}`;
-        if (broadcastKey !== lastBroadcastKey) {
-          lastBroadcastKey = broadcastKey;
-          broadcastUpdate(payload);
-        }
-        return;
-      }
-    }
-
+    // `/latest` is what every channel asks now. The chain answers it only for a
+    // release that is VALIDATED and not yanked (x/release query.go), which is
+    // exactly the rule this file wants - so the branch that used to scan
+    // `/releases` first, to reach a PENDING build on a non-stable channel, has
+    // nothing left to find.
     const canonPath = `/lumen/release/latest/${encodeURIComponent(DEFAULT_CHANNEL)}/${encodeURIComponent(DEFAULT_PLATFORM)}/${encodeURIComponent(DEFAULT_KIND)}`;
     let res = await readState(canonPath, { kind: 'rest', timeout: 12_000 });
 
@@ -268,27 +271,27 @@ async function pollReleaseOnce() {
     const data = res.json || null;
     let release = (data && (data.release ?? data)) || null;
     let artifact = null;
-    let status = '';
-    let emergencyOk = false;
 
-    if (release && !release.yanked) {
-      status = String(release.status || '').toUpperCase();
-      emergencyOk = !!(release.emergencyOk ?? release.emergency_ok);
+    // Checked here as well as on the chain. The answer may have come from a
+    // node this app does not control, and the whole point of the rule is that
+    // it does not depend on one.
+    if (isValidatedRelease(release)) {
       const artifacts = Array.isArray(release.artifacts) ? release.artifacts : [];
       const art = selectArtifact(artifacts, DEFAULT_PLATFORM, DEFAULT_KIND);
       if (art) artifact = normalizeArtifact(art, DEFAULT_PLATFORM, DEFAULT_KIND);
     }
 
-    if (!release || release.yanked || !artifact || (DEFAULT_CHANNEL === 'stable' && status !== 'VALIDATED' && !emergencyOk)) {
+    if (!artifact) {
       const fallback = await findLatestFromList().catch(() => null);
       if (!fallback) return;
       release = fallback.release;
       artifact = fallback.artifact;
-      status = fallback.status;
-      emergencyOk = fallback.emergencyOk;
     }
 
-    if (DEFAULT_CHANNEL === 'stable' && status !== 'VALIDATED' && !emergencyOk) return;
+    // `findLatestFromList` only returns validated releases, so this holds for
+    // both routes - and it is the last thing between the chain's answer and a
+    // download the user is offered.
+    if (!isValidatedRelease(release)) return;
 
     const payload = {
       version: String(release && release.version ? release.version : ''),
@@ -344,7 +347,9 @@ module.exports = {
   getLatestReleaseInfo,
   pollNow,
   openExternal,
-  // Exported for tests: it is the whole decision to prompt someone to update,
-  // and it no longer has a switch to bypass it.
-  isNewerVersion
+  // Exported for tests: together these are the whole decision to prompt
+  // someone to update, and neither has a switch to bypass it. One asks whether
+  // the release is newer; the other, whether the DAO has published it at all.
+  isNewerVersion,
+  isValidatedRelease
 };
