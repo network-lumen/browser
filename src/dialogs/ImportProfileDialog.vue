@@ -16,16 +16,16 @@
           <div class="gap-8px mb-16px grid grid-cols-2-minmax0">
             <button
               type="button"
-              class="hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
-              :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': mode === 'file' }"
+              class="hover-fill-primary border-radius-12px text-13px txt-weight-light cursor-pointer transition-all-fast py-10px px-12px"
+              :class="mode === 'file' ? 'bg-primary-a10 border-1-primary color-text-primary shadow-inset-primary-a20' : 'bg-secondary border-default color-text-secondary'"
               @click="$emit('update:mode', 'file')"
             >
               {{ t('Via file') }}
             </button>
             <button
               type="button"
-              class="hover-fill-primary border-radius-12px color-text-secondary text-13px txt-weight-light cursor-pointer border-default bg-secondary transition-all-fast py-10px px-12px"
-              :class="{ 'bg-primary-a10 border-color-primary color-text-primary shadow-inset-primary-a20': mode === 'manual' }"
+              class="hover-fill-primary border-radius-12px text-13px txt-weight-light cursor-pointer transition-all-fast py-10px px-12px"
+              :class="mode === 'manual' ? 'bg-primary-a10 border-1-primary color-text-primary shadow-inset-primary-a20' : 'bg-secondary border-default color-text-secondary'"
               @click="$emit('update:mode', 'manual')"
             >
               {{ t('Manual') }}

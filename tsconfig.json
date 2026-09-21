@@ -11,7 +11,11 @@
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": ["node"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@platform": ["platform/desktop/install.ts"]
+    }
   },
   "//": [
     "skipLibCheck is on because vitest 1.x nests its own Vite 5 while the app builds",
@@ -22,8 +26,12 @@
     "is covered by the eslint block in eslint.config.mjs instead.",
     "tests/ and scripts/ are present because they were checked by nothing at all -",
     "vitest transpiles without type-checking, so a broken type in a test only",
-    "surfaced when the test ran."
+    "surfaced when the test ran.",
+    "platform/ holds the per-target bridge installers (see platform/README.md).",
+    "The @platform path maps to the desktop one because a path mapping can only",
+    "name a single file and both targets export the same signature; the real",
+    "choice is the vite alias, driven by LUMEN_TARGET. Both are under include,",
+    "so vue-tsc checks the mobile side regardless of which one @platform names."
   ],
-  "include": ["src/**/*", "tests/**/*", "scripts/**/*"]
+  "include": ["src/**/*", "platform/**/*", "tests/**/*", "scripts/**/*"]
 }
-

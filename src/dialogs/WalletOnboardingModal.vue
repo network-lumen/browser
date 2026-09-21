@@ -27,8 +27,8 @@
                 v-for="option in locales"
                 :key="option.code"
                 type="button"
-                class="flex-align-center gap-8px w-full text-left cursor-pointer border-1 border-radius-10px bg-secondary color-text-primary text-14px py-10px px-12px transition-all-fast hover-bg-hover"
-                :class="{ 'bg-primary-a10 border-color-primary': option.code === pendingLocale }"
+                class="flex-align-center gap-8px w-full text-left cursor-pointer border-radius-10px color-text-primary text-14px py-10px px-12px transition-all-fast hover-bg-hover"
+                :class="option.code === pendingLocale ? 'bg-primary-a10 border-1-primary' : 'bg-secondary border-1'"
                 @click="pendingLocale = option.code"
               >
                 <span class="text-18px line-height-1">{{ option.flag }}</span>

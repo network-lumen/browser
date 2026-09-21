@@ -12,6 +12,27 @@
         </button>
       </div>
     </div>
+    <!--
+      Android has no <webview>: that tag is Electron's, and on the mobile target
+      it renders as an unknown element showing nothing at all - which is why
+      typing an http(s) address did nothing there.
+
+      An <iframe> is what a WebView does have. It is genuinely weaker: a site
+      that sends X-Frame-Options or frame-ancestors refuses to be framed and
+      shows an empty box, and there is no reliable way to detect that from
+      outside since the frame is cross-origin. So the honest arrangement is an
+      iframe for the sites that allow it plus an always-available "open
+      externally" in the navbar menu for the ones that do not. A real native
+      WebView plugin is the actual fix and is not this.
+    -->
+    <iframe
+      v-else-if="isMobileTarget && currentBrowserUrl"
+      :src="currentBrowserUrl"
+      class="w-full h-full border-none bg-primary"
+      referrerpolicy="no-referrer-when-downgrade"
+      @load="onIframeLoad"
+    ></iframe>
+
     <webview
       v-else-if="currentBrowserUrl"
       ref="webviewRef"
@@ -66,6 +87,22 @@ const webviewRef = ref<any>(null);
 const pageActive = ref(false);
 const pendingAppNav = ref(false);
 const webviewLoading = ref(false);
+
+/**
+ * Whether this build is the Android one, read from the bridge rather than from
+ * a user-agent sniff - platform/mobile puts it there, and the desktop preload
+ * puts its own value in the same place.
+ */
+const isMobileTarget = computed(() => useInternalLumen()?.appPlatform === 'android');
+
+/**
+ * The iframe's only signal. A cross-origin frame tells us nothing about what
+ * happened inside it, so 'load' is taken to mean "stopped loading" - true both
+ * when the page rendered and when the site refused to be framed.
+ */
+function onIframeLoad() {
+  webviewLoading.value = false;
+}
 const webviewHtmlFullscreen = ref(false);
 const installedExtensions = ref<any[]>([]);
 

@@ -188,6 +188,49 @@ export default [
     },
   },
   {
+    // platform/ holds the per-target window.lumen installers (see
+    // platform/README.md). Same rules as src/: it is renderer code, shipped in
+    // the same bundle, and the only reason it sits outside src/ is that it is
+    // selected by build target rather than imported by name.
+    files: ['platform/**/*.ts'],
+    languageOptions: {
+      parser: tsParser,
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        window: 'readonly', navigator: 'readonly', console: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+      'no-empty-function': ['error', { allow: ['arrowFunctions'] }],
+      'no-unreachable': 'error',
+      'no-unsafe-finally': 'error',
+      'no-case-declarations': 'error',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
+      // The src/types/ centralization rule reaches here too - platform/ types
+      // live in src/types/platformBridge.ts.
+      'no-restricted-syntax': ['error',
+        {
+          selector: 'TSInterfaceDeclaration',
+          message: 'Interfaces must live in src/types/<concept>.ts, not colocated with implementation. See CONTRIBUTING.md.',
+        },
+        {
+          selector: 'TSTypeAliasDeclaration',
+          message: 'Type aliases must live in src/types/<concept>.ts, not colocated with implementation. See CONTRIBUTING.md.',
+        },
+      ],
+    },
+  },
+  {
     // Every type/interface declaration must live in src/types/ (one file per
     // concept/page, see CONTRIBUTING.md) - single source of truth, no
     // colocated ad hoc types drifting out of sync across files. This is the

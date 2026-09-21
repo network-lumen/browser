@@ -494,9 +494,40 @@ table.data-table td.desc { color: var(--text-muted); }
 
 @media (max-width: 860px) {
   .app { flex-direction: column; }
-  .sidebar { position: relative; width: 100%; height: auto; max-height: 44vh; }
+  /* 44vh put nearly half a phone screen of navigation above the first line of
+   * documentation. The list still scrolls; it just no longer owns the fold. */
+  .sidebar { position: relative; width: 100%; height: auto; max-height: 30vh; }
   .content { padding: 28px 18px 100px; }
   .topbar { padding: 12px 18px; }
+
+  /* Three columns of name, type and description do not fit 412px - the first
+   * one wrapped mid-identifier ("cidOr / Url"), which is worse than useless
+   * for something meant to be copied. Each row becomes a stacked block, with
+   * the header dropped because the shapes speak for themselves: bold name,
+   * type chip, muted prose. */
+  table.data-table,
+  table.data-table tbody,
+  table.data-table tr,
+  table.data-table td {
+    display: block;
+    width: 100%;
+  }
+
+  table.data-table thead { display: none; }
+
+  table.data-table tr {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  table.data-table tr:last-child { border-bottom: 0; }
+
+  table.data-table td {
+    padding: 2px 0;
+    border-bottom: 0;
+  }
+
+  table.data-table td:empty { display: none; }
 }
 `;
 

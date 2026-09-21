@@ -2,7 +2,7 @@
   <div class="appregion-no-drag relative">
     <UiButton variant="secondary" size="xs" type="button" :title="activeProfileDisplay" @click.stop="toggleMenu" class="navbar-profile-trigger border-radius-full border-none">
       <ProfileAvatar :profile="activeProfile" :size="24" :title="activeProfileDisplay" />
-      <span class="text-13px fw-500 color-text-primary truncate max-w-100px">{{ activeProfileDisplay }}</span>
+      <span class="narrow-hide text-13px fw-500 color-text-primary truncate max-w-100px">{{ activeProfileDisplay }}</span>
       <ChevronDown :size="14" class="color-text-tertiary ml-n2px" />
     </UiButton>
 

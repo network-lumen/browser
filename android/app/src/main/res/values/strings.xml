@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Lumen Browser</string>
+    <string name="title_activity_main">Lumen Browser</string>
+    <string name="package_name">chain.lumen.browser</string>
+    <string name="custom_url_scheme">chain.lumen.browser</string>
+</resources>

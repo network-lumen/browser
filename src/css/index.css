@@ -11,6 +11,8 @@
 @import "./utilities.css";
 @import "./lib/github-markdown.css";
 @import "./theme.css";
+/* Last, so the narrow-viewport overrides win over the utilities they replace. */
+@import "./responsive.css";
 
 * { 
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;

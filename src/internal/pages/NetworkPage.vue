@@ -56,8 +56,14 @@
             @keyup.enter="performSearch"
             :placeholder="t('Search by block height, tx hash, or address…')"
           />
-          <UiButton variant="primary" @click="performSearch" :disabled="!searchQuery" class="disabled-fade-50">
+          <UiButton variant="primary" @click="performSearch" :disabled="!searchQuery" class="narrow-hide disabled-fade-50">
             {{ t('Search') }}
+          </UiButton>
+          <!-- The same action as a glyph: the worded button crowded the field on a
+               phone until the placeholder was cut off mid-sentence. -->
+          <UiButton variant="primary" @click="performSearch" :disabled="!searchQuery" :title="t('Search')"
+            class="narrow-only flex-align-justify-center size-36px flex-shrink-0 disabled-fade-50">
+            <Search :size="18" />
           </UiButton>
         </div>
       </div>
@@ -337,7 +343,7 @@
             <p>{{ t('No recent transactions') }}</p>
           </div>
 
-          <div v-else class="w-full">
+          <div v-else class="narrow-scroll-x w-full">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-15fr-08fr-08fr-08fr-09fr-1fr">
               <div>{{ t('Transaction hash') }}</div>
               <div>{{ t('Type') }}</div>
@@ -407,7 +413,7 @@
             </div>
           </div>
 
-          <UiCard padding="none" :shadow="false" class="overflow-hidden shadow-sm backdrop-blur">
+          <UiCard padding="none" :shadow="false" class="narrow-stack-table overflow-hidden shadow-sm backdrop-blur">
             <div class="explorer-table-recipe explorer-table-header-recipe grid-cols-50-220-200-170-160-100-110-120">
               <div>#</div>
               <div>{{ t('Validator') }}</div>
@@ -421,10 +427,10 @@
             
             <div class="max-h-600px flex flex-column overflow-y-auto">
               <div v-for="(validator, index) in validators" :key="validator.address" class="explorer-table-recipe explorer-table-row-recipe grid-cols-50-220-200-170-160-100-110-120 active-scale-998 hover-bg-secondary hover-cursor-default last-border-bottom-none flex-inline-align-center bg-black-a04-active">
-                <div class="flex-align-center text-14px">
+                <div :data-label="'#'" class="flex-align-center text-14px">
                   <span class="txt-weight-light color-text-secondary text-15px">{{ index + 1 }}</span>
                 </div>
-                <div class="flex-align-center text-14px">
+                <div :data-label="t('Validator')" class="flex-align-center text-14px">
                   <div class="flex-align-center gap-12px">
                     <div class="bg-gradient-indigo-purple flex-align-justify-center size-36px border-radius-circle txt-weight-medium color-white text-24px overflow-hidden flex-shrink-0 border-2">
                       <img class="w-full h-full object-fit-cover" v-if="validator.avatar" :src="validator.avatar" :alt="validator.moniker" />
@@ -436,7 +442,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="flex-align-center text-14px">
+                <div :data-label="t('Voting power %')" class="flex-align-center text-14px">
                   <div class="flex flex-column gap-4px w-full">
                     <div class="txt-weight-medium color-text-primary text-15px mb-4px">{{ getVotingPowerPercentage(validator.tokens) }}%</div>
                     <div class="h-5px w-full bg-border border-radius-4px overflow-hidden mb-4px">
@@ -453,7 +459,7 @@
                   redelegation the source row goes to zero and the destination
                   row shows the stake, so the money is visibly somewhere.
                 -->
-                <div class="flex-align-center text-14px">
+                <div :data-label="t('My position')" class="flex-align-center text-14px">
                   <div v-if="hasStakePosition(positionFor(validator.address))" class="flex flex-column gap-2px w-full">
                     <span v-if="positionFor(validator.address)!.staked > 0" class="txt-weight-medium color-text-primary text-13px">
                       {{ t('Staked: {amount} LMN', { amount: formatUlmn(positionFor(validator.address)!.staked) }) }}
@@ -467,7 +473,7 @@
                   </div>
                   <span v-else class="txt-weight-light color-text-tertiary text-14px">—</span>
                 </div>
-                <div class="flex-align-center text-14px">
+                <div :data-label="t('Cumulative share %')" class="flex-align-center text-14px">
                   <div class="flex-align-justify-center relative size-64px">
                     <svg class="block filter-none" width="66" height="66" viewBox="0 0 66 66">
                       <circle cx="33" cy="33" r="27" fill="none" stroke="var(--border-color)" stroke-width="4"></circle>
@@ -484,13 +490,13 @@
                     <span class="flex-align-justify-center txt-weight-medium color-text-primary absolute inset-0 text-11px line-height-1 cursor-events-none">{{ getCumulativeProgress(index).toFixed(2) }}%</span>
                   </div>
                 </div>
-                <div class="flex-align-center text-14px">
+                <div :data-label="t('Commission %')" class="flex-align-center text-14px">
                   <span class="txt-weight-light color-text-secondary text-14px">{{ (parseFloat(validator.commission) * 100).toFixed(2) }}%</span>
                 </div>
-                <div class="flex-align-center text-14px">
+                <div :data-label="t('Uptime %')" class="flex-align-center text-14px">
                   <span class="txt-weight-light color-text-secondary text-14px">{{ getUptimeLabel(validator.address) }}</span>
                 </div>
-                <div class="flex-align-center flex-align-justify-center text-14px">
+                <div :data-label="t('Actions')" class="flex-align-center flex-align-justify-center text-14px">
                   <UiButton
                     variant="primary"
                     size="sm"

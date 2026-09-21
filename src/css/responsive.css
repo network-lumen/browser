@@ -1,0 +1,217 @@
+/* Narrow-viewport behaviour.
+ *
+ * This is the first media query in the project, and it exists for one reason:
+ * the internal pages put a fixed 240px sidebar next to their content, which is
+ * most of a phone screen. On the Android target that leaves the page itself in
+ * a column too narrow to read.
+ *
+ * Below the breakpoint the sidebar stops being a column and becomes a drawer:
+ * off-canvas by default, sliding in OVER the page rather than pushing it, with
+ * a scrim behind it and a button to bring it back. Over rather than beside is
+ * the whole point - a drawer that reflows the page makes every open and close
+ * a relayout, and on a phone there is no width to give it anyway.
+ *
+ * Every class is declared at the top level first and only overridden inside the
+ * media query. That is not stylistic: scripts/check-conventions.mjs records a
+ * class as defined only when its rule sits at depth 0, so a class that existed
+ * only inside @media would be reported as undefined wherever a template used
+ * it.
+ */
+
+/* The sidebar itself. On a wide viewport it is an ordinary flex child and these
+ * two properties change nothing about how it sits. */
+.internal-sidebar {
+  position: relative;
+  z-index: 1;
+}
+
+/* Open is only meaningful once the sidebar is a drawer, so at full width this
+ * rule deliberately does nothing. */
+.internal-sidebar-open {
+  position: relative;
+}
+
+/* Both of these belong to the drawer and have no place in the wide layout. */
+.internal-sidebar-scrim {
+  display: none;
+}
+
+.internal-sidebar-toggle {
+  display: none;
+}
+
+@media (max-width: 859px) {
+  .internal-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    max-width: 86vw;
+    transform: translateX(-100%);
+    transition: transform 180ms ease, visibility 180ms;
+    box-shadow: 0 0 32px rgba(0, 0, 0, 0.35);
+    /* Hidden from the tab order while it is off-screen - a drawer the user
+     * cannot see should not be catching focus behind the page. */
+    visibility: hidden;
+  }
+
+  .internal-sidebar-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .internal-sidebar-scrim {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 59;
+    border: none;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+  }
+
+  .internal-sidebar-toggle {
+    display: flex;
+    position: fixed;
+    /* Bottom left, not top: this is the corner a thumb reaches without the
+     * hand moving, and the top of a phone screen is where the browser chrome
+     * and the notch already are. */
+    left: 16px;
+    bottom: 16px;
+    z-index: 58;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: #fff;
+    box-shadow: var(--shadow-primary);
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .internal-sidebar {
+    transition: none;
+  }
+}
+
+/* Hidden below the breakpoint - and deliberately given no display above it.
+ * The elements that use it are variously flex, inline-flex and block, so
+ * forcing one value here would relayout every one of them. The custom property
+ * is there only so the class is declared at depth 0: check-conventions records
+ * a class as defined only then, and one living solely inside @media would be
+ * reported as undefined wherever a template used it. */
+.narrow-hide {
+  --narrow-hide: 1;
+}
+
+/* The mirror image: only drawn once the viewport is narrow. */
+.narrow-only {
+  display: none;
+}
+
+/* The navbar's narrow-viewport menu, holding what the toolbar no longer has
+ * room for. Positioned by its trigger, which is position:relative. */
+.navbar-narrow-menu {
+  display: none;
+}
+
+/* A table too wide to reflow - the transaction list is six proportional
+ * columns, readable side by side on a desktop and not on a phone. Scrolled
+ * sideways rather than restructured. */
+.narrow-scroll-x {
+  overflow-x: visible;
+}
+
+/* The other answer to the same problem, for a table whose rows carry enough
+ * per-cell meaning to stand alone: below the breakpoint each row becomes a
+ * stacked card, one labelled line per column, and the header disappears
+ * because every value now carries its own. */
+.narrow-stack-table {
+  display: block;
+}
+
+@media (max-width: 859px) {
+  .narrow-hide {
+    display: none;
+  }
+
+  .narrow-only {
+    display: flex;
+  }
+
+  .navbar-narrow-menu {
+    display: flex;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 100;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 200px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-primary);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  }
+
+  .narrow-scroll-x {
+    overflow-x: auto;
+  }
+
+  .narrow-stack-table .explorer-table-header-recipe {
+    display: none;
+  }
+
+  .narrow-stack-table .explorer-table-row-recipe {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  /* The heading the hidden header used to supply, now attached to its value.
+   * A cell with no data-label - a spacer, an actions column - simply gets
+   * nothing rather than an empty line. */
+  .narrow-stack-table .explorer-table-row-recipe > [data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-tertiary);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Two columns of anything is one column too many on a phone.
+   *
+   * These two are the ones that overflow rather than shrink: a bare `1fr`
+   * track still has `min-width: auto`, so it refuses to go narrower than its
+   * content and pushes the whole grid past the right edge - which is exactly
+   * what lumen://network and lumen://help were doing. The auto-fit grids
+   * elsewhere already collapse on their own and are left alone. */
+  .grid-cols-2,
+  .grid-cols-1fr-1fr {
+    /* minmax(0, 1fr), not 1fr. A bare `1fr` track keeps `min-width: auto`, so it
+     * refuses to go narrower than its own content and grows the grid instead -
+     * measured at 367.8px of track inside a 361px container on lumen://network,
+     * which is the "slightly too wide" these cards were. The zero minimum lets
+     * the track shrink and the content wrap inside it. */
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The drawer runs to the top of the screen, where the status bar and any
+   * notch already are. Its own 16px of padding is not enough to clear them. */
+  .internal-sidebar {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 28px);
+  }
+}
