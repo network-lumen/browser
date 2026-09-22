@@ -40,6 +40,12 @@
   display: none;
 }
 
+/* A segmented control: several choices sharing one track. Wide enough for a
+ * toolbar, and on a phone it either scrolls sideways or gets stacked. */
+.segmented-stack {
+  flex-direction: row;
+}
+
 @media (max-width: 859px) {
   .internal-sidebar {
     position: fixed;
@@ -168,6 +174,56 @@
     overflow-x: auto;
   }
 
+  /* Side by side, the label was squeezed into a ~100px column reading one word
+   * per line while the control ran off the right edge - the theme picker sat
+   * 47px past the viewport. Stacked, each gets the full width of the card. */
+  .ui-option-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .ui-option-row > * {
+    min-width: 0;
+  }
+
+  /* Left-aligned rather than pushed to the right, and allowed to wrap: a
+   * segmented control with three options is wider than a phone even with the
+   * whole card to itself. */
+  .ui-option-row-control {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  /* Each control takes the whole row instead of wrapping into a ragged
+   * staircase - three buttons landing two-then-one is what made the profiles
+   * screen look unfinished. Only single controls are matched: a slider with its
+   * icon and its readout is one control made of three elements, and stacking
+   * those would be worse than leaving them be. */
+  .ui-option-row-control > button,
+  .ui-option-row-control > select,
+  .ui-option-row-control > input[type="text"],
+  .ui-option-row-control > input[type="password"] {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  /* One choice per line. Three segments side by side still needed a nudge of
+   * horizontal scrolling even with the whole card to themselves, and a track
+   * you have to drag to see the end of is a track whose last option gets
+   * missed. */
+  .segmented-stack {
+    flex-direction: column;
+    /* Full width, so the stack reads as a deliberate list rather than a narrow
+     * column floating in the middle of its card. */
+    width: 100%;
+  }
+
+  .segmented-stack > button {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
   .narrow-stack-table .explorer-table-header-recipe {
     display: none;
   }
@@ -214,4 +270,15 @@
   .internal-sidebar {
     padding-top: calc(env(safe-area-inset-top, 0px) + 28px);
   }
+}
+
+/* A settings row: a label on the left, its control on the right. Used 67 times
+ * in lumen://settings alone, which is why it is worth stacking here rather than
+ * at every call site. Nothing changes above the breakpoint. */
+.ui-option-row {
+  gap: 16px;
+}
+
+.ui-option-row-control {
+  flex-shrink: 0;
 }

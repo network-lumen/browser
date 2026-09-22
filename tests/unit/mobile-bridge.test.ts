@@ -57,7 +57,10 @@ describe('mobile bridge', () => {
     const bridge = buildMobileBridge() as any;
     // The UI calls some of these at startup without awaiting them, so a
     // rejection here would be an unhandled rejection on every launch.
-    await expect(bridge.ipfsStatus()).resolves.toMatchObject({
+    // ipfsAddPath, not ipfsStatus: the status call now speaks to whatever
+    // remote Kubo API the user configured, while adding BY PATH still wants a
+    // filesystem this target does not have.
+    await expect(bridge.ipfsAddPath()).resolves.toMatchObject({
       ok: false,
       error: 'unsupported_on_mobile'
     });

@@ -127,3 +127,22 @@ export interface ProfileRecord {
   address?: string;
   role?: string;
 }
+
+/** One site's remembered answers to Lumen's permission prompts. */
+export interface SitePermission {
+  siteKey: string;
+  actions: Record<string, boolean>;
+}
+
+/**
+ * What Lumen recorded about a site holding data, per profile.
+ *
+ * On Android this is Lumen's own record rather than an inventory of the
+ * WebView's storage - see the note in platform/mobile/impl/sites.ts.
+ */
+export interface SiteDataRecord {
+  siteKey: string;
+  profileId: string;
+  keyName?: string;
+  updatedAt?: number;
+}

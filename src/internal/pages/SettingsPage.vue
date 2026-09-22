@@ -61,7 +61,7 @@
       <div v-if="currentView === 'appearance'" class="flex-1 overflow-y-auto">
         <div class="pt-2px flex flex-column gap-8px">
           <UiOptionRow :label="t('Theme preference')" :description="t('Choose your preferred color scheme')">
-            <div class="flex gap-8px border-radius-10px bg-secondary border-1 p-4px">
+            <div class="segmented-stack flex gap-8px border-radius-10px bg-secondary border-1 p-4px">
               <UiSegmentedButton :active="theme === 'light'" @click="setTheme('light')">
                 <Sun :size="18" />
                 <span>{{ t('Light') }}</span>
@@ -92,7 +92,11 @@
               <option value="large">{{ t('Large') }}</option>
             </select>
           </UiOptionRow>
-          <UiOptionRow :label="t('Brightness')" :description="t('Adjust screen brightness ({percent}%)', { percent: brightness })" control-class="gap-16px w-full max-w-320px">
+          <!--
+            Android has a system brightness control with its own auto mode; a
+            second one that only dims this app is noise on that target.
+          -->
+          <UiOptionRow v-if="!isMobileTarget" :label="t('Brightness')" :description="t('Adjust screen brightness ({percent}%)', { percent: brightness })" control-class="gap-16px w-full max-w-320px">
             <Sun :size="16" class="color-text-secondary flex-shrink-0" />
             <input
               type="range"
@@ -678,7 +682,12 @@
             </UiButton>
           </UiOptionRow>
 
-          <UiOptionRow :label="t('Open logs folder')" :description="t('Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.')">
+          <!--
+            There is no logs folder on Android, and no file manager gesture that
+            would open one - the bridge member is among those with no mobile
+            equivalent. Offering the button anyway would only ever fail.
+          -->
+          <UiOptionRow v-if="!isMobileTarget" :label="t('Open logs folder')" :description="t('Open the logs folder containing the live Electron log, the latest debug report and safe copies of known support logs.')">
             <UiButton variant="secondary" type="button"
               @click="openLogsFolderAction"
               :disabled="troubleshootingBusy" class="disabled-fade-50">
@@ -1059,6 +1068,9 @@ const { theme, setTheme, initTheme } = useTheme();
 const { locale, locales, setLocale } = useI18n();
 const fontSize = ref(readString(STORAGE_KEYS.fontSize) || 'medium');
 const brightness = ref(parseInt(readString(STORAGE_KEYS.brightness) || '100'));
+
+/** Read from the bridge, which both targets populate, rather than sniffed. */
+const isMobileTarget = computed(() => useInternalLumen()?.appPlatform === 'android');
 const { historyEntries, historyEnabled, clearHistory, setHistoryEnabled } = useHistory();
 const exportingBackup = ref(false);
 const profiles = profilesState;

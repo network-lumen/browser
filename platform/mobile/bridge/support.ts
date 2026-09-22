@@ -41,7 +41,11 @@ const UNSUPPORTED_NAMESPACES = new Set<string>([
  * different namespace, and one that IS planned.
  */
 const UNSUPPORTED_PREFIXES = [
-  'ipfs',            // local kubo daemon
+  // The ipfs members that survive on this target speak to a REMOTE Kubo RPC
+  // API (see impl/ipfs.ts) and are implemented, which wins over this entry.
+  // What is left under the prefix is what needs a local filesystem or a
+  // long-running job: adding by path, directory walks, the managed pin queue.
+  'ipfs',
   'gatewayServer',   // hosting an express gateway from the device
   'drive',           // ffmpeg/ffprobe native binaries
   'dialogOpen',      // desktop file dialogs

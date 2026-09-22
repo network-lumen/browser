@@ -15,6 +15,9 @@
  * keystores, plain HTTP, the chain reads and writes behind `net.*`, `wallet.*`
  * and `pqc.*`, and the read half of `dns.*`.
  *
+ * IPFS is here too, pointed at whatever Kubo RPC API the user configured
+ * rather than at a daemon this target cannot run - see ipfs.ts.
+ *
  * What is not: `gateway.*`, which the desktop answers from a gateway agent on
  * localhost. A phone has no such agent, so search and pinning need a remote
  * gateway resolved from the user's on-chain plans - that is the next piece of
@@ -22,10 +25,12 @@
  */
 
 import type { BridgeMember } from '../../../src/types/platformBridge';
+import { IPFS_MEMBERS } from './ipfs';
 import { HTTP_MEMBERS, NETWORK_MEMBERS } from './network';
 import { PROFILE_MEMBERS } from './profiles';
 import { SECURITY_MEMBERS } from './security';
 import { SETTINGS_MEMBERS } from './settings';
+import { SITE_MEMBERS } from './sites';
 import { DNS_MEMBERS, WALLET_MEMBERS } from './wallet';
 
 export const MOBILE_IMPL: Readonly<Record<string, BridgeMember>> = Object.freeze({
@@ -36,6 +41,8 @@ export const MOBILE_IMPL: Readonly<Record<string, BridgeMember>> = Object.freeze
   ...HTTP_MEMBERS,
   ...WALLET_MEMBERS,
   ...DNS_MEMBERS,
+  ...SITE_MEMBERS,
+  ...IPFS_MEMBERS,
 
   /**
    * The escape hatch for a site that refuses to be framed.
