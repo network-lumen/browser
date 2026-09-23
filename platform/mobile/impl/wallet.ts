@@ -198,6 +198,21 @@ async function connectSigning(profileId: string) {
 }
 
 /**
+ * The fee every ordinary Lumen transaction carries: none.
+ *
+ * `app/ante_zero_fee.go` REFUSES a fee on an ordinary transaction, so there is
+ * nothing to estimate and `'auto'` is not a shortcut - it asks the SDK to price
+ * the transaction, which needs a gasPrice nobody set. That is the whole of
+ * "gasPrice must be set when using auto fee estimation", and it broke every
+ * write on this target, not just the one that reported it.
+ *
+ * Gas is declared because the ante still meters it; the amount stays empty
+ * because the chain rejects a transaction that pays. An IBC transfer is the
+ * one exception and passes its own fee.
+ */
+const ZERO_FEE = { amount: [] as { denom: string; amount: string }[], gas: '300000' };
+
+/**
  * Wraps a write so the renderer always gets `{ ok }` rather than an exception.
  *
  * Exported because the domain and governance writes in site-chain.ts are the
@@ -206,7 +221,8 @@ async function connectSigning(profileId: string) {
  */
 export async function submitMessages(
   build: (sdk: any, address: string) => unknown[],
-  memo = ''
+  memo = '',
+  fee: unknown = ZERO_FEE
 ): Promise<Record<string, unknown>> {
   try {
     const profile = await activeProfile();
@@ -219,7 +235,7 @@ export async function submitMessages(
     const messages = build(sdk, address);
     if (!messages.length) return { ok: false, error: 'nothing_to_send' };
 
-    const result = await client.signAndBroadcast(address, messages, 'auto', memo);
+    const result = await client.signAndBroadcast(address, messages, fee, memo);
     const code = Number(result?.code ?? 0);
     if (code !== 0) return { ok: false, code, error: result?.rawLog || 'tx_rejected' };
     return { ok: true, hash: result?.transactionHash, height: result?.height };
@@ -398,6 +414,15 @@ export const WALLET_MEMBERS = {
     if (!to || !channel) return { ok: false, error: 'missing_ibc_route' };
     const denom = String(input?.denom ?? (await activeNetwork()).denom);
 
+    // The one transaction that must pay. `app/ante_zero_fee.go` requires a
+    // positive fee on an IBC transfer and refuses one everywhere else, so this
+    // is the exception rather than the rule - and passing ZERO_FEE here would
+    // be rejected just as surely as paying on an ordinary send.
+    const ibcFee = input?.fee ?? {
+      amount: [coin(1000, denom)],
+      gas: '300000'
+    };
+
     return submitMessages((_sdk, from) => [
       {
         typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
@@ -412,7 +437,7 @@ export const WALLET_MEMBERS = {
           memo: String(input?.memo ?? '')
         }
       }
-    ]);
+    ], String(input?.memo ?? ''), ibcFee);
   },
 
   'pqc.getParams': async () => {
@@ -477,16 +502,19 @@ export const DNS_MEMBERS = {
     return res.ok ? { ok: true, auctions: asArray((res.json as any)?.auctions) } : { ok: true, auctions: [] };
   },
 
-  'dns.estimateRegisterPrice': async (input: { name?: string; years?: number } | string) => {
-    const name = String(typeof input === 'string' ? input : (input?.name ?? '')).trim();
-    if (!name) return { ok: false, error: 'missing_domain' };
-    const years = Math.max(1, Number((input as any)?.years ?? 1) | 0);
-    const res = await readState(
-      `/lumen/dns/v1/estimate_price/${encodeURIComponent(name)}?years=${years}`,
-      { kind: 'rest', timeout: 10_000 }
-    );
-    return res.ok
-      ? { ok: true, price: (res.json as any)?.price ?? null }
-      : { ok: false, status: res.status, error: 'price query failed' };
+  /**
+   * Priced from the chain's parameters, not from an endpoint - there is none.
+   * See dns-price.ts for the arithmetic and why it lives apart.
+   */
+  'dns.estimateRegisterPrice': async (
+    input: { name?: string; ext?: string; duration_days?: number } | string
+  ) => {
+    const res = await readState('/lumen/dns/v1/params', { kind: 'rest', timeout: 10_000 });
+    if (!res.ok) return { ok: false, status: res.status, error: 'dns_params_unavailable' };
+
+    const body = res.json as any;
+    const params = body?.params ?? body ?? {};
+    const { estimateRegisterPrice } = await import('./dns-price');
+    return estimateRegisterPrice(params, input);
   }
 };

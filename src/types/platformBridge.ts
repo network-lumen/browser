@@ -161,3 +161,9 @@ export interface GatewayTarget {
   baseUrl?: string;
   endpoint?: string;
 }
+
+/** One price tier in x/dns, chosen by name length and applied in basis points. */
+export interface LengthTier {
+  maxLen: number;
+  multiplierBps: number;
+}
