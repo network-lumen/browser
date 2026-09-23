@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import './internal/services/appLogInstall';
 import { installPlatformBridge } from '@platform';
 import { createApp } from 'vue';
 import App from './App.vue';

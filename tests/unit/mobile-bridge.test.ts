@@ -5,7 +5,11 @@ import {
   REQUIRED_NAMESPACES,
   REQUIRED_VALUES
 } from '../../src/internal/common/lumenBridgeSurface';
-import { bridgeReport, buildMobileBridge } from '../../platform/mobile/bridge/stub';
+import {
+  BridgeNotImplementedError,
+  bridgeReport,
+  buildMobileBridge
+} from '../../platform/mobile/bridge/stub';
 import { isSubscription, mobileSupportOf } from '../../platform/mobile/bridge/support';
 import { installPlatformBridge } from '../../platform/mobile/install';
 
@@ -39,16 +43,29 @@ describe('mobile bridge', () => {
     for (const name of REQUIRED_VALUES) expect(name in bridge).toBe(true);
   });
 
-  it('rejects rather than throws for a member that is planned but not written yet', async () => {
-    const bridge = buildMobileBridge() as any;
-    // A synchronous throw here would take down whichever component rendered
-    // first; a rejection is what a screen already knows how to survive. The
-    // promise is captured rather than re-called so the assertion below is the
-    // thing that settles it - a second, unawaited call would surface as an
-    // unhandled rejection and fail the run.
+  it('has no planned member left without an implementation', () => {
+    buildMobileBridge();
+    const report = bridgeReport();
+
+    // Every member the contract lists is now either implemented or classified
+    // as having no Android equivalent. "Stubbed" was the third state - planned
+    // but not written - and it is empty, which is the claim worth guarding:
+    // a member added to the contract later shows up here rather than reaching
+    // a user as a rejected promise.
+    expect(report.stubbed).toEqual([]);
+    expect(report.implemented.length + report.unsupported.length).toBe(report.total);
+  });
+
+  it('rejects rather than throws when a planned member has no implementation', async () => {
+    // Staged, since nothing is in that state any more. A synchronous throw
+    // would take down whichever component rendered first; a rejection is what
+    // a screen already knows how to survive.
+    const error = new BridgeNotImplementedError('wallet.somethingNew', 'planned');
+    const member = () => Promise.reject(error);
+
     let pending: Promise<unknown> | undefined;
     expect(() => {
-      pending = bridge.gateway.getBaseUrl({});
+      pending = member();
     }).not.toThrow();
     await expect(pending).rejects.toThrow(/not implemented on mobile yet/);
   });
@@ -57,10 +74,10 @@ describe('mobile bridge', () => {
     const bridge = buildMobileBridge() as any;
     // The UI calls some of these at startup without awaiting them, so a
     // rejection here would be an unhandled rejection on every launch.
-    // ipfsAddPath, not ipfsStatus: the status call now speaks to whatever
-    // remote Kubo API the user configured, while adding BY PATH still wants a
-    // filesystem this target does not have.
-    await expect(bridge.ipfsAddPath()).resolves.toMatchObject({
+    // Adding a DIRECTORY, specifically. A single file now works - the chooser
+    // hands back a handle and uploads.ts resolves it - but walking a folder
+    // tree still wants a filesystem this target does not have.
+    await expect(bridge.ipfsAddDirectory()).resolves.toMatchObject({
       ok: false,
       error: 'unsupported_on_mobile'
     });

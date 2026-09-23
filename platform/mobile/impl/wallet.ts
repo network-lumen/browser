@@ -197,8 +197,14 @@ async function connectSigning(profileId: string) {
   return { client, address: account.address as string };
 }
 
-/** Wraps a write so the renderer always gets `{ ok }` rather than an exception. */
-async function submit(
+/**
+ * Wraps a write so the renderer always gets `{ ok }` rather than an exception.
+ *
+ * Exported because the domain and governance writes in site-chain.ts are the
+ * same transaction, differing only in the messages they build - and a second
+ * copy of the signing dance is a second thing to keep in step with the chain.
+ */
+export async function submitMessages(
   build: (sdk: any, address: string) => unknown[],
   memo = ''
 ): Promise<Record<string, unknown>> {
@@ -287,7 +293,7 @@ export const WALLET_MEMBERS = {
     const to = String(input?.toAddress ?? input?.to ?? '').trim();
     if (!to) return { ok: false, error: 'missing_recipient' };
     const denom = String(input?.denom ?? (await activeNetwork()).denom);
-    return submit(
+    return submitMessages(
       (sdk, from) => [sdk.utils.msg.bankSend(from, to, [coin(input?.amount, denom)])],
       String(input?.memo ?? '')
     );
@@ -297,7 +303,7 @@ export const WALLET_MEMBERS = {
     const validator = String(input?.validatorAddress ?? '').trim();
     if (!validator) return { ok: false, error: 'missing_validator' };
     const denom = String(input?.denom ?? (await activeNetwork()).denom);
-    return submit((_sdk, from) => [
+    return submitMessages((_sdk, from) => [
       {
         typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
         value: { delegatorAddress: from, validatorAddress: validator, amount: coin(input?.amount, denom) }
@@ -309,7 +315,7 @@ export const WALLET_MEMBERS = {
     const validator = String(input?.validatorAddress ?? '').trim();
     if (!validator) return { ok: false, error: 'missing_validator' };
     const denom = String(input?.denom ?? (await activeNetwork()).denom);
-    return submit((_sdk, from) => [
+    return submitMessages((_sdk, from) => [
       {
         typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
         value: { delegatorAddress: from, validatorAddress: validator, amount: coin(input?.amount, denom) }
@@ -327,7 +333,7 @@ export const WALLET_MEMBERS = {
     const dst = String(input?.toValidator ?? '').trim();
     if (!src || !dst) return { ok: false, error: 'missing_validator' };
     const denom = String(input?.denom ?? (await activeNetwork()).denom);
-    return submit((_sdk, from) => [
+    return submitMessages((_sdk, from) => [
       {
         typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
         value: {
@@ -343,7 +349,7 @@ export const WALLET_MEMBERS = {
   'wallet.withdrawRewards': async (input: { validatorAddress?: string }) => {
     const validator = String(input?.validatorAddress ?? '').trim();
     if (!validator) return { ok: false, error: 'missing_validator' };
-    return submit((_sdk, from) => [
+    return submitMessages((_sdk, from) => [
       {
         typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
         value: { delegatorAddress: from, validatorAddress: validator }
@@ -370,7 +376,7 @@ export const WALLET_MEMBERS = {
     // so a delegator spread wider than that has to claim in batches. Only the
     // first batch is sent here and the caller is told how many are left.
     const batch = validators.slice(0, 64);
-    const result = await submit((_sdk, from) =>
+    const result = await submitMessages((_sdk, from) =>
       batch.map((validator) => ({
         typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
         value: { delegatorAddress: from, validatorAddress: validator }
@@ -392,7 +398,7 @@ export const WALLET_MEMBERS = {
     if (!to || !channel) return { ok: false, error: 'missing_ibc_route' };
     const denom = String(input?.denom ?? (await activeNetwork()).denom);
 
-    return submit((_sdk, from) => [
+    return submitMessages((_sdk, from) => [
       {
         typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
         value: {

@@ -25,12 +25,16 @@
  */
 
 import type { BridgeMember } from '../../../src/types/platformBridge';
+import { GATEWAY_MEMBERS } from './gateway';
+import { GATEWAY_WALLET_MEMBERS, GATEWAY_WALLET_READS } from './gateway-wallet';
 import { IPFS_MEMBERS } from './ipfs';
 import { HTTP_MEMBERS, NETWORK_MEMBERS } from './network';
 import { PROFILE_MEMBERS } from './profiles';
 import { SECURITY_MEMBERS } from './security';
 import { SETTINGS_MEMBERS } from './settings';
+import { SITE_CHAIN_MEMBERS } from './site-chain';
 import { SITE_MEMBERS } from './sites';
+import { UPLOAD_MEMBERS } from './uploads';
 import { DNS_MEMBERS, WALLET_MEMBERS } from './wallet';
 
 export const MOBILE_IMPL: Readonly<Record<string, BridgeMember>> = Object.freeze({
@@ -43,6 +47,13 @@ export const MOBILE_IMPL: Readonly<Record<string, BridgeMember>> = Object.freeze
   ...DNS_MEMBERS,
   ...SITE_MEMBERS,
   ...IPFS_MEMBERS,
+  // After IPFS_MEMBERS: these override the add-by-path calls with the
+  // handle-based ones a file chooser can actually satisfy.
+  ...UPLOAD_MEMBERS,
+  ...GATEWAY_MEMBERS,
+  ...GATEWAY_WALLET_MEMBERS,
+  ...GATEWAY_WALLET_READS,
+  ...SITE_CHAIN_MEMBERS,
 
   /**
    * The escape hatch for a site that refuses to be framed.

@@ -20,6 +20,7 @@
  */
 
 import type { ChainResponse, NetworkId, Settings } from '../../../src/types/platformBridge';
+import { httpRequest, parseJsonBody } from './native-http';
 import { getSettings, setSettings } from './settings';
 
 /**
@@ -101,26 +102,16 @@ export async function activeNetwork() {
 const trimSlash = (s: string) => s.replace(/\/+$/, '');
 
 async function httpJson(url: string, timeoutMs: number): Promise<ChainResponse> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { signal: controller.signal });
-    const text = await res.text();
-    let json: unknown;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      // Not every endpoint answers JSON on an error; the text is kept so the
-      // caller can still say what happened.
-      json = undefined;
-    }
-    return { ok: res.ok, status: res.status, text, json, timeout: false, endpoint: url };
-  } catch (e) {
-    const timeout = e instanceof Error && e.name === 'AbortError';
-    return { ok: false, status: 0, error: timeout ? 'timeout' : String(e), timeout, endpoint: url };
-  } finally {
-    clearTimeout(timer);
-  }
+  const res = await httpRequest(url, { timeoutMs });
+  return {
+    ok: res.ok,
+    status: res.status,
+    text: res.text,
+    json: parseJsonBody(res.text),
+    timeout: res.error === 'timeout',
+    error: res.ok ? undefined : (res.error ?? `http_${res.status}`),
+    endpoint: url
+  };
 }
 
 /** The height a node reports, for the coherence check. `null` when unreadable. */
@@ -184,28 +175,22 @@ export async function readState(
 async function rpcPost(body: unknown, timeout: number): Promise<ChainResponse> {
   const endpoints = ENDPOINTS[await activeNetworkId()] ?? [];
   for (const endpoint of endpoints) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
-    try {
-      const res = await fetch(trimSlash(endpoint.rpc), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: controller.signal
-      });
-      const text = await res.text();
-      let json: unknown;
-      try {
-        json = JSON.parse(text);
-      } catch {
-        json = undefined;
-      }
-      if (res.ok) return { ok: true, status: res.status, text, json, endpoint: endpoint.rpc };
-    } catch {
-      // Try the next endpoint rather than failing on the first unreachable one.
-    } finally {
-      clearTimeout(timer);
+    const res = await httpRequest(trimSlash(endpoint.rpc), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      timeoutMs: timeout
+    });
+    if (res.ok) {
+      return {
+        ok: true,
+        status: res.status,
+        text: res.text,
+        json: parseJsonBody(res.text),
+        endpoint: endpoint.rpc
+      };
     }
+    // Try the next endpoint rather than failing on the first unreachable one.
   }
   return { ok: false, status: 0, error: 'no_rpc_endpoint_available' };
 }
@@ -373,21 +358,20 @@ export const NETWORK_MEMBERS = {
   }
 };
 
-/** Plain HTTP, used by pages that fetch a gateway or a web page directly. */
+/**
+ * The bridge's plain HTTP, used by pages that fetch a gateway or a web page
+ * directly - and by `probeUrl`, which is how the resolver finds out whether
+ * anyone is serving a CID. Native, therefore, for the reason native-http.ts
+ * exists: through `fetch` every one of those probes was refused as
+ * cross-origin before it was sent.
+ */
 async function plainGet(url: string, asBytes: boolean, method: 'GET' | 'HEAD' = 'GET') {
-  try {
-    const res = await fetch(String(url ?? ''), { method });
-    if (asBytes) {
-      const bytes = new Uint8Array(await res.arrayBuffer());
-      return { ok: res.ok, status: res.status, bytes: Array.from(bytes) };
-    }
-    const text = method === 'HEAD' ? '' : await res.text();
-    const headers: Record<string, string> = {};
-    res.headers.forEach((v, k) => (headers[k] = v));
-    return { ok: res.ok, status: res.status, text, headers };
-  } catch (e) {
-    return { ok: false, status: 0, error: String(e) };
-  }
+  const res = await httpRequest(url, { method, timeoutMs: 15_000 });
+  if (!res.ok && res.status === 0) return { ok: false, status: 0, error: res.error };
+  if (!asBytes) return { ok: res.ok, status: res.status, text: res.text, headers: res.headers };
+
+  const bytes = new TextEncoder().encode(res.text);
+  return { ok: res.ok, status: res.status, bytes: Array.from(bytes) };
 }
 
 export const HTTP_MEMBERS = {

@@ -28,6 +28,7 @@
  * not a missing base URL, they are a missing machine.
  */
 
+import { httpRequest, parseJsonBody } from './native-http';
 import { getSettings } from './settings';
 
 const trimSlash = (s: string) => s.replace(/\/+$/, '');
@@ -65,62 +66,66 @@ async function rpc(
   const url = new URL(`${resolved.base}/api/v0/${path}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url.toString(), {
-      method: 'POST',
-      body,
-      signal: controller.signal
-    });
-    const text = await res.text();
-    if (!res.ok) return { ok: false, status: res.status, text, error: `http_${res.status}` };
-
-    // Several endpoints stream newline-delimited JSON; the last complete object
-    // is the one that carries the result.
-    let json: unknown;
+  // A multipart upload keeps using fetch: the native bridge carries a string
+  // body, not a FormData, and an add goes to the node on this device anyway -
+  // which is where CORS is answered by the config the plugin writes.
+  if (body) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      json = JSON.parse(text);
-    } catch {
-      const lines = text.trim().split('\n').filter(Boolean);
-      for (let i = lines.length - 1; i >= 0 && json === undefined; i--) {
-        try {
-          json = JSON.parse(lines[i]);
-        } catch {
-          // Keep walking back; a partial line is not an error in itself.
-        }
-      }
+      const res = await fetch(url.toString(), { method: 'POST', body, signal: controller.signal });
+      const text = await res.text();
+      if (!res.ok) return { ok: false, status: res.status, text, error: `http_${res.status}` };
+      return { ok: true, status: res.status, json: parseJsonBody(text), text };
+    } catch (e) {
+      const aborted = e instanceof Error && e.name === 'AbortError';
+      return { ok: false, error: aborted ? 'timeout' : 'upload_failed' };
+    } finally {
+      clearTimeout(timer);
     }
-    return { ok: true, status: res.status, json, text };
-  } catch (e) {
-    const aborted = e instanceof Error && e.name === 'AbortError';
-    if (aborted) return { ok: false, error: 'timeout' };
-    // A cross-origin refusal reaches us as an opaque network failure, so the
-    // likely cause is named rather than left as "failed to fetch" - and which
-    // cause is likely depends on where we were pointed.
+  }
+
+  const res = await httpRequest(url.toString(), { method: 'POST', timeoutMs });
+  if (!res.ok) {
+    if (res.status > 0) return { ok: false, status: res.status, text: res.text, error: `http_${res.status}` };
+    if (res.error === 'timeout') return { ok: false, error: 'timeout' };
     return {
       ok: false,
       error: isLoopback(resolved.base)
         ? 'no_node_answered_on_device'
         : 'request_failed_check_cors_and_reachability'
     };
-  } finally {
-    // Cleared on every path: a pending abort timer outliving its request would
-    // fire into nothing, and 120s uploads would leave a pile of them behind.
-    clearTimeout(timer);
   }
+  return { ok: true, status: res.status, json: parseJsonBody(res.text), text: res.text };
 }
 
 const asArray = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
 
 export const IPFS_MEMBERS = {
+  /**
+   * Whether a node is answering - and, on loopback, a nudge if one is not.
+   *
+   * Drive polls this to colour its indicator, and the embedded daemon takes a
+   * few seconds to come up. Without the nudge the first check of a session
+   * lands before the node does, paints the indicator red and leaves it there
+   * until something else asks again. Starting is idempotent and shared, so a
+   * check that arrives mid-boot waits for that boot rather than racing it.
+   */
   ipfsStatus: async () => {
     const resolved = await apiBase();
     if (!resolved.ok) return { ok: false, error: resolved.error };
-    const res = await rpc('id', { 'enc': 'json' }, undefined, 6_000);
+
+    const ask = () => rpc('id', { enc: 'json' }, undefined, 6_000);
+    let res = await ask();
+
+    if (!res.ok && isLoopback(resolved.base)) {
+      const { startEmbeddedNode } = await import('./kubo');
+      const started = await startEmbeddedNode();
+      if (started.ok) res = await ask();
+    }
+
     if (!res.ok) return { ok: false, error: res.error };
-    const id = (res.json as any)?.ID ?? null;
-    return { ok: true, id, apiBase: resolved.base };
+    return { ok: true, id: (res.json as any)?.ID ?? null, apiBase: resolved.base };
   },
 
   ipfsStats: async () => {

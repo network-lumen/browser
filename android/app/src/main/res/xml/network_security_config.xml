@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android has refused cleartext HTTP by default since API 28, and the embedded
+  kubo node listens on http://127.0.0.1:5001 (API) and :8088 (gateway). Without
+  this, every request to it fails before it leaves the app with
+  "Cleartext HTTP traffic to 127.0.0.1 not permitted" - which is what made the
+  node look dead while it was running perfectly well.
+
+  Scoped to the loopback names only. The rest of the app keeps the default,
+  which is that plain http to anywhere else stays refused - a browser fetching
+  the open web has no business relaxing that.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <!-- Subdomains included so a subdomain gateway host resolves too. -->
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
+</network-security-config>

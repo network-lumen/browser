@@ -17,6 +17,7 @@
  */
 
 import type { SitePermission, SiteDataRecord } from '../../../src/types/platformBridge';
+import { decryptWithPassword, encryptWithPassword } from './crypto';
 import { readDoc, writeDoc } from './storage';
 import { getSettings } from './settings';
 
@@ -87,6 +88,35 @@ export const SITE_MEMBERS = {
 
     await writeDoc(SITE_DATA_KEY, next);
     return { ok: true };
+  },
+
+  /**
+   * Drive snapshot encryption, which is the same password-sealed envelope the
+   * keystores use - so a snapshot written on a laptop opens here and the other
+   * way round, for the same reason the keystore format was kept byte-exact.
+   */
+  'driveBackup.encryptSnapshot': async (snapshot: unknown, password: string) => {
+    const secret = String(password ?? '');
+    if (!secret) return { ok: false, error: 'password_required' };
+    try {
+      const sealed = await encryptWithPassword(JSON.stringify(snapshot ?? null), secret);
+      return { ok: true, snapshot: sealed };
+    } catch (e) {
+      return { ok: false, error: String(e instanceof Error ? e.message : e) };
+    }
+  },
+
+  'driveBackup.decryptSnapshot': async (sealed: unknown, password: string) => {
+    const secret = String(password ?? '');
+    if (!secret) return { ok: false, error: 'password_required' };
+    try {
+      const plain = await decryptWithPassword(sealed as any, secret);
+      return { ok: true, snapshot: JSON.parse(plain) };
+    } catch {
+      // Wrong password and corrupt file are indistinguishable from out here,
+      // and guessing between them would only mislead.
+      return { ok: false, error: 'invalid_password_or_snapshot' };
+    }
   },
 
   'addressBook.list': async () => ({

@@ -50,6 +50,17 @@
             {{ hlsError }}
           </div>
         </template>
+        <!--
+          Android has no <webview> - see the same note in WebPage.vue. A
+          lumen:// site is served from the local IPFS gateway, which does send
+          permissive framing headers, so an iframe carries it there.
+        -->
+        <iframe
+          v-else-if="isMobileTarget && resolvedHttpUrl"
+          :src="resolvedHttpUrl"
+          class="fullscreen-target w-full h-full border-none bg-primary"
+        ></iframe>
+
         <webview
           v-else-if="resolvedHttpUrl"
           ref="siteWebview"
@@ -108,6 +119,9 @@ const { navigate, openInNewTab } = useTabNavigation();
 const { registerFindTarget } = useTabNavigation();
 
 const loading = ref(false);
+
+/** Read from the bridge, which both targets populate. */
+const isMobileTarget = computed(() => useInternalLumen()?.appPlatform === 'android');
 const error = ref(false);
 const domainNotFound = ref(false);
 const requestedHost = ref("");

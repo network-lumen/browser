@@ -16,6 +16,15 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    packaging {
+        jniLibs {
+            // The kubo daemon ships as libkubo.so, and Android only lets a process
+            // exec a file from its nativeLibraryDir - never from app data, which
+            // has been noexec since API 29. Legacy packaging is what unpacks it
+            // there instead of leaving it compressed inside the APK.
+            useLegacyPackaging = true
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

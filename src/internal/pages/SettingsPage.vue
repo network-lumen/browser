@@ -673,6 +673,44 @@
             {{ t('Generate a safe support bundle for remote troubleshooting. Passwords, password hashes, API keys and private keys are excluded.') }}
           </UiHintText>
 
+          <!--
+            The live buffer, shown rather than only copied. On a phone there is
+            no log file and no console within reach, so this is the only way to
+            see what the app is actually doing - and being able to read it on
+            the device beats having to plug it into a laptop.
+          -->
+          <UiOptionRow :label="t('Application logs')" :description="t('The most recent lines the app recorded, newest first.')">
+            <UiButton variant="secondary" type="button" @click="refreshLogs">
+              <RefreshCw :size="16" />
+              <span>{{ t('Refresh') }}</span>
+            </UiButton>
+            <UiButton variant="secondary" type="button" @click="copyLogs" :disabled="!logEntries.length" class="disabled-fade-50">
+              <Copy :size="16" />
+              <span>{{ t('Copy logs') }}</span>
+            </UiButton>
+            <UiButton variant="secondary" type="button" @click="clearLogs" :disabled="!logEntries.length" class="disabled-fade-50">
+              <span>{{ t('Clear') }}</span>
+            </UiButton>
+            <!--
+              Runs the IPFS check on demand and leaves its account in the buffer
+              above. Without it the only way to see a startup failure is to
+              catch it as the app launches, which is exactly when nobody is
+              looking at this screen.
+            -->
+            <UiButton variant="secondary" type="button" @click="testIpfs" :disabled="ipfsTesting" class="disabled-fade-50">
+              <span>{{ ipfsTesting ? t('Testing…') : t('Test IPFS') }}</span>
+            </UiButton>
+          </UiOptionRow>
+
+          <UiCard padding="none" :shadow="false" class="p-12px max-h-420px overflow-y-auto">
+            <div v-if="!logEntries.length" class="color-text-tertiary text-13px">{{ t('No log lines recorded yet.') }}</div>
+            <div v-for="entry in logEntries" :key="entry.id" class="flex gap-8px py-4px border-bottom-05-light">
+              <span class="text-10px color-text-tertiary flex-shrink-0 w-48px">{{ formatLogTime(entry.at) }}</span>
+              <span class="text-10px txt-weight-medium flex-shrink-0 w-40px" :class="logLevelClass(entry.level)">{{ entry.level.toUpperCase() }}</span>
+              <span class="text-11px color-text-primary overflow-wrap-anywhere">{{ entry.message }}</span>
+            </div>
+          </UiCard>
+
           <UiOptionRow :label="t('Copy debug report')" :description="t('Copy app info, sanitized settings, service status, file inventory and recent log excerpts to the clipboard.')">
             <UiButton variant="secondary" type="button"
               @click="copyDebugReport"
@@ -910,7 +948,8 @@ import {
   Cloud,
   Server,
   Plus,
-  X
+  X,
+  RefreshCw,
 } from 'lucide-vue-next';
 import { useTheme } from '../../composables/useTheme';
 import { t, useI18n } from '../../stores/i18nStore';
@@ -920,6 +959,8 @@ import { normalizeHttpBaseUrl } from '../services/navigationUrl';
 import { listLumenNetworks, loadLumenNetwork, setLumenNetwork } from '../services/lumenNetwork';
 import type { LumenNetworkIdentity } from '../../types/lumenNetwork';
 import { useToast } from '../../composables/useToast';
+import type { AppLogEntry } from '../../types/appLog';
+import { clearLogEntries, formatLogEntries, getLogEntries } from '../services/appLog';
 import ProfileAvatar from '../../components/ProfileAvatar.vue';
 import { useHistory } from '../../stores/historyStore';
 import {
@@ -1071,6 +1112,71 @@ const brightness = ref(parseInt(readString(STORAGE_KEYS.brightness) || '100'));
 
 /** Read from the bridge, which both targets populate, rather than sniffed. */
 const isMobileTarget = computed(() => useInternalLumen()?.appPlatform === 'android');
+
+/**
+ * The in-app log buffer, read on demand rather than watched.
+ *
+ * A reactive tail would re-render on every line the app prints - including the
+ * ones this screen itself causes - which is both noisy and a good way to make
+ * a slow phone slower. Refresh is a button.
+ */
+const logEntries = ref<AppLogEntry[]>([]);
+
+// Filled when the view opens, so the screen is never blank on arrival.
+watch(() => currentView.value, (view) => { if (view === 'troubleshooting') refreshLogs(); }, { immediate: true });
+
+function refreshLogs() {
+  // Newest first: on a phone the thing that just went wrong should not be at
+  // the bottom of four hundred lines.
+  logEntries.value = getLogEntries().reverse();
+}
+
+async function copyLogs() {
+  try {
+    await navigator.clipboard.writeText(formatLogEntries());
+    toast.success(t('Logs copied to the clipboard'));
+  } catch {
+    toast.error(t('Failed to copy the logs'));
+  }
+}
+
+function clearLogs() {
+  clearLogEntries();
+  refreshLogs();
+}
+
+const ipfsTesting = ref(false);
+
+/**
+ * Asks the bridge whether IPFS is reachable, and records the answer.
+ *
+ * On the mobile target `ipfsStatus` also starts the embedded node if it is not
+ * already up, so this doubles as a retry - which is the other thing someone
+ * staring at a failure wants.
+ */
+async function testIpfs() {
+  ipfsTesting.value = true;
+  try {
+    console.warn('[diagnostic] asking for IPFS status');
+    const status = await useInternalLumen()?.ipfsStatus?.();
+    console.warn('[diagnostic] ipfsStatus ->', JSON.stringify(status ?? null));
+  } catch (e) {
+    console.error('[diagnostic] ipfsStatus threw', e);
+  } finally {
+    ipfsTesting.value = false;
+    refreshLogs();
+  }
+}
+
+function formatLogTime(at: number): string {
+  return new Date(at).toLocaleTimeString();
+}
+
+function logLevelClass(level: string): string {
+  if (level === 'error') return 'color-error';
+  if (level === 'warn') return 'color-warning';
+  return 'color-text-tertiary';
+}
 const { historyEntries, historyEnabled, clearHistory, setHistoryEnabled } = useHistory();
 const exportingBackup = ref(false);
 const profiles = profilesState;

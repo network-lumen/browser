@@ -146,3 +146,18 @@ export interface SiteDataRecord {
   keyName?: string;
   updatedAt?: number;
 }
+
+/** One answer from the native HTTP layer - see platform/mobile/impl/native-http.ts. */
+export interface NativeResponse {
+  ok: boolean;
+  status: number;
+  text: string;
+  headers: Record<string, string>;
+  error?: string;
+}
+
+/** A gateway call that names which gateway it is for. */
+export interface GatewayTarget {
+  baseUrl?: string;
+  endpoint?: string;
+}
