@@ -1070,13 +1070,23 @@ const sendAvailableLabel = computed(() => {
  * normal case. It says nothing, and the "Receiver net" line beside it then
  * repeats the amount from the row above, so both go together.
  */
-const showSendTaxBreakdown = computed(
-  () =>
+const showSendTaxBreakdown = computed(() => {
+  const rate = tokenomicsTaxRate.value ?? 0;
+  // Rounded the way the label prints it, not compared against zero.
+  //
+  // `rate > 0` let a rate too small to render survive the check, and the row
+  // appeared reading "Tax 0%" - a line that costs space to say nothing. Tying
+  // the two to the same rounding means the row is shown exactly when it has a
+  // number to show.
+  const displayedPercent = Number((rate * 100).toFixed(2));
+
+  return (
     !isIbcSend.value &&
     sendAssetDenom.value.toLowerCase() === 'ulmn' &&
     sendSourcePrefix.value === 'lmn' &&
-    (tokenomicsTaxRate.value ?? 0) > 0
-);
+    displayedPercent > 0
+  );
+});
 /**
  * Whether the flat transfer fee applies. Wider than the tax breakdown on both
  * axes, because the charge is: MsgSend, MsgMultiSend and MsgTransfer are all
