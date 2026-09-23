@@ -24,6 +24,15 @@ import { getSettings } from './settings';
 const SITE_PERMISSIONS_KEY = 'sites/permissions.json';
 const SITE_DATA_KEY = 'sites/data.json';
 const ADDRESS_BOOK_KEY = 'addressbook.json';
+
+/**
+ * What `electron/ipc/drive_backup.cjs` stamps on a snapshot envelope and
+ * refuses one without, and the password floor it applies. Both have to match
+ * for a backup to cross between a phone and a laptop.
+ */
+const DRIVE_BACKUP_ENVELOPE_TYPE = 'lumen.driveBackup.encryptedSnapshot';
+const DRIVE_BACKUP_MIN_PASSWORD = 8;
+
 const PRIVATE_CLOUD_KEY = 'private-cloud.json';
 
 /** What a private-cloud config looks like when none has been saved. */
@@ -94,28 +103,63 @@ export const SITE_MEMBERS = {
    * Drive snapshot encryption, which is the same password-sealed envelope the
    * keystores use - so a snapshot written on a laptop opens here and the other
    * way round, for the same reason the keystore format was kept byte-exact.
+   *
+   * THREE ARGUMENTS, PROFILE FIRST. The page calls
+   * `encryptSnapshot(profileId, snapshot, password)`, as the desktop preload
+   * declares it. Taking two here silently shifted every one of them: the
+   * profile id was encrypted as the snapshot and the snapshot was stringified
+   * into the password. The profile id itself is unused - the desktop ignores
+   * it too - but it has to be accepted to keep the rest in place.
+   *
+   * `type` is not decoration either: the desktop's `normalizeEnvelope` refuses
+   * an envelope that does not carry it, so a backup exported here would not
+   * import there.
    */
-  'driveBackup.encryptSnapshot': async (snapshot: unknown, password: string) => {
+  'driveBackup.encryptSnapshot': async (
+    _profileId: unknown,
+    snapshot: unknown,
+    password: string
+  ) => {
+    if (!snapshot || typeof snapshot !== 'object') return { ok: false, error: 'invalid_snapshot' };
+
     const secret = String(password ?? '');
-    if (!secret) return { ok: false, error: 'password_required' };
+    if (!secret) return { ok: false, error: 'missing_password' };
+    // The same floor the desktop enforces, reported with the same code so the
+    // page's message for it is the one the user sees.
+    if (secret.length < DRIVE_BACKUP_MIN_PASSWORD) return { ok: false, error: 'weak_password' };
+
     try {
-      const sealed = await encryptWithPassword(JSON.stringify(snapshot ?? null), secret);
-      return { ok: true, snapshot: sealed };
+      const sealed = await encryptWithPassword(JSON.stringify(snapshot), secret);
+      return {
+        ok: true,
+        encrypted: { ...sealed, type: DRIVE_BACKUP_ENVELOPE_TYPE }
+      };
     } catch (e) {
       return { ok: false, error: String(e instanceof Error ? e.message : e) };
     }
   },
 
-  'driveBackup.decryptSnapshot': async (sealed: unknown, password: string) => {
+  'driveBackup.decryptSnapshot': async (
+    _profileId: unknown,
+    encrypted: unknown,
+    password: string
+  ) => {
     const secret = String(password ?? '');
-    if (!secret) return { ok: false, error: 'password_required' };
+    if (!secret) return { ok: false, error: 'missing_password' };
+    if (secret.length < DRIVE_BACKUP_MIN_PASSWORD) return { ok: false, error: 'weak_password' };
+
+    const envelope = encrypted as any;
+    if (!envelope?.crypto || envelope.type !== DRIVE_BACKUP_ENVELOPE_TYPE) {
+      return { ok: false, error: 'invalid_envelope' };
+    }
+
     try {
-      const plain = await decryptWithPassword(sealed as any, secret);
+      const plain = await decryptWithPassword(envelope, secret);
       return { ok: true, snapshot: JSON.parse(plain) };
     } catch {
       // Wrong password and corrupt file are indistinguishable from out here,
       // and guessing between them would only mislead.
-      return { ok: false, error: 'invalid_password_or_snapshot' };
+      return { ok: false, error: 'decrypt_failed' };
     }
   },
 

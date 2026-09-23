@@ -128,66 +128,71 @@ export const GATEWAY_WALLET_MEMBERS = {
     return () => ingestListeners.delete(callback);
   },
 
-  // --- chain transactions -------------------------------------------------
+  // --- chain transactions ---------------------------------------------
+  //
+  // Built by the SDK, for the same reason the domain messages are: the field
+  // names are not guessable. A gateway is registered with a `payout` address,
+  // not an `endpoint`, and a contract's numbers are numbers rather than the
+  // strings a hand-written message would have sent.
 
   'gateway.subscribePlan': (input: {
-    gatewayId?: string;
-    priceUlmn?: string;
+    gatewayId?: string | number;
+    priceUlmn?: string | number;
     storageGbPerMonth?: number;
     networkGbPerMonth?: number;
     monthsTotal?: number;
     metadata?: string;
   }) =>
     submitMessages(
-      (_sdk, from) => [
-        {
-          typeUrl: '/lumen.gateway.v1.MsgCreateContract',
-          value: {
-            client: from,
-            gatewayId: String(input?.gatewayId ?? ''),
-            priceUlmn: String(input?.priceUlmn ?? '0'),
-            storageGbPerMonth: Number(input?.storageGbPerMonth ?? 0),
-            networkGbPerMonth: Number(input?.networkGbPerMonth ?? 0),
-            monthsTotal: Number(input?.monthsTotal ?? 1),
-            metadata: String(input?.metadata ?? '')
-          }
-        }
+      (_sdk, from, client) => [
+        client.gateways().msgCreateContract(from, {
+          gatewayId: Number(input?.gatewayId ?? 0),
+          priceUlmn: Number(input?.priceUlmn ?? 0),
+          storageGbPerMonth: Number(input?.storageGbPerMonth ?? 0),
+          networkGbPerMonth: Number(input?.networkGbPerMonth ?? 0),
+          monthsTotal: Number(input?.monthsTotal ?? 1),
+          metadata: String(input?.metadata ?? '')
+        })
       ],
       'gateway:plan:subscribe'
     ),
 
-  'gateway.cancelContract': (input: { contractId?: string }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/lumen.gateway.v1.MsgCancelContract',
-        value: { client: from, contractId: String(input?.contractId ?? '') }
-      }
-    ]),
+  'gateway.cancelContract': (input: { contractId?: string | number }) =>
+    submitMessages(
+      (_sdk, from, client) =>
+        // The id is the second argument here, not a field.
+        [client.gateways().msgCancelContract(from, Number(input?.contractId ?? 0))],
+      'gateway:plan:cancel'
+    ),
 
-  'gateway.registerGateway': (input: { endpoint?: string; metadata?: string }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/lumen.gateway.v1.MsgRegisterGateway',
-        value: {
-          creator: from,
-          endpoint: String(input?.endpoint ?? ''),
+  'gateway.registerGateway': (input: { payout?: string; metadata?: string }) =>
+    submitMessages(
+      (_sdk, from, client) => [
+        client.gateways().msgRegisterGateway(from, {
+          payout: String(input?.payout ?? from),
           metadata: String(input?.metadata ?? '')
-        }
-      }
-    ]),
+        })
+      ],
+      'gateway:register'
+    ),
 
-  'gateway.updateGateway': (input: { gatewayId?: string; endpoint?: string; metadata?: string }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/lumen.gateway.v1.MsgUpdateGateway',
-        value: {
-          creator: from,
-          gatewayId: String(input?.gatewayId ?? ''),
-          endpoint: String(input?.endpoint ?? ''),
-          metadata: String(input?.metadata ?? '')
-        }
-      }
-    ])
+  'gateway.updateGateway': (input: {
+    gatewayId?: string | number;
+    payout?: string;
+    metadata?: string;
+    active?: boolean;
+  }) =>
+    submitMessages(
+      (_sdk, from, client) => [
+        client.gateways().msgUpdateGateway(from, {
+          gatewayId: Number(input?.gatewayId ?? 0),
+          payout: input?.payout,
+          metadata: input?.metadata,
+          active: input?.active
+        })
+      ],
+      'gateway:update'
+    )
 };
 
 /** The two read members that also need the envelope. */

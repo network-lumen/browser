@@ -167,3 +167,12 @@ export interface LengthTier {
   maxLen: number;
   multiplierBps: number;
 }
+
+/** A Dilithium keypair as the PQC key store holds it. */
+export interface PqcRecord {
+  name: string;
+  scheme: string;
+  publicKey: string;
+  privateKey: string;
+  createdAt?: string;
+}

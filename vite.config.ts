@@ -39,6 +39,41 @@ export default defineConfig(({ mode }) => {
    */
   const nodeShim = resolvePath('./platform/mobile/shims/node.ts');
 
+  /**
+   * Lets the renderer instantiate the Dilithium WASM, on mobile only.
+   *
+   * `index.html` ships `script-src 'self'`, and that blocks WebAssembly
+   * outright: "compiling or instantiating WebAssembly module violates the
+   * following Content Security Policy directive". Without this, every
+   * post-quantum signature fails, which on mobile means no transaction at all.
+   *
+   * `'wasm-unsafe-eval'` exists for exactly this and nothing else - it permits
+   * WebAssembly compilation while `eval()` and `new Function()` stay refused,
+   * so it is a far narrower hole than the `'unsafe-eval'` the error message
+   * names. The desktop keeps the stricter policy untouched: there the SDK runs
+   * in the main process, and its renderer has no WASM to compile.
+   *
+   * Rewritten at build time rather than written into `index.html`, so the one
+   * file both targets share keeps the tightest policy either of them can run
+   * with.
+   */
+  const CSP_SCRIPT_SRC = "script-src 'self'";
+  const mobileWasmCsp = {
+    name: 'lumen-mobile-wasm-csp',
+    transformIndexHtml(html: string) {
+      if (!isMobile) return html;
+      if (!html.includes(CSP_SCRIPT_SRC)) {
+        // Silence here would ship an app whose wallet cannot sign, and the
+        // failure would only surface on a device.
+        throw new Error(
+          `vite.config.ts: "${CSP_SCRIPT_SRC}" not found in index.html - ` +
+            'the mobile build cannot grant WebAssembly its CSP exception.'
+        );
+      }
+      return html.replace(CSP_SCRIPT_SRC, `${CSP_SCRIPT_SRC} 'wasm-unsafe-eval'`);
+    }
+  };
+
   // Exact patterns, not bare strings: an object alias matches by PREFIX, so a
   // `fs` key also swallows `fs/promises` and rewrites it to <shim>/promises.
   const nodeShims = isMobile
@@ -60,7 +95,8 @@ export default defineConfig(({ mode }) => {
             isCustomElement: (tag) => tag === 'webview'
           }
         }
-      })
+      }),
+      mobileWasmCsp
     ],
     root: '.',
     resolve: {

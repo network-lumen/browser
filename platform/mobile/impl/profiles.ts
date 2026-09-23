@@ -48,6 +48,23 @@ const PQC_LINKS_KEY = 'pqc_keys/links.json';
 
 const pqcLinkedListeners = new Set<(payload: unknown) => void>();
 
+/**
+ * Tells the app a Dilithium key now exists locally, so it can offer a backup.
+ *
+ * Fired the moment new key material lands, not after the on-chain link
+ * confirms: losing that file unbacked is unrecoverable, and a link that is
+ * slow or fails for an unrelated reason must not swallow the warning.
+ */
+export function notifyPqcLinked(payload: { profileId: string; address: string }): void {
+  for (const fn of pqcLinkedListeners) {
+    try {
+      fn(payload);
+    } catch {
+      // One bad subscriber must not silence the rest.
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // The profiles document
 // ---------------------------------------------------------------------------

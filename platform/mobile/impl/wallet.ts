@@ -24,6 +24,7 @@
 import type { Keystore, ProfileRecord } from '../../../src/types/platformBridge';
 import { decryptKeystore } from './crypto';
 import { activeNetwork, readState } from './network';
+import { buildPqcStore, ensurePqcLinked, isPqcError, readPqcAccount } from './pqc-link';
 import { getSessionPassword } from './security';
 import { PROFILES_KEY, keystoreKey, readDoc } from './storage';
 
@@ -127,39 +128,6 @@ async function getTokenomicsParams() {
 // Writes, through the SDK
 // ---------------------------------------------------------------------------
 
-/**
- * The PQC key store the SDK expects: `getLink(address)` naming a key, and
- * `getKey(name)` returning it. Both read the same two documents profiles.ts
- * writes, so a key imported through a backup is the key that signs.
- */
-async function buildPqcStore() {
-  const links = (await readDoc<Record<string, string>>('pqc_keys/links.json')) ?? {};
-  const rawKeys = await readDoc<Record<string, any>>('pqc_keys/keys.json');
-
-  let keys: Record<string, any> = rawKeys ?? {};
-  if ((rawKeys as any)?.crypto) {
-    // The key file is sealed once a password is set; without an open session
-    // there is nothing to sign with, and saying so beats a confusing failure
-    // deep inside the SDK.
-    const password = getSessionPassword();
-    if (!password) throw new Error('wallet_locked');
-    const { decryptWithPassword } = await import('./crypto');
-    keys = JSON.parse(await decryptWithPassword(rawKeys as unknown as Keystore, password));
-  }
-
-  const normalize = (rec: any) =>
-    rec && {
-      name: rec.name,
-      scheme: rec.scheme ?? 'dilithium3',
-      publicKey: rec.publicKey ?? rec.public_key,
-      privateKey: rec.privateKey ?? rec.private_key
-    };
-
-  return {
-    getLink: (address: string) => links[address] ?? null,
-    getKey: (name: string) => normalize(keys[name]) ?? null
-  };
-}
 
 /** The mnemonic of the profile that is signing. Throws rather than guessing. */
 async function signingMnemonic(profileId: string): Promise<string> {
@@ -220,7 +188,7 @@ const ZERO_FEE = { amount: [] as { denom: string; amount: string }[], gas: '3000
  * copy of the signing dance is a second thing to keep in step with the chain.
  */
 export async function submitMessages(
-  build: (sdk: any, address: string) => unknown[],
+  build: (sdk: any, address: string, client: any) => unknown[],
   memo = '',
   fee: unknown = ZERO_FEE
 ): Promise<Record<string, unknown>> {
@@ -232,10 +200,29 @@ export async function submitMessages(
     const sdk = mod?.default ?? mod;
     const { client, address } = await connectSigning(profile.id);
 
-    const messages = build(sdk, address);
+    const messages = build(sdk, address, client);
     if (!messages.length) return { ok: false, error: 'nothing_to_send' };
 
-    const result = await client.signAndBroadcast(address, messages, fee, memo);
+    // Checked before signing rather than after failing. Every Lumen
+    // transaction carries a Dilithium signature, and an address the chain has
+    // no key for cannot send anything - so an unlinked wallet would meet
+    // "No PQC key linked" on its very first action. The desktop links in the
+    // background; this does the same.
+    await ensurePqcLinked(client, profile.id, address);
+
+    const send = () => client.signAndBroadcast(address, messages, fee, memo);
+
+    let result;
+    try {
+      result = await send();
+    } catch (e) {
+      // A second chance, once, and only for a refusal that names the PQC half:
+      // the preflight can lose a race with a link that was still committing.
+      if (!isPqcError(String(e instanceof Error ? e.message : e))) throw e;
+      await ensurePqcLinked(client, profile.id, address);
+      result = await send();
+    }
+
     const code = Number(result?.code ?? 0);
     if (code !== 0) return { ok: false, code, error: result?.rawLog || 'tx_rejected' };
     return { ok: true, hash: result?.transactionHash, height: result?.height };
@@ -446,17 +433,15 @@ export const WALLET_MEMBERS = {
     return { ok: true, params: (res.json as any)?.params ?? {} };
   },
 
+  /**
+   * `{ ok, linked, account }`, as the desktop answers it - the page reads
+   * `linked` and nothing else. See `readPqcAccount` for the endpoint and the
+   * two field names, each of which read as "not linked" when wrong.
+   */
   'pqc.getAccount': async (input: { address?: string } | string) => {
     const address = String(typeof input === 'string' ? input : (input?.address ?? '')).trim();
-    if (!address) return { ok: false, error: 'missing address' };
-    const res = await readState(`/lumen/pqc/v1/account/${encodeURIComponent(address)}`, {
-      kind: 'rest',
-      timeout: 10_000
-    });
-    // A 404 is an account with no key linked, which is a normal state and not
-    // a failure the UI should shout about.
-    if (!res.ok) return { ok: true, account: null, status: res.status };
-    return { ok: true, account: (res.json as any)?.account ?? (res.json as any) ?? null };
+    if (!address) return { ok: false, error: 'missing_address' };
+    return readPqcAccount(address);
   }
 };
 
@@ -479,27 +464,25 @@ export const DNS_MEMBERS = {
       kind: 'rest',
       timeout: 10_000
     });
-    // An unregistered domain is a 404, and "available" is the useful answer
-    // rather than an error.
-    if (!res.ok) return { ok: true, domain: null, available: res.status === 404 };
-    return { ok: true, domain: (res.json as any)?.domain ?? (res.json as any) ?? null, available: false };
+    // `{ ok: false, status: 404 }` for an unregistered name, because that is
+    // how every caller recognises one: the register dialog reads the status to
+    // decide whether the name is free, and the resolver turns the same 404
+    // into "domain_not_registered". An earlier version answered
+    // `{ ok: true, available: true }`, which no caller looks at - so a taken
+    // name read as free right up until the chain refused the purchase.
+    if (!res.ok) return { ok: false, status: res.status, error: `http_${res.status}` };
+    return { ok: true, data: (res.json as any) ?? null };
   },
 
   'dns.listByOwnerDetailed': async (input: { address?: string } | string) => {
     const address = String(typeof input === 'string' ? input : (input?.address ?? '')).trim();
-    if (!address) return { ok: false, error: 'missing address' };
-    const res = await readState(`/lumen/dns/v1/domains_by_owner/${encodeURIComponent(address)}`, {
-      kind: 'rest',
-      timeout: 10_000
-    });
-    return res.ok
-      ? { ok: true, domains: asArray((res.json as any)?.domains) }
-      : { ok: true, domains: [] };
+    const { listByOwnerDetailed } = await import('./dns-list');
+    return listByOwnerDetailed(address);
   },
 
   'dns.listAuctions': async () => {
-    const res = await readState('/lumen/dns/v1/auctions', { kind: 'rest', timeout: 10_000 });
-    return res.ok ? { ok: true, auctions: asArray((res.json as any)?.auctions) } : { ok: true, auctions: [] };
+    const { listAuctions } = await import('./dns-list');
+    return listAuctions();
   },
 
   /**

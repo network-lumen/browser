@@ -20,6 +20,27 @@ import { submitMessages } from './wallet';
 
 const str = (value: unknown, max = 256) => String(value ?? '').trim().slice(0, max);
 
+/**
+ * A domain and its extension, however the caller spelled them.
+ *
+ * The pages send `name` as a whole "mysite.lmn" in some places and the two
+ * halves separately in others, while every x/dns message wants them apart.
+ */
+function splitDomain(input: { name?: string; domain?: string; ext?: string }): {
+  domain: string;
+  ext: string;
+} {
+  const explicitDomain = str(input?.domain, 128).toLowerCase();
+  const explicitExt = str(input?.ext, 32).toLowerCase();
+  if (explicitDomain && explicitExt) return { domain: explicitDomain, ext: explicitExt };
+
+  const fqdn = str(input?.name, 160).toLowerCase();
+  const match = fqdn.match(/^([^.]+).([^.]+)$/);
+  if (match) return { domain: match[1], ext: match[2] };
+
+  return { domain: explicitDomain || fqdn, ext: explicitExt };
+}
+
 export const SITE_CHAIN_MEMBERS = {
   // ---------------------------------------------------------------------
   // Site origins - no WebView equivalent, answered rather than faked
@@ -41,80 +62,118 @@ export const SITE_CHAIN_MEMBERS = {
 
   // ---------------------------------------------------------------------
   // Domain writes
+  //
+  // Built by the SDK rather than by hand. An earlier version wrote its own
+  // typeUrls - `/lumen.dns.v1.MsgCreateDomain` and friends - and the chain
+  // rejected every one of them with "unregistered type url", because those
+  // messages do not exist: x/dns calls them MsgRegister, MsgUpdate, MsgRenew,
+  // MsgTransfer, MsgBid and MsgSettle. `client.dns()` names them correctly and
+  // encodes the fields through the generated types, so a rename on the chain
+  // surfaces as a compile-time change to the SDK rather than as a transaction
+  // nobody can submit.
+  //
+  // A domain is always a pair - `domain` and `ext` - never one joined string,
+  // which is the other thing the hand-written version got wrong.
   // ---------------------------------------------------------------------
 
-  'dns.createDomain': (input: { name?: string; ext?: string; years?: number }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/lumen.dns.v1.MsgCreateDomain',
-        value: {
-          creator: from,
-          name: str(input?.name, 128),
-          ext: str(input?.ext, 32),
-          years: Number(input?.years ?? 1)
-        }
-      }
-    ]),
+  'dns.createDomain': (input: {
+    name?: string;
+    domain?: string;
+    ext?: string;
+    records?: unknown[];
+    duration_days?: number;
+    durationDays?: number;
+    owner?: string;
+  }) =>
+    submitMessages(
+      (_sdk, from, client) => {
+        const { domain, ext } = splitDomain(input);
+        return [
+          client.dns().msgRegister(from, {
+            domain,
+            ext,
+            records: Array.isArray(input?.records) ? input.records : [],
+            durationDays: Number(input?.duration_days ?? input?.durationDays ?? 365),
+            owner: str(input?.owner) || from
+          })
+        ];
+      },
+      'dns:register'
+    ),
 
-  'dns.updateDomain': (input: { name?: string; ext?: string; records?: unknown[] }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/lumen.dns.v1.MsgUpdateDomain',
-        value: {
-          creator: from,
-          name: str(input?.name, 128),
-          ext: str(input?.ext, 32),
-          records: Array.isArray(input?.records) ? input.records : []
-        }
-      }
-    ]),
+  /**
+   * Update carries a proof of work. `pow_difficulty_bits` ships at 0, so the
+   * nonce is usually free - but the field is part of the message and omitting
+   * it is not the same as sending zero.
+   */
+  'dns.updateDomain': (input: {
+    name?: string;
+    domain?: string;
+    ext?: string;
+    records?: unknown[];
+    pow_nonce?: number;
+    powNonce?: number;
+  }) =>
+    submitMessages((_sdk, from, client) => {
+      const { domain, ext } = splitDomain(input);
+      return [
+        client.dns().msgUpdate(from, {
+          domain,
+          ext,
+          records: Array.isArray(input?.records) ? input.records : [],
+          powNonce: Number(input?.pow_nonce ?? input?.powNonce ?? 0)
+        })
+      ];
+    }, 'dns:update'),
 
-  'dns.transferDomain': (input: { name?: string; ext?: string; newOwner?: string }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/lumen.dns.v1.MsgTransferDomain',
-        value: {
-          creator: from,
-          name: str(input?.name, 128),
-          ext: str(input?.ext, 32),
-          newOwner: str(input?.newOwner)
-        }
-      }
-    ]),
+  'dns.transferDomain': (input: {
+    name?: string;
+    domain?: string;
+    ext?: string;
+    newOwner?: string;
+    new_owner?: string;
+  }) =>
+    submitMessages((_sdk, from, client) => {
+      const { domain, ext } = splitDomain(input);
+      return [
+        client.dns().msgTransfer(from, {
+          domain,
+          ext,
+          newOwner: str(input?.newOwner ?? input?.new_owner)
+        })
+      ];
+    }, 'dns:transfer'),
 
-  'dns.renewDomain': (input: { name?: string; ext?: string; years?: number }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/lumen.dns.v1.MsgRenewDomain',
-        value: {
-          creator: from,
-          name: str(input?.name, 128),
-          ext: str(input?.ext, 32),
-          years: Number(input?.years ?? 1)
-        }
-      }
-    ]),
+  'dns.renewDomain': (input: {
+    name?: string;
+    domain?: string;
+    ext?: string;
+    duration_days?: number;
+    durationDays?: number;
+  }) =>
+    submitMessages((_sdk, from, client) => {
+      const { domain, ext } = splitDomain(input);
+      return [
+        client.dns().msgRenew(from, {
+          domain,
+          ext,
+          durationDays: Number(input?.duration_days ?? input?.durationDays ?? 365)
+        })
+      ];
+    }, 'dns:renew'),
 
-  'dns.bidDomain': (input: { name?: string; ext?: string; amount?: string; denom?: string }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/lumen.dns.v1.MsgBidDomain',
-        value: {
-          creator: from,
-          name: str(input?.name, 128),
-          ext: str(input?.ext, 32),
-          amount: { denom: str(input?.denom, 32) || 'ulmn', amount: String(input?.amount ?? '0') }
-        }
-      }
-    ]),
+  'dns.bidDomain': (input: { name?: string; domain?: string; ext?: string; amount?: string }) =>
+    submitMessages((_sdk, from, client) => {
+      const { domain, ext } = splitDomain(input);
+      // The amount is a plain string on this message, not a Coin.
+      return [client.dns().msgBid(from, { domain, ext, amount: String(input?.amount ?? '0') })];
+    }, 'dns:bid'),
 
-  'dns.settleDomain': (input: { name?: string; ext?: string }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/lumen.dns.v1.MsgSettleDomain',
-        value: { creator: from, name: str(input?.name, 128), ext: str(input?.ext, 32) }
-      }
-    ]),
+  'dns.settleDomain': (input: { name?: string; domain?: string; ext?: string }) =>
+    submitMessages((_sdk, from, client) => {
+      const { domain, ext } = splitDomain(input);
+      return [client.dns().msgSettle(from, { domain, ext })];
+    }, 'dns:settle'),
 
   // ---------------------------------------------------------------------
   // Governance
@@ -126,15 +185,11 @@ export const SITE_CHAIN_MEMBERS = {
   // ---------------------------------------------------------------------
 
   'wallet.govVote': (input: { proposalId?: string | number; option?: number }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/cosmos.gov.v1.MsgVote',
-        value: {
-          proposalId: String(input?.proposalId ?? ''),
-          voter: from,
-          option: Number(input?.option ?? 0)
-        }
-      }
+    submitMessages((_sdk, from, client) => [
+      client.gov().msgVote(from, {
+        proposalId: input?.proposalId ?? 0,
+        option: Number(input?.option ?? 0)
+      })
     ]),
 
   'wallet.govSubmitProposal': (input: {
@@ -143,24 +198,25 @@ export const SITE_CHAIN_MEMBERS = {
     title?: string;
     summary?: string;
   }) =>
-    submitMessages((_sdk, from) => [
-      {
-        typeUrl: '/cosmos.gov.v1.MsgSubmitProposal',
-        value: {
-          messages: Array.isArray(input?.messages) ? input.messages : [],
-          initialDeposit: Array.isArray(input?.deposit) ? input.deposit : [],
-          proposer: from,
-          title: str(input?.title, 256),
-          summary: str(input?.summary, 4096)
-        }
-      }
+    submitMessages((_sdk, from, client) => [
+      client.gov().msgSubmitProposal(from, {
+        messages: Array.isArray(input?.messages) ? input.messages : [],
+        initialDeposit: Array.isArray(input?.deposit) ? input.deposit : [],
+        title: str(input?.title, 256),
+        summary: str(input?.summary, 4096)
+      })
     ]),
 
+  /**
+   * Cancelling has no builder on the SDK's gov module, so the message is
+   * written out - but the type is one cosmjs already registers, which is the
+   * part that matters.
+   */
   'wallet.govCancelProposal': (input: { proposalId?: string | number }) =>
     submitMessages((_sdk, from) => [
       {
         typeUrl: '/cosmos.gov.v1.MsgCancelProposal',
-        value: { proposalId: String(input?.proposalId ?? ''), proposer: from }
+        value: { proposalId: String(input?.proposalId ?? '0'), proposer: from }
       }
     ]),
 
