@@ -32,6 +32,11 @@
       <Star :size="16" :fill="favourite ? 'currentColor' : 'none'" />
     </UiButton>
 
+    <!-- A direct child of this relative container, not wrapped: whatever goes
+         here positions itself against the address bar, which is what lets the
+         tab panel span it exactly as the suggestion list below does. -->
+    <slot name="trailing" />
+
     <UiCard
       v-if="showSuggestions && suggestions.length"
       padding="none"

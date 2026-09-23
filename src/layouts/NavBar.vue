@@ -66,7 +66,18 @@
       :favourite="favActive"
       @submit="onSubmit"
       @toggle-favourite="onToggleFavourite"
-    />
+    >
+      <template #trailing>
+        <NavBarTabSwitcher
+          v-model:open="tabPanelOpen"
+          :tabs="tabs"
+          :active-id="tabActive"
+          @select="emit('select-tab', $event)"
+          @close="emit('close-tab', $event)"
+          @new-tab="emit('new-tab')"
+        />
+      </template>
+    </NavBarAddressBar>
 
     <div class="flex-align-center gap-4px narrow-hide">
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" :title="t('Home')"
@@ -89,6 +100,7 @@ import UiSpinner from '../ui/UiSpinner.vue';
 import NavBarAddressBar from '../components/NavBarAddressBar.vue';
 import NavBarExtensionsMenu from '../components/NavBarExtensionsMenu.vue';
 import NavBarProfileMenu from '../components/NavBarProfileMenu.vue';
+import NavBarTabSwitcher from '../components/NavBarTabSwitcher.vue';
 import { useInternalLumen } from '../composables/useInternalLumen';
 import { useFavourites } from '../stores/favouritesStore';
 import { normalizeAddressInput } from '../internal/services/navigationUrl';
@@ -108,12 +120,22 @@ const emit = defineEmits<{
   (e: 'history-step', payload: { delta: number }): void;
   (e: 'refresh-request'): void;
   (e: 'openSettings'): void;
+  (e: 'select-tab', id: string): void;
+  (e: 'close-tab', id: string): void;
+  (e: 'new-tab'): void;
 }>();
 
 const urlField = ref('');
 
 /** The narrow-viewport menu holding Back, Forward, Refresh, Favourite and Home. */
 const menuOpen = ref(false);
+
+/**
+ * The tab panel, owned here rather than inside the switcher so that the back
+ * gesture and the outside click - both of which live in this file - decide in
+ * one place which of the two panels a dismissal applies to.
+ */
+const tabPanelOpen = ref(false);
 
 /** Every menu entry does its thing and then closes the menu. */
 function runFromMenu(action: () => void) {
@@ -135,6 +157,7 @@ function openExternally() {
 }
 
 const closeMenu = () => {
+  tabPanelOpen.value = false;
   menuOpen.value = false;
 };
 
@@ -146,6 +169,13 @@ const closeMenu = () => {
  * the shim exit the app, which is the right thing on the first page.
  */
 function onHardwareBack(event: Event) {
+  // The panel first: it is what is drawn over everything else, so it is what
+  // a back gesture is aimed at while it is open.
+  if (tabPanelOpen.value) {
+    tabPanelOpen.value = false;
+    event.preventDefault();
+    return;
+  }
   if (menuOpen.value) {
     menuOpen.value = false;
     event.preventDefault();

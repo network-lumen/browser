@@ -17,6 +17,9 @@
       @refresh-request="onRefresh"
       @history-step="onHistoryStep"
       @open-settings="openSettings"
+      @select-tab="emit('select-tab', $event)"
+      @close-tab="emit('close-tab', { id: $event })"
+      @new-tab="emit('new-tab')"
     />
 
     <div class="min-h-0 overflow-hidden relative flex w-full flex-1">
@@ -52,6 +55,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "openInNewTab", url: string): void;
   (e: "close-tab", payload: { id: string }): void;
+  (e: "select-tab", id: string): void;
+  (e: "new-tab"): void;
 }>();
 
 const activeTab = computed<Tab | undefined>(() =>

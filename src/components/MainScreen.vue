@@ -7,7 +7,7 @@
            macOS puts them top-left, where the first tab would otherwise sit
            underneath them. There, the strip is inset from the left instead. -->
       <div
-        class="h-32px text-11px line-height-12 overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000"
+        class="h-32px text-11px line-height-12 overflow-hidden relative flex-align-center text-center bg-primary border-bottom-default z-1000 narrow-hide"
         :class="windowControlsOnLeft ? 'pl-80px pr-8px' : 'pr-24px'"
         ref="hdr"
       >
@@ -73,6 +73,9 @@
         :tabActive="activeId"
         :tabs="tabs"
         @openInNewTab="openInNewTab"
+        @select-tab="activeId = $event"
+        @close-tab="closeTab($event.id)"
+        @new-tab="addTab"
       />
     </div>
 
