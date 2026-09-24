@@ -27,13 +27,19 @@
       @video-ready="$emit('video-ready')"
     />
 
-    <span class="flex-1 text-14px fw-500 color-text-primary min-w-0 truncate">{{ file.name }}</span>
-    <span class="color-text-secondary w-80px text-right text-13px flex-shrink-0 min-w-80px">{{ formatBytes(file.size) }}</span>
-    <span class="color-text-secondary text-right text-13px flex-shrink-0 truncate min-w-180px w-180px">{{
+    <!-- Two columns on a desktop, two lines on a phone. The fixed size and date
+         columns are 260px of a 412px screen on their own, which left the name -
+         the only thing anyone scans a file list by - with nothing. -->
+    <div class="drive-row-main">
+      <span class="text-14px fw-500 color-text-primary min-w-0 truncate">{{ file.name }}</span>
+      <span class="drive-row-meta narrow-only">{{ metaLine }}</span>
+    </div>
+    <span class="narrow-hide color-text-secondary w-80px text-right text-13px flex-shrink-0 min-w-80px">{{ formatBytes(file.size) }}</span>
+    <span class="narrow-hide color-text-secondary text-right text-13px flex-shrink-0 truncate min-w-180px w-180px">{{
       file.uploadedAt ? formatDateTime(file.uploadedAt) : "—"
     }}</span>
 
-    <div class="reveal-actions-target divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-02 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
+    <div class="narrow-hide reveal-actions-target divide-x-border flex-justify-end gap-4px flex-shrink-0 cursor-events-none transition-opacity-02 opacity-0 flex-wrap-nowrap min-w-160px w-160px">
       <UiButton
         v-for="action in availableActions"
         :key="action.kind"
@@ -89,6 +95,13 @@ defineEmits<{
   (e: 'image-error'): void;
   (e: 'video-ready'): void;
 }>();
+
+/** Size and date on one line, which is what replaces the two columns. */
+const metaLine = computed(() => {
+  const size = formatBytes(props.file.size);
+  const date = props.file.uploadedAt ? formatDateTime(props.file.uploadedAt) : '';
+  return date ? `${size} · ${date}` : size;
+});
 
 const availableActions = computed(() => {
   const actions: Array<{

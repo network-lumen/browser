@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildCandidateUrl,
+  gatewayMediaUrl,
   isCidLike,
   normalizePath,
   pickRecordTarget,
@@ -164,5 +165,61 @@ describe('buildCandidateUrl', () => {
     // The subdomain branch parses the base; a bad one must fall through to the
     // path form rather than throw inside a resolver.
     expect(() => buildCandidateUrl('not a url', ipfs(CID_V1), '/', '')).not.toThrow();
+  });
+});
+
+/**
+ * The URL a media element gets, which is not the one a document gets.
+ *
+ * Measured on Android, on a directory CID holding one mp4: the subdomain form
+ * never loads - `readyState 0`, no error, forever - while the path form has
+ * metadata in under a second. Playback is handed to the platform's own
+ * pipeline, which does not go through the WebView request interceptor that
+ * makes `<cid>.ipfs.localhost` answer at all, so the name has to resolve for
+ * real and nothing resolves it.
+ */
+describe('gatewayMediaUrl', () => {
+  const CID = 'bafybeifrmi3wdmxopdykacbezbosep5jttretvix3czpjhyyrsqx6u3ds4';
+
+  it('uses the path form, never the subdomain the interceptor invents', () => {
+    const url = gatewayMediaUrl('http://127.0.0.1:8088', 'ipfs', CID, 'Earl S01 E02.mp4');
+    expect(url).toBe(`http://127.0.0.1:8088/ipfs/${CID}/Earl%20S01%20E02.mp4`);
+    expect(url).not.toContain('.ipfs.localhost');
+  });
+
+  it('encodes each segment without eating the separators', () => {
+    expect(gatewayMediaUrl('http://127.0.0.1:8088', 'ipfs', CID, 'My Shows/S01 E01.mp4')).toBe(
+      `http://127.0.0.1:8088/ipfs/${CID}/My%20Shows/S01%20E01.mp4`
+    );
+  });
+
+  it('does not encode an already-encoded path twice', () => {
+    // The page hands over what the address bar held, which is already encoded:
+    // encoding it again would ask the gateway for a file named "%2520".
+    expect(gatewayMediaUrl('http://127.0.0.1:8088', 'ipfs', CID, 'S01%20E01.mp4')).toBe(
+      `http://127.0.0.1:8088/ipfs/${CID}/S01%20E01.mp4`
+    );
+  });
+
+  it('keeps ipns as its own namespace', () => {
+    expect(gatewayMediaUrl('http://127.0.0.1:8088', 'ipns', 'k51example', 'a.mp4')).toBe(
+      'http://127.0.0.1:8088/ipns/k51example/a.mp4'
+    );
+  });
+
+  it('addresses the root when there is no path', () => {
+    expect(gatewayMediaUrl('http://127.0.0.1:8088/', 'ipfs', CID, '')).toBe(
+      `http://127.0.0.1:8088/ipfs/${CID}`
+    );
+  });
+
+  it('carries a query or fragment through', () => {
+    expect(gatewayMediaUrl('http://127.0.0.1:8088', 'ipfs', CID, 'a.mp4', '?t=30')).toBe(
+      `http://127.0.0.1:8088/ipfs/${CID}/a.mp4?t=30`
+    );
+  });
+
+  it('has nothing to build without a CID', () => {
+    expect(gatewayMediaUrl('http://127.0.0.1:8088', 'ipfs', '', 'a.mp4')).toBe('');
   });
 });

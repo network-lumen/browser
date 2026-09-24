@@ -74,56 +74,16 @@
           </div>
         </div>
 
-        <div v-else-if="isDir">
-          <div class="flex-align-center flex-wrap-wrap gap-6px p-0px pt-8px pb-8px">
-            <UiButton variant="primary" type="button"
-              @click="openDirRoot"
-              :disabled="!navigate" class="disabled-fade-50">
-              /
-            </UiButton>
-            <template v-for="(c, idx) in crumbs" :key="c.path">
-              <span v-if="idx > 0" class="color-text-secondary">/</span>
-              <UiButton variant="primary" type="button"
-                @click="openDirCrumb(idx)"
-                :disabled="!navigate" class="disabled-fade-50">
-                {{ c.label }}
-              </UiButton>
-            </template>
-          </div>
-
-          <UiCard padding="none" :shadow="false" v-if="!entries.length" class="p-16px color-text-secondary">{{ t('Empty folder') }}</UiCard>
-
-          <div v-else class="border-radius-16px border-default overflow-hidden">
-            <div
-              v-for="it in entries"
-              :key="it.key"
-              class="hover-bg-secondary grid-cols-200minmax-140-180 last-border-bottom-none gap-12px grid flex-inline-align-center py-12px px-16px border-bottom-1 bg-primary"
-              @dblclick="openEntry(it)"
-            >
-              <div class="flex-align-center cursor-pointer gap-10px min-w-0" @click="openEntry(it)">
-                <Folder v-if="it.type === 'dir'" :size="16" class="color-text-secondary" />
-                <BookOpen v-else-if="isEpubName(it.name)" :size="16" class="color-text-secondary" />
-                <File v-else :size="16" class="color-text-secondary" />
-                <span class="truncate">{{
-                  it.name
-                }}</span>
-              </div>
-              <div class="mono text-right color-text-secondary text-14px">
-                {{ it.size != null ? formatSize(it.size) : "-" }}
-              </div>
-              <div class="flex-justify-end gap-8px">
-                <UiButton variant="primary" type="button"
-                  @click.stop="copyLinkFor(it)">
-                  {{ t('Copy link') }}
-                </UiButton>
-                <UiButton variant="primary" type="button"
-                  @click.stop="openEntry(it)">
-                  {{ t('Open') }}
-                </UiButton>
-              </div>
-            </div>
-          </div>
-        </div>
+        <IpfsDirectoryListing
+          v-else-if="isDir"
+          :entries="entries"
+          :crumbs="crumbs"
+          :can-navigate="!!navigate"
+          @open="openEntry"
+          @open-root="openDirRoot"
+          @open-crumb="openDirCrumb"
+          @copy-link="copyLinkFor"
+        />
 
         <div
           v-else
@@ -153,7 +113,7 @@
 
           <audio
             v-else-if="viewKind === 'audio'"
-            :src="contentUrl"
+            :src="mediaUrl"
             controls
             class="w-full"
           ></audio>
@@ -262,6 +222,7 @@
 <script setup lang="ts">
 import { t } from '../../stores/i18nStore';
 import UiCard from '../../ui/UiCard.vue';
+import IpfsDirectoryListing from '../../panels/IpfsDirectoryListing.vue';
 import UiButton from '../../ui/UiButton.vue';
 import UiPageHeader from '../../ui/UiPageHeader.vue';
 import { useInternalLumen } from '../../composables/useInternalLumen';
@@ -279,18 +240,17 @@ import { copyToClipboardWithToast } from '../../composables/useClipboard';
 import JSZip from "jszip";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
-import { BookOpen, Check, Copy, Download, File, Folder, Play, Save } from "lucide-vue-next";
+import { Check, Copy, Download, Play, Save } from "lucide-vue-next";
 import "github-markdown-css/github-markdown.css";
 import UiSpinner from "../../ui/UiSpinner.vue";
 import { useTabLoadingSync } from "../../composables/useTabLoading";
 import {
-  localIpfsGatewayBase,
+  gatewayMediaUrl, localIpfsGatewayBase,
   loadWhitelistedGatewayBases,
   probeUrl,
   resolveStableLinkTarget,
 } from "../services/contentResolver";
 import { activeProfileId } from "../../stores/profilesStore";
-import { formatBytes } from "../services/format";
 import { downloadBytes } from "../services/download";
 import { installExtensionFromChromeWebStore } from "../services/extensions";
 import { driveFilesKey, driveLocalNamesKey, nextDriveBackupSeq } from "../services/driveStorage";
@@ -475,11 +435,6 @@ const saveNamePlaceholder = computed(() => {
 
 function activeDriveProfileId(): string {
   return String(activeProfileId.value || "").trim() || "default";
-}
-
-function isEpubName(nameOrPath: string): boolean {
-  const s = String(nameOrPath || "").toLowerCase();
-  return s.endsWith(".epub") || s.includes(".epub?");
 }
 
 function getDefaultBibiOrigin(): string {
@@ -1293,11 +1248,29 @@ const isHlsManifest = computed(() => {
   return p.endsWith(".m3u8") || String(contentUrl.value || "").toLowerCase().includes(".m3u8");
 });
 
+/**
+ * What a media element is given, which is deliberately not `contentUrl`.
+ *
+ * `contentUrl` prefers the subdomain gateway so a site's absolute paths
+ * resolve; on Android that host exists only because the WebView's request
+ * interceptor answers for it. Playback does not go through that interceptor -
+ * it is handed to the platform's media pipeline, which has to resolve the name
+ * for real and cannot, so the element waits forever at `readyState 0`.
+ *
+ * See `gatewayMediaUrl` for the measurement. A video has no absolute assets to
+ * keep working, so the path form costs it nothing.
+ */
+const mediaUrl = computed(() => {
+  if (!rootCid.value) return "";
+  const base = resolvedGatewayBase.value || localIpfsGatewayBase();
+  return gatewayMediaUrl(base, rootProto.value, rootCid.value, relPath.value, suffix.value || "");
+});
+
 const videoSrc = computed(() => {
-  if (!contentUrl.value) return undefined;
+  if (!mediaUrl.value) return undefined;
   // For HLS on non-native platforms, we use hls.js which attaches a MediaSource blob URL.
   // Avoid binding `src` in Vue when HLS is active, otherwise Vue can overwrite the blob URL.
-  return isHlsManifest.value ? undefined : contentUrl.value;
+  return isHlsManifest.value ? undefined : mediaUrl.value;
 });
 
 async function ensureHlsStopped(opts: { clearVideoSrc?: boolean } = {}) {
@@ -2090,10 +2063,6 @@ async function refreshSavedState() {
   } catch {
     saved.value = false;
   }
-}
-
-function formatSize(bytes: number): string {
-  return formatBytes(bytes, { empty: "-" });
 }
 
 async function download() {

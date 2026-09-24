@@ -215,27 +215,112 @@ export async function resolveDomainTarget(
   throw new Error(t('Domain is not linked to any IPFS/IPNS content.'));
 }
 
+/**
+ * The path inside the target, with its `basePath` applied exactly once.
+ *
+ * A domain can point at a subdirectory of a CID, and every caller building a
+ * path under that target has to fold the two together the same way: the URL
+ * handed to a gateway and the path handed to `ipfsLs` must name the same
+ * object, or the app lists one directory and renders another.
+ *
+ * Idempotent on purpose - a caller that already included the basePath gets it
+ * back unchanged rather than doubled.
+ */
+export function effectiveTargetPath(
+  target: DomainTarget | null | undefined,
+  path: string
+): string {
+  const canonical = normalizePath(path);
+  const basePath = target && target.basePath ? normalizePath(String(target.basePath)) : '/';
+  const baseNorm = basePath === '/' ? '' : basePath.replace(/\/+$/, '');
+
+  let effective = canonical;
+  if (baseNorm) {
+    if (canonical === baseNorm || canonical.startsWith(baseNorm + '/')) {
+      effective = canonical;
+    } else if (canonical === '/') {
+      effective = baseNorm + '/';
+    } else {
+      effective = baseNorm + canonical;
+    }
+  }
+
+  // Keep the explicit trailing slash a directory target needs.
+  return effective || '/';
+}
+
+/**
+ * The `/ipfs/<cid>/…` path this target and path name together, which is the
+ * form `ipfsLs` takes.
+ */
+export function targetIpfsPath(
+  target: DomainTarget | null | undefined,
+  path: string
+): string {
+  const id = String(target?.id || '').trim();
+  if (!id) return '';
+  const proto = String(target?.proto || 'ipfs').toLowerCase();
+  // No trailing slash: kubo answers the same either way, and the tests read
+  // better against one spelling.
+  const rest = effectiveTargetPath(target, path).replace(/\/+$/, '');
+  return `/${proto}/${id}${rest}`;
+}
+
+/**
+ * The URL to hand a `<video>` or an `<audio>`, which is NOT the one a document
+ * gets.
+ *
+ * Everything else in the viewer is fetched by the WebView itself, so on
+ * Android `IpfsWebViewClient.shouldInterceptRequest` answers for
+ * `<cid>.ipfs.localhost` and the name never has to resolve. A media element
+ * does not work that way: playback is handed to the platform's own pipeline,
+ * which fetches the ranges it needs without going through the interceptor. The
+ * host then has to be resolved for real, nothing resolves it, and the element
+ * sits at `readyState 0` forever - no error, no timeout, no way to tell from
+ * the page that anything is wrong.
+ *
+ * Measured, on a directory CID holding one mp4:
+ *
+ *   http://<cid>.ipfs.localhost:8088/<file>  → never loads
+ *   http://127.0.0.1:8088/ipfs/<cid>/<file>  → metadata in under a second
+ *
+ * A small file whose `moov` atom sits at the front happens to survive, because
+ * the first response carries the whole thing; anything that needs a second,
+ * ranged request does not. That is why this looked like it worked.
+ *
+ * The path form costs nothing here: the subdomain form exists so a site's
+ * absolute asset paths resolve inside its own origin, and a video file has no
+ * assets.
+ */
+export function gatewayMediaUrl(
+  base: string,
+  proto: string,
+  cid: string,
+  relPath: string,
+  suffix = ''
+): string {
+  const id = String(cid || '').trim();
+  if (!id) return '';
+
+  const b = String(base || '').replace(/\/+$/, '');
+  const namespace = String(proto || 'ipfs').toLowerCase();
+  const path = String(relPath || '')
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(decodeURIComponent(segment)))
+    .join('/');
+
+  return `${b}/${namespace}/${id}${path ? `/${path}` : ''}${suffix || ''}`;
+}
+
 export function buildCandidateUrl(base: string, target: DomainTarget, path: string, suffix: string): string {
   const b = String(base || '').replace(/\/+$/, '');
   const canonical = normalizePath(path);
   const effectiveSuffix = suffix || (canonical === '/' ? String(target?.suffix || '') : '');
-  const basePath = target && target.basePath ? normalizePath(String(target.basePath)) : '/';
-  const baseNorm = basePath === '/' ? '' : basePath.replace(/\/+$/, '');
 
-  // If the caller already included the basePath in `path`, don't duplicate it.
-  let effectivePath = canonical;
-  if (baseNorm) {
-    if (canonical === baseNorm || canonical.startsWith(baseNorm + '/')) {
-      effectivePath = canonical;
-    } else if (canonical === '/') {
-      effectivePath = baseNorm + '/';
-    } else {
-      effectivePath = baseNorm + canonical;
-    }
-  }
-
-  // Keep explicit trailing slash for directory targets.
-  if (effectivePath === '') effectivePath = '/';
+  // Folded here rather than inline, so the URL a gateway is given and the path
+  // `ipfsLs` is given cannot drift apart.
+  const effectivePath = effectiveTargetPath(target, canonical);
 
   // Local subdomain gateway support to fix absolute-path SPA builds (e.g. /assets/*).
   // Only enable for CIDv1 base32 (`bafy...`) because CIDv0 is case-sensitive and will be lowercased in DNS.

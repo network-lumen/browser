@@ -43,3 +43,57 @@ export type PinJobSnapshot = {
   /** True while the job is queued, running or waiting to retry. */
   active: boolean;
 };
+
+/**
+ * A managed pin job on the mobile target, where the work is an HTTP request
+ * rather than a child process - see platform/mobile/impl/pin-jobs.ts for what
+ * that changes about pausing and cancelling.
+ */
+export type PinJobStatus =
+  | 'queued'
+  | 'running'
+  | 'retry_waiting'
+  | 'paused'
+  | 'failed'
+  | 'completed'
+  | 'cancelled';
+
+export interface PinJobRecord {
+  id: string;
+  cid: string;
+  name: string;
+  status: PinJobStatus;
+  error: string;
+  progressText: string;
+  createdAt: number;
+  updatedAt: number;
+  /**
+   * Bumped whenever the job is steered, so the answer to a request already in
+   * flight can be recognised as belonging to an attempt nobody awaits.
+   */
+  generation: number;
+  waiters: Array<() => void>;
+}
+
+export interface PinJobSnapshotPayload {
+  id: string;
+  cid: string;
+  name: string;
+  status: PinJobStatus;
+  error: string;
+  progressText: string;
+  progressCurrent: number | null;
+  progressTotal: number | null;
+  progressPercent: number | null;
+  progressUnit: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/** What the mobile pin-job manager needs from the node to do its work. */
+export interface PinJobDeps {
+  /** Pins the CID, resolving when the node says it is done. */
+  pin: (cid: string) => Promise<{ ok: boolean; error?: string }>;
+  /** Removes a pin, for a job cancelled while its request was in flight. */
+  unpin: (cid: string) => Promise<unknown>;
+}

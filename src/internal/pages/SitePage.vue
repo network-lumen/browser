@@ -37,6 +37,23 @@
         </UiCard>
       </div>
 
+      <!-- A folder with no index.html, drawn the app's way rather than handed
+           to the gateway, which answers those with its own "Index of /ipfs/…"
+           page. Same table as lumen://ipfs/<cid>, and the domain stays in the
+           address bar. -->
+      <div v-else-if="showDirectory" class="flex-1 min-h-0 overflow-auto p-24px">
+        <IpfsDirectoryListing
+          :entries="directoryEntries"
+          :crumbs="directoryCrumbTrail"
+          :can-navigate="!!navigate"
+          :root-label="requestedHost"
+          @open="openDirectoryEntry"
+          @open-root="openDirectoryRoot"
+          @open-crumb="openDirectoryCrumb"
+          @copy-link="copyDirectoryEntryLink"
+        />
+      </div>
+
       <div v-else class="fullscreen-target flex-1 min-h-0 overflow-hidden relative">
         <template v-if="resolvedHttpUrl && isHlsPath">
           <video
@@ -103,7 +120,17 @@ import {
   normalizePath,
   pickFastestSource,
   resolveDomainTarget,
+  targetIpfsPath,
 } from "../services/contentResolver";
+import IpfsDirectoryListing from "../../panels/IpfsDirectoryListing.vue";
+import {
+  directoryCrumbs,
+  encodeEntryPath,
+  mapDirectoryEntries,
+  shouldRenderListing,
+} from "../services/ipfsDirectory";
+import { copyToClipboardWithToast } from "../../composables/useClipboard";
+import type { IpfsDirEntry } from "../../types/ipfsDirectory";
 import type { ActiveState } from "../../types/sitePage";
 import { safeString } from "../services/coerce";
 import { installExtensionFromChromeWebStore } from "../services/extensions";
@@ -126,6 +153,27 @@ const error = ref(false);
 const domainNotFound = ref(false);
 const requestedHost = ref("");
 const resolvedHttpUrl = ref("");
+
+/**
+ * The entries of a directory this domain points at, when there is nothing to
+ * serve in its place.
+ *
+ * A CID bound to a domain is often a folder of files rather than a website -
+ * a season of episodes, a set of documents. Handed to the gateway, that comes
+ * back as its own "Index of /ipfs/…" page: another font, another language, and
+ * a CID where the domain should be. Filled here, the app draws the same table
+ * `lumen://ipfs/<cid>` has always drawn, and the address bar keeps the domain.
+ *
+ * Empty whenever the gateway should keep the page: a file, an empty listing,
+ * or a directory carrying an index.
+ */
+const directoryEntries = ref<IpfsDirEntry[]>([]);
+
+/** The path inside the domain the listing is showing, '' at its root. */
+const directoryRelPath = ref("");
+
+const directoryCrumbTrail = computed(() => directoryCrumbs(directoryRelPath.value));
+const showDirectory = computed(() => directoryEntries.value.length > 0);
 const siteWebview = ref<any>(null);
 const videoEl = ref<HTMLVideoElement | null>(null);
 const isHlsPath = ref(false);
@@ -426,6 +474,12 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
 
   try {
     const { target } = await resolveDomainTarget(host);
+
+    // Started here and awaited after the gateway work below, so the listing
+    // costs one round trip against the local node rather than being added to
+    // the time a site with an index already takes.
+    const listing = probeDirectory(target, canonicalPath);
+
     const candidates = chooseCandidatePaths(canonicalPath);
 
     let resolvedUrl = "";
@@ -458,6 +512,13 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
 
     resolvedHttpUrl.value = resolvedUrl;
     active.value = { host, target };
+
+    // After the URL, not instead of it: if the listing says this is a folder
+    // with no index, the table is drawn over a page that was ready anyway, and
+    // if the probe failed the gateway keeps it.
+    const entries = await listing;
+    directoryRelPath.value = canonicalPath.replace(/^\/+|\/+$/g, "");
+    directoryEntries.value = entries;
   } catch (e) {
     // The resolver tags this one case with a `code` so an unregistered domain
     // gets its own screen instead of the generic failure.
@@ -469,9 +530,56 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
     }
     resolvedHttpUrl.value = "";
     active.value = null;
+    directoryEntries.value = [];
   } finally {
     loading.value = false;
   }
+}
+
+/**
+ * The entries to draw ourselves for this path, or none.
+ *
+ * Never throws and never blocks the page: a node that cannot answer, a path
+ * that is a file, or a directory with an index all come back empty, and the
+ * gateway keeps the page exactly as it had it.
+ */
+async function probeDirectory(target: unknown, canonicalPath: string): Promise<IpfsDirEntry[]> {
+  try {
+    const path = targetIpfsPath(target as never, canonicalPath);
+    if (!path) return [];
+
+    const res = await useInternalLumen()?.ipfsLs?.(path);
+    if (!res?.ok) return [];
+
+    const entries = mapDirectoryEntries(res.entries, canonicalPath.replace(/^\/+|\/+$/g, ""));
+    return shouldRenderListing(entries) ? entries : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Everything a row does stays on the domain, which is the whole point. */
+function openDirectoryEntry(entry: IpfsDirEntry) {
+  const suffix = entry.type === "dir" ? "/" : "";
+  navigate?.(`lumen://${requestedHost.value}/${encodeEntryPath(entry.relPath)}${suffix}`, {
+    push: true,
+  });
+}
+
+function openDirectoryRoot() {
+  navigate?.(`lumen://${requestedHost.value}/`, { push: true });
+}
+
+function openDirectoryCrumb(index: number) {
+  const crumb = directoryCrumbTrail.value[index];
+  if (!crumb) return;
+  navigate?.(`lumen://${requestedHost.value}/${encodeEntryPath(crumb.path)}/`, { push: true });
+}
+
+async function copyDirectoryEntryLink(entry: IpfsDirEntry) {
+  await copyToClipboardWithToast(
+    `lumen://${requestedHost.value}/${encodeEntryPath(entry.relPath)}`
+  );
 }
 
 function goToBuyDomain() {

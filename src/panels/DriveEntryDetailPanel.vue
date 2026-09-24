@@ -1,5 +1,9 @@
 <template>
-  <aside class="flex flex-column p-24px m-0px bg-primary border-radius-0 flex-shrink-0 min-h-0 overflow-y-auto min-w-280px max-w-280px border-left-1-border-color">
+  <!-- The scrim belongs to the narrow layout only, where the panel stops being
+       a column beside the listing and becomes a sheet over it. -->
+  <div class="drive-detail-scrim" @click="$emit('close')"></div>
+
+  <aside class="drive-detail-panel">
     <div class="flex-align-center-justify-space-between mb-20px">
       <h3 class="text-12px line-height-12 txt-weight-strong">
         {{ isDirectory ? t('Folder details') : t('File details') }}
@@ -58,6 +62,13 @@
         <ExternalLink :size="16" />
         {{ t('Open') }}
       </UiButton>
+      <!-- Last, and only where it would work. On a phone this is the only way to
+           remove an entry at all: the row's trash icon is revealed by hover,
+           which a touch screen does not have. -->
+      <UiButton variant="secondary" v-if="canRemove" class="drive-detail-remove" @click="$emit('remove')">
+        <Trash2 :size="16" />
+        {{ t('Remove') }}
+      </UiButton>
     </div>
   </aside>
 </template>
@@ -67,7 +78,7 @@ import { t } from '../stores/i18nStore';
 import UiButton from '../ui/UiButton.vue';
 import UiInput from '../ui/UiInput.vue';
 import DriveEntryThumbnail from '../entities/DriveEntryThumbnail.vue';
-import { Clapperboard, Download, ExternalLink, Share2, X } from 'lucide-vue-next';
+import { Clapperboard, Download, ExternalLink, Share2, Trash2, X } from 'lucide-vue-next';
 import { isVideoFile } from '../internal/services/driveEntries';
 import { formatBytes, formatDateTime } from '../internal/services/format';
 import type { DriveFile } from '../types/upload';
@@ -91,6 +102,8 @@ defineProps<{
   thumbnail: DriveThumbnailSources;
   /** An upload or a conversion is already running. */
   busy?: boolean;
+  /** Only a root saved entry can be removed, and never while browsing. */
+  canRemove?: boolean;
 }>();
 
 defineEmits<{
@@ -99,6 +112,7 @@ defineEmits<{
   (e: 'convert-to-hls'): void;
   (e: 'share'): void;
   (e: 'open'): void;
+  (e: 'remove'): void;
   (e: 'save-name'): void;
   (e: 'image-error'): void;
 }>();

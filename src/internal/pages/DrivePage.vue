@@ -77,7 +77,7 @@
     </InternalSidebar>
 
     <!-- ####### lumen://drive FILE BROWSER ####### -->
-    <main class="flex flex-column flex-1 m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
+    <main class="narrow-tight-gutter flex flex-column flex-1 m-0px min-w-0 overflow-hidden py-32px px-40px bg-secondary border-radius-0">
       <UiPageHeader :title="headerTitle" :subtitle="headerSubtitle">
         <template #actions>
           <UiButton variant="secondary" type="button" @click="openPlansModal">
@@ -382,9 +382,9 @@
           </div>
           <div class="size-32px flex-shrink-0"></div>
           <span class="flex-1 min-w-0">{{ t('Name') }}</span>
-          <span class="w-80px text-right min-w-80px">{{ t('Size') }}</span>
-          <span class="text-right truncate min-w-180px w-180px">{{ t('Date added') }}</span>
-          <div class="min-w-160px w-160px"></div>
+          <span class="narrow-hide w-80px text-right min-w-80px">{{ t('Size') }}</span>
+          <span class="narrow-hide text-right truncate min-w-180px w-180px">{{ t('Date added') }}</span>
+          <div class="narrow-hide min-w-160px w-160px"></div>
         </div>
         <!-- List Items -->
         <DriveFileRow
@@ -473,6 +473,7 @@
       :file="selectedFile"
       :is-directory="isDirEntry(selectedFile)"
       :can-rename="canRenameSelected"
+      :can-remove="canRemoveSelected"
       :thumbnail="thumbnailFor(selectedFile)"
       :busy="converting || uploading"
       v-model:rename-draft="renameDraft"
@@ -481,6 +482,7 @@
       @convert-to-hls="convertSelectedToHls"
       @share="copyLumenLinkFor(selectedFile)"
       @open="openInIpfs(selectedFile)"
+      @remove="removeSelectedEntry"
       @save-name="saveSelectedName"
       @image-error="selectedFile && onImageError(selectedFile)"
     />
@@ -992,6 +994,17 @@ let gatewayPinnedSeq = 0;
 
 const isBrowsing = computed(() => !!browseRootCid.value);
 const canRenameSelected = computed(() => canRenameEntry(selectedFile.value));
+
+/** Offered only where it would work, rather than refused afterwards by a toast. */
+const canRemoveSelected = computed(() => isRootSavedEntry(selectedFile.value));
+
+/** Removing the open entry also closes the panel describing it. */
+async function removeSelectedEntry() {
+  const file = selectedFile.value;
+  if (!file) return;
+  selectedFile.value = null;
+  await removeFile(file);
+}
 
 function encodeIpfsTarget(target: string): string {
   const cleaned = String(target || "")

@@ -46,7 +46,6 @@
 .border-bottom-none { border-bottom: none; }
 .border-collapse-collapse { border-collapse: collapse; }
 .border-default { border: var(--border-width) solid var(--border-color); }
-.border-left-1-border-color { border-left: 1px solid var(--border-color); }
 .border-left-3-accent-primary-hover:hover { border-left: 3px solid var(--color-primary); }
 .border-left-none { border-left: none; }
 .border-light { border: var(--border-width) solid var(--border-light); }

@@ -29,6 +29,7 @@
  */
 
 import { httpRequest, parseJsonBody } from './native-http';
+import { createPinJobMembers } from './pin-jobs';
 import { getSettings } from './settings';
 
 const trimSlash = (s: string) => s.replace(/\/+$/, '');
@@ -157,11 +158,32 @@ export const IPFS_MEMBERS = {
     return res.ok ? { ok: true, data: res.text ?? '' } : { ok: false, error: res.error };
   },
 
+  /**
+   * Normalised the way `electron/ipfs.cjs` normalises it, and for a reason:
+   * every page reads `name`, `cid`, `size` and `type`, while kubo answers
+   * `Name`, `Hash`, `Size` and a numeric `Type`. Passing its links through
+   * untouched dropped every row at the filter that checks for a name, so
+   * `lumen://ipfs/<cid>` listed an empty folder on Android for content that
+   * was sitting right there.
+   */
   ipfsLs: async (cidOrPath: string) => {
-    const res = await rpc('ls', { arg: String(cidOrPath ?? '') });
+    const res = await rpc('ls', { arg: String(cidOrPath ?? ''), 'resolve-type': 'true' });
     if (!res.ok) return { ok: false, error: res.error };
-    const objects = asArray((res.json as any)?.Objects) as any[];
-    return { ok: true, entries: asArray(objects[0]?.Links) };
+
+    const body = res.json as any;
+    const objects = asArray(body?.Objects) as any[];
+    const links = objects.length ? asArray(objects[0]?.Links) : asArray(body?.Links);
+
+    return {
+      ok: true,
+      entries: (links as any[]).map((link) => ({
+        cid: String(link?.Hash ?? ''),
+        name: String(link?.Name ?? ''),
+        size: typeof link?.Size === 'number' ? link.Size : null,
+        // 1 is a directory, 2 a file; anything else is not something to guess at.
+        type: link?.Type === 1 ? 'dir' : link?.Type === 2 ? 'file' : 'unknown'
+      }))
+    };
   },
 
   ipfsPinAdd: async (cid: string) => {
@@ -206,5 +228,24 @@ export const IPFS_MEMBERS = {
   ipfsKeyList: async () => {
     const res = await rpc('key/list', { l: 'true' });
     return res.ok ? { ok: true, keys: asArray((res.json as any)?.Keys) } : { ok: false, error: res.error };
-  }
+  },
+
+  /**
+   * "Save to Drive" and everything that watches it.
+   *
+   * The pages start a managed job and then follow it, which used to answer
+   * `unsupported_on_mobile` - the button existed and did nothing. The job
+   * manager lives in pin-jobs.ts; all that is supplied here is how to pin and
+   * how to take a pin back.
+   *
+   * The timeout is long on purpose: this is a whole DAG being fetched from
+   * whoever has it, and a video directory is not a few seconds of work.
+   */
+  ...createPinJobMembers({
+    pin: async (cid: string) => {
+      const res = await rpc('pin/add', { arg: cid, recursive: 'true' }, undefined, 1_800_000);
+      return res.ok ? { ok: true } : { ok: false, error: res.error };
+    },
+    unpin: (cid: string) => rpc('pin/rm', { arg: cid })
+  })
 };
