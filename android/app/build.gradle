@@ -1,5 +1,16 @@
 apply plugin: 'com.android.application'
 
+// One source for the version: the same package.json the renderer reads.
+def lumenPkg = new groovy.json.JsonSlurper().parseText(file("../../package.json").getText("UTF-8"))
+def lumenVersion = lumenPkg.version
+def lumenParts = (lumenVersion =~ /^(\d+)\.(\d+)\.(\d+)/)
+if (!lumenParts.find()) {
+    throw new GradleException("package.json version is not semver: ${lumenVersion}")
+}
+def lumenVersionCode = lumenParts.group(1).toInteger() * 1000000 +
+    lumenParts.group(2).toInteger() * 1000 +
+    lumenParts.group(3).toInteger()
+
 android {
     namespace = "chain.lumen.browser"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,8 +18,15 @@ android {
         applicationId "chain.lumen.browser"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // Taken from package.json, not written twice. An update is only offered
+        // when versionCode grows, so a release that forgets to bump it here is
+        // a release nobody can install over the one they have - and "1.0" while
+        // the app said 0.9.10 everywhere else was exactly that.
+        //
+        // major*1000000 + minor*1000 + patch keeps the integer increasing with
+        // the semver, room for 999 of each.
+        versionName lumenVersion
+        versionCode lumenVersionCode
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -25,10 +43,37 @@ android {
             useLegacyPackaging = true
         }
     }
+    // Signing comes from the environment, so no key ever sits in the repo. CI
+    // sets these from secrets; a machine without them still builds.
+    signingConfigs {
+        release {
+            def keystorePath = System.getenv("LUMEN_KEYSTORE_PATH")
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword System.getenv("LUMEN_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("LUMEN_KEY_ALIAS")
+                keyPassword System.getenv("LUMEN_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            // WITH the release key when it is present, and with the debug key
+            // otherwise - so `assembleRelease` always produces something
+            // installable and the pipeline works before a keystore exists.
+            //
+            // THE FALLBACK CANNOT UPDATE ITSELF. A debug keystore is generated
+            // per machine, so two builds from different machines - or two CI
+            // runs - are signed by different keys, and Android refuses to
+            // replace an app with one signed differently. Testing the update
+            // flow therefore needs the real key in secrets, or two APKs built
+            // on the same machine.
+            signingConfig = System.getenv("LUMEN_KEYSTORE_PATH")
+                ? signingConfigs.release
+                : signingConfigs.debug
         }
     }
 }

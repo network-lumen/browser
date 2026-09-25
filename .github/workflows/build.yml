@@ -288,8 +288,108 @@ jobs:
             release/*.AppImage.asc
             !release/*.blockmap
 
+  build-android:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # 21, not 17: the Capacitor plugin modules declare a Java 21 toolchain and
+      # the build stops on anything older with "Dependency requires at least JVM
+      # runtime version 11" pointing at a JDK that is in fact too new for it.
+      - name: Setup JDK 21
+        uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The mobile target, never `npm run build`: that one writes dist/ for
+      # electron-builder, and Capacitor would ship a bundle whose window.lumen
+      # bridge is missing entirely. See platform/README.md.
+      - name: Build renderer (mobile target)
+        run: npm run build:mobile
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      # Written from a secret when there is one, and absent otherwise - the
+      # Gradle config falls back to the debug key so this job works either way.
+      # Two builds signed with different debug keys cannot update one another,
+      # which is why testing the update flow wants the real key here.
+      - name: Write signing keystore
+        id: keystore
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${KEYSTORE_BASE64:-}" ]; then
+            echo "No ANDROID_KEYSTORE_BASE64 secret: building with the debug key." >&2
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "${RUNNER_TEMP}/lumen-release.jks"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build APK
+        shell: bash
+        env:
+          LUMEN_KEYSTORE_PATH: ${{ steps.keystore.outputs.signed == 'true' && format('{0}/lumen-release.jks', runner.temp) || '' }}
+          LUMEN_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          LUMEN_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          LUMEN_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          cd android
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Name the APK after the version it carries
+        id: apk
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="$(node -p "require('./package.json').version")"
+          APK="$(find android/app/build/outputs/apk/release -name '*.apk' | head -n1)"
+          if [ -z "$APK" ]; then
+            echo "No APK produced" >&2
+            exit 1
+          fi
+
+          # The versionCode Gradle computed, read back from the APK rather than
+          # recomputed here: it is what decides whether a device sees an update
+          # at all, and it belongs in the summary where a release is checked.
+          AAPT="$(find "${ANDROID_HOME}/build-tools" -name aapt2 | sort | tail -n1)"
+          BADGING="$("$AAPT" dump badging "$APK" | head -n1)"
+
+          mkdir -p android_out
+          cp "$APK" "android_out/Lumen-Browser-${VERSION}-android-universal.apk"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "badging=${BADGING}" >> "$GITHUB_OUTPUT"
+          echo "${BADGING}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lumen-browser-android-universal
+          path: android_out/*.apk
+
   checksums:
-    needs: [build-mac, build-windows, build-linux]
+    needs: [build-mac, build-windows, build-linux, build-android]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -328,14 +428,16 @@ jobs:
           win_signed="$(find artifacts/lumen-browser-windows-x64 -name '*signed*.exe' ! -name '*unsigned*' | head -n1 || true)"
           win_unsigned="$(find artifacts/lumen-browser-windows-x64 -name '*unsigned*.exe' | head -n1 || true)"
           linux_x64="$(ls -1t artifacts/lumen-browser-linux-x64/*.AppImage 2>/dev/null | head -n 1 || true)"
+          android_apk="$(ls -1t artifacts/lumen-browser-android-universal/*.apk 2>/dev/null | head -n 1 || true)"
 
-          if [ -z "$mac_x64" ] || [ -z "$mac_arm64" ] || [ -z "$win_signed" ] || [ -z "$win_unsigned" ] || [ -z "$linux_x64" ]; then
+          if [ -z "$mac_x64" ] || [ -z "$mac_arm64" ] || [ -z "$win_signed" ] || [ -z "$win_unsigned" ] || [ -z "$linux_x64" ] || [ -z "$android_apk" ]; then
             echo "Missing one or more platform artifacts:" >&2
             echo "mac_x64=$mac_x64" >&2
             echo "mac_arm64=$mac_arm64" >&2
             echo "win_signed=$win_signed" >&2
             echo "win_unsigned=$win_unsigned" >&2
             echo "linux_x64=$linux_x64" >&2
+            echo "android_apk=$android_apk" >&2
             exit 1
           fi
 
@@ -344,6 +446,10 @@ jobs:
           cp "$win_signed" "release_assets/Lumen-Browser-Setup-${VERSION}-windows-x64-signed.exe"
           cp "$win_unsigned" "release_assets/Lumen-Browser-Setup-${VERSION}-windows-x64-unsigned.exe"
           cp "$linux_x64" "release_assets/Lumen-Browser-${VERSION}-linux-x64.AppImage"
+          # One APK for both architectures: it carries the kubo binary for
+          # arm64-v8a and x86_64, so the same file serves android-arm64 and
+          # android-amd64 on chain.
+          cp "$android_apk" "release_assets/Lumen-Browser-${VERSION}-android-universal.apk"
           linux_sig="$(ls -1t artifacts/lumen-browser-linux-x64/*.AppImage.asc 2>/dev/null | head -n1 || true)"
 
           if [ -n "$linux_sig" ]; then

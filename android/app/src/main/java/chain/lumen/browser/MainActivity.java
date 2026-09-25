@@ -39,6 +39,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(KuboPlugin.class);
         registerPlugin(FullscreenPlugin.class);
         registerPlugin(SiteNavPlugin.class);
+        registerPlugin(UpdaterPlugin.class);
         super.onCreate(savedInstanceState);
 
         // After super.onCreate, because the bridge does not exist until then.

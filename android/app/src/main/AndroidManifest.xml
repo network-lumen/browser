@@ -34,6 +34,12 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Updating the app from the release list on chain rather than a store.
+         Required for PackageInstaller; see UpdaterPlugin.java. If this app is
+         ever published on Play, Google restricts this permission to store-like
+         apps and asks for a justification. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- The daemon keeps peer connections open while the app is in use. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />

@@ -32,6 +32,7 @@ import { HTTP_MEMBERS, NETWORK_MEMBERS } from './network';
 import { PROFILE_MEMBERS } from './profiles';
 import { SECURITY_MEMBERS } from './security';
 import { SETTINGS_MEMBERS } from './settings';
+import { RELEASE_MEMBERS } from './release';
 import { SITE_CHAIN_MEMBERS } from './site-chain';
 import { SITE_MEMBERS } from './sites';
 import { UPLOAD_MEMBERS } from './uploads';
@@ -53,6 +54,7 @@ export const MOBILE_IMPL: Readonly<Record<string, BridgeMember>> = Object.freeze
   ...GATEWAY_MEMBERS,
   ...GATEWAY_WALLET_MEMBERS,
   ...GATEWAY_WALLET_READS,
+  ...RELEASE_MEMBERS,
   ...SITE_CHAIN_MEMBERS,
 
   /**
