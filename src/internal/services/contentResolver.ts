@@ -322,7 +322,9 @@ export function buildCandidateUrl(base: string, target: DomainTarget, path: stri
   // `ipfsLs` is given cannot drift apart.
   const effectivePath = effectiveTargetPath(target, canonical);
 
-  // Local subdomain gateway support to fix absolute-path SPA builds (e.g. /assets/*).
+  // Local subdomain gateway support to fix absolute-path SPA builds, /assets and
+  // the like. (No "slash-star" in this sentence: extract-strings.mjs blanks block
+  // comments before line comments, so one here swallows every t() that follows.)
   // Only enable for CIDv1 base32 (`bafy...`) because CIDv0 is case-sensitive and will be lowercased in DNS.
   try {
     const u = new URL(b);
@@ -442,5 +444,81 @@ export async function pickFastestSource(
       })(),
     );
     return await Promise.any(probes);
+  }
+}
+
+/**
+ * The `lumen://<domain>/…` URL for a page the site itself navigated to.
+ *
+ * A site under a domain is loaded from one of two places, and this reads both:
+ *  - a custom scheme origin, `lumen://lumen.lmn/community/`, which is what the
+ *    desktop registers so the site keeps its browser storage across republishes;
+ *  - a gateway address, path form or subdomain form, which is what the mobile
+ *    target uses.
+ *
+ * THE FIRST SHAPE USED TO RETURN NULL, and that was the whole of the desktop
+ * bug: clicking a link inside a site left the address bar on the page it was
+ * opened at, and with no history entry for what was on screen the back button
+ * walked out of the site. The gateway shapes were handled; the scheme the
+ * desktop actually serves was not.
+ *
+ * Anything outside the tab's own host or target answers null, so a site cannot
+ * put an address of its choosing in the bar.
+ */
+export function webHrefToLumenUrl(
+  href: string,
+  context: { host: string; target: DomainTarget } | null | undefined
+): string | null {
+  const raw = String(href ?? '').trim();
+  const host = String(context?.host ?? '').trim();
+  if (!raw || !host || !context?.target) return null;
+
+  try {
+    const url = new URL(raw);
+
+    // Already on the site's own origin.
+    if (String(url.protocol || '').toLowerCase() === 'lumen:') {
+      if (String(url.hostname || '').toLowerCase() !== host.toLowerCase()) return null;
+      return `lumen://${host}${url.pathname || '/'}${url.search || ''}${url.hash || ''}`;
+    }
+
+    const proto = String(context.target.proto || '').toLowerCase();
+    const id = String(context.target.id || '').trim();
+    if (!proto || !id) return null;
+
+    const pathname = String(url.pathname || '/');
+    const prefix = `/${proto}/${id}`;
+    let rest: string;
+
+    if (pathname.toLowerCase().startsWith(prefix.toLowerCase())) {
+      // Path form: http://127.0.0.1:8080/ipfs/<cid>/…
+      rest = pathname.slice(prefix.length) || '/';
+    } else {
+      // Subdomain form: http://<cid>.ipfs.localhost:8080/…
+      const expected = `${id.toLowerCase()}.${proto}.`;
+      if (!String(url.hostname || '').toLowerCase().startsWith(expected)) return null;
+      rest = pathname || '/';
+    }
+    if (!rest.startsWith('/')) rest = `/${rest}`;
+
+    // A domain pointing at a subdirectory of a CID: that prefix belongs to the
+    // target, not to the URL the user should see.
+    const basePathRaw = String(context.target.basePath || '').trim();
+    const basePath = basePathRaw ? normalizePath(basePathRaw) : '';
+    const baseNorm = basePath && basePath !== '/' ? basePath.replace(/\/+$/, '') : '';
+    if (baseNorm) {
+      if (rest === baseNorm) rest = '/';
+      else if (rest.startsWith(`${baseNorm}/`)) rest = rest.slice(baseNorm.length) || '/';
+    }
+
+    // `/index.html` is how a gateway names a directory; the address bar says
+    // the directory.
+    let outPath = rest || '/';
+    if (/\/index\.html$/i.test(outPath)) outPath = outPath.replace(/index\.html$/i, '');
+    if (!outPath) outPath = '/';
+
+    return `lumen://${host}${outPath}${url.search || ''}${url.hash || ''}`;
+  } catch {
+    return null;
   }
 }

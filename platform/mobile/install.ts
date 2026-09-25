@@ -28,7 +28,9 @@ import './shims/buffer-global';
 import type { LumenBridge } from '../../src/types/lumenBridge';
 import { bridgeReport, buildMobileBridge } from './bridge/stub';
 import { startEmbeddedNode } from './impl/kubo';
+import { installFullscreenOrientation } from './shims/fullscreen-orientation';
 import { installHardwareBack } from './shims/hardware-back';
+import { installSiteNavigation } from './shims/site-navigation';
 
 function install(): void {
   const target = globalThis as unknown as Record<string, unknown>;
@@ -47,6 +49,8 @@ function install(): void {
   // feature most sessions never touch.
   void startEmbeddedNode();
   void installHardwareBack();
+  installFullscreenOrientation();
+  void installSiteNavigation();
 
   // Not dev-only: the first builds people will file bugs against are release
   // APKs, and "which half of the bridge is real?" is the first question.

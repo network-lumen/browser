@@ -87,8 +87,8 @@
 
         <div
           v-else
-          class="flex-align-justify-center border-radius-12px border-1 bg-secondary relative min-h-360px"
-          :class="{ 'border-none border-radius-0 bg-transparent min-h-0 h-full flex-1': isBareHtmlView, 'block min-w-0': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', }"
+          class="flex-align-justify-center border-radius-12px border-1 relative min-h-360px"
+          :class="{ 'border-none border-radius-0 bg-transparent min-h-0 h-full flex-1': isBareHtmlView, 'block min-w-0': viewKind === 'text' || viewKind === 'markdown' || viewKind === 'docx', 'bg-black': viewKind === 'video', 'bg-secondary': viewKind !== 'video', }"
         >
           <img
             v-if="viewKind === 'image'"
@@ -102,7 +102,7 @@
             <video
               ref="videoEl"
               :src="videoSrc"
-              class="border-radius-12px border-1 bg-primary max-h-75vh max-w-full"
+              class="border-radius-12px border-1 bg-black max-h-75vh max-w-full"
               controls
               playsinline
             ></video>
@@ -306,6 +306,7 @@ const IGNORABLE_HLS_WARNING_DETAILS = new Set([
  const isBareHtmlView = ref(false);
 
 useTabLoadingSync(computed(() => loading.value || webviewLoading.value));
+
 
  function currentWebContentsId(): number | null {
    return getWebviewWebContentsId(siteWebview.value);

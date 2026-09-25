@@ -46,7 +46,6 @@
   flex-direction: row;
 }
 
-
 /* ---------------------------------------------------------------------------
  * lumen://drive - the entry detail panel, and the listing behind it.
  *
@@ -104,7 +103,6 @@
   white-space: nowrap;
 }
 
-
 /* 40px of padding on each side is a tenth of a desktop window and a fifth of a
  * phone. Declared here with nothing but a custom property so the class exists
  * at depth 0 for check-conventions; the gutter itself is set below. */
@@ -112,96 +110,20 @@
   --narrow-tight-gutter: 1;
 }
 
-@media (max-width: 859px) {
-
-  .narrow-tight-gutter {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  /* A sheet rising from the bottom rather than a drawer from the side: the
-   * actions sit at the end of the panel, and the bottom of the screen is the
-   * half a thumb reaches without the hand moving. */
-  .drive-detail-panel {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 70;
-    min-width: 0;
-    max-width: none;
-    max-height: 86vh;
-    padding: 16px 16px 24px;
-    border-left: none;
-    border-top: 1px solid var(--border-color);
-    border-radius: 18px 18px 0 0;
-    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.35);
-  }
-
-  .drive-detail-scrim {
-    display: block;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 69;
-    background: rgba(0, 0, 0, 0.45);
-  }
-  .internal-sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 60;
-    max-width: 86vw;
-    transform: translateX(-100%);
-    transition: transform 180ms ease, visibility 180ms;
-    box-shadow: 0 0 32px rgba(0, 0, 0, 0.35);
-    /* Hidden from the tab order while it is off-screen - a drawer the user
-     * cannot see should not be catching focus behind the page. */
-    visibility: hidden;
-  }
-
-  .internal-sidebar-open {
-    transform: translateX(0);
-    visibility: visible;
-  }
-
-  .internal-sidebar-scrim {
-    display: block;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 59;
-    border: none;
-    padding: 0;
-    background: rgba(0, 0, 0, 0.45);
-    cursor: pointer;
-  }
-
-  .internal-sidebar-toggle {
-    display: flex;
-    position: fixed;
-    /* Bottom left, not top: this is the corner a thumb reaches without the
-     * hand moving, and the top of a phone screen is where the browser chrome
-     * and the notch already are. */
-    left: 16px;
-    bottom: 16px;
-    z-index: 58;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border: none;
-    border-radius: 50%;
-    background: var(--gradient-primary);
-    color: #fff;
-    box-shadow: var(--shadow-primary);
-    cursor: pointer;
-  }
+/* The icon that replaces the two text buttons on a phone. Only ever drawn
+ * there - it carries narrow-only - but declared here so check-conventions
+ * sees it. */
+.ipfs-listing-copy {
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -246,133 +168,6 @@
   display: block;
 }
 
-@media (max-width: 859px) {
-  .narrow-hide {
-    display: none;
-  }
-
-  .narrow-only {
-    display: flex;
-  }
-
-  .navbar-narrow-menu {
-    display: flex;
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    z-index: 100;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 200px;
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    background: var(--bg-primary);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-  }
-
-  .narrow-scroll-x {
-    overflow-x: auto;
-  }
-
-  /* Side by side, the label was squeezed into a ~100px column reading one word
-   * per line while the control ran off the right edge - the theme picker sat
-   * 47px past the viewport. Stacked, each gets the full width of the card. */
-  .ui-option-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .ui-option-row > * {
-    min-width: 0;
-  }
-
-  /* Left-aligned rather than pushed to the right, and allowed to wrap: a
-   * segmented control with three options is wider than a phone even with the
-   * whole card to itself. */
-  .ui-option-row-control {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-
-  /* Each control takes the whole row instead of wrapping into a ragged
-   * staircase - three buttons landing two-then-one is what made the profiles
-   * screen look unfinished. Only single controls are matched: a slider with its
-   * icon and its readout is one control made of three elements, and stacking
-   * those would be worse than leaving them be. */
-  .ui-option-row-control > button,
-  .ui-option-row-control > select,
-  .ui-option-row-control > input[type="text"],
-  .ui-option-row-control > input[type="password"] {
-    flex: 1 1 100%;
-    min-width: 0;
-  }
-
-  /* One choice per line. Three segments side by side still needed a nudge of
-   * horizontal scrolling even with the whole card to themselves, and a track
-   * you have to drag to see the end of is a track whose last option gets
-   * missed. */
-  .segmented-stack {
-    flex-direction: column;
-    /* Full width, so the stack reads as a deliberate list rather than a narrow
-     * column floating in the middle of its card. */
-    width: 100%;
-  }
-
-  .segmented-stack > button {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .narrow-stack-table .explorer-table-header-recipe {
-    display: none;
-  }
-
-  .narrow-stack-table .explorer-table-row-recipe {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-    padding: 14px 16px;
-  }
-
-  /* The heading the hidden header used to supply, now attached to its value.
-   * A cell with no data-label - a spacer, an actions column - simply gets
-   * nothing rather than an empty line. */
-  .narrow-stack-table .explorer-table-row-recipe > [data-label]::before {
-    content: attr(data-label);
-    display: block;
-    margin-bottom: 4px;
-    color: var(--text-tertiary);
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  /* Two columns of anything is one column too many on a phone.
-   *
-   * These two are the ones that overflow rather than shrink: a bare `1fr`
-   * track still has `min-width: auto`, so it refuses to go narrower than its
-   * content and pushes the whole grid past the right edge - which is exactly
-   * what lumen://network and lumen://help were doing. The auto-fit grids
-   * elsewhere already collapse on their own and are left alone. */
-  .grid-cols-2,
-  .grid-cols-1fr-1fr {
-    /* minmax(0, 1fr), not 1fr. A bare `1fr` track keeps `min-width: auto`, so it
-     * refuses to go narrower than its own content and grows the grid instead -
-     * measured at 367.8px of track inside a 361px container on lumen://network,
-     * which is the "slightly too wide" these cards were. The zero minimum lets
-     * the track shrink and the content wrap inside it. */
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* The drawer runs to the top of the screen, where the status bar and any
-   * notch already are. Its own 16px of padding is not enough to clear them. */
-  .internal-sidebar {
-    padding-top: calc(env(safe-area-inset-top, 0px) + 28px);
-  }
-}
-
 /* A settings row: a label on the left, its control on the right. Used 67 times
  * in lumen://settings alone, which is why it is worth stacking here rather than
  * at every call site. Nothing changes above the breakpoint. */
@@ -396,39 +191,35 @@
  * new-tab button are both off-screen with no way to reach them.
  * ------------------------------------------------------------------------ */
 
-/* The counter, in the 48px the input reserves on its right - space the star
- * button held before it moved into the narrow menu. */
+/* The tab counter: the outlined square every phone browser uses, sitting in
+ * the toolbar beside the profile rather than inside the address bar. Two
+ * pixels of border and a tabular figure, so 1 and 11 do not shift the box. */
 .navbar-tab-trigger {
-  position: absolute;
-  top: 50%;
-  right: 6px;
-  transform: translateY(-50%);
   align-items: center;
-  gap: 2px;
-  height: 28px;
-  padding: 0 6px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--bg-primary);
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 2px solid var(--text-secondary);
+  border-radius: 6px;
+  background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
 }
 
 .navbar-tab-count {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  min-width: 13px;
-  text-align: center;
 }
 
-.navbar-tab-chevron {
-  transition: transform 160ms ease;
-}
-
-.navbar-tab-chevron-open {
-  transform: rotate(180deg);
+/* The field reserves 48px on its right for the star, which the narrow layout
+ * hides - and now that the counter has moved out of the field too, that space
+ * is dead. Given back to the URL, which is short of it on a phone. */
+.narrow-roomy-input {
+  --narrow-roomy-input: 1;
 }
 
 /* Capped at 60vh: past seven or so rows the list scrolls inside the panel
@@ -622,4 +413,334 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+ * An IPFS directory listing, drawn by IpfsDirectoryListing.vue for both
+ * `lumen://ipfs/<cid>` and a domain whose CID is a folder.
+ *
+ * The columns were `minmax(200px, 1fr) 140px 180px` - 520px before anything is
+ * drawn, on a viewport of 412. The name column was squeezed under its own
+ * minimum and the row ran off the screen, so a long filename was both cut and
+ * unreachable: there is no hover on a phone to reveal the rest of it.
+ * ------------------------------------------------------------------------ */
+.ipfs-listing-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) 140px 180px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.ipfs-listing-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.ipfs-listing-icon {
+  flex: 0 0 auto;
+}
+
+/* Wrapped, not truncated. `break-word` is what keeps a single long token - a
+ * CID, a name with no spaces - inside the row instead of widening it. */
+.ipfs-listing-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.ipfs-listing-size {
+  font-size: 14px;
+  text-align: right;
+}
+
+.ipfs-listing-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* The search box above the list, with its icon inside the field. */
+.ipfs-listing-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.ipfs-listing-search-icon {
+  position: absolute;
+  left: 11px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.ipfs-listing-count {
+  position: absolute;
+  right: 12px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Every narrow-viewport override, and LAST IN THE FILE on purpose.
+ *
+ * A media query adds no specificity, so these only win by coming after the
+ * rules they override. A block added below this one silently beat it: the
+ * listing kept its three desktop columns on a phone - 520px of them in a
+ * 412px viewport - while the grid areas beside them did apply, because those
+ * had no depth-0 counterpart to lose to. Add new default rules above; add
+ * their overrides inside.
+ * ------------------------------------------------------------------------ */
+@media (max-width: 859px) {
+  .narrow-hide {
+    display: none;
+  }
+
+  .narrow-only {
+    display: flex;
+  }
+
+  .navbar-narrow-menu {
+    display: flex;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 100;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 200px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-primary);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  }
+
+  .narrow-scroll-x {
+    overflow-x: auto;
+  }
+
+  /* Side by side, the label was squeezed into a ~100px column reading one word
+   * per line while the control ran off the right edge - the theme picker sat
+   * 47px past the viewport. Stacked, each gets the full width of the card. */
+  .ui-option-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .ui-option-row > * {
+    min-width: 0;
+  }
+
+  /* Left-aligned rather than pushed to the right, and allowed to wrap: a
+   * segmented control with three options is wider than a phone even with the
+   * whole card to itself. */
+  .ui-option-row-control {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  /* Each control takes the whole row instead of wrapping into a ragged
+   * staircase - three buttons landing two-then-one is what made the profiles
+   * screen look unfinished. Only single controls are matched: a slider with its
+   * icon and its readout is one control made of three elements, and stacking
+   * those would be worse than leaving them be. */
+  .ui-option-row-control > button,
+  .ui-option-row-control > select,
+  .ui-option-row-control > input[type="text"],
+  .ui-option-row-control > input[type="password"] {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  /* One choice per line. Three segments side by side still needed a nudge of
+   * horizontal scrolling even with the whole card to themselves, and a track
+   * you have to drag to see the end of is a track whose last option gets
+   * missed. */
+  .segmented-stack {
+    flex-direction: column;
+    /* Full width, so the stack reads as a deliberate list rather than a narrow
+     * column floating in the middle of its card. */
+    width: 100%;
+  }
+
+  .segmented-stack > button {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .narrow-stack-table .explorer-table-header-recipe {
+    display: none;
+  }
+
+  .narrow-stack-table .explorer-table-row-recipe {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  /* The heading the hidden header used to supply, now attached to its value.
+   * A cell with no data-label - a spacer, an actions column - simply gets
+   * nothing rather than an empty line. */
+  .narrow-stack-table .explorer-table-row-recipe > [data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-tertiary);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Two columns of anything is one column too many on a phone.
+   *
+   * These two are the ones that overflow rather than shrink: a bare `1fr`
+   * track still has `min-width: auto`, so it refuses to go narrower than its
+   * content and pushes the whole grid past the right edge - which is exactly
+   * what lumen://network and lumen://help were doing. The auto-fit grids
+   * elsewhere already collapse on their own and are left alone. */
+  .grid-cols-2,
+  .grid-cols-1fr-1fr {
+    /* minmax(0, 1fr), not 1fr. A bare `1fr` track keeps `min-width: auto`, so it
+     * refuses to go narrower than its own content and grows the grid instead -
+     * measured at 367.8px of track inside a 361px container on lumen://network,
+     * which is the "slightly too wide" these cards were. The zero minimum lets
+     * the track shrink and the content wrap inside it. */
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The drawer runs to the top of the screen, where the status bar and any
+   * notch already are. Its own 16px of padding is not enough to clear them. */
+  .internal-sidebar {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 28px);
+  }
+
+  .narrow-roomy-input {
+    padding-right: 12px;
+  }
+
+  /* Stacked: the name on its own line, then size and actions under it. Three
+   * columns cannot fit, and the name is what the list is read by. */
+  .ipfs-listing-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'name actions' 'size actions';
+    gap: 2px 8px;
+    padding: 10px 8px 10px 12px;
+  }
+
+  .ipfs-listing-main {
+    grid-area: name;
+    align-items: flex-start;
+  }
+
+  .ipfs-listing-icon {
+    margin-top: 2px;
+  }
+
+  .ipfs-listing-size {
+    grid-area: size;
+    text-align: left;
+    font-size: 12px;
+  }
+
+  .ipfs-listing-actions {
+    grid-area: actions;
+    align-items: center;
+  }
+
+  .narrow-tight-gutter {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* A sheet rising from the bottom rather than a drawer from the side: the
+   * actions sit at the end of the panel, and the bottom of the screen is the
+   * half a thumb reaches without the hand moving. */
+  .drive-detail-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 70;
+    min-width: 0;
+    max-width: none;
+    max-height: 86vh;
+    padding: 16px 16px 24px;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .drive-detail-scrim {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 69;
+    background: rgba(0, 0, 0, 0.45);
+  }
+  .internal-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    max-width: 86vw;
+    transform: translateX(-100%);
+    transition: transform 180ms ease, visibility 180ms;
+    box-shadow: 0 0 32px rgba(0, 0, 0, 0.35);
+    /* Hidden from the tab order while it is off-screen - a drawer the user
+     * cannot see should not be catching focus behind the page. */
+    visibility: hidden;
+  }
+
+  .internal-sidebar-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .internal-sidebar-scrim {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 59;
+    border: none;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+  }
+
+  .internal-sidebar-toggle {
+    display: flex;
+    position: fixed;
+    /* Bottom left, not top: this is the corner a thumb reaches without the
+     * hand moving, and the top of a phone screen is where the browser chrome
+     * and the notch already are. */
+    left: 16px;
+    bottom: 16px;
+    z-index: 58;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: #fff;
+    box-shadow: var(--shadow-primary);
+    cursor: pointer;
+  }
 }

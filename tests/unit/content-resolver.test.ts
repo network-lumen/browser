@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildCandidateUrl,
   gatewayMediaUrl,
+  webHrefToLumenUrl,
   isCidLike,
   normalizePath,
   pickRecordTarget,
@@ -221,5 +222,74 @@ describe('gatewayMediaUrl', () => {
 
   it('has nothing to build without a CID', () => {
     expect(gatewayMediaUrl('http://127.0.0.1:8088', 'ipfs', '', 'a.mp4')).toBe('');
+  });
+});
+
+/**
+ * The URL the address bar shows while a site navigates inside itself.
+ *
+ * A site under a domain is loaded from one of two places: the custom scheme
+ * origin the desktop registers - `lumen://lumen.lmn/community/` - or a gateway
+ * address on mobile. Only the gateway shapes were handled, so on the desktop
+ * clicking a link inside a site left the bar on the page it was opened at, and
+ * with no history entry for what was on screen the back button walked out of
+ * the site entirely.
+ */
+describe('webHrefToLumenUrl', () => {
+  const CID = 'bafybeifsjp2ukyhteh7svhnfezyrwcbws4xznynrdqhphm3a4q6embktlq';
+  const ctx = (basePath?: string) => ({
+    host: 'lumen.lmn',
+    target: { proto: 'ipfs' as const, id: CID, ...(basePath ? { basePath } : {}) }
+  });
+
+  it('reads the custom scheme the desktop serves a site from', () => {
+    expect(webHrefToLumenUrl('lumen://lumen.lmn/community/', ctx())).toBe(
+      'lumen://lumen.lmn/community/'
+    );
+  });
+
+  it('keeps a query and a fragment, which a router uses', () => {
+    expect(webHrefToLumenUrl('lumen://lumen.lmn/docs/?page=2#install', ctx())).toBe(
+      'lumen://lumen.lmn/docs/?page=2#install'
+    );
+  });
+
+  it('refuses another domain on that scheme', () => {
+    // A site must not be able to put someone else's address in the bar.
+    expect(webHrefToLumenUrl('lumen://evil.lmn/community/', ctx())).toBeNull();
+  });
+
+  it('reads the path form of a gateway URL', () => {
+    expect(webHrefToLumenUrl(`http://127.0.0.1:8088/ipfs/${CID}/docs/`, ctx())).toBe(
+      'lumen://lumen.lmn/docs/'
+    );
+  });
+
+  it('reads the subdomain form too', () => {
+    expect(webHrefToLumenUrl(`http://${CID}.ipfs.localhost:8088/docs/`, ctx())).toBe(
+      'lumen://lumen.lmn/docs/'
+    );
+  });
+
+  it('refuses a gateway URL for another CID', () => {
+    expect(webHrefToLumenUrl('http://127.0.0.1:8088/ipfs/bafyother/docs/', ctx())).toBeNull();
+  });
+
+  it('shows the directory rather than its index.html', () => {
+    expect(webHrefToLumenUrl(`http://127.0.0.1:8088/ipfs/${CID}/docs/index.html`, ctx())).toBe(
+      'lumen://lumen.lmn/docs/'
+    );
+  });
+
+  it('strips the basePath, which belongs to the target and not to the address', () => {
+    const url = `http://127.0.0.1:8088/ipfs/${CID}/site/docs/`;
+    expect(webHrefToLumenUrl(url, ctx('/site'))).toBe('lumen://lumen.lmn/docs/');
+  });
+
+  it('answers null rather than guessing, when there is nothing to map', () => {
+    expect(webHrefToLumenUrl('https://example.com/docs/', ctx())).toBeNull();
+    expect(webHrefToLumenUrl('', ctx())).toBeNull();
+    expect(webHrefToLumenUrl('not a url', ctx())).toBeNull();
+    expect(webHrefToLumenUrl('lumen://lumen.lmn/', null)).toBeNull();
   });
 });

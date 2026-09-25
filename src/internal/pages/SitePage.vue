@@ -58,7 +58,7 @@
         <template v-if="resolvedHttpUrl && isHlsPath">
           <video
             ref="videoEl"
-            class="w-full h-full border-none bg-primary"
+            class="w-full h-full border-none bg-black"
             controls
             autoplay
             playsinline
@@ -67,6 +67,25 @@
             {{ hlsError }}
           </div>
         </template>
+        <!-- Played here rather than left to the iframe: the WebView's own
+             player fetches from the origin the iframe was given, which the
+             platform's media pipeline cannot resolve, so it sat on a black
+             rectangle and never started. -->
+        <video
+          v-else-if="mediaKind === 'video' && mediaUrl"
+          :src="mediaUrl"
+          class="w-full h-full border-none bg-black"
+          controls
+          playsinline
+        ></video>
+
+        <audio
+          v-else-if="mediaKind === 'audio' && mediaUrl"
+          :src="mediaUrl"
+          class="w-full"
+          controls
+        ></audio>
+
         <!--
           Android has no <webview> - see the same note in WebPage.vue. A
           lumen:// site is served from the local IPFS gateway, which does send
@@ -120,7 +139,11 @@ import {
   normalizePath,
   pickFastestSource,
   resolveDomainTarget,
+  effectiveTargetPath,
+  gatewayMediaUrl,
+  localIpfsGatewayBase,
   targetIpfsPath,
+  webHrefToLumenUrl,
 } from "../services/contentResolver";
 import IpfsDirectoryListing from "../../panels/IpfsDirectoryListing.vue";
 import {
@@ -130,6 +153,7 @@ import {
   shouldRenderListing,
 } from "../services/ipfsDirectory";
 import { copyToClipboardWithToast } from "../../composables/useClipboard";
+import { driveEntryKindFromName } from "../services/driveEntries";
 import type { IpfsDirEntry } from "../../types/ipfsDirectory";
 import type { ActiveState } from "../../types/sitePage";
 import { safeString } from "../services/coerce";
@@ -144,6 +168,7 @@ import { useTabNavigation, useTabState } from "../../composables/useTabNavigatio
 const { currentTabUrl, currentTabId, currentTabRefresh } = useTabState();
 const { navigate, openInNewTab } = useTabNavigation();
 const { registerFindTarget } = useTabNavigation();
+
 
 const loading = ref(false);
 
@@ -177,6 +202,10 @@ const showDirectory = computed(() => directoryEntries.value.length > 0);
 const siteWebview = ref<any>(null);
 const videoEl = ref<HTMLVideoElement | null>(null);
 const isHlsPath = ref(false);
+
+/** "video", "audio", or "" when the path is not a media file. */
+const mediaKind = ref("");
+const mediaUrl = ref("");
 const hlsError = ref("");
 const webviewLoading = ref(false);
 const webviewHtmlFullscreen = ref(false);
@@ -442,6 +471,13 @@ function chooseCandidatePaths(p: string): string[] {
   return [path];
 }
 
+/** Only the two kinds the app can play itself. */
+function mediaKindOf(path: string): string {
+  const name = String(path || "").split("/").pop() || "";
+  const kind = driveEntryKindFromName(name);
+  return kind === "video" || kind === "audio" ? kind : "";
+}
+
 async function resolveAndLoad(opts: { force?: boolean } = {}) {
   if (!currentTabUrl?.value) return;
   const url = safeString(currentTabUrl.value, 4096);
@@ -474,6 +510,31 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
 
   try {
     const { target } = await resolveDomainTarget(host);
+
+    /*
+     * A media file is answered here and nothing else runs.
+     *
+     * The work below picks the fastest source by probing each candidate, which
+     * is right for a page and wrong for a 930MB video: the probe has to reach
+     * the file before it can answer, so the page sat on a spinner for as long
+     * as it took to find the bytes - and then handed them to an iframe whose
+     * player could not fetch them anyway. The local gateway can serve this
+     * without being asked twice.
+     */
+    mediaKind.value = mediaKindOf(canonicalPath);
+    if (mediaKind.value) {
+      mediaUrl.value = gatewayMediaUrl(
+        localIpfsGatewayBase(),
+        String(target.proto || "ipfs"),
+        String(target.id || ""),
+        effectiveTargetPath(target, canonicalPath),
+        suffix
+      );
+      resolvedHttpUrl.value = "";
+      directoryEntries.value = [];
+      active.value = { host, target };
+      return;
+    }
 
     // Started here and awaited after the gateway work below, so the listing
     // costs one round trip against the local node rather than being added to
@@ -513,6 +574,7 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
     resolvedHttpUrl.value = resolvedUrl;
     active.value = { host, target };
 
+
     // After the URL, not instead of it: if the listing says this is a folder
     // with no index, the table is drawn over a page that was ready anyway, and
     // if the probe failed the gateway keeps it.
@@ -531,6 +593,8 @@ async function resolveAndLoad(opts: { force?: boolean } = {}) {
     resolvedHttpUrl.value = "";
     active.value = null;
     directoryEntries.value = [];
+    mediaUrl.value = "";
+    mediaKind.value = "";
   } finally {
     loading.value = false;
   }
@@ -590,56 +654,9 @@ function goToCreateWebsiteDocs() {
   navigate?.("lumen://help/publish", { push: true });
 }
 
+/** Delegated: the mapping is shared, tested, and was wrong in a way no page-level code made visible. */
 function toLumenFromWebHref(raw: string): string | null {
-  const href = safeString(raw, 4096);
-  const ctx = active.value;
-  if (!href || !ctx) return null;
-
-  try {
-    const u = new URL(href);
-    const pathname = String(u.pathname || "/");
-    const proto = String(ctx.target.proto || "").toLowerCase();
-    const id = String(ctx.target.id || "").trim();
-    if (!proto || !id) return null;
-
-    const prefix = `/${proto}/${id}`;
-
-    let rest = "";
-    const pathLower = pathname.toLowerCase();
-    const prefixLower = prefix.toLowerCase();
-
-    // Path-style gateway: http://127.0.0.1:8080/ipfs/<cid>/...
-    if (pathLower.startsWith(prefixLower)) {
-      rest = pathname.slice(prefix.length) || "/";
-    } else {
-      // Subdomain-style gateway: http://<cid>.ipfs.localhost:8080/...
-      const hostname = String(u.hostname || "").toLowerCase();
-      const idLower = id.toLowerCase();
-      const expectedPrefix = `${idLower}.${proto}.`;
-      if (!hostname.startsWith(expectedPrefix)) return null;
-      rest = pathname || "/";
-    }
-    if (!rest.startsWith("/")) rest = "/" + rest;
-
-    const basePathRaw = String(ctx.target.basePath || "").trim();
-    const basePath = basePathRaw ? normalizePath(basePathRaw) : "";
-    const baseNorm = basePath && basePath !== "/" ? basePath.replace(/\/+$/, "") : "";
-    if (baseNorm) {
-      if (rest === baseNorm) rest = "/";
-      else if (rest.startsWith(baseNorm + "/")) rest = rest.slice(baseNorm.length) || "/";
-    }
-
-    let outPath = rest || "/";
-    if (!outPath.startsWith("/")) outPath = "/" + outPath;
-
-    // Canonicalize directory index paths for nicer lumen://<domain>/ URLs.
-    if (/\/index\.html$/i.test(outPath)) outPath = outPath.replace(/index\.html$/i, "");
-    if (!outPath) outPath = "/";
-
-    return `lumen://${ctx.host}${outPath}${u.search || ""}${u.hash || ""}`;
-  } catch {
-    return null;
-  }
+  return webHrefToLumenUrl(safeString(raw, 4096), active.value);
 }
 
 function toLumenIpfsOrIpnsFromWebHref(raw: string): string | null {
@@ -860,7 +877,23 @@ watch(
   { immediate: true, flush: "post" },
 );
 
+/**
+ * A navigation inside the site's own frame, which only the native interceptor
+ * can see - a cross-origin iframe reports nothing of its own.
+ *
+ * Routed into the same `syncNavFromWebview` the desktop's `did-navigate`
+ * uses, so the address bar and the tab's history behave the same on both: the
+ * URL follows the page, and back walks the site rather than leaving it.
+ */
+function onSiteNavigated(event: Event) {
+  const url = safeString((event as CustomEvent)?.detail?.url, 4096);
+  if (url) syncNavFromWebview(url, { push: true });
+}
+
 onMounted(() => {
+  // The literal, as NavBar does for 'lumen:hardware-back': the renderer is
+  // shared with the desktop and cannot import from platform/mobile.
+  window.addEventListener('lumen:site-navigated', onSiteNavigated);
   void nextTick(() => {
     registerFindTargetWithRetry();
     registerDevtoolsTargetWithRetry();
@@ -887,6 +920,7 @@ onDeactivated(() => {
 });
 
 onBeforeUnmount(() => {
+  window.removeEventListener('lumen:site-navigated', onSiteNavigated);
   webviewLoading.value = false;
   onWebviewLeaveHtmlFullscreen();
   unregisterDevtoolsTarget();

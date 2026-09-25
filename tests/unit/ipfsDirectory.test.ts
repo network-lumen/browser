@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   directoryCrumbs,
   encodeEntryPath,
+  filterDirectoryEntries,
   findIndexEntry,
   mapDirectoryEntries,
   shouldRenderListing
@@ -138,5 +139,54 @@ describe('putting a path back into a URL', () => {
   it('leaves nothing dangling at either end', () => {
     expect(encodeEntryPath('/a/b/')).toBe('a/b');
     expect(encodeEntryPath('')).toBe('');
+  });
+});
+
+/**
+ * Finding one file among many.
+ *
+ * A folder can hold five hundred episodes, and a list with no way to search it
+ * is a list you scroll past. What matters is that the match is forgiving:
+ * nobody types an accent to find a file, and nobody should have to match case.
+ */
+describe('searching a directory', () => {
+  const entries = mapDirectoryEntries([
+    { Name: 'My Name Is Earl S01 E07.mp4', Hash: 'bafy1', Type: 2 },
+    { Name: 'My Name Is Earl S01 E08.mp4', Hash: 'bafy2', Type: 2 },
+    { Name: 'Résumé de la saison.pdf', Hash: 'bafy3', Type: 2 },
+    { Name: 'Extras', Hash: 'bafy4', Type: 1 }
+  ]);
+
+  it('matches anywhere in the name, not just at the start', () => {
+    expect(filterDirectoryEntries(entries, 'E07').map((e) => e.name)).toEqual([
+      'My Name Is Earl S01 E07.mp4'
+    ]);
+  });
+
+  it('ignores case', () => {
+    expect(filterDirectoryEntries(entries, 'extras')).toHaveLength(1);
+  });
+
+  it('finds an accented name typed without accents', () => {
+    expect(filterDirectoryEntries(entries, 'resume').map((e) => e.name)).toEqual([
+      'Résumé de la saison.pdf'
+    ]);
+  });
+
+  it('returns everything for an empty or blank query', () => {
+    expect(filterDirectoryEntries(entries, '')).toHaveLength(4);
+    expect(filterDirectoryEntries(entries, '   ')).toHaveLength(4);
+  });
+
+  it('returns nothing rather than everything when nothing matches', () => {
+    expect(filterDirectoryEntries(entries, 'zzz')).toEqual([]);
+  });
+
+  it('searches folders as readily as files', () => {
+    expect(filterDirectoryEntries(entries, 'extr')[0].type).toBe('dir');
+  });
+
+  it('survives being handed nothing', () => {
+    expect(filterDirectoryEntries(null as any, 'a')).toEqual([]);
   });
 });

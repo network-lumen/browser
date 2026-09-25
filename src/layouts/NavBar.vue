@@ -66,18 +66,7 @@
       :favourite="favActive"
       @submit="onSubmit"
       @toggle-favourite="onToggleFavourite"
-    >
-      <template #trailing>
-        <NavBarTabSwitcher
-          v-model:open="tabPanelOpen"
-          :tabs="tabs"
-          :active-id="tabActive"
-          @select="emit('select-tab', $event)"
-          @close="emit('close-tab', $event)"
-          @new-tab="emit('new-tab')"
-        />
-      </template>
-    </NavBarAddressBar>
+    />
 
     <div class="flex-align-center gap-4px narrow-hide">
       <UiButton variant="icon" icon-radius-class="border-radius-10px" icon-padding-class="" :title="t('Home')"
@@ -85,6 +74,15 @@
         <House :size="16" />
       </UiButton>
     </div>
+
+    <NavBarTabSwitcher
+      v-model:open="tabPanelOpen"
+      :tabs="tabs"
+      :active-id="tabActive"
+      @select="emit('select-tab', $event)"
+      @close="emit('close-tab', $event)"
+      @new-tab="emit('new-tab')"
+    />
 
     <NavBarExtensionsMenu class="narrow-hide" @goto="emit('goto', $event)" />
     <NavBarProfileMenu />
@@ -169,8 +167,20 @@ const closeMenu = () => {
  * the shim exit the app, which is the right thing on the first page.
  */
 function onHardwareBack(event: Event) {
-  // The panel first: it is what is drawn over everything else, so it is what
-  // a back gesture is aimed at while it is open.
+  // Fullscreen before anything else. A video filling the screen with the
+  // system bars hidden is what the gesture is aimed at, and this handler used
+  // to swallow it and step back through the tab's history instead - leaving
+  // the phone sideways on a page nobody asked for.
+  if (document.fullscreenElement) {
+    void document.exitFullscreen().catch(() => {
+      // Already leaving, or never really in: nothing to recover from.
+    });
+    event.preventDefault();
+    return;
+  }
+
+  // The panel next: it is drawn over everything else, so it is what a back
+  // gesture is aimed at while it is open.
   if (tabPanelOpen.value) {
     tabPanelOpen.value = false;
     event.preventDefault();

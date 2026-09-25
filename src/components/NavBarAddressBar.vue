@@ -9,7 +9,7 @@
       :focus-ring="false"
       :value="modelValue"
       :placeholder="t('Search or enter a URL')"
-      class="navbar-url-bar-input border-default focus-outline-none focus-bg-primary focus-ring focus-shadow placeholder-tertiary"
+      class="narrow-roomy-input navbar-url-bar-input border-default focus-outline-none focus-bg-primary focus-ring focus-shadow placeholder-tertiary"
       @input="onInput"
       @keydown.down.prevent="moveHighlight(1)"
       @keydown.up.prevent="moveHighlight(-1)"
@@ -32,10 +32,6 @@
       <Star :size="16" :fill="favourite ? 'currentColor' : 'none'" />
     </UiButton>
 
-    <!-- A direct child of this relative container, not wrapped: whatever goes
-         here positions itself against the address bar, which is what lets the
-         tab panel span it exactly as the suggestion list below does. -->
-    <slot name="trailing" />
 
     <UiCard
       v-if="showSuggestions && suggestions.length"

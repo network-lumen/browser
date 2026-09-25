@@ -1,7 +1,9 @@
 <template>
-  <!-- The counter sits in the 48px the input reserves on its right - space
-       the star button held before it moved into the narrow menu, and which is
-       empty on a phone. -->
+  <!-- The square every phone browser uses for this: an outlined box with the
+       count inside, sitting in the toolbar rather than inside the address
+       bar. It was in the field at first, which read well but put a control
+       inside a text input - and the field is where you type, not where you
+       tap. -->
   <button
     ref="trigger"
     type="button"
@@ -12,7 +14,6 @@
     @click.stop="emit('update:open', !open)"
   >
     <span class="navbar-tab-count">{{ countLabel }}</span>
-    <ChevronDown :size="12" class="navbar-tab-chevron" :class="{ 'navbar-tab-chevron-open': open }" />
   </button>
 
   <!-- Teleported, and positioned against the trigger rather than against the
@@ -122,7 +123,7 @@
  * Anything still pending when the panel closes is committed at once.
  */
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
-import { ChevronDown, Earth, Plus, X } from 'lucide-vue-next';
+import { Earth, Plus, X } from 'lucide-vue-next';
 import UiSpinner from '../ui/UiSpinner.vue';
 import { t } from '../stores/i18nStore';
 import { buildTabRows, tabCountLabel } from '../internal/services/tabSwitcher';

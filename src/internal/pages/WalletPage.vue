@@ -48,7 +48,7 @@
     </InternalSidebar>
 
     <!-- ####### lumen://wallet MAIN CONTENT ####### -->
-    <main class="flex flex-column flex-1 m-0px min-w-0 overflow-y-auto py-32px px-40px bg-secondary border-radius-0">
+    <main class="narrow-tight-gutter flex flex-column flex-1 m-0px min-w-0 overflow-y-auto py-32px px-40px bg-secondary border-radius-0">
       <UiPageHeader :title="getViewTitle()" title-size="20px" title-weight="light" :subtitle="getViewDescription()">
         <template v-if="currentView !== 'dex'" #actions>
           <UiButton variant="primary" @click="connectWallet" v-if="!isConnected">

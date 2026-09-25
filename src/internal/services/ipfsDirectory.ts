@@ -104,6 +104,31 @@ export function shouldRenderListing(entries: IpfsDirEntry[]): boolean {
   return entries.length > 0 && !findIndexEntry(entries);
 }
 
+/**
+ * The entries whose name matches what was typed.
+ *
+ * Folded to lowercase and stripped of accents on both sides, so "resume"
+ * finds "Résumé" - a directory listing is not a place to make someone spell
+ * a filename exactly. Matching is a plain substring: a folder of 500 episodes
+ * is searched by typing "e07", not by writing a pattern.
+ */
+export function filterDirectoryEntries(entries: IpfsDirEntry[], query: string): IpfsDirEntry[] {
+  const list = Array.isArray(entries) ? entries : [];
+  const needle = fold(query);
+  if (!needle) return list;
+  return list.filter((entry) => fold(entry.name).includes(needle));
+}
+
+/** Lowercase, unaccented, trimmed - the form both sides of a match share. */
+function fold(value: unknown): string {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    // Combining marks, which is what an accent decomposes into.
+    .replace(/[̀-ͯ]/g, '');
+}
+
 /** The path split into the steps above it, for the breadcrumb trail. */
 export function directoryCrumbs(relPath: string): IpfsCrumb[] {
   const clean = String(relPath ?? '').replace(/^\/+|\/+$/g, '');
