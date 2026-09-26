@@ -295,10 +295,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
+      # 22, where the other jobs run 20: the Capacitor 8 CLI refuses to start
+      # on anything older ("The Capacitor CLI requires NodeJS >=22.0.0"), so
+      # `cap sync` below cannot run on 20. It also matches the version the
+      # mobile build is developed against.
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: package-lock.json
 
