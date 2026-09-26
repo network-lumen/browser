@@ -311,8 +311,19 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      # `packages` is spelled out on purpose. The action's own default was
+      # `tools platform-tools`, and Google has since removed the legacy `tools`
+      # package from the SDK repository - sdkmanager answers "Failed to find
+      # package 'tools'" and the step dies before anything is built. Naming the
+      # packages here means a changed default upstream cannot break this build.
+      #
+      # Nothing else is installed: the runner image already carries platform
+      # android-36 and build-tools 36.0.0, which is all assembleRelease needs.
+      # The action is kept for the SDK licences and for exporting ANDROID_HOME.
       - name: Setup Android SDK
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          packages: platform-tools
 
       - name: Install dependencies
         run: npm ci
