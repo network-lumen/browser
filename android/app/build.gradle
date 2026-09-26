@@ -53,6 +53,20 @@ android {
                 storePassword System.getenv("LUMEN_KEYSTORE_PASSWORD")
                 keyAlias System.getenv("LUMEN_KEY_ALIAS")
                 keyPassword System.getenv("LUMEN_KEY_PASSWORD")
+
+                // v3 is off by default in AGP, and it is the scheme that
+                // carries a proof-of-rotation block - the only path to ever
+                // replacing this key without asking every user to uninstall
+                // first. It costs nothing to carry and cannot be added
+                // retroactively to builds already installed, so it goes in
+                // before anything ships rather than after.
+                //
+                // v1 stays off: it is JAR signing, which nothing at
+                // minSdk 24 reads. v4 stays off: it only emits the extra
+                // .idsig file adb uses for incremental installs, which no
+                // released artifact carries.
+                enableV2Signing = true
+                enableV3Signing = true
             }
         }
     }
